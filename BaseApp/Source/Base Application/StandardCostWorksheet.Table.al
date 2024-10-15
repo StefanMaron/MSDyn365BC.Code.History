@@ -84,12 +84,10 @@ table 5841 "Standard Cost Worksheet"
             Caption = 'Implemented';
             Editable = false;
         }
-        field(7; "Replenishment System"; Option)
+        field(7; "Replenishment System"; Enum "Replenishment System")
         {
             Caption = 'Replenishment System';
             Editable = false;
-            OptionCaption = 'Purchase,Prod. Order, ,Assembly';
-            OptionMembers = Purchase,"Prod. Order"," ",Assembly;
         }
         field(11; "Standard Cost"; Decimal)
         {

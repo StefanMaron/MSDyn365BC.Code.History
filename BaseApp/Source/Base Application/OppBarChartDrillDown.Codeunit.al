@@ -12,7 +12,7 @@ codeunit 5050 "Opp. Bar Chart DrillDown"
             repeat
                 Opportunity.Get(OpportunityEntry."Opportunity No.");
                 TempOpportunity := Opportunity;
-                TempOpportunity.Insert;
+                TempOpportunity.Insert();
             until OpportunityEntry.Next = 0;
 
         PAGE.Run(PAGE::"Active Opportunity List", TempOpportunity);

@@ -50,7 +50,7 @@ table 10865 "Payment Header"
                                 ConfirmUpdateCurrencyFactor;
                         end;
                 if "Currency Code" <> xRec."Currency Code" then begin
-                    PaymentLine.Init;
+                    PaymentLine.Init();
                     PaymentLine.SetRange("No.", "No.");
                     PaymentLine.ModifyAll("Currency Code", "Currency Code");
                     PaymentLine.ModifyAll("Currency Factor", "Currency Factor");
@@ -71,7 +71,7 @@ table 10865 "Payment Header"
                     repeat
                         PaymentLine."Currency Factor" := "Currency Factor";
                         PaymentLine.Validate(Amount);
-                        PaymentLine.Modify;
+                        PaymentLine.Modify();
                     until PaymentLine.Next = 0;
             end;
         }
@@ -84,7 +84,7 @@ table 10865 "Payment Header"
                 PaymentLine: Record "Payment Line";
             begin
                 if "Posting Date" <> xRec."Posting Date" then begin
-                    PaymentLine.Reset;
+                    PaymentLine.Reset();
                     PaymentLine.SetRange("No.", "No.");
                     PaymentLine.ModifyAll("Posting Date", "Posting Date");
                 end;
@@ -99,7 +99,7 @@ table 10865 "Payment Header"
                 PaymentLine: Record "Payment Line";
             begin
                 if "Document Date" <> xRec."Document Date" then begin
-                    PaymentLine.Reset;
+                    PaymentLine.Reset();
                     PaymentLine.SetRange("No.", "No.");
                     if PaymentLine.FindSet then
                         repeat
@@ -196,11 +196,9 @@ table 10865 "Payment Header"
             Caption = 'Source Code';
             TableRelation = "Source Code";
         }
-        field(14; "Account Type"; Option)
+        field(14; "Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
 
             trigger OnValidate()
             begin
@@ -656,7 +654,7 @@ table 10865 "Payment Header"
     var
         PaymentLine: Record "Payment Line";
     begin
-        PaymentLine.Reset;
+        PaymentLine.Reset();
         PaymentLine.SetRange("No.", "No.");
         exit(PaymentLine.FindFirst);
     end;
@@ -673,15 +671,15 @@ table 10865 "Payment Header"
         if not Confirm(Text009) then
             exit;
 
-        PaymentLine.Reset;
+        PaymentLine.Reset();
         PaymentLine.SetRange("No.", "No.");
-        PaymentLine.LockTable;
+        PaymentLine.LockTable();
         if PaymentLine.Find('-') then
             repeat
                 NewDimSetID := DimManagement.GetDeltaDimSetID(PaymentLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
                 if PaymentLine."Dimension Set ID" <> NewDimSetID then begin
                     PaymentLine."Dimension Set ID" := NewDimSetID;
-                    PaymentLine.Modify;
+                    PaymentLine.Modify();
                 end;
             until PaymentLine.Next = 0;
     end;

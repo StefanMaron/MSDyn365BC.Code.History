@@ -5,7 +5,7 @@ page 617 "Handled IC Inbox Transactions"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Functions,Outbox Transaction';
+    PromotedActionCategories = 'New,Process,Report,Functions,Inbox Transaction';
     SourceTable = "Handled IC Inbox Trans.";
     UsageCategory = Lists;
 

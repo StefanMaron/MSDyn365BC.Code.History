@@ -43,11 +43,9 @@ table 10866 "Payment Line"
                     PaymentToleranceMgt.PmtTolPaymentLine(Rec);
             end;
         }
-        field(4; "Account Type"; Option)
+        field(4; "Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
 
             trigger OnValidate()
             begin
@@ -94,12 +92,10 @@ table 10866 "Payment Line"
         {
             Caption = 'Due Date';
         }
-        field(10; "Acc. Type Last Entry Debit"; Option)
+        field(10; "Acc. Type Last Entry Debit"; enum "Gen. Journal Account Type")
         {
             Caption = 'Acc. Type Last Entry Debit';
             Editable = false;
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(11; "Acc. No. Last Entry Debit"; Code[20])
         {
@@ -115,12 +111,10 @@ table 10866 "Payment Line"
             ELSE
             IF ("Acc. Type Last Entry Debit" = CONST("Fixed Asset")) "Fixed Asset";
         }
-        field(12; "Acc. Type Last Entry Credit"; Option)
+        field(12; "Acc. Type Last Entry Credit"; enum "Gen. Journal Account Type")
         {
             Caption = 'Acc. Type Last Entry Credit';
             Editable = false;
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(13; "Acc. No. Last Entry Credit"; Code[20])
         {
@@ -699,7 +693,7 @@ table 10866 "Payment Line"
                 TempDimSetEntry."Dimension Code" := DimValue."Dimension Code";
                 TempDimSetEntry."Dimension Value Code" := DimValue.Code;
                 TempDimSetEntry."Dimension Value ID" := DimValue."Dimension Value ID";
-                TempDimSetEntry.Insert;
+                TempDimSetEntry.Insert();
             until DefaultDimension.Next = 0;
 
         PaymentHeader.SetRange("No.", "No.");
@@ -711,7 +705,7 @@ table 10866 "Payment Line"
                 TempDimSetEntry := DimSetEntry;
                 TempDimSetEntry."Dimension Set ID" := 0;
                 if not TempDimSetEntry.Modify then
-                    TempDimSetEntry.Insert;
+                    TempDimSetEntry.Insert();
             until DimSetEntry.Next = 0;
 
         "Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);

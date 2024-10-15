@@ -17,8 +17,8 @@ codeunit 10880 "Payment Reporting Mgt."
         TotalPmtAmount: Decimal;
         CorrectionAmount: Decimal;
     begin
-        TempPaymentApplicationBuffer.Reset;
-        TempPaymentApplicationBuffer.DeleteAll;
+        TempPaymentApplicationBuffer.Reset();
+        TempPaymentApplicationBuffer.DeleteAll();
         VendorLedgerEntry.SetCurrentKey("Vendor No.", "Posting Date", "Currency Code");
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Posting Date", StartingDate, EndingDate);
@@ -44,7 +44,7 @@ codeunit 10880 "Payment Reporting Mgt."
                                 TempPaymentApplicationBuffer.InsertVendorPayment(VendorLedgerEntry, TempDtldVendLedgEntry);
                                 TotalPmtAmount += TempPaymentApplicationBuffer."Pmt. Amount (LCY)";
                             until TempDtldVendLedgEntry.Next = 0;
-                        TempDtldVendLedgEntry.DeleteAll;
+                        TempDtldVendLedgEntry.DeleteAll();
                     end;
 
                     TempPaymentApplicationBuffer.InsertVendorInvoice(VendorLedgerEntry, TotalPmtAmount, CorrectionAmount);
@@ -89,7 +89,7 @@ codeunit 10880 "Payment Reporting Mgt."
     begin
         if DtldVendLedgEntry."Document Type" = DtldVendLedgEntry."Document Type"::Payment then begin
             TempDtldVendLedgEntry := DtldVendLedgEntry;
-            TempDtldVendLedgEntry.Insert;
+            TempDtldVendLedgEntry.Insert();
             Paid := true;
         end else
             // Calculate the amount to be deducted from the invoice by credit memos and documents with blank type but not by payments which can be treated as paid in time or delayed
@@ -106,8 +106,8 @@ codeunit 10880 "Payment Reporting Mgt."
         TotalPmtAmount: Decimal;
         CorrectionAmount: Decimal;
     begin
-        TempPaymentApplicationBuffer.Reset;
-        TempPaymentApplicationBuffer.DeleteAll;
+        TempPaymentApplicationBuffer.Reset();
+        TempPaymentApplicationBuffer.DeleteAll();
         CustLedgerEntry.SetCurrentKey("Customer No.", "Posting Date", "Currency Code");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Posting Date", StartingDate, EndingDate);
@@ -133,7 +133,7 @@ codeunit 10880 "Payment Reporting Mgt."
                                 TempPaymentApplicationBuffer.InsertCustomerPayment(CustLedgerEntry, TempDtldCustLedgEntry);
                                 TotalPmtAmount += TempPaymentApplicationBuffer."Pmt. Amount (LCY)";
                             until TempDtldCustLedgEntry.Next = 0;
-                        TempDtldCustLedgEntry.DeleteAll;
+                        TempDtldCustLedgEntry.DeleteAll();
                     end;
 
                     TempPaymentApplicationBuffer.InsertCustomerInvoice(CustLedgerEntry, TotalPmtAmount, CorrectionAmount);
@@ -178,7 +178,7 @@ codeunit 10880 "Payment Reporting Mgt."
     begin
         if DtldCustLedgEntry."Document Type" = DtldCustLedgEntry."Document Type"::Payment then begin
             TempDtldCustLedgEntry := DtldCustLedgEntry;
-            TempDtldCustLedgEntry.Insert;
+            TempDtldCustLedgEntry.Insert();
             Paid := true;
         end else
             // Calculate the amount to be deducted from the invoice by credit memos and documents with blank type but not by payments which can be treated as paid in time or delayed
@@ -195,7 +195,7 @@ codeunit 10880 "Payment Reporting Mgt."
     [Scope('OnPrem')]
     procedure PrepareNotPaidInDaysSource(var TempPaymentApplicationBuffer: Record "Payment Application Buffer" temporary; DaysFrom: Integer; DaysTo: Integer): Boolean
     begin
-        TempPaymentApplicationBuffer.Reset;
+        TempPaymentApplicationBuffer.Reset();
         TempPaymentApplicationBuffer.SetRange("Pmt. Entry No.", 0);
         TempPaymentApplicationBuffer.SetRange("Document Type", TempPaymentApplicationBuffer."Document Type"::Invoice);
         TempPaymentApplicationBuffer.SetRange("Invoice Is Open", true);
@@ -209,7 +209,7 @@ codeunit 10880 "Payment Reporting Mgt."
     [Scope('OnPrem')]
     procedure PrepareDelayedPmtInDaysSource(var TempPaymentApplicationBuffer: Record "Payment Application Buffer" temporary; DaysFrom: Integer; DaysTo: Integer): Boolean
     begin
-        TempPaymentApplicationBuffer.Reset;
+        TempPaymentApplicationBuffer.Reset();
         TempPaymentApplicationBuffer.SetFilter("Pmt. Entry No.", '<>%1', 0);
         if DaysTo <> 0 then
             TempPaymentApplicationBuffer.SetRange("Pmt. Days Delayed", DaysFrom, DaysTo)

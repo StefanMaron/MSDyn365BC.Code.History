@@ -80,17 +80,6 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                         fieldelement(InstrPrty; PaymentExportDataGroup."SEPA Instruction Priority Text")
                         {
                         }
-                        textelement(SvcLvl)
-                        {
-                            textelement(Cd)
-                            {
-
-                                trigger OnBeforePassVariable()
-                                begin
-                                    Cd := 'SEPA';
-                                end;
-                            }
-                        }
                     }
                     fieldelement(ReqdExctnDt; PaymentExportDataGroup."Transfer Date")
                     {
@@ -407,7 +396,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
           CopyStr(
             StrSubstNo('%1/%2', PaymentExportData."Message ID", PaymentGroupNo),
             1, MaxStrLen(PaymentExportDataGroup."Payment Information ID"));
-        PaymentExportDataGroup.Insert;
+        PaymentExportDataGroup.Insert();
     end;
 }
 

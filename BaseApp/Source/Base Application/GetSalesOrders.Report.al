@@ -89,9 +89,9 @@ report 698 "Get Sales Orders"
         ReqWkshName.Get(ReqLine."Worksheet Template Name", ReqLine."Journal Batch Name");
         ReqLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
         ReqLine.SetRange("Journal Batch Name", ReqLine."Journal Batch Name");
-        ReqLine.LockTable;
+        ReqLine.LockTable();
         if ReqLine.FindLast then begin
-            ReqLine.Init;
+            ReqLine.Init();
             LineNo := ReqLine."Line No.";
         end;
         Window.Open(Text000);
@@ -122,7 +122,7 @@ report 698 "Get Sales Orders"
 
     local procedure InsertReqWkshLine(SalesLine: Record "Sales Line")
     begin
-        ReqLine.Reset;
+        ReqLine.Reset();
         ReqLine.SetCurrentKey(Type, "No.");
         ReqLine.SetRange(Type, "Sales Line".Type);
         ReqLine.SetRange("No.", "Sales Line"."No.");

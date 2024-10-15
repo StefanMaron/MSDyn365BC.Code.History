@@ -36,12 +36,12 @@ codeunit 138021 "O365 Purchase Invoice Stat."
         if not LibraryFiscalYear.AccountingPeriodsExists then
             LibraryFiscalYear.CreateFiscalYear;
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", false);
         PurchasesPayablesSetup.Modify(true);
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Purchase Invoice Stat.");
     end;
 
@@ -130,7 +130,7 @@ codeunit 138021 "O365 Purchase Invoice Stat."
           LibrarySmallBusiness.FindVATProdPostingGroupZeroVAT(VATBusPostingGroupCode));
         // set cost on the item
         Item."Last Direct Cost" := LibraryRandom.RandDecInDecimalRange(1.0, 1000.0, 2);
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreatePurchaseInvoice(var Vendor: Record Vendor; var Item: Record Item; Quantity: Decimal; var PurchaseHeader: Record "Purchase Header")
@@ -173,10 +173,7 @@ codeunit 138021 "O365 Purchase Invoice Stat."
             "Document No.".SetValue(NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PurchInvHeader."Posting Date", false));
             "Account Type".SetValue(GenJnlLine."Account Type"::Vendor);
             "Account No.".SetValue(PurchInvHeader."Buy-from Vendor No.");
-            if PaymentAmount > 0 then
-                "Debit Amount".SetValue(PaymentAmount)
-            else
-                "Credit Amount".SetValue(-PaymentAmount);
+            Amount.SetValue(PaymentAmount);
             "Applies-to Doc. Type".SetValue(GenJnlLine."Applies-to Doc. Type"::Invoice);
             AppliesToDocNo.SetValue(PurchInvHeader."No.");
 
@@ -188,7 +185,7 @@ codeunit 138021 "O365 Purchase Invoice Stat."
             Close;
         end;
 
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyPaymentStatusAndRemainingAmount(PurchInvHeader: Record "Purch. Inv. Header"; ExpectedPaymentStatus: Boolean; ExpectedRemainingAmount: Decimal)

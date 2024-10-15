@@ -151,7 +151,7 @@ report 10807 "Vendor Trial Balance FR"
                 if not PrintVendWithoutBalance and (PeriodDebitAmountLCY = 0) and (PeriodCreditAmountLCY = 0) and
                    (PreviousDebitAmountLCY = 0) and (PreviousCreditAmountLCY = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

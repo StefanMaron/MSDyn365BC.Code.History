@@ -1,4 +1,4 @@
-﻿page 7354 "Whse. Internal Put-away"
+page 7354 "Whse. Internal Put-away"
 {
     Caption = 'Whse. Internal Put-away';
     PageType = Document;

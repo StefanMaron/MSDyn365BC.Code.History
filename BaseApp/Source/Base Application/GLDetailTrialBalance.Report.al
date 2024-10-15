@@ -159,7 +159,7 @@ report 10804 "G/L Detail Trial Balance"
                         if ("Debit Amount" = 0) and
                            ("Credit Amount" = 0)
                         then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         Balance := Balance + "Debit Amount" - "Credit Amount";
                     end;
 
@@ -196,7 +196,7 @@ report 10804 "G/L Detail Trial Balance"
                     SetRange("Date Filter", 0D, EndDate);
                 CalcFields("Debit Amount", "Credit Amount");
                 if ("Debit Amount" = 0) and ("Credit Amount" = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 ShowBodyGLAccount :=
                   ((GLAccount2."Debit Amount" = "Debit Amount") and (GLAccount2."Credit Amount" = "Credit Amount")) or ("Account Type" <> 0);

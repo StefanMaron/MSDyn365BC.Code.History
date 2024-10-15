@@ -120,7 +120,7 @@ page 343 "Check Credit Limit"
     [Scope('OnPrem')]
     procedure GenJnlLineShowWarning(GenJnlLine: Record "Gen. Journal Line"): Boolean
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Credit Warnings" =
            SalesSetup."Credit Warnings"::"No Warning"
         then
@@ -147,7 +147,7 @@ page 343 "Check Credit Limit"
         AssignDeltaAmount: Boolean;
     begin
         // Used when additional lines are inserted
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Credit Warnings" =
            SalesSetup."Credit Warnings"::"No Warning"
         then
@@ -193,7 +193,7 @@ page 343 "Check Credit Limit"
     [Scope('OnPrem')]
     procedure SalesLineShowWarning(SalesLine: Record "Sales Line"): Boolean
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Credit Warnings" =
            SalesSetup."Credit Warnings"::"No Warning"
         then
@@ -236,15 +236,15 @@ page 343 "Check Credit Limit"
         OldServHeader: Record "Service Header";
         AssignDeltaAmount: Boolean;
     begin
-        ServSetup.Get;
-        SalesSetup.Get;
+        ServSetup.Get();
+        SalesSetup.Get();
         if SalesSetup."Credit Warnings" =
            SalesSetup."Credit Warnings"::"No Warning"
         then
             exit(false);
 
         NewOrderAmountLCY := 0;
-        ServLine.Reset;
+        ServLine.Reset();
         ServLine.SetRange("Document Type", ServHeader."Document Type");
         ServLine.SetRange("Document No.", ServHeader."No.");
         if ServLine.FindSet then
@@ -284,7 +284,7 @@ page 343 "Check Credit Limit"
     [Scope('OnPrem')]
     procedure ServiceLineShowWarning(ServLine: Record "Service Line"): Boolean
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Credit Warnings" =
            SalesSetup."Credit Warnings"::"No Warning"
         then
@@ -320,7 +320,7 @@ page 343 "Check Credit Limit"
     [Scope('OnPrem')]
     procedure ServiceContractHeaderShowWarning(ServiceContractHeader: Record "Service Contract Header"): Boolean
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Credit Warnings" =
            SalesSetup."Credit Warnings"::"No Warning"
         then
@@ -340,7 +340,7 @@ page 343 "Check Credit Limit"
 
     local procedure SalesLineAmount(DocType: Integer; DocNo: Code[20]): Decimal
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", DocType);
         SalesLine.SetRange("Document No.", DocNo);
         SalesLine.CalcSums("Outstanding Amount (LCY)", "Shipped Not Invoiced (LCY)");
@@ -349,7 +349,7 @@ page 343 "Check Credit Limit"
 
     local procedure ServLineAmount(DocType: Integer; DocNo: Code[20]; var ServLine2: Record "Service Line"): Decimal
     begin
-        ServLine2.Reset;
+        ServLine2.Reset();
         ServLine2.SetRange("Document Type", DocType);
         ServLine2.SetRange("Document No.", DocNo);
         ServLine2.CalcSums("Outstanding Amount (LCY)", "Shipped Not Invoiced (LCY)");
@@ -443,7 +443,7 @@ page 343 "Check Credit Limit"
 
     local procedure CalcReturnAmounts(var OutstandingRetOrdersLCY2: Decimal; var RcdNotInvdRetOrdersLCY2: Decimal)
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetCurrentKey("Document Type", "Bill-to Customer No.", "Currency Code");
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Return Order");
         SalesLine.SetRange("Bill-to Customer No.", "No.");

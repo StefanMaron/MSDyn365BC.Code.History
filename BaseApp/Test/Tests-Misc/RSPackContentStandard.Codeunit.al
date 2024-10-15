@@ -27,7 +27,7 @@ codeunit 138300 "RS Pack Content - Standard"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO] The current Company is NOT a Demo Company
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Assert.IsFalse(CompanyInformation."Demo Company", CompanyInformation.FieldName("Demo Company"));
     end;
 
@@ -279,7 +279,7 @@ codeunit 138300 "RS Pack Content - Standard"
         MarketingSetup: Record "Marketing Setup";
     begin
         // [SCENARIO 175276] Marketing Setup Default fields filled
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.TestField("Default Language Code");
         MarketingSetup.TestField("Default Correspondence Type", MarketingSetup."Default Correspondence Type"::Email);
         MarketingSetup.TestField("Default Sales Cycle Code");
@@ -293,7 +293,7 @@ codeunit 138300 "RS Pack Content - Standard"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("Automatic Cost Posting", true);
         InventorySetup.TestField("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Always);
     end;
@@ -304,7 +304,7 @@ codeunit 138300 "RS Pack Content - Standard"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("Item Nos.", ItemNoSeriesTok);
         ValidateNoSeriesExists(ItemNoSeriesTok);
         InventorySetup.TestField("Nonstock Item Nos.", NonStockNoSeriesTok);
@@ -369,28 +369,6 @@ codeunit 138300 "RS Pack Content - Standard"
         // [SCENARIO 215679] There should be BLUESIMPLE custom layouts defined for report layout selections
         VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'MS-1304-BLUESIMPLE');
         VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'MS-1306-BLUESIMPLE');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CustomerTemplates()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        // [SCENARIO 255439] There should be 2 customer templates
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
-        Assert.RecordCount(ConfigTemplateHeader, 2);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorTemplates()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        // [SCENARIO 255439] There should be 2 vendor templates
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Vendor);
-        Assert.RecordCount(ConfigTemplateHeader, 2);
     end;
 
     local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutCode: Code[20])

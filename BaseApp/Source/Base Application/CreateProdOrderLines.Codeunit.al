@@ -48,7 +48,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         if IsHandled then
             exit(ErrorOccured);
 
-        MfgSetup.Get;
+        MfgSetup.Get();
 
         ProdOrder2.TestField("Source No.");
         ProdOrder2.TestField("Starting Time");
@@ -60,48 +60,11 @@ codeunit 99000787 "Create Prod. Order Lines"
 
         ProdOrder := ProdOrder2;
 
-        ProdOrderLine.LockTable;
-        ProdOrderLine.SetRange(Status, ProdOrder.Status);
-        ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
-        ProdOrderLine.DeleteAll(true);
-
-        NextProdOrderLineNo := 10000;
-
-        InsertNew := false;
-        case ProdOrder."Source Type" of
-            ProdOrder."Source Type"::Item:
-                begin
-                    InitProdOrderLine(ProdOrder."Source No.", VariantCode, ProdOrder."Location Code");
-                    ProdOrderLine.Description := ProdOrder.Description;
-                    ProdOrderLine."Description 2" := ProdOrder."Description 2";
-                    ProdOrderLine.Validate(Quantity, ProdOrder.Quantity);
-                    ProdOrderLine.UpdateDatetime;
-                    if SalesLineIsSet then
-                        CopyDimFromSalesLine(SalesLine, ProdOrderLine);
-                    OnBeforeProdOrderLineInsert(ProdOrderLine, ProdOrder, SalesLineIsSet, SalesLine);
-                    ProdOrderLine.Insert;
-                    if ProdOrderLine.HasErrorOccured then
-                        ErrorOccured := true;
-
-                    OnAfterProdOrderLineInsert(ProdOrder, ProdOrderLine, NextProdOrderLineNo);
-                end;
-            ProdOrder."Source Type"::Family:
-                if not CopyFromFamily then
-                    ErrorOccured := true;
-            ProdOrder."Source Type"::"Sales Header":
-                begin
-                    InsertNew := true;
-                    if ProdOrder.Status <> ProdOrder.Status::Simulated then
-                        SalesHeader.Get(SalesHeader."Document Type"::Order, ProdOrder."Source No.")
-                    else
-                        SalesHeader.Get(SalesHeader."Document Type"::Quote, ProdOrder."Source No.");
-                    if not CopyFromSalesOrder(SalesHeader) then
-                        ErrorOccured := true;
-                end;
-        end;
+        CreateProdOrderLine(ProdOrder, VariantCode, ErrorOccured);
 
         if not ProcessProdOrderLines(Direction, LetDueDateDecrease) then
             ErrorOccured := true;
+
         CheckMultiLevelStructure(Direction, true, LetDueDateDecrease);
 
         OnAfterCopy(ProdOrder, ErrorOccured);
@@ -161,12 +124,12 @@ codeunit 99000787 "Create Prod. Order Lines"
                    ((SalesLine."Outstanding Quantity" - SalesLine."Reserved Quantity") <> 0)
                 then
                     if IsReplSystemProdOrder(SalesLine."No.", SalesLine."Variant Code", SalesLine."Location Code") then begin
-                        SalesPlanLine.Init;
+                        SalesPlanLine.Init();
                         SalesPlanLine."Sales Order No." := SalesLine."Document No.";
                         SalesPlanLine."Sales Order Line No." := SalesLine."Line No.";
                         SalesPlanLine.Validate("Item No.", SalesLine."No.");
                         OnCopyFromSalesOrderOnBeforeSalesPlanLineInsert(SalesLine, SalesPlanLine);
-                        SalesPlanLine.Insert;
+                        SalesPlanLine.Insert();
                     end;
             until SalesLine.Next = 0;
 
@@ -204,16 +167,64 @@ codeunit 99000787 "Create Prod. Order Lines"
                 end;
                 CopyDimFromSalesLine(SalesLine, ProdOrderLine);
                 OnCopyFromSalesOrderOnBeforeProdOrderLineModify(ProdOrderLine, SalesLine, SalesPlanLine, NextProdOrderLineNo);
-                ProdOrderLine.Modify;
+                ProdOrderLine.Modify();
             until (SalesPlanLine.Next = 0);
         exit(not ErrorOccured);
+    end;
+
+    local procedure CreateProdOrderLine(ProdOrder: Record "Production Order"; VariantCode: Code[10]; var ErrorOccured: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        ProdOrderLine.LockTable();
+        ProdOrderLine.SetRange(Status, ProdOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
+        ProdOrderLine.DeleteAll(true);
+
+        NextProdOrderLineNo := 10000;
+
+        InsertNew := false;
+
+        case ProdOrder."Source Type" of
+            ProdOrder."Source Type"::Item:
+                begin
+                    InitProdOrderLine(ProdOrder."Source No.", VariantCode, ProdOrder."Location Code");
+                    ProdOrderLine.Description := ProdOrder.Description;
+                    ProdOrderLine."Description 2" := ProdOrder."Description 2";
+                    ProdOrderLine.Validate(Quantity, ProdOrder.Quantity);
+                    ProdOrderLine.UpdateDatetime;
+                    if SalesLineIsSet then
+                        CopyDimFromSalesLine(SalesLine, ProdOrderLine);
+                    OnBeforeProdOrderLineInsert(ProdOrderLine, ProdOrder, SalesLineIsSet, SalesLine);
+                    ProdOrderLine.Insert();
+                    if ProdOrderLine.HasErrorOccured then
+                        ErrorOccured := true;
+
+                    OnAfterProdOrderLineInsert(ProdOrder, ProdOrderLine, NextProdOrderLineNo);
+                end;
+            ProdOrder."Source Type"::Family:
+                if not CopyFromFamily then
+                    ErrorOccured := true;
+            ProdOrder."Source Type"::"Sales Header":
+                begin
+                    InsertNew := true;
+                    if ProdOrder.Status <> ProdOrder.Status::Simulated then
+                        SalesHeader.Get(SalesHeader."Document Type"::Order, ProdOrder."Source No.")
+                    else
+                        SalesHeader.Get(SalesHeader."Document Type"::Quote, ProdOrder."Source No.");
+                    if not CopyFromSalesOrder(SalesHeader) then
+                        ErrorOccured := true;
+                end;
+        end;
+
+        OnAfterCreateProdOrderLine(ProdOrder, VariantCode, ErrorOccured);
     end;
 
     local procedure InitProdOrderLine(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     var
         Item: Record Item;
     begin
-        ProdOrderLine.Init;
+        ProdOrderLine.Init();
         ProdOrderLine.SetIgnoreErrors;
         ProdOrderLine.Status := ProdOrder.Status;
         ProdOrderLine."Prod. Order No." := ProdOrder."No.";
@@ -272,11 +283,11 @@ codeunit 99000787 "Create Prod. Order Lines"
                     UpdateCompPlanningLevel(ProdOrderLine3);
                 end;
                 OnBeforeProdOrderLine3Modify(ProdOrderLine3, ProdOrderLine);
-                ProdOrderLine3.Modify;
+                ProdOrderLine3.Modify();
                 ProdOrderLine := ProdOrderLine3;
                 exit(false);
             end;
-        ProdOrderLine.Insert;
+        ProdOrderLine.Insert();
         OnAfterProdOrderLineInsert(ProdOrder, ProdOrderLine, NextProdOrderLineNo);
         exit(true);
     end;
@@ -300,7 +311,7 @@ codeunit 99000787 "Create Prod. Order Lines"
                 OnAfterProcessProdOrderLine(ProdOrderLine, Direction, LetDueDateDecrease);
             until ProdOrderLine.Next = 0;
         ProdOrder.AdjustStartEndingDate;
-        ProdOrder.Modify;
+        ProdOrder.Modify();
 
         exit(not ErrorOccured);
     end;
@@ -414,7 +425,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         end else
             exit(false);
         ProdOrderComp."Supplied-by Line No." := ProdOrderLine."Line No.";
-        ProdOrderComp.Modify;
+        ProdOrderComp.Modify();
         exit(true);
     end;
 
@@ -486,7 +497,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         if ProdOrderComp3.FindSet(true) then
             repeat
                 ProdOrderComp3."Planning Level Code" := ProdOrderLine3."Planning Level Code" + 1;
-                ProdOrderComp3.Modify;
+                ProdOrderComp3.Modify();
             until ProdOrderComp3.Next = 0;
     end;
 
@@ -515,10 +526,10 @@ codeunit 99000787 "Create Prod. Order Lines"
                     AdjustDateAndTime(ProdOrderLine3, ProdOrderComp3."Due Date", ProdOrderComp3."Due Date", ProdOrderComp3."Due Time");
                     UpdateCompPlanningLevel(ProdOrderLine3);
                     CalcProdOrder.Recalculate(ProdOrderLine3, Direction::Backward, LetDueDateDecrease);
-                    ProdOrderLine3.Modify;
+                    ProdOrderLine3.Modify();
                 end;
             until ProdOrderComp3.Next = 0;
-        TempOldProdOrderComp.DeleteAll;
+        TempOldProdOrderComp.DeleteAll();
 
         OnAfterUpdateProdOrderLine(ProdOrderLine, Direction, LetDueDateDecrease);
     end;
@@ -527,14 +538,14 @@ codeunit 99000787 "Create Prod. Order Lines"
     var
         ProdOrderComp2: Record "Prod. Order Component";
     begin
-        TempOldProdOrderComp.DeleteAll;
+        TempOldProdOrderComp.DeleteAll();
         ProdOrderComp2.SetRange(Status, ProdOrderLine3.Status);
         ProdOrderComp2.SetRange("Prod. Order No.", ProdOrderLine3."Prod. Order No.");
         ProdOrderComp2.SetRange("Prod. Order Line No.", ProdOrderLine3."Line No.");
         if ProdOrderComp2.FindSet then
             repeat
                 TempOldProdOrderComp := ProdOrderComp2;
-                TempOldProdOrderComp.Insert;
+                TempOldProdOrderComp.Insert();
             until ProdOrderComp2.Next = 0;
     end;
 
@@ -667,6 +678,11 @@ codeunit 99000787 "Create Prod. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckMakeOrderLineOnAfterUpdateProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyOnProdOrderSourceTypeEnumExtension(var ProductionOrder: Record "Production Order")
     begin
     end;
 }

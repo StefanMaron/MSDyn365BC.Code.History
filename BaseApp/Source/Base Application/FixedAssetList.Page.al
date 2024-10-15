@@ -1,4 +1,4 @@
-﻿page 5601 "Fixed Asset List"
+page 5601 "Fixed Asset List"
 {
     AdditionalSearchTerms = 'fa list';
     ApplicationArea = FixedAssets;

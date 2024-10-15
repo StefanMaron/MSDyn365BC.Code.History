@@ -72,11 +72,9 @@ table 10867 "Payment Header Archive"
             Caption = 'Source Code';
             TableRelation = "Source Code";
         }
-        field(14; "Account Type"; Option)
+        field(14; "Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(15; "Account No."; Code[20])
         {

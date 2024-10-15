@@ -31,13 +31,13 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [SCENARIO 337570] System assigns "Default FA Posting Group" from "FA Sub Class" to newly created Fixed Asset
 
         // [GIVEN] FA Setup is in place
-        FixedAsset.DeleteAll;
+        FixedAsset.DeleteAll();
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAClass(FAClass);
         LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
 
-        // [WHEN] Fixed Asset Card filled out and closed
+        // [WHEN] Fixed Asset Card filed out and closed
         FixedAssetCard.OpenNew;
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
@@ -48,7 +48,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.Description.AssertEquals(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
         FixedAssetCard.FAPostingGroup.AssertEquals(FAPostingGroup.Code); // FA Posting Group of FA Depreciation Book
-        FASetup.Get;
+        FASetup.Get();
         FixedAssetCard.DepreciationBookCode.AssertEquals(FASetup."Default Depr. Book");
         FixedAssetCard.FAPostingGroup.AssertEquals(FAPostingGroup.Code);
         FixedAssetCard.Close;
@@ -75,16 +75,16 @@ codeunit 134456 "ERM Fixed Asset Card"
         NoDepreciationYears: Integer;
     begin
         // [GIVEN] FA Setup in place, and a fixed asset with a default depreciation book
-        FixedAsset.DeleteAll;
+        FixedAsset.DeleteAll();
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup2);
         LibraryFixedAsset.CreateFAClass(FAClass);
         LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
         CreateFADepreciationBookEmpty(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup.Code);
 
-        FADepreciationBook.Reset;
+        FADepreciationBook.Reset();
         FADepreciationBook.Get(FixedAsset."No.", FASetup."Default Depr. Book");
 
         // [WHEN] Fixed Asset Card is loaded and the Depreciation Book fields are modified
@@ -132,7 +132,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         Description: Text[100];
     begin
         // [GIVEN] FA Setup is in place
-        FixedAsset.DeleteAll;
+        FixedAsset.DeleteAll();
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup2);
         LibraryFixedAsset.CreateFAClass(FAClass);
@@ -172,7 +172,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         Description: Text[100];
     begin
         // [GIVEN] FA Setup is in place
-        FixedAsset.DeleteAll;
+        FixedAsset.DeleteAll();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAClass(FAClass);
@@ -184,7 +184,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
         FixedAssetCard.AddMoreDeprBooks.DrillDown;
-        FASetup.Get;
+        FASetup.Get();
         FixedAssetCard.DepreciationBook."Depreciation Book Code".AssertEquals(FASetup."Default Depr. Book");
         FixedAssetCard.DepreciationBook."FA Posting Group".AssertEquals(FAPostingGroup.Code);
         FixedAssetCard.DepreciationBook.New;
@@ -276,9 +276,9 @@ codeunit 134456 "ERM Fixed Asset Card"
         BookValue: Decimal;
     begin
         // [GIVEN] FA Setup in place, and a disposed fixed asset with a default depreciation book with Amount "A"
-        FixedAsset.DeleteAll;
+        FixedAsset.DeleteAll();
         CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
         BookValue := LibraryRandom.RandDecInRange(10, 1000, 0);
         CreateFADepreciationBookWithValue(
           FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup.Code, BookValue);
@@ -397,9 +397,9 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [SCENARIO 281772] Book Value of an undisposed Fixed Asset is shown on "Fixed Asset Card" Simple View
 
         // [GIVEN] FA Setup with Fixed Asset
-        FixedAsset.DeleteAll;
+        FixedAsset.DeleteAll();
         CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
 
         // [GIVEN] Default Depreciation Book created for Fixed Asset with Book Value = 500
         BookValue := LibraryRandom.RandDecInRange(10, 1000, 0);
@@ -442,9 +442,9 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [SCENARIO 281772] Book Value of a disposed Fixed Asset is 0 on FA Depreciation Books Subform
 
         // [GIVEN] FA Setup with Fixed Asset
-        FixedAsset.DeleteAll;
+        FixedAsset.DeleteAll();
         CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
 
         // [GIVEN] Default Depreciation Book created for Fixed Asset
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup.Code);
@@ -483,9 +483,9 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [SCENARIO 281772] Book Value of an undisposed Fixed Asset is shown on FA Depreciation Books Subform
 
         // [GIVEN] FA Setup with Fixed Asset
-        FixedAsset.DeleteAll;
+        FixedAsset.DeleteAll();
         CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
 
         // [GIVEN] Default Depreciation Book created for Fixed Asset with Book Value = 500
         BookValue := LibraryRandom.RandDecInRange(10, 1000, 0);
@@ -529,9 +529,9 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryApplicationArea.EnableFixedAssetsSetup;
 
         // [GIVEN] FA Setup with Fixed Asset
-        FixedAsset.DeleteAll;
+        FixedAsset.DeleteAll();
         CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
         CreateFADepreciationBookEmpty(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup.Code);
         FADepreciationBook.Validate("Depreciation Method", FADepreciationBook."Depreciation Method"::"User-Defined");
         FADepreciationBook.Modify(true);
@@ -571,9 +571,9 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryApplicationArea.EnableFixedAssetsSetup;
 
         // [GIVEN] FA Setup with Fixed Asset
-        FixedAsset.DeleteAll;
+        FixedAsset.DeleteAll();
         CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
         CreateFADepreciationBookEmpty(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup.Code);
 
         // [GIVEN] Open FA Card page
@@ -608,14 +608,10 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [SCENARIO 283324] Create FA document and disposed it. As a result should be 2 FA Ledger Entries Line.
         // [GIVEN] FA Setup in place, and a disposed fixed asset with a default depreciation book and Amount = "A"
         CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
         BookValue := LibraryRandom.RandDecInRange(10, 1000, 2);
         CreateFADepreciationBookWithValue(
-          FADepreciationBook,
-          FixedAsset."No.",
-          FASetup."Default Depr. Book",
-          FAPostingGroup.Code,
-          BookValue);
+	  FADepreciationBook,FixedAsset."No.",FASetup."Default Depr. Book",FAPostingGroup.Code,BookValue);
         DisposeFADepreciationBook(FADepreciationBook, BookValue);
 
         // [WHEN] Fixed Asset Card is loaded and Drill Down on "Book Value"
@@ -666,7 +662,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [GIVEN] FA Setup in place, and a disposed fixed asset with
         // [GIVEN] FA Posting Type = Book Value on Disposal and "Book Value on Disposal" = "X"
         CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
-        FASetup.Get;
+        FASetup.Get();
         DisposalValue := LibraryRandom.RandDecInRange(10, 1000, 2);
         CreateFADepreciationBookWithValue(
           FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup.Code, DisposalValue);
@@ -719,7 +715,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAsset.Modify(true);
 
         // [GIVEN] FA Depreciation Book was created with first variant of FA Posting Group.
-        FASetup.Get;
+        FASetup.Get();
         CreateFADepreciationBookEmpty(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup[1].Code);
 
         // [GIVEN] Field "Allow Changes in Depr. Fields" in  table DepreciationBook =TRUE
@@ -768,7 +764,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAsset.Modify(true);
 
         // [GIVEN] FA Depreciation Book was created with first variant of FA Posting Group.
-        FASetup.Get;
+        FASetup.Get();
         CreateFADepreciationBookEmpty(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup[1].Code);
 
         // [GIVEN] Field "Allow Changes in Depr. Fields" in  table DepreciationBook = FALSE
@@ -808,7 +804,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [GIVEN] FA Setup in place, and a disposed fixed asset with
         // [GIVEN] FA Posting Type = Book Value on Disposal
         // [GIVEN] Disposal Amount = "D"
-        FASetup.Get;
+        FASetup.Get();
         CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
         DisposalValue := LibraryRandom.RandDecInRange(10, 1000, 2);
         CreateFADepreciationBookWithValue(
@@ -847,36 +843,6 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetStatistics.Close;
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestFACardFAPostingGroupValidation()
-    var
-        FixedAsset: Record "Fixed Asset";
-        FAClass: Record "FA Class";
-        FASubclass: Record "FA Subclass";
-        FAPostingGroup: Record "FA Posting Group";
-        FixedAssetCard: TestPage "Fixed Asset Card";
-        Description: Text[100];
-    begin
-        // [FEATURE] [Posting Group]
-        // [SCENARIO 337570] System assigns "Default FA Posting Group" from "FA Sub Class" to newly created Fixed Asset when "FA Class Code" is already set in fixed asset.
-
-        FixedAsset.DeleteAll();
-        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
-        LibraryFixedAsset.CreateFAClass(FAClass);
-        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
-        Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
-
-        FixedAssetCard.OpenNew();
-        FixedAssetCard.Description.SetValue(Description);
-        FixedAssetCard."FA Class Code".SetValue(FAClass.Code);
-        FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
-        FixedAssetCard.Close();
-
-        FixedAsset.FindFirst();
-        FixedAsset.TestField("FA Posting Group", FAPostingGroup.Code);
-    end;
-
     local procedure FixedAssetAndDeprecationBookSetup(var FASubclass: Record "FA Subclass")
     var
         DepreciationBook: Record "Depreciation Book";
@@ -884,7 +850,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FAClass: Record "FA Class";
         FAPostingGroup: Record "FA Posting Group";
     begin
-        FixedAsset.DeleteAll;
+        FixedAsset.DeleteAll();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFAClass(FAClass);

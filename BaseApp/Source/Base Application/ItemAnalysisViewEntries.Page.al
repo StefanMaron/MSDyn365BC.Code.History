@@ -163,8 +163,8 @@ page 7153 "Item Analysis View Entries"
     var
         ItemAViewEntryToValueEntries: Codeunit ItemAViewEntryToValueEntries;
     begin
-        TempValueEntry.Reset;
-        TempValueEntry.DeleteAll;
+        TempValueEntry.Reset();
+        TempValueEntry.DeleteAll();
         ItemAViewEntryToValueEntries.GetValueEntries(ItemAnalysisViewEntry, TempValueEntry);
     end;
 }

@@ -276,7 +276,7 @@ report 10806 "Customer Detail Trial Balance"
                         if ("Debit Amount (LCY)" = 0) and
                            ("Credit Amount (LCY)" = 0)
                         then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         BalanceLCY := BalanceLCY + "Debit Amount (LCY)" - "Credit Amount (LCY)";
 
                         OriginalLedgerEntry.Get("Cust. Ledger Entry No.");

@@ -36,7 +36,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Sales-Calc. Discount Test");
-        Commit;
+        Commit();
         Initialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Sales-Calc. Discount Test");
     end;
@@ -363,7 +363,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
         Customer.Validate("Allow Line Disc.", false);
         Customer.Modify(true);
 
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
@@ -374,7 +374,7 @@ codeunit 132522 "Sales-Calc. Discount Test"
         Item.SetFilter("Unit Price", '>0');
         Item.Next(LibraryRandom.RandInt(Item.Count));
 
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         SalesLine.Validate("Line No.", 10000);

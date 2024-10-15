@@ -1,4 +1,4 @@
-﻿page 162 "Resource Ledg. Entries Preview"
+page 162 "Resource Ledg. Entries Preview"
 {
     Caption = 'Resource Ledg. Entries Preview';
     DataCaptionFields = "Resource No.";

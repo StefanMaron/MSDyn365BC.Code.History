@@ -73,7 +73,7 @@ page 10842 "Apply G/L Entries"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        GLEntry.Reset;
+                        GLEntry.Reset();
                         GLEntry.SetRange(Letter, Letter);
                         PAGE.RunModal(PAGE::"General Ledger Entries", GLEntry);
                     end;
@@ -176,7 +176,7 @@ page 10842 "Apply G/L Entries"
                             repeat
                                 GLEntry.Letter := '';
                                 GLEntry."Letter Date" := 0D;
-                                GLEntry.Modify;
+                                GLEntry.Modify();
                             until GLEntry.Next = 0;
                         if Letter <> '' then
                             Message('%1', Text001);

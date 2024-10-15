@@ -1,4 +1,4 @@
-﻿page 27 "Vendor List"
+page 27 "Vendor List"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Vendors';
@@ -609,6 +609,102 @@
                     end;
                 }
             }
+            group(ActionGroupCDS)
+            {
+                Caption = 'Common Data Service';
+                Image = Administration;
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+                action(CDSGotoAccount)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Account';
+                    Image = CoupledCustomer;
+                    ToolTip = 'Open the coupled Common Data Service account.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowCRMEntityFromRecordID(RecordId);
+                    end;
+                }
+                action(CDSSynchronizeNow)
+                {
+                    AccessByPermission = TableData "CRM Integration Record" = IM;
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronize';
+                    Image = Refresh;
+                    ToolTip = 'Send or get updated data to or from Common Data Service.';
+
+                    trigger OnAction()
+                    var
+                        Vendor: Record Vendor;
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        VendorRecordRef: RecordRef;
+                    begin
+                        CurrPage.SetSelectionFilter(Vendor);
+                        Vendor.Next;
+
+                        if Vendor.Count = 1 then
+                            CRMIntegrationManagement.UpdateOneNow(Vendor.RecordId)
+                        else begin
+                            VendorRecordRef.GetTable(Vendor);
+                            CRMIntegrationManagement.UpdateMultipleNow(VendorRecordRef);
+                        end
+                    end;
+                }
+                group(Coupling)
+                {
+                    Caption = 'Coupling', Comment = 'Coupling is a noun';
+                    Image = LinkAccount;
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Common Data Service record.';
+                    action(ManageCDSCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Set Up Coupling';
+                        Image = LinkAccount;
+                        ToolTip = 'Create or modify the coupling to a Common Data Service account.';
+
+                        trigger OnAction()
+                        var
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        begin
+                            CRMIntegrationManagement.DefineCoupling(RecordId);
+                        end;
+                    }
+                    action(DeleteCDSCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Delete Coupling';
+                        Enabled = CRMIsCoupledToRecord;
+                        Image = UnLinkAccount;
+                        ToolTip = 'Delete the coupling to a Common Data Service account.';
+
+                        trigger OnAction()
+                        var
+                            CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                        begin
+                            CRMCouplingManagement.RemoveCoupling(RecordId);
+                        end;
+                    }
+                }
+                action(ShowLog)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronization Log';
+                    Image = Log;
+                    ToolTip = 'View integration synchronization jobs for vendors.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowLog(RecordId);
+                    end;
+                }
+            }
         }
         area(creation)
         {
@@ -748,6 +844,9 @@
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 ToolTip = 'Apply a template to update one or more entities with your standard settings for a certain type of entity.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This functionality will be replaced by other templates.';
+                ObsoleteTag = '16.0';
 
                 trigger OnAction()
                 var
@@ -966,6 +1065,7 @@
     trigger OnAfterGetCurrRecord()
     var
         SocialListeningMgt: Codeunit "Social Listening Management";
+        CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
         if SocialListeningSetupVisible then
             SocialListeningMgt.GetVendFactboxVisibility(Rec, SocialListeningSetupVisible, SocialListeningVisible);
@@ -975,6 +1075,10 @@
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
 
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+
+        CRMIsCoupledToRecord := CRMIntegrationEnabled or CDSIntegrationEnabled;
+        if CRMIsCoupledToRecord then
+            CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
 
         // Contextual Power BI FactBox: send data to filter the report in the FactBox
         CurrPage."Power BI Report FactBox".PAGE.SetCurrentListSelection("No.", false, PowerBIVisible);
@@ -989,11 +1093,14 @@
     trigger OnOpenPage()
     var
         SocialListeningSetup: Record "Social Listening Setup";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         SetRange("Date Filter", 0D, WorkDate());
         with SocialListeningSetup do
             SocialListeningSetupVisible := Get and "Show on Customers" and "Accept License Agreement" and ("Solution ID" <> '');
         ResyncVisible := ReadSoftOCRMasterDataSync.IsSyncEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
     end;
 
     var
@@ -1010,6 +1117,9 @@
         ResyncVisible: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
+        CRMIntegrationEnabled: Boolean;
+        CDSIntegrationEnabled: Boolean;
+        CRMIsCoupledToRecord: Boolean;
 
     procedure GetSelectionFilter(): Text
     var

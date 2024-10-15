@@ -1,4 +1,4 @@
-﻿page 131 "Posted Sales Shpt. Subform"
+page 131 "Posted Sales Shpt. Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -454,7 +454,7 @@
     var
         ShipmentInvoiced: Record "Shipment Invoiced";
     begin
-        ShipmentInvoiced.Reset;
+        ShipmentInvoiced.Reset();
         ShipmentInvoiced.SetCurrentKey("Shipment No.", "Shipment Line No.");
         ShipmentInvoiced.SetRange("Shipment No.", "Document No.");
         ShipmentInvoiced.SetRange("Shipment Line No.", "Line No.");

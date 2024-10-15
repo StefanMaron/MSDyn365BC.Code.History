@@ -39,7 +39,7 @@ codeunit 358 "DateFilter-Calc"
 
     local procedure CreateAccountingDateFilter(var "Filter": Text[30]; var Name: Text[30]; FiscalYear: Boolean; Date: Date; NextStep: Integer)
     begin
-        AccountingPeriod.Reset;
+        AccountingPeriod.Reset();
         if FiscalYear then
             AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod."Starting Date" := Date;
@@ -97,7 +97,7 @@ codeunit 358 "DateFilter-Calc"
         if not Date.Find('-') then
             Error(Text10801);
 
-        Date.Reset;
+        Date.Reset();
         // Ending check
         if FilterPos <> 0 then begin
             Evaluate(FilterDate, CopyStr(Filter, FilterPos + 2, 8));

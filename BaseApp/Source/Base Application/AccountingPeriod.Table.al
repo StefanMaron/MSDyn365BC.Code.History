@@ -130,7 +130,7 @@ table 50 "Accounting Period"
     end;
 
     var
-        Text000: Label '<Month Text>';
+        Text000: Label '<Month Text,10>', Locked = true;
         AccountingPeriod2: Record "Accounting Period";
         InvtSetup: Record "Inventory Setup";
         Text10800: Label 'To delete the fiscal year from %1 to %2, you must first modify the fields %3 and %4 in the %5 and %6 so that they are outside the fiscal year that is being deleted.';
@@ -189,10 +189,10 @@ table 50 "Accounting Period"
     [Scope('OnPrem')]
     procedure CheckOpenFiscalYears()
     begin
-        AccountingPeriod2.Reset;
+        AccountingPeriod2.Reset();
         AccountingPeriod2.SetRange("New Fiscal Year", true);
         AccountingPeriod2.SetRange("Fiscally Closed", false);
-        NoOfOpenFiscalYears := AccountingPeriod2.Count;
+        NoOfOpenFiscalYears := AccountingPeriod2.Count();
         if AccountingPeriod2.FindFirst then;
 
         // check last period of previous fiscal year
@@ -208,7 +208,7 @@ table 50 "Accounting Period"
     [Scope('OnPrem')]
     procedure CloseFiscalPeriod()
     begin
-        AccountingPeriod2.Reset;
+        AccountingPeriod2.Reset();
         AccountingPeriod2.SetRange("Fiscally Closed", false);
         if AccountingPeriod2.FindFirst then begin
             if not AccountingPeriod2.Find('>') then
@@ -221,7 +221,7 @@ table 50 "Accounting Period"
             if Confirm(Text10802, true, AccountingPeriod2."Starting Date") then begin
                 AccountingPeriod2."Fiscally Closed" := true;
                 AccountingPeriod2."Fiscal Closing Date" := Today;
-                AccountingPeriod2.Modify;
+                AccountingPeriod2.Modify();
                 // update allowed posting range
                 UpdateGLSetup(EndingDate);
                 UpdateUserSetup(EndingDate);
@@ -235,7 +235,7 @@ table 50 "Accounting Period"
     var
         AccountingPeriod3: Record "Accounting Period";
     begin
-        AccountingPeriod2.Reset;
+        AccountingPeriod2.Reset();
         AccountingPeriod2.SetRange("Fiscally Closed", false);
         if AccountingPeriod2.FindFirst then
             if AccountingPeriod2."New Fiscal Year" then
@@ -246,7 +246,7 @@ table 50 "Accounting Period"
                 exit;
             AccountingPeriod2."Fiscally Closed" := false;
             AccountingPeriod2."Period Reopened Date" := Today;
-            AccountingPeriod2.Modify;
+            AccountingPeriod2.Modify();
         end else
             Message(Text10807);
     end;

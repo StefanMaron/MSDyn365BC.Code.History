@@ -38,7 +38,7 @@ codeunit 134175 "WF Demo Sales Order Approvals"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryWorkflow.DisableAllWorkflows;
         if IsInitialized then
             exit;
@@ -145,7 +145,7 @@ codeunit 134175 "WF Demo Sales Order Approvals"
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::"Pending Approval");
 
         // Exercise
-        Commit;
+        Commit();
         SalesOrder.OpenView;
         SalesOrder.GotoRecord(SalesHeader);
         asserterror SalesOrder.Release.Invoke;
@@ -446,7 +446,7 @@ codeunit 134175 "WF Demo Sales Order Approvals"
 
         // [WHEN] SalesHeader card is opened.
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
-        Commit;
+        Commit();
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
 
@@ -525,7 +525,7 @@ codeunit 134175 "WF Demo Sales Order Approvals"
 
         // [WHEN] SalesHeader card is opened.
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
-        Commit;
+        Commit();
         SalesOrderList.OpenEdit;
         SalesOrderList.GotoRecord(SalesHeader);
 
@@ -722,7 +722,7 @@ codeunit 134175 "WF Demo Sales Order Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::Released);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntry(ApprovalEntry, IntermediateApproverUserSetup."User ID", UserId, ApprovalEntry.Status::Approved);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
@@ -793,7 +793,7 @@ codeunit 134175 "WF Demo Sales Order Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::Open);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntry(ApprovalEntry, IntermediateApproverUserSetup."User ID", UserId, ApprovalEntry.Status::Canceled);
     end;

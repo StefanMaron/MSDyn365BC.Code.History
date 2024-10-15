@@ -9,14 +9,14 @@ codeunit 5324 "Exchange Service Setup"
     var
         ExchangeServiceSetup: Record "Exchange Service Setup";
     begin
-        ExchangeServiceSetup.Init;
+        ExchangeServiceSetup.Init();
         ExchangeServiceSetup."Azure AD App. ID" := ClientID;
         ExchangeServiceSetup."Azure AD App. Cert. Thumbprint" := CertificateThumbprint;
         ExchangeServiceSetup."Azure AD Auth. Endpoint" := AuthenticationEndpoint;
         ExchangeServiceSetup."Exchange Service Endpoint" := ExchangeEndpoint;
         ExchangeServiceSetup."Exchange Resource Uri" := ExchangeResourceUri;
-        if not ExchangeServiceSetup.Insert then
-            ExchangeServiceSetup.Modify;
+        if not ExchangeServiceSetup.Insert() then
+            ExchangeServiceSetup.Modify();
     end;
 }
 

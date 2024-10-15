@@ -139,7 +139,7 @@ report 10882 Transfer
 
                     PaymentHeader := "Payment Header";
                     PaymentHeader."File Export Completed" := true;
-                    PaymentHeader.Modify;
+                    PaymentHeader.Modify();
                 end;
             }
 
@@ -242,10 +242,10 @@ report 10882 Transfer
     var
         FileMgt: Codeunit "File Management";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField(Name);
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         ExportFileName := FileMgt.ServerTempFileName('');
 

@@ -101,20 +101,20 @@ codeunit 5441 "Graph Sync. - Business Profile"
             exit;
 
         if xRec.Find and (Rec."Sync with Microsoft Graph" <> xRec."Sync with Microsoft Graph") then begin
-            CompanyInformation.LockTable;
-            CompanyInformation.Get;
+            CompanyInformation.LockTable();
+            CompanyInformation.Get();
             if Rec."Sync with Microsoft Graph" and not CompanyInformation.IsSyncEnabledForOtherCompany then begin
                 SendTraceTag(
                   '00001B8', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal,
                   EnablingBusinessProfileSyncTxt, DATACLASSIFICATION::SystemMetadata);
                 CompanyInformation."Sync with O365 Bus. profile" := true;
-                CompanyInformation.Modify;
+                CompanyInformation.Modify();
             end else begin
                 SendTraceTag(
                   '00001B9', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal,
                   DisablingBusinessProfileSyncTxt, DATACLASSIFICATION::SystemMetadata);
                 CompanyInformation."Sync with O365 Bus. profile" := false;
-                CompanyInformation.Modify;
+                CompanyInformation.Modify();
                 GraphIntBusinessProfile.UpdateCompanyBusinessProfileId('');
             end;
         end;
@@ -128,7 +128,7 @@ codeunit 5441 "Graph Sync. - Business Profile"
     begin
         if CanHandleMapping(IntegrationTableMapping.Name) then begin
             if SourceRecordRef.Number = DATABASE::"Graph Business Profile" then begin
-                CompanyInformation.Get;
+                CompanyInformation.Get();
                 DestinationRecordRef.GetTable(CompanyInformation);
                 DestinationFound := true;
             end else

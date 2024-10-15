@@ -75,7 +75,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Set "Service Order Type Mandatory" field True on Service Management Setup.
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Service Order Type Mandatory", true);
         ServiceMgtSetup.Modify(true);
 
@@ -105,7 +105,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Set "Service Order Start Mandatory" field True on Service Management Setup.
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Service Order Start Mandatory", true);
         ServiceMgtSetup.Modify(true);
 
@@ -135,7 +135,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Set "Service Order Finish Mandatory" field True on Service Management Setup.
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Service Order Finish Mandatory", true);
         ServiceMgtSetup.Modify(true);
 
@@ -166,7 +166,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Set "Fault Reason Code Mandatory" field True on Service Management Setup.
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Fault Reason Code Mandatory", true);
         ServiceMgtSetup.Modify(true);
 
@@ -197,7 +197,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Set "Salesperson Mandatory" field True on Service Management Setup.
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Salesperson Mandatory", true);
         ServiceMgtSetup.Modify(true);
 
@@ -233,7 +233,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Set "Work Type Code Mandatory" field True on Service Management Setup.
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Work Type Code Mandatory", true);
         ServiceMgtSetup.Modify(true);
 
@@ -269,7 +269,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Set "Unit of Measure Mandatory" field True on Service Management Setup, Create Service Order.
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Unit of Measure Mandatory", true);
         ServiceMgtSetup.Modify(true);
         ServiceItemLineNo := CreateServiceOrder(ServiceHeader, '');
@@ -308,7 +308,7 @@ codeunit 136101 "Service Orders"
 
         // [GIVEN] Set "Contract Rsp. Time Mandatory" field True on Service Management Setup, Create and Update Response Time on Service Item.
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Contract Rsp. Time Mandatory", true);
         ServiceMgtSetup.Modify(true);
         LibraryService.CreateServiceItem(ServiceItem, '');
@@ -470,7 +470,7 @@ codeunit 136101 "Service Orders"
 
         // [WHEN] Create Customer from Service Order.
         CreateServiceHeaderWithName(ServiceHeader);
-        Commit;
+        Commit();
         ServOrderManagement.CreateNewCustomer(ServiceHeader);
         ServiceHeader.Modify(true);
 
@@ -526,7 +526,7 @@ codeunit 136101 "Service Orders"
         Initialize;
         CreateCustomerTemplate;
         CreateServiceHeaderWithName(ServiceHeader);
-        Commit;
+        Commit();
         ServOrderManagement.CreateNewCustomer(ServiceHeader);
         ServiceHeader.Modify(true);
 
@@ -1107,7 +1107,7 @@ codeunit 136101 "Service Orders"
 
         // [WHEN] Create Customer from Service Order.
         CreateServiceHeaderWithName(ServiceHeader);
-        Commit;
+        Commit();
         ServOrderManagement.CreateNewCustomer(ServiceHeader);
         ServiceHeader.Modify(true);
 
@@ -2919,7 +2919,7 @@ codeunit 136101 "Service Orders"
     begin
         // [SCENARIO 120370] User is able to insert new Service Line to the empty Service Item Worksheet
         CreateServiceOrderWithServiceItem(ServiceItemLine);
-        ServiceLineBeforeAfterInsert.Init;
+        ServiceLineBeforeAfterInsert.Init();
 
         VerifyServiceLineInsertLineNo(
           ServiceItemLine."Document Type", ServiceItemLine."Document No.",
@@ -3078,7 +3078,7 @@ codeunit 136101 "Service Orders"
         Initialize;
         LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
         GenBusPostingGroup."Auto Insert Default" := false;
-        GenBusPostingGroup.Modify;
+        GenBusPostingGroup.Modify();
         // [GIVEN] Customer with  Gen. Bus. Posting Group = "X",
         // [GIVEN] Service Order for Customer with one line
         CreateOrderCheckVATSetup(ServiceHeader, ServiceLine);
@@ -3108,12 +3108,12 @@ codeunit 136101 "Service Orders"
         Initialize;
         LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
         GenBusPostingGroup."Auto Insert Default" := false;
-        GenBusPostingGroup.Modify;
+        GenBusPostingGroup.Modify();
         // [GIVEN] Customer with  "Gen. Bus. Posting Group" = "X",
         // [GIVEN] Service Order for Customer with one line
         CreateOrderCheckVATSetup(ServiceHeader, ServiceLine);
         OldGenBusPostingGroup := ServiceLine."Gen. Bus. Posting Group";
-        Commit;
+        Commit();
 
         // [WHEN] Validating field "Gen. Bus. Posting Group" = "B" in Service Order header
         asserterror ServiceHeader.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
@@ -3278,7 +3278,7 @@ codeunit 136101 "Service Orders"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 379956] Throw error "There is nothing to post" without intermediate confirmations when send to post blank Service Header
-        ServiceHeader.Init;
+        ServiceHeader.Init();
 
         asserterror ServicePostYesNo.PostDocument(ServiceHeader);
 
@@ -3331,7 +3331,7 @@ codeunit 136101 "Service Orders"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
         DocDate := LibraryRandom.RandDate(100);
         ServiceHeader."Document Date" := DocDate;
-        ServiceHeader.Modify;
+        ServiceHeader.Modify();
 
         // [WHEN] Create Service Order from Service Quote on WORKDATE = 15.07.16
         LibraryService.CreateOrderFromQuote(ServiceHeader);
@@ -3814,7 +3814,7 @@ codeunit 136101 "Service Orders"
         // [FEATURE] [UT] [Actual Response Hours]
         // [SCENARIO 313678] Actual Response Hours calculation is based on service hours when starting time is before service hours with the same date
         Initialize;
-        ServiceHour.DeleteAll;
+        ServiceHour.DeleteAll();
 
         // [GIVEN] Service hours defined for WORKDAY
         LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate, 1) - 1);
@@ -3840,7 +3840,7 @@ codeunit 136101 "Service Orders"
         // [FEATURE] [UT] [Actual Response Hours]
         // [SCENARIO 313678] Actual Response Hours calculation is based on starting time when starting time is during service hours with the same date
         Initialize;
-        ServiceHour.DeleteAll;
+        ServiceHour.DeleteAll();
 
         // [GIVEN] Service hours defined for WORKDAY
         LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate, 1) - 1);
@@ -3866,7 +3866,7 @@ codeunit 136101 "Service Orders"
         // [FEATURE] [UT] [Actual Response Hours]
         // [SCENARIO 313678] Actual Response Hours calculation is based on service hours when starting time is before service hours with different dates
         Initialize;
-        ServiceHour.DeleteAll;
+        ServiceHour.DeleteAll();
 
         // [GIVEN] Service hours defined for WORKDAY
         LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate, 1) - 1);
@@ -3893,7 +3893,7 @@ codeunit 136101 "Service Orders"
         // [FEATURE] [UT] [Actual Response Hours]
         // [SCENARIO 313678] Actual Response Hours calculation is based on starting time when starting time is during service hours with different dates
         Initialize;
-        ServiceHour.DeleteAll;
+        ServiceHour.DeleteAll();
 
         // [GIVEN] Service hours defined for WORKDAY
         LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate, 1) - 1);
@@ -3919,9 +3919,9 @@ codeunit 136101 "Service Orders"
         // [FEATURE] [Ship-To] [VAT]
         // [SCENARIO 317562] Changing "Ship-to Country/Region Code" on a Service document doesn't affect "VAT Country/Region Code"
         Initialize;
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.Validate("Bill-to/Sell-to VAT Calc.", GLSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
-        GLSetup.Modify;
+        GLSetup.Modify();
 
         // [GIVEN] Created two Customers with different Country/Region codes
         CreateCustomerWithCountryRegion(CountryRegion[1], Customer[1]);
@@ -3978,10 +3978,10 @@ codeunit 136101 "Service Orders"
         // [SCENARIO 335496] "GetLineNo" function returns next line no. after the last service line and "Line No." = 10000 if no service line exists.
         Initialize;
 
-        ServiceHeader.Init;
+        ServiceHeader.Init();
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::Order;
         ServiceHeader."No." := LibraryUtility.GenerateGUID;
-        ServiceHeader.Insert;
+        ServiceHeader.Insert();
 
         with ServiceLine do begin
             Init;
@@ -4022,7 +4022,7 @@ codeunit 136101 "Service Orders"
         LibrarySales.DisableWarningOnCloseUnpostedDoc;
         UpdateCustNoSeries;
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -4049,7 +4049,7 @@ codeunit 136101 "Service Orders"
         ConfigTemplateLine.SetRange("Field ID", FieldNo);
         ConfigTemplateLine.FindFirst;
         ConfigTemplateLine."Default Value" := '';
-        ConfigTemplateLine.Modify;
+        ConfigTemplateLine.Modify();
     end;
 
     local procedure InitServiceContractWithOrderScenario(var ServiceHeader: Record "Service Header"; var ServiceContractHeader: Record "Service Contract Header")
@@ -4114,7 +4114,7 @@ codeunit 136101 "Service Orders"
         Loaner: Record Loaner;
         RecordRef: RecordRef;
     begin
-        Loaner.Init;
+        Loaner.Init();
         RecordRef.GetTable(Loaner);
         LibraryUtility.FindRecord(RecordRef);
         RecordRef.SetTable(Loaner);
@@ -4523,7 +4523,7 @@ codeunit 136101 "Service Orders"
     local procedure CreateServiceLineWithLineNoSet(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceItemLine: Record "Service Item Line"; LineNo: Integer)
     begin
         Clear(ServiceLine);
-        ServiceLine.Init;
+        ServiceLine.Init();
         ServiceLine.Validate("Document Type", ServiceHeader."Document Type");
         ServiceLine.Validate("Document No.", ServiceHeader."No.");
         ServiceLine.Validate("Line No.", LineNo);
@@ -4635,7 +4635,7 @@ codeunit 136101 "Service Orders"
     var
         PostCode: Record "Post Code";
     begin
-        ServiceHeader.Init;
+        ServiceHeader.Init();
         ServiceHeader.Validate("Document Type", ServiceHeader."Document Type"::Order);
         ServiceHeader.Insert(true);
 
@@ -4835,9 +4835,9 @@ codeunit 136101 "Service Orders"
                 MAXSTRLEN(ServiceLine.Description));
             ServiceLine.VALIDATE(Quantity, LibraryRandom.RandInt(100));
             ServiceLine.VALIDATE("Unit Price", LibraryRandom.RandDec(10, 2));
-            ServiceLine.MODIFY;
+            ServiceLine.Modify();
             TempServiceLine := ServiceLine;
-            TempServiceLine.INSERT;
+            TempServiceLine.Insert();
         end;
     end;
 
@@ -4883,7 +4883,7 @@ codeunit 136101 "Service Orders"
         StandardText: Record "Standard Text";
         TableNameOption: Option "Standard Text","G/L Account",Item,Resource;
     begin
-        StandardText.Init;
+        StandardText.Init();
         StandardText.Code := LibraryUtility.GenerateRandomCode(StandardText.FieldNo(Code), DATABASE::"Standard Text");
         StandardText.Insert(true);
         LibrarySmallBusiness.CreateExtendedTextHeader(ExtendedTextHeader, TableNameOption::"Standard Text", StandardText.Code);
@@ -5178,7 +5178,7 @@ codeunit 136101 "Service Orders"
     begin
         repeat
             ServiceLineOld := ServiceLine;
-            ServiceLineOld.Insert;
+            ServiceLineOld.Insert();
             LibraryVariableStorage.Enqueue(ServiceLine.Description);
         until ServiceLine.Next = 0;
     end;
@@ -5360,7 +5360,7 @@ codeunit 136101 "Service Orders"
         ServiceCommentLine.FindSet;
         repeat
             ServiceCommentLineOld := ServiceCommentLine;
-            ServiceCommentLineOld.Insert;
+            ServiceCommentLineOld.Insert();
         until ServiceCommentLine.Next = 0;
     end;
 
@@ -5395,9 +5395,9 @@ codeunit 136101 "Service Orders"
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.GET;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup."Copy Line Descr. to G/L Entry" := CopyDescrToGLEntry;
-        ServiceMgtSetup.MODIFY;
+        ServiceMgtSetup.Modify();
     end;
 
     local procedure GetOutstandingAmountForServiceLines(ServiceHeader: Record "Service Header"): Decimal
@@ -5500,7 +5500,7 @@ codeunit 136101 "Service Orders"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Modify(true);
     end;
@@ -5518,7 +5518,7 @@ codeunit 136101 "Service Orders"
 
     local procedure SetPostedInvoiceNosEqualInvoiceNosInServSetup(var ServiceMgtSetup: Record "Service Mgt. Setup")
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Posted Service Invoice Nos.", LibraryERM.CreateNoSeriesCode);
         ServiceMgtSetup.Validate("Service Invoice Nos.", ServiceMgtSetup."Posted Service Invoice Nos.");
         ServiceMgtSetup.Modify(true);
@@ -5700,7 +5700,7 @@ codeunit 136101 "Service Orders"
         InitServDocWithInvRoundingPrecisionScenario(ServiceHeader, DocumentType);
 
         // Exercise: Open Service Statistics.
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Service Statistics", ServiceHeader);
 
         // Verify: Verify VAT Amount and "Amount Including VAT" on VAT Amount Lines and VAT Amount on Service Statistics using ServiceStatisticsPageHandler .
@@ -6238,7 +6238,7 @@ codeunit 136101 "Service Orders"
     var
         ServiceOrderAllocation: Record "Service Order Allocation";
     begin
-        ServiceOrderAllocation.Init;
+        ServiceOrderAllocation.Init();
         ResourceAllocations.GetRecord(ServiceOrderAllocation);
         ServiceOrderAllocation.Validate(
           "Resource No.", CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(ServiceOrderAllocation."Resource No.")));

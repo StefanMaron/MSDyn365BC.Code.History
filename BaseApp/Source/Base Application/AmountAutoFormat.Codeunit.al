@@ -15,8 +15,8 @@ codeunit 347 "Amount Auto Format"
         GLSetup: Record "General Ledger Setup";
         Currency: Record Currency;
         GLSetupRead: Boolean;
-        FormatTxt: Label '<Precision,%1><Standard Format,0>', Comment = '{LOCKED} Do not translate';
-        CurrFormatTxt: Label '%3%2<Precision,%1><Standard Format,0>', Comment = '{LOCKED} Do not translate';
+        FormatTxt: Label '<Precision,%1><Standard Format,0>', Locked = true;
+        CurrFormatTxt: Label '%3%2<Precision,%1><Standard Format,0>', Locked = true;
         EnumType: Enum "Auto Format";
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Auto Format", 'OnResolveAutoFormat', '', false, false)]
@@ -80,7 +80,7 @@ codeunit 347 "Amount Auto Format"
     local procedure GetGLSetup(): Boolean
     begin
         if not GLSetupRead then
-            GLSetupRead := GLSetup.GET;
+            GLSetupRead := GLSetup.Get();
         exit(GLSetupRead);
     end;
 

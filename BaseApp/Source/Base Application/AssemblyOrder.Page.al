@@ -1,8 +1,9 @@
-﻿page 900 "Assembly Order"
+page 900 "Assembly Order"
 {
     Caption = 'Assembly Order';
     PageType = Document;
     PromotedActionCategories = 'New,Process,Report,Release,Warehouse,Posting,Print,Navigate,Order';
+    RefreshOnActivate = true;
     SourceTable = "Assembly Header";
     SourceTableView = SORTING("Document Type", "No.")
                       ORDER(Ascending)
@@ -816,7 +817,7 @@
     begin
         TestField("Assemble to Order", false);
         if (Quantity <> 0) and ItemExists("Item No.") then begin
-            Commit;
+            Commit();
             if not AssemblyHeaderReserve.DeleteLineConfirm(Rec) then
                 exit(false);
             AssemblyHeaderReserve.DeleteLine(Rec);

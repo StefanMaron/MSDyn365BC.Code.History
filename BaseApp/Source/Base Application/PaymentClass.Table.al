@@ -82,7 +82,7 @@ table 10860 "Payment Class"
             trigger OnValidate()
             begin
                 if "Unrealized VAT Reversal" = "Unrealized VAT Reversal"::Delayed then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("Unrealized VAT", true);
                 end else begin
                     PaymentStep.SetRange("Payment Class", Code);
@@ -132,11 +132,11 @@ table 10860 "Payment Class"
         if PaymentLine.FindFirst then
             Error(Text001);
         Status.SetRange("Payment Class", Code);
-        Status.DeleteAll;
+        Status.DeleteAll();
         Step.SetRange("Payment Class", Code);
-        Step.DeleteAll;
+        Step.DeleteAll();
         StepLedger.SetRange("Payment Class", Code);
-        StepLedger.DeleteAll;
+        StepLedger.DeleteAll();
     end;
 
     var

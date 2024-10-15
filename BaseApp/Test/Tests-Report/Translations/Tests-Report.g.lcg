@@ -392,15 +392,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Report - NamedType VALVATAmountLCYTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3344855048 - NamedType 352833194" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VALVATAmtLCY]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Report - NamedType VALVATAmtLCYTok)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3344855048 - NamedType 369927205" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VALVATBaseLCY]]></Val>
@@ -412,7 +403,7 @@
   </Item>
   <Item ItemId=";Codeunit 3344855048 - NamedType 966899294" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VATAmtLineVAT1]]></Val>
+      <Val><![CDATA[VATPer_VATCounterLCY]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -421,7 +412,7 @@
   </Item>
   <Item ItemId=";Codeunit 3344855048 - NamedType 685762970" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VATAmtLineVATIdentifier1]]></Val>
+      <Val><![CDATA[VATIdentifier_VATCounterLCY]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -889,7 +880,7 @@
   </Item>
   <Item ItemId=";Codeunit 3196030910 - NamedType 1325603002" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The target email address has not been specified]]></Val>
+      <Val><![CDATA[The target email address has not been specified on the document layout for]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1506,6 +1497,51 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Custom Reports - NamedType TargetEmailErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 491879528 - NamedType 3771913144" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Set Up Reporting Data]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test OData Wizard US - NamedType ODataWizardTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 491879528 - NamedType 3193680122" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[((((No ge '01121212') and (No le '01445544')) or ((No eq '10000'))) and (((Name eq 'bo b') or (Name eq 'fra nk'))))]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test OData Wizard US - NamedType ExpectedFilterTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 491879528 - NamedType 1337355749" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[https://exceladdinprovider.smb.dynamics.com]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test OData Wizard US - NamedType ExcelAddinProviderUrlTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 491879528 - NamedType 63949426" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[https://exceladdinprovider.smb.dynamics-tie.com]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test OData Wizard US - NamedType ExcelAddinProviderUrlPPETxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3419531254 - NamedType 1229161134" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Only the first of the selected documents can be scheduled in the job queue.\\Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Report Layout Selection - NamedType OneRecordWillBeSentQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 570390768 - NamedType 2529727104" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

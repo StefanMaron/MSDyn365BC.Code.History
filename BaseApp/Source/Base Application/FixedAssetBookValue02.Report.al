@@ -827,9 +827,9 @@ report 5606 "Fixed Asset - Book Value 02"
                 NumberOfTypesForThiSFA: Integer;
             begin
                 if not FADeprBook.Get("No.", DeprBookCode) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if SkipRecord then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 NumberOfTypesForThiSFA := NumberOfTypes;
                 HasDerogatorySetup := false;
@@ -1371,7 +1371,7 @@ report 5606 "Fixed Asset - Book Value 02"
     procedure GetDepreciationBookCode()
     begin
         if DeprBookCode = '' then begin
-            FASetup.Get;
+            FASetup.Get();
             DeprBookCode := FASetup."Default Depr. Book";
         end;
     end;

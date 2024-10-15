@@ -19,7 +19,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
 
             repeat
                 TempGenJnlLine := FromGenJnlLine;
-                TempGenJnlLine.Insert;
+                TempGenJnlLine.Insert();
             until FromGenJnlLine.Next = 0
         end else
             CreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);
@@ -35,11 +35,11 @@ codeunit 1222 "SEPA CT-Prepare Source"
     begin
         PaymentDocNo := FromGenJnlLine.GetFilter("Document No.");
         PaymentHeader.Get(PaymentDocNo);
-        PaymentLine.Reset;
+        PaymentLine.Reset();
         PaymentLine.SetRange("No.", PaymentHeader."No.");
         if PaymentLine.FindSet then
             repeat
-                TempGenJnlLine.Init;
+                TempGenJnlLine.Init();
                 TempGenJnlLine."Journal Template Name" := '';
                 TempGenJnlLine."Journal Batch Name" := Format(DATABASE::"Payment Header");
                 TempGenJnlLine."Document No." := PaymentHeader."No.";
@@ -68,7 +68,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
                 if StrLen(AppliedDocNoList) > DescriptionLen then
                     TempGenJnlLine."Message to Recipient" :=
                       CopyStr(AppliedDocNoList, DescriptionLen + 1, MaxStrLen(TempGenJnlLine."Message to Recipient"));
-                TempGenJnlLine.Insert;
+                TempGenJnlLine.Insert();
             until PaymentLine.Next = 0;
 
         OnAfterCreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);

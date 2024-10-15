@@ -234,7 +234,7 @@ codeunit 5451 "Graph Integration Table Sync"
         if IntegrationTableMapping."Int. Tbl. Delta Token Fld. No." > 0 then begin
             DeltaTokenFieldRef := SourceRecRef.Field(IntegrationTableMapping."Int. Tbl. Delta Token Fld. No.");
             IntegrationTableMapping."Graph Delta Token" := DeltaTokenFieldRef.Value;
-            IntegrationTableMapping.Modify;
+            IntegrationTableMapping.Modify();
         end;
     end;
 
@@ -252,7 +252,7 @@ codeunit 5451 "Graph Integration Table Sync"
             GraphIntegrationRecord.SetRange("Table ID", IntegrationTableMapping."Table ID");
             if GraphIntegrationRecord.FindFirst then begin
                 GraphIntegrationRecord.ChangeKey := ChangeKeyFieldRef.Value;
-                GraphIntegrationRecord.Modify;
+                GraphIntegrationRecord.Modify();
             end;
         end;
     end;
@@ -329,8 +329,8 @@ codeunit 5451 "Graph Integration Table Sync"
         GraphIntegrationRecord.SetRange("Table ID", IntegrationTableMapping."Table ID");
         if GraphIntegrationRecord.FindFirst then begin
             GraphIntegrationRecArchive.TransferFields(GraphIntegrationRecord);
-            if GraphIntegrationRecArchive.Insert then
-                GraphIntegrationRecord.Delete;
+            if GraphIntegrationRecArchive.Insert() then
+                GraphIntegrationRecord.Delete();
         end;
     end;
 

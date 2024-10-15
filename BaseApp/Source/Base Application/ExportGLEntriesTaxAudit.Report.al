@@ -24,7 +24,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                 trigger OnPreDataItem()
                 begin
                     if not GLAccount."Detailed Balance" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem(Vendor; Vendor)
@@ -40,7 +40,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                 trigger OnPreDataItem()
                 begin
                     if not GLAccount."Detailed Balance" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Bank Account"; "Bank Account")
@@ -56,7 +56,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                 trigger OnPreDataItem()
                 begin
                     if not GLAccount."Detailed Balance" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Integer"; "Integer")
@@ -72,7 +72,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                 trigger OnPreDataItem()
                 begin
                     if not GLAccount."Detailed Balance" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -91,7 +91,7 @@ report 10885 "Export G/L Entries - Tax Audit"
             begin
                 SetFilter("No.", GLAccNoFilter);
                 if not IncludeOpeningBalances then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem(GLEntry; "G/L Entry")
@@ -432,8 +432,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         CompanyInformation: Record "Company Information";
         FileName: Text[250];
     begin
-        CompanyInformation.Get;
-        CompanyInformation.TestField("Registration No.");
+        CompanyInformation.Get();
         FileName := Format(CompanyInformation.GetSIREN) +
           'FEC' +
           GetFormattedDate(EndingDate) +
@@ -570,7 +569,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         GLAccNoFilter := GLEntry.GetFilter("G/L Account No.");
         GLEntry.SetRange("G/L Account No.", PayRecAccount);
         GLEntry.SetRange("Transaction No.", TransactionNo);
-        GLEntryCount := GLEntry.Count;
+        GLEntryCount := GLEntry.Count();
         GLEntry.SetRange("Transaction No.");
         GLEntry.SetFilter("G/L Account No.", GLAccNoFilter);
         exit(GLEntryCount)

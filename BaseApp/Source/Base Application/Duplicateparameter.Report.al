@@ -16,7 +16,7 @@ report 10872 "Duplicate parameter"
                 PaymtClass.Copy(PaymentClass);
                 PaymtClass.Name := '';
                 PaymtClass.Validate(Code, NewName);
-                PaymtClass.Insert;
+                PaymtClass.Insert();
             end;
 
             trigger OnPreDataItem()
@@ -34,7 +34,7 @@ report 10872 "Duplicate parameter"
             begin
                 PaymtStatus.Copy("Payment Status");
                 PaymtStatus.Validate("Payment Class", NewName);
-                PaymtStatus.Insert;
+                PaymtStatus.Insert();
             end;
 
             trigger OnPreDataItem()
@@ -52,7 +52,7 @@ report 10872 "Duplicate parameter"
             begin
                 PaymtStep.Copy("Payment Step");
                 PaymtStep.Validate("Payment Class", NewName);
-                PaymtStep.Insert;
+                PaymtStep.Insert();
             end;
 
             trigger OnPreDataItem()
@@ -70,7 +70,7 @@ report 10872 "Duplicate parameter"
             begin
                 PaymtStepLedger.Copy("Payment Step Ledger");
                 PaymtStepLedger.Validate("Payment Class", NewName);
-                PaymtStepLedger.Insert;
+                PaymtStepLedger.Insert();
             end;
 
             trigger OnPreDataItem()

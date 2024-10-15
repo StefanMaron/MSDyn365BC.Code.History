@@ -219,7 +219,7 @@ codeunit 134382 "ERM Dimension Journals"
         DimSetEntry.FindFirst;
         NewJournalDimSet := DimSetEntry."Dimension Set ID";
         ItemJournalLine."New Dimension Set ID" := NewJournalDimSet;
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
 
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
@@ -685,7 +685,7 @@ codeunit 134382 "ERM Dimension Journals"
         Initialize;
         CreateMultipleJournalLinesWithDimension(GenJournalLine);
         TempGenJournalLine := GenJournalLine;
-        TempGenJournalLine.Insert;
+        TempGenJournalLine.Insert();
 
         // Exercise.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1069,7 +1069,7 @@ codeunit 134382 "ERM Dimension Journals"
 
         // [WHEN] New line in the general journal is being created
         PrepareGeneralJournal(GenJournalBatch);
-        Commit;
+        Commit();
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal.New;
@@ -1101,7 +1101,7 @@ codeunit 134382 "ERM Dimension Journals"
         GenJournalLine.Modify(true);
 
         // [WHEN] Created line is displayed in the general journal page
-        Commit;
+        Commit();
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal.First;
@@ -1137,7 +1137,7 @@ codeunit 134382 "ERM Dimension Journals"
           LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
         GenJournalLine."Document No." := '';
         GenJournalLine.Modify(true);
-        Commit;
+        Commit();
 
         // [THEN] Open General Journal page
         GeneralJournal.OpenEdit;
@@ -1169,7 +1169,7 @@ codeunit 134382 "ERM Dimension Journals"
           LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
         GenJournalLine."Document No." := '';
         GenJournalLine.Modify(true);
-        Commit;
+        Commit();
 
         // [THEN] Open General Journal page
         GeneralJournal.OpenEdit;
@@ -1200,7 +1200,7 @@ codeunit 134382 "ERM Dimension Journals"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
           LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
-        Commit;
+        Commit();
 
         // [THEN] Open General Journal page
         GeneralJournal.OpenEdit;
@@ -1230,7 +1230,7 @@ codeunit 134382 "ERM Dimension Journals"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
           LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
-        Commit;
+        Commit();
 
         // [THEN] Open General Journal page
         GeneralJournal.OpenEdit;
@@ -1259,7 +1259,7 @@ codeunit 134382 "ERM Dimension Journals"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Journals");
     end;
 
@@ -1272,7 +1272,7 @@ codeunit 134382 "ERM Dimension Journals"
         DimensionValueCode: Code[20];
     begin
         // Create Journal Lines with two different Dimensions and use Random values.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionCode := GeneralLedgerSetup."Global Dimension 1 Code";  // Assign in Global variable.
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         DimensionValueCode := DimensionValue.Code;
@@ -1526,7 +1526,7 @@ codeunit 134382 "ERM Dimension Journals"
         PaymentJournal: TestPage "Payment Journal";
     begin
         DeleteAllPmtGenJnlTemplateButOne;
-        Commit;
+        Commit();
         PaymentJournal.OpenEdit;
         PaymentJournal.SuggestVendorPayments.Invoke;
     end;
@@ -1538,7 +1538,7 @@ codeunit 134382 "ERM Dimension Journals"
         GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::Payments);
         GenJnlTemplate.FindFirst;
         GenJnlTemplate.SetFilter(Name, '<>%1', GenJnlTemplate.Name);
-        GenJnlTemplate.DeleteAll;
+        GenJnlTemplate.DeleteAll();
     end;
 
     local procedure UpdateGeneralLineForBalanceAccount(var GenJournalLine: Record "Gen. Journal Line"; BalAccountType: Option; BalAccountNo: Code[20])
@@ -1824,7 +1824,7 @@ codeunit 134382 "ERM Dimension Journals"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Shortcut Dimension 1 Code");
     end;
 
@@ -1941,7 +1941,7 @@ codeunit 134382 "ERM Dimension Journals"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::General);
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
     end;
 
     local procedure CreateBankAccountWithDimension(var DefaultDimension: Record "Default Dimension")
@@ -2238,7 +2238,7 @@ codeunit 134382 "ERM Dimension Journals"
         DimensionValue1: Record "Dimension Value";
         DimensionValue2: Record "Dimension Value";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue1, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.FindDimensionValue(DimensionValue2, GeneralLedgerSetup."Global Dimension 2 Code");
         DimensionValue1Code := DimensionValue1.Code;
@@ -2290,7 +2290,7 @@ codeunit 134382 "ERM Dimension Journals"
     var
         SuggestVendorPayments: Report "Suggest Vendor Payments";
     begin
-        Commit;  // Commit required to avoid rollback of write transaction before opening Suggest Vendor Payments Report.
+        Commit();  // Commit required to avoid rollback of write transaction before opening Suggest Vendor Payments Report.
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.Run;
     end;
@@ -2391,7 +2391,7 @@ codeunit 134382 "ERM Dimension Journals"
         CreatePostInvoicesWithGlobalDimCode(LibraryERM.GetGlobalDimensionCode(1), GenJournalLine, VendorNo, DimValCode);
         // Verify a line is suggested for every Dimension Value of Global Dimension 1
         SuggestVendorPaymentAndVerifyGlobalDim1(GenJournalLine, VendorNo, DimValCode[1]);
-        GenJournalLine.Delete;
+        GenJournalLine.Delete();
         SuggestVendorPaymentAndVerifyGlobalDim1(GenJournalLine, VendorNo, DimValCode[2]);
     end;
 
@@ -2404,7 +2404,7 @@ codeunit 134382 "ERM Dimension Journals"
         CreatePostInvoicesWithGlobalDimCode(LibraryERM.GetGlobalDimensionCode(2), GenJournalLine, VendorNo, DimValCode);
         // Verify a line is suggested for every Dimension Value of Global Dimension 2
         SuggestVendorPaymentAndVerifyGlobalDim2(GenJournalLine, VendorNo, DimValCode[1]);
-        GenJournalLine.Delete;
+        GenJournalLine.Delete();
         SuggestVendorPaymentAndVerifyGlobalDim2(GenJournalLine, VendorNo, DimValCode[2]);
     end;
 
@@ -2418,7 +2418,7 @@ codeunit 134382 "ERM Dimension Journals"
         CreatePostInvoicesWithCurrency(GenJournalLine, VendorNo, Currency1Code, Currency2Code);
         // Verify a line is suggested for every Currency
         SuggestVendorPaymentAndVerifyCurrency(GenJournalLine, VendorNo, Currency1Code);
-        GenJournalLine.Delete;
+        GenJournalLine.Delete();
         SuggestVendorPaymentAndVerifyCurrency(GenJournalLine, VendorNo, Currency2Code);
     end;
 
@@ -2516,7 +2516,7 @@ codeunit 134382 "ERM Dimension Journals"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionSelectionMultiple.FILTER.SetFilter(Code, GeneralLedgerSetup."Global Dimension 1 Code");
         DimensionSelectionMultiple.Selected.SetValue(false);
         DimensionSelectionMultiple.OK.Invoke;

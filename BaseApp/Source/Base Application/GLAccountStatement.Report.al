@@ -147,21 +147,21 @@ report 10842 "G/L Account Statement"
                                 if ((Letter <> UpperCase(Letter)) or (Letter = '')) or
                                    ("Letter Date" > EvaluationDate)
                                 then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                             ApplicationStatus::"Not Applied":
                                 if ((Letter = UpperCase(Letter)) and (Letter <> '')) and
                                    ("Letter Date" < EvaluationDate)
                                 then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                         end
                     else
                         case ApplicationStatus of
                             ApplicationStatus::Applied:
                                 if (Letter <> UpperCase(Letter)) or (Letter = '') then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                             ApplicationStatus::"Not Applied":
                                 if (Letter = UpperCase(Letter)) and (Letter <> '') then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                         end;
 
                     Balance := Balance + "G/L Entry"."Debit Amount" - "G/L Entry"."Credit Amount";

@@ -145,12 +145,12 @@ report 10863 "GL/Vend. Ledger Reconciliation"
                     trigger OnAfterGetRecord()
                     begin
                         if ("Bal. Account Type" = "Bal. Account Type"::Vendor) and ("Bal. Account No." = Vendor."No.") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         TotalDebit := TotalDebit + "Debit Amount";
                         TotalCredit := TotalCredit + "Credit Amount";
                         InvPostBuf.Get(InvPostBuf.Type::"G/L Account", "G/L Account No.");
                         InvPostBuf.Amount := InvPostBuf.Amount + Amount;
-                        InvPostBuf.Modify;
+                        InvPostBuf.Modify();
                         HavingDetail := true;
                     end;
 
@@ -167,17 +167,17 @@ report 10863 "GL/Vend. Ledger Reconciliation"
                     Clear(PostingBuffer);
                     PostingBuffer."Account Type" := PostingBuffer."Account Type"::"G/L Account";
                     PostingBuffer."Account No." := "Payables Account";
-                    if not PostingBuffer.Insert then
-                        CurrReport.Skip;
+                    if not PostingBuffer.Insert() then
+                        CurrReport.Skip();
                     Clear(InvPostBuf);
                     InvPostBuf.Type := InvPostBuf.Type::"G/L Account";
                     InvPostBuf."G/L Account" := "Payables Account";
-                    if not InvPostBuf.Insert then;
+                    if not InvPostBuf.Insert() then;
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    PostingBuffer.DeleteAll;
+                    PostingBuffer.DeleteAll();
                 end;
             }
 
@@ -270,7 +270,7 @@ report 10863 "GL/Vend. Ledger Reconciliation"
 
     trigger OnPostReport()
     begin
-        InvPostBuf.DeleteAll;
+        InvPostBuf.DeleteAll();
     end;
 
     var

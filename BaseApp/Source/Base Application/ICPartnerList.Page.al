@@ -1,4 +1,4 @@
-﻿page 608 "IC Partner List"
+page 608 "IC Partner List"
 {
     ApplicationArea = Intercompany;
     Caption = 'Intercompany Partners';
@@ -132,7 +132,7 @@
         CompanyInformation: Record "Company Information";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if CompanyInformation."IC Partner Code" = '' then
             if ConfirmManagement.GetResponse(SetupICQst, true) then
                 PAGE.RunModal(PAGE::"IC Setup");

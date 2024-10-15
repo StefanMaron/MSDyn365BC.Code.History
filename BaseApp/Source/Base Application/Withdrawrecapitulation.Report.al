@@ -366,7 +366,7 @@ report 10871 "Withdraw recapitulation"
         if WithDrawNo = '' then
             Error(Text006);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FormatAddress.Company(CompanyAddr, CompanyInformation);
     end;
 
@@ -439,7 +439,7 @@ report 10871 "Withdraw recapitulation"
     procedure PrintCurrencyCode(): Code[10]
     begin
         if "Payment Lines1"."Currency Code" = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             exit(GLSetup."LCY Code");
         end;
         exit("Payment Lines1"."Currency Code");

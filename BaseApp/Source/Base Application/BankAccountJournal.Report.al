@@ -233,7 +233,7 @@ report 10815 "Bank Account Journal"
             trigger OnAfterGetRecord()
             begin
                 if Finished then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 DateRecNo += 1;
             end;
 

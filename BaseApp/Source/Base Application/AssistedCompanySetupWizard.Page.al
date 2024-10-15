@@ -383,7 +383,7 @@ page 1803 "Assisted Company Setup Wizard"
                                 end;
 
                                 if not InventorySetup.Modify then
-                                    InventorySetup.Insert;
+                                    InventorySetup.Insert();
                             end;
                         }
                     }
@@ -467,8 +467,7 @@ page 1803 "Assisted Company Setup Wizard"
 
                     UpdateCompanyDisplayNameIfNameChanged;
 
-                    NavApp.GetCurrentModuleInfo(Info);
-                    AssistedSetup.Complete(Info.Id(), PAGE::"Assisted Company Setup Wizard");
+                    AssistedSetup.Complete(PAGE::"Assisted Company Setup Wizard");
                     if (BankAccount."No." <> '') and (not TempOnlineBankAccLink.IsEmpty) then
                         if not TryLinkBankAccount then
                             ErrorText := GetLastErrorText;
@@ -504,14 +503,11 @@ page 1803 "Assisted Company Setup Wizard"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
     begin
-        if CloseAction = ACTION::OK then begin
-            NavApp.GetCurrentModuleInfo(Info);
-            if AssistedSetup.ExistsAndIsNotComplete(Info.Id(), PAGE::"Assisted Company Setup Wizard") then
+        if CloseAction = ACTION::OK then 
+            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Assisted Company Setup Wizard") then
                 if not Confirm(NotSetUpQst, false) then
                     Error('');
-        end;
     end;
 
     var
@@ -548,7 +544,7 @@ page 1803 "Assisted Company Setup Wizard"
         StandardVisible: Boolean;
         EvaluationVisible: Boolean;
         SkipAccountingPeriod: Boolean;
-        NotSetUpQst: Label 'The application has not been set up. Setup will continue the next time you start the program.\\Are you sure that you want to exit?';
+        NotSetUpQst: Label 'The application is not set up. This guide will display the next time you sign in. If you do not want the guide to start, go to the Companies page and turn off the guide.\\Are you sure that you want to close this guide?';
         HideBankStatementProvider: Boolean;
         NoSetupTypeSelectedQst: Label 'You have not selected any setup type. If you proceed, the application will not be fully functional, until you set it up manually.\\Do you want to continue?';
         HelpLbl: Label 'Learn more about setting up your company';
@@ -674,8 +670,8 @@ page 1803 "Assisted Company Setup Wizard"
         if HideBankStatementProvider then
             exit;
 
-        TempOnlineBankAccLink.Reset;
-        TempOnlineBankAccLink.DeleteAll;
+        TempOnlineBankAccLink.Reset();
+        TempOnlineBankAccLink.DeleteAll();
 
         if not TempBankAccount.StatementProvidersExist then
             exit;
@@ -832,7 +828,7 @@ page 1803 "Assisted Company Setup Wizard"
         if not BankAccountInformationUpdated then
             StoreBankAccountInformation(TempSavedBankAccount);
 
-        TempBankAccount.Init;
+        TempBankAccount.Init();
         TempBankAccount.CreateNewAccount(TempOnlineBankAccLink);
         RestoreBankAccountInformation(TempBankAccount);
         BankAccountInformationUpdated := true;
@@ -842,13 +838,13 @@ page 1803 "Assisted Company Setup Wizard"
     begin
         if not BufferBankAccount.IsEmpty then
             exit;
-        BufferBankAccount.Init;
+        BufferBankAccount.Init();
         BufferBankAccount."Bank Account No." := "Bank Account No.";
         BufferBankAccount.Name := "Bank Name";
         BufferBankAccount."Bank Branch No." := "Bank Branch No.";
         BufferBankAccount."SWIFT Code" := "SWIFT Code";
         BufferBankAccount.IBAN := IBAN;
-        BufferBankAccount.Insert;
+        BufferBankAccount.Insert();
     end;
 
     local procedure RestoreBankAccountInformation(var BufferBankAccount: Record "Bank Account")
@@ -927,7 +923,7 @@ page 1803 "Assisted Company Setup Wizard"
 
         Company.Get(CompanyName);
         Company."Display Name" := Name;
-        Company.Modify;
+        Company.Modify();
     end;
 }
 

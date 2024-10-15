@@ -105,7 +105,7 @@ report 10803 "G/L Trial Balance"
                    (GLAccount2."Credit Amount" = 0) and
                    ("Credit Amount" = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if "Debit Amount" < 0 then begin
                     "Credit Amount" += -"Debit Amount";

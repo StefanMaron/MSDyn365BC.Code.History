@@ -206,11 +206,11 @@ codeunit 138942 "BC O365 Contact Tests"
         LibrarySales.CreateCustomer(Customer);
         Customer.Address := CopyStr(Format(CreateGuid), 1, MaxStrLen(Customer.Address));
         Customer."E-Mail" := 'a@b.c';
-        Customer.Modify;
+        Customer.Modify();
 
         LibraryInventory.CreateItem(Item);
         Item."Unit Price" := 1;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateInvoice(var Customer: Record Customer; var Item: Record Item; var BCO365SalesInvoice: TestPage "BC O365 Sales Invoice")
@@ -257,7 +257,7 @@ codeunit 138942 "BC O365 Contact Tests"
         EventSubscriberInvoicingApp.Clear();
         EventSubscriberInvoicingApp.SetAvoidExcessiveRecursion(true);
         ApplicationArea('#Invoicing');
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
 
         if IsInitialized then
             exit;
@@ -281,11 +281,11 @@ codeunit 138942 "BC O365 Contact Tests"
         ReportSelections: Record "Report Selections";
     begin
         ReportSelections.SetRange(Usage, 0); // "S.Quote". work-around to avoid RU modification
-        ReportSelections.DeleteAll;
-        ReportSelections.Init;
+        ReportSelections.DeleteAll();
+        ReportSelections.Init();
         ReportSelections.Usage := 0; // "S.Quote"
         ReportSelections."Report ID" := REPORT::"Standard Sales - Quote";
-        ReportSelections.Insert;
+        ReportSelections.Insert();
     end;
 }
 

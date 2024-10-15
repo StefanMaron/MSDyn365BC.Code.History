@@ -17,7 +17,7 @@ codeunit 5059 ProfileManagement
         ContProfileAnswer: Record "Contact Profile Answer";
         Valid: Boolean;
     begin
-        ProfileQuestnHeaderTemp.DeleteAll;
+        ProfileQuestnHeaderTemp.DeleteAll();
 
         with ProfileQuestnHeader do begin
             Reset;
@@ -36,7 +36,7 @@ codeunit 5059 ProfileManagement
                         if not ContBusRel.Get(Cont."Company No.", "Business Relation Code") then
                             Valid := false;
                     if not Valid then begin
-                        ContProfileAnswer.Reset;
+                        ContProfileAnswer.Reset();
                         ContProfileAnswer.SetRange("Contact No.", Cont."No.");
                         ContProfileAnswer.SetRange("Profile Questionnaire Code", Code);
                         if ContProfileAnswer.FindFirst then
@@ -44,7 +44,7 @@ codeunit 5059 ProfileManagement
                     end;
                     if Valid then begin
                         ProfileQuestnHeaderTemp := ProfileQuestnHeader;
-                        ProfileQuestnHeaderTemp.Insert;
+                        ProfileQuestnHeaderTemp.Insert();
                     end;
                 until Next = 0;
         end;
@@ -57,10 +57,10 @@ codeunit 5059 ProfileManagement
         if ProfileQuestnHeader.FindFirst then
             exit(ProfileQuestnHeader.Code);
 
-        ProfileQuestnHeader.Init;
+        ProfileQuestnHeader.Init();
         ProfileQuestnHeader.Code := Text000;
         ProfileQuestnHeader.Description := Text000;
-        ProfileQuestnHeader.Insert;
+        ProfileQuestnHeader.Insert();
         exit(ProfileQuestnHeader.Code);
     end;
 
@@ -107,7 +107,7 @@ codeunit 5059 ProfileManagement
 
     procedure LookupName(var ProfileQuestnHeaderCode: Code[20]; var ProfileQuestnLine: Record "Profile Questionnaire Line"; var Cont: Record Contact)
     begin
-        Commit;
+        Commit();
         FindLegalProfileQuestionnaire(Cont);
         if ProfileQuestnHeaderTemp.Get(ProfileQuestnHeaderCode) then;
         if PAGE.RunModal(

@@ -35,28 +35,28 @@ report 10864 "Suggest Customer Payments"
                         until Next = 0;
                 end;
 
-                GenPayLine.LockTable;
+                GenPayLine.LockTable();
                 GenPayLine.SetRange("No.", GenPayLine."No.");
                 if GenPayLine.FindLast then begin
                     LastLineNo := GenPayLine."Line No.";
-                    GenPayLine.Init;
+                    GenPayLine.Init();
                 end;
 
                 Window.Open(Text008);
 
-                PayableCustLedgEntry.Reset;
+                PayableCustLedgEntry.Reset();
                 PayableCustLedgEntry.SetRange(Priority, 1, 2147483647);
                 MakeGenPayLines;
-                PayableCustLedgEntry.Reset;
+                PayableCustLedgEntry.Reset();
                 PayableCustLedgEntry.SetRange(Priority, 0);
                 MakeGenPayLines;
-                PayableCustLedgEntry.Reset;
-                PayableCustLedgEntry.DeleteAll;
+                PayableCustLedgEntry.Reset();
+                PayableCustLedgEntry.DeleteAll();
                 Window.Close;
 
                 if GenPayLineInserted and (Customer.GetFilter("Partner Type") <> '') then begin
                     GenPayHead."Partner Type" := Customer."Partner Type";
-                    GenPayHead.Modify;
+                    GenPayHead.Modify();
                 end;
                 ShowMessage(MessageText);
             end;
@@ -184,7 +184,7 @@ report 10864 "Suggest Customer Payments"
     [Scope('OnPrem')]
     procedure GetCustLedgEntries(Positive: Boolean; Future: Boolean)
     begin
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date");
         CustLedgEntry.SetRange("Customer No.", Customer."No.");
         CustLedgEntry.SetRange(Open, true);
@@ -235,7 +235,7 @@ report 10864 "Suggest Customer Payments"
         PayableCustLedgEntry.Future := (CustLedgEntry."Due Date" > LastDueDateToPayReq);
         PayableCustLedgEntry."Currency Code" := CustLedgEntry."Currency Code";
         PayableCustLedgEntry."Due Date" := CustLedgEntry."Due Date";
-        PayableCustLedgEntry.Insert;
+        PayableCustLedgEntry.Insert();
         NextEntryNo := NextEntryNo + 1;
     end;
 
@@ -253,7 +253,7 @@ report 10864 "Suggest Customer Payments"
                 if PayableCustLedgEntry."Currency Code" <> PrevCurrency then begin
                     if CurrencyBalance < 0 then begin
                         PayableCustLedgEntry.SetRange("Currency Code", PrevCurrency);
-                        PayableCustLedgEntry.DeleteAll;
+                        PayableCustLedgEntry.DeleteAll();
                         PayableCustLedgEntry.SetRange("Currency Code");
                     end;
                     CurrencyBalance := 0;
@@ -263,11 +263,11 @@ report 10864 "Suggest Customer Payments"
             until PayableCustLedgEntry.Next = 0;
             if CurrencyBalance > 0 then begin
                 PayableCustLedgEntry.SetRange("Currency Code", PrevCurrency);
-                PayableCustLedgEntry.DeleteAll;
+                PayableCustLedgEntry.DeleteAll();
                 PayableCustLedgEntry.SetRange("Currency Code");
             end;
         end;
-        PayableCustLedgEntry.Reset;
+        PayableCustLedgEntry.Reset();
     end;
 
     local procedure InsertTempPaymentPostBuffer(var TempPaymentPostBuffer: Record "Payment Post. Buffer" temporary; var CustLedgEntry: Record "Cust. Ledger Entry")
@@ -280,7 +280,7 @@ report 10864 "Suggest Customer Payments"
         TempPaymentPostBuffer."Global Dimension 1 Code" := CustLedgEntry."Global Dimension 1 Code";
         TempPaymentPostBuffer."Global Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
         TempPaymentPostBuffer."Auxiliary Entry No." := CustLedgEntry."Entry No.";
-        TempPaymentPostBuffer.Insert;
+        TempPaymentPostBuffer.Insert();
     end;
 
     local procedure MakeGenPayLines()
@@ -288,7 +288,7 @@ report 10864 "Suggest Customer Payments"
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
         GenPayLine3: Record "Gen. Journal Line";
     begin
-        TempPaymentPostBuffer.DeleteAll;
+        TempPaymentPostBuffer.DeleteAll();
 
         if PayableCustLedgEntry.Find('-') then
             repeat
@@ -310,7 +310,7 @@ report 10864 "Suggest Customer Payments"
                         if TempPaymentPostBuffer.Find then begin
                             TempPaymentPostBuffer.Amount := TempPaymentPostBuffer.Amount + PayableCustLedgEntry.Amount;
                             TempPaymentPostBuffer."Amount (LCY)" := TempPaymentPostBuffer."Amount (LCY)" + PayableCustLedgEntry."Amount (LCY)";
-                            TempPaymentPostBuffer.Modify;
+                            TempPaymentPostBuffer.Modify();
                         end else begin
                             LastLineNo := LastLineNo + 10000;
                             TempPaymentPostBuffer."Payment Line No." := LastLineNo;
@@ -326,12 +326,12 @@ report 10864 "Suggest Customer Payments"
                             TempPaymentPostBuffer.Amount := PayableCustLedgEntry.Amount;
                             TempPaymentPostBuffer."Amount (LCY)" := PayableCustLedgEntry."Amount (LCY)";
                             Window.Update(1, CustLedgEntry."Customer No.");
-                            TempPaymentPostBuffer.Insert;
+                            TempPaymentPostBuffer.Insert();
                         end;
                         CustLedgEntry."Applies-to ID" := TempPaymentPostBuffer."Applies-to ID";
                         CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgEntry)
                     end else begin
-                        GenPayLine3.Reset;
+                        GenPayLine3.Reset();
                         GenPayLine3.SetCurrentKey(
                           "Account Type", "Account No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
                         GenPayLine3.SetRange("Account Type", GenPayLine3."Account Type"::Customer);
@@ -383,7 +383,7 @@ report 10864 "Suggest Customer Payments"
                     if SummarizePer = SummarizePer::" " then begin
                         CustLedgEntry.Get(TempPaymentPostBuffer."Auxiliary Entry No.");
                         CustLedgEntry."Applies-to ID" := "Applies-to ID";
-                        CustLedgEntry.Modify;
+                        CustLedgEntry.Modify();
                     end;
                     "Account Type" := "Account Type"::Customer;
                     Validate("Account No.", TempPaymentPostBuffer."Account No.");
@@ -419,7 +419,7 @@ report 10864 "Suggest Customer Payments"
                                 PayableCustLedgEntry.SetRange("Vendor No.", TempPaymentPostBuffer."Account No.");
                                 PayableCustLedgEntry.Find('+');
                                 "Due Date" := PayableCustLedgEntry."Due Date";
-                                PayableCustLedgEntry.DeleteAll;
+                                PayableCustLedgEntry.DeleteAll();
                             end;
                         SummarizePer::"Due date":
                             "Due Date" := TempPaymentPostBuffer."Due Date";

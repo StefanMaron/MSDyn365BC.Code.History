@@ -33,7 +33,7 @@ codeunit 708 "Dictionary Wrapper"
         InitializeKeysArray;
         SYSTEM.Clear(Key);
 
-        Count := Dictionary.Count;
+        Count := Dictionary.Count();
         if (Index >= Count) or (Index < 0) then
             exit(false);
 
@@ -116,7 +116,7 @@ codeunit 708 "Dictionary Wrapper"
         if KeysArrayInitialized then
             exit;
 
-        Count := Dictionary.Count;
+        Count := Dictionary.Count();
         KeysArray := KeysArray.CreateInstance(GetDotNetType(Object), Count);
         KeyCollection := Dictionary.Keys;
         KeyCollection.CopyTo(KeysArray, 0);

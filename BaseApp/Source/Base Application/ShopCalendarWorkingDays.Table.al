@@ -96,7 +96,7 @@ table 99000752 "Shop Calendar Working Days"
         if ShopCalendar2.Find('-') then
             repeat
                 TempShopCalendar := ShopCalendar2;
-                TempShopCalendar.Insert;
+                TempShopCalendar.Insert();
             until ShopCalendar2.Next = 0;
 
         TempShopCalendar := xRec;

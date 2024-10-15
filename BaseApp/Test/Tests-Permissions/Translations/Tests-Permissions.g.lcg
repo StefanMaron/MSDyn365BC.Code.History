@@ -959,4 +959,22 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Granules - NamedType BasicISVTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 363486531 - NamedType 317548624" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You aren't allowed to run this report. If you want, you can give yourself the Time Sheet Admin. rights, and then try again.\\ Do you want to do that now?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Time Sheets Permissions - NamedType OpenUserSetupQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 363486531 - NamedType 1953352820" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Time sheet administrator only is allowed to create time sheets.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Time Sheets Permissions - NamedType TimeSheetAdminErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

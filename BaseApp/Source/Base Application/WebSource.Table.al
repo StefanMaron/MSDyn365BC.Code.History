@@ -46,7 +46,7 @@ table 5059 "Web Source"
     begin
         RMCommentLine.SetRange("Table Name", RMCommentLine."Table Name"::"Web Source");
         RMCommentLine.SetRange("No.", Code);
-        RMCommentLine.DeleteAll;
+        RMCommentLine.DeleteAll();
     end;
 
     var

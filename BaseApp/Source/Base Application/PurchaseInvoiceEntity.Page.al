@@ -316,7 +316,7 @@ page 5527 "Purchase Invoice Entity"
         Clear(BillingPostalAddressJSONText);
         Clear(InvoiceDiscountAmount);
         Clear(DiscountAmountSet);
-        TempFieldBuffer.DeleteAll;
+        TempFieldBuffer.DeleteAll();
     end;
 
     local procedure RegisterFieldSet(FieldNo: Integer)
@@ -331,7 +331,7 @@ page 5527 "Purchase Invoice Entity"
         TempFieldBuffer.Order := LastOrderNo;
         TempFieldBuffer."Table ID" := DATABASE::"Purch. Inv. Entity Aggregate";
         TempFieldBuffer."Field ID" := FieldNo;
-        TempFieldBuffer.Insert;
+        TempFieldBuffer.Insert();
     end;
 
     local procedure CheckVendor()

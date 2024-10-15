@@ -34,11 +34,9 @@ table 10863 "Payment Step Ledger"
                 Validate(Root);
             end;
         }
-        field(9; "Account Type"; Option)
+        field(9; "Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(10; "Account No."; Code[20])
         {

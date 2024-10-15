@@ -69,7 +69,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         DocNo := SalesCrMemoHeader."No.";
         SalesCrMemoHeader."No. Printed" := 1;
         SalesCrMemoHeader.Delete(true);
-        Commit; // Required for the ASSERTERROR to Work
+        Commit(); // Required for the ASSERTERROR to Work
 
         // [THEN] The deferrals were removed also
         VerifyPostedDeferralScheduleDoesNotExist(DeferralUtilities.GetSalesDeferralDocType,
@@ -112,7 +112,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         SalesInvHeader.Get(DocNo);
         SalesInvHeader."No. Printed" := 1;
         SalesInvHeader.Delete(true);
-        Commit; // Required for the ASSERTERROR to Work
+        Commit(); // Required for the ASSERTERROR to Work
 
         // [THEN] The deferrals are removed along with the posted sales invoice
         VerifyPostedDeferralScheduleDoesNotExist(DeferralUtilities.GetSalesDeferralDocType,
@@ -188,7 +188,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         PurchCrMemoHdr.Get(DocNo);
         PurchCrMemoHdr."No. Printed" := 1;
         PurchCrMemoHdr.Delete(true);
-        Commit; // Required for the ASSERTERROR to Work
+        Commit(); // Required for the ASSERTERROR to Work
 
         // [THEN] The deferrals were removed also
         VerifyPostedDeferralScheduleDoesNotExist(DeferralUtilities.GetPurchDeferralDocType,
@@ -231,7 +231,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         PurchInvHeader.Get(DocNo);
         PurchInvHeader."No. Printed" := 1;
         PurchInvHeader.Delete(true);
-        Commit; // Required for the ASSERTERROR to Work
+        Commit(); // Required for the ASSERTERROR to Work
 
         // [THEN] The deferrals are removed along with the posted purchase invoice
         VerifyPostedDeferralScheduleDoesNotExist(DeferralUtilities.GetPurchDeferralDocType,
@@ -693,7 +693,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
         VerifyVATEntry(PurchaseLine.Amount, Round(PurchaseLine.Amount * VATPostingSetup."VAT %" / 100), DocNo);
         VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Normal VAT";
-        VATPostingSetup.Modify;
+        VATPostingSetup.Modify();
     end;
 
     [Test]
@@ -722,7 +722,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
         VerifyVATEntry(-SalesLine.Amount, 0, DocNo);
         VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Normal VAT";
-        VATPostingSetup.Modify;
+        VATPostingSetup.Modify();
     end;
 
     [Test]
@@ -764,7 +764,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [GIVEN] Purchase Line 2 with Amount = 2000, VAT 19%, where Deferral Schedule amounts are 666.66, 555.55, 777.79
         // [GIVEN] Description of each def.period is matched to Line order/Def.Line order 21,22,23 filled with '0' to the end of the line like '210000000...'
         GLAccount."No." := LibraryUtility.GenerateGUID;
-        GLAccount.Insert;
+        GLAccount.Insert();
         CreatePurchLineWithUserDefinedDeferralSchedule(
           PurchaseLine, PurchaseHeader, GLAccount."No.", DeferralTemplateCode, 666.66, 555.55, 777.79, 2);
 
@@ -824,7 +824,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [GIVEN] Sales Line 2 with Amount = 2000, VAT 19%, where Deferral Schedule amounts are 666.66, 555.55, 777.79
         // [GIVEN] Description of each def.period is matched to Line order/Def.Line order 21,22,23 filled with '0' to the end of the line like '210000000...'
         GLAccount."No." := LibraryUtility.GenerateGUID;
-        GLAccount.Insert;
+        GLAccount.Insert();
         CreateSalesLineWithUserDefinedDeferralSchedule(
           SalesLine, SalesHeader, GLAccount."No.", DeferralTemplateCode, 666.66, 555.55, 777.79, 2);
 
@@ -1079,7 +1079,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [GIVEN] Sales Document with Currency Code blank and Posting Date not equal to WORKDATE
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         SalesHeader.Validate("Posting Date", WorkDate - 1);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // [GIVEN] A currency
         LibraryERM.CreateCurrency(Currency);
@@ -1131,7 +1131,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"RED Test Unit for SalesPurDoc2");
     end;
 
@@ -1505,11 +1505,11 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
     local procedure FillTempAmountLines(var TempGLEntry: Record "G/L Entry" temporary; LineNo: Integer; GLAccountNo: Code[20]; Amount: Decimal)
     begin
-        TempGLEntry.Init;
+        TempGLEntry.Init();
         TempGLEntry."Entry No." := LineNo;
         TempGLEntry."G/L Account No." := GLAccountNo;
         TempGLEntry.Amount := Amount;
-        TempGLEntry.Insert;
+        TempGLEntry.Insert();
     end;
 
     [ModalPageHandler]

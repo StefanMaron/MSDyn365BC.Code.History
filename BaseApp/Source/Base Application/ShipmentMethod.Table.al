@@ -71,8 +71,11 @@ table 10 "Shipment Method"
     end;
 
     trigger OnRename()
+    var
+        CRMSyncHelper: Codeunit "CRM Synch. Helper";
     begin
         SetLastModifiedDateTime;
+        CRMSyncHelper.UpdateCDSOptionMapping(xRec.RecordId(), RecordId());
     end;
 
     var

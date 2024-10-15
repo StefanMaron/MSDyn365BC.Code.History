@@ -636,7 +636,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         CreateIncomingDocument(IncomingDocument);
         CreateIncomingDocAttachment(IncomingDocument, IncomingDocumentAttachment, 'xml');
 
-        Commit;
+        Commit();
         IncomingDocumentCard.OpenEdit;
         IncomingDocumentCard.GotoRecord(IncomingDocument);
 
@@ -720,7 +720,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         CreateIncomingDocAttachment(IncomingDocument, IncomingDocumentAttachment, 'xml');
 
         // CreatePurchaseInvoice(PurchHeader);
-        Commit;
+        Commit();
         IncomingDocuments.OpenEdit;
         IncomingDocuments.GotoRecord(IncomingDocument);
 
@@ -950,13 +950,13 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         UserSetup: Record "User Setup";
         PostedApprovalEntry: Record "Posted Approval Entry";
     begin
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryERMCountryData.InitializeCountry;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryWorkflow.DisableAllWorkflows;
-        PostedApprovalEntry.DeleteAll;
+        PostedApprovalEntry.DeleteAll();
         if IsInitialized then
             exit;
         IsInitialized := true;
@@ -976,7 +976,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
     local procedure CreateIncomingDocument(var IncomingDocument: Record "Incoming Document")
     begin
         if IncomingDocument.FindLast then;
-        IncomingDocument.Init;
+        IncomingDocument.Init();
         IncomingDocument."Entry No." += 1;
         IncomingDocument."OCR Service Doc. Template Code" := 'TEST';
         IncomingDocument."Data Exchange Type" := LibraryUtility.GenerateGUID;

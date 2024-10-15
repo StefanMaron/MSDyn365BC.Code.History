@@ -1,4 +1,4 @@
-﻿page 18 "G/L Account List"
+page 18 "G/L Account List"
 {
     Caption = 'G/L Account List';
     CardPageID = "G/L Account Card";

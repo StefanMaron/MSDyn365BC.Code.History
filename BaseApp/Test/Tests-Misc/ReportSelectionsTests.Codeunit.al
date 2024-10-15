@@ -20,6 +20,7 @@ codeunit 134421 "Report Selections Tests"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryXMLRead: Codeunit "Library - XML Read";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryMarketing: Codeunit "Library - Marketing";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryWorkflow: Codeunit "Library - Workflow";
@@ -696,7 +697,7 @@ codeunit 134421 "Report Selections Tests"
         InsertCustomReportSelectionCustomer(
           CustomReportSelection, SalesInvoiceHeader[1]."Sell-to Customer No.",
           GetSalesInvoiceReportID, false, false, '', '', CustomReportSelection.Usage::"S.Invoice");
-        Commit;
+        Commit();
 
         // [WHEN] Send to print "InvoiceA", "InvoiceB" and "InvoiceC" within single selection
         SalesInvoiceHeader[1].SetFilter(
@@ -732,7 +733,7 @@ codeunit 134421 "Report Selections Tests"
         // [SCENARIO 270795] User is unable to insert a line into the "Report Selection2" table with a blank "Report ID".
         Initialize;
 
-        ReportSelections.Init;
+        ReportSelections.Init();
         ReportSelections.Validate("Report ID", 0);
         asserterror ReportSelections.Insert(true);
         Assert.ExpectedError(ReportIDMustHaveValueErr);
@@ -748,7 +749,7 @@ codeunit 134421 "Report Selections Tests"
         // [SCENARIO 270795] User is unable to change "Report ID" to blank in the "Report Selection2" table.
         Initialize;
 
-        ReportSelections.Init;
+        ReportSelections.Init();
         ReportSelections.Validate("Report ID", LibraryRandom.RandIntInRange(20, 30));
         ReportSelections.Insert(true);
 
@@ -808,7 +809,7 @@ codeunit 134421 "Report Selections Tests"
         InsertCustomReportSelectionVendor(
           CustomReportSelection, ReturnShipmentHeader."Buy-from Vendor No.", GetPurchaseReturnShipmentReportID,
           false, false, '', CustomReportSelection.Usage::"P.Ret.Shpt.");
-        Commit;
+        Commit();
 
         // [WHEN] Print Posted Return Shipment.
         ReturnShipmentHeader.SetRecFilter;
@@ -879,7 +880,7 @@ codeunit 134421 "Report Selections Tests"
           CustomReportSelection, CustomerNo, GetCustomerStatementReportID, true, true,
           CustomReportLayout.InitBuiltInLayout(GetCustomerStatementReportID, CustomReportLayout.Type::Word),
           'abc@abc.abc', CustomReportSelection.Usage::"C.Statement");
-        Commit;
+        Commit();
 
         // [WHEN] Run Statement report for the Customer "C" with "Report Output" = Email.
         LibraryVariableStorage.Enqueue(ReportOutput::Email);
@@ -926,7 +927,7 @@ codeunit 134421 "Report Selections Tests"
           CustomReportSelection, CustomerNo, GetCustomerStatementReportID, true, true,
           CustomReportLayout.InitBuiltInLayout(GetCustomerStatementReportID, CustomReportLayout.Type::Word),
           '', CustomReportSelection.Usage::"C.Statement");
-        Commit;
+        Commit();
 
         // [WHEN] Run Statement report for the Customer "C" with "Report Output" = Email.
         LibraryVariableStorage.Enqueue(ReportOutput::Email);
@@ -972,7 +973,7 @@ codeunit 134421 "Report Selections Tests"
           CustomReportSelection, CustomerNo, GetStandardStatementReportID, false, false,
           '',
           'abc@abc.abc', CustomReportSelection.Usage::"C.Statement");
-        Commit;
+        Commit();
 
         // [WHEN] Run "Customer Statement" report for the Customer "C" with "Report Output" = Email.
         LibraryVariableStorage.Enqueue(StandardStatementReportOutput::Email);
@@ -980,7 +981,7 @@ codeunit 134421 "Report Selections Tests"
         ErrorMessages.Trap;
         CustomerCard.OpenEdit;
         CustomerCard."Report Statement".Invoke;
-        Commit;
+        Commit();
 
         // [THEN] Error "No data exists for specified report filter"
         ErrorMessages.Description.AssertEquals(NoOutputErr);
@@ -1002,7 +1003,7 @@ codeunit 134421 "Report Selections Tests"
         // [SCENARIO 320367] "Send to Email" on CustomReportSelection can't contain invalid addresses
 
         // [GIVEN] Custom Report Selection
-        CustomReportSelection.Init;
+        CustomReportSelection.Init();
 
         // [WHEN] Set "Send to Email" to a string with valid address "test@email.com" and invalid "newtest@"
         asserterror CustomReportSelection.Validate("Send To Email", 'test@email.com;newtest@');
@@ -1010,6 +1011,326 @@ codeunit 134421 "Report Selections Tests"
         // [THEN] Error is shown than "newtest@" is not a valid email address
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError('The email address "newtest@" is not valid.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UT_TestReportSelectionsUsageValues_W1()
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        Assert.AreEqual(ReportSelections.Usage::"S.Quote", 0, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Order", 1, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Invoice", 2, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Cr.Memo", 3, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Test", 4, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Quote", 5, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Order", 6, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Invoice", 7, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Cr.Memo", 8, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Receipt", 9, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Ret.Shpt.", 10, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Test", 11, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"B.Stmt", 12, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"B.Recon.Test", 13, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"B.Check", 14, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::Reminder, 15, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"Fin.Charge", 16, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"Rem.Test", 17, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"F.C.Test", 18, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"Prod.Order", 19, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Blanket", 20, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Blanket", 21, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::M1, 22, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::M2, 23, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::M3, 24, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::M4, 25, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::Inv1, 26, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::Inv2, 27, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::Inv3, 28, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"SM.Quote", 29, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"SM.Order", 30, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"SM.Invoice", 31, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"SM.Credit Memo", 32, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"SM.Contract Quote", 33, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"SM.Contract", 34, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"SM.Test", 35, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Return", 36, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Return", 37, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Shipment", 38, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Ret.Rcpt.", 39, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Work Order", 40, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"Invt.Period Test", 41, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"SM.Shipment", 42, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Test Prepmt.", 43, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Test Prepmt.", 44, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Arch.Quote", 45, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Arch.Order", 46, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Arch.Quote", 47, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Arch.Order", 48, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Arch.Return", 49, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Arch.Return", 50, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"Asm.Order", 51, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Asm.Order", 52, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Order Pick Instruction", 53, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.V.Remit.", 84, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"C.Statement", 85, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"V.Remittance", 86, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::JQ, 87, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Invoice Draft", 88, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"Pro Forma S. Invoice", 89, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"S.Arch.Blanket", 90, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Arch.Blanket", 91, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"Phys.Invt.Order Test", 92, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"Phys.Invt.Order", 93, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Phys.Invt.Order", 94, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"Phys.Invt.Rec.", 95, 'Wrong Usage option value.');
+        Assert.AreEqual(ReportSelections.Usage::"P.Phys.Invt.Rec.", 96, 'Wrong Usage option value.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UT_TestReportSelectionsUsageValues_Local()
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyFromReportSelectionsCustomerUT()
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        ReportSelections: Record "Report Selections";
+        CustomerNo: Code[20];
+    begin
+        // [FEATURE] [UT] [Custom Report Selection]
+        // [SCENARIO 275947] Copy "Report Selections" setup to "Custom Report Selection" for customer
+        Initialize();
+
+        // [GIVEN] Report Selections: Quote, Customer Statement,Reminder ("R1", "R2", "R3")
+        LibraryERM.SetupReportSelection(ReportSelections.Usage::"S.Quote", 1304);
+        LibraryERM.SetupReportSelection(ReportSelections.Usage::Reminder, 117);
+        LibraryERM.SetupReportSelection(ReportSelections.Usage::"S.Shipment", 208);
+        ReportSelections.SetFilter(Usage, '%1|%2|%3', ReportSelections.Usage::"S.Quote", ReportSelections.Usage::Reminder, ReportSelections.Usage::"S.Shipment");
+        // [GIVEN] Customer "C"
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        // [GIVEN] Custom report selection "CR" for "C"
+        InsertCustomReportSelectionCustomer(CustomReportSelection, CustomerNo, 204, false, false, '', '', CustomReportSelection.Usage::"S.Quote");
+        // [WHEN] Copy Report Selections to Custom Report Selection
+        CustomReportSelection.CopyFromReportSelections(ReportSelections, Database::Customer, CustomerNo);
+        // [THEN] Custom Report Selection contains 4 records with "R1", "R2", "R3", "CR" reports for "C"
+        VerifyCopiedCustomReportSelection(ReportSelections, Database::Customer, CustomerNo, 4);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyFromReportSelectionsVendorUT()
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        ReportSelections: Record "Report Selections";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [UT] [Custom Report Selection]
+        // [SCENARIO 275947] Copy "Report Selections" setup to "Custom Report Selection" for vendor
+        Initialize();
+
+        // [GIVEN] Report Selections: Order, Vendor Remittance, Vendor Remittance - Posted Entries, Return Shipment ("R1", "R2", "R3")
+        LibraryERM.SetupReportSelection(ReportSelections.Usage::"P.Order", 1322);
+        LibraryERM.SetupReportSelection(ReportSelections.Usage::"V.Remittance", 399);
+        LibraryERM.SetupReportSelection(ReportSelections.Usage::"P.Ret.Shpt.", 6636);
+        ReportSelections.SetFilter(
+            Usage, '%1|%2|%3',
+            ReportSelections.Usage::"P.Order", ReportSelections.Usage::"V.Remittance", ReportSelections.Usage::"P.Ret.Shpt.");
+        // [GIVEN] Vendor "V"
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        // [WHEN] Copy Report Selections to Custom Report Selection
+        CustomReportSelection.CopyFromReportSelections(ReportSelections, Database::Vendor, VendorNo);
+        // [THEN] Custom Report Selection contains 3 records with "R1", "R2", "R3" reports for "V"
+        VerifyCopiedCustomReportSelection(ReportSelections, Database::Vendor, VendorNo, 3);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetSendToEmailFromContactsUT()
+    var
+        Contact: Record Contact;
+        CustomReportSelection: Record "Custom Report Selection";
+        CompanyContactNo: Code[20];
+        i: Integer;
+        EmailList: Text;
+        ContactFilter: Text;
+    begin
+        // [FEATURE] [UT] [Custom Report Selection]
+        // [SCENARIO 275947] Get "Send to Email" from contacts
+        Initialize();
+
+        // [GIVEN] Person contact "CP" with email "E"
+        CreatePersonContactWithEmail('', false);
+        // [GIVEN] Company contact "CC1" with person contacts "CP1".."CP3" with emails "E1".."E3"
+        CompanyContactNo := LibraryMarketing.CreateCompanyContactNo();
+        for i := 1 to 3 do
+            EmailList += CreatePersonContactWithEmail(CompanyContactNo, false) + ';';
+        // [GIVEN] Sales quote custom report selection
+        CreateSalesQuoteCustomReportSelection(CustomReportSelection, LibrarySales.CreateCustomerNo());
+        // [WHEN] Get emails from contacts "CP1".."CP3"
+        Contact.SetRange("Company No.", CompanyContactNo);
+        Contact.FindSet();
+        repeat
+            ContactFilter += Contact."No." + '|';
+        until Contact.Next() = 0;
+        ContactFilter := DelChr(ContactFilter, '>', '|');
+        Contact.Reset();
+        Contact.SetFilter("No.", ContactFilter);
+        CustomReportSelection.GetSendToEmailFromContacts(Contact);
+        // [THEN] Custom report selection "Send to Email" = "E1;E2;E3;"
+        Assert.AreEqual(CustomReportSelection."Send To Email", EmailList, 'Wrong email list.');
+        Assert.IsTrue(CustomReportSelection."Use Email from Contact", 'Wrong use email from contact.');
+        Assert.IsTrue(CustomReportSelection."Selected Contacts Filter".HasValue, 'Wrong selected contacts filter.');
+    end;
+
+    [Test]
+    [HandlerFunctions('ExceededContactsNotification')]
+    [Scope('OnPrem')]
+    procedure GetSendToEmailFromContactsWithNotificationUT()
+    var
+        Contact: Record Contact;
+        CustomReportSelection: Record "Custom Report Selection";
+        CompanyContactNo: Code[20];
+        i: Integer;
+        EmailList: Text;
+    begin
+        // [FEATURE] [UT] [Custom Report Selection]
+        // [SCENARIO 275947] Get "Send to Email" from contacts and show notification on exceeding the field length
+        Initialize();
+
+        // [GIVEN] Person contact "CP" with email "E"
+        CreatePersonContactWithEmail('', false);
+        // [GIVEN] Company contact "CC1" with person contacts "CP1".."CP3" with emails "E1".."E3"
+        CompanyContactNo := LibraryMarketing.CreateCompanyContactNo();
+        for i := 1 to 3 do
+            EmailList += CreatePersonContactWithEmail(CompanyContactNo, true) + ';';
+        EmailList := CopyStr(EmailList, 1, 162);
+        // [GIVEN] Sales quote custom report selection
+        CreateSalesQuoteCustomReportSelection(CustomReportSelection, LibrarySales.CreateCustomerNo());
+        // [WHEN] Get emails from contacts "CP1".."CP3"
+        Contact.SetRange("Company No.", CompanyContactNo);
+        CustomReportSelection.GetSendToEmailFromContacts(Contact);
+        // [THEN] Custom report selection "Send to Email" = "E1;E2;"
+        Assert.AreEqual(CustomReportSelection."Send To Email", EmailList, 'Wrong email list.');
+    end;
+
+    [Test]
+    [HandlerFunctions('TestAddressEMailDialogHandler')]
+    [Scope('OnPrem')]
+    procedure GetSendToEmailFromContactsFilter()
+    var
+        SalesHeader: Record "Sales Header";
+        CustomReportSelection: Record "Custom Report Selection";
+        SalesQuote: TestPage "Sales Quote";
+        CompanyContactNo: Code[20];
+        i: Integer;
+        EmailList: Text;
+        TempEmail: Text;
+    begin
+        // [FEATURE] [UT] [UI] [Custom Report Selection]
+        // [SCENARIO 275947] Verify "Send To Email" from contacts filter via EmailDialog
+        Initialize();
+
+        // [GIVEN] Company contact "CC1" with person contacts "CP1".."CP3" with emails "E1".."E3"
+        // [GIVEN] Send to email = "E1"|"E2"
+        CompanyContactNo := LibraryMarketing.CreateCompanyContactNo();
+        for i := 1 to 3 do begin
+            TempEmail := CreatePersonContactWithEmail(CompanyContactNo, false) + ';';
+            if (i = 1) or (i = 2) then
+                EmailList += TempEmail;
+        end;
+        // [GIVEN] Sales quote with custom report selection
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
+        SalesHeader.Find();
+        CreateSalesQuoteCustomReportSelection(CustomReportSelection, SalesHeader."Sell-to Customer No.");
+        FillCustomReportSelectionContactsFilter(CustomReportSelection, CompanyContactNo);
+        CustomReportSelection.Modify();
+        // [WHEN] Invoke "Send by Emai" action on the sales quote page
+        SalesQuote.OpenEdit;
+        SalesQuote.GotoRecord(SalesHeader);
+        SalesQuote.Email.Invoke();
+        // [THEN] EmailDialog appeared, "Send to" = "E1";"E2"
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), EmailList, 'Wrong send to email dialog.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ClearSendToEmail()
+    var
+        SalesHeader: Record "Sales Header";
+        CustomReportSelection: Record "Custom Report Selection";
+        CompanyContactNo: Code[20];
+        i: Integer;
+        EmailList: Text;
+    begin
+        // [FEATURE] [Custom Report Selection]
+        // [SCENARIO 275947] Clear "Send To Email" clears also selected contacts filter 
+        Initialize();
+
+        // [GIVEN] Company contact "CC1" with person contacts "CP1".."CP3" with emails "E1".."E3"
+        CompanyContactNo := LibraryMarketing.CreateCompanyContactNo();
+        for i := 1 to 3 do
+            CreatePersonContactWithEmail(CompanyContactNo, true);
+        // [GIVEN] Sales quote custom report selection
+        CreateSalesQuoteCustomReportSelection(CustomReportSelection, LibrarySales.CreateCustomerNo());
+        // [GIVEN] Custom report selection with 2 contacts
+        FillCustomReportSelectionContactsFilter(CustomReportSelection, CompanyContactNo);
+        // [WHEN] Clear "Send to Emai" in custom report selection
+        CustomReportSelection.Validate("Send To Email", '');
+        CustomReportSelection.Modify();
+        // [THEN] "Selected Contacts Filter" doesn't have a value
+        Assert.IsFalse(CustomReportSelection."Selected Contacts Filter".HasValue, 'Wrong selected contacts filter.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdateSendToEmailOnOpenPage()
+    var
+        Contact: Record Contact;
+        CustomReportSelection: Record "Custom Report Selection";
+        CustomerReportSelections: TestPage "Customer Report Selections";
+        CompanyContactNo: Code[20];
+        i: Integer;
+        EmailList: Text;
+        ContactFilter: Text;
+    begin
+        // [FEATURE] [UT] [Custom Report Selection]
+        // [SCENARIO 275947] "Send to Email" field updated from contacts after "Customer Report Selections" page opened
+        Initialize();
+
+        // [GIVEN] Person contact "CP" with email "E"
+        CreatePersonContactWithEmail('', false);
+        // [GIVEN] Company contact "CC1" with person contacts "CP1".."CP3" with emails "E1".."E3"
+        CompanyContactNo := LibraryMarketing.CreateCompanyContactNo();
+        for i := 1 to 3 do
+            EmailList += CreatePersonContactWithEmail(CompanyContactNo, false) + ';';
+        // [GIVEN] Sales quote custom report selection
+        CreateSalesQuoteCustomReportSelection(CustomReportSelection, LibrarySales.CreateCustomerNo());
+        Contact.SetRange("Company No.", CompanyContactNo);
+        Contact.FindSet();
+        repeat
+            ContactFilter += Contact."No." + '|';
+        until Contact.Next() = 0;
+        ContactFilter := DelChr(ContactFilter, '>', '|');
+        Contact.Reset();
+        Contact.SetFilter("No.", ContactFilter);
+        CustomReportSelection.GetSendToEmailFromContacts(Contact);
+        CustomReportSelection.Modify();
+        // [WHEN] "Email" in contact updated later
+        if Contact.FindLast() then begin
+            Contact."E-Mail" := 'testcase@testcase.com';
+            Contact.Modify();
+        end;
+        // [THEN] Customer Report Selection "Sent To Email" updated when page opened
+        CustomerReportSelections.OpenEdit();
+        CustomerReportSelections.GoToRecord(CustomReportSelection);
+        Assert.IsTrue(StrPos(CustomerReportSelections.SendToEmail.Value, 'testcase@testcase.com') <> 0, 'Wrong email after contact update.');
     end;
 
     [Test]
@@ -1061,9 +1382,9 @@ codeunit 134421 "Report Selections Tests"
     begin
         BindActiveDirectoryMockEvents;
         LibraryVariableStorage.AssertEmpty;
-        CustomReportSelection.DeleteAll;
-        ReportSelections.DeleteAll;
-        ReportLayoutSelection.DeleteAll;
+        CustomReportSelection.DeleteAll();
+        ReportSelections.DeleteAll();
+        ReportLayoutSelection.DeleteAll();
         CreateDefaultReportSelection;
         LibrarySetupStorage.Restore;
 
@@ -1076,9 +1397,9 @@ codeunit 134421 "Report Selections Tests"
         CustomMessageTypeTxt := Format(DummyEmailItem."Message Type"::"Custom Message");
         FromEmailBodyTemplateTxt := Format(DummyEmailItem."Message Type"::"From Email Body Template");
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."SWIFT Code" := 'A';
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
@@ -1089,7 +1410,7 @@ codeunit 134421 "Report Selections Tests"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibraryWorkflow.SetUpSMTPEmailSetup;
 
-        Commit;
+        Commit();
     end;
 
     local procedure CreateSalesInvoice(var SalesHeader: Record "Sales Header")
@@ -1168,7 +1489,7 @@ codeunit 134421 "Report Selections Tests"
     local procedure CreateVendorWithCustomNo(var Vendor: Record Vendor; VendorNo: Code[20])
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Delete;
+        Vendor.Delete();
         Vendor."No." := VendorNo;
         Vendor.Insert(true);
     end;
@@ -1310,18 +1631,18 @@ codeunit 134421 "Report Selections Tests"
     var
         ReportLayoutSelection: Record "Report Layout Selection";
     begin
-        ReportLayoutSelection.Init;
+        ReportLayoutSelection.Init();
         ReportLayoutSelection."Company Name" := CompanyName;
         ReportLayoutSelection.Type := ReportLayoutSelection.Type::"RDLC (built-in)";
         ReportLayoutSelection."Report ID" := REPORT::"Standard Sales - Invoice";
-        ReportLayoutSelection.Insert;
+        ReportLayoutSelection.Insert();
 
         // Setup for purchase order
-        ReportLayoutSelection.Init;
+        ReportLayoutSelection.Init();
         ReportLayoutSelection."Company Name" := CompanyName;
         ReportLayoutSelection.Type := ReportLayoutSelection.Type::"Word (built-in)";
         ReportLayoutSelection."Report ID" := REPORT::"Standard Purchase - Order";
-        ReportLayoutSelection.Insert;
+        ReportLayoutSelection.Insert();
     end;
 
     local procedure CreateDefaultReportSelection()
@@ -1337,11 +1658,11 @@ codeunit 134421 "Report Selections Tests"
     var
         ReportSelections: Record "Report Selections";
     begin
-        ReportSelections.Init;
+        ReportSelections.Init();
         ReportSelections.Usage := Usage;
         ReportSelections.Sequence := Sequence;
         ReportSelections."Report ID" := ReportID;
-        ReportSelections.Insert;
+        ReportSelections.Insert();
     end;
 
     local procedure UpdateReportSelections(NewUsage: Integer; NewReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; NewEmailBodyLayout: Code[20])
@@ -1491,6 +1812,77 @@ codeunit 134421 "Report Selections Tests"
         Assert.IsTrue(AttachmentNameOK, 'Attachment File Name text is wrong on Send Email Dialog');
     end;
 
+    local procedure VerifyCopiedCustomReportSelection(var ReportSelections: Record "Report Selections"; SourceType: Integer; SourceNo: Code[20]; CustomReportSelectionRecordCount: Integer)
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+    begin
+        CustomReportSelection.SetRange("Source Type", SourceType);
+        CustomReportSelection.SetRange("Source No.", SourceNo);
+        Assert.RecordCount(CustomReportSelection, CustomReportSelectionRecordCount);
+
+        ReportSelections.FindSet();
+        repeat
+            CustomReportSelection.SetRange(Usage, ReportSelections.Usage);
+            CustomReportSelection.SetRange("Report ID", ReportSelections."Report ID");
+            Assert.RecordCount(CustomReportSelection, 1);
+        until ReportSelections.Next() = 0;
+    end;
+
+    local procedure CreatePersonContactWithEmail(CompanyContactNo: Code[20]; UseMaxFieldLength: Boolean): Text
+    var
+        Contact: Record Contact;
+        i: Integer;
+        EMail: Text;
+    begin
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact.Validate("Company No.", CompanyContactNo);
+        if UseMaxFieldLength then
+            Contact.Validate("E-Mail", CreateEmail(MaxStrLen(Contact."E-Mail")))
+        else
+            Contact.Validate("E-Mail", CreateEmail(20));
+        Contact.Modify();
+        exit(Contact."E-Mail");
+    end;
+
+    local procedure CreateSalesQuoteCustomReportSelection(var CustomReportSelection: Record "Custom Report Selection"; SourceNo: Code[20])
+    begin
+        CustomReportSelection.Init();
+        CustomReportSelection."Source Type" := Database::Customer;
+        CustomReportSelection."Source No." := SourceNo;
+        CustomReportSelection.Usage := CustomReportSelection.Usage::"S.Quote";
+        CustomReportSelection."Report ID" := 1304;
+        CustomReportSelection.Insert();
+    end;
+
+    local procedure CreateEmail(MaxLength: Integer): Text
+    var
+        i: Integer;
+        Email: Text;
+    begin
+        Email := LibraryUtility.GenerateGUID + '@';
+        for i := 1 to MaxLength DIV 10 - 1 do
+            Email += LibraryUtility.GenerateGUID;
+
+        exit(CopyStr(Email, 1, MaxLength));
+    end;
+
+    local procedure FillCustomReportSelectionContactsFilter(var CustomReportSelection: Record "Custom Report Selection"; CompanyContactNo: Code[20])
+    var
+        Contact: Record Contact;
+        OStream: OutStream;
+        ContactFilter: Text;
+    begin
+        Contact.SetRange(Type, Contact.Type::Person);
+        Contact.SetRange("Company No.", CompanyContactNo);
+        Contact.FindFirst();
+        ContactFilter := Contact."No.";
+        Contact.Next();
+        ContactFilter += '|' + Contact."No.";
+        Contact.Reset();
+        Contact.SetFilter("No.", ContactFilter);
+        CustomReportSelection.GetSendToEmailFromContacts(Contact);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StandardSalesInvoiceRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
@@ -1626,6 +2018,13 @@ codeunit 134421 "Report Selections Tests"
     procedure DownloadAttachmentNoConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure ExceededContactsNotification(var Notification: Notification): Boolean
+    begin
+        Assert.IsTrue(StrPos(Notification.Message, 'Too many contacts were selected.') > 0, 'Exceeding contacts notification is expected');
     end;
 }
 

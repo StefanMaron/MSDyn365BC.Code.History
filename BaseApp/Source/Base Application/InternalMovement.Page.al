@@ -1,4 +1,4 @@
-﻿page 7399 "Internal Movement"
+page 7399 "Internal Movement"
 {
     Caption = 'Internal Movement';
     PageType = Document;

@@ -1,4 +1,4 @@
-﻿page 5200 "Employee Card"
+page 5200 "Employee Card"
 {
     Caption = 'Employee Card';
     PageType = Card;

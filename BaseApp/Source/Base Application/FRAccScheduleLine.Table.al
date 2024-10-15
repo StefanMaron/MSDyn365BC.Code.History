@@ -152,11 +152,11 @@ table 10801 "FR Acc. Schedule Line"
     begin
         if xRec."Line No." = 0 then
             if not AccSchedName.Get("Schedule Name") then begin
-                AccSchedName.Init;
+                AccSchedName.Init();
                 AccSchedName.Name := "Schedule Name";
                 if AccSchedName.Name = '' then
                     AccSchedName.Description := Text10800;
-                AccSchedName.Insert;
+                AccSchedName.Insert();
             end;
     end;
 

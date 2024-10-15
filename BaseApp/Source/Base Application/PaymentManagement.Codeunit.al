@@ -103,14 +103,14 @@ codeunit 10860 "Payment Management"
             Step."Action Type"::"Cancel File":
                 begin
                     PaymentHeader."File Export Completed" := false;
-                    PaymentHeader.Modify;
+                    PaymentHeader.Modify();
                     ActionValidated := true;
                 end;
             Step."Action Type"::File:
                 begin
                     PaymentHeader."File Export Completed" := false;
-                    PaymentHeader.Modify;
-                    Commit;
+                    PaymentHeader.Modify();
+                    Commit();
 
                     case Step."Export Type" of
                         Step."Export Type"::Report:
@@ -129,7 +129,7 @@ codeunit 10860 "Payment Management"
                 end;
             Step."Action Type"::Ledger:
                 begin
-                    InvPostingBuffer[1].DeleteAll;
+                    InvPostingBuffer[1].DeleteAll();
                     CheckDim;
                     Window.Open(
                       '#1#################################\\' +
@@ -148,7 +148,7 @@ codeunit 10860 "Payment Management"
                             PaymentLine."P. Group Last Entry Credit" := EntryPostGroupCredit;
                             PaymentLine.Validate("Status No.", Step."Next Status");
                             PaymentLine.Posted := true;
-                            PaymentLine.Modify;
+                            PaymentLine.Modify();
                         until PaymentLine.Next = 0;
                     Window.Close;
                     GenerEntries;
@@ -158,7 +158,7 @@ codeunit 10860 "Payment Management"
 
         if ActionValidated then begin
             PaymentHeader.Validate("Status No.", Step."Next Status");
-            PaymentHeader.Modify;
+            PaymentHeader.Modify();
             PaymentLine.SetRange("No.", PaymentHeader."No.");
             PaymentLine.ModifyAll("Status No.", Step."Next Status");
             PaymentStatus.Get(PaymentHeader."Payment Class", Step."Next Status");
@@ -208,11 +208,11 @@ codeunit 10860 "Payment Management"
               InvPostingBuffer[2].Quantity + InvPostingBuffer[1].Quantity;
             if not InvPostingBuffer[1]."System-Created Entry" then
                 InvPostingBuffer[2]."System-Created Entry" := false;
-            InvPostingBuffer[2].Modify;
+            InvPostingBuffer[2].Modify();
         end else begin
             GLEntryNoTmp += 1;
             InvPostingBuffer[1]."GL Entry No." := GLEntryNoTmp;
-            InvPostingBuffer[1].Insert;
+            InvPostingBuffer[1].Insert();
         end;
     end;
 
@@ -264,7 +264,7 @@ codeunit 10860 "Payment Management"
                 ToPaymentLine.Insert(true);
                 FromPaymentLine."Copied To No." := ToPaymentLine."No.";
                 FromPaymentLine."Copied To Line" := ToPaymentLine."Line No.";
-                FromPaymentLine.Modify;
+                FromPaymentLine.Modify();
                 i += 10000;
             until FromPaymentLine.Next = 0;
             PayNum := ToBord."No.";
@@ -288,7 +288,7 @@ codeunit 10860 "Payment Management"
                     ToPaymentLine.FindFirst;
                     ToPaymentLine."Copied To No." := '';
                     ToPaymentLine."Copied To Line" := 0;
-                    ToPaymentLine.Modify;
+                    ToPaymentLine.Modify();
                     FromPaymentLine.Delete(true);
                 until FromPaymentLine.Next = 0;
     end;
@@ -542,7 +542,7 @@ codeunit 10860 "Payment Management"
                             CustLedgerEntry."Applies-to ID" := InvPostingBuffer[1]."Applies-to ID";
                             CustLedgerEntry.CalcFields("Remaining Amount");
                             CustLedgerEntry.Validate("Amount to Apply", CustLedgerEntry."Remaining Amount");
-                            CustLedgerEntry.Modify;
+                            CustLedgerEntry.Modify();
                         end;
                     end else
                         if InvPostingBuffer[1]."Account Type" = InvPostingBuffer[1]."Account Type"::Vendor then begin
@@ -554,14 +554,14 @@ codeunit 10860 "Payment Management"
                                 VendorLedgerEntry."Applies-to ID" := InvPostingBuffer[1]."Applies-to ID";
                                 VendorLedgerEntry.CalcFields("Remaining Amount");
                                 VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
-                                VendorLedgerEntry.Modify;
+                                VendorLedgerEntry.Modify();
                             end;
                         end;
                 end else
                     if StepLedger.Application = StepLedger.Application::"Memorized Entry" then begin
                         InvPostingBuffer[1]."Applies-to ID" := PaymentLine."No." + '/' + Format(PaymentLine."Line No.") + Text011;
                         if InvPostingBuffer[1]."Account Type" = InvPostingBuffer[1]."Account Type"::Customer then begin
-                            CustLedgerEntry.Reset;
+                            CustLedgerEntry.Reset();
                             if (InvPostingBuffer[1].Amount < 0) xor InvPostingBuffer[1].Correction then
                                 CustLedgerEntry.SetRange("Entry No.", OldPaymentLine."Entry No. Debit Memo")
                             else
@@ -570,7 +570,7 @@ codeunit 10860 "Payment Management"
                                 CustLedgerEntry."Applies-to ID" := InvPostingBuffer[1]."Applies-to ID";
                                 CustLedgerEntry.CalcFields("Remaining Amount");
                                 CustLedgerEntry.Validate("Amount to Apply", CustLedgerEntry."Remaining Amount");
-                                CustLedgerEntry.Modify;
+                                CustLedgerEntry.Modify();
                             end;
                         end else
                             if InvPostingBuffer[1]."Account Type" = InvPostingBuffer[1]."Account Type"::Vendor then begin
@@ -582,7 +582,7 @@ codeunit 10860 "Payment Management"
                                     VendorLedgerEntry."Applies-to ID" := InvPostingBuffer[1]."Applies-to ID";
                                     VendorLedgerEntry.CalcFields("Remaining Amount");
                                     VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
-                                    VendorLedgerEntry.Modify;
+                                    VendorLedgerEntry.Modify();
                                 end;
                             end;
                     end;
@@ -608,7 +608,7 @@ codeunit 10860 "Payment Management"
             with PaymentHeader do
                 repeat
                     LastGLEntryNo := PostInvPostingBuffer;
-                    PaymentLine.Reset;
+                    PaymentLine.Reset();
                     PaymentLine.SetRange("No.", "No.");
                     PaymentLine.SetRange("Line No.");
                     if GenJnlLine.Amount >= 0 then begin
@@ -633,7 +633,7 @@ codeunit 10860 "Payment Management"
         if HeaderAccountUsedGlobally then begin
             Difference := TotalDebit - TotalCredit;
             if Difference <> 0 then begin
-                GenJnlLine.Init;
+                GenJnlLine.Init();
                 GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
                 Currency.Get(PaymentHeader."Currency Code");
                 if Difference < 0 then begin
@@ -659,7 +659,7 @@ codeunit 10860 "Payment Management"
             end;
         end;
 
-        InvPostingBuffer[1].DeleteAll;
+        InvPostingBuffer[1].DeleteAll();
     end;
 
     local procedure GetIntegerPos(No: Code[20]; var StartPos: Integer; var EndPos: Integer)
@@ -954,14 +954,14 @@ codeunit 10860 "Payment Management"
         if not Document."Archiving Authorized" then
             Error(Text022, Document."No.");
         ArchiveHeader.TransferFields(Document);
-        ArchiveHeader.Insert;
-        Document.Delete;
+        ArchiveHeader.Insert();
+        Document.Delete();
         PaymentLine.SetRange("No.", Document."No.");
         if PaymentLine.Find('-') then
             repeat
                 ArchiveLine.TransferFields(PaymentLine);
-                ArchiveLine.Insert;
-                PaymentLine.Delete;
+                ArchiveLine.Insert();
+                PaymentLine.Delete();
             until PaymentLine.Next = 0;
     end;
 
@@ -1028,7 +1028,7 @@ codeunit 10860 "Payment Management"
         GenJnlLine.SetRange("Document No.", PaymentHeader."No.");
         if SEPACTExportFile.Export(GenJnlLine, XMLPortId) then begin
             PaymentHeader."File Export Completed" := true;
-            PaymentHeader.Modify;
+            PaymentHeader.Modify();
         end;
     end;
 
@@ -1041,20 +1041,20 @@ codeunit 10860 "Payment Management"
         PaymentHeader.TestField("Account Type", PaymentHeader."Account Type"::"Bank Account");
         DirectDebitCollection.CreateNew(PaymentHeader."No.", PaymentHeader."Account No.", PaymentHeader."Partner Type");
         DirectDebitCollection."Source Table ID" := DATABASE::"Payment Header";
-        DirectDebitCollection.Modify;
+        DirectDebitCollection.Modify();
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
-        Commit;
+        Commit();
         ClearLastError;
         if CODEUNIT.Run(CODEUNIT::"SEPA DD-Export File", DirectDebitCollectionEntry) then begin
             DeleteDirectDebitCollection(DirectDebitCollection."No.");
             PaymentHeader."File Export Completed" := true;
-            PaymentHeader.Modify;
+            PaymentHeader.Modify();
             exit;
         end;
 
         LastError := GetLastErrorText;
         DeleteDirectDebitCollection(DirectDebitCollection."No.");
-        Commit;
+        Commit();
         Error(LastError);
     end;
 

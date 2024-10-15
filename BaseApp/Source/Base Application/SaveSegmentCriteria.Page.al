@@ -22,8 +22,8 @@ page 5142 "Save Segment Criteria"
                     begin
                         if Code <> '' then begin
                             SavedSegCriteria.Code := Code;
-                            SavedSegCriteria.Insert;
-                            SavedSegCriteria.Delete;
+                            SavedSegCriteria.Insert();
+                            SavedSegCriteria.Delete();
                         end;
                     end;
                 }

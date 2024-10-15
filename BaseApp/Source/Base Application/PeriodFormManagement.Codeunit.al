@@ -6,13 +6,13 @@ codeunit 359 PeriodFormManagement
     end;
 
     var
-        Text000: Label '<Week>.<Year4>';
-        Text001: Label '<Month Text,3> <Year4>';
-        Text002: Label '<Quarter>/<Year4>';
-        Text003: Label '<Year4>';
+        Text000: Label '<Week>.<Year4>', Locked = true;
+        Text001: Label '<Month Text,3> <Year4>', Locked = true;
+        Text002: Label '<Quarter>/<Year4>', Locked = true;
+        Text003: Label '<Year4>', Locked = true;
         AccountingPeriod: Record "Accounting Period";
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
-        Text10800: Label '<Month Text,4> <Year4>';
+        Text10800: Label '<Month Text,4> <Year4>', Locked = true;
 
     procedure FindDate(SearchString: Text[3]; var Calendar: Record Date; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"): Boolean
     var
@@ -136,7 +136,7 @@ codeunit 359 PeriodFormManagement
 
     local procedure CopyAccountingPeriod(var Calendar: Record Date)
     begin
-        Calendar.Init;
+        Calendar.Init();
         Calendar."Period Start" := AccountingPeriod."Starting Date";
         Calendar."Period Name" := AccountingPeriod.Name;
         if AccountingPeriod.IsEmpty then

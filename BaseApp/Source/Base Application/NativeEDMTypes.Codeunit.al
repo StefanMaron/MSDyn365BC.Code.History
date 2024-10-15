@@ -66,8 +66,8 @@ codeunit 2801 "Native - EDM Types"
         I: Integer;
         NumberOfLines: Integer;
     begin
-        TempSalesInvoiceLineAggregate.Reset;
-        TempSalesInvoiceLineAggregate.DeleteAll;
+        TempSalesInvoiceLineAggregate.Reset();
+        TempSalesInvoiceLineAggregate.DeleteAll();
         JSONManagement.InitializeCollection(SalesLinesCollectionJSON);
         NumberOfLines := JSONManagement.GetCollectionCount;
 
@@ -225,7 +225,7 @@ codeunit 2801 "Native - EDM Types"
     begin
         O365CouponClaimDocLink.SetRange("Document Type", DocumentType);
         O365CouponClaimDocLink.SetRange("Document No.", DocumentNo);
-        O365CouponClaimDocLink.DeleteAll;
+        O365CouponClaimDocLink.DeleteAll();
         JSONManagement.InitializeCollection(CouponsJSON);
         NumberOfLines := JSONManagement.GetCollectionCount;
 
@@ -234,7 +234,7 @@ codeunit 2801 "Native - EDM Types"
 
         for I := 1 to NumberOfLines do begin
             JSONManagement.GetJObjectFromCollectionByIndex(LineJsonObject, I - 1);
-            O365CouponClaimDocLink.Reset;
+            O365CouponClaimDocLink.Reset();
             ParseCouponJSON(LineJsonObject, O365CouponClaimDocLink);
             O365CouponClaimDocLink."Graph Contact ID" := ContactGraphId;
             O365CouponClaimDocLink."Document Type" := DocumentType;
@@ -346,8 +346,8 @@ codeunit 2801 "Native - EDM Types"
         JsonLineIndex: Integer;
         NumberOfLines: Integer;
     begin
-        TempAttachmentEntityBuffer.Reset;
-        TempAttachmentEntityBuffer.DeleteAll;
+        TempAttachmentEntityBuffer.Reset();
+        TempAttachmentEntityBuffer.DeleteAll();
         JSONManagement.InitializeCollection(AttachmentsCollectionJSON);
         NumberOfLines := JSONManagement.GetCollectionCount;
 
@@ -482,19 +482,19 @@ codeunit 2801 "Native - EDM Types"
         TargetFieldRef := TargetRecordRef.Field(TargetFieldNumber);
         ValueVariant := TargetFieldRef.Value;
 
-        case LowerCase(Format(TargetFieldRef.Type)) of
-            'guid':
+        case TargetFieldRef.Type of
+            FieldType::Guid:
                 begin
                     GuidValue := TargetFieldRef.Value;
                     ValueVariant := LowerCase(IntegrationManagement.GetIdWithoutBrackets(GuidValue));
                 end;
-            'option':
+            FieldType::Option:
                 begin
                     OptionNumber := TargetFieldRef.Value;
                     OptionNumber += 1;
                     ValueVariant := SelectStr(OptionNumber, TargetFieldRef.OptionMembers);
                 end;
-            'datetime':
+            FieldType::Datetime:
                 begin
                     DateTimeValue := TargetFieldRef.Value;
                     IsNullValue := DateTimeValue = 0DT;
@@ -521,7 +521,7 @@ codeunit 2801 "Native - EDM Types"
         TempFieldBuffer.Order := LastOrderNo;
         TempFieldBuffer."Table ID" := DATABASE::"Sales Invoice Line Aggregate";
         TempFieldBuffer."Field ID" := FieldNo;
-        TempFieldBuffer.Insert;
+        TempFieldBuffer.Insert();
     end;
 
     local procedure ProcessTaxableProperty(var JsonObject: DotNet JObject; TargetFieldNumber: Integer; var TargetRecordRef: RecordRef): Boolean

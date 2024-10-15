@@ -33,7 +33,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         EmployeeNo := LibraryHumanResource.CreateEmployeeNo;
 
         // [GIVEN] Reversal Entry with Source Type = Employee
-        ReversalEntry.Init;
+        ReversalEntry.Init();
         ReversalEntry.Validate("Source Type", ReversalEntry."Source Type"::Employee);
 
         // [WHEN] Validate Source No. = "E" in Reversal Entry
@@ -388,7 +388,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         exit(SourceCodeSetup.Reversal);
     end;
 

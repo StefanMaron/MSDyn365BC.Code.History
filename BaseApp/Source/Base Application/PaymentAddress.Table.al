@@ -6,11 +6,9 @@ table 10870 "Payment Address"
 
     fields
     {
-        field(1; "Account Type"; Option)
+        field(1; "Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(2; "Account No."; Code[20])
         {

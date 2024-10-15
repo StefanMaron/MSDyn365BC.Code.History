@@ -550,11 +550,11 @@ page 9285 "Transfer Routes Matrix"
     begin
         if MatrixRecords[MATRIX_ColumnOrdinal].Code <> Code then begin
             if not TransferRoute.Get(Code, MatrixRecords[MATRIX_ColumnOrdinal].Code) then begin
-                TransferRoute.Init;
+                TransferRoute.Init();
                 TransferRoute.Validate("Transfer-from Code", Code);
                 TransferRoute.Validate("Transfer-to Code", MatrixRecords[MATRIX_ColumnOrdinal].Code);
-                TransferRoute.Insert;
-                Commit;
+                TransferRoute.Insert();
+                Commit();
             end;
             PAGE.RunModal(PAGE::"Transfer Route Specification", TransferRoute);
         end;

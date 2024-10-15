@@ -62,7 +62,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
                 repeat
                     WhseRcptLine.Get("No.", "Line No.");
                     WhseCrossDockOpp.SetRange("Source Line No.", "Line No.");
-                    WhseCrossDockOpp.DeleteAll;
+                    WhseCrossDockOpp.DeleteAll();
                     GetSourceLine("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                     CalculateCrossDock(
                       WhseCrossDockOpp, "Item No.", "Variant Code", LocationCode,
@@ -94,7 +94,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
                         repeat
                             WhseRcptLine.Get("No.", "Line No.");
                             WhseCrossDockOpp.SetRange("Source Line No.", "Line No.");
-                            WhseCrossDockOpp.DeleteAll;
+                            WhseCrossDockOpp.DeleteAll();
                             if NewItemVariant then begin
                                 GetSourceLine("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                                 CalculateCrossDock(
@@ -137,7 +137,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
     begin
         FilterCrossDockOpp(CrossDockOpp);
         CrossDockOpp.SetRange("Source Line No.", LineNo);
-        CrossDockOpp.DeleteAll;
+        CrossDockOpp.DeleteAll();
 
         CalculateCrossDock(
           CrossDockOpp, ItemNo, VariantCode, LocationCode, QtyNeededBase, QtyOnPickBase, QtyPickedBase, LineNo);
@@ -242,7 +242,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
             if ReceiptLine."Qty. to Receive" < QtyToCrossDock then
                 QtyToCrossDock := ReceiptLine."Qty. to Receive";
             ReceiptLine.Validate("Qty. to Cross-Dock", QtyToCrossDock);
-            ReceiptLine.Modify;
+            ReceiptLine.Modify();
             OnShowCrossDockOnAfterReceiptLineModify(ReceiptLine);
         end;
     end;
@@ -369,10 +369,10 @@ codeunit 5780 "Whse. Cross-Dock Management"
                     GetSourceLine("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                     if HasSpecialOrder then begin
                         TempWhseRcptLineWthSpecOrder := WhseRcptLine;
-                        TempWhseRcptLineWthSpecOrder.Insert;
+                        TempWhseRcptLineWthSpecOrder.Insert();
                     end else begin
                         TempWhseRcptLineNoSpecOrder := WhseRcptLine;
-                        TempWhseRcptLineNoSpecOrder.Insert;
+                        TempWhseRcptLineNoSpecOrder.Insert();
                         InsertToItemList(WhseRcptLine, TempItemVariant);
                     end;
                 until Next = 0;
@@ -384,7 +384,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
             Init;
             "Item No." := WhseRcptLine."Item No.";
             Code := WhseRcptLine."Variant Code";
-            if Insert then;
+            if Insert() then;
         end;
     end;
 

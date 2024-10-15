@@ -37,7 +37,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateLocalPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -984,7 +984,7 @@ codeunit 134087 "ERM Update Currency - Sales"
             CustEntrySetApplID.SetApplId(CustLedgerEntry, CustLedgerEntry, GenJournalLine."Document No.");
             ApplyCustomerEntries.CalcApplnAmount;
         until CustLedgerEntry.Next = 0;
-        Commit;
+        Commit();
         GenJnlApply.Run(GenJournalLine);
     end;
 
@@ -1114,10 +1114,10 @@ codeunit 134087 "ERM Update Currency - Sales"
 
     local procedure CreateJob(var TempJob: Record Job temporary; BillToCustomerNo: Code[20])
     begin
-        TempJob.Init;
-        TempJob.Insert;
+        TempJob.Init();
+        TempJob.Insert();
         TempJob.Validate("Bill-to Customer No.", BillToCustomerNo);
-        TempJob.Modify;
+        TempJob.Modify();
     end;
 
     local procedure FindSalesInvoiceAmount(DocumentNo: Code[20]) SalesInvoiceAmount: Decimal
@@ -1178,10 +1178,13 @@ codeunit 134087 "ERM Update Currency - Sales"
     local procedure UpdateSalesLines(DocumentType: Option; DocumentNo: Code[20])
     var
         SalesLine: Record "Sales Line";
+        ItemNo: code[20];
     begin
         FindSalesLines(SalesLine, DocumentType, DocumentNo);
         repeat
-            SalesLine.Validate("No.");
+            ItemNo := SalesLine."No.";
+            SalesLine."No." := '';
+            SalesLine.Validate("No.", ItemNo);
             SalesLine.Modify(true);
         until SalesLine.Next = 0;
     end;
@@ -1506,12 +1509,12 @@ codeunit 134087 "ERM Update Currency - Sales"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        CurrencyExchangeRate.Init;
+        CurrencyExchangeRate.Init();
         CurrencyExchangeRate.Validate("Starting Date", LibraryVariableStorage.DequeueDate);
         CurrencyExchangeRate.Validate("Currency Code", CopyStr(LibraryVariableStorage.DequeueText, 1, 10));
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 1);
-        CurrencyExchangeRate.Insert;
+        CurrencyExchangeRate.Insert();
         Response := ACTION::OK;
     end;
 }

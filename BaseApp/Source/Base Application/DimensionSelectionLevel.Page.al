@@ -67,11 +67,11 @@ page 564 "Dimension Selection-Level"
 
     procedure GetDimSelBuf(var TheDimSelectionBuf: Record "Dimension Selection Buffer")
     begin
-        TheDimSelectionBuf.DeleteAll;
+        TheDimSelectionBuf.DeleteAll();
         if Find('-') then
             repeat
                 TheDimSelectionBuf := Rec;
-                TheDimSelectionBuf.Insert;
+                TheDimSelectionBuf.Insert();
             until Next = 0;
     end;
 

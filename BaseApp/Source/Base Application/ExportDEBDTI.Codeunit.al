@@ -24,7 +24,7 @@ codeunit 10821 "Export DEB DTI"
         OutputStream: OutStream;
         LastDeclarationId: Integer;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CheckMandatoryCompanyInfo;
 
         CheckJnlLines(IntrastatJnlLine);
@@ -71,9 +71,9 @@ codeunit 10821 "Export DEB DTI"
 
     local procedure UpdateLastDeclarationId(LastDeclarationId: Integer)
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo."Last Intrastat Declaration ID" := LastDeclarationId;
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
     end;
 
     local procedure CheckJnlLines(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
@@ -140,7 +140,7 @@ codeunit 10821 "Export DEB DTI"
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         TempIntrastatJnlBatch := IntrastatJnlBatch;
         TempIntrastatJnlBatch."Journal Template Name" := FlowCode;
-        TempIntrastatJnlBatch.Insert;
+        TempIntrastatJnlBatch.Insert();
     end;
 
     local procedure InsertTempJnlLine(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FlowCode: Text[1])
@@ -151,7 +151,7 @@ codeunit 10821 "Export DEB DTI"
         TempIntrastatJnlLine."Total Weight" := RoundValue(IntrastatJnlLine."Total Weight");
         TempIntrastatJnlLine."Statistical Value" := RoundValue(IntrastatJnlLine."Statistical Value");
         TempIntrastatJnlLine."Journal Template Name" := FlowCode;
-        TempIntrastatJnlLine.Insert;
+        TempIntrastatJnlLine.Insert();
     end;
 
     local procedure UpdateBatchReported(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
@@ -161,7 +161,7 @@ codeunit 10821 "Export DEB DTI"
         IntrastatJnlLine.FindFirst;
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlBatch.Reported := true;
-        IntrastatJnlBatch.Modify;
+        IntrastatJnlBatch.Modify();
     end;
 
     local procedure GetReferencePeriod(StatisticsPeriod: Code[10]): Text[30]

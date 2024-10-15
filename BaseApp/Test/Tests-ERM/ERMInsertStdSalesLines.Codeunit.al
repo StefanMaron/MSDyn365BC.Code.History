@@ -42,7 +42,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesOrder(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesOrderCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
         VerifyNoSalesStdCodesNotification;
@@ -56,7 +56,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CustomerNo: Code[20];
     begin
         // [FEATURE] [Automatic mode] [Order]
-        // [SCENARIO] Standard codes notification created on order validate Sell-to Customer No. when Insert Rec. Lines On Orders = Automatic
+        // [SCENARIO] Recurring sales line created on order validate Sell-to Customer No. when Insert Rec. Lines On Orders = Automatic
         Initialize;
 
         // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Orders = Automatic
@@ -65,10 +65,10 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesOrder(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesOrderCustomerNo(SalesHeader, CustomerNo);
 
-        // [THEN] Standard sales code notification created
-        VerifySalesStdCodesNotification(SalesHeader);
+        // [THEN] Recurring sales line created
+        VerifySalesLine(SalesHeader);
     end;
 
     [Test]
@@ -88,7 +88,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesOrder(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesOrderCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] Standard sales code notification created
         VerifySalesStdCodesNotification(SalesHeader);
@@ -101,7 +101,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SalesHeader: Record "Sales Header";
         CustomerNo: Code[20];
     begin
-        // [FEATURE] [Automatic mode] [Order]
+        // [FEATURE] [Order]
         // [SCENARIO] There is no sales standard codes notification on order validate Sell-to Customer No. for customer without Standard Sales Codes
         Initialize;
 
@@ -111,7 +111,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesOrder(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesOrderCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
         VerifyNoSalesStdCodesNotification;
@@ -255,7 +255,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesQuote(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesQuoteCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
         VerifyNoSalesStdCodesNotification;
@@ -278,10 +278,10 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesQuote(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesQuoteCustomerNo(SalesHeader, CustomerNo);
 
-        // [THEN] Standard sales code notification created
-        VerifySalesStdCodesNotification(SalesHeader);
+        // [THEN] Recurring sales line created
+        VerifySalesLine(SalesHeader);
     end;
 
     [Test]
@@ -301,7 +301,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesQuote(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesQuoteCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] Standard sales code notification created
         VerifySalesStdCodesNotification(SalesHeader);
@@ -309,12 +309,12 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SellToCustNoAutomaticWithoutSalesCodeQuote()
+    procedure SellToCustNoWithoutSalesCodeQuote()
     var
         SalesHeader: Record "Sales Header";
         CustomerNo: Code[20];
     begin
-        // [FEATURE] [Automatic mode] [Quote]
+        // [FEATURE] [Quote]
         // [SCENARIO] There is no sales standard codes notification on quote validate Sell-to Customer No. for customer without Standard Sales Codes
         Initialize;
 
@@ -324,7 +324,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesQuote(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesQuoteCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
         VerifyNoSalesStdCodesNotification;
@@ -347,7 +347,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesInvoice(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesInvoiceCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
         VerifyNoSalesStdCodesNotification;
@@ -370,10 +370,10 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesInvoice(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesInvoiceCustomerNo(SalesHeader, CustomerNo);
 
-        // [THEN] Standard sales code notification created
-        VerifySalesStdCodesNotification(SalesHeader);
+        // [THEN] Recurring sales line created
+        VerifySalesLine(SalesHeader);
     end;
 
     [Test]
@@ -393,7 +393,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesInvoice(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesInvoiceCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] Standard sales code notification created
         VerifySalesStdCodesNotification(SalesHeader);
@@ -401,12 +401,12 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SellToCustNoAutomaticWithoutSalesCodeInvoice()
+    procedure SellToCustNoWithoutSalesCodeInvoice()
     var
         SalesHeader: Record "Sales Header";
         CustomerNo: Code[20];
     begin
-        // [FEATURE] [Automatic mode] [Invoice]
+        // [FEATURE] [Invoice]
         // [SCENARIO] There is no sales standard codes notification on invoice validate Sell-to Customer No. for customer without Standard Sales Codes
         Initialize;
 
@@ -416,7 +416,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesInvoice(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesInvoiceCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
         VerifyNoSalesStdCodesNotification;
@@ -439,7 +439,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesCrMemo(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesCrMemoCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
         VerifyNoSalesStdCodesNotification;
@@ -462,10 +462,10 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesCrMemo(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesCrMemoCustomerNo(SalesHeader, CustomerNo);
 
-        // [THEN] Standard sales code notification created
-        VerifySalesStdCodesNotification(SalesHeader);
+        // [THEN] Recurring sales line created
+        VerifySalesLine(SalesHeader);
     end;
 
     [Test]
@@ -485,7 +485,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesCrMemo(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesCrMemoCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] Standard sales code notification created
         VerifySalesStdCodesNotification(SalesHeader);
@@ -493,12 +493,12 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SellToCustNoAutomaticWithoutSalesCodeCrMemo()
+    procedure SellToCustNoWithoutSalesCodeCrMemo()
     var
         SalesHeader: Record "Sales Header";
         CustomerNo: Code[20];
     begin
-        // [FEATURE] [Automatic mode] [Credit memo]
+        // [FEATURE] [Credit memo]
         // [SCENARIO] There is no sales standard codes notification on cr memo validate Sell-to Customer No. for customer without Standard Sales Codes
         Initialize;
 
@@ -508,7 +508,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesCrMemo(SalesHeader);
 
         // [WHEN] Set Sell-to Customer No. = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesCrMemoCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] There is no sales standard codes notification
         VerifyNoSalesStdCodesNotification;
@@ -640,29 +640,6 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
 
     [Test]
     [Scope('OnPrem')]
-    procedure GetRecurringLinesForTempTable()
-    var
-        TempSalesHeader: Record "Sales Header" temporary;
-        CustomerNo: Code[20];
-    begin
-        // [FEATURE] [UT] [Automatic mode] [Invoice]
-        // [SCENARIO] Standard sales code notification is not created for temporary Sales Header table
-        Initialize;
-
-        // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Invoices = Automatic
-        CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Invoice, RefMode::Automatic);
-        // [GIVEN] New sales invoice temporary record
-        CreateSalesInvoice(TempSalesHeader);
-
-        // [WHEN] Set Sell-to Customer No. = CUST
-        TempSalesHeader.Validate("Sell-to Customer No.", CustomerNo);
-
-        // [THEN] Standard sales code notification is not created
-        VerifyNoSalesStdCodesNotification;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure StandardCustomerSalesCodesFieldsVisibleForSuiteAppArea()
     var
         StandardCustomerSalesCodes: TestPage "Standard Customer Sales Codes";
@@ -687,38 +664,6 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     end;
 
     [Test]
-    [HandlerFunctions('SendNotificationHandler')]
-    [Scope('OnPrem')]
-    procedure SellToCustNoAutomaticSalesOrderWhenDocumentNoEmpty()
-    var
-        SalesHeader: Record "Sales Header";
-        CustomerNo: Code[20];
-    begin
-        // [FEATURE] [Automatic mode] [Order] [UT]
-        // [SCENARIO] Standard codes notification created on order page validate Sell-to Customer No. when Insert Rec. Lines On Orders = Automatic when document number is empty
-        // Testpage functionality does not allow to reproduce this scenario, this is why mocking used instead
-        Initialize;
-
-        // [GIVEN] Customer CUST with standard sales code where Insert Rec. Lines On Orders = Automatic
-        CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::Automatic);
-
-        // [GIVEN] Create new sales order with empty document number
-        SalesHeader.Init;
-        SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-
-        // [GIVEN] Specify "Sell-to Customer No." = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
-
-        // [WHEN] Order is being inserted
-        SalesHeader.Insert(true);
-
-        // [THEN] Standard sales code notification created
-        Assert.AreEqual(SalesHeader."Document Type", LibraryVariableStorage.DequeueInteger, 'Unexpected document type');
-        Assert.AreEqual(SalesHeader."No.", LibraryVariableStorage.DequeueText, 'Unexpected document number');
-        LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure SellToCustNoSalesBlanketOrder()
     var
@@ -736,7 +681,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
 
         // [GIVEN] Specify "Sell-to Customer No." = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesBlanketOrderCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] Standard sales code notification is not created
         VerifyNoSalesStdCodesNotification;
@@ -760,7 +705,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order");
 
         // [GIVEN] Specify "Sell-to Customer No." = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesReturnOrderCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] Standard sales code notification is not created
         VerifyNoSalesStdCodesNotification;
@@ -773,12 +718,12 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SalesHeader: Record "Sales Header";
         CustomerNo: Code[20];
     begin
-        // [FEATURE] [Return Order] [UT]
+        // [FEATURE] [Order] [UT]
         // [SCENARIO 311677] Standard codes notification is not created when Standard Sales Code currency code <> currency code of sales document
         Initialize;
 
-        // [GIVEN] Local currency customer CUST with standard sales code "AA" where Insert Rec. Lines On Orders = Automatic
-        CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::Automatic);
+        // [GIVEN] Local currency customer CUST with standard sales code "AA" where Insert Rec. Lines On Orders = "Always Ask"
+        CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::"Always Ask");
 
         // [GIVEN] Set Currency Code = "XXX" for standard sales code "AA"
         UpdateStandardSalesCodeWithNewCurrencyCode(CustomerNo, LibraryERM.CreateCurrencyWithRandomExchRates());
@@ -787,7 +732,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
 
         // [GIVEN] Specify "Sell-to Customer No." = CUST
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SetSalesOrderCustomerNo(SalesHeader, CustomerNo);
 
         // [THEN] Standard sales code notification is not created
         VerifyNoSalesStdCodesNotification;
@@ -799,15 +744,16 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     procedure StandardSalesCodeNotificationOnCurrencyCodeValidate()
     var
         SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
         CurrencyCode: Code[10];
         CustomerNo: Code[20];
     begin
-        // [FEATURE] [Return Order] [UT]
+        // [FEATURE] [Order] [UT]
         // [SCENARIO 311677] Standard codes notification created when currency code of sales document became same with Standard Sales Code currency code
         Initialize;
 
-        // [GIVEN] Local currency customer CUST with standard sales code "AA" where Insert Rec. Lines On Orders = Automatic
-        CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::Automatic);
+        // [GIVEN] Local currency customer CUST with standard sales code "AA" where Insert Rec. Lines On Orders = "Always Ask"
+        CustomerNo := GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::"Always Ask");
 
         // [GIVEN] Set Currency Code = "XXX" for standard sales code "AA"
         CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
@@ -815,10 +761,12 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
 
         // [GIVEN] Create new sales order for customer CUST
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
-        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.setfilter("No.", SalesHeader."No.");
+        SalesOrder."Sell-to Customer No.".SetValue(CustomerNo);
 
         // [WHEN] Specify SalesHeader."Currency Code" = "XXX"
-        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesOrder."Currency Code".SetValue(CurrencyCode);
 
         // [THEN] Standard sales code notification created
         Assert.AreEqual(SalesHeader."Document Type", LibraryVariableStorage.DequeueInteger, 'Unexpected document type');
@@ -857,7 +805,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     var
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
     begin
-        StandardCustomerSalesCode.Init;
+        StandardCustomerSalesCode.Init();
         StandardCustomerSalesCode."Customer No." := CustomerNo;
         StandardCustomerSalesCode.Code := CreateStandardSalesCodeWithItemLine;
         case DocType of
@@ -870,7 +818,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
             RefDocType::"Credit Memo":
                 StandardCustomerSalesCode."Insert Rec. Lines On Cr. Memos" := Mode;
         end;
-        StandardCustomerSalesCode.Insert;
+        StandardCustomerSalesCode.Insert();
         LibraryVariableStorage.Enqueue(StandardCustomerSalesCode.Code);  // Enqueue value for StandardCustomerSalesCodesModalPageHandler or StandardCustomerSalesCodesCancelModalPageHandler.
     end;
 
@@ -891,7 +839,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         StandardSalesLine.Type := StandardSalesLine.Type::Item;
         StandardSalesLine."No." := LibraryInventory.CreateItemNo;
         StandardSalesLine.Quantity := LibraryRandom.RandDec(10, 2);
-        StandardSalesLine.Insert;
+        StandardSalesLine.Insert();
         exit(StandardSalesLine."Standard Sales Code")
     end;
 
@@ -900,7 +848,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         SalesHeader."Document Type" := DocumentType;
         SalesHeader."No." := LibraryUTUtility.GetNewCode;
         SalesHeader."Document Date" := WorkDate;
-        SalesHeader.Insert;
+        SalesHeader.Insert();
     end;
 
     local procedure CreateSalesQuote(var SalesHeader: Record "Sales Header")
@@ -943,7 +891,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     var
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
     begin
-        StandardCustomerSalesCode.Init;
+        StandardCustomerSalesCode.Init();
         StandardCustomerSalesCode."Customer No." := LibrarySales.CreateCustomerNo;
         StandardCustomerSalesCode.Code := CreateStandardSalesCodeWithItemLine;
         case DocType of
@@ -956,16 +904,70 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
             RefDocType::"Credit Memo":
                 StandardCustomerSalesCode."Insert Rec. Lines On Cr. Memos" := Mode;
         end;
-        StandardCustomerSalesCode.Insert;
+        StandardCustomerSalesCode.Insert();
 
         LibraryVariableStorage.Enqueue(StandardCustomerSalesCode.Code);  // Enqueue value for StandardCustomerSalesCodesModalPageHandler or StandardCustomerSalesCodesCancelModalPageHandler.
         exit(StandardCustomerSalesCode."Customer No.");
     end;
 
+    local procedure SetSalesQuoteCustomerNo(SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
+    var
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        SalesQuote.OpenEdit();
+        SalesQuote.Filter.setfilter("No.", SalesHeader."No.");
+        SalesQuote."Sell-to Customer No.".SetValue(CustomerNo);
+    end;
+
+    local procedure SetSalesInvoiceCustomerNo(SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
+    var
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        SalesInvoice.OpenEdit();
+        SalesInvoice.Filter.setfilter("No.", SalesHeader."No.");
+        SalesInvoice."Sell-to Customer No.".SetValue(CustomerNo);
+    end;
+
+    local procedure SetSalesOrderCustomerNo(SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.setfilter("No.", SalesHeader."No.");
+        SalesOrder."Sell-to Customer No.".SetValue(CustomerNo);
+    end;
+
+    local procedure SetSalesCrMemoCustomerNo(SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
+    var
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        SalesCreditMemo.OpenEdit();
+        SalesCreditMemo.Filter.setfilter("No.", SalesHeader."No.");
+        SalesCreditMemo."Sell-to Customer No.".SetValue(CustomerNo);
+    end;
+
+    local procedure SetSalesBlanketOrderCustomerNo(SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
+    var
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+    begin
+        BlanketSalesOrder.OpenEdit();
+        BlanketSalesOrder.Filter.setfilter("No.", SalesHeader."No.");
+        BlanketSalesOrder."Sell-to Customer No.".SetValue(CustomerNo);
+    end;
+
+    local procedure SetSalesReturnOrderCustomerNo(SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
+    var
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        SalesReturnOrder.OpenEdit();
+        SalesReturnOrder.Filter.setfilter("No.", SalesHeader."No.");
+        SalesReturnOrder."Sell-to Customer No.".SetValue(CustomerNo);
+    end;
+
     local procedure UpdateSalesHeaderSellToCustomerNo(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
     begin
         SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure UpdateStandardSalesCodeWithNewCurrencyCode(CustomerNo: Code[20]; CurrencyCode: Code[10])

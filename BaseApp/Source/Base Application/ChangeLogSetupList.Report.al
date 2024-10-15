@@ -108,7 +108,7 @@ report 508 "Change Log Setup List"
 
             trigger OnPreDataItem()
             begin
-                ChangeLogSetup.Get;
+                ChangeLogSetup.Get();
             end;
         }
     }

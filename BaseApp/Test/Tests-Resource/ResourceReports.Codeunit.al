@@ -34,7 +34,7 @@ codeunit 136902 "Resource Reports"
         LibraryERMCountryData.CreateVATData;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Resource Reports");
     end;
 
@@ -238,7 +238,7 @@ codeunit 136902 "Resource Reports"
         CreateResourceJournalLine(ResJournalLine, ResJournalBatch, Resource."No.", '', ResJournalLine."Entry Type"::Usage);
 
         // 2. Exercise: Run the Resource Journal - Test Report.
-        Commit;
+        Commit();
         ResourceJournalTest.SetTableView(ResJournalBatch);
         ResourceJournalTest.InitializeRequest(true);
         ResourceJournalTest.Run;
@@ -296,7 +296,7 @@ codeunit 136902 "Resource Reports"
         AttachResourceGlobalDimensions(Resource);
 
         // 2. Exercise: Run the Resource List Report.
-        Commit;
+        Commit();
         Clear(ResourceList);
         Resource.SetRange("No.", Resource."No.");
         ResourceList.SetTableView(Resource);
@@ -325,7 +325,7 @@ codeunit 136902 "Resource Reports"
         CreateResourcePrice(ResourcePrice, Resource."No.", WorkType.Code);
 
         // 2. Exercise: Run the Resource - Price List Report.
-        Commit;
+        Commit();
         Clear(ResourcePriceList);
         Resource.SetRange("No.", Resource."No.");
         ResourcePriceList.SetTableView(Resource);
@@ -384,7 +384,7 @@ codeunit 136902 "Resource Reports"
         DimensionValue: Record "Dimension Value";
         LibraryDimension: Codeunit "Library - Dimension";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         Resource.Validate("Global Dimension 1 Code", DimensionValue.Code);
 
@@ -469,7 +469,7 @@ codeunit 136902 "Resource Reports"
         ResourceJournalTest: Report "Resource Journal - Test";
     begin
         Clear(ResourceJournalTest);
-        Commit;
+        Commit();
         ResJournalBatch.SetRange("Journal Template Name", JournalTemplateName);
         ResJournalBatch.SetRange(Name, Name);
         ResourceJournalTest.SetTableView(ResJournalBatch);
@@ -482,7 +482,7 @@ codeunit 136902 "Resource Reports"
         Resource: Record Resource;
         ResourcePriceList: Report "Resource - Price List";
     begin
-        Commit;
+        Commit();
         Clear(ResourcePriceList);
         Resource.SetRange("No.", No);
         ResourcePriceList.SetTableView(Resource);
@@ -571,7 +571,7 @@ codeunit 136902 "Resource Reports"
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the work type code');
         LibraryReportDataset.AssertCurrentRowValueEquals('UnitPrice_Resource', ResourceUnitPrice);
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('No_Resource', ResourcePrice.Code);
         LibraryReportDataset.SetRange('WorkTypeCode_ResPrice', ResourcePrice."Work Type Code");
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the work type code');

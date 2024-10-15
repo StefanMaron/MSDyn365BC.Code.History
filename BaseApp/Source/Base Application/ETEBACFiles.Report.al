@@ -127,7 +127,7 @@ report 10880 "ETEBAC Files"
 
                     PaymentHeader := "Payment Header";
                     PaymentHeader."File Export Completed" := true;
-                    PaymentHeader.Modify;
+                    PaymentHeader.Modify();
                 end;
             }
 
@@ -258,10 +258,10 @@ report 10880 "ETEBAC Files"
     var
         FileMgt: Codeunit "File Management";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField(Name);
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         ExportFileName := FileMgt.ServerTempFileName('');
 

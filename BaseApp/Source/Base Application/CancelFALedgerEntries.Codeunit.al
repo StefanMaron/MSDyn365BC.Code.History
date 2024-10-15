@@ -78,7 +78,7 @@ codeunit 5624 "Cancel FA Ledger Entries"
     begin
         if not FAJnlUsedOnce then begin
             ;
-            FAJnlLine.LockTable;
+            FAJnlLine.LockTable();
             FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
             FAJnlUsedOnce := true;
             FAJnlDocumentNo :=
@@ -111,7 +111,7 @@ codeunit 5624 "Cancel FA Ledger Entries"
     begin
         if not GenJnlUsedOnce then begin
             ;
-            GenJnlLine.LockTable;
+            GenJnlLine.LockTable();
             FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
             GenJnlUsedOnce := true;
             GenJnlDocumentNo :=

@@ -115,14 +115,14 @@ table 484 "Change Global Dim. Header"
 
     procedure RefreshCurrentDimCodes()
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         "Old Global Dimension 1 Code" := GeneralLedgerSetup."Global Dimension 1 Code";
         "Old Global Dimension 2 Code" := GeneralLedgerSetup."Global Dimension 2 Code";
     end;
 
     local procedure IsUsedInShortcurDims(DimensionCode: Code[20]): Boolean
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(
           DimensionCode in
           [GeneralLedgerSetup."Shortcut Dimension 3 Code",

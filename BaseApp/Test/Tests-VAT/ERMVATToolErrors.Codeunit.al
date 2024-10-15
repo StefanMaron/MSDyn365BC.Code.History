@@ -30,7 +30,7 @@ codeunit 134054 "ERM VAT Tool - Errors"
         ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -43,7 +43,7 @@ codeunit 134054 "ERM VAT Tool - Errors"
         Initialize;
 
         // SETUP: Delete records in VAT Change Tool Setup.
-        VATRateChangeSetup.Reset;
+        VATRateChangeSetup.Reset();
         VATRateChangeSetup.DeleteAll(true);
 
         // Excercise: Run VAT Rate Change Tool.
@@ -137,7 +137,7 @@ codeunit 134054 "ERM VAT Tool - Errors"
             VATPostingSetup."VAT Identifier" := '';
             VATPostingSetup.Modify(true);
         until VATPostingSetup.Next = 0;
-        Commit; // This is Required for the ASSERTERROR to Work
+        Commit(); // This is Required for the ASSERTERROR to Work
 
         asserterror VATPostingSetup.TestField("VAT Identifier");
         ErrorText := GetLastErrorText;
@@ -238,7 +238,7 @@ codeunit 134054 "ERM VAT Tool - Errors"
         ERMVATToolHelper.CreatePostingGroups(false);
 
         // SETUP: Set VAT Rate Change Tool Completed to FALSE
-        VATRateChangeSetup.Get;
+        VATRateChangeSetup.Get();
         VATRateChangeSetup.Validate("VAT Rate Change Tool Completed", false);
         VATRateChangeSetup.Validate("Perform Conversion", true);
         VATRateChangeSetup.Modify(true);
@@ -250,7 +250,7 @@ codeunit 134054 "ERM VAT Tool - Errors"
         ERMVATToolHelper.RunVATRateChangeTool;
 
         // Verify: VAT Rate Change Tool Completed should be set to TRUE.
-        VATRateChangeSetup.Get;
+        VATRateChangeSetup.Get();
         Assert.IsTrue(VATRateChangeSetup."VAT Rate Change Tool Completed", VATToolCompletedError);
 
         // Cleanup: Delete groups.
@@ -273,10 +273,10 @@ codeunit 134054 "ERM VAT Tool - Errors"
         // Exercise & Verify: Try to set circular reference for VAT Prod. Posting Group.
         VATRateChangeConv.SetRange(Type, VATRateChangeConv.Type::"VAT Prod. Posting Group");
         VATRateChangeConv.FindFirst;
-        VATRateChangeConv2.Init;
+        VATRateChangeConv2.Init();
         VATRateChangeConv2.Validate(Type, VATRateChangeConv2.Type::"VAT Prod. Posting Group");
 
-        Commit; // This is Required for the ASSERTERROR to Work
+        Commit(); // This is Required for the ASSERTERROR to Work
 
         asserterror VATRateChangeConv2.Validate("From Code", VATRateChangeConv."To Code");
         asserterror VATRateChangeConv2.Validate("To Code", VATRateChangeConv."From Code");
@@ -284,10 +284,10 @@ codeunit 134054 "ERM VAT Tool - Errors"
         // Exercise & Verify: Try to set circular reference for Gen. Prod. Posting Group.
         VATRateChangeConv.SetRange(Type, VATRateChangeConv.Type::"Gen. Prod. Posting Group");
         VATRateChangeConv.FindFirst;
-        VATRateChangeConv2.Init;
+        VATRateChangeConv2.Init();
         VATRateChangeConv2.Validate(Type, VATRateChangeConv2.Type::"Gen. Prod. Posting Group");
 
-        Commit; // This is Required for the ASSERTERROR to Work
+        Commit(); // This is Required for the ASSERTERROR to Work
 
         asserterror VATRateChangeConv2.Validate("From Code", VATRateChangeConv."To Code");
         asserterror VATRateChangeConv2.Validate("To Code", VATRateChangeConv."From Code");
@@ -300,7 +300,7 @@ codeunit 134054 "ERM VAT Tool - Errors"
     var
         VATRateChangeSetup: Record "VAT Rate Change Setup";
     begin
-        VATRateChangeSetup.Get;
+        VATRateChangeSetup.Get();
         VATRateChangeSetup."Update G/L Accounts" := VATRateChangeSetup."Update G/L Accounts"::Both;
         VATRateChangeSetup."Perform Conversion" := true;
         VATRateChangeSetup.Modify(true);

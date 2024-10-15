@@ -50,7 +50,7 @@ table 7309 "Warehouse Journal Template"
             begin
                 "Test Report ID" := REPORT::"Whse. Invt.-Registering - Test";
                 "Registering Report ID" := REPORT::"Warehouse Register - Quantity";
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 case Type of
                     Type::Item:
                         begin
@@ -156,7 +156,7 @@ table 7309 "Warehouse Journal Template"
         WhseJnlLine.SetRange("Journal Template Name", Name);
         WhseJnlLine.DeleteAll(true);
         WhseJnlBatch.SetRange("Journal Template Name", Name);
-        WhseJnlBatch.DeleteAll;
+        WhseJnlBatch.DeleteAll();
     end;
 
     trigger OnInsert()

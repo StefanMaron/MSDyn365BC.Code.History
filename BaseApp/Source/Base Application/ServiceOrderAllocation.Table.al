@@ -76,7 +76,7 @@ table 5950 "Service Order Allocation"
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
                 if "Resource No." <> '' then begin
-                    ServmgtSetup.Get;
+                    ServmgtSetup.Get();
                     Res.Get("Resource No.");
                     "Resource Group No." := Res."Resource Group No.";
                     if ServmgtSetup."Resource Skills Option" = ServmgtSetup."Resource Skills Option"::"Warning Displayed"
@@ -199,7 +199,7 @@ table 5950 "Service Order Allocation"
 
             trigger OnLookup()
             begin
-                ServItemLine.Reset;
+                ServItemLine.Reset();
                 ServItemLine.SetRange("Document Type", "Document Type");
                 ServItemLine.SetRange("Document No.", "Document No.");
                 ServItemLine."Service Item No." := "Service Item No.";
@@ -210,7 +210,7 @@ table 5950 "Service Order Allocation"
             trigger OnValidate()
             begin
                 if "Service Item No." <> '' then begin
-                    ServItemLine.Reset;
+                    ServItemLine.Reset();
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "Document No.");
                     ServItemLine.SetRange("Service Item No.", "Service Item No.");
@@ -238,7 +238,7 @@ table 5950 "Service Order Allocation"
 
             trigger OnLookup()
             begin
-                ServItemLine.Reset;
+                ServItemLine.Reset();
                 ServItemLine.SetRange("Document Type", "Document Type");
                 ServItemLine.SetRange("Document No.", "Document No.");
                 ServItemLine."Serial No." := "Service Item Serial No.";
@@ -249,7 +249,7 @@ table 5950 "Service Order Allocation"
             trigger OnValidate()
             begin
                 if "Service Item Serial No." <> '' then begin
-                    ServItemLine.Reset;
+                    ServItemLine.Reset();
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "Document No.");
                     ServItemLine.SetRange("Serial No.", "Service Item Serial No.");
@@ -319,7 +319,7 @@ table 5950 "Service Order Allocation"
 
     trigger OnInsert()
     begin
-        ServOrderAlloc.Reset;
+        ServOrderAlloc.Reset();
         if ServOrderAlloc.Find('+') then
             "Entry No." := ServOrderAlloc."Entry No." + 1
         else
@@ -408,7 +408,7 @@ table 5950 "Service Order Allocation"
 
     local procedure CreateReallocationEntry()
     begin
-        RepairStatus2.Reset;
+        RepairStatus2.Reset();
         RepairStatus2.SetRange(Initial, true);
         if RepairStatus2.FindFirst then
             RepairStatusCode := RepairStatus2.Code;
@@ -428,14 +428,14 @@ table 5950 "Service Order Allocation"
         if Flag then begin
             "Reason Code" := ReallocEntryReasons.ReturnReasonCode;
             ServOrderAlloc2 := Rec;
-            ServOrderAlloc.Reset;
+            ServOrderAlloc.Reset();
             if ServOrderAlloc.Find('+') then
                 ServOrderAlloc2."Entry No." := ServOrderAlloc."Entry No." + 1;
             CalcFields("Repair Status");
             RepairStatus.Get("Repair Status");
             if Status = Status::Active then begin
                 if RepairStatus.Initial then begin
-                    RepairStatus2.Reset;
+                    RepairStatus2.Reset();
                     RepairStatus2.SetRange(Referred, true);
                     if RepairStatus2.FindFirst then begin
                         ChangeServItemLine := true;
@@ -448,14 +448,14 @@ table 5950 "Service Order Allocation"
                             ServOrderAlloc2.Validate(Status, ServOrderAlloc2.Status::Finished)
                         else
                             ServOrderAlloc2.Validate(Status, ServOrderAlloc2.Status::Canceled);
-                        ServOrderAlloc2.Insert;
+                        ServOrderAlloc2.Insert();
                     end else
                         Error(
                           Text007,
                           RepairStatus.TableCaption, RepairStatus.FieldCaption(Referred));
                 end else
                     if RepairStatus."In Process" then begin
-                        RepairStatus2.Reset;
+                        RepairStatus2.Reset();
                         RepairStatus2.SetRange("Partly Serviced", true);
                         if RepairStatus2.FindFirst then begin
                             RepairStatusCode := RepairStatus2.Code;
@@ -468,7 +468,7 @@ table 5950 "Service Order Allocation"
                                 ServOrderAlloc2.Validate(Status, ServOrderAlloc2.Status::Finished)
                             else
                                 ServOrderAlloc2.Validate(Status, ServOrderAlloc2.Status::Canceled);
-                            ServOrderAlloc2.Insert;
+                            ServOrderAlloc2.Insert();
                         end else
                             Error(
                               Text007,
@@ -482,7 +482,7 @@ table 5950 "Service Order Allocation"
                             ServOrderAlloc2.Validate(Status, ServOrderAlloc2.Status::Finished)
                         else
                             ServOrderAlloc2.Validate(Status, ServOrderAlloc2.Status::Canceled);
-                        ServOrderAlloc2.Insert;
+                        ServOrderAlloc2.Insert();
                     end;
             end else begin
                 Validate(Status, Status::Active);
@@ -493,7 +493,7 @@ table 5950 "Service Order Allocation"
                     ServOrderAlloc2.Validate(Status, ServOrderAlloc2.Status::Finished)
                 else
                     ServOrderAlloc2.Validate(Status, ServOrderAlloc2.Status::Canceled);
-                ServOrderAlloc2.Insert;
+                ServOrderAlloc2.Insert();
             end;
             if ChangeServItemLine then begin
                 TestField("Service Item Line No.");
@@ -523,7 +523,7 @@ table 5950 "Service Order Allocation"
             exit;
 
         if not HideDialog then begin
-            ServOrderAlloc.Reset;
+            ServOrderAlloc.Reset();
             ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
             ServOrderAlloc.SetRange("Document Type", "Document Type");
             ServOrderAlloc.SetRange("Document No.", "Document No.");

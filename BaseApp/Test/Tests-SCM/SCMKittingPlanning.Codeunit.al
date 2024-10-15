@@ -42,7 +42,7 @@ codeunit 137089 "SCM Kitting - Planning"
         NoSeriesSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - Planning");
     end;
 
@@ -118,7 +118,7 @@ codeunit 137089 "SCM Kitting - Planning"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalTemplate: Record "Item Journal Template";
     begin
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
 
         LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(

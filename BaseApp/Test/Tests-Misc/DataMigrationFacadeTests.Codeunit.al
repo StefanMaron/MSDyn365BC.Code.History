@@ -126,11 +126,11 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.AreEqual('123456789', SalespersonPurchaser."Phone No.", 'A different phone number was expected');
         Assert.AreEqual('123@mail.com', SalespersonPurchaser."E-Mail", 'A different email was expected');
 
-        VendorDataMigrationFacade.CreateShipmentMethodIfNeeded('SME1', 'Shipment method');
+        VendorDataMigrationFacade.CreateShipmentMethodIfNeeded('SM', 'Shipment method');
         // Already existing Shipment method does not throw error
-        VendorDataMigrationFacade.CreateShipmentMethodIfNeeded('SME1', 'Shipment method');
+        VendorDataMigrationFacade.CreateShipmentMethodIfNeeded('SM', 'Shipment method');
 
-        ShipmentMethod.Get('SME1');
+        ShipmentMethod.Get('SM');
         Assert.AreEqual('Shipment method', ShipmentMethod.Description, 'A different description was expected');
 
         Assert.IsTrue(VendorDataMigrationFacade.CreateVendorInvoiceDiscountIfNeeded('VID', 'DKK', 123, 0.2),
@@ -167,7 +167,7 @@ codeunit 135022 "Data Migration Facade Tests"
         VendorDataMigrationFacade.SetPhoneNo('123456789');
         VendorDataMigrationFacade.SetPurchaserCode('PURCH');
         VendorDataMigrationFacade.SetSearchName('Search Name');
-        VendorDataMigrationFacade.SetShipmentMethodCode('SME1');
+        VendorDataMigrationFacade.SetShipmentMethodCode('SM');
         VendorDataMigrationFacade.SetTelexNo('123456789');
         VendorDataMigrationFacade.SetVATRegistrationNo('12345678');
         VendorDataMigrationFacade.SetVendorPostingGroup('VPG');
@@ -197,7 +197,7 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.AreEqual('123456789', Vendor."Phone No.", 'A different phone number was expected');
         Assert.AreEqual('PURCH', Vendor."Purchaser Code", 'A different purchaser was expected');
         Assert.AreEqual('SEARCH NAME', Vendor."Search Name", 'A different search name was expected');
-        Assert.AreEqual('SME1', Vendor."Shipment Method Code", 'A different shipment method was expected');
+        Assert.AreEqual('SM', Vendor."Shipment Method Code", 'A different shipment method was expected');
         Assert.AreEqual('123456789', Vendor."Telex No.", 'A different telex number was expected');
         Assert.AreEqual('12345678', Vendor."VAT Registration No.", 'A different VAT registration number was expected');
         Assert.AreEqual('VPG', Vendor."Vendor Posting Group", 'A different Vendor Posting Group was expected');
@@ -381,8 +381,8 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.AreEqual('123456789', SalespersonPurchaser."Phone No.", 'A different phone number was expected');
         Assert.AreEqual('123@mail.com', SalespersonPurchaser."E-Mail", 'A different email was expected');
 
-        CustomerDataMigrationFacade.CreateShipmentMethodIfNeeded('SME1', 'Shipment method');
-        ShipmentMethod.Get('SME1');
+        CustomerDataMigrationFacade.CreateShipmentMethodIfNeeded('SM', 'Shipment method');
+        ShipmentMethod.Get('SM');
         Assert.AreEqual('Shipment method', ShipmentMethod.Description, 'A different description was expected');
 
         CustomerDataMigrationFacade.CreateCustomerDiscountGroupIfNeeded('CDG', 'Customer Discount Group');
@@ -421,7 +421,7 @@ codeunit 135022 "Data Migration Facade Tests"
         CustomerDataMigrationFacade.SetSalesPersonCode('SAL');
         CustomerDataMigrationFacade.SetSearchName('Search Name');
         CustomerDataMigrationFacade.SetPaymentMethodCode('PM');
-        CustomerDataMigrationFacade.SetShipmentMethodCode('SME1');
+        CustomerDataMigrationFacade.SetShipmentMethodCode('SM');
         CustomerDataMigrationFacade.SetTelexNo('123456789');
         CustomerDataMigrationFacade.SetCustomerPriceGroup('CPG');
         CustomerDataMigrationFacade.SetVATRegistrationNo('12345678');
@@ -453,7 +453,7 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.AreEqual('123456789', Customer."Phone No.", 'A different phone number was expected');
         Assert.AreEqual('SAL', Customer."Salesperson Code", 'A different purchaser was expected');
         Assert.AreEqual('SEARCH NAME', Customer."Search Name", 'A different search name was expected');
-        Assert.AreEqual('SME1', Customer."Shipment Method Code", 'A different shipment method was expected');
+        Assert.AreEqual('SM', Customer."Shipment Method Code", 'A different shipment method was expected');
         Assert.AreEqual('123456789', Customer."Telex No.", 'A different telex number was expected');
         Assert.AreEqual('12345678', Customer."VAT Registration No.", 'A different VAT registration number was expected');
         Assert.AreEqual('CPG', Customer."Customer Posting Group", 'A different Vendor Posting Group was expected');
@@ -705,10 +705,10 @@ codeunit 135022 "Data Migration Facade Tests"
 
         // [GIVEN] The Bom Components exist
         ItemDataMigrationFacade.CreateItemIfNeeded('BOM1', 'BOM1 Description', 'Description2', Item.Type::Inventory);
-        Resource.Init;
+        Resource.Init();
         Resource."No." := 'BOM2';
         Resource.Name := 'BOM2 Description';
-        Resource.Insert;
+        Resource.Insert();
 
         ItemDataMigrationFacade.SetGlobalItem('ITEM1');
 
@@ -898,20 +898,20 @@ codeunit 135022 "Data Migration Facade Tests"
         Initialize;
 
         // [THEN] Account can be created
-        Assert.IsTrue(GLAccDataMigrationFacade.CreateGLAccountIfNeeded('10003', 'Name', 2), 'Account was expected to be created');
-        GLAccount.Get('10003');
+        Assert.IsTrue(GLAccDataMigrationFacade.CreateGLAccountIfNeeded('0003', 'Name', 2), 'Account was expected to be created');
+        GLAccount.Get('0003');
         Assert.AreEqual('Name', GLAccount.Name, 'A different name was expected');
         Assert.AreEqual(2, GLAccount."Account Type", 'A different account type was expected');
-        Assert.IsFalse(GLAccDataMigrationFacade.CreateGLAccountIfNeeded('10003', 'Name', 2), 'Account was not expected to be created');
+        Assert.IsFalse(GLAccDataMigrationFacade.CreateGLAccountIfNeeded('0003', 'Name', 2), 'Account was not expected to be created');
 
         // [GIVEN] The account properties have been set
-        GLAccDataMigrationFacade.SetGlobalGLAccount('10003');
+        GLAccDataMigrationFacade.SetGlobalGLAccount('0003');
         GLAccDataMigrationFacade.SetBlocked(true);
         GLAccDataMigrationFacade.SetDebitCreditType(1);
         GLAccDataMigrationFacade.SetDirectPosting(true);
         GLAccDataMigrationFacade.SetExchangeRateAdjustmentType(1);
         GLAccDataMigrationFacade.SetIncomeBalanceType(1);
-        GLAccDataMigrationFacade.SetTotaling('10003');
+        GLAccDataMigrationFacade.SetTotaling('0003');
         GLAccDataMigrationFacade.SetAccountCategory(1);
         GLAccDataMigrationFacade.SetAccountSubCategory(1);
 
@@ -919,13 +919,13 @@ codeunit 135022 "Data Migration Facade Tests"
         GLAccDataMigrationFacade.ModifyGLAccount(true);
 
         // [THEN] Account is updated
-        GLAccount.Get('10003');
+        GLAccount.Get('0003');
         Assert.IsTrue(GLAccount.Blocked, 'Account was expected Blocked');
         Assert.AreEqual(1, GLAccount."Debit/Credit", 'A different debit credit was expected');
         Assert.IsTrue(GLAccount."Direct Posting", 'Direct Posting was expected to be TRUE');
         Assert.AreEqual(1, GLAccount."Exchange Rate Adjustment", 'A different Exchange Rate Adjustment was expected');
         Assert.AreEqual(1, GLAccount."Income/Balance", 'A different Income/Balance type was expected');
-        Assert.AreEqual('10003', GLAccount.Totaling, 'A different Totaling was expected');
+        Assert.AreEqual('0003', GLAccount.Totaling, 'A different Totaling was expected');
 
         // [THEN] Posting groups can be created
         GLAccDataMigrationFacade.CreateGenBusinessPostingGroupIfNeeded('PC', 'PC');
@@ -952,9 +952,29 @@ codeunit 135022 "Data Migration Facade Tests"
         GLAccDataMigrationFacade.ModifyGLAccount(false);
 
         // [THEN] Account is updated
-        GLAccount.Get('10003');
+        GLAccount.Get('0003');
         Assert.AreEqual(LastModifiedDate, GLAccount."Last Date Modified", 'A different Last modified date was expected');
         Assert.AreEqual(LastModifiedDateTime, GLAccount."Last Modified Date Time", 'A different Last modified DateTime was expected');
+
+        // [GIVEN] New account created
+        GLAccDataMigrationFacade.CreateGLAccountIfNeeded('0010', '0010', 0);
+
+        // [WHEN] Posting accounts are set
+        // [THEN] no errors are thrown
+        GLAccDataMigrationFacade.SetGeneralPostingSetupSalesAccount('PC', '0010');
+        GLAccDataMigrationFacade.SetGeneralPostingSetupSalesLineDiscAccount('PC', '0010');
+        GLAccDataMigrationFacade.SetGeneralPostingSetupSalesInvDiscAccount('PC', '0010');
+        GLAccDataMigrationFacade.SetGeneralPostingSetupSalesPmtDiscDebitAccount('PC', '0010');
+        GLAccDataMigrationFacade.SetGeneralPostingSetupPurchAccount('PC', '0010');
+        GLAccDataMigrationFacade.SetGeneralPostingSetupPurchLineDiscAccount('PC', '0010');
+        GLAccDataMigrationFacade.SetGeneralPostingSetupPurchInvDiscAccount('PC', '0010');
+        GLAccDataMigrationFacade.SetGeneralPostingSetupPurchCreditMemoAccount('PC', '0010');
+        GLAccDataMigrationFacade.SetGeneralPostingSetupCOGSAccount('PC', '0010');
+        GLAccDataMigrationFacade.SetGeneralPostingSetupInventoryAdjmtAccount('PC', '0010');
+        GLAccDataMigrationFacade.SetGeneralPostingSetupSalesCreditMemoAccount('PC', '0010');
+        GLAccDataMigrationFacade.SetGeneralPostingSetupPurchPmtDiscDebitAccount('PC', '0010');
+        GLAccDataMigrationFacade.SetGeneralPostingSetupPurchPrepaymentsAccount('PC', '0010');
+        GLAccDataMigrationFacade.SetGeneralPostingSetupPurchaseVarianceAccount('PC', '0010');
 
         UnbindSubscription(DataMigrationFacadeTests);
     end;
@@ -1039,7 +1059,7 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.ExpectedError(InteralVendorNotSetErr);
         asserterror VendorDataMigrationFacade.SetSearchName('Search Name');
         Assert.ExpectedError(InteralVendorNotSetErr);
-        asserterror VendorDataMigrationFacade.SetShipmentMethodCode('SME1');
+        asserterror VendorDataMigrationFacade.SetShipmentMethodCode('SM');
         Assert.ExpectedError(InteralVendorNotSetErr);
         asserterror VendorDataMigrationFacade.SetTelexNo('123456789');
         Assert.ExpectedError(InteralVendorNotSetErr);
@@ -1121,7 +1141,7 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.ExpectedError(InternalCustomerNotSetErr);
         asserterror CustomerDataMigrationFacade.SetSearchName('Search Name');
         Assert.ExpectedError(InternalCustomerNotSetErr);
-        asserterror CustomerDataMigrationFacade.SetShipmentMethodCode('SME1');
+        asserterror CustomerDataMigrationFacade.SetShipmentMethodCode('SM');
         Assert.ExpectedError(InternalCustomerNotSetErr);
         asserterror CustomerDataMigrationFacade.SetTelexNo('123456789');
         Assert.ExpectedError(InternalCustomerNotSetErr);
@@ -1181,8 +1201,8 @@ codeunit 135022 "Data Migration Facade Tests"
 
         Initialize;
 
-        DataMigrationParameters.Init;
-        DataMigrationParameters.Insert;
+        DataMigrationParameters.Init();
+        DataMigrationParameters.Insert();
 
         CODEUNIT.Run(CODEUNIT::"GL Acc. Data Migration Facade");
 
@@ -1204,8 +1224,8 @@ codeunit 135022 "Data Migration Facade Tests"
 
         Initialize;
 
-        DataMigrationParameters.Init;
-        DataMigrationParameters.Insert;
+        DataMigrationParameters.Init();
+        DataMigrationParameters.Insert();
 
         CODEUNIT.Run(CODEUNIT::"Vendor Data Migration Facade");
 
@@ -1233,8 +1253,8 @@ codeunit 135022 "Data Migration Facade Tests"
 
         Initialize;
 
-        DataMigrationParameters.Init;
-        DataMigrationParameters.Insert;
+        DataMigrationParameters.Init();
+        DataMigrationParameters.Insert();
 
         CODEUNIT.Run(CODEUNIT::"Customer Data Migration Facade");
 
@@ -1261,8 +1281,8 @@ codeunit 135022 "Data Migration Facade Tests"
 
         Initialize;
 
-        DataMigrationParameters.Init;
-        DataMigrationParameters.Insert;
+        DataMigrationParameters.Init();
+        DataMigrationParameters.Insert();
 
         CODEUNIT.Run(CODEUNIT::"Item Data Migration Facade");
 
@@ -1463,54 +1483,54 @@ codeunit 135022 "Data Migration Facade Tests"
         Clear(DataMigrationFacadeTests);
         Clear(LibraryVariableStorage);
 
-        GLAccount.DeleteAll;
-        CustomerPostingGroup.DeleteAll;
-        VendorPostingGroup.DeleteAll;
-        CountryRegion.DeleteAll;
-        Customer.DeleteAll;
-        Vendor.DeleteAll;
-        Currency.DeleteAll;
-        Language.DeleteAll;
-        GenJournalTemplate.DeleteAll;
-        GenJournalLine.DeleteAll;
-        CustomerDiscountGroup.DeleteAll;
-        CustomerPriceGroup.DeleteAll;
-        ItemJournalTemplate.DeleteAll;
-        GeneralLedgerSetup.DeleteAll;
-        GenJournalBatch.DeleteAll;
-        PostCode.DeleteAll;
-        CurrencyExchangeRate.DeleteAll;
-        GeneralPostingSetup.DeleteAll;
-        GenBusinessPostingGroup.DeleteAll;
-        GenProductPostingGroup.DeleteAll;
+        GLAccount.DeleteAll();
+        CustomerPostingGroup.DeleteAll();
+        VendorPostingGroup.DeleteAll();
+        CountryRegion.DeleteAll();
+        Customer.DeleteAll();
+        Vendor.DeleteAll();
+        Currency.DeleteAll();
+        Language.DeleteAll();
+        GenJournalTemplate.DeleteAll();
+        GenJournalLine.DeleteAll();
+        CustomerDiscountGroup.DeleteAll();
+        CustomerPriceGroup.DeleteAll();
+        ItemJournalTemplate.DeleteAll();
+        GeneralLedgerSetup.DeleteAll();
+        GenJournalBatch.DeleteAll();
+        PostCode.DeleteAll();
+        CurrencyExchangeRate.DeleteAll();
+        GeneralPostingSetup.DeleteAll();
+        GenBusinessPostingGroup.DeleteAll();
+        GenProductPostingGroup.DeleteAll();
 
-        Currency.Init;
+        Currency.Init();
         Currency.Validate(Code, 'DKK');
         Currency.Insert(true);
 
-        Currency.Init;
+        Currency.Init();
         Currency.Validate(Code, 'MYC');
         Currency.Insert(true);
 
-        Language.Init;
+        Language.Init();
         Language.Validate(Code, 'DANISH');
         Language.Validate("Windows Language ID", 1030);
         Language.Insert(true);
 
-        GeneralLedgerSetup.Init;
+        GeneralLedgerSetup.Init();
         GeneralLedgerSetup."LCY Code" := 'MYC';
         GeneralLedgerSetup."Inv. Rounding Precision (LCY)" := 1;
         GeneralLedgerSetup."Adjust for Payment Disc." := true;
-        GeneralLedgerSetup.Insert;
+        GeneralLedgerSetup.Insert();
     end;
 
     local procedure CreateGLAcount(AccountNo: Code[10])
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount.Init;
+        GLAccount.Init();
         GLAccount."No." := AccountNo;
-        GLAccount.Insert;
+        GLAccount.Insert();
     end;
 
     [ConfirmHandler]

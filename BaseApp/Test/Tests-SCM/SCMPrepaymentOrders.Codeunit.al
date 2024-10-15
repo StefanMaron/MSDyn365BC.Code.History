@@ -236,7 +236,7 @@ codeunit 137160 "SCM Prepayment Orders"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Prepayment Orders");
     end;
 
@@ -302,7 +302,7 @@ codeunit 137160 "SCM Prepayment Orders"
     begin
         LibraryERM.CreateCurrency(Currency);
         Currency."Invoice Rounding Precision" := LibraryERM.GetAmountRoundingPrecision;
-        Currency.Modify;
+        Currency.Modify();
 
         CreateCurrencyExchangeRate(
           CurrencyExchangeRate, Currency.Code, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate));

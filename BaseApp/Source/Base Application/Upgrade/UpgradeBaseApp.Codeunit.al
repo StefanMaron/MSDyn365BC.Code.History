@@ -21,6 +21,7 @@ codeunit 104000 "Upgrade - BaseApp"
     begin
         CreateWorkflowWebhookWebServices();
         CreateExcelTemplateWebServices();
+        CopyRecordLinkURLsIntoOneField();
     end;
 
     trigger OnUpgradePerCompany()
@@ -126,7 +127,7 @@ codeunit 104000 "Upgrade - BaseApp"
                     RecordRef.GETTABLE(Job);
                     IntegrationManagement.InsertUpdateIntegrationRecord(RecordRef, CURRENTDATETIME());
                     RecordRef.SETTABLE(Job);
-                    Job.Modify;
+                    Job.Modify();
                     Job.UpdateReferencedIds;
                 END;
             UNTIL Job.NEXT = 0;
@@ -212,7 +213,7 @@ codeunit 104000 "Upgrade - BaseApp"
         ELSE
             CRMSynchStatus."Last Update Invoice Entry No." := 0;
 
-        IF CRMSynchStatus.INSERT THEN;
+        IF CRMSynchStatus.Insert() then;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetLastUpdateInvoiceEntryNoUpgradeTag());
     end;
@@ -229,10 +230,30 @@ codeunit 104000 "Upgrade - BaseApp"
         IF IncomingDocument.FINDSET THEN
             REPEAT
                 IncomingDocument.URL := IncomingDocument.URL1 + IncomingDocument.URL2 + IncomingDocument.URL3 + IncomingDocument.URL4;
-                IncomingDocument.MODIFY;
+                IncomingDocument.Modify();
             UNTIL IncomingDocument.NEXT = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIncomingDocumentURLUpgradeTag());
+    end;
+
+    local procedure CopyRecordLinkURLsIntoOneField()
+    var
+        RecordLink: Record "Record Link";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetRecordLinkURLUpgradeTag()) then
+            exit;
+
+        RecordLink.SetFilter("URL2", '<>''''');
+
+        if RecordLink.FINDSET then
+            repeat
+                RecordLink.URL1 := RecordLink.URL1 + RecordLink.URL2 + RecordLink.URL3 + RecordLink.URL4;
+                RecordLink.Modify();
+            until RecordLink.Next = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetRecordLinkURLUpgradeTag());
     end;
 
     local procedure CreateExcelTemplateWebService(ObjectName: Text; PageID: Integer)
@@ -501,7 +522,7 @@ codeunit 104000 "Upgrade - BaseApp"
                 Changed := true;
         END;
         if Changed then
-            TargetRecordRef.MODIFY;
+            TargetRecordRef.Modify();
     end;
 
     local procedure UpdatePurchaseDocumentFields(var SourceRecordRef: RecordRef; var TargetRecordRef: RecordRef; PayTo: Boolean; ShipTo: Boolean)
@@ -580,7 +601,7 @@ codeunit 104000 "Upgrade - BaseApp"
                 Changed := true;
         END;
         if Changed then
-            TargetRecordRef.MODIFY;
+            TargetRecordRef.Modify();
     end;
 
     local procedure CopyFieldValue(var SourceRecordRef: RecordRef; var TargetRecordRef: RecordRef; FieldNo: Integer): Boolean
@@ -620,6 +641,7 @@ codeunit 104000 "Upgrade - BaseApp"
         JobQueueLogEntry: Record "Job Queue Log Entry";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        OldErrorMsg: Text;
     begin
         IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag()) THEN
             EXIT;
@@ -632,18 +654,18 @@ codeunit 104000 "Upgrade - BaseApp"
                 JobQueueEntry."Error Message 2" := '';
                 JobQueueEntry."Error Message 3" := '';
                 JobQueueEntry."Error Message 4" := '';
-                JobQueueEntry.MODIFY;
+                JobQueueEntry.Modify();
             UNTIL JobQueueEntry.NEXT = 0;
 
         JobQueueLogEntry.SETFILTER("Error Message 2", '<>%1', '');
         IF JobQueueLogEntry.FINDSET(TRUE) THEN
             REPEAT
-                JobQueueLogEntry."Error Message" := JobQueueLogEntry."Error Message" + JobQueueLogEntry."Error Message 2" +
+                OldErrorMsg := JobQueueLogEntry."Error Message" + JobQueueLogEntry."Error Message 2" +
                   JobQueueLogEntry."Error Message 3" + JobQueueLogEntry."Error Message 4";
                 JobQueueLogEntry."Error Message 2" := '';
                 JobQueueLogEntry."Error Message 3" := '';
                 JobQueueLogEntry."Error Message 4" := '';
-                JobQueueLogEntry.MODIFY;
+                JobQueueLogEntry.Modify();
             UNTIL JobQueueLogEntry.NEXT = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag);
@@ -802,11 +824,11 @@ codeunit 104000 "Upgrade - BaseApp"
         IF NOT UserGroup.GET(UserGroupCode) THEN
             EXIT;
 
-        UserGroupPlan.INIT;
+        UserGroupPlan.Init();
         UserGroupPlan."Plan ID" := PlanId;
         UserGroupPlan."User Group Code" := UserGroupCode;
 
-        UserGroupPlan.INSERT;
+        UserGroupPlan.Insert();
 
         SENDTRACETAG('00001PS', 'AL SaaS Upgrade', VERBOSITY::Normal,
           STRSUBSTNO('User Group %1 was linked to Plan %2.', UserGroupCode, PlanId));
@@ -900,7 +922,7 @@ codeunit 104000 "Upgrade - BaseApp"
             Changed := true;
         end;
         if Changed then
-            TargetRecordRef.MODIFY;
+            TargetRecordRef.Modify();
     end;
 }
 

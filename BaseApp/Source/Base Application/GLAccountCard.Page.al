@@ -1,4 +1,4 @@
-﻿page 17 "G/L Account Card"
+page 17 "G/L Account Card"
 {
     Caption = 'G/L Account Card';
     PageType = Card;

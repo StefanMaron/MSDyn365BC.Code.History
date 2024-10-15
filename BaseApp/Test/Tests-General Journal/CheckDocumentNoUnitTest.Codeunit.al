@@ -146,7 +146,7 @@ codeunit 134073 "Check Document No. Unit Test"
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'T09000000000000000', 'T09999999999999991');
         NoSeriesLine."Last No. Used" := 'T09000000000000001'; // The limit for type "decimal" is "999,999,999,999,999.00"
         NoSeriesLine."Increment-by No." := 10;
-        NoSeriesLine.Modify;
+        NoSeriesLine.Modify();
 
         // [WHEN] Get next No. Series
         NoSeriesManagement.IncrementNoText(NoSeriesLine."Last No. Used", NoSeriesLine."Increment-by No.");
@@ -275,9 +275,9 @@ codeunit 134073 "Check Document No. Unit Test"
         NoSeriesLine.SetRange("Series Code", LibraryERM.CreateNoSeriesCode);
         NoSeriesLine.FindFirst;
 
-        Commit;
+        Commit();
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Posting Date" := WorkDate;
         GenJournalLine."Exported to Payment File" := true;
         GenJournalLine."Document No." := NoSeriesManagement.TryGetNextNo(NoSeriesLine."Series Code", GenJournalLine."Posting Date");

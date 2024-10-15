@@ -204,7 +204,7 @@ codeunit 139054 "Office Addin Redeploy"
         Clear(LibraryOfficeHostProvider);
         BindSubscription(LibraryOfficeHostProvider);
 
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeHostUnAvailable;
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
@@ -228,8 +228,8 @@ codeunit 139054 "Office Addin Redeploy"
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
         if NameValueBuffer.Get(SessionId) then begin
-            NameValueBuffer.Delete;
-            Commit;
+            NameValueBuffer.Delete();
+            Commit();
         end;
     end;
 
@@ -237,9 +237,9 @@ codeunit 139054 "Office Addin Redeploy"
     var
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
-        OfficeAddinSetup.Get;
+        OfficeAddinSetup.Get();
         OfficeAddinSetup."Office Host Codeunit ID" := ProviderId;
-        OfficeAddinSetup.Modify;
+        OfficeAddinSetup.Modify();
     end;
 
     local procedure UpdateOfficeAddinTable(AdminDeployedDate: Date; Breaking: Boolean; var UserVersion: Text)
@@ -262,9 +262,9 @@ codeunit 139054 "Office Addin Redeploy"
             UserVersion := LatestVersion + '01';
 
         if not OfficeAddin.Modify then
-            OfficeAddin.Insert;
+            OfficeAddin.Insert();
 
-        Commit;
+        Commit();
     end;
 
     [ModalPageHandler]

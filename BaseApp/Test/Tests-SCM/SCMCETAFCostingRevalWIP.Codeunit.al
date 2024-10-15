@@ -618,8 +618,8 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         SaleProdItem2Qty: Decimal;
         VerifyVariance: Boolean;
     begin
-        EmptyItem.Init;
-        EmptyProdOrder.Init;
+        EmptyItem.Init();
+        EmptyProdOrder.Init();
         VerifyVariance := ProducedItemCostingMethod = ProducedItem1."Costing Method"::Standard;
         InitializeQuantities(QtyCompInProdItem1, QtyCompInProdItem2, QtyProdItem1InProdItem2, ProdOrder1Qty, ProdOrder2Qty, SaleProdItem2Qty);
         SetupItems(
@@ -704,7 +704,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         SaleProdItem2Qty: Decimal;
         VerifyVariance: Boolean;
     begin
-        EmptyItem.Init;
+        EmptyItem.Init();
         VerifyVariance := ProducedItemCostingMethod = ProducedItem1."Costing Method"::Standard;
         InitializeQuantities(QtyCompInProdItem1, QtyCompInProdItem2, QtyProdItem1InProdItem2, ProdOrder1Qty, ProdOrder2Qty, SaleProdItem2Qty);
         SetupItems(
@@ -766,8 +766,8 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         SaleProdItem2Qty: Decimal;
         VerifyVariance: Boolean;
     begin
-        EmptyItem.Init;
-        EmptyProdOrder.Init;
+        EmptyItem.Init();
+        EmptyProdOrder.Init();
         VerifyVariance := ProducedItemCostingMethod = ProducedItem1."Costing Method"::Standard;
         InitializeQuantities(QtyCompInProdItem1, QtyCompInProdItem2, QtyProdItem1InProdItem2, ProdOrder1Qty, ProdOrder2Qty, SaleProdItem2Qty);
         SetupItems(
@@ -837,8 +837,8 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         RefNegConsmpCostafterReval: Decimal;
         VerifyVariance: Boolean;
     begin
-        EmptyItem.Init;
-        EmptyProdOrder.Init;
+        EmptyItem.Init();
+        EmptyProdOrder.Init();
         VerifyVariance := ProducedItemCostingMethod = ProducedItem."Costing Method"::Standard;
 
         QtyCompInProdItem := LibraryRandom.RandDecInDecimalRange(0.1, 1, 2);
@@ -873,7 +873,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ConsumptionItemJournalLine.SetRange("Item No.", ComponentItem."No.");
         ConsumptionItemJournalLine.FindFirst;
         ConsumptionItemJournalLine.Validate("Applies-from Entry", ItemLedgerEntry."Entry No.");
-        ConsumptionItemJournalLine.Modify;
+        ConsumptionItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ConsumptionItemJournalBatch);
 
         // Finish Order
@@ -921,8 +921,8 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ConsumptionQty3: Decimal;
         VerifyVariance: Boolean;
     begin
-        EmptyItem.Init;
-        EmptyProdOrder.Init;
+        EmptyItem.Init();
+        EmptyProdOrder.Init();
         VerifyVariance := ProducedItemCostingMethod = ProducedItem."Costing Method"::Standard;
 
         QtyCompInProdItem := LibraryRandom.RandDecInDecimalRange(0.1, 1, 2);
@@ -1136,7 +1136,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
     begin
         // [FEATURE] [No Accounting Periods]
         // [SCENARIO 222561] Production, reservation and revaluation of item with average cost without accounting periods
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
 
         TestProdAverageItemCons(true, false);
     end;
@@ -1159,7 +1159,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryPatterns.SETNoSeries;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM CETAF Costing Reval. WIP");
     end;
 
@@ -1290,9 +1290,9 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         LibraryManufacturing.CreateProductionBOMLine(
           ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ProducedItem1."No.", QtyProd1InProd2);
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
-        ProductionBOMHeader.Modify;
+        ProductionBOMHeader.Modify();
         ProducedItem2.Validate("Production BOM No.", ProductionBOMHeader."No.");
-        ProducedItem2.Modify;
+        ProducedItem2.Modify();
     end;
 
     local procedure SetupItems1Comp1ProdItem(var ComponentItem: Record Item; var ProducedItem: Record Item; ComponentCostingMethod: Option; ProducedItemCostingMethod: Option; QtyCompInProdItem: Decimal)
@@ -1316,7 +1316,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
     begin
         LibraryPatterns.MAKEItemSimple(Item, CostingMethod, 0);
         Item.Description := Format(Item."Costing Method");
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateAndPostProdOrder1Comp(var ProductionOrder: Record "Production Order"; ComponentItem: Record Item; ProducedItem: Record Item; PostingDate: Date; ProdQty: Decimal; ApplyToEntry: Integer; ReservComp: Boolean)
@@ -1428,7 +1428,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
             ItemJnlLine.SetRange("Item No.", ComponentItem."No.");
             ItemJnlLine.FindFirst;
             ItemJnlLine."Applies-to Entry" := ApplyToEntry;
-            ItemJnlLine.Modify;
+            ItemJnlLine.Modify();
             LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
         end;
         LibraryPatterns.POSTOutput(ProdOrderLine, ProdOrder1Qty, PostingDate, ProducedItem1."Unit Cost");
@@ -1465,12 +1465,12 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ItemJnlLine.Get(JournalTemplateName, JournalBatchName, LineNo);
         ItemJnlLine.Validate(
           "Inventory Value (Revalued)", Round(ItemJnlLine."Inventory Value (Revalued)" * RevaluationFactor, RoundingPrecision));
-        ItemJnlLine.Modify;
+        ItemJnlLine.Modify();
     end;
 
     local procedure FindFirstILE(var ItemLedgEntry: Record "Item Ledger Entry"; ProductionNo: Code[20]; ItemNo: Code[20]; EntryType: Option): Integer
     begin
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
         ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
         ItemLedgEntry.SetRange("Order No.", ProductionNo);
@@ -1492,7 +1492,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst;
-        ProdOrderComp.Init;
+        ProdOrderComp.Init();
         ProdOrderComp.Status := ProductionOrder.Status;
         ProdOrderComp."Prod. Order No." := ProductionOrder."No.";
         ProdOrderComp."Prod. Order Line No." := ProdOrderLine."Line No.";
@@ -1500,14 +1500,14 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ProdOrderComp.Validate("Due Date", ProductionOrder."Due Date");
         ProdOrderComp.Validate("Item No.", ComponentItemNo);
         ProdOrderComp.Validate("Quantity per", 1);
-        ProdOrderComp.Insert;
+        ProdOrderComp.Insert();
 
         EntryNo := 1;
-        ReservEntry.Reset;
+        ReservEntry.Reset();
         if ReservEntry.FindLast then
             EntryNo := ReservEntry."Entry No." + 1;
         // Component
-        ReservEntry.Init;
+        ReservEntry.Init();
         ReservEntry."Entry No." := EntryNo;
         ReservEntry.Positive := false;
         ReservEntry."Item No." := ComponentItemNo;
@@ -1520,9 +1520,9 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ReservEntry."Quantity (Base)" := -Qty;
         ReservEntry.Quantity := ReservEntry."Quantity (Base)";
         ReservEntry."Qty. per Unit of Measure" := 1;
-        ReservEntry.Insert;
+        ReservEntry.Insert();
         // Inventory
-        ReservEntry.Init;
+        ReservEntry.Init();
         ReservEntry."Entry No." := EntryNo;
         ReservEntry.Positive := true;
         ReservEntry."Item No." := ComponentItemNo;
@@ -1531,14 +1531,14 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ReservEntry."Quantity (Base)" := Qty;
         ReservEntry.Quantity := ReservEntry."Quantity (Base)";
         ReservEntry."Qty. per Unit of Measure" := 1;
-        ReservEntry.Insert;
+        ReservEntry.Insert();
     end;
 
     local procedure SetupAvgCostPeriod(NewAvgCostPeriod: Option; var OldAvgCostPeriod: Option)
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         OldAvgCostPeriod := InventorySetup."Average Cost Period";
 
         if InventorySetup."Average Cost Period" <> NewAvgCostPeriod then begin

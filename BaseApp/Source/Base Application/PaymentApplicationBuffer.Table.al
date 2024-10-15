@@ -16,11 +16,9 @@ table 10881 "Payment Application Buffer"
         {
             Caption = 'Posting Date';
         }
-        field(4; "Document Type"; Option)
+        field(4; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(5; "Due Date"; Date)
         {

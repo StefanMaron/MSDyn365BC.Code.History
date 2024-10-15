@@ -119,7 +119,7 @@ codeunit 7711 "Miniform Whse. Activity Line"
                             end;
                     end;
 
-                    WhseActivityLine.Modify;
+                    WhseActivityLine.Modify();
                     RecRef.GetTable(WhseActivityLine);
                     ADCSCommunication.SetRecRef(RecRef);
                     ActiveInputField := ADCSCommunication.GetActiveInputNo(CurrentCode, FldNo);
@@ -200,7 +200,7 @@ codeunit 7711 "Miniform Whse. Activity Line"
 
         Remark := '';
         WhseActLine.Validate("Qty. to Handle", 0);
-        WhseActLine.Modify;
+        WhseActLine.Modify();
 
         RecRef.GetTable(WhseActLine);
         ADCSCommunication.SetRecRef(RecRef);

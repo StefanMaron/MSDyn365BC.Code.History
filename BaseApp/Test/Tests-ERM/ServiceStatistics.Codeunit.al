@@ -563,7 +563,7 @@ codeunit 136130 "Service Statistics"
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Type2 := Type2::Item;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         ServiceOrder.Statistics.Invoke;
@@ -594,7 +594,7 @@ codeunit 136130 "Service Statistics"
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Type2 := Type2::Resource;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         ServiceOrder.Statistics.Invoke;
@@ -625,7 +625,7 @@ codeunit 136130 "Service Statistics"
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Type2 := Type2::"G/L Account";  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         ServiceOrder.Statistics.Invoke;
@@ -658,7 +658,7 @@ codeunit 136130 "Service Statistics"
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
         Type2 := Type2::Cost;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         ServiceOrder.Statistics.Invoke;
@@ -696,7 +696,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceOrderItemLine(ServiceOrder);
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         ServiceOrder.Statistics.Invoke;
@@ -733,7 +733,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceOrderItemLine(ServiceOrder);
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         LineWithoutAllowInvoiceDisc(ServiceLine."Document Type"::Order, ServiceOrder."No.".Value);
@@ -769,7 +769,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceOrderItemLine(ServiceOrder);
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         ServiceOrder.Statistics.Invoke;
@@ -806,7 +806,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceOrderItemLine(ServiceOrder);
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         ServiceOrder.Statistics.Invoke;
@@ -842,7 +842,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceOrderItemLine(ServiceOrder);
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         UpdateQuantityToShipLine(DocumentNo2);
@@ -877,7 +877,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceOrderItemLine(ServiceOrder);
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         UpdateQuantityToShipLine(DocumentNo2);
@@ -915,7 +915,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceOrderItemLine(ServiceOrder);
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         UpdateQuantityToShipLine(DocumentNo2);
@@ -988,7 +988,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceOrderItemLine(ServiceOrder);
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         UpdateQuantityToShipLine(DocumentNo2);
@@ -1026,7 +1026,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceOrderItemLine(ServiceOrder);
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         UpdateQuantityToInvoiceLine(DocumentNo2);
@@ -1061,7 +1061,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceOrderItemLine(ServiceOrder);
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         UpdateQuantityToShipLine(DocumentNo2);
@@ -1100,7 +1100,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceOrderItemLine(ServiceOrder);
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         UpdateQuantityToShipLine(DocumentNo2);
@@ -1141,7 +1141,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceOrderItemLine(ServiceOrder);
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         UpdateQuantityToShipLine(DocumentNo2);
@@ -1178,7 +1178,7 @@ codeunit 136130 "Service Statistics"
         // 2. Exercise: Create Service Order with G/L Account and open Service Order Statistics Page.
         CreateServiceOrderHeader(ServiceOrder, Customer."No.");
         CreateServiceOrderItemLine(ServiceOrder);
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         ServiceOrder.Statistics.Invoke;
@@ -1208,7 +1208,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceQuoteItemLine(ServiceQuote);
         DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceQuote.ServItemLine.First;
         ServiceQuote.ServItemLine.ServiceLines.Invoke;
         ServiceQuote.Statistics.Invoke;
@@ -1238,7 +1238,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceQuoteItemLine(ServiceQuote);
         DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceQuote.ServItemLine.First;
         ServiceQuote.ServItemLine.ServiceLines.Invoke;
         ServiceQuote.Statistics.Invoke;
@@ -1268,7 +1268,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceQuoteItemLine(ServiceQuote);
         DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceQuote.ServItemLine.First;
         ServiceQuote.ServItemLine.ServiceLines.Invoke;
         ServiceQuote.Statistics.Invoke;
@@ -1300,7 +1300,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceQuoteItemLine(ServiceQuote);
         DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceQuote.ServItemLine.First;
         ServiceQuote.ServItemLine.ServiceLines.Invoke;
         ServiceQuote.Statistics.Invoke;
@@ -1337,7 +1337,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceQuoteItemLine(ServiceQuote);
         DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceQuote.ServItemLine.First;
         ServiceQuote.ServItemLine.ServiceLines.Invoke;
         ServiceQuote.Statistics.Invoke;
@@ -1373,7 +1373,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceQuoteItemLine(ServiceQuote);
         DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceQuote.ServItemLine.First;
         ServiceQuote.ServItemLine.ServiceLines.Invoke;
         LineWithoutAllowInvoiceDisc(ServiceLine."Document Type"::Quote, ServiceQuote."No.".Value);
@@ -1408,7 +1408,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceQuoteItemLine(ServiceQuote);
         DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceQuote.ServItemLine.First;
         ServiceQuote.ServItemLine.ServiceLines.Invoke;
         ServiceQuote.Statistics.Invoke;
@@ -1444,7 +1444,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceQuoteItemLine(ServiceQuote);
         DocumentNo2 := ServiceQuote."No.".Value; // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Quote;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceQuote.ServItemLine.First;
         ServiceQuote.ServItemLine.ServiceLines.Invoke;
         ServiceQuote.Statistics.Invoke;
@@ -1476,7 +1476,7 @@ codeunit 136130 "Service Statistics"
         // 2. Exercise: Create Service Quote with G/L Account and open Statistics Page.
         CreateServiceQuoteHeader(ServiceQuote, Customer."No.");
         CreateServiceQuoteItemLine(ServiceQuote);
-        Commit;
+        Commit();
         ServiceQuote.ServItemLine.First;
         ServiceQuote.ServItemLine.ServiceLines.Invoke;
         ServiceQuote.Statistics.Invoke;
@@ -1508,7 +1508,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceOrderHeader(ServiceOrder, CreateCustomer);
         CreateServiceOrderItemLine(ServiceOrder);
         DocumentNo := ServiceOrder."No.".Value;
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         LibrarySales.DisableConfirmOnPostingDoc;
@@ -1735,7 +1735,7 @@ codeunit 136130 "Service Statistics"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Statistics");
     end;
 
@@ -1767,7 +1767,7 @@ codeunit 136130 "Service Statistics"
         ServiceCreditMemoNo: Code[20];
     begin
         ServiceCreditMemoNo := LibraryService.CreateServiceCreditMemoHeaderUsingPage;
-        Commit;
+        Commit();
 
         Clear(ServiceCreditMemo);
         ServiceCreditMemo.OpenEdit;
@@ -1807,7 +1807,7 @@ codeunit 136130 "Service Statistics"
         ServiceInvoice."Customer No.".Activate;
         ServiceInvoiceNo := ServiceInvoice."No.".Value;
         ServiceInvoice.OK.Invoke;
-        Commit;
+        Commit();
 
         Clear(ServiceInvoice);
         ServiceInvoice.OpenEdit;
@@ -1833,7 +1833,7 @@ codeunit 136130 "Service Statistics"
         ServiceOrderNo: Code[20];
     begin
         ServiceOrderNo := LibraryService.CreateServiceOrderHeaderUsingPage;
-        Commit;
+        Commit();
 
         Clear(ServiceOrder);
         ServiceOrder.OpenEdit;
@@ -1857,7 +1857,7 @@ codeunit 136130 "Service Statistics"
         ServiceQuote."Customer No.".Activate;
         ServiceQuoteNo := ServiceQuote."No.".Value;
         ServiceQuote.OK.Invoke;
-        Commit;
+        Commit();
 
         Clear(ServiceQuote);
         ServiceQuote.OpenEdit;
@@ -1892,7 +1892,7 @@ codeunit 136130 "Service Statistics"
         CreateServiceOrderItemLine(ServiceOrder);
         DocumentNo2 := ServiceOrder."No.".Value;  // Assign global variable for page handler.
         DocumentType2 := ServiceLine."Document Type"::Order;  // Assign global variable for page handler.
-        Commit;
+        Commit();
         ServiceOrder.ServItemLines.First;
         ServiceOrder.ServItemLines."Service Lines".Invoke;
         ServiceOrder.Statistics.Invoke;
@@ -1945,7 +1945,7 @@ codeunit 136130 "Service Statistics"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Amount Rounding Precision");
     end;
 

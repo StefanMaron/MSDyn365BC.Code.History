@@ -396,7 +396,7 @@ page 10869 "Payment Slip Subform"
                 while StatementLine.Next <> 0 do begin
                     PostingStatement.IncrementNoText(No, 1);
                     StatementLine."Document No." := No;
-                    StatementLine.Modify;
+                    StatementLine.Modify();
                 end;
             end;
         end;
@@ -428,22 +428,22 @@ page 10869 "Payment Slip Subform"
     begin
         if ToMark then begin
             CurrPage.SetSelectionFilter(LineCopy);
-            NumLines := LineCopy.Count;
+            NumLines := LineCopy.Count();
             if NumLines > 0 then begin
                 LineCopy.Find('-');
                 repeat
                     LineCopy.Marked := true;
-                    LineCopy.Modify;
+                    LineCopy.Modify();
                 until LineCopy.Next = 0;
             end else
-                LineCopy.Reset;
+                LineCopy.Reset();
             LineCopy.SetRange("No.", "No.");
             LineCopy.ModifyAll(Marked, true);
         end else begin
             LineCopy.SetRange("No.", "No.");
             LineCopy.ModifyAll(Marked, false);
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure ActivateControls()

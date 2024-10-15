@@ -201,7 +201,7 @@ table 8631 "Config. Table Processing Rule"
     begin
         if Action = Action::Post then begin
             RecRef.SetTable(GenJnlBatch);
-            GenJnlLine.Reset;
+            GenJnlLine.Reset();
             GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
             GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
             if GenJnlLine.FindFirst then
@@ -216,7 +216,7 @@ table 8631 "Config. Table Processing Rule"
     begin
         if Action = Action::Post then begin
             RecRef.SetTable(GenJnlLine);
-            GenJnlLine.Reset;
+            GenJnlLine.Reset();
             GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
             GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
             GenJnlLine.SetRange("Line No.", GenJnlLine."Line No.");

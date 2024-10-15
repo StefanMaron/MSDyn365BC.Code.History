@@ -427,8 +427,8 @@ table 1507 "Workflow Step Buffer"
         TempWorkflowStepBuffer: Record "Workflow Step Buffer" temporary;
     begin
         TempWorkflowStepBuffer.Copy(Rec, true);
-        TempWorkflowStepBuffer.Reset;
-        TempWorkflowStepBuffer.DeleteAll;
+        TempWorkflowStepBuffer.Reset();
+        TempWorkflowStepBuffer.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -443,7 +443,7 @@ table 1507 "Workflow Step Buffer"
 
     local procedure CreateWorkflowStep(var WorkflowStep: Record "Workflow Step"; WorkflowCode: Code[20]; PreviousStepID: Integer)
     begin
-        WorkflowStep.Init;
+        WorkflowStep.Init();
         WorkflowStep.Validate("Workflow Code", WorkflowCode);
         WorkflowStep.Insert(true);
 
@@ -670,7 +670,7 @@ table 1507 "Workflow Step Buffer"
         WorkflowStep.SetRange("Previous Workflow Step ID", ParentWorkflowStep.ID);
         WorkflowStep.SetRange(Type, ParentWorkflowStep.Type::Response);
         if WorkflowStep.FindLast then begin
-            ChildWorkflowStep.Init;
+            ChildWorkflowStep.Init();
             if FindLastResponseDescendant(WorkflowStep, ChildWorkflowStep) then
                 WorkflowStep := ChildWorkflowStep;
             exit(true);
@@ -841,7 +841,7 @@ table 1507 "Workflow Step Buffer"
                 if WorkflowEvent.Get(WFEventResponseCombination."Function Name") then begin
                     TempWorkflowEvent := WorkflowEvent;
                     TempWorkflowEvent.Independent := false;
-                    if TempWorkflowEvent.Insert then;
+                    if TempWorkflowEvent.Insert() then;
                 end;
             until WFEventResponseCombination.Next = 0;
     end;
@@ -859,7 +859,7 @@ table 1507 "Workflow Step Buffer"
                 if WorkflowResponse.Get(WFEventResponseCombination."Function Name") then begin
                     TempWorkflowResponse := WorkflowResponse;
                     TempWorkflowResponse.Independent := false;
-                    if TempWorkflowResponse.Insert then;
+                    if TempWorkflowResponse.Insert() then;
                 end;
             until WFEventResponseCombination.Next = 0;
     end;
@@ -873,7 +873,7 @@ table 1507 "Workflow Step Buffer"
                 if not WorkflowEvent.HasPredecessors then begin
                     TempWorkflowEvent := WorkflowEvent;
                     TempWorkflowEvent.Independent := true;
-                    if TempWorkflowEvent.Insert then;
+                    if TempWorkflowEvent.Insert() then;
                 end;
             until WorkflowEvent.Next = 0;
     end;
@@ -887,7 +887,7 @@ table 1507 "Workflow Step Buffer"
                 if not WorkflowResponse.HasPredecessors then begin
                     TempWorkflowResponse := WorkflowResponse;
                     TempWorkflowResponse.Independent := true;
-                    if TempWorkflowResponse.Insert then;
+                    if TempWorkflowResponse.Insert() then;
                 end;
             until WorkflowResponse.Next = 0;
     end;

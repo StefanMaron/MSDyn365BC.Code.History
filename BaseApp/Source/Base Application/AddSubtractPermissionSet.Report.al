@@ -156,7 +156,7 @@ report 9000 "Add/Subtract Permission Set"
                         DestinationTenantPermission."Delete Permission" := SourcePermission."Delete Permission";
                     if PermissionValueIsGreaterOrEqual(SourcePermission."Execute Permission", DestinationTenantPermission."Execute Permission") then
                         DestinationTenantPermission."Execute Permission" := SourcePermission."Execute Permission";
-                    DestinationTenantPermission.Modify;
+                    DestinationTenantPermission.Modify();
                 end else begin
                     DestinationTenantPermission."Object ID" := SourcePermission."Object ID";
                     DestinationTenantPermission."Object Type" := SourcePermission."Object Type";
@@ -168,7 +168,7 @@ report 9000 "Add/Subtract Permission Set"
                     DestinationTenantPermission."Security Filter" := SourcePermission."Security Filter";
                     DestinationTenantPermission."Role ID" := DestinationAggregatePermissionSet."Role ID";
                     DestinationTenantPermission."App ID" := DestinationAggregatePermissionSet."App ID";
-                    DestinationTenantPermission.Insert;
+                    DestinationTenantPermission.Insert();
                 end;
             SetOperation::Exclude:
                 begin
@@ -191,14 +191,14 @@ report 9000 "Add/Subtract Permission Set"
                                  SourcePermission."Execute Permission", DestinationTenantPermission."Execute Permission")
                             then
                                 DestinationTenantPermission."Execute Permission" := SourcePermission."Execute Permission"::" ";
-                            DestinationTenantPermission.Modify;
+                            DestinationTenantPermission.Modify();
                             if (DestinationTenantPermission."Read Permission" = SourcePermission."Read Permission"::" ") and
                                (DestinationTenantPermission."Insert Permission" = SourcePermission."Read Permission"::" ") and
                                (DestinationTenantPermission."Modify Permission" = SourcePermission."Read Permission"::" ") and
                                (DestinationTenantPermission."Delete Permission" = SourcePermission."Read Permission"::" ") and
                                (DestinationTenantPermission."Execute Permission" = SourcePermission."Read Permission"::" ")
                             then
-                                DestinationTenantPermission.Delete;
+                                DestinationTenantPermission.Delete();
                         until DestinationTenantPermission.Next = 0;
                 end;
         end;
@@ -232,12 +232,12 @@ report 9000 "Add/Subtract Permission Set"
                          SourceTenantPermission."Execute Permission", DestinationTenantPermission."Execute Permission")
                     then
                         DestinationTenantPermission."Execute Permission" := SourceTenantPermission."Execute Permission";
-                    DestinationTenantPermission.Modify;
+                    DestinationTenantPermission.Modify();
                 end else begin
                     DestinationTenantPermission := SourceTenantPermission;
                     DestinationTenantPermission."Role ID" := DestinationAggregatePermissionSet."Role ID";
                     DestinationTenantPermission."App ID" := DestinationAggregatePermissionSet."App ID";
-                    DestinationTenantPermission.Insert;
+                    DestinationTenantPermission.Insert();
                 end;
             SetOperation::Exclude:
                 begin
@@ -268,14 +268,14 @@ report 9000 "Add/Subtract Permission Set"
                                  SourceTenantPermission."Execute Permission", DestinationTenantPermission."Execute Permission")
                             then
                                 DestinationTenantPermission."Execute Permission" := SourceTenantPermission."Execute Permission"::" ";
-                            DestinationTenantPermission.Modify;
+                            DestinationTenantPermission.Modify();
                             if (DestinationTenantPermission."Read Permission" = SourceTenantPermission."Read Permission"::" ") and
                                (DestinationTenantPermission."Insert Permission" = SourceTenantPermission."Read Permission"::" ") and
                                (DestinationTenantPermission."Modify Permission" = SourceTenantPermission."Read Permission"::" ") and
                                (DestinationTenantPermission."Delete Permission" = SourceTenantPermission."Read Permission"::" ") and
                                (DestinationTenantPermission."Execute Permission" = SourceTenantPermission."Read Permission"::" ")
                             then
-                                DestinationTenantPermission.Delete;
+                                DestinationTenantPermission.Delete();
                         until DestinationTenantPermission.Next = 0;
                 end;
         end;
@@ -300,7 +300,7 @@ report 9000 "Add/Subtract Permission Set"
                         DestinationPermission."Delete Permission" := SourcePermission."Delete Permission";
                     if PermissionValueIsGreaterOrEqual(SourcePermission."Execute Permission", DestinationPermission."Execute Permission") then
                         DestinationPermission."Execute Permission" := SourcePermission."Execute Permission";
-                    DestinationPermission.Modify;
+                    DestinationPermission.Modify();
                 end else begin
                     DestinationPermission."Object ID" := SourcePermission."Object ID";
                     DestinationPermission."Object Type" := SourcePermission."Object Type";
@@ -311,7 +311,7 @@ report 9000 "Add/Subtract Permission Set"
                     DestinationPermission."Execute Permission" := SourcePermission."Execute Permission";
                     DestinationPermission."Security Filter" := SourcePermission."Security Filter";
                     DestinationPermission."Role ID" := DestinationAggregatePermissionSet."Role ID";
-                    DestinationPermission.Insert;
+                    DestinationPermission.Insert();
                 end;
             SetOperation::Exclude:
                 begin
@@ -333,14 +333,14 @@ report 9000 "Add/Subtract Permission Set"
                                  SourcePermission."Execute Permission", DestinationPermission."Execute Permission")
                             then
                                 DestinationPermission."Execute Permission" := SourcePermission."Execute Permission"::" ";
-                            DestinationPermission.Modify;
+                            DestinationPermission.Modify();
                             if (DestinationPermission."Read Permission" = SourcePermission."Read Permission"::" ") and
                                (DestinationPermission."Insert Permission" = SourcePermission."Read Permission"::" ") and
                                (DestinationPermission."Modify Permission" = SourcePermission."Read Permission"::" ") and
                                (DestinationPermission."Delete Permission" = SourcePermission."Read Permission"::" ") and
                                (DestinationPermission."Execute Permission" = SourcePermission."Read Permission"::" ")
                             then
-                                DestinationPermission.Delete;
+                                DestinationPermission.Delete();
                         until DestinationPermission.Next = 0;
                 end;
         end;
@@ -373,7 +373,7 @@ report 9000 "Add/Subtract Permission Set"
                          SourceTenantPermission."Execute Permission", DestinationPermission."Execute Permission")
                     then
                         DestinationPermission."Execute Permission" := SourceTenantPermission."Execute Permission";
-                    DestinationPermission.Modify;
+                    DestinationPermission.Modify();
                 end else begin
                     DestinationPermission."Object ID" := SourceTenantPermission."Object ID";
                     DestinationPermission."Object Type" := SourceTenantPermission."Object Type";
@@ -384,7 +384,7 @@ report 9000 "Add/Subtract Permission Set"
                     DestinationPermission."Execute Permission" := SourceTenantPermission."Execute Permission";
                     DestinationPermission."Security Filter" := SourceTenantPermission."Security Filter";
                     DestinationPermission."Role ID" := DestinationAggregatePermissionSet."Role ID";
-                    DestinationPermission.Insert;
+                    DestinationPermission.Insert();
                 end;
             SetOperation::Exclude:
                 begin
@@ -414,14 +414,14 @@ report 9000 "Add/Subtract Permission Set"
                                  SourceTenantPermission."Execute Permission", DestinationPermission."Execute Permission")
                             then
                                 DestinationPermission."Execute Permission" := SourceTenantPermission."Execute Permission"::" ";
-                            DestinationPermission.Modify;
+                            DestinationPermission.Modify();
                             if (DestinationPermission."Read Permission" = SourceTenantPermission."Read Permission"::" ") and
                                (DestinationPermission."Insert Permission" = SourceTenantPermission."Read Permission"::" ") and
                                (DestinationPermission."Modify Permission" = SourceTenantPermission."Read Permission"::" ") and
                                (DestinationPermission."Delete Permission" = SourceTenantPermission."Read Permission"::" ") and
                                (DestinationPermission."Execute Permission" = SourceTenantPermission."Read Permission"::" ")
                             then
-                                DestinationPermission.Delete;
+                                DestinationPermission.Delete();
                         until DestinationPermission.Next = 0;
                 end;
         end;

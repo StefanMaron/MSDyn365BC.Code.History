@@ -256,7 +256,7 @@ report 10813 "Customer Journal"
                     YearString := ' ' + Format(Year);
                 end;
                 if Finished then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 DateRecNo += 1;
             end;
 

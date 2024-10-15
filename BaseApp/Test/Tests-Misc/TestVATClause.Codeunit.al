@@ -45,7 +45,7 @@ codeunit 134067 "Test VAT Clause"
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // exercise: Save-Invoice Report as XML
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvHeader);
 
         // verify
@@ -74,7 +74,7 @@ codeunit 134067 "Test VAT Clause"
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // exercise: Save-Invoice Report as XML
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales - Credit Memo", true, false, SalesCrMemoHeader);
 
         // verify
@@ -106,7 +106,7 @@ codeunit 134067 "Test VAT Clause"
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // exercise: Save-Invoice Report as XML
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvHeader);
 
         // verify
@@ -138,7 +138,7 @@ codeunit 134067 "Test VAT Clause"
         UpdateVATClause(VATClause, GenerateVATClauseDescription, GenerateVATClauseDescription);
 
         // exercise: Save-Invoice Report as XML
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvHeader);
 
         // verify
@@ -168,7 +168,7 @@ codeunit 134067 "Test VAT Clause"
         VATClause.Delete(true);
 
         // exercise: Save-Invoice Report as XML
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvHeader);
 
         // verify
@@ -291,7 +291,7 @@ codeunit 134067 "Test VAT Clause"
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // exercise: Save-Invoice Report as XML
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvHeader);
 
         // verify
@@ -325,7 +325,7 @@ codeunit 134067 "Test VAT Clause"
         AssignVATClauseToVATPostingSetup(VATPostingSetup, VATClause2);
 
         // exercise: Save-Invoice Report as XML
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvHeader);
 
         // verify - the invoice is printed with the original VATClause.
@@ -604,7 +604,7 @@ codeunit 134067 "Test VAT Clause"
 
     local procedure CreateVATClause(var VATClause: Record "VAT Clause")
     begin
-        VATClause.Init;
+        VATClause.Init();
         VATClause.Validate(Code, CopyStr(LibraryUtility.GenerateRandomCode(VATClause.FieldNo(Code), DATABASE::"VAT Clause"),
             1, LibraryUtility.GetFieldLength(DATABASE::"VAT Clause", VATClause.FieldNo(Code))));
         VATClause.Validate(Description, GenerateVATClauseDescription);
@@ -614,7 +614,7 @@ codeunit 134067 "Test VAT Clause"
 
     local procedure CreateVATClauseTranslation(var VATClauseTranslation: Record "VAT Clause Translation"; VATClause: Record "VAT Clause")
     begin
-        VATClauseTranslation.Init;
+        VATClauseTranslation.Init();
         VATClauseTranslation.Validate("VAT Clause Code", VATClause.Code);
         VATClauseTranslation.Validate("Language Code", GetRandomLanguageCode);
         VATClauseTranslation.Validate(Description, GenerateVATClauseDescription);
@@ -624,7 +624,7 @@ codeunit 134067 "Test VAT Clause"
 
     local procedure CreateVATClauseByDocType(var VATClauseByDocType: Record "VAT Clause by Doc. Type"; DocumentType: Integer; VATClause: Record "VAT Clause")
     begin
-        VATClauseByDocType.Init;
+        VATClauseByDocType.Init();
         VATClauseByDocType.Validate("VAT Clause Code", VATClause.Code);
         VATClauseByDocType.Validate("Document Type", DocumentType);
         VATClauseByDocType.Validate(Description, GenerateVATClauseDescription);
@@ -634,7 +634,7 @@ codeunit 134067 "Test VAT Clause"
 
     local procedure CreateVATClauseByDocTypeTranslation(var VATClauseByDocTypeTrans: Record "VAT Clause by Doc. Type Trans."; VATClauseByDocType: Record "VAT Clause by Doc. Type")
     begin
-        VATClauseByDocTypeTrans.Init;
+        VATClauseByDocTypeTrans.Init();
         VATClauseByDocTypeTrans.Validate("VAT Clause Code", VATClauseByDocType."VAT Clause Code");
         VATClauseByDocTypeTrans.Validate("Document Type", VATClauseByDocType."Document Type");
         VATClauseByDocTypeTrans.Validate("Language Code", GetRandomLanguageCode);
@@ -691,7 +691,7 @@ codeunit 134067 "Test VAT Clause"
         "count": Integer;
         randomNum: Integer;
     begin
-        Language.Init;
+        Language.Init();
         randomNum := LibraryRandom.RandIntInRange(1, Language.Count);
         repeat
             count += 1;

@@ -131,7 +131,7 @@ report 10809 "Bank Account Trial Balance"
                    (BankAccount2."Credit Amount (LCY)" = 0) and
                    ("Credit Amount (LCY)" = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

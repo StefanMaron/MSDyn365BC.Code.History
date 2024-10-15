@@ -152,7 +152,7 @@ report 10805 "Customer Trial Balance FR"
                 if not PrintCustWithoutBalance and (PeriodDebitAmountLCY = 0) and (PeriodCreditAmountLCY = 0) and
                    (PreviousDebitAmountLCY = 0) and (PreviousCreditAmountLCY = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

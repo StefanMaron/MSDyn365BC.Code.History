@@ -173,7 +173,7 @@ report 1138 "Cost Acctg. Balance/Budget"
                    (ActAmt = 0) and (ActBud = 0) and
                    (YtdAmt = 0) and (YtdBud = 0) and (YearBugdet = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 PageGroupNo := NextPageGroupNo;
                 if "New Page" then

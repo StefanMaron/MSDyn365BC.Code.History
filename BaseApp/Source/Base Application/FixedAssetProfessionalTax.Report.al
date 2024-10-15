@@ -130,9 +130,9 @@ report 10812 "Fixed Asset-Professional Tax"
             trigger OnAfterGetRecord()
             begin
                 if not FADeprBook.Get("No.", DeprBookCode) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if SkipRecord then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 Date[1] :=
                   FAGenReport.GetLastDate(
@@ -308,7 +308,7 @@ report 10812 "Fixed Asset-Professional Tax"
         trigger OnOpenPage()
         begin
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
             FAPostingType.CreateTypes;

@@ -416,7 +416,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         ReminderLevel.Validate("Add. Fee Calculation Type", ReminderLevel."Add. Fee Calculation Type"::"Accumulated Dynamic");
         ReminderLevel.Modify(true);
 
-        AdditionalFeeSetup.Init;
+        AdditionalFeeSetup.Init();
         AdditionalFeeSetup.Validate("Reminder Terms Code", ReminderTermsCode);
         AdditionalFeeSetup.Validate("Reminder Level No.", LevelNo);
         AdditionalFeeSetup.Validate("Currency Code", CurrencyCode);
@@ -462,7 +462,6 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Reminder Terms Code", ReminderTermsCode);
         Customer.Validate("Payment Terms Code", PaymentTermsCode);
-        Customer.Validate("VAT Bus. Posting Group", '');
         Customer.Modify(true);
         exit(Customer."No.")
     end;
@@ -521,7 +520,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         Language: Record Language;
     begin
         Language.FindFirst;
-        ReminderTermsTranslation.Init;
+        ReminderTermsTranslation.Init();
         ReminderTermsTranslation.Validate("Reminder Terms Code", ReminderTermsCode);
         ReminderTermsTranslation.Validate("Language Code", Language.Code);
         ReminderTermsTranslation.Insert(true);
@@ -537,8 +536,8 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         Clear(SalesInvoice);
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
         SalesInvoice.SetTableView(SalesInvoiceHeader);
-        SalesInvoice.InitializeRequest(0, true, false, false, true); // IncludeShptNo = FALSE, DisplayAssemblyInformation = FALSE
-        Commit;
+        SalesInvoice.InitializeRequest(0, true, false, false); // IncludeShptNo = FALSE, DisplayAssemblyInformation = FALSE
+        Commit();
         SalesInvoice.Run;
     end;
 
@@ -550,7 +549,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         Clear(ServiceInvoice);
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", CustomerNo);
         ServiceInvoice.SetTableView(ServiceInvoiceHeader);
-        Commit;
+        Commit();
         ServiceInvoice.Run;
     end;
 
@@ -662,7 +661,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         MarginalPerc := Round(AddFeePerLine * 100 / CustLedgerEntry."Original Amount", 0.01);
 
         if CurrencyCode = '' then begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             CurrencyCode := GeneralLedgerSetup."LCY Code";
         end;
 

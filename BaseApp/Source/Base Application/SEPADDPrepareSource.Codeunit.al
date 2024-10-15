@@ -21,7 +21,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
             if FromDirectDebitCollectionEntry.FindSet then
                 repeat
                     ToDirectDebitCollectionEntry := FromDirectDebitCollectionEntry;
-                    ToDirectDebitCollectionEntry.Insert;
+                    ToDirectDebitCollectionEntry.Insert();
                 until FromDirectDebitCollectionEntry.Next = 0
         end else
             CreateTempCollectionEntries(FromDirectDebitCollectionEntry, ToDirectDebitCollectionEntry);
@@ -35,7 +35,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
         SEPADDCheckLine: Codeunit "SEPA DD-Check Line";
         AppliesToEntryNo: Integer;
     begin
-        ToDirectDebitCollectionEntry.Reset;
+        ToDirectDebitCollectionEntry.Reset();
         DirectDebitCollection.Get(FromDirectDebitCollectionEntry.GetRangeMin("Direct Debit Collection No."));
         PaymentHeader.Get(DirectDebitCollection.Identifier);
         PaymentLine.SetRange("No.", PaymentHeader."No.");
@@ -59,7 +59,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
                 until PaymentLine.Next = 0;
 
         if DirectDebitCollection.HasPaymentFileErrors then begin
-            Commit;
+            Commit();
             Error(HasErrorsErr);
         end;
 

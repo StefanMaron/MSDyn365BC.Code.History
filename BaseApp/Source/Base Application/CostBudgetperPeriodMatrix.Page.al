@@ -504,7 +504,7 @@ page 1131 "Cost Budget per Period Matrix"
         MatrixCostBudgetEntry: Record "Cost Budget Entry";
     begin
         MatrixCostBudgetEntry.SetCostBudgetRegNo(RegNo);
-        MatrixCostBudgetEntry.Init;
+        MatrixCostBudgetEntry.Init();
         MatrixCostBudgetEntry."Budget Name" := BudgetFilter;
         MatrixCostBudgetEntry."Cost Type No." := "No.";
         MatrixCostBudgetEntry.Date := MatrixRecords[ColumnID]."Period Start";

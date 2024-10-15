@@ -35,7 +35,7 @@ codeunit 1233 "SEPA DD-Check Line"
         GLSetup: Record "General Ledger Setup";
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         with DirectDebitCollectionEntry do begin
             if "Transfer Amount" <= 0 then
                 InsertPaymentFileError(MustBePositiveErr);

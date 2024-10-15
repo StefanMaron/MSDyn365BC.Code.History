@@ -173,7 +173,7 @@ report 10887 "Payment Practices Reporting"
                 begin
                     if Number <> 1 then
                         if TempVendPmtApplicationBuffer.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                 end;
 
                 trigger OnPreDataItem()
@@ -181,19 +181,19 @@ report 10887 "Payment Practices Reporting"
                     if ShowInvoices then
                         TempVendPmtApplicationBuffer.FindSet
                     else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
                 if not PaymentReportingMgt.PrepareNotPaidInDaysSource(TempVendPmtApplicationBuffer, "Days From", "Days To") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TempVendPmtApplicationBuffer.CalcSumOfAmountFields;
                 AmountByPeriod := TempVendPmtApplicationBuffer."Remaining Amount (LCY)";
                 PctByPeriod := PaymentReportingMgt.GetPctOfPmtsNotPaidInDays(TempVendPmtApplicationBuffer, TotalVendAmount);
-                TotalInvoices += TempVendPmtApplicationBuffer.Count;
+                TotalInvoices += TempVendPmtApplicationBuffer.Count();
                 TotalAmtByPeriod += AmountByPeriod;
                 TotalPctByPeriod += PctByPeriod;
                 GroupingNum += 1;
@@ -308,7 +308,7 @@ report 10887 "Payment Practices Reporting"
                 begin
                     if Number <> 1 then
                         if TempVendPmtApplicationBuffer.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                 end;
 
                 trigger OnPreDataItem()
@@ -316,19 +316,19 @@ report 10887 "Payment Practices Reporting"
                     if ShowInvoices then
                         TempVendPmtApplicationBuffer.FindSet
                     else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
                 if not PaymentReportingMgt.PrepareDelayedPmtInDaysSource(TempVendPmtApplicationBuffer, "Days From", "Days To") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TempVendPmtApplicationBuffer.CalcSumOfAmountFields;
                 AmountByPeriod := TempVendPmtApplicationBuffer."Pmt. Amount (LCY)";
                 PctByPeriod := PaymentReportingMgt.GetPctOfPmtsDelayedInDays(TempVendPmtApplicationBuffer, TotalVendAmount);
-                TotalInvoices += TempVendPmtApplicationBuffer.Count;
+                TotalInvoices += TempVendPmtApplicationBuffer.Count();
                 TotalAmtByPeriod += AmountByPeriod;
                 TotalPctByPeriod += PctByPeriod;
                 GroupingNum += 1;
@@ -438,7 +438,7 @@ report 10887 "Payment Practices Reporting"
                 begin
                     if Number <> 1 then
                         if TempCustPmtApplicationBuffer.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                 end;
 
                 trigger OnPreDataItem()
@@ -446,19 +446,19 @@ report 10887 "Payment Practices Reporting"
                     if ShowInvoices then
                         TempCustPmtApplicationBuffer.FindSet
                     else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
                 if not PaymentReportingMgt.PrepareNotPaidInDaysSource(TempCustPmtApplicationBuffer, "Days From", "Days To") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TempCustPmtApplicationBuffer.CalcSumOfAmountFields;
                 AmountByPeriod := TempCustPmtApplicationBuffer."Remaining Amount (LCY)";
                 PctByPeriod := PaymentReportingMgt.GetPctOfPmtsNotPaidInDays(TempCustPmtApplicationBuffer, TotalCustAmount);
-                TotalInvoices += TempCustPmtApplicationBuffer.Count;
+                TotalInvoices += TempCustPmtApplicationBuffer.Count();
                 TotalAmtByPeriod += AmountByPeriod;
                 TotalPctByPeriod += PctByPeriod;
                 GroupingNum += 1;
@@ -567,7 +567,7 @@ report 10887 "Payment Practices Reporting"
                 begin
                     if Number <> 1 then
                         if TempCustPmtApplicationBuffer.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                 end;
 
                 trigger OnPreDataItem()
@@ -575,19 +575,19 @@ report 10887 "Payment Practices Reporting"
                     if ShowInvoices then
                         TempCustPmtApplicationBuffer.FindSet
                     else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
                 if not PaymentReportingMgt.PrepareDelayedPmtInDaysSource(TempCustPmtApplicationBuffer, "Days From", "Days To") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TempCustPmtApplicationBuffer.CalcSumOfAmountFields;
                 AmountByPeriod := TempCustPmtApplicationBuffer."Pmt. Amount (LCY)";
                 PctByPeriod := PaymentReportingMgt.GetPctOfPmtsDelayedInDays(TempCustPmtApplicationBuffer, TotalCustAmount);
-                TotalInvoices += TempCustPmtApplicationBuffer.Count;
+                TotalInvoices += TempCustPmtApplicationBuffer.Count();
                 TotalAmtByPeriod += AmountByPeriod;
                 TotalPctByPeriod += PctByPeriod;
                 GroupingNum += 1;

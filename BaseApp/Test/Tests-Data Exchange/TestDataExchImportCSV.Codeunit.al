@@ -219,7 +219,7 @@ codeunit 132540 "Test Data Exch.Import - CSV"
 
         CreateDataExchDef(DataExchDef, XMLPORT::"Data Exch. Import - CSV", 0, '', '', DataExchDef."Column Separator"::Comma);
         DataExchDef."File Encoding" := DataExchDef."File Encoding"::"MS-DOS";
-        DataExchDef.Modify;
+        DataExchDef.Modify();
 
         CreateDataExch(DataExch, DataExchDef.Code, TempBlobOEM);
 
@@ -915,7 +915,7 @@ codeunit 132540 "Test Data Exch.Import - CSV"
         DataExchDef."Column Separator" := ColumnSeparator;
         if DataExchDef."Column Separator" = DataExchDef."Column Separator"::Custom then
             DataExchDef."Custom Column Separator" := '+';
-        DataExchDef.Modify;
+        DataExchDef.Modify();
     end;
 
     local procedure AssertDataInTable(var ExpectedDataExchField: Record "Data Exch. Field"; var ActualDataExchField: Record "Data Exch. Field"; Msg: Text)

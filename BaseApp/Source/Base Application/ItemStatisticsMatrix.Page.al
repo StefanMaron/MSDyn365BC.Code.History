@@ -770,7 +770,7 @@ page 9223 "Item Statistics Matrix"
                     if not PeriodInitialized then
                         DateFilter := '';
                     PeriodInitialized := true;
-                    Period.Reset;
+                    Period.Reset();
                     if DateFilter <> '' then
                         Period.SetFilter("Period Start", DateFilter)
                     else

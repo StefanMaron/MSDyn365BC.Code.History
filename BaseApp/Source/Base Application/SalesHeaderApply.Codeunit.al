@@ -24,7 +24,7 @@ codeunit 401 "Sales Header Apply"
             Clear(ApplyCustEntries);
             if not OK then
                 exit;
-            CustLedgEntry.Reset;
+            CustLedgEntry.Reset();
             CustLedgEntry.SetCurrentKey("Customer No.", Open);
             CustLedgEntry.SetRange("Customer No.", BilToCustNo);
             CustLedgEntry.SetRange(Open, true);

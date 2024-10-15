@@ -63,7 +63,7 @@ codeunit 136500 "UT Time Sheets"
         CreateTimeSheetResource(Resource, false);
 
         // try to use it in resource journal
-        ResJnlLine.Init;
+        ResJnlLine.Init();
         asserterror ResJnlLine.Validate("Resource No.", Resource."No.");
         Assert.IsTrue(StrPos(GetLastErrorText, 'Use Time Sheet must be') > 0, 'Unexpected resource journal validation error.');
 
@@ -86,7 +86,7 @@ codeunit 136500 "UT Time Sheets"
 
         // try to use it in job journal
         Job.FindFirst;
-        JobJnlLine.Init;
+        JobJnlLine.Init();
         JobJnlLine.Validate("Job No.", Job."No.");
         JobJnlLine.Type := JobJnlLine.Type::Resource;
         asserterror JobJnlLine.Validate("No.", Resource."No.");
@@ -230,7 +230,7 @@ codeunit 136500 "UT Time Sheets"
         // create time sheet line with type Service
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Service, '', '', '', '');
         TimeSheetLine.Validate("Service Order No.", ServiceHeader."No.");
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
 
         // create details for 2 days
         LibraryTimeSheet.CreateTimeSheetDetail(
@@ -274,7 +274,7 @@ codeunit 136500 "UT Time Sheets"
             LibraryTimeSheet.CreateTimeSheetLine(
               TimeSheetHeader, TimeSheetLine[RowCount], TimeSheetLine[RowCount].Type::Service, '', '', '', '');
             TimeSheetLine[RowCount].Validate("Service Order No.", ServiceHeader."No.");
-            TimeSheetLine[RowCount].Modify;
+            TimeSheetLine[RowCount].Modify();
             // create details for 2 days
             LibraryTimeSheet.CreateTimeSheetDetail(
               TimeSheetLine[RowCount], TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal);
@@ -344,7 +344,7 @@ codeunit 136500 "UT Time Sheets"
             LibraryTimeSheet.CreateTimeSheetLine(
               TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Service, '', '', '', '');
             TimeSheetLine.Validate("Service Order No.", ServiceHeader."No.");
-            TimeSheetLine.Modify;
+            TimeSheetLine.Modify();
             // create details for 2 days
             LibraryTimeSheet.CreateTimeSheetDetail(
               TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal);
@@ -401,12 +401,12 @@ codeunit 136500 "UT Time Sheets"
 
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type"::Order);
-        ServiceLinesCount := ServiceLine.Count;
+        ServiceLinesCount := ServiceLine.Count();
 
         // create time sheet line with type Service
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Service, '', '', '', '');
         TimeSheetLine.Validate("Service Order No.", ServiceHeader."No.");
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
 
         // create details for 2 days
         LibraryTimeSheet.CreateTimeSheetDetail(
@@ -438,7 +438,7 @@ codeunit 136500 "UT Time Sheets"
         // test for function "Create lines from time sheets" for line in time sheet with Chargeagle = No
         LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
         TimeSheetLine.Validate(Chargeable, false);
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
 
         // create lines from time sheet
         TimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
@@ -466,7 +466,7 @@ codeunit 136500 "UT Time Sheets"
         // delete service order lines
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         if ServiceLine.FindFirst then
-            ServiceLine.Delete;
+            ServiceLine.Delete();
 
         // create lines from time sheet
         TimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
@@ -543,7 +543,7 @@ codeunit 136500 "UT Time Sheets"
         LibraryTimeSheet.CreateTimeSheetLine(
           TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Service, '', '', ServiceHeader."No.", '');
         TimeSheetLine.Validate("Service Order No.", ServiceHeader."No.");
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
 
         // set quantities for lines
         LibraryTimeSheet.CreateTimeSheetDetail(
@@ -671,15 +671,15 @@ codeunit 136500 "UT Time Sheets"
         // add a new line, posted = TRUE
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
         TimeSheetLine.Posted := true;
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
 
         // add posting entry
-        TimeSheetPostingEntry.Init;
+        TimeSheetPostingEntry.Init();
         TimeSheetPostingEntry."Time Sheet No." := TimeSheetLine."Time Sheet No.";
         TimeSheetPostingEntry."Time Sheet Line No." := TimeSheetLine."Line No.";
         TimeSheetPostingEntry."Time Sheet Date" := TimeSheetLine."Time Sheet Starting Date";
         TimeSheetPostingEntry.Quantity := 1;
-        TimeSheetPostingEntry.Insert;
+        TimeSheetPostingEntry.Insert();
 
         VerifyTimeSheetStatuses(TimeSheetHeader, true, true, true, true, true);
 
@@ -810,7 +810,7 @@ codeunit 136500 "UT Time Sheets"
         // create time sheet line with type Service
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Service, '', '', '', '');
         TimeSheetLine.Validate("Service Order No.", ServiceHeader."No.");
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
         LibraryTimeSheet.CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", ServiceQty);
 
         // assembly line:
@@ -987,8 +987,8 @@ codeunit 136500 "UT Time Sheets"
         // [FEATURE] [TimeCard filters]
         // [SCENARIO TFS 201246] SelfService activity area lacking views
 
-        TimeSheetHeader.DeleteAll;
-        TimeSheetLine.DeleteAll;
+        TimeSheetHeader.DeleteAll();
+        TimeSheetLine.DeleteAll();
 
         // [GIVEN] Time Sheets with different Status.
 
@@ -1124,9 +1124,9 @@ codeunit 136500 "UT Time Sheets"
         // if Resource."Use Time Sheet" = FALSE, then time sheet line should not be created
 
         // setup
-        Resource.Init;
+        Resource.Init();
         Resource."No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(Resource."No."));
-        Resource.Insert;
+        Resource.Insert();
 
         InitServiceLine(ServiceLine, Resource."No.", WorkDate);
 
@@ -1206,7 +1206,7 @@ codeunit 136500 "UT Time Sheets"
         LibraryTimeSheet.CreateTimeSheetResource(Resource);
         Resource.Validate("Time Sheet Owner User ID", UserSetup."User ID");
         Resource.Validate("Time Sheet Approver User ID", UserSetup."User ID");
-        Resource.Modify;
+        Resource.Modify();
     end;
 
     local procedure CreateSeveralJobPlanningLines(TimeSheetHeader: Record "Time Sheet Header"; var JobPlanningLine: Record "Job Planning Line") NumberOfLines: Integer
@@ -1351,10 +1351,10 @@ codeunit 136500 "UT Time Sheets"
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
 
         // add a new time sheet line
-        TimeSheetLine.Init;
+        TimeSheetLine.Init();
         TimeSheetLine.Validate("Time Sheet No.", TimeSheetHeader."No.");
         TimeSheetLine.Validate("Line No.", 10000);
-        TimeSheetLine.Insert;
+        TimeSheetLine.Insert();
 
         // try to set the Assembly type of the line
         asserterror TimeSheetLine.Validate(Type, TimeSheetLine.Type::"Assembly Order");
@@ -1476,7 +1476,7 @@ codeunit 136500 "UT Time Sheets"
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
 
         // [GIVEN] Time Sheet Line of type "Job" with "Job No." = "A" and "Job Task No." = "A1"
-        TimeSheetLine.Init;
+        TimeSheetLine.Init();
         TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
         TimeSheetLine.Validate(Type, TimeSheetLine.Type::Job);
         TimeSheetLine.Validate("Job No.", JobTask."Job No.");
@@ -1504,11 +1504,11 @@ codeunit 136500 "UT Time Sheets"
         LibraryTimeSheet.Initialize;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
-        ResourcesSetup.Get;
+        ResourcesSetup.Get();
         // create current user id setup for approver
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        Commit;
+        Commit();
     end;
 
     local procedure TearDown()
@@ -1518,10 +1518,10 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetDetail: Record "Time Sheet Detail";
         Resource: Record Resource;
     begin
-        TimeSheetHeader.DeleteAll;
-        TimeSheetLine.DeleteAll;
+        TimeSheetHeader.DeleteAll();
+        TimeSheetLine.DeleteAll();
 
-        TimeSheetDetail.DeleteAll;
+        TimeSheetDetail.DeleteAll();
         Resource.ModifyAll("Use Time Sheet", false);
         Resource.ModifyAll("Time Sheet Owner User ID", '');
         Resource.ModifyAll("Time Sheet Approver User ID", '');
@@ -1529,14 +1529,14 @@ codeunit 136500 "UT Time Sheets"
 
     local procedure InitUTScenario(var Resource: Record Resource; var TimeSheetHeader: Record "Time Sheet Header"; Date: Date)
     begin
-        Resource.Init;
+        Resource.Init();
         Resource."No." :=
           CopyStr(
             LibraryUtility.GenerateRandomCode(Resource.FieldNo("No."), DATABASE::Resource), 1, MaxStrLen(Resource."No."));
         Resource."Use Time Sheet" := true;
-        Resource.Insert;
+        Resource.Insert();
 
-        TimeSheetHeader.Init;
+        TimeSheetHeader.Init();
         TimeSheetHeader."No." :=
           CopyStr(
             LibraryUtility.GenerateRandomCode(TimeSheetHeader.FieldNo("No."), DATABASE::"Time Sheet Header"), 1,
@@ -1545,7 +1545,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetHeader."Starting Date" := CalcDate('<-CW>', Date);
         TimeSheetHeader."Ending Date" := CalcDate('<CW>', Date);
         TimeSheetHeader."Approver User ID" := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetHeader."Approver User ID"));
-        TimeSheetHeader.Insert;
+        TimeSheetHeader.Insert();
     end;
 
     local procedure InitUTScenarioUpdTimeAlloc(var TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line"; var DateQuantity: array[7] of Decimal; UpdateType: Option Modify,Insert,Delete)
@@ -1556,7 +1556,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetHeader."No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetHeader."No."));
         TimeSheetHeader."Starting Date" := CalcDate('<-CW>', WorkDate);
         TimeSheetHeader."Ending Date" := CalcDate('<CW>', WorkDate);
-        TimeSheetHeader.Insert;
+        TimeSheetHeader.Insert();
 
         TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
         TimeSheetLine."Line No." := 10000;
@@ -1565,18 +1565,18 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetLine."Service Order No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetLine."Service Order No."));
         TimeSheetLine."Assembly Order No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetLine."Assembly Order No."));
         TimeSheetLine."Cause of Absence Code" := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetLine."Cause of Absence Code"));
-        TimeSheetLine.Insert;
+        TimeSheetLine.Insert();
 
         for i := 1 to 7 do begin
             if UpdateType in [UpdateType::Modify, UpdateType::Delete] then begin
                 // insert data to modify or delete
-                TimeSheetDetail.Init;
+                TimeSheetDetail.Init();
                 TimeSheetDetail."Time Sheet No." := TimeSheetLine."Time Sheet No.";
                 TimeSheetDetail."Time Sheet Line No." := TimeSheetLine."Line No.";
                 TimeSheetDetail.Date := TimeSheetHeader."Starting Date" + i - 1;
                 TimeSheetDetail.Quantity := LibraryTimeSheet.GetRandomDecimal;
                 TimeSheetDetail.Posted := true;
-                TimeSheetDetail.Insert;
+                TimeSheetDetail.Insert();
             end;
 
             // prepare time allocation to modify or insert
@@ -1651,14 +1651,14 @@ codeunit 136500 "UT Time Sheets"
             Resource.Validate("Time Sheet Approver User ID", UserSetup."User ID")
         else
             Resource.Validate("Time Sheet Approver User ID", UserId);
-        Resource.Modify;
+        Resource.Modify();
 
         SetupTimeSheetChart(TimeSheetChartSetup, UserId, WorkDate);
 
         if IsAdmin then begin
             UserSetup.Get(UserId);
             UserSetup.Validate("Time Sheet Admin.", true);
-            UserSetup.Modify;
+            UserSetup.Modify();
         end;
 
         if not IsAdmin then
@@ -1679,10 +1679,10 @@ codeunit 136500 "UT Time Sheets"
     begin
         if not TimeSheetChartSetup.Get(UID) then begin
             TimeSheetChartSetup."User ID" := UID;
-            TimeSheetChartSetup.Insert;
+            TimeSheetChartSetup.Insert();
         end;
         TimeSheetChartSetup."Starting Date" := Date;
-        TimeSheetChartSetup.Modify;
+        TimeSheetChartSetup.Modify();
     end;
 
     local procedure VerifyCreatedTimeSheetLine(TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line"; var TimeSheetDetail: Record "Time Sheet Detail"; Date: Date)
@@ -1762,7 +1762,7 @@ codeunit 136500 "UT Time Sheets"
         // create time sheet line with type Resource
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
         TimeSheetLine.Description := 'simple resource line';
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
 
         // create time sheet line with type Job
         // find job and task
@@ -1771,20 +1771,20 @@ codeunit 136500 "UT Time Sheets"
         // job's responsible person (resource) must have Owner ID filled in
         Resource.Get(Job."Person Responsible");
         Resource."Time Sheet Owner User ID" := UserId;
-        Resource.Modify;
+        Resource.Modify();
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Job, Job."No.",
           JobTask."Job Task No.", '', '');
 
         // create time sheet line with type Absence
         LibraryHumanResource.CreateEmployee(Employee);
         Employee."Resource No." := TimeSheetHeader."Resource No.";
-        Employee.Modify;
+        Employee.Modify();
 
         LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Absence, '', '', '',
           CauseOfAbsence.Code);
         TimeSheetLine.Chargeable := false;
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
     end;
 
     local procedure VerifyDimensions(ServiceOrderNo: Code[20]; ResourceNo: Code[20])
@@ -1932,10 +1932,10 @@ codeunit 136500 "UT Time Sheets"
 
     local procedure CreateJobWithBlocked(var Job: Record Job; BlockedOption: Option)
     begin
-        Job.Init;
+        Job.Init();
         Job."No." := LibraryUtility.GenerateGUID;
         Job.Blocked := BlockedOption;
-        Job.Insert;
+        Job.Insert();
     end;
 
     local procedure CreateResCapacity(ResourceNo: Code[20]; Date: Date; Capacity: Decimal)
@@ -1945,12 +1945,12 @@ codeunit 136500 "UT Time Sheets"
     begin
         if ResCapacityEntry.FindLast then;
         EntryNo := ResCapacityEntry."Entry No." + 1;
-        ResCapacityEntry.Init;
+        ResCapacityEntry.Init();
         ResCapacityEntry."Entry No." := EntryNo;
         ResCapacityEntry."Resource No." := ResourceNo;
         ResCapacityEntry.Date := Date;
         ResCapacityEntry.Capacity := Capacity;
-        ResCapacityEntry.Insert;
+        ResCapacityEntry.Insert();
     end;
 
     local procedure CreateTSResLineWithDetail(TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line"; Qty: Decimal)
@@ -1972,7 +1972,7 @@ codeunit 136500 "UT Time Sheets"
         Resource.FindFirst;
         Resource.Get(Job."Person Responsible");
         Resource."Time Sheet Owner User ID" := UserId;
-        Resource.Modify;
+        Resource.Modify();
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Job, Job."No.",
           JobTask."Job Task No.", '', '');
         LibraryTimeSheet.CreateTimeSheetDetail(TimeSheetLine, TimeSheetLine."Time Sheet Starting Date", Qty);
@@ -1985,13 +1985,13 @@ codeunit 136500 "UT Time Sheets"
     begin
         LibraryHumanResource.CreateEmployee(Employee);
         Employee."Resource No." := TimeSheetHeader."Resource No.";
-        Employee.Modify;
+        Employee.Modify();
 
         LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Absence, '', '', '',
           CauseOfAbsence.Code);
         TimeSheetLine.Chargeable := false;
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
         LibraryTimeSheet.CreateTimeSheetDetail(TimeSheetLine, TimeSheetLine."Time Sheet Starting Date", Qty);
     end;
 
@@ -2001,7 +2001,7 @@ codeunit 136500 "UT Time Sheets"
     begin
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
         TimeSheetLine.Status := TimeSheetLineStatus;
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
     end;
 
     local procedure ChangeTimeSheetChartShowBy(var TimeSheetChartSetup: Record "Time Sheet Chart Setup"; var BusChartBuf: Record "Business Chart Buffer"; ShowBy: Option)
@@ -2009,7 +2009,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetChartMgt: Codeunit "Time Sheet Chart Mgt.";
     begin
         TimeSheetChartSetup."Show by" := ShowBy;
-        TimeSheetChartSetup.Modify;
+        TimeSheetChartSetup.Modify();
         TimeSheetChartMgt.UpdateData(BusChartBuf);
     end;
 
@@ -2129,7 +2129,7 @@ codeunit 136500 "UT Time Sheets"
         Index := 0;
         TimeSheetChartSetup.Get(UserId);
         TimeSheetChartSetup."Show by" := ShowBy;
-        TimeSheetChartSetup.Modify;
+        TimeSheetChartSetup.Modify();
         TimeSheetChartMgt.UpdateData(BusChartBuf);
         with BusChartBuf do begin
             if FindFirstMeasure(BusChartMapMeasure) then
@@ -2169,7 +2169,7 @@ codeunit 136500 "UT Time Sheets"
     begin
         SetUp;
         ResourcesSetup."Time Sheet by Job Approval" := ResourcesSetup."Time Sheet by Job Approval"::Never;
-        ResourcesSetup.Modify;
+        ResourcesSetup.Modify();
     end;
 
     local procedure LookupTimeSheetScenario(Role: Option Owner,Approver)
@@ -2211,7 +2211,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetHeader.FindFirst;
         repeat
             TimeSheetHeaderArchive.TransferFields(TimeSheetHeader);
-            TimeSheetHeaderArchive.Insert;
+            TimeSheetHeaderArchive.Insert();
         until TimeSheetHeader.Next = 0;
 
         // EXERCISE
@@ -2254,9 +2254,9 @@ codeunit 136500 "UT Time Sheets"
     var
         ServMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         ServMgtSetup.Validate("Copy Time Sheet to Order", AutoCreateServiceLines);
-        ServMgtSetup.Modify;
+        ServMgtSetup.Modify();
     end;
 
     local procedure VerifyTeamMemberTimeSheetStatuses(TimeSheetHeader: Record "Time Sheet Header"; OpenExists: Integer; SubmittedExists: Integer; TimesheetsToApproveExists: Integer; RejectedExists: Integer; ApprovedExists: Integer)
@@ -2298,14 +2298,14 @@ codeunit 136500 "UT Time Sheets"
     begin
         RecRef.Get(RecId);
 
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Table ID" := RecRef.Number;
         ApprovalEntry.Status := ApprovalEntry.Status::Open;
         ApprovalEntry."Approver ID" := ApproverId;
         ApprovalEntry."Sender ID" := UserId;
         ApprovalEntry."Record ID to Approve" := RecId;
         ApprovalEntry."Workflow Step Instance ID" := WorkflowInstanceId;
-        ApprovalEntry.Insert;
+        ApprovalEntry.Insert();
     end;
 
     local procedure CreateRecordChange(var WorkflowRecordChange: Record "Workflow - Record Change"; RecId: RecordID; FieldNo: Integer; OldValue: Text[250]; WorkflowInstanceId: Guid)
@@ -2315,7 +2315,7 @@ codeunit 136500 "UT Time Sheets"
     begin
         RecRef.Get(RecId);
         Clear(WorkflowRecordChange);
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Field No." := FieldNo;
         WorkflowRecordChange."Table No." := RecRef.Number;
         WorkflowRecordChange.CalcFields("Field Caption");
@@ -2324,40 +2324,40 @@ codeunit 136500 "UT Time Sheets"
         WorkflowRecordChange."New Value" := Format(FieldRef.Value, 0, 9);
         WorkflowRecordChange."Record ID" := RecId;
         WorkflowRecordChange."Workflow Step Instance ID" := WorkflowInstanceId;
-        WorkflowRecordChange.Insert;
+        WorkflowRecordChange.Insert();
     end;
 
     local procedure CreateApprovalComment(var ApprovalCommentLine: Record "Approval Comment Line"; ApprovalEntry: Record "Approval Entry"; Comment: Text[80])
     begin
-        ApprovalCommentLine.Init;
+        ApprovalCommentLine.Init();
         ApprovalCommentLine."Table ID" := ApprovalEntry."Table ID";
         ApprovalCommentLine."Workflow Step Instance ID" := ApprovalEntry."Workflow Step Instance ID";
         ApprovalCommentLine.Comment := Comment;
         ApprovalCommentLine."Record ID to Approve" := ApprovalEntry."Record ID to Approve";
         ApprovalCommentLine."User ID" := UserId;
         ApprovalCommentLine."Entry No." := ApprovalEntry."Entry No.";
-        ApprovalCommentLine.Insert;
+        ApprovalCommentLine.Insert();
     end;
 
     local procedure CreateTimeSheetHeaderSimple(var TimeSheetHeader: Record "Time Sheet Header"; No: Code[20])
     begin
-        TimeSheetHeader.Init;
+        TimeSheetHeader.Init();
         TimeSheetHeader."No." := No;
         TimeSheetHeader."Owner User ID" := UserId;
-        TimeSheetHeader.Insert;
+        TimeSheetHeader.Insert();
     end;
 
-    local procedure CreateTimeSheetLineSimple(var TimeSheetHeader: Record "Time Sheet Header"; Status: Option Open,Submitted,Rejected,Approved)
+    local procedure CreateTimeSheetLineSimple(var TimeSheetHeader: Record "Time Sheet Header"; Status: Enum "Time Sheet Status")
     var
         TimeSheetLine: Record "Time Sheet Line";
     begin
-        TimeSheetLine.Init;
+        TimeSheetLine.Init();
         TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
         TimeSheetLine.Status := Status;
-        TimeSheetLine.Insert;
+        TimeSheetLine.Insert();
     end;
 
-    local procedure VerifyTimeSheetListFilters(Status: Option Open,Submitted,Rejected,Approved)
+    local procedure VerifyTimeSheetListFilters(Status: Enum "Time Sheet Status")
     var
         TimeSheetList: TestPage "Time Sheet List";
     begin

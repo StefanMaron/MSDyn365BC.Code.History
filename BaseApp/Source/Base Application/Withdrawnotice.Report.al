@@ -26,7 +26,7 @@ report 10870 "Withdraw notice"
                 BankAccountBuffer."Bank Branch No." := "Bank Branch No.";
                 BankAccountBuffer."Agency Code" := "Agency Code";
                 BankAccountBuffer."Bank Account No." := "Bank Account No.";
-                if not BankAccountBuffer.Insert then;
+                if not BankAccountBuffer.Insert() then;
             end;
 
             trigger OnPreDataItem()
@@ -393,11 +393,11 @@ report 10870 "Withdraw notice"
 
             trigger OnAfterGetRecord()
             begin
-                PaymtLine.Reset;
+                PaymtLine.Reset();
                 PaymtLine.SetRange("No.", WithdrawNo);
                 PaymtLine.SetRange("Account No.", "No.");
                 if not PaymtLine.FindFirst then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }
@@ -433,7 +433,7 @@ report 10870 "Withdraw notice"
 
     trigger OnPostReport()
     begin
-        BankAccountBuffer.DeleteAll;
+        BankAccountBuffer.DeleteAll();
     end;
 
     trigger OnPreReport()
@@ -442,9 +442,9 @@ report 10870 "Withdraw notice"
         if WithdrawNo = '' then
             Error(Text000);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FormatAddress.Company(CompanyAddr, CompanyInformation);
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

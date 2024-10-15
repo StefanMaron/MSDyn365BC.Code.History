@@ -1,4 +1,4 @@
-﻿page 7377 "Inventory Pick"
+page 7377 "Inventory Pick"
 {
     Caption = 'Inventory Pick';
     PageType = Document;

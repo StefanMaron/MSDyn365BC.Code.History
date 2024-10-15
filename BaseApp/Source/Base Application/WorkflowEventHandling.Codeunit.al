@@ -254,13 +254,13 @@ codeunit 1520 "Workflow Event Handling"
             Error(EventAlreadyExistErr, Description);
         end;
 
-        WorkflowEvent.Init;
+        WorkflowEvent.Init();
         WorkflowEvent."Function Name" := FunctionName;
         WorkflowEvent."Table ID" := TableID;
         WorkflowEvent.Description := Description;
         WorkflowEvent."Request Page ID" := RequestPageID;
         WorkflowEvent."Used for Record Change" := UsedForRecordChange;
-        WorkflowEvent.Insert;
+        WorkflowEvent.Insert();
 
         AddEventPredecessors(WorkflowEvent."Function Name");
     end;
@@ -269,12 +269,12 @@ codeunit 1520 "Workflow Event Handling"
     var
         WFEventResponseCombination: Record "WF Event/Response Combination";
     begin
-        WFEventResponseCombination.Init;
+        WFEventResponseCombination.Init();
         WFEventResponseCombination.Type := WFEventResponseCombination.Type::"Event";
         WFEventResponseCombination."Function Name" := FunctionName;
         WFEventResponseCombination."Predecessor Type" := WFEventResponseCombination."Predecessor Type"::"Event";
         WFEventResponseCombination."Predecessor Function Name" := PredecessorFunctionName;
-        if WFEventResponseCombination.Insert then;
+        if WFEventResponseCombination.Insert() then;
     end;
 
     [IntegrationEvent(false, false)]
@@ -668,7 +668,7 @@ codeunit 1520 "Workflow Event Handling"
     var
         ApprovalEntry: Record "Approval Entry";
     begin
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         WorkflowManagement.HandleEvent(RunWorkflowOnSendOverdueNotificationsCode, ApprovalEntry);
     end;
 

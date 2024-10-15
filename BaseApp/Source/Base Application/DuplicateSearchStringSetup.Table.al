@@ -53,14 +53,14 @@ table 5095 "Duplicate Search String Setup"
     begin
         ContDuplicateSearchString.SetRange("Field No.", "Field No.");
         ContDuplicateSearchString.SetRange("Part of Field", "Part of Field");
-        ContDuplicateSearchString.DeleteAll;
+        ContDuplicateSearchString.DeleteAll();
     end;
 
     procedure CreateDefaultSetup()
     var
         Contact: Record Contact;
     begin
-        DeleteAll;
+        DeleteAll();
 
         InsertDuplicateSearchString(Contact.FieldNo(Name), 5);
         InsertDuplicateSearchString(Contact.FieldNo(Address), 5);

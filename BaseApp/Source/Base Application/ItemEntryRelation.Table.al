@@ -81,6 +81,30 @@ table 6507 "Item Entry Relation"
         OnAfterInitFromTrackingSpec(Rec, TrackingSpecification);
     end;
 
+    procedure CopyTrackingFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        "Serial No." := ItemLedgEntry."Serial No.";
+        "Lot No." := ItemLedgEntry."Lot No.";
+
+        OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgEntry);
+    end;
+
+    procedure CopyTrackingFromItemJnlLine(ItemJnlLine: Record "Item Journal Line")
+    begin
+        "Serial No." := ItemJnlLine."Serial No.";
+        "Lot No." := ItemJnlLine."Lot No.";
+
+        OnAfterCopyTrackingFromItemJnlLine(Rec, ItemJnlLine);
+    end;
+
+    procedure CopyTrackingFromSpec(TrackingSpecification: Record "Tracking Specification")
+    begin
+        "Serial No." := TrackingSpecification."Serial No.";
+        "Lot No." := TrackingSpecification."Lot No.";
+
+        OnAfterCopyTrackingFromSpec(Rec, TrackingSpecification);
+    end;
+
     procedure TransferFieldsSalesShptLine(var SalesShptLine: Record "Sales Shipment Line")
     begin
         SetSource(DATABASE::"Sales Shipment Line", 0, SalesShptLine."Document No.", SalesShptLine."Line No.");
@@ -176,6 +200,21 @@ table 6507 "Item Entry Relation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromTrackingSpec(var ItemEntryRelation: Record "Item Entry Relation"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemLedgEntry(var ItemEntryRelation: Record "Item Entry Relation"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemJnlLine(var ItemEntryRelation: Record "Item Entry Relation"; ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromSpec(var ItemEntryRelation: Record "Item Entry Relation"; TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 }

@@ -130,7 +130,7 @@ table 6083 "Serv. Price Adjustment Detail"
         ServPriceAdjmtDetail: Record "Serv. Price Adjustment Detail";
     begin
         if "No." = '' then begin
-            ServPriceAdjmtDetail.Reset;
+            ServPriceAdjmtDetail.Reset();
             ServPriceAdjmtDetail.SetRange("Serv. Price Adjmt. Gr. Code", "Serv. Price Adjmt. Gr. Code");
             ServPriceAdjmtDetail.SetRange(Type, Type);
             ServPriceAdjmtDetail.SetRange("Work Type", "Work Type");

@@ -1,4 +1,4 @@
-﻿page 99000830 "Firm Planned Prod. Order Lines"
+page 99000830 "Firm Planned Prod. Order Lines"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -102,7 +102,7 @@
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Time';
                     ToolTip = 'Specifies the entry''s starting time, which is retrieved from the production order routing.';
-                    Visible = DateAndTimeFieldVisible;
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -115,7 +115,7 @@
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Date';
                     ToolTip = 'Specifies the entry''s starting date, which is retrieved from the production order routing.';
-                    Visible = DateAndTimeFieldVisible;
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -138,7 +138,7 @@
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Time';
                     ToolTip = 'Specifies the entry''s ending time, which is retrieved from the production order routing.';
-                    Visible = DateAndTimeFieldVisible;
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -151,7 +151,7 @@
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Date';
                     ToolTip = 'Specifies the entry''s ending date, which is retrieved from the production order routing.';
-                    Visible = DateAndTimeFieldVisible;
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -484,24 +484,14 @@
     var
         ReserveProdOrderLine: Codeunit "Prod. Order Line-Reserve";
     begin
-        Commit;
+        Commit();
         if not ReserveProdOrderLine.DeleteLineConfirm(Rec) then
             exit(false);
-    end;
-
-    trigger OnInit()
-    begin
-        DateAndTimeFieldVisible := false;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Clear(ShortcutDimCode);
-    end;
-
-    trigger OnOpenPage()
-    begin
-        DateAndTimeFieldVisible := false;
     end;
 
     var
@@ -513,7 +503,6 @@
         EndingTime: Time;
         StartingDate: Date;
         EndingDate: Date;
-        DateAndTimeFieldVisible: Boolean;
 
     local procedure ShowComponents()
     var

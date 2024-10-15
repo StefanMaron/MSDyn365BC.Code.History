@@ -244,7 +244,7 @@ codeunit 5606 "FA Check Consistency"
             end;
 
         OnSetFAPostingDateOnBeforeFADeprBookModify(FADeprBook, FALedgEntry2, MaxDate, MinDate, GLDate);
-        FADeprBook.Modify;
+        FADeprBook.Modify();
     end;
 
     local procedure CheckInsuranceIntegration()
@@ -256,7 +256,7 @@ codeunit 5606 "FA Check Consistency"
             exit;
         if InsCoverageLedgEntry.IsEmpty then
             exit;
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("Insurance Depr. Book");
         if DeprBook.Code <> FASetup."Insurance Depr. Book" then
             exit;

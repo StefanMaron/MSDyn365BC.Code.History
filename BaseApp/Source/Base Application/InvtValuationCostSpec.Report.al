@@ -126,7 +126,7 @@ report 5801 "Invt. Valuation - Cost Spec."
                     ItemLedgerEntry.SetRange("Posting Date", 0D, ValuationDate);
                     ItemLedgerEntry.SetRange("Drop Shipment", false);
                     if not ItemLedgerEntry.FindSet then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     repeat
                         ClearBufferVariables;

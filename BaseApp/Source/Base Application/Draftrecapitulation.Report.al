@@ -354,7 +354,7 @@ report 10869 "Draft recapitulation"
         if TransfertNo = '' then
             Error(Text000);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FormatAddress.Company(CompanyAddr, CompanyInformation);
     end;
 
@@ -427,7 +427,7 @@ report 10869 "Draft recapitulation"
     procedure PrintCurrencyCode(): Code[10]
     begin
         if "Payment Lines1"."Currency Code" = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             exit(GLSetup."LCY Code");
         end;
         exit("Payment Lines1"."Currency Code");

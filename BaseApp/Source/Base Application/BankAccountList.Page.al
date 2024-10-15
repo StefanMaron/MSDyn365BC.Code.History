@@ -1,4 +1,4 @@
-﻿page 371 "Bank Account List"
+page 371 "Bank Account List"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Bank Accounts';
@@ -297,7 +297,7 @@
                     var
                         BankAccount: Record "Bank Account";
                     begin
-                        BankAccount.Init;
+                        BankAccount.Init();
                         BankAccount.LinkStatementProvider(BankAccount);
                     end;
                 }

@@ -29,7 +29,7 @@ codeunit 134915 "ERM Online Mapping Setup"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Online Mapping Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Online Mapping Setup");
     end;
 

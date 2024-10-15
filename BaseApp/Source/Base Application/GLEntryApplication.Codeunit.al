@@ -20,7 +20,7 @@ codeunit 10842 "G/L Entry Application"
         EntryApplID: Code[50];
     begin
         with GLEntry do begin
-            LockTable;
+            LockTable();
             if OnlyNotApplied then begin
                 SetFilter(Letter, '<>''''');
                 ModifyAll("Applies-to ID", '');
@@ -44,7 +44,7 @@ codeunit 10842 "G/L Entry Application"
     [Scope('OnPrem')]
     procedure Validate(var Entry: Record "G/L Entry")
     begin
-        GLEntry.Reset;
+        GLEntry.Reset();
         LetterToSet := '';
         SumPos := 0;
         SumNeg := 0;
@@ -65,7 +65,7 @@ codeunit 10842 "G/L Entry Application"
                 GLEntry.Letter := LetterToSet;
                 GLEntry."Applies-to ID" := '';
                 GLEntry."Letter Date" := LetterDate;
-                GLEntry.Modify;
+                GLEntry.Modify();
             until GLEntry.Next = 0;
         Message('%1', Text1120006);
     end;

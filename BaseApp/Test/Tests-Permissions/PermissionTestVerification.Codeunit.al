@@ -22,13 +22,13 @@ codeunit 139430 "Permission Test Verification"
 
         if GLEntry.FindLast then
             GLEntry."Entry No." += 1;
-        GLEntry.Init;
+        GLEntry.Init();
 
         // [WHEN] User tries to INSERT data into G/L Entry without indirect permissions
         // [THEN] An error is thrown that you do not have permissions to insert directly into the G/L entry table
         LibraryLowerPermissions.SetO365Full;
 
-        asserterror GLEntry.Insert;
+        asserterror GLEntry.Insert();
         Assert.ExpectedError('You do not have the following permissions on TableData 17: Insert');
     end;
 }

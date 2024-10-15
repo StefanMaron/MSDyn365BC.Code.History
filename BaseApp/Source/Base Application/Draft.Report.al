@@ -130,13 +130,13 @@ report 10866 Draft
 
             trigger OnAfterGetRecord()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
 
                 PaymtHeader.Get("No.");
 
                 PostingDate := PaymtHeader."Posting Date";
 
-                GLSetup.Get;
+                GLSetup.Get();
                 if IssueDate = 0D then
                     IssueDate := WorkDate;
 
@@ -150,7 +150,7 @@ report 10866 Draft
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 CompanyInfo.TestField("Default Bank Account No.");
             end;
         }
@@ -189,7 +189,7 @@ report 10866 Draft
 
         trigger OnOpenPage()
         begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             IssueCity := CompanyInfo.City;
             IssueDate := WorkDate;
         end;

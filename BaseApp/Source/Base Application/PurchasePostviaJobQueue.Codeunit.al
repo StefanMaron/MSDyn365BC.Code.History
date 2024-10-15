@@ -45,11 +45,11 @@ codeunit 98 "Purchase Post via Job Queue"
 
     local procedure SetJobQueueStatus(var PurchHeader: Record "Purchase Header"; NewStatus: Option)
     begin
-        PurchHeader.LockTable;
+        PurchHeader.LockTable();
         if PurchHeader.Find then begin
             PurchHeader."Job Queue Status" := NewStatus;
-            PurchHeader.Modify;
-            Commit;
+            PurchHeader.Modify();
+            Commit();
         end;
     end;
 
@@ -112,7 +112,7 @@ codeunit 98 "Purchase Post via Job Queue"
     var
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         with JobQueueEntry do begin
             "Notify On Success" := PurchSetup."Notify On Success";
             "Job Queue Category Code" := GetJobQueueCategoryCode();

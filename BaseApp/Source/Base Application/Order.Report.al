@@ -234,10 +234,10 @@ report 405 "Order"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -261,7 +261,7 @@ report 405 "Order"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Purchase Line"; "Purchase Line")
@@ -272,7 +272,7 @@ report 405 "Order"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -418,10 +418,10 @@ report 405 "Order"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -445,7 +445,7 @@ report 405 "Order"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Purchase Line"."Dimension Set ID");
                             end;
@@ -476,7 +476,7 @@ report 405 "Order"
 
                         trigger OnPostDataItem()
                         begin
-                            PurchLine.DeleteAll;
+                            PurchLine.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
@@ -488,7 +488,7 @@ report 405 "Order"
                             do
                                 MoreLines := PurchLine.Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             PurchLine.SetRange("Line No.", 0, PurchLine."Line No.");
                             SetRange(Number, 1, PurchLine.Count);
                         end;
@@ -537,7 +537,7 @@ report 405 "Order"
                         trigger OnPreDataItem()
                         begin
                             if VATAmount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, VATAmountLine.Count);
                         end;
                     }
@@ -576,7 +576,7 @@ report 405 "Order"
                                ("Purchase Header"."Currency Code" = '') or
                                (VATAmountLine.GetTotalVATAmount = 0)
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, VATAmountLine.Count);
                             Clear(VALVATBaseLCY);
@@ -631,7 +631,7 @@ report 405 "Order"
                         trigger OnPreDataItem()
                         begin
                             if "Purchase Header"."Buy-from Vendor No." = "Purchase Header"."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total3; "Integer")
@@ -674,7 +674,7 @@ report 405 "Order"
                         trigger OnPreDataItem()
                         begin
                             if ("Purchase Header"."Sell-to Customer No." = '') and (ShipToAddr[1] = '') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(PrepmtLoop; "Integer")
@@ -746,10 +746,10 @@ report 405 "Order"
                             begin
                                 if Number = 1 then begin
                                     if not PrepmtDimSetEntry.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -773,7 +773,7 @@ report 405 "Order"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 PrepmtDimSetEntry.SetRange("Dimension Set ID", PrepmtInvBuf."Dimension Set ID");
                             end;
@@ -783,10 +783,10 @@ report 405 "Order"
                         begin
                             if Number = 1 then begin
                                 if not PrepmtInvBuf.Find('-') then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if PrepmtInvBuf.Next = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             if "Purchase Header"."Prices Including VAT" then
                                 PrepmtLineAmount := PrepmtInvBuf."Amount Incl. VAT"
@@ -851,8 +851,8 @@ report 405 "Order"
                 begin
                     Clear(PurchLine);
                     Clear(PurchPost);
-                    PurchLine.DeleteAll;
-                    VATAmountLine.DeleteAll;
+                    PurchLine.DeleteAll();
+                    VATAmountLine.DeleteAll();
                     PurchPost.GetPurchLines("Purchase Header", PurchLine, 0);
                     PurchLine.CalcVATAmountLines(0, "Purchase Header", PurchLine, VATAmountLine);
                     PurchLine.UpdateVATOnLines(0, "Purchase Header", PurchLine, VATAmountLine);
@@ -862,7 +862,7 @@ report 405 "Order"
                       VATAmountLine.GetTotalVATDiscount("Purchase Header"."Currency Code", "Purchase Header"."Prices Including VAT");
                     TotalAmountInclVAT := VATAmountLine.GetTotalAmountInclVAT;
 
-                    PrepmtInvBuf.DeleteAll;
+                    PrepmtInvBuf.DeleteAll();
                     PurchPostPrepmt.GetPurchLines("Purchase Header", 0, PrepmtPurchLine);
                     if not PrepmtPurchLine.IsEmpty then begin
                         PurchPostPrepmt.GetPurchLinesToDeduct("Purchase Header", TempPurchLine);
@@ -998,9 +998,9 @@ report 405 "Order"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
-        PurchSetup.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
+        PurchSetup.Get();
 
         OnAfterInitReport;
     end;

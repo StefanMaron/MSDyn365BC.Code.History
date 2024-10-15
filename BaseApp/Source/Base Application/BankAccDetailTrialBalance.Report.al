@@ -271,7 +271,7 @@ report 10810 "Bank Acc. Detail Trial Balance"
                         if ("Debit Amount (LCY)" = 0) and
                            ("Credit Amount (LCY)" = 0)
                         then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         Solde := Solde + "Debit Amount (LCY)" - "Credit Amount (LCY)";
 
                         OriginalLedgerEntry.Get("Entry No.");

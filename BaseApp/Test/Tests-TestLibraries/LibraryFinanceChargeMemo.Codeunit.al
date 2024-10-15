@@ -12,7 +12,7 @@ codeunit 131350 "Library - Finance Charge Memo"
         EndingText: Label 'Please pay the total of %7.';
         LineDescription: Label '%4% finance Charge with Currency (%8) of %6.';
         LineDescriptionNew: Label '%1% finance Charge with Currency (%2) of %3.';
-        PrecisionText: Label '<Precision,%1><Standard format,0>';
+        PrecisionText: Label '<Precision,%1><Standard format,0>', Locked = true;
 
     procedure ComputeDescription(FinanceChargeTerms: Record "Finance Charge Terms"; var Description: Text[100]; var DocumentDate: Date; PostedDocumentNo: Code[20])
     var

@@ -196,7 +196,7 @@ report 10886 "FA - Proj. Value (Derogatory)"
                         end;
                     end;
                     if "FA Posting Date" < IncludePostedFrom then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     EntryPrinted := true;
                 end;
 
@@ -208,7 +208,7 @@ report 10886 "FA - Proj. Value (Derogatory)"
                     BookValue := 0;
                     FALedgerEntryDerogBookValue := 0;
                     if (IncludePostedFrom = 0D) or not PrintDetails then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem(ProjectedDepreciation; "Integer")
@@ -323,7 +323,7 @@ report 10886 "FA - Proj. Value (Derogatory)"
                 trigger OnAfterGetRecord()
                 begin
                     if UntilDate >= EndingDate then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if Number = 1 then begin
                         CalculateFirstDeprAmount(Done);
                         DateFromProjection := DepreciationCalculation.Yesterday(DateFromProjection, Year365Days);
@@ -376,9 +376,9 @@ report 10886 "FA - Proj. Value (Derogatory)"
                 end;
 
                 if not FADeprBook.Get("No.", DeprBookCode) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if SkipRecord then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 HasDerogatorySetup := IsDerogatorySetup("No.");
                 if HasDerogatorySetup then begin
@@ -537,17 +537,17 @@ report 10886 "FA - Proj. Value (Derogatory)"
             begin
                 if Number = 1 then begin
                     if not TempFABufferProjection.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if TempFABufferProjection.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
             end;
 
             trigger OnPreDataItem()
             begin
                 if not PrintAmountsPerDate then
-                    CurrReport.Break;
-                TempFABufferProjection.Reset;
+                    CurrReport.Break();
+                TempFABufferProjection.Reset();
             end;
         }
     }
@@ -1247,7 +1247,7 @@ report 10886 "FA - Proj. Value (Derogatory)"
     procedure GetFASetup()
     begin
         if DeprBookCode = '' then begin
-            FASetup.Get;
+            FASetup.Get();
             DeprBookCode := FASetup."Default Depr. Book";
         end;
         UpdateReqForm;

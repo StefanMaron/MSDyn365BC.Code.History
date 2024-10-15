@@ -30,7 +30,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // Init
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
 
         // Execute
         JobQueueEntry.Insert(true);
@@ -50,7 +50,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // Init
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
 
         // Execute
         JobQueueEntry.Insert(true);
@@ -68,7 +68,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // Init
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
 
         // Execute
         JobQueueEntry.Validate("Expiration Date/Time", CurrentDateTime);
@@ -84,7 +84,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // Init
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Earliest Start Date/Time" := CreateDateTime(99000101D, 120000T);
 
         // Execute
@@ -102,7 +102,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // Init
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Recurring Job" := true;
 
         // Execute
@@ -120,7 +120,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // Init
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Recurring Job" := true;
 
         // Execute
@@ -305,7 +305,7 @@ codeunit 139020 "Test Job Queue SNAP"
     begin
         BindSubscription(LibraryJobQueue);
         // [GIVEN] "Maximum No. of Attempts to Run" is 2, "No. of Attempts to Run" is 2, Status is Error.
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."No. of Attempts to Run" := 2;
         JobQueueEntry."Maximum No. of Attempts to Run" := 2;
         JobQueueEntry.Status := JobQueueEntry.Status::Error;
@@ -329,7 +329,7 @@ codeunit 139020 "Test Job Queue SNAP"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         // [GIVEN] "Maximum No. of Attempts to Run" is equal to "No. of Attempts to Run"
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.Insert(true);
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Ready);
         // [WHEN] run FinalizeRun() while Status is Error
@@ -353,7 +353,7 @@ codeunit 139020 "Test Job Queue SNAP"
     begin
         BindSubscription(LibraryJobQueue);
         // [GIVEN] "Maximum No. of Attempts to Run" is 2, "No. of Attempts to Run" is 0, "Rerun Delay (sec.)" is 30 sec.
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Maximum No. of Attempts to Run" := 2;
         JobQueueEntry."Rerun Delay (sec.)" := 30;
         JobQueueEntry.Insert(true);
@@ -408,7 +408,7 @@ codeunit 139020 "Test Job Queue SNAP"
         // guarantee that a record insertion error will be thrown immediately. Because of this,
         // the Job Queue must commit transactions before testing for error conditions.
 
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."User ID" := UserId;
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Job Queue Failed Insert Sample";
@@ -432,7 +432,7 @@ codeunit 139020 "Test Job Queue SNAP"
     begin
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Job Queue OK Sample";
         JobQueueEntry.Description := 'This job will not run on job queue';
@@ -445,9 +445,9 @@ codeunit 139020 "Test Job Queue SNAP"
 
         JobQueueEntry."Error Message" := 'Test error message';
         JobQueueEntry.Status := JobQueueEntry.Status::Error;
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
 
-        RecordLink.LockTable;
+        RecordLink.LockTable();
         CODEUNIT.Run(CODEUNIT::"Job Queue - Send Notification", JobQueueEntry);
         RecordLink.FindLast;
         RecordLink.TestField("Record ID", RecID);
@@ -522,7 +522,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry: Record "Job Queue Entry";
         StartingDateTime: DateTime;
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Recurring Job" := true;
         JobQueueEntry."Run on Sundays" := true;
         StartingDateTime := CreateDateTime(DMY2Date(1, 1, 2012), 130000T);
@@ -538,7 +538,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry: Record "Job Queue Entry";
         StartingDateTime: DateTime;
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Recurring Job" := true;
         JobQueueEntry."Run on Sundays" := true;
         StartingDateTime := CreateDateTime(DMY2Date(1, 1, 2012), 130000T);
@@ -556,7 +556,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry: Record "Job Queue Entry";
         StartingDateTime: DateTime;
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Recurring Job" := true;
         JobQueueEntry."Run on Sundays" := true;
         StartingDateTime := CreateDateTime(DMY2Date(1, 1, 2012), 130000T);
@@ -579,7 +579,7 @@ codeunit 139020 "Test Job Queue SNAP"
         // [SCENARIO] Calculated next run is the end of teh month at "Startting Time" if "Next Run Date Formula" is '1D + CM'
         // [GIVEN] Job queue entry, where "Earliest Start Date/Time" is '31.03.12 13:00' and
         Evaluate(DateFormula, '<1D + CM>');
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Earliest Start Date/Time" := CreateDateTime(DMY2Date(31, 3, 2012), 130000T);
         // [GIVEN] recurring parameters are "Next Run Date Formula" is '1D + CM', "Starting Time" is '11:00'
         JobQueueEntry.Validate("Next Run Date Formula", DateFormula);
@@ -604,7 +604,7 @@ codeunit 139020 "Test Job Queue SNAP"
         // [FEATURE] [Event]
         // [SCENARIO] Override the calculated value of the next run for recurring job (by subscribing to COD448)
         // [GIVEN] Job queue entry, where "Earliest Start Date/Time" is '31.03.12 13:00' and
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Earliest Start Date/Time" := CreateDateTime(DMY2Date(31, 3, 2012), 130000T);
         // [GIVEN] recurring parameters are "Next Run Date Formula" is '1D + CM'
         Evaluate(DateFormula, '<1D + CM>');
@@ -806,7 +806,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
         StartingDateTime: DateTime;
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
 
         // Test when job recurs every two days irrespective of day.
         JobQueueEntry."No. of Minutes between Runs" := 2880;
@@ -875,20 +875,20 @@ codeunit 139020 "Test Job Queue SNAP"
         RecordCountBeforeTest: Integer;
     begin
         JobQueueEntry.SetRange("Job Queue Category Code", '<>''''');
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
 
-        RecordCountBeforeTest := JobQueueCategory.Count;
+        RecordCountBeforeTest := JobQueueCategory.Count();
 
-        JobQueueCategory.Init;
+        JobQueueCategory.Init();
         JobQueueCategory.Code := 'COD1';
         JobQueueCategory.Description := 'COD1 Category';
         JobQueueCategory.Insert(true);
 
-        JobQueueCategory.Reset;
+        JobQueueCategory.Reset();
         Assert.AreEqual(RecordCountBeforeTest + 1, JobQueueCategory.Count, 'Expected to find more records after insert');
         Assert.IsTrue(JobQueueCategory.Get('COD1'), 'Expected to find inserted item but GET returned false');
         Assert.AreEqual('COD1 Category', JobQueueCategory.Description, 'Found unexpected category');
-        JobQueueCategory.Delete;
+        JobQueueCategory.Delete();
     end;
 
     [Test]
@@ -899,9 +899,9 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueCategory: Record "Job Queue Category";
     begin
         JobQueueEntry.SetRange("Job Queue Category Code", '<>''''');
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
 
-        JobQueueCategory.Init;
+        JobQueueCategory.Init();
         JobQueueCategory.Code := 'COD2';
         JobQueueCategory.Description := 'COD2 Category';
         JobQueueCategory.Insert(true);
@@ -914,7 +914,7 @@ codeunit 139020 "Test Job Queue SNAP"
 
         Assert.IsFalse(JobQueueCategory.Get('COD2'), 'Did not expect to find orginal item');
         Assert.IsTrue(JobQueueCategory.Get('2DOC'), 'Expected to find renamed item');
-        JobQueueCategory.Delete;
+        JobQueueCategory.Delete();
     end;
 
     [Test]
@@ -925,36 +925,36 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueCategory: Record "Job Queue Category";
     begin
         JobQueueEntry.SetRange("Job Queue Category Code", '<>''''');
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
 
-        JobQueueCategory.Init;
+        JobQueueCategory.Init();
         JobQueueCategory.Code := 'COD3';
         JobQueueCategory.Description := 'COD3 Category';
         JobQueueCategory.Insert(true);
 
         CreateSucceedingJobQueueEntry(JobQueueEntry);
         JobQueueEntry."Job Queue Category Code" := 'COD3';
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
 
-        JobQueueEntry.Reset;
+        JobQueueEntry.Reset();
         JobQueueEntry.SetRange("Job Queue Category Code", 'COD3');
         Assert.AreEqual(1, JobQueueEntry.Count, 'Expected to find job queue entry with job queue category code');
-        JobQueueEntry.Reset;
+        JobQueueEntry.Reset();
         JobQueueEntry.SetRange("Job Queue Category Code", '3DOC');
         Assert.AreEqual(0, JobQueueEntry.Count, 'Did not expect to find job queue entry with job queue category code yet to be defined');
 
         JobQueueCategory.Get('COD3');
         JobQueueCategory.Rename('3DOC');
 
-        JobQueueEntry.Reset;
+        JobQueueEntry.Reset();
         JobQueueEntry.SetRange("Job Queue Category Code", 'COD3');
         Assert.AreEqual(0, JobQueueEntry.Count, 'Did not expect to find entry with original job queue category code');
-        JobQueueEntry.Reset;
+        JobQueueEntry.Reset();
         JobQueueEntry.SetRange("Job Queue Category Code", '3DOC');
         Assert.AreEqual(1, JobQueueEntry.Count, 'Expected to find inserted entry with renamed job queue category code');
 
-        JobQueueEntry.Delete;
-        JobQueueCategory.Delete;
+        JobQueueEntry.Delete();
+        JobQueueCategory.Delete();
     end;
 
     [Test]
@@ -965,13 +965,13 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueCategory: Record "Job Queue Category";
     begin
         JobQueueEntry.SetRange("Job Queue Category Code", '<>''''');
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
 
-        JobQueueCategory.Init;
+        JobQueueCategory.Init();
         JobQueueCategory.Code := 'COD4';
         JobQueueCategory.Description := 'COD4 Category';
         JobQueueCategory.Insert(true);
-        JobQueueCategory.Reset;
+        JobQueueCategory.Reset();
 
         Assert.IsTrue(JobQueueCategory.Get('COD4'), 'Expected to find item');
         JobQueueCategory.Delete(true);
@@ -987,19 +987,19 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntryId: Guid;
     begin
         JobQueueEntry.SetRange("Job Queue Category Code", '<>''''');
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
 
-        JobQueueCategory.Init;
+        JobQueueCategory.Init();
         JobQueueCategory.Code := 'COD5';
         JobQueueCategory.Description := 'COD5 Category';
         JobQueueCategory.Insert(true);
 
         CreateSucceedingJobQueueEntry(JobQueueEntry);
         JobQueueEntry."Job Queue Category Code" := 'COD5';
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
         JobQueueEntryId := JobQueueEntry.ID;
 
-        JobQueueEntry.Reset;
+        JobQueueEntry.Reset();
         JobQueueEntry.SetRange("Job Queue Category Code", 'COD5');
         Assert.AreEqual(1, JobQueueEntry.Count, 'Expected to find inserted entry with set job queue category code');
 
@@ -1013,7 +1013,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry.Get(JobQueueEntryId);
         Assert.AreEqual('COD5', JobQueueEntry."Job Queue Category Code", 'Expected no changes on Job Queue Entry');
 
-        JobQueueEntry.Delete;
+        JobQueueEntry.Delete();
     end;
 
     [Test]
@@ -1022,7 +1022,7 @@ codeunit 139020 "Test Job Queue SNAP"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         Assert.IsTrue(Format(JobQueueEntry."Earliest Start Date/Time") = '',
           'Expected Earliest Start Date/Time to be empty when creating a new record');
         Assert.IsTrue(Format(JobQueueEntry."Expiration Date/Time") = '',
@@ -1150,7 +1150,7 @@ codeunit 139020 "Test Job Queue SNAP"
 
         Assert.IsTrue(JobQueueEntry.Status = JobQueueEntry.Status::Error, 'Job did not fail after first attempt');
 
-        JobQueueEntry.Delete;
+        JobQueueEntry.Delete();
     end;
 
     [Test]
@@ -1159,7 +1159,7 @@ codeunit 139020 "Test Job Queue SNAP"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.Validate("Maximum No. of Attempts to Run", 0);
         JobQueueEntry.Validate("Maximum No. of Attempts to Run", 1);
         JobQueueEntry.Validate("Maximum No. of Attempts to Run", 45678);
@@ -1177,7 +1177,7 @@ codeunit 139020 "Test Job Queue SNAP"
     begin
         // [SCENARIO 194949] Job Queue Dispatcher should be able to execute a target codeunit, that calls 'IF CODEUNIT.RUN() THEN'
         // [GIVEN] Job Queue Entry, where Status::Ready, "Object ID to Run" = COD5065 (it calls COD5064 conditionally)
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Email Logging Context Adapter";
         JobQueueEntry.Status := JobQueueEntry.Status::Ready;
@@ -1239,7 +1239,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Workflow Create Payment Line"; // will exit without any action while there is no RecordID to handle.
         JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-        JobQueueEntry.Insert;
+        JobQueueEntry.Insert();
 
         JobQueueEntry.SetRecFilter;
         // [WHEN] "Job Queue Dispatcher" codeunit processes "J"
@@ -1271,12 +1271,12 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Type Helper";
         JobQueueEntry."Parameter String" := LibraryUtility.GenerateGUID;
         JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-        JobQueueEntry.Insert;
+        JobQueueEntry.Insert();
 
         JobQueueEntryOther := JobQueueEntry;
         JobQueueEntryOther.ID := CreateGuid;
         JobQueueEntryOther.Status := JobQueueEntryOther.Status::Error;
-        JobQueueEntryOther.Insert;
+        JobQueueEntryOther.Insert();
 
         // [GIVEN] When run "Job Queue - Enqueue"
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
@@ -1637,8 +1637,8 @@ codeunit 139020 "Test Job Queue SNAP"
     begin
         // [FEATURE] [UT] [Company]
         // [SCENARIO 310997] Recurring Job Queue Entry with status "Error" does not started on company open
-        JobQueueEntry.DeleteAll;
-        JobQueueLogEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
+        JobQueueLogEntry.DeleteAll();
 
         InitializeRecurringJobQueueEntry(JobQueueEntry, LibraryRandom.RandInt(5));
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
@@ -1653,12 +1653,12 @@ codeunit 139020 "Test Job Queue SNAP"
         Assert.RecordIsEmpty(JobQueueLogEntry);
 
         VerifyJobQueueEntryWithStatusExists(JobQueueEntry, JobQueueEntry.Status::Error);
-        JobQueueEntry.Delete;
+        JobQueueEntry.Delete();
     end;
 
     local procedure InitializeRecurringJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; Duration: Integer)
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
         JobQueueEntry."Recurring Job" := true;
         JobQueueEntry."Run on Mondays" := true;
@@ -1691,7 +1691,7 @@ codeunit 139020 "Test Job Queue SNAP"
     [Normal]
     local procedure CreateSucceedingJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := 132450;
@@ -1702,7 +1702,7 @@ codeunit 139020 "Test Job Queue SNAP"
 
     local procedure CreateFailingJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := 132453;
@@ -1713,7 +1713,7 @@ codeunit 139020 "Test Job Queue SNAP"
 
     local procedure CreateRecurringJobQueueEntryWithStatus(var JobQueueEntry: Record "Job Queue Entry"; NewStatus: Option; JobQueueCategoryCode: Code[10])
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Test Job Queue SNAP";
@@ -1725,7 +1725,7 @@ codeunit 139020 "Test Job Queue SNAP"
 
     local procedure CreateJobQueueCategory(var JobQueueCategory: Record "Job Queue Category")
     begin
-        JobQueueCategory.Init;
+        JobQueueCategory.Init();
         JobQueueCategory.Code := LibraryUtility.GenerateGUID;
         JobQueueCategory.Description := PadStr(JobQueueCategory.Code, MaxStrLen(JobQueueCategory.Description), '0');
         JobQueueCategory.Insert(true);
@@ -1737,7 +1737,7 @@ codeunit 139020 "Test Job Queue SNAP"
     begin
         CreateJobQueueCategory(JobQueueCategory);
 
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Report;
         JobQueueEntry."Object ID to Run" := REPORT::"Order Confirmation";
@@ -1746,12 +1746,12 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
         JobQueueEntry."Job Queue Category Code" := JobQueueCategory.Code;
         JobQueueEntry."User ID" := NewUserID;
-        JobQueueEntry.Insert;
+        JobQueueEntry.Insert();
 
         LibraryVariableStorage.Enqueue(false); // Report option "LogInteraction" = FALSE
         JobQueueEntry."Report Request Page Options" := true;
         JobQueueEntry.SetReportParameters(REPORT.RunRequestPage(JobQueueEntry."Object ID to Run", ''));
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
     end;
 
     local procedure CalcAndVerifyNextRuntimes(var JobQueueEntry: Record "Job Queue Entry"; StartingDateTime: DateTime; NextDate: Date; NextTime: Time; InitialDate: Date; InitialTime: Time)

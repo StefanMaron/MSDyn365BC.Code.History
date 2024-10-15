@@ -174,7 +174,7 @@ report 501 "Intrastat - Form"
                        ("Transport Method" = '') and
                        ("Total Weight" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     TestField("Tariff No.");
                     TestField("Country/Region Code");
@@ -200,7 +200,7 @@ report 501 "Intrastat - Form"
                     end;
                     SubTotalWeight := SubTotalWeight + Round("Total Weight", 1);
                     TotalWeight := TotalWeight + Round("Total Weight", 1);
-                    GLSetup.Get;
+                    GLSetup.Get();
                     if "Intrastat Jnl. Batch"."Amounts in Add. Currency" then begin
                         GLSetup.TestField("Additional Reporting Currency");
                         HeaderText := StrSubstNo(Text003, GLSetup."Additional Reporting Currency");
@@ -219,7 +219,7 @@ report 501 "Intrastat - Form"
 
             trigger OnAfterGetRecord()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if "Amounts in Add. Currency" then begin
                     GLSetup.TestField("Additional Reporting Currency");
                     HeaderLine := StrSubstNo(Text003, GLSetup."Additional Reporting Currency");
@@ -272,7 +272,7 @@ report 501 "Intrastat - Form"
 
         trigger OnInit()
         begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             PhoneNo := CompanyInfo."Phone No.";
             FaxNo := CompanyInfo."Fax No.";
         end;
@@ -288,7 +288,7 @@ report 501 "Intrastat - Form"
         if not ("Intrastat Jnl. Line".GetRangeMin(Type) = "Intrastat Jnl. Line".GetRangeMax(Type)) then
             "Intrastat Jnl. Line".FieldError(Type, Text000);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo."VAT Registration No." := ConvertStr(CompanyInfo."VAT Registration No.", Text001, '    ');
     end;
 

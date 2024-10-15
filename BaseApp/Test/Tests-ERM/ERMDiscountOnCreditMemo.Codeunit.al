@@ -38,7 +38,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Discount On Credit Memo");
     end;
@@ -487,7 +487,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         CustomerNo: Code[20];
     begin
         // Setup:  Update Sales And Receivable Setup.Create Payment Terms with Discount,Create Customer and attach Payment Term to it.
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         FindAndUpdateSetup(SalesReceivablesSetup, VATPostingSetup);
         CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
 
@@ -523,7 +523,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
 
         // Setup:  Update Sales And Receivable Setup.Create Payment Terms with Discount,Create Customer and attach Payment Term to it.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         FindAndUpdateSetup(SalesReceivablesSetup, VATPostingSetup);
         CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
         GetPaymentTermDiscount(PaymentTerms, CustomerNo);
@@ -689,7 +689,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Appln. between Currencies", ApplnbetweenCurrencies);
         SalesReceivablesSetup.Validate("Credit Warnings", CreditWarnings);
         SalesReceivablesSetup.Modify(true);

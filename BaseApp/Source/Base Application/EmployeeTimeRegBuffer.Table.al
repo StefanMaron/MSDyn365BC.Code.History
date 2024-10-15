@@ -81,7 +81,7 @@ table 5510 "Employee Time Reg Buffer"
                 if not Resource.Get(Employee."Resource No.") then begin
                     GraphMgtTimeRegistration.CreateResourceToUseTimeSheet(Resource);
                     Employee.Validate("Resource No.", Resource."No.");
-                    Employee.Modify;
+                    Employee.Modify();
                 end else
                     GraphMgtTimeRegistration.ModifyResourceToUseTimeSheet(Resource);
             end;
@@ -136,7 +136,7 @@ table 5510 "Employee Time Reg Buffer"
         DateFilterIsInvalidErr: Label 'The date filter is invalid. The date filter must be a valid range with maximum %1 days.', Locked = true;
         EmployeeFilterOneEmployeeOnlyErr: Label 'You can only search for one employee using the employee filter.';
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure PropagateInsert()
     var
         Employee: Record Employee;
@@ -167,7 +167,7 @@ table 5510 "Employee Time Reg Buffer"
             "Unit of Measure Id" := UnitOfMeasure.Id;
     end;
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure PropagateModify()
     var
         TimeSheetDetail: Record "Time Sheet Detail";
@@ -202,7 +202,7 @@ table 5510 "Employee Time Reg Buffer"
         end;
     end;
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure PropagateDelete()
     var
         TimeSheetDetail: Record "Time Sheet Detail";
@@ -212,7 +212,7 @@ table 5510 "Employee Time Reg Buffer"
         TimeSheetDetail.Delete(true);
     end;
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure LoadRecords(IdFilter: Text; DateFilter: Text; EmployeeIdFilter: Text)
     var
         Employee: Record Employee;

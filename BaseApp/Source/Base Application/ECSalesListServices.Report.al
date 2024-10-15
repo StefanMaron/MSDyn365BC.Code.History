@@ -159,7 +159,7 @@ report 10876 "EC Sales List - Services"
                         if VATAmount <> 0 then
                             LineNo := LineNo + 1
                         else begin
-                            VATEntry.Reset;
+                            VATEntry.Reset();
                             VATEntry.CopyFilters("VAT Entry");
                             VATEntry.SetRange("VAT Registration No.", "VAT Registration No.");
                             VATEntry.SetFilter(Base, '>=%1|<=%2', 0.5, -0.5);
@@ -192,8 +192,8 @@ report 10876 "EC Sales List - Services"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
-                GLSetup.Get;
+                CompanyInfo.Get();
+                GLSetup.Get();
                 if UseAmtsInAddCurr then begin
                     if GLSetup."Additional Reporting Currency" <> '' then
                         AmountCaption := StrSubstNo(Text10800, GLSetup."Additional Reporting Currency");
@@ -329,7 +329,7 @@ report 10876 "EC Sales List - Services"
         PeriodStart := "VAT Entry".GetRangeMin("Posting Date");
         PeriodEnd := "VAT Entry".GetRangeMax("Posting Date");
 
-        Calendar.Reset;
+        Calendar.Reset();
         Calendar.SetRange("Period Type", Calendar."Period Type"::Month);
         Calendar.SetRange("Period Start", PeriodStart);
         Calendar.SetRange("Period End", ClosingDate(PeriodEnd));
@@ -434,7 +434,7 @@ report 10876 "EC Sales List - Services"
 
     local procedure PageUpdateRequestForm()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         PhoneNo := CompanyInfo."Phone No.";
         Fax := CompanyInfo."Fax No.";
         Email := CompanyInfo."E-Mail";

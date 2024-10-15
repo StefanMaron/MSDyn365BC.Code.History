@@ -157,7 +157,7 @@ report 10801 Journals
                     trigger OnPreDataItem()
                     begin
                         if not DisplayEntries then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         if DisplayEntries then
                             case SortingBy of
@@ -232,7 +232,7 @@ report 10801 Journals
                     trigger OnPreDataItem()
                     begin
                         if not DisplayCentral then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
 
@@ -250,7 +250,7 @@ report 10801 Journals
                     YearString := ' ' + Format(Year);
                 end;
                 if Finished then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 PeriodTypeNo := "Period Type";
                 DateRecNo += 1;
             end;

@@ -134,14 +134,14 @@ report 10865 Bill
                 Cust: Record Customer;
                 FormatAddress: Codeunit "Format Address";
             begin
-                CustPaymentAddr.Init;
+                CustPaymentAddr.Init();
 
                 PaymtHeader.Get("No.");
                 PostingDate := PaymtHeader."Posting Date";
 
                 Amount := -Amount;
 
-                GLSetup.Get;
+                GLSetup.Get();
                 if IssueDate = 0D then
                     IssueDate := WorkDate;
 
@@ -193,7 +193,7 @@ report 10865 Bill
 
         trigger OnOpenPage()
         begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             IssueCity := CompanyInfo.City;
             IssueDate := WorkDate;
         end;

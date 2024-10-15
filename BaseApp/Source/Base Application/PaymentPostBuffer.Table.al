@@ -4,11 +4,9 @@ table 10864 "Payment Post. Buffer"
 
     fields
     {
-        field(1; "Account Type"; Option)
+        field(1; "Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(2; "Account No."; Code[20])
         {
@@ -70,11 +68,9 @@ table 10864 "Payment Post. Buffer"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(12; "VAT Calculation Type"; Option)
+        field(12; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(13; "Inv. Discount Amount"; Decimal)
         {

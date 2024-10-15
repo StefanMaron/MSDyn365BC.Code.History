@@ -82,8 +82,8 @@ table 99000850 "Planning Assignment"
                (NewItem."Replenishment System" <> OldItem."Replenishment System") or
                (NewItem."Include Inventory" <> OldItem."Include Inventory")
             then begin
-                ManufacturingSetup.Get;
-                InvtSetup.Get;
+                ManufacturingSetup.Get();
+                InvtSetup.Get();
                 if (ManufacturingSetup."Components at Location" <> '') or
                    not InvtSetup."Location Mandatory"
                 then
@@ -233,7 +233,7 @@ table 99000850 "Planning Assignment"
 
     procedure AssignOne(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; UpdateDate: Date)
     begin
-        LockTable;
+        LockTable();
         "Item No." := ItemNo;
         "Variant Code" := VariantCode;
         "Location Code" := LocationCode;

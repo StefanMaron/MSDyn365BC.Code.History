@@ -19,11 +19,9 @@ table 10868 "Payment Line Archive"
         {
             Caption = 'Amount';
         }
-        field(4; "Account Type"; Option)
+        field(4; "Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(5; "Account No."; Code[20])
         {
@@ -60,12 +58,10 @@ table 10868 "Payment Line Archive"
         {
             Caption = 'Due Date';
         }
-        field(10; "Acc. Type Last Entry Debit"; Option)
+        field(10; "Acc. Type Last Entry Debit"; enum "Gen. Journal Account Type")
         {
             Caption = 'Acc. Type Last Entry Debit';
             Editable = false;
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(11; "Acc. No. Last Entry Debit"; Code[20])
         {
@@ -81,12 +77,10 @@ table 10868 "Payment Line Archive"
             ELSE
             IF ("Acc. Type Last Entry Debit" = CONST("Fixed Asset")) "Fixed Asset";
         }
-        field(12; "Acc. Type Last Entry Credit"; Option)
+        field(12; "Acc. Type Last Entry Credit"; enum "Gen. Journal Account Type")
         {
             Caption = 'Acc. Type Last Entry Credit';
             Editable = false;
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(13; "Acc. No. Last Entry Credit"; Code[20])
         {

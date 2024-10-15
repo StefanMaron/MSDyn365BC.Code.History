@@ -26,11 +26,11 @@ codeunit 10802 "FR AccSchedManagement"
     begin
         if not AccSchedName.Get(CurrentSchedName) then begin
             if not AccSchedName.FindFirst then begin
-                AccSchedName.Init;
+                AccSchedName.Init();
                 AccSchedName.Name := Text1120000;
                 AccSchedName.Description := Text1120001;
-                AccSchedName.Insert;
-                Commit;
+                AccSchedName.Insert();
+                Commit();
             end;
             CurrentSchedName := AccSchedName.Name;
         end;

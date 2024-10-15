@@ -141,7 +141,7 @@ report 10881 Withdraw
 
                     PaymentHeader := "Payment Header";
                     PaymentHeader."File Export Completed" := true;
-                    PaymentHeader.Modify;
+                    PaymentHeader.Modify();
                 end;
             }
 
@@ -256,10 +256,10 @@ report 10881 Withdraw
     var
         FileMgt: Codeunit "File Management";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField(Name);
 
-        GLSetup.Get;
+        GLSetup.Get();
         ExportFileName := FileMgt.ServerTempFileName('');
 
         ExportFile.TextMode := true;

@@ -217,7 +217,7 @@ report 10814 "Vendor Journal"
                     YearString := ' ' + Format(Year);
                 end;
                 if Finished then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 DateRecNo += 1;
             end;
 

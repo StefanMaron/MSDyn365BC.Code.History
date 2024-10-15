@@ -15,7 +15,7 @@ report 10883 "SEPA ISO20022"
                 TestField("Bank Country/Region Code");
                 if not CheckBankCountrySEPAAllowed("Bank Country/Region Code") then
                     Error(SEPANotEnabledForPaymentErr, "Bank Country/Region Code");
-                PaymentLine.Reset;
+                PaymentLine.Reset();
                 PaymentLine.SetRange("No.", "No.");
                 CheckPaymentLines;
                 ExportSEPAFile;
@@ -25,7 +25,7 @@ report 10883 "SEPA ISO20022"
             begin
                 PaymentHeader := "Payment Header";
                 PaymentHeader."File Export Completed" := true;
-                PaymentHeader.Modify;
+                PaymentHeader.Modify();
             end;
         }
     }
@@ -65,7 +65,7 @@ report 10883 "SEPA ISO20022"
         FileMgt: Codeunit "File Management";
     begin
         // Perform Checks
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("Country/Region Code");
         CompanyInfo.TestField("VAT Registration No.");
 
@@ -131,7 +131,7 @@ report 10883 "SEPA ISO20022"
         AddElement(XMLNodeCurr, 'MsgId', MessageId, '', XMLNewChild);
         AddElement(XMLNodeCurr, 'CreDtTm', Format(CurrentDateTime, 19, 9), '', XMLNewChild);
 
-        PaymentLine.Reset;
+        PaymentLine.Reset();
         PaymentLine.SetRange("No.", "Payment Header"."No.");
         AddElement(XMLNodeCurr, 'NbOfTxs', Format(PaymentLineCount, 0, 9), '', XMLNewChild);
         "Payment Header".CalcFields(Amount);
@@ -439,7 +439,7 @@ report 10883 "SEPA ISO20022"
         GLSetup: Record "General Ledger Setup";
     begin
         // Check whether the currency being used is Euro
-        GLSetup.Get;
+        GLSetup.Get();
         case GLSetup."Local Currency" of
             GLSetup."Local Currency"::Euro:
                 begin

@@ -195,7 +195,7 @@ report 10843 "Recapitulation Form"
                     if not ("Gen. Journal Line"."Account Type" in ["Gen. Journal Line"."Account Type"::Customer,
                                                                    "Gen. Journal Line"."Account Type"::"G/L Account"])
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if "Gen. Journal Line"."Account Type" = "Gen. Journal Line"."Account Type"::"G/L Account" then
                         LineNum := LineNum
@@ -211,7 +211,7 @@ report 10843 "Recapitulation Form"
                 trigger OnPostDataItem()
                 begin
                     if not GenJnlLine.FindFirst then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if BalanceAmount then
                         GenJnlLine."Amount (LCY)" := -GenJnlLine."Amount (LCY)";
@@ -236,7 +236,7 @@ report 10843 "Recapitulation Form"
                             "Gen. Journal Line".SetRange("Document No.", GenJnlLine."Document No.");
                             "Gen. Journal Line".SetRange("Posting Date", GenJnlLine."Posting Date");
                         end else
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 end;
             }
@@ -248,10 +248,10 @@ report 10843 "Recapitulation Form"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
 
-                GLSetup.Get;
+                GLSetup.Get();
             end;
         }
     }

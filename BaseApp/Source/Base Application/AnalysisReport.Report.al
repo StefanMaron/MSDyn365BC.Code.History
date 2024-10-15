@@ -167,7 +167,7 @@ report 7112 "Analysis Report"
                     trigger OnPreDataItem()
                     begin
                         if not ShowAnalysisReportSetup then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(PageBreak; "Integer")
@@ -182,7 +182,7 @@ report 7112 "Analysis Report"
                     trigger OnPreDataItem()
                     begin
                         if not ShowAnalysisReportSetup then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem("Analysis Line"; "Analysis Line")
@@ -323,11 +323,11 @@ report 7112 "Analysis Report"
 
             trigger OnAfterGetRecord()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if "Item Analysis View Code" <> '' then
                     ItemAnalysisView.Get(AnalysisArea, "Item Analysis View Code")
                 else begin
-                    ItemAnalysisView.Init;
+                    ItemAnalysisView.Init();
                     ItemAnalysisView."Dimension 1 Code" := GLSetup."Global Dimension 1 Code";
                     ItemAnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
                 end;
@@ -590,7 +590,7 @@ report 7112 "Analysis Report"
 
         trigger OnOpenPage()
         begin
-            GLSetup.Get;
+            GLSetup.Get();
             if UseHiddenFilters then begin
                 AnalysisArea := AnalysisAreaHidden;
                 AnalysisReportName := AnalysisReportNameHidden;

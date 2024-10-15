@@ -14,7 +14,7 @@ report 10862 "Suggest Vendor Payments FR"
             trigger OnAfterGetRecord()
             begin
                 if StopPayments then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 Window.Update(1, "No.");
                 GetVendLedgEntries(true, false);
                 GetVendLedgEntries(false, false);
@@ -51,23 +51,23 @@ report 10862 "Suggest Vendor Payments FR"
                         until (Next = 0) or StopPayments;
                 end;
 
-                GenPayLine.LockTable;
+                GenPayLine.LockTable();
                 GenPayLine.SetRange("No.", GenPayLine."No.");
                 if GenPayLine.FindLast then begin
                     LastLineNo := GenPayLine."Line No.";
-                    GenPayLine.Init;
+                    GenPayLine.Init();
                 end;
 
                 Window.Open(Text008);
 
-                PayableVendLedgEntry.Reset;
+                PayableVendLedgEntry.Reset();
                 PayableVendLedgEntry.SetRange(Priority, 1, 2147483647);
                 MakeGenPayLines;
-                PayableVendLedgEntry.Reset;
+                PayableVendLedgEntry.Reset();
                 PayableVendLedgEntry.SetRange(Priority, 0);
                 MakeGenPayLines;
-                PayableVendLedgEntry.Reset;
-                PayableVendLedgEntry.DeleteAll;
+                PayableVendLedgEntry.Reset();
+                PayableVendLedgEntry.DeleteAll();
 
                 Window.Close;
                 ShowMessage(MessageText);
@@ -231,7 +231,7 @@ report 10862 "Suggest Vendor Payments FR"
     [Scope('OnPrem')]
     procedure GetVendLedgEntries(Positive: Boolean; Future: Boolean)
     begin
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange(Open, true);
@@ -286,7 +286,7 @@ report 10862 "Suggest Vendor Payments FR"
         PayableVendLedgEntry.Future := (VendLedgEntry."Due Date" > LastDueDateToPayReq);
         PayableVendLedgEntry."Currency Code" := VendLedgEntry."Currency Code";
         PayableVendLedgEntry."Due Date" := VendLedgEntry."Due Date";
-        PayableVendLedgEntry.Insert;
+        PayableVendLedgEntry.Insert();
         NextEntryNo := NextEntryNo + 1;
     end;
 
@@ -304,7 +304,7 @@ report 10862 "Suggest Vendor Payments FR"
                 if PayableVendLedgEntry."Currency Code" <> PrevCurrency then begin
                     if CurrencyBalance < 0 then begin
                         PayableVendLedgEntry.SetRange("Currency Code", PrevCurrency);
-                        PayableVendLedgEntry.DeleteAll;
+                        PayableVendLedgEntry.DeleteAll();
                         PayableVendLedgEntry.SetRange("Currency Code");
                     end else
                         AmountAvailable := AmountAvailable - CurrencyBalance;
@@ -316,11 +316,11 @@ report 10862 "Suggest Vendor Payments FR"
                 then
                     CurrencyBalance := CurrencyBalance + PayableVendLedgEntry."Amount (LCY)"
                 else
-                    PayableVendLedgEntry.Delete;
+                    PayableVendLedgEntry.Delete();
             until PayableVendLedgEntry.Next = 0;
             if CurrencyBalance < 0 then begin
                 PayableVendLedgEntry.SetRange("Currency Code", PrevCurrency);
-                PayableVendLedgEntry.DeleteAll;
+                PayableVendLedgEntry.DeleteAll();
                 PayableVendLedgEntry.SetRange("Currency Code");
             end else
                 if OriginalAmtAvailable > 0 then
@@ -328,7 +328,7 @@ report 10862 "Suggest Vendor Payments FR"
             if (OriginalAmtAvailable > 0) and (AmountAvailable <= 0) then
                 StopPayments := true;
         end;
-        PayableVendLedgEntry.Reset;
+        PayableVendLedgEntry.Reset();
     end;
 
     local procedure InsertTempPaymentPostBuffer(var TempPaymentPostBuffer: Record "Payment Post. Buffer" temporary; var VendLedgEntry: Record "Vendor Ledger Entry")
@@ -341,14 +341,14 @@ report 10862 "Suggest Vendor Payments FR"
         TempPaymentPostBuffer."Global Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
         TempPaymentPostBuffer."Global Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
         TempPaymentPostBuffer."Auxiliary Entry No." := VendLedgEntry."Entry No.";
-        TempPaymentPostBuffer.Insert;
+        TempPaymentPostBuffer.Insert();
     end;
 
     local procedure MakeGenPayLines()
     var
         GenPayLine3: Record "Gen. Journal Line";
     begin
-        TempPaymentPostBuffer.DeleteAll;
+        TempPaymentPostBuffer.DeleteAll();
 
         if PayableVendLedgEntry.Find('-') then
             repeat
@@ -370,7 +370,7 @@ report 10862 "Suggest Vendor Payments FR"
                         if TempPaymentPostBuffer.Find then begin
                             TempPaymentPostBuffer.Amount := TempPaymentPostBuffer.Amount + PayableVendLedgEntry.Amount;
                             TempPaymentPostBuffer."Amount (LCY)" := TempPaymentPostBuffer."Amount (LCY)" + PayableVendLedgEntry."Amount (LCY)";
-                            TempPaymentPostBuffer.Modify;
+                            TempPaymentPostBuffer.Modify();
                         end else begin
                             LastLineNo := LastLineNo + 10000;
                             TempPaymentPostBuffer."Payment Line No." := LastLineNo;
@@ -386,12 +386,12 @@ report 10862 "Suggest Vendor Payments FR"
                             TempPaymentPostBuffer.Amount := PayableVendLedgEntry.Amount;
                             TempPaymentPostBuffer."Amount (LCY)" := PayableVendLedgEntry."Amount (LCY)";
                             Window.Update(1, VendLedgEntry."Vendor No.");
-                            TempPaymentPostBuffer.Insert;
+                            TempPaymentPostBuffer.Insert();
                         end;
                         VendLedgEntry."Applies-to ID" := TempPaymentPostBuffer."Applies-to ID";
                         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
                     end else begin
-                        GenPayLine3.Reset;
+                        GenPayLine3.Reset();
                         GenPayLine3.SetCurrentKey(
                           "Account Type", "Account No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
                         GenPayLine3.SetRange("Account Type", GenPayLine3."Account Type"::Vendor);
@@ -443,7 +443,7 @@ report 10862 "Suggest Vendor Payments FR"
                     if SummarizePer = SummarizePer::" " then begin
                         VendLedgEntry.Get(TempPaymentPostBuffer."Auxiliary Entry No.");
                         VendLedgEntry."Applies-to ID" := "Applies-to ID";
-                        VendLedgEntry.Modify;
+                        VendLedgEntry.Modify();
                     end;
                     "Account Type" := "Account Type"::Vendor;
                     Validate("Account No.", TempPaymentPostBuffer."Account No.");
@@ -471,7 +471,7 @@ report 10862 "Suggest Vendor Payments FR"
                                 PayableVendLedgEntry.SetRange("Vendor No.", TempPaymentPostBuffer."Account No.");
                                 PayableVendLedgEntry.Find('-');
                                 "Due Date" := PayableVendLedgEntry."Due Date";
-                                PayableVendLedgEntry.DeleteAll;
+                                PayableVendLedgEntry.DeleteAll();
                             end;
                         SummarizePer::"Due date":
                             "Due Date" := TempPaymentPostBuffer."Due Date";

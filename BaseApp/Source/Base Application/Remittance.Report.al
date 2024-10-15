@@ -323,7 +323,7 @@ report 10867 Remittance
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddress.Company(CompanyAddr, CompanyInfo);
             end;
         }
@@ -421,7 +421,7 @@ report 10867 Remittance
     procedure PrintCurrencyCode(): Code[10]
     begin
         if ("Payment Lines1"."Currency Code" = '') or PrintAmountInLCYCode then begin
-            GLSetup.Get;
+            GLSetup.Get();
             exit(GLSetup."LCY Code");
         end;
         exit("Payment Lines1"."Currency Code");

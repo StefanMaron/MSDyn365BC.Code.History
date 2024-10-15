@@ -1,4 +1,4 @@
-﻿codeunit 134769 "Test User Tasks"
+codeunit 134769 "Test User Tasks"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -108,23 +108,23 @@
         // [SCENARIO] Test the User Task purge.
 
         // [GIVEN] Several Task records with different creators.
-        UserTask.DeleteAll;
-        UserTask.Init;
+        UserTask.DeleteAll();
+        UserTask.Init();
         UserTask."Created By" := User1."User Security ID";
         UserTask."Assigned To" := User2."User Security ID";
-        UserTask.Insert;
+        UserTask.Insert();
 
         Clear(UserTask);
-        UserTask.Init;
+        UserTask.Init();
         UserTask."Created By" := User2."User Security ID";
         UserTask."Assigned To" := User1."User Security ID";
-        UserTask.Insert;
+        UserTask.Insert();
 
         // [WHEN] The task purge is asked to delete tasks for User1
         // [THEN] Those records are deleted, tasks created by User2 remain.
 
         Assert.AreEqual(2, UserTask.Count, 'Unexpected record count prior to purge');
-        Commit;
+        Commit();
 
         REPORT.Run(REPORT::"User Task Utility");
 
@@ -142,9 +142,9 @@
     begin
         // FEATURE] [UT]
         // [SCENARIO 253612] Task Description field in User Task table must be set accordingly to its encoding
-        UserTask.Init;
+        UserTask.Init();
         UserTask.SetDescription('Vytvorení úcetního období pro rok 2018');
-        UserTask.Insert;
+        UserTask.Insert();
 
         UserTask2.Get(UserTask.ID);
         Assert.AreEqual('Vytvorení úcetního období pro rok 2018', UserTask2.GetDescription, 'Unexpected value in the Task Description');
@@ -219,7 +219,7 @@
         UserTask: Record "User Task";
         LibraryPermissions: Codeunit "Library - Permissions";
     begin
-        UserTask.DeleteAll;
+        UserTask.DeleteAll();
 
         LibraryPermissions.CreateUser(User1, '', false);
         LibraryPermissions.CreateUser(User2, '', false);
@@ -306,7 +306,7 @@
     [Scope('OnPrem')]
     procedure CreateUserTaskGroup(var UserTaskGroup: Record "User Task Group")
     begin
-        UserTaskGroup.Init;
+        UserTaskGroup.Init();
         UserTaskGroup.Code := 'Group 1';
         UserTaskGroup.Description := 'Description';
         UserTaskGroup.Insert(true);
@@ -317,7 +317,7 @@
     begin
         if UserTaskGroupMember.Get(GroupCode, UserSecID) then
             exit;
-        UserTaskGroupMember.Init;
+        UserTaskGroupMember.Init();
         UserTaskGroupMember."User Task Group Code" := GroupCode;
         UserTaskGroupMember."User Security ID" := UserSecID;
         UserTaskGroupMember.Insert(true);
