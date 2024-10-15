@@ -649,6 +649,7 @@
                            "Reverse Charge Item"
                         then begin
                             TempPurchLine2 := xPurchLine;
+                            TempPurchLine2.SuspendStatusCheck(true);
                             TempPurchLine2.Validate("VAT Bus. Posting Group", PurchSetup."Domestic Vendors");
                             TempPurchLine2.Validate(Amount);
                             PurchInvLine."Reverse Charge" :=

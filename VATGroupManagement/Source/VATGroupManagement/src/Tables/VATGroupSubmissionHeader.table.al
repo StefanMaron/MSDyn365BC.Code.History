@@ -36,7 +36,7 @@ table 4702 "VAT Group Submission Header"
         {
             Caption = 'Group Member Name';
             FieldClass = FlowField;
-            CalcFormula = lookup("VAT Group Approved Member"."Group Member Name" where(ID = field("Group Member ID")));
+            CalcFormula = lookup ("VAT Group Approved Member"."Group Member Name" where(ID = field("Group Member ID")));
         }
         field(20; "Start Date"; Date)
         {
@@ -96,12 +96,12 @@ table 4702 "VAT Group Submission Header"
             VATGroupSubmissionLine.DeleteAll();
     end;
 
-    internal procedure SetFiltersForLastSubmissionInAPeriod(StartDate: Date; EndDate: Date; SetVATGropuReturnNoFilter: Boolean; VATGroupReturnNo: code[20])
+    internal procedure SetFiltersForLastSubmissionInAPeriod(StartDate: Date; EndDate: Date; SetVATGroupReturnNoFilter: Boolean; VATGroupReturnNo: code[20])
     begin
         Rec.SetCurrentKey("Submitted On");
         Rec.SetRange("Start Date", StartDate);
         Rec.SetRange("End Date", EndDate);
-        if SetVATGropuReturnNoFilter then
+        if SetVATGroupReturnNoFilter then
             Rec.SetRange("VAT Group Return No.", VATGroupReturnNo);
     end;
 }

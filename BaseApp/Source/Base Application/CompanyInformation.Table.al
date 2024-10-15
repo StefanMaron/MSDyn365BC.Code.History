@@ -379,6 +379,10 @@ table 79 "Company Information"
         {
             Caption = 'EORI Number';
         }
+        field(93; "Suppl. VAT Registration No."; Text[40])
+        {
+            Caption = 'Supplementary VAT Registration No.';
+        }
         field(95; "Use GLN in Electronic Document"; Boolean)
         {
             Caption = 'Use GLN in Electronic Documents';

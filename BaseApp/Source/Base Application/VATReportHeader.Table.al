@@ -1,4 +1,4 @@
-table 740 "VAT Report Header"
+﻿table 740 "VAT Report Header"
 {
     Caption = 'VAT Report Header';
     LookupPageID = "VAT Report List";
@@ -227,6 +227,24 @@ table 740 "VAT Report Header"
         {
             Caption = 'Amounts in Add. Rep. Currency';
             Editable = false;
+        }
+        field(4800; "VATGroup Return"; Boolean)
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Moved to VAT Group Management extension field 4700 VAT Group Return';
+            ObsoleteTag = '18.0';
+        }
+        field(4801; "VATGroup Status"; Text[20])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Moved to VAT Group Management extension field 4701 VAT Group Status';
+            ObsoleteTag = '18.0';
+        }
+        field(4802; "VATGroup Settlement Posted"; Boolean)
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Moved to VAT Group Management extension field 4702 VAT Group Settlement Posted';
+            ObsoleteTag = '18.0';
         }
     }
 
