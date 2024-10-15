@@ -103,6 +103,7 @@ codeunit 364 "PostPurch-Delete"
     procedure DeletePurchRcptLines(PurchRcptHeader: Record "Purch. Rcpt. Header")
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
         PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
         if PurchRcptLine.Find('-') then
@@ -111,8 +112,12 @@ codeunit 364 "PostPurch-Delete"
                 PurchRcptLine.TestField("Quantity Invoiced", PurchRcptLine.Quantity);
                 PurchRcptLine.Delete();
             until PurchRcptLine.Next() = 0;
+
+        ItemChargeAssignmentPurch.CheckAssignment(
+            "Purchase Applies-to Document Type"::Receipt, PurchRcptLine."Document No.", PurchRcptLine."Line No.");
+
         ItemTrackingMgt.DeleteItemEntryRelation(
-          DATABASE::"Purch. Rcpt. Line", 0, PurchRcptHeader."No.", '', 0, 0, true);
+            DATABASE::"Purch. Rcpt. Line", 0, PurchRcptHeader."No.", '', 0, 0, true);
 
         MoveEntries.MoveDocRelatedEntries(DATABASE::"Purch. Rcpt. Header", PurchRcptHeader."No.");
     end;
@@ -126,7 +131,7 @@ codeunit 364 "PostPurch-Delete"
             repeat
                 OnBeforeDeletePurchInvLines(PurchInvLine);
                 PurchInvLine.Delete();
-                ItemTrackingMgt.DeleteValueEntryRelation(PurchInvLine.RowID1);
+                ItemTrackingMgt.DeleteValueEntryRelation(PurchInvLine.RowID1());
             until PurchInvLine.Next() = 0;
 
         MoveEntries.MoveDocRelatedEntries(DATABASE::"Purch. Inv. Header", PurchInvHeader."No.");
@@ -151,6 +156,7 @@ codeunit 364 "PostPurch-Delete"
     procedure DeletePurchShptLines(ReturnShptHeader: Record "Return Shipment Header")
     var
         ReturnShipmentLine: Record "Return Shipment Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
         ReturnShipmentLine.SetRange("Document No.", ReturnShptHeader."No.");
         if ReturnShipmentLine.Find('-') then
@@ -159,6 +165,10 @@ codeunit 364 "PostPurch-Delete"
                 ReturnShipmentLine.TestField("Quantity Invoiced", ReturnShipmentLine.Quantity);
                 ReturnShipmentLine.Delete();
             until ReturnShipmentLine.Next() = 0;
+
+        ItemChargeAssignmentPurch.CheckAssignment(
+            "Purchase Applies-to Document Type"::"Return Shipment", ReturnShipmentLine."Document No.", ReturnShipmentLine."Line No.");
+
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Return Shipment Line", 0, ReturnShptHeader."No.", '', 0, 0, true);
 

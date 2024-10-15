@@ -529,8 +529,11 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 OutText += GetTotalRecTotalAmt;
             end else begin
                 OutText += FormatNum('0', 36);
-                OutText += GetTotalRecTotalAmt;
-                OutText += FormatNum('0', 13);
+                OutText += GetTotalRecTotalAmt();
+                if "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Purchases then
+                    OutText += FormatNum('0', 13)
+                else
+                    OutText += FormatNum('0', 18);
             end;
         end else
             if "Intrastat Jnl. Batch"."Corrective Entry" then begin

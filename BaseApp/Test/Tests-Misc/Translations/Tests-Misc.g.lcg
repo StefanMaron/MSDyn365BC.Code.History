@@ -6530,6 +6530,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Job Queue Status - NamedType UnsupportedDocTypeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3062479862 - NamedType 179986896" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Contact Business Relation should be Multiple]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Merge Duplicates - NamedType BussRelationErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3062479862 - NamedType 1955155014" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Are you sure you want to merge the two records? This step cannot be undone.]]></Val>
