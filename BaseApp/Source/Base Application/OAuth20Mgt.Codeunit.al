@@ -297,7 +297,11 @@ codeunit 1140 "OAuth 2.0 Mgt."
     procedure CheckEncryption()
     var
         EnvironmentInfo: Codeunit "Environment Information";
+        IsHandled: Boolean;
     begin
+        OnBeforeCheckEncryption(IsHandled);
+        if IsHandled then
+            exit;
         if not EnvironmentInfo.IsSaaS() and not EncryptionEnabled() and GuiAllowed() then
             if Confirm(EncryptionIsNotActivatedQst) then
                 Page.RunModal(Page::"Data Encryption Management");
@@ -428,8 +432,8 @@ codeunit 1140 "OAuth 2.0 Mgt."
     var
         HttpUtility: DotNet HttpUtility;
     begin
-        UrlString := HttpUtility.UrlEncode(StrSubstNo('grant_type=authorization_code&client_secret=%1&client_id=%2&redirect_uri=%3&code=%4',
-            ClientSecret, ClientID, RedirectURI, AuthorizationCode));
+        UrlString := StrSubstNo('grant_type=authorization_code&client_secret=%1&client_id=%2&redirect_uri=%3&code=%4',
+             HttpUtility.UrlEncode(ClientSecret), HttpUtility.UrlEncode(ClientID), HttpUtility.UrlEncode(RedirectURI), HttpUtility.UrlEncode(AuthorizationCode));
     end;
 
     [NonDebuggable]
@@ -447,8 +451,8 @@ codeunit 1140 "OAuth 2.0 Mgt."
     var
         HttpUtility: DotNet HttpUtility;
     begin
-        UrlString := HttpUtility.UrlEncode(StrSubstNo('grant_type=refresh_token&client_secret=%1&client_id=%2&refresh_token=%3',
-            ClientSecret, ClientID, RefreshToken));
+        UrlString := StrSubstNo('grant_type=refresh_token&client_secret=%1&client_id=%2&refresh_token=%3',
+            HttpUtility.UrlEncode(ClientSecret), HttpUtility.UrlEncode(ClientID), HttpUtility.UrlEncode(RefreshToken));
     end;
 
     [NonDebuggable]
@@ -585,19 +589,33 @@ codeunit 1140 "OAuth 2.0 Mgt."
     local procedure InitHttpRequestContent(var RequestMessage: HttpRequestMessage; RequestJson: Text)
     var
         ContentHeaders: HttpHeaders;
+        RequestContent: HttpContent;
         JToken: JsonToken;
+        JValue: JsonValue;
         ContentJToken: JsonToken;
+        ContentTypeJToken: JsonToken;
+        ContentDispositionJToken: JsonToken;
         ContentJson: Text;
     begin
         if JToken.ReadFrom(RequestJson) then
             if JToken.SelectToken('Content', ContentJToken) then begin
+                if ContentJToken.IsObject() then
+                    ContentJToken.WriteTo(ContentJson)
+                else begin
+                    JValue := ContentJToken.AsValue();
+                    ContentJson := JValue.AsText();
+                end;
+                if ContentJson = '' then
+                    exit;
                 RequestMessage.Content().Clear();
-                ContentJToken.WriteTo(ContentJson);
-                RequestMessage.Content().WriteFrom(ContentJson);
-                if JToken.SelectToken('Content-Type', JToken) then begin
+                RequestContent.WriteFrom(ContentJson);
+                RequestMessage.Content := RequestContent;
+                if JToken.SelectToken('Content-Type', ContentTypeJToken) then begin
                     RequestMessage.Content().GetHeaders(ContentHeaders);
                     ContentHeaders.Clear();
-                    ContentHeaders.Add('Content-Type', JToken.AsValue().AsText());
+                    ContentHeaders.Add('Content-Type', ContentTypeJToken.AsValue().AsText());
+                    if JToken.SelectToken('Content-Disposition', ContentDispositionJToken) then
+                        ContentHeaders.Add('Content-Disposition', ContentDispositionJToken.AsValue().AsText());
                 end;
             end;
     end;
@@ -654,7 +672,9 @@ codeunit 1140 "OAuth 2.0 Mgt."
         if ResponseMessage.Content().ReadAs(ResponseText) then
             JsonResponse := ContentJObject.ReadFrom(ResponseText);
         if JsonResponse then
-            ResponseJObject.Add('Content', ContentJObject);
+            ResponseJObject.Add('Content', ContentJObject)
+        else
+            ResponseJObject.Add('ContentText', ResponseText);
 
         if not Result then begin
             HttpError := StrSubstNo('HTTP error %1 (%2)', StatusCode, StatusReason);
@@ -667,5 +687,10 @@ codeunit 1140 "OAuth 2.0 Mgt."
 
         SetHttpStatus(ResponseJObject, StatusCode, StatusReason, StatusDetails);
         ResponseJObject.WriteTo(ResponseJson);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckEncryption(var IsHandled: Boolean)
+    begin
     end;
 }

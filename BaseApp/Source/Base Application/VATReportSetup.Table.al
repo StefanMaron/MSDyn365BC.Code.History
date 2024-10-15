@@ -95,6 +95,10 @@
                     Error(PositivePeriodReminderCalcErr);
             end;
         }
+        field(31; "Report VAT Base"; Boolean)
+        {
+            Caption = 'Report VAT Base';
+        }
         field(4800; "VATGroup Role"; Option)
         {
             ObsoleteState = Removed;
