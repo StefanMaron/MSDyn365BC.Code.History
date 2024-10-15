@@ -1552,6 +1552,9 @@ codeunit 7312 "Create Pick"
                             if TempWhseActivLine."Qty. (Base)" >= PickQtyBase then begin
                                 WhseActivLine.Quantity := WhseActivLine.Quantity + PickQty;
                                 WhseActivLine."Qty. (Base)" := WhseActivLine."Qty. (Base)" + PickQtyBase;
+                                TempWhseActivLine.Quantity -= PickQty;
+                                TempWhseActivLine."Qty. (Base)" -= PickQtyBase;
+                                TempWhseActivLine.Modify();
                                 PickQty := 0;
                                 PickQtyBase := 0;
                             end else begin
@@ -1676,6 +1679,11 @@ codeunit 7312 "Create Pick"
                   WhseAvailMgt.CalcLineReservedQtyOnInvt(
                     DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.",
                     AssemblyLine."Line No.", 0, true, TempWhseActivLine);
+            CreatePickParameters."Whse. Document"::Job:
+                LineReservedQty :=
+                  WhseAvailMgt.CalcLineReservedQtyOnInvt(
+                    Database::Job, 2, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
+                    JobPlanningLine."Line No.", true, TempWhseActivLine);
         end;
 
         QtyReservedOnPickShip := WhseAvailMgt.CalcReservQtyOnPicksShips(Location.Code, ItemNo, VariantCode, TempWhseActivLine);
@@ -1926,7 +1934,7 @@ codeunit 7312 "Create Pick"
     begin
         JobPlanningLine := JobPlanningLine2;
         TempNo := 1;
-        SetSource(DATABASE::Job, 0, JobPlanningLine2."Job No.", JobPlanningLine2."Job Contract Entry No.", JobPlanningLine2."Line No.");
+        SetSource(DATABASE::"Job Planning Line", 2, JobPlanningLine2."Job No.", JobPlanningLine2."Job Contract Entry No.", JobPlanningLine2."Line No.");
     end;
 
     procedure SetTempWhseItemTrkgLine(SourceID: Code[20]; SourceType: Integer; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; LocationCode: Code[10])
@@ -3281,13 +3289,25 @@ codeunit 7312 "Create Pick"
               "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
               "Source Batch Name", "Source Prod. Order Line", "Reservation Status");
             SetRange("Source ID", SourceNo);
-            if SourceType = DATABASE::"Prod. Order Component" then begin
-                SetRange("Source Ref. No.", SourceSubLineNo);
-                SetRange("Source Prod. Order Line", SourceLineNo);
-            end else
-                SetRange("Source Ref. No.", SourceLineNo);
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubType);
+            case SourceType of
+                Database::"Prod. Order Component":
+                    begin
+                        SetRange("Source Ref. No.", SourceSubLineNo);
+                        SetRange("Source Prod. Order Line", SourceLineNo);
+                        SetRange("Source Type", SourceType);
+                        SetRange("Source Subtype", SourceSubType);
+                    end;
+                Database::Job, Database::"Job Planning Line":
+                    begin
+                        SetRange("Source Ref. No.", SourceLineNo);
+                        SetRange("Source Type", Database::"Job Planning Line");
+                        SetRange("Source Subtype", 2);
+                    end;
+                else
+                    SetRange("Source Ref. No.", SourceLineNo);
+                    SetRange("Source Type", SourceType);
+                    SetRange("Source Subtype", SourceSubType);
+            end;
             SetRange("Reservation Status", "Reservation Status"::Reservation);
         end;
     end;
@@ -3352,12 +3372,14 @@ codeunit 7312 "Create Pick"
                     WarehouseEntry.SetRange("Variant Code", "Variant Code");
                     WarehouseEntry.SetTrackingFilterFromBinContentBuffer(TempBinContentBuffer);
                     GetLocation("Location Code");
-                    if Location."Adjustment Bin Code" <> '' then begin
-                        WarehouseEntry.FilterGroup(2);
-                        WarehouseEntry.SetFilter("Bin Code", '<>%1', Location."Adjustment Bin Code");
-                        WarehouseEntry.FilterGroup(0);
+                    if Location."Directed Put-away and Pick" then begin
+                        if Location."Adjustment Bin Code" <> '' then begin
+                            WarehouseEntry.FilterGroup(2);
+                            WarehouseEntry.SetFilter("Bin Code", '<>%1', Location."Adjustment Bin Code");
+                            WarehouseEntry.FilterGroup(0);
+                        end;
+                        WarehouseEntry.SetFilter("Bin Type Code", '<>%1', GetBinTypeFilter(0));
                     end;
-                    WarehouseEntry.SetFilter("Bin Type Code", '<>%1', GetBinTypeFilter(0));
                     WhseItemTrackingSetup.CopyTrackingFromBinContentBuffer(TempBinContentBuffer);
                     if WarehouseEntry.FindSet() then
                         repeat

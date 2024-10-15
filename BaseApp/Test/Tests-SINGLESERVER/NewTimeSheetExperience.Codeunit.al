@@ -18,6 +18,7 @@ codeunit 136506 "New Time Sheet Experience"
         LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJob: Codeunit "Library - Job";
+        LibraryResource: Codeunit "Library - Resource";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         TimeSheetV2Enabled: Boolean;
@@ -1712,6 +1713,50 @@ codeunit 136506 "New Time Sheet Experience"
 
         // [THEN] Time Sheet Details were copied from "S1" to "S2" with Posted Quantity = 0.
         VerifyCopiedTimeSheetDetails(FromTimeSheetHeader, FromTimeSheetLine, ToTimeSheetHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyTimeSheetListOnTeamMemberActivities()
+    var
+        Resource: Record Resource;
+        TimeSheetHeader: Record "Time Sheet Header";
+        CreateTimeSheets: Report "Create Time Sheets";
+        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
+        TeamMemberActivities: TestPage "Team Member Activities";
+        TimeSheetList: TestPage "Time Sheet List";
+    begin
+        // [SCENARIO 447634] Open Current Time sheet' in the role center through error when timesheet exist for some other dates
+        Initialize();
+        EnableTimeSheetV2(NewTimeSheetExperience);
+
+        // [THEN] Deleteall the records created by other test automation for current user. 
+        TimeSheetHeader.DeleteAll();
+
+        // [GIVEN] Create resource and update Use time sheet as true.
+        LibraryResource.CreateResourceWithUsers(Resource);
+        Resource.Validate("Use Time Sheet", true);
+        Resource.Modify(true);
+
+        // [WHEN] User tries to run Report Create Time Sheets
+        CreateTimeSheets.InitParameters(CalcDate('<1M>', WorkDate()), 1, Resource."No.", false, true);
+        CreateTimeSheets.UseRequestPage(false);
+        CreateTimeSheets.Run();
+
+        // [THEN] Filter creating timesheet.
+        TimeSheetHeader.SetFilter("Resource No.", Resource."No.");
+        TimeSheetHeader.FindFirst();
+
+        // [GIVEN] Try to open current timesheet and go to created time sheet record.  
+        TimeSheetList.Trap();
+        TeamMemberActivities.OpenView();
+        TeamMemberActivities.OpenCurrentTimeSheet.Invoke();
+        TimeSheetList.GoToRecord(TimeSheetHeader);
+
+        // [VERIFY] time sheet list is not empty and it contain the creaeted timesheet record.
+        Assert.AreEqual(Resource."No.", TimeSheetList."Resource No.".Value, '');
+
+        UnbindSubscription(NewTimeSheetExperience);
     end;
 
     local procedure Initialize()
