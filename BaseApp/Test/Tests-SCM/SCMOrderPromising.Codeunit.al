@@ -272,8 +272,8 @@ codeunit 137044 "SCM Order Promising"
         // [WHEN] Calculate order promising line for the sales order
         CalcSalesHeaderAvailableToPromise(TempOrderPromisingLine, SalesHeader);
 
-        // [THEN] Earliest shipment date = "D"
-        TempOrderPromisingLine.TestField("Earliest Shipment Date", SalesHeader."Requested Delivery Date");
+        // [THEN] Earliest shipment date = "D" + 1
+        TempOrderPromisingLine.TestField("Earliest Shipment Date", WorkDate + 1);
     end;
 
     [Test]

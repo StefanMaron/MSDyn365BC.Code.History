@@ -42,6 +42,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetPowerBiEmbedUrlTooShortUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSearchEmailUpgradeTag());
         PerCompanyUpgradeTags.Add(GetItemVariantItemIdUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetEmailLoggingUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -355,6 +356,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetItemVariantItemIdUpgradeTag(): Code[250];
     begin
         exit('MS-350552-ItemVariantsItemId-20200327');
+    end;
+
+    procedure GetEmailLoggingUpgradeTag(): Code[250];
+    begin
+        exit('MS-359086-EmailLogging-20200526');
     end;
 }
 

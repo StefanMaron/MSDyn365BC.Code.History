@@ -76,6 +76,7 @@ page 1817 "CRM Connection Setup Wizard"
                 {
                     Caption = '';
                     InstructionalText = 'Specify the user that will be used for synchronization between the two services.';
+                    Visible = IsUserNamePasswordVisible;
                     field(Email; "User Name")
                     {
                         ApplicationArea = Suite;
@@ -95,10 +96,11 @@ page 1817 "CRM Connection Setup Wizard"
                 {
                     InstructionalText = 'This account must be a valid user in Dynamics 365 Sales that does not have the System Administrator role.';
                     ShowCaption = false;
+                    Visible = IsUserNamePasswordVisible;
                 }
                 group("Advanced Settings")
                 {
-                    Caption = 'Advanced Settings';
+                    Caption = 'Advanced Connection Settings';
                     Visible = ShowAdvancedSettings;
                     field(ImportCRMSolution; ImportSolution)
                     {
@@ -223,7 +225,7 @@ page 1817 "CRM Connection Setup Wizard"
                 trigger OnAction()
                 begin
                     if (Step = Step::Start) and ("Server Address" = '') then
-                        Error(CRMURLShouldNotBeEmptyErr, CRMProductName.SHORT);
+                        Error(CRMURLShouldNotBeEmptyErr, CRMProductName.SHORT());
                     NextStep(false);
                 end;
             }
@@ -269,9 +271,11 @@ page 1817 "CRM Connection Setup Wizard"
                 var
                     AssistedSetup: Codeunit "Assisted Setup";
                 begin
-                    if ("User Name" = '') or (Password = '') then
-                        Error(CRMSynchUserCredentialsNeededErr, CRMProductName.SHORT);
-                    if not FinalizeSetup then
+                    if "Authentication Type" = "Authentication Type"::Office365 then
+                        if "User Name" = '' then
+                            Error(CRMSynchUserCredentialsNeededErr, CRMProductName.SHORT());
+
+                    if not FinalizeSetup() then
                         exit;
                     AssistedSetup.Complete(PAGE::"CRM Connection Setup Wizard");
                     Commit();
@@ -284,6 +288,7 @@ page 1817 "CRM Connection Setup Wizard"
     trigger OnInit()
     begin
         LoadTopBanners;
+        SetVisibilityFlags();
     end;
 
     trigger OnOpenPage()
@@ -314,7 +319,7 @@ page 1817 "CRM Connection Setup Wizard"
     begin
         if CloseAction = ACTION::OK then
             if AssistedSetup.ExistsAndIsNotComplete(PAGE::"CRM Connection Setup Wizard") then
-                if not Confirm(ConnectionNotSetUpQst, false, CRMProductName.SHORT) then
+                if not Confirm(ConnectionNotSetUpQst, false, CRMProductName.SHORT()) then
                     Error('');
     end;
 
@@ -344,11 +349,14 @@ page 1817 "CRM Connection Setup Wizard"
         ShowAdvancedSettings: Boolean;
         AdvancedActionEnabled: Boolean;
         SimpleActionEnabled: Boolean;
+        IsUserNamePasswordVisible: Boolean;
+        [NonDebuggable]
         Password: Text;
         ConnectionNotSetUpQst: Label 'The %1 connection has not been set up.\\Are you sure you want to exit?', Comment = '%1 = CRM product name';
         MustUpdateClientsQst: Label 'If you change the web service access key, the current access key will no longer be valid. You must update all clients that use it. Do you want to continue?';
         CRMURLShouldNotBeEmptyErr: Label 'You must specify the URL of your %1 solution.', Comment = '%1 = CRM product name';
         CRMSynchUserCredentialsNeededErr: Label 'You must specify the credentials for the user account for synchronization with %1.', Comment = '%1 = CRM product name';
+        Office365AuthTxt: Label 'AuthType=Office365', Locked = true;
 
     local procedure LoadTopBanners()
     begin
@@ -359,6 +367,18 @@ page 1817 "CRM Connection Setup Wizard"
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")
             then
                 TopBannerVisible := MediaResourcesDone."Media Reference".HasValue;
+    end;
+
+    local procedure SetVisibilityFlags()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+    begin
+        IsUserNamePasswordVisible := true;
+
+        if CDSConnectionSetup.Get() then
+            if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then
+                if not CDSConnectionSetup."Connection String".Contains(Office365AuthTxt) then
+                    IsUserNamePasswordVisible := false;
     end;
 
     local procedure NextStep(Backward: Boolean)
@@ -449,18 +469,24 @@ page 1817 "CRM Connection Setup Wizard"
         end;
     end;
 
+    [NonDebuggable]
     local procedure FinalizeSetup(): Boolean
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         AdminEmail: Text[250];
         AdminPassword: Text;
+        AccessToken: Text;
     begin
         if ImportSolution and ImportCRMSolutionEnabled then begin
-            if not PromptForCredentials(AdminEmail, AdminPassword) then
-                exit(false);
+            if "Authentication Type" = "Authentication Type"::Office365 then
+                CDSIntegrationImpl.GetAccessToken("Server Address", AccessToken)
+            else
+                if not PromptForCredentials(AdminEmail, AdminPassword) then
+                    exit(false);
             CRMIntegrationManagement.ImportCRMSolution(
-              "Server Address", "User Name", AdminEmail, AdminPassword, "Proxy Version");
+              "Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, "Proxy Version", true);
         end;
         if PublishItemAvailabilityService then
             CRMIntegrationManagement.SetupItemAvailabilityService;

@@ -464,7 +464,12 @@ codeunit 5836 "Cost Calculation Management"
     procedure CalcCompItemQtyBase(ProdBOMComponent: Record "Production BOM Line"; CalculationDate: Date; MfgItemQtyBase: Decimal; RtngNo: Code[20]; AdjdForRtngScrap: Boolean): Decimal
     var
         RtngLine: Record "Routing Line";
+        IsHandled: Boolean;
     begin
+        OnBeforeCalcCompItemQtyBase(ProdBOMComponent, CalculationDate, MfgItemQtyBase, RtngNo, AdjdForRtngScrap, IsHandled);
+        if IsHandled then
+            exit(MfgItemQtyBase);
+
         with ProdBOMComponent do begin
             MfgItemQtyBase := CalcQtyAdjdForBOMScrap(MfgItemQtyBase, "Scrap %");
             if AdjdForRtngScrap and FindRountingLine(RtngLine, ProdBOMComponent, CalculationDate, RtngNo) then
@@ -1203,6 +1208,11 @@ codeunit 5836 "Cost Calculation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcActNeededQtyBase(var OutputQtyBase: Decimal; ProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcCompItemQtyBase(ProdBOMComponent: Record "Production BOM Line"; CalculationDate: Date; var MfgItemQtyBase: Decimal; RtngNo: Code[20]; AdjdForRtngScrap: Boolean; var IsHandled: Boolean)
     begin
     end;
 

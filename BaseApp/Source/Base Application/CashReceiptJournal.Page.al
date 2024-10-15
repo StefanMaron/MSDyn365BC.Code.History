@@ -60,6 +60,7 @@ page 255 "Cash Receipt Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number for the journal line.';
+                    ShowMandatory = true;
                 }
                 field("Incoming Document Entry No."; "Incoming Document Entry No.")
                 {

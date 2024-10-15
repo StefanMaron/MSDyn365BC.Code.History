@@ -1370,6 +1370,73 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceZeroCostDeclineCancel()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchInvoiceHeader: Record "Purch. Inv. Header";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        Type: Option Inventory,Service;
+    begin
+        // [SCENARIO 352180] Posted Purchase Invoice with zero amount line cannot be corrected
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice with 1 line and Unit Cost/Line Amount = 0
+        CreateAndPostPurchaseInvForNewItemAndVendor(Item, Type::Inventory, Vendor, 0, 1, PurchInvoiceHeader);
+
+        // [WHEN] Invoice is corrected
+        // [THEN] Error message 'Amount must have a value in Purchase Invoice Header' appears
+        asserterror CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvoiceHeader, FALSE);
+        Assert.ExpectedError(AmountPurchInvErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectPostedSalesInvoice2LinesOneZeroUnitCost()
+    var
+        Vendor: Record Vendor;
+        Item1: Record Item;
+        Item2: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchLine: record "Purchase Line";
+        PurchInvoiceHeader: Record "Purch. Inv. Header";
+        PurchLineType: Enum "Purchase Line Type";
+        PostedPurchInvoiceNo: Code[20];
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        Type: Option Inventory,Service;
+    begin
+        // [SCENARIO 352180] Posted Purchase Invoice with zero linr amount line can be corrected
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice PPI1 with 2 lines. 
+        // Item1, Qty = 1, Unit Cost = 0, Line Amount = 0
+        // Item2, Qty = 1, Unit Cost = 10, Line Amount = 10
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, LibraryPurchase.CreateVendorNo());
+        CreateItemWithCost(Item1, Type::Inventory, 0);
+        CreateItemWithCost(Item2, Type::Inventory, 10);
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchaseHeader, PurchLineType::Item, Item1."No.", 1);
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchaseHeader, PurchLineType::Item, Item2."No.", 1);
+        PostedPurchInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, TRUE, TRUE);
+        PurchInvoiceHeader.GET(PostedPurchInvoiceNo);
+
+        // [WHEN] Correct Posted Invoice is invoked
+        CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvoiceHeader, PurchaseHeader);
+
+        // [THEN] New Purchase Invoice created lines equal to PPI1
+        PurchLine.Reset();
+        LibraryPurchase.FindFirstPurchLine(PurchLine, PurchaseHeader);
+
+        PurchLine.SetRange("No.", Item1."No.");
+        PurchLine.FindFirst();
+        PurchLine.TestField("Unit Cost", 0);
+
+        PurchLine.SetRange("No.", Item2."No.");
+        PurchLine.FindFirst();
+        PurchLine.TestField("Unit Cost", 10);
+    end;
+
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";

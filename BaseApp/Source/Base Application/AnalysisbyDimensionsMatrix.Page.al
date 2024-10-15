@@ -1567,15 +1567,9 @@ page 9249 "Analysis by Dimensions Matrix"
 
     local procedure GetDimValueTotaling(DimValueFilter: Text; DimensionCode: Code[20]): Text
     var
-        DimensionValue: Record "Dimension Value";
+        DimensionManagement: Codeunit DimensionManagement;
     begin
-        if DimensionCode <> '' then begin
-            DimensionValue.SetRange("Dimension Code", DimensionCode);
-            DimensionValue.SetFilter(Code, DimValueFilter);
-            if DimensionValue.FindFirst then
-                if DimensionValue.Totaling <> '' then
-                    exit(DimensionValue.Totaling);
-        end;
+        DimensionManagement.ResolveDimValueFilter(DimValueFilter, DimensionCode);
         exit(DimValueFilter);
     end;
 

@@ -397,7 +397,7 @@ table 5740 "Transfer Header"
         }
         field(24; Comment; Boolean)
         {
-            CalcFormula = Exist ("Inventory Comment Line" WHERE("Document Type" = CONST("Transfer Order"),
+            CalcFormula = Exist("Inventory Comment Line" WHERE("Document Type" = CONST("Transfer Order"),
                                                                 "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -597,7 +597,7 @@ table 5740 "Transfer Header"
         }
         field(5752; "Completely Shipped"; Boolean)
         {
-            CalcFormula = Min ("Transfer Line"."Completely Shipped" WHERE("Document No." = FIELD("No."),
+            CalcFormula = Min("Transfer Line"."Completely Shipped" WHERE("Document No." = FIELD("No."),
                                                                           "Shipment Date" = FIELD("Date Filter"),
                                                                           "Transfer-from Code" = FIELD("Location Filter"),
                                                                           "Derived From Line No." = CONST(0)));
@@ -607,7 +607,7 @@ table 5740 "Transfer Header"
         }
         field(5753; "Completely Received"; Boolean)
         {
-            CalcFormula = Min ("Transfer Line"."Completely Received" WHERE("Document No." = FIELD("No."),
+            CalcFormula = Min("Transfer Line"."Completely Received" WHERE("Document No." = FIELD("No."),
                                                                            "Receipt Date" = FIELD("Date Filter"),
                                                                            "Transfer-to Code" = FIELD("Location Filter"),
                                                                            "Derived From Line No." = CONST(0)));
@@ -652,7 +652,7 @@ table 5740 "Transfer Header"
         }
         field(8000; "Has Shipped Lines"; Boolean)
         {
-            CalcFormula = Exist ("Transfer Line" WHERE("Document No." = FIELD("No."),
+            CalcFormula = Exist("Transfer Line" WHERE("Document No." = FIELD("No."),
                                                        "Quantity Shipped" = FILTER(> 0)));
             Caption = 'Has Shipped Lines';
             FieldClass = FlowField;
@@ -1010,6 +1010,8 @@ table 5740 "Transfer Header"
         if TransLine2.Find('-') then
             TransLine2.DeleteAll();
         PostCodeCheck.DeleteAllAddressID(DATABASE::"Transfer Header", TransHeader2.GetPosition);
+
+        OnDeleteOneTransferOrderOnBeforeTransHeaderDelete(TransHeader2, HideValidationDialog);
         TransHeader2.Delete();
         if not HideValidationDialog then
             Message(TransferOrderPostedMsg1, No);
@@ -1107,11 +1109,7 @@ table 5740 "Transfer Header"
     begin
         TestField("Transfer-from Code");
         TestField("Transfer-to Code");
-        if "Transfer-from Code" = "Transfer-to Code" then
-            Error(
-              Text001,
-              FieldCaption("Transfer-from Code"), FieldCaption("Transfer-to Code"),
-              TableCaption, "No.");
+        CheckTransferFromAndToCodesNotTheSame();
 
         if not "Direct Transfer" then
             TestField("In-Transit Code")
@@ -1123,6 +1121,22 @@ table 5740 "Transfer Header"
         TestField("Posting Date");
 
         OnAfterCheckBeforePost(Rec);
+    end;
+
+    local procedure CheckTransferFromAndToCodesNotTheSame()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckTransferFromAndToCodesNotTheSame(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Transfer-from Code" = "Transfer-to Code" then
+            Error(
+              Text001,
+              FieldCaption("Transfer-from Code"), FieldCaption("Transfer-to Code"),
+              TableCaption, "No.");
     end;
 
     procedure CheckInvtPostingSetup()
@@ -1313,6 +1327,11 @@ table 5740 "Transfer Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTransferFromAndToCodesNotTheSame(TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeDeleteTransferLines(var IsHandled: Boolean)
     begin
     end;
@@ -1344,6 +1363,11 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateTransferToCode(var TransferHeader: Record "Transfer Header"; var xTransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOneTransferOrderOnBeforeTransHeaderDelete(var TransferHeader: Record "Transfer Header"; var HideValidationDialog: Boolean)
     begin
     end;
 
