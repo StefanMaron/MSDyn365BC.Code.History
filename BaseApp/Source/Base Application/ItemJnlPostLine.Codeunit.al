@@ -2444,12 +2444,15 @@
         IsHandled: Boolean;
     begin
         with ValueEntry do begin
-            if CalledFromAdjustment and not PostToGL then
-                exit;
-
             IsHandled := false;
             OnBeforePostInventoryToGL(ValueEntry, IsHandled);
             if IsHandled then
+                exit;
+
+            if not Inventoriable or
+               not CalledFromAdjustment and Item."Inventory Value Zero" or
+               CalledFromAdjustment and not PostToGL
+            then
                 exit;
 
             InventoryPostingToGL.SetRunOnlyCheck(true, not PostToGL, false);
@@ -2992,8 +2995,7 @@
 
             OnBeforeInsertValueEntry(ValueEntry, ItemJnlLine, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment);
 
-            if ValueEntry.Inventoriable and not Item."Inventory Value Zero" then
-                PostInventoryToGL(ValueEntry);
+            PostInventoryToGL(ValueEntry);
 
             ValueEntry."Posting Date" := GetValueEntryPostingDate(ValueEntry, ValueEntry."Posting Date");
             if ValueEntry."Entry Type" <> ValueEntry."Entry Type"::Revaluation then
@@ -4476,8 +4478,7 @@
         OnBeforeInsertCorrValueEntry(
           NewValueEntry, OldValueEntry, ItemJnlLine, Sign, CalledFromAdjustment, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL);
 
-        if NewValueEntry.Inventoriable and not Item."Inventory Value Zero" then
-            PostInventoryToGL(NewValueEntry);
+        PostInventoryToGL(NewValueEntry);
 
         NewValueEntry."Posting Date" := GetValueEntryPostingDate(NewValueEntry, NewValueEntry."Posting Date");
         NewValueEntry.Positive := NewValueEntry."Valued Quantity" > 0;

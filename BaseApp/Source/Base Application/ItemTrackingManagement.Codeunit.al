@@ -1528,9 +1528,11 @@
         if not GetWhseItemTrkgSetup(ItemNo) then
             exit(false);
 
-        WhseShipmentLine.SetSourceFilter(Type, Subtype, ID, RefNo, true);
-        if not WhseShipmentLine.IsEmpty then
-            exit(true);
+        if Location.RequireShipment(LocationCode) then begin
+            WhseShipmentLine.SetSourceFilter(Type, Subtype, ID, RefNo, true);
+            if not WhseShipmentLine.IsEmpty then
+                exit(true);
+        end;
 
         if Type in [DATABASE::"Prod. Order Component", DATABASE::"Prod. Order Line"] then begin
             WhseWkshLine.SetSourceFilter(Type, Subtype, ID, ProdOrderLine, true);

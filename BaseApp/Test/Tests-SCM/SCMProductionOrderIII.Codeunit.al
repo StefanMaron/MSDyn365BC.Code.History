@@ -4259,6 +4259,69 @@ codeunit 137079 "SCM Production Order III"
         ProductionOrder.TestField("Last Date Modified", Today);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingHandlerWithoutApplyToItemEntry,ItemTrackingSummaryPageHandler')]
+    procedure NegativeConsumptionWithItemTracking()
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [FEATURE] [Consumption] [Item Tracking]
+        // [SCENARIO 421872] Create and post negative consumption with item tracking by Calc. Consumption.
+        Initialize();
+
+        // [GIVEN] Lot-tracked item "C"
+        LibraryItemTracking.CreateLotItem(CompItem);
+
+        // [GIVEN] Post 100 pcs of "C" to inventory, assign lot no.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
+          CompItem."No.", LibraryRandom.RandIntInRange(50, 100));
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create production BOM, select "C" as a component.
+        // [GIVEN] Assign the production BOM to finished item "F".
+        CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem, 1);
+        CreateProductionItem(ProdItem, ProductionBOMHeader."No.");
+
+        // [GIVEN] Create and refresh production order for 12 pcs of the finished good "F".
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItem."No.", 12, '', '');
+
+        // [GIVEN] Post output for 12 pcs.
+        CreateAndPostOutputJournalWithExplodeRouting(ProductionOrder."No.", ProductionOrder.Quantity);
+
+        // [GIVEN] Post three iterations of consumption, each for 5 pcs, select lot no. from inventory.
+        CalculateAndPostConsumptionJournalWithItemTracking(ProductionOrder."No.", 5);
+        CalculateAndPostConsumptionJournalWithItemTracking(ProductionOrder."No.", 5);
+        CalculateAndPostConsumptionJournalWithItemTracking(ProductionOrder."No.", 5);
+
+        ProdOrderComponent.SetRange("Item No.", CompItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [WHEN] Calculate consumption by actual output in consumption journal.
+        LibraryManufacturing.CalculateConsumptionForJournal(ProductionOrder, ProdOrderComponent, WorkDate, true);
+
+        // [THEN] Consumption journal line is created. Quantity = 12 - 15 = -3.
+        Clear(ItemJournalLine);
+        SelectItemJournalLine(ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+        ItemJournalLine.TestField(Quantity, -3);
+
+        // [THEN] The consumption journal line has item tracking and can be successfully posted.
+        LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -4571,6 +4634,21 @@ codeunit 137079 "SCM Production Order III"
         LibraryManufacturing.CalculateConsumption(
           ProductionOrderNo, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
         SelectItemJournalLine(ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+        LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+    end;
+
+    local procedure CalculateAndPostConsumptionJournalWithItemTracking(ProductionOrderNo: Code[20]; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.ClearItemJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
+        LibraryManufacturing.CalculateConsumption(
+          ProductionOrderNo, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+        SelectItemJournalLine(ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+        ItemJournalLine.Validate(Quantity, Qty);
+        ItemJournalLine.Modify(true);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);
+        ItemJournalLine.OpenItemTrackingLines(false);
         LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
     end;
 
