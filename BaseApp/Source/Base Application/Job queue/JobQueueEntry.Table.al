@@ -854,11 +854,50 @@ table 472 "Job Queue Entry"
         exit(false);
     end;
 
-    procedure ReuseExistingJobFromCatagory(JobQueueCatagoryCode: Code[10]; ExecutionDateTime: DateTime): Boolean
+#if not CLEAN20
+    [Obsolete('Renamed function to ReuseExistingJobFromCategory', '20.0')]
+    procedure ReuseExistingJobFromCatagory(JobQueueCategoryCode: Code[10]; ExecutionDateTime: DateTime): Boolean
     begin
-        SetRange("Job Queue Category Code", JobQueueCatagoryCode);
+        exit(ReuseExistingJobFromCategory(JobQueueCategoryCode, ExecutionDateTime));
+    end;
+#endif
+
+    procedure ReuseExistingJobFromCategory(JobQueueCategoryCode: Code[10]; ExecutionDateTime: DateTime): Boolean
+    begin
+        SetRange("Job Queue Category Code", JobQueueCategoryCode);
         if FindFirst() then
             exit(ReuseExistingJobFromID(ID, ExecutionDateTime));
+
+        exit(false);
+    end;
+
+    procedure ReuseExistingJobFromCategoryAndUser(JobQueueCategoryCode: Code[10]; UserId: Text; ExecutionDateTime: DateTime): Boolean
+    begin
+        Rec.SetRange("Job Queue Category Code", JobQueueCategoryCode);
+        Rec.SetRange("User ID", CopyStr(UserId, 1, MaxStrLen(Rec."User ID")));
+        if Rec.FindFirst() then
+            exit(ReuseExistingJobFromID(Rec.ID, ExecutionDateTime));
+
+        exit(false);
+    end;
+
+    internal procedure ReuseExistingJobFromCategoryAndParamString(JobQueueCategoryCode: Code[10]; ParamString: Text[250]; ExecutionDateTime: DateTime): Boolean
+    begin
+        Rec.SetRange("Job Queue Category Code", JobQueueCategoryCode);
+        Rec.SetRange("Parameter String", ParamString);
+        if Rec.FindFirst() then
+            exit(ReuseExistingJobFromID(Rec.ID, ExecutionDateTime));
+
+        exit(false);
+    end;
+
+    internal procedure ReuseExistingJobFromUserCategoryAndParamString(UserId: Text; JobQueueCategoryCode: Code[10]; ParamString: Text[250]; ExecutionDateTime: DateTime): Boolean
+    begin
+        Rec.SetRange("User ID", CopyStr(UserId, 1, MaxStrLen(Rec."User ID")));
+        Rec.SetRange("Job Queue Category Code", JobQueueCategoryCode);
+        Rec.SetRange("Parameter String", ParamString);
+        if Rec.FindFirst() then
+            exit(ReuseExistingJobFromID(Rec.ID, ExecutionDateTime));
 
         exit(false);
     end;
@@ -959,7 +998,14 @@ table 472 "Job Queue Entry"
     end;
 
     local procedure SetRecurringField()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetRecurringField(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         "Recurring Job" :=
           "Run on Mondays" or "Run on Tuesdays" or "Run on Wednesdays" or "Run on Thursdays" or
           "Run on Fridays" or "Run on Saturdays" or "Run on Sundays" or (Format("Next Run Date Formula") <> '');
@@ -1379,6 +1425,11 @@ table 472 "Job Queue Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeScheduleTask(var JobQueueEntry: Record "Job Queue Entry"; var TaskGUID: Guid; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetRecurringField(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
     begin
     end;
 

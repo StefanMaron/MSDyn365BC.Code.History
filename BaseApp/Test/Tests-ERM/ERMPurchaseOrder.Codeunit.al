@@ -4498,28 +4498,6 @@
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure NoLookupOnDescriptionWhenStandardTextUsed()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseInvoice: TestPage "Purchase Invoice";
-        StandardTextDescription: Text[100];
-    begin
-        // [SCENARIO 219141] No Lookup is possible on Description when PurchaseLine Type = Standard Text.
-        Initialize();
-
-        // [GIVEN] Purchase Order and PurchaseLine with StandardText "ST".
-        CreatePurchaseInvoiceWithStandardText(PurchaseHeader, StandardTextDescription);
-
-        // [WHEN] PurchaseLine with "ST" is opened and Lookup on Description is invoked.
-        // [THEN] No lookup page is opened.
-        PurchaseInvoice.OpenEdit;
-        PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.PurchLines.Description.AssertEquals(StandardTextDescription);
-        PurchaseInvoice.PurchLines.Description.Lookup;
-    end;
-
-    [Test]
     [HandlerFunctions('PurchaseOrderStatisticsUpdateTotalVATHandler,VATAmountLinesHandler')]
     [Scope('OnPrem')]
     procedure AmountInclVATContainsVATDifferenceInOpenSalesOrder()

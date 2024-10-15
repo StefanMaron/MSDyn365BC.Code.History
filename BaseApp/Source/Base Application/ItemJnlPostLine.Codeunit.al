@@ -1015,6 +1015,8 @@
     var
         ValueEntry: Record "Value Entry";
     begin
+        OnBeforeInsertCapValueEntryProcedure(ItemJnlLine, ValueEntryType, ValuedQty, InvdQty, AdjdCost);
+
         with ItemJnlLine do begin
             if (InvdQty = 0) and (AdjdCost = 0) then
                 exit;
@@ -1759,7 +1761,7 @@
         UseReservationApplication: Boolean;
         Handled: Boolean;
     begin
-        OnBeforeApplyItemLedgEntry(ItemLedgEntry, OldItemLedgEntry, ValueEntry, CausedByTransfer, Handled, ItemJnlLine);
+        OnBeforeApplyItemLedgEntry(ItemLedgEntry, OldItemLedgEntry, ValueEntry, CausedByTransfer, Handled, ItemJnlLine, ItemApplnEntryNo);
         if Handled then
             exit;
 
@@ -1799,16 +1801,19 @@
 
                 UseReservationApplication := ReservEntry.FindFirst;
 
-                if not UseReservationApplication then begin // No reservations exist
-                    ReservEntry.SetRange(
-                      "Reservation Status", ReservEntry."Reservation Status"::Tracking,
-                      ReservEntry."Reservation Status"::Prospect);
-                    if ReservEntry.FindSet then
-                        repeat
-                            ReservEngineMgt.CloseSurplusTrackingEntry(ReservEntry);
-                        until ReservEntry.Next() = 0;
-                    StartApplication := true;
-                end;
+                Handled := false;
+                OnApplyItemLedgEntryOnBeforeCloseSurplusTrackingEntry(ItemJnlLine, StartApplication, UseReservationApplication, Handled);
+                if not Handled then
+                    if not UseReservationApplication then begin // No reservations exist
+                        ReservEntry.SetRange(
+                          "Reservation Status", ReservEntry."Reservation Status"::Tracking,
+                          ReservEntry."Reservation Status"::Prospect);
+                        if ReservEntry.FindSet() then
+                            repeat
+                                ReservEngineMgt.CloseSurplusTrackingEntry(ReservEntry);
+                            until ReservEntry.Next() = 0;
+                        StartApplication := true;
+                    end;
 
                 if UseReservationApplication then begin
                     ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
@@ -2366,7 +2371,7 @@
 
             ItemLedgEntry.UpdateItemTracking;
 
-            OnBeforeInsertItemLedgEntry(ItemLedgEntry, ItemJnlLine, TransferItem, OldItemLedgEntry);
+            OnBeforeInsertItemLedgEntry(ItemLedgEntry, ItemJnlLine, TransferItem, OldItemLedgEntry, ItemJnlLineOrigin);
             ItemLedgEntry.Insert(true);
             OnAfterInsertItemLedgEntry(ItemLedgEntry, ItemJnlLine, ItemLedgEntryNo, ValueEntryNo, ItemApplnEntryNo, GlobalValueEntry, TransferItem, InventoryPostingToGL, OldItemLedgEntry);
 
@@ -2394,6 +2399,7 @@
                 ItemReg."Source Code" := "Source Code";
                 ItemReg."Journal Batch Name" := "Journal Batch Name";
                 ItemReg."User ID" := UserId;
+                OnInsertItemRegOnBeforeItemRegInsert(ItemReg, ItemJnlLine);
                 ItemReg.Insert();
             end else begin
                 if ((ItemLedgEntryNo < ItemReg."From Entry No.") and (ItemLedgEntryNo <> 0)) or
@@ -5419,8 +5425,15 @@
             until TempValueEntry.Next() = 0;
     end;
 
-    local procedure GetSourceNo(ItemJnlLine: Record "Item Journal Line"): Code[20]
+    local procedure GetSourceNo(ItemJnlLine: Record "Item Journal Line") Result: Code[20]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSourceNo(ItemJnlLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if ItemJnlLine."Invoice-to Source No." <> '' then
             exit(ItemJnlLine."Invoice-to Source No.");
         exit(ItemJnlLine."Source No.");
@@ -5687,7 +5700,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeApplyItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry"; var OldItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; CausedByTransfer: Boolean; var Handled: Boolean; ItemJnlLine: Record "Item Journal Line")
+    local procedure OnBeforeApplyItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry"; var OldItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; CausedByTransfer: Boolean; var Handled: Boolean; ItemJnlLine: Record "Item Journal Line"; var ItemApplnEntryNo: Integer)
     begin
     end;
 
@@ -5777,6 +5790,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSourceNo(ItemJournalLine: Record "Item Journal Line"; var Result: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPostFlushedConsump(var ProdOrderComp: Record "Prod. Order Component"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; OldItemJnlLine: Record "Item Journal Line")
     begin
     end;
@@ -5802,7 +5820,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; TransferItem: Boolean; OldItemLedgEntry: Record "Item Ledger Entry")
+    local procedure OnBeforeInsertItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; TransferItem: Boolean; OldItemLedgEntry: Record "Item Ledger Entry"; ItemJournalLineOrigin: Record "Item Journal Line")
     begin
     end;
 
@@ -5843,6 +5861,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertCapValueEntry(var ValueEntry: Record "Value Entry"; ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertCapValueEntryProcedure(ItemJournalLine: Record "Item Journal Line"; ValueEntryType: Enum "Cost Entry Type"; var ValuedQty: Decimal; var InvdQty: Decimal; var AdjdCost: Decimal)
     begin
     end;
 
@@ -6368,6 +6391,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertItemLedgEntryOnBeforeSNQtyCheck(ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemRegOnBeforeItemRegInsert(var ItemRegister: Record "Item Register"; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -7092,6 +7120,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyItemLedgEntryOnBeforeFirstReservationSetFilters(var ItemJnlLine: Record "Item Journal Line"; var StartApplication: Boolean; FirstReservation: Boolean; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyItemLedgEntryOnBeforeCloseSurplusTrackingEntry(ItemJnlLine: Record "Item Journal Line"; var StartApplication: Boolean; var UseReservationApplication: Boolean; var Handled: Boolean)
     begin
     end;
 

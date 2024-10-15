@@ -304,6 +304,8 @@ codeunit 350 IntraJnlManagement
 
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: True');
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo("Conversion Factor"), 'Supplementary Units: True');
+
+        OnAfterCreateDefaultAdvancedIntrastatSetup();
     end;
 
     local procedure CreateAdvancedChecklistSetupCommonFields(ReportId: Integer)
@@ -354,6 +356,11 @@ codeunit 350 IntraJnlManagement
             exit(TotalWeight);
 
         exit(Round(TotalWeight, 1));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDefaultAdvancedIntrastatSetup()
+    begin
     end;
 
     [IntegrationEvent(false, false)]

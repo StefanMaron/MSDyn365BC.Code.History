@@ -651,7 +651,7 @@ page 233 "Apply Vendor Entries"
             if OK then begin
                 if Rec."Amount to Apply" = 0 then
                     Rec."Amount to Apply" := Rec."Remaining Amount";
-                CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", Rec);
+                RunVendEntryEdit(Rec);
             end;
         end;
 
@@ -662,7 +662,9 @@ page 233 "Apply Vendor Entries"
                 Rec."Applies-to ID" := '';
                 Rec."Amount to Apply" := 0;
             end;
-            CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", Rec);
+
+
+            RunVendEntryEdit(Rec);
         end;
     end;
 
@@ -743,6 +745,12 @@ page 233 "Apply Vendor Entries"
         end;
 
         SetApplyingVendLedgEntry();
+    end;
+
+    local procedure RunVendEntryEdit(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+        OnBeforeRunVendEntryEdit(VendorLedgerEntry);
+        CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendorLedgerEntry);
     end;
 
     procedure SetPurch(NewPurchHeader: Record "Purchase Header"; var NewVendLedgEntry: Record "Vendor Ledger Entry"; ApplnTypeSelect: Integer)
@@ -828,6 +836,7 @@ page 233 "Apply Vendor Entries"
                         ApplnDate := ApplyingVendLedgEntry."Posting Date";
                         ApplnCurrencyCode := ApplyingVendLedgEntry."Currency Code";
                     end;
+                    OnSetApplyingVendLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(ApplyingAmount, ApplyingVendLedgEntry);
                     CalcApplnAmount();
                 end;
             CalcType::"Gen. Jnl. Line":
@@ -849,6 +858,7 @@ page 233 "Apply Vendor Entries"
                     CalcApplnAmount();
                 end;
         end;
+        OnAfterSetApplyingVendLedgEntry(ApplyingVendLedgEntry, GenJnlLine, PurchHeader);
     end;
 
     procedure SetVendApplId(CurrentRec: Boolean)
@@ -862,12 +872,24 @@ page 233 "Apply Vendor Entries"
             VendLedgEntry.SetRecFilter()
         else
             CurrPage.SetSelectionFilter(VendLedgEntry);
+        CallVendEntrySetApplIDSetApplId();
+
+        CalcApplnAmount();
+    end;
+
+    local procedure CallVendEntrySetApplIDSetApplId()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCallVendEntrySetApplIDSetApplId(VendEntrySetApplID, VendLedgEntry, ApplyingVendLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if GenJnlLineApply then
             VendEntrySetApplID.SetApplId(VendLedgEntry, ApplyingVendLedgEntry, GenJnlLine."Applies-to ID")
         else
             VendEntrySetApplID.SetApplId(VendLedgEntry, ApplyingVendLedgEntry, PurchHeader."Applies-to ID");
-
-        CalcApplnAmount();
     end;
 
     procedure CheckVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
@@ -1017,7 +1039,7 @@ page 233 "Apply Vendor Entries"
                 end;
         end;
 
-        OnAfterCalcApplnAmount(Rec, AppliedAmount, ApplyingAmount);
+        OnAfterCalcApplnAmount(Rec, AppliedAmount, ApplyingAmount, CalcType, AppliedVendLedgEntry, GenJnlLine);
     end;
 
     local procedure CalcApplnRemainingAmount(Amount: Decimal): Decimal
@@ -1125,6 +1147,7 @@ page 233 "Apply Vendor Entries"
                 ApplnDate := VendLedgEntry."Posting Date";
                 ApplnCurrencyCode := VendLedgEntry."Currency Code";
             end;
+            OnFindApplyingEntryOnBeforeCalcApplnAmount(Rec);
             CalcApplnAmount();
         end;
     end;
@@ -1141,7 +1164,7 @@ page 233 "Apply Vendor Entries"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeHandledChosenEntries(Type.AsInteger(), CurrentAmount, CurrencyCode, PostingDate, AppliedVendLedgEntry, IsHandled);
+        OnBeforeHandledChosenEntries(Type.AsInteger(), CurrentAmount, CurrencyCode, PostingDate, AppliedVendLedgEntry, IsHandled, VendLedgEntry);
         if IsHandled then
             exit;
 
@@ -1415,7 +1438,7 @@ page 233 "Apply Vendor Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcApplnAmount(VendorLedgerEntry: Record "Vendor Ledger Entry"; var AppliedAmount: Decimal; var ApplyingAmount: Decimal)
+    local procedure OnAfterCalcApplnAmount(VendorLedgerEntry: Record "Vendor Ledger Entry"; var AppliedAmount: Decimal; var ApplyingAmount: Decimal; CalcType: Enum "Vendor Apply Calculation Type"; var AppliedVendLedgEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -1447,6 +1470,16 @@ page 233 "Apply Vendor Entries"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetApplyingVendLedgEntry(var TempApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCallVendEntrySetApplIDSetApplId(VendEntrySetApplID: Codeunit "Vend. Entry-SetAppl.ID"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var TempApplyingVendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcApplnAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
@@ -1457,8 +1490,13 @@ page 233 "Apply Vendor Entries"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeHandledChosenEntries(Type: Option Direct,GenJnlLine,PurchHeader; CurrentAmount: Decimal; CurrencyCode: Code[10]; PostingDate: Date; var AppliedVendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnFindApplyingEntryOnBeforeCalcApplnAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeHandledChosenEntries(Type: Option Direct,GenJnlLine,PurchHeader; CurrentAmount: Decimal; CurrencyCode: Code[10]; PostingDate: Date; var AppliedVendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
@@ -1477,6 +1515,11 @@ page 233 "Apply Vendor Entries"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeRunVendEntryEdit(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnFindApplyingEntryOnAfterSetFilters(ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
@@ -1489,6 +1532,11 @@ page 233 "Apply Vendor Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDirectApplicationBeforeApply()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnSetApplyingVendLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(var ApplyingAmount: Decimal; var ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 

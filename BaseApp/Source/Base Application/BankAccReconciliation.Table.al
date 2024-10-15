@@ -387,7 +387,13 @@ table 273 "Bank Acc. Reconciliation"
     procedure MatchSingle(DateRange: Integer)
     var
         MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMatchSingle(Rec, DateRange, IsHandled);
+        if IsHandled then
+            exit;
+
         MatchBankRecLines.MatchSingle(Rec, DateRange);
     end;
 
@@ -797,6 +803,11 @@ table 273 "Bank Acc. Reconciliation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeImportAndProcessToNewStatement(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var DataExch: Record "Data Exch."; var DataExchDef: Record "Data Exch. Def"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMatchSingle(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; DateRange: Integer; var IsHandled: Boolean)
     begin
     end;
 

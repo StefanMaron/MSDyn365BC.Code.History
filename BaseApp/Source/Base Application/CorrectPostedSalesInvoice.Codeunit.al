@@ -386,7 +386,7 @@
                     end;
 
                     TestGenPostingSetup(SalesInvoiceLine);
-                    TestCustomerPostingGroup(SalesInvoiceLine, SalesInvoiceHeader."Customer Posting Group");
+                    TestCustomerPostingGroup(SalesInvoiceHeader);
                     TestVATPostingSetup(SalesInvoiceLine);
                     TestWMSLocation(SalesInvoiceLine);
 
@@ -417,8 +417,35 @@
         end;
     end;
 
-    local procedure TestIfInvoiceIsPaid(SalesInvoiceHeader: Record "Sales Invoice Header")
+    local procedure TestGLAccount(AccountNo: Code[20]; SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        GLAccount: Record "G/L Account";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        DimensionManagement: Codeunit DimensionManagement;
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
     begin
+        GLAccount.Get(AccountNo);
+        if GLAccount.Blocked then
+            ErrorHelperAccount(ErrorType::AccountBlocked, AccountNo, GLAccount.TableCaption, '', '');
+        TableID[1] := DATABASE::"G/L Account";
+        No[1] := AccountNo;
+
+        if not DimensionManagement.CheckDimValuePosting(TableID, No, SalesInvoiceHeader."Dimension Set ID") then
+            ErrorHelperAccount(
+                ErrorType::DimErr, AccountNo, GLAccount.TableCaption,
+                SalesInvoiceHeader."Customer Posting Group", CustomerPostingGroup.TableCaption);
+    end;
+
+    local procedure TestIfInvoiceIsPaid(SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestIfInvoiceIsPaid(SalesInvoiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         SalesInvoiceHeader.CalcFields("Remaining Amount");
         if SalesInvoiceHeader."Amount Including VAT" <> SalesInvoiceHeader."Remaining Amount" then
@@ -561,14 +588,14 @@
         end;
     end;
 
-    local procedure TestCustomerPostingGroup(SalesInvoiceLine: Record "Sales Invoice Line"; CustomerPostingGr: Code[20])
+    local procedure TestCustomerPostingGroup(SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         with CustomerPostingGroup do begin
-            Get(CustomerPostingGr);
+            Get(SalesInvoiceHeader."Customer Posting Group");
             TestField("Receivables Account");
-            TestGLAccount("Receivables Account", SalesInvoiceLine);
+            TestGLAccount("Receivables Account", SalesInvoiceHeader);
         end;
     end;
 
@@ -982,6 +1009,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnOnRunOnAfterUpdateSalesOrderLinesFromCancelledInvoice(var Rec: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestIfInvoiceIsPaid(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 }

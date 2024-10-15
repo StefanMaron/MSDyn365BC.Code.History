@@ -379,22 +379,34 @@
             IntrastatJnlBatch.TestField("System 29 reported", false);
     end;
 
-    procedure GetCountryOfOriginCode(): Code[10]
+    procedure GetCountryOfOriginCode() CountryOfOriginCode: Code[10]
     var
         CompanyInformation: Record "Company Information";
     begin
         if not Item.Get("Item No.") then
-            exit('');
-        if Item."Country/Region of Origin Code" <> '' then
-            exit(Item."Country/Region of Origin Code");
-        CompanyInformation.Get();
-        if CompanyInformation."Country/Region Code" <> '' then
-            exit(CompanyInformation."Country/Region Code");
-        exit('QU');
+            CountryOfOriginCode := ''
+        else
+            if Item."Country/Region of Origin Code" <> '' then
+                CountryOfOriginCode := Item."Country/Region of Origin Code"
+            else begin
+                CompanyInformation.Get();
+                if CompanyInformation."Country/Region Code" <> '' then
+                    CountryOfOriginCode := CompanyInformation."Country/Region Code"
+                else
+                    CountryOfOriginCode := 'QU';
+            end;
+        OnAfterGetCountryOfOriginCode(Rec, CountryOfOriginCode);
     end;
 
-    procedure GetPartnerID(): Text[50]
+    procedure GetPartnerID() PartnerID: Text[50]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetPartnerID(Rec, PartnerID, IsHandled);
+        if IsHandled then
+            exit(PartnerID);
+
         case "Source Type" of
             "Source Type"::"Job Entry":
                 exit(GetPartnerIDFromJobEntry());
@@ -420,37 +432,22 @@
         Vendor: Record Vendor;
         TransferReceiptHeader: Record "Transfer Receipt Header";
         TransferShipmentHeader: Record "Transfer Shipment Header";
+        EU3rdPartyTrade: Boolean;
     begin
         ItemLedgerEntry.Get("Source Entry No.");
         case ItemLedgerEntry."Document Type" of
             ItemLedgerEntry."Document Type"::"Sales Invoice":
                 if SalesInvoiceHeader.Get(ItemLedgerEntry."Document No.") then
-                    exit(
-                      GetPartnerIDForCountry(
-                        SalesInvoiceHeader."Bill-to Country/Region Code",
-                        SalesInvoiceHeader."VAT Registration No.", SalesInvoiceHeader."Enterprise No.",
-                        IsCustomerPrivatePerson(SalesInvoiceHeader."Bill-to Customer No."), SalesInvoiceHeader."EU 3-Party Trade"));
+                    EU3rdPartyTrade := SalesInvoiceHeader."EU 3-Party Trade";
             ItemLedgerEntry."Document Type"::"Sales Credit Memo":
                 if SalesCrMemoHeader.Get(ItemLedgerEntry."Document No.") then
-                    exit(
-                      GetPartnerIDForCountry(
-                        SalesCrMemoHeader."Bill-to Country/Region Code",
-                        SalesCrMemoHeader."VAT Registration No.", SalesCrMemoHeader."Enterprise No.",
-                        IsCustomerPrivatePerson(SalesCrMemoHeader."Bill-to Customer No."), SalesCrMemoHeader."EU 3-Party Trade"));
+                    EU3rdPartyTrade := SalesCrMemoHeader."EU 3-Party Trade";
             ItemLedgerEntry."Document Type"::"Sales Shipment":
                 if SalesShipmentHeader.Get(ItemLedgerEntry."Document No.") then
-                    exit(
-                      GetPartnerIDForCountry(
-                        SalesShipmentHeader."Bill-to Country/Region Code",
-                        SalesShipmentHeader."VAT Registration No.", SalesShipmentHeader."Enterprise No.",
-                        IsCustomerPrivatePerson(SalesShipmentHeader."Bill-to Customer No."), SalesShipmentHeader."EU 3-Party Trade"));
+                    EU3rdPartyTrade := SalesShipmentHeader."EU 3-Party Trade";
             ItemLedgerEntry."Document Type"::"Sales Return Receipt":
                 if ReturnReceiptHeader.Get(ItemLedgerEntry."Document No.") then
-                    exit(
-                      GetPartnerIDForCountry(
-                        ReturnReceiptHeader."Bill-to Country/Region Code",
-                        ReturnReceiptHeader."VAT Registration No.", ReturnReceiptHeader."Enterprise No.",
-                        IsCustomerPrivatePerson(ReturnReceiptHeader."Bill-to Customer No."), ReturnReceiptHeader."EU 3-Party Trade"));
+                    EU3rdPartyTrade := ReturnReceiptHeader."EU 3-Party Trade";
             ItemLedgerEntry."Document Type"::"Purchase Credit Memo":
                 if PurchCrMemoHdr.Get(ItemLedgerEntry."Document No.") then
                     exit(
@@ -518,7 +515,7 @@
                     exit(
                       GetPartnerIDForCountry(
                         ItemLedgerEntry."Country/Region Code", Customer."VAT Registration No.", Customer."Enterprise No.",
-                        Customer."Partner Type" = Customer."Partner Type"::Person, false));
+                        Customer."Partner Type" = Customer."Partner Type"::Person, EU3rdPartyTrade));
                 end;
             ItemLedgerEntry."Source Type"::Vendor:
                 begin
@@ -587,6 +584,11 @@
         exit(false);
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCountryOfOriginCode(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var CountryOfOriginCode: Code[10])
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckBatchIsNotReported(xIntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var IsHandled: Boolean)
     begin
@@ -594,6 +596,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeGetItemDescription(var IsHandled: Boolean; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPartnerID(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var PartnerID: Text[50]; var IsHandled: Boolean)
     begin
     end;
 }

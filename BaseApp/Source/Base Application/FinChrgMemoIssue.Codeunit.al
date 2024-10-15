@@ -103,8 +103,7 @@ codeunit 395 "FinChrgMemo-Issue"
                                 FinChrgMemoLine.TestField("Entry No.");
                                 CustLedgEntry.Get(FinChrgMemoLine."Entry No.");
                                 CustLedgEntry.TestField("Currency Code", "Currency Code");
-                                if FinChrgMemoLine.Amount < 0 then
-                                    FinChrgMemoLine.FieldError(Amount, Text001);
+                                CheckNegativeFinChrgMemoLineAmount(FinChrgMemoLine);
                                 FinChrgMemoInterestAmount := FinChrgMemoInterestAmount + FinChrgMemoLine.Amount;
                                 FinChrgMemoInterestVATAmount := FinChrgMemoInterestVATAmount + FinChrgMemoLine."VAT Amount";
                             end;
@@ -279,6 +278,18 @@ codeunit 395 "FinChrgMemo-Issue"
         end;
     end;
 
+    local procedure CheckNegativeFinChrgMemoLineAmount(FinChrgMemoLine: Record "Finance Charge Memo Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckNegativeFinChrgMemoLineAmount(FinChrgMemoHeader, FinChrgMemoLine, FinChrgTerms, IsHandled);
+        if IsHandled then
+            exit;
+        if FinChrgMemoLine.Amount < 0 then
+            FinChrgMemoLine.FieldError(Amount, Text001);
+    end;
+
     procedure DeleteIssuedFinChrgLines(IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header")
     var
         IssuedFinChrgMemoLine: Record "Issued Fin. Charge Memo Line";
@@ -387,6 +398,7 @@ codeunit 395 "FinChrgMemo-Issue"
             "Interest Amount" := FinChrgMemoLine.Amount;
             "Interest Posted" := (FinChrgMemoInterestAmount <> 0) and FinChrgMemoHeader."Post Interest";
             "User ID" := UserId;
+            OnBeforeInsertFinChargeEntry(ReminderFinChargeEntry, FinChrgMemoHeader, FinChrgMemoLine);
             Insert;
         end;
     end;
@@ -453,6 +465,11 @@ codeunit 395 "FinChrgMemo-Issue"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertFinChargeEntry(var ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; FinanceChargeMemoLine: Record "Finance Charge Memo Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeIssueFinChargeMemo(var FinChargeMemoHeader: Record "Finance Charge Memo Header")
     begin
     end;
@@ -479,6 +496,11 @@ codeunit 395 "FinChrgMemo-Issue"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetFinChrgMemoLine(FinChrgMemoLine: Record "Finance Charge Memo Line"; DocNo: Code[20]; CurrencyFactor: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNegativeFinChrgMemoLineAmount(FinChrgMemoHeader: Record "Finance Charge Memo Header"; FinChrgMemoLine: Record "Finance Charge Memo Line"; FinChrgTerms: Record "Finance Charge Terms"; var IsHandled: Boolean)
     begin
     end;
 

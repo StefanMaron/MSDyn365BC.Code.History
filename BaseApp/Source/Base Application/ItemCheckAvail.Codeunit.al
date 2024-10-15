@@ -533,7 +533,14 @@ codeunit 311 "Item-Check Avail."
     end;
 
     procedure RaiseUpdateInterruptedError()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRaiseUpdateInterruptedError(IsHandled);
+        if IsHandled then
+            exit;
+
         Error(Text000);
     end;
 
@@ -712,6 +719,11 @@ codeunit 311 "Item-Check Avail."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateAndSendNotification(ItemNo: Code[20]; UnitOfMeasureCode: Code[20]; InventoryQty: Decimal; GrossReq: Decimal; ReservedReq: Decimal; SchedRcpt: Decimal; ReservedRcpt: Decimal; CurrentQuantity: Decimal; CurrentReservedQty: Decimal; TotalQuantity: Decimal; EarliestAvailDate: Date; RecordId: RecordID; LocationCode: Code[10]; ContextInfo: Dictionary of [Text, Text]; var Rollback: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeRaiseUpdateInterruptedError(var IsHandled: Boolean)
     begin
     end;
 

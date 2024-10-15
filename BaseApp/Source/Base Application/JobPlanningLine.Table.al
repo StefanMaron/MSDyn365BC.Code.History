@@ -338,7 +338,7 @@
                 "Bin Code" := '';
                 if Type = Type::Item then begin
                     GetLocation("Location Code");
-                    Location.TestField("Directed Put-away and Pick", false);
+                    EnsureDirectedPutawayandPickFalse(Location);
                     CheckItemAvailable(FieldNo("Location Code"));
                     UpdateReservation(FieldNo("Location Code"));
                     Validate(Quantity);
@@ -1379,6 +1379,18 @@
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
+    end;
+
+    local procedure EnsureDirectedPutawayandPickFalse(var Location: Record Location)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeEnsureDirectedPutawayandPickFalse(Rec, Location, IsHandled);
+        if IsHandled then
+            exit;
+
+        Location.TestField("Directed Put-away and Pick", false);
     end;
 
     local procedure GetJob()
@@ -2542,6 +2554,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromResource(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEnsureDirectedPutawayandPickFalse(var JobPlanningLine: Record "Job Planning Line"; Location: Record Location; var IsHandled: Boolean)
     begin
     end;
 

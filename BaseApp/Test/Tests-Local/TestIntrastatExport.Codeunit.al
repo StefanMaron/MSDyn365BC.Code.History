@@ -424,7 +424,8 @@ codeunit 144052 "Test Intrastat Export"
     [Scope('OnPrem')]
     procedure GetPartnerIDFromEnterpriseNoOfSalesInvoice()
     var
-        Customer: Record Customer;
+        BillToCustomer: Record Customer;
+        SellToCustomer: Record Customer;
         ItemLedgerEntry: Record "Item Ledger Entry";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -437,9 +438,10 @@ codeunit 144052 "Test Intrastat Export"
         UpdateShipmentOnInvoiceSalesSetup(false);
 
         // [GIVEN] Bill-to Customer with Enterprise No. = '123456'
-        Customer.Get(CreateEUCustomerWithVATRegNo);
-        ResetCustomerVATRegNo(Customer);
-        CreatePostSalesInvoice(ItemLedgerEntry, CreateEUCustomerWithVATRegNo, Customer."No.", CreateItemWithTariffNo);
+        BillToCustomer.Get(CreateEUCustomerWithVATRegNo);
+        SellToCustomer.Get(CreateEUCustomerWithVATRegNo);
+        ResetCustomerVATRegNo(SellToCustomer);
+        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo);
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -447,8 +449,8 @@ codeunit 144052 "Test Intrastat Export"
 
         // [THEN] Partner VAT ID  = '123456' in Intrastat Journal Line
         SalesInvoiceHeader.Get(ItemLedgerEntry."Document No.");
-        SalesInvoiceHeader.TestField("Enterprise No.", Customer."Enterprise No.");
-        VerifyPartnerID(IntrastatJnlBatch, Customer."Enterprise No.");
+        SalesInvoiceHeader.TestField("Enterprise No.", BillToCustomer."Enterprise No.");
+        VerifyPartnerID(IntrastatJnlBatch, SellToCustomer."Enterprise No.");
     end;
 
     [Test]
@@ -456,7 +458,8 @@ codeunit 144052 "Test Intrastat Export"
     [Scope('OnPrem')]
     procedure GetPartnerIDFromEnterpriseNoOfSalesShipment()
     var
-        Customer: Record Customer;
+        BillToCustomer: Record Customer;
+        SellToCustomer: Record Customer;
         ItemLedgerEntry: Record "Item Ledger Entry";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         SalesShipmentHeader: Record "Sales Shipment Header";
@@ -469,9 +472,10 @@ codeunit 144052 "Test Intrastat Export"
         UpdateShipmentOnInvoiceSalesSetup(true);
 
         // [GIVEN] Bill-to Customer with Enterprise No. = '123456'
-        Customer.Get(CreateEUCustomerWithVATRegNo);
-        ResetCustomerVATRegNo(Customer);
-        CreatePostSalesInvoice(ItemLedgerEntry, CreateEUCustomerWithVATRegNo, Customer."No.", CreateItemWithTariffNo);
+        BillToCustomer.Get(CreateEUCustomerWithVATRegNo);
+        SellToCustomer.Get(CreateEUCustomerWithVATRegNo);
+        ResetCustomerVATRegNo(SellToCustomer);
+        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo);
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -479,8 +483,8 @@ codeunit 144052 "Test Intrastat Export"
 
         // [THEN] Partner VAT ID  = '123456' in Intrastat Journal Line
         SalesShipmentHeader.Get(ItemLedgerEntry."Document No.");
-        SalesShipmentHeader.TestField("Enterprise No.", Customer."Enterprise No.");
-        VerifyPartnerID(IntrastatJnlBatch, Customer."Enterprise No.");
+        SalesShipmentHeader.TestField("Enterprise No.", BillToCustomer."Enterprise No.");
+        VerifyPartnerID(IntrastatJnlBatch, SellToCustomer."Enterprise No.");
     end;
 
     [Test]
@@ -488,7 +492,8 @@ codeunit 144052 "Test Intrastat Export"
     [Scope('OnPrem')]
     procedure GetPartnerIDFromVATRegNoOfSalesInvoice()
     var
-        Customer: Record Customer;
+        BillToCustomer: Record Customer;
+        SellToCustomer: Record Customer;
         ItemLedgerEntry: Record "Item Ledger Entry";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -501,8 +506,9 @@ codeunit 144052 "Test Intrastat Export"
         UpdateShipmentOnInvoiceSalesSetup(false);
 
         // [GIVEN] Bill-to Customer with Enterprise No. = '123456' and VAT Registration No = 'AT0123456'
-        Customer.Get(CreateEUCustomerWithVATRegNo);
-        CreatePostSalesInvoice(ItemLedgerEntry, CreateEUCustomerWithVATRegNo, Customer."No.", CreateItemWithTariffNo);
+        BillToCustomer.Get(CreateEUCustomerWithVATRegNo);
+        SellToCustomer.Get(CreateEUCustomerWithVATRegNo);
+        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo);
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -510,8 +516,8 @@ codeunit 144052 "Test Intrastat Export"
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         SalesInvoiceHeader.Get(ItemLedgerEntry."Document No.");
-        SalesInvoiceHeader.TestField("VAT Registration No.", Customer."VAT Registration No.");
-        VerifyPartnerID(IntrastatJnlBatch, Customer."VAT Registration No.");
+        SalesInvoiceHeader.TestField("VAT Registration No.", BillToCustomer."VAT Registration No.");
+        VerifyPartnerID(IntrastatJnlBatch, SellToCustomer."VAT Registration No.");
     end;
 
     [Test]
@@ -519,7 +525,8 @@ codeunit 144052 "Test Intrastat Export"
     [Scope('OnPrem')]
     procedure GetPartnerIDFromVATRegNoOfSalesShipment()
     var
-        Customer: Record Customer;
+        BillToCustomer: Record Customer;
+        SellToCustomer: Record Customer;
         ItemLedgerEntry: Record "Item Ledger Entry";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         SalesShipmentHeader: Record "Sales Shipment Header";
@@ -532,8 +539,9 @@ codeunit 144052 "Test Intrastat Export"
         UpdateShipmentOnInvoiceSalesSetup(true);
 
         // [GIVEN] Bill-to Customer with Enterprise No. = '123456' and VAT Registration No = 'AT0123456'
-        Customer.Get(CreateEUCustomerWithVATRegNo);
-        CreatePostSalesInvoice(ItemLedgerEntry, CreateEUCustomerWithVATRegNo, Customer."No.", CreateItemWithTariffNo);
+        BillToCustomer.Get(CreateEUCustomerWithVATRegNo);
+        SellToCustomer.Get(CreateEUCustomerWithVATRegNo);
+        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo);
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -541,8 +549,8 @@ codeunit 144052 "Test Intrastat Export"
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         SalesShipmentHeader.Get(ItemLedgerEntry."Document No.");
-        SalesShipmentHeader.TestField("VAT Registration No.", Customer."VAT Registration No.");
-        VerifyPartnerID(IntrastatJnlBatch, Customer."VAT Registration No.");
+        SalesShipmentHeader.TestField("VAT Registration No.", BillToCustomer."VAT Registration No.");
+        VerifyPartnerID(IntrastatJnlBatch, SellToCustomer."VAT Registration No.");
     end;
 
     [Test]
@@ -777,7 +785,7 @@ codeunit 144052 "Test Intrastat Export"
         ItemLedgerEntry: Record "Item Ledger Entry";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        SellToCustNo: Code[20];
+        BillToCustNo: Code[20];
         IntrastatTransType: Code[10];
         IntrastatArea: Code[10];
         TotalWeight1: Decimal;
@@ -799,11 +807,11 @@ codeunit 144052 "Test Intrastat Export"
         // [GIVEN] Sales invoice has Total Weight = 7, No Of Supplementary Units = 4
         Customer1.Get(CreateEUCustomerWithVATRegNo);
         Customer2.Get(CreateEUCustomerWithVATRegNo);
-        SellToCustNo := CreateEUCustomerWithVATRegNo; // have the same Country/Region
+        BillToCustNo := CreateEUCustomerWithVATRegNo; // have the same Country/Region
         Item.Get(CreateItemWithTariffNo);
-        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustNo, Customer1."No.", Item."No.");
-        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustNo, Customer1."No.", Item."No.");
-        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustNo, Customer2."No.", Item."No.");
+        CreatePostSalesInvoice(ItemLedgerEntry, Customer1."No.", BillToCustNo, Item."No.");
+        CreatePostSalesInvoice(ItemLedgerEntry, Customer1."No.", BillToCustNo, Item."No.");
+        CreatePostSalesInvoice(ItemLedgerEntry, Customer2."No.", BillToCustNo, Item."No.");
 
         // [GIVEN] Intrastat Journal Lines created
         ItemLedgerEntry.SetRange("Source Type");
