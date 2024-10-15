@@ -53,14 +53,16 @@ codeunit 1720 "Deferral Utilities"
         DeferralTemplate: Record "Deferral Template";
         DeferralHeader: Record "Deferral Header";
         DeferralLine: Record "Deferral Line";
+        DeferralLineAmount: Dictionary of [RecordId, Decimal];
         AdjustedStartDate: Date;
         AdjustedDeferralAmount: Decimal;
         IsHandled: Boolean;
+        RedistributeDeferralSchedule: Boolean;
     begin
         IsHandled := false;
         OnBeforeCreateDeferralSchedule(
             DeferralCode, DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo, AmountToDefer, CalcMethod,
-            StartDate, NoOfPeriods, ApplyDeferralPercentage, DeferralDescription, AdjustStartDate, CurrencyCode, IsHandled);
+            StartDate, NoOfPeriods, ApplyDeferralPercentage, DeferralDescription, AdjustStartDate, CurrencyCode, IsHandled, RedistributeDeferralSchedule);
         if IsHandled then
             exit;
 
@@ -75,6 +77,11 @@ codeunit 1720 "Deferral Utilities"
         AdjustedDeferralAmount := AmountToDefer;
         if ApplyDeferralPercentage then
             AdjustedDeferralAmount := Round(AdjustedDeferralAmount * (DeferralTemplate."Deferral %" / 100), AmountRoundingPrecision);
+
+        if RedistributeDeferralSchedule then
+            SaveUserDefinedDeferralLineAmounts(
+                DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType,
+                DocumentNo, LineNo, CalcMethod, DeferralLineAmount);
 
         SetDeferralRecords(
             DeferralHeader, DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo,
@@ -92,7 +99,62 @@ codeunit 1720 "Deferral Utilities"
                 CalculateUserDefined(DeferralHeader, DeferralLine, DeferralTemplate);
         end;
 
+        if RedistributeDeferralSchedule then
+            RedistributeDeferralLines(DeferralLine, DeferralLineAmount, DeferralHeader);
         OnAfterCreateDeferralSchedule(DeferralHeader, DeferralLine, DeferralTemplate, CalcMethod);
+    end;
+
+    local procedure SaveUserDefinedDeferralLineAmounts(DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; CalcMethod: Enum "Deferral Calculation Method"; var DeferralLineAmount: Dictionary of [RecordId, Decimal])
+    var
+        DeferralHeader: Record "Deferral Header";
+        DeferralLine: Record "Deferral Line";
+    begin
+        if CalcMethod <> CalcMethod::"User-Defined" then
+            exit;
+
+        if not DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then
+            exit;
+
+        FilterDeferralLines(DeferralLine, DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo);
+        DeferralLine.SetFilter(Amount, '<>0');
+        if DeferralLine.IsEmpty() then
+            exit;
+
+        Clear(DeferralLineAmount);
+        SaveDeferralLineAmounts(DeferralLine, DeferralLineAmount);
+    end;
+
+    local procedure SaveDeferralLineAmounts(var DeferralLine: Record "Deferral Line"; var DeferralLineAmount: Dictionary of [RecordId, Decimal])
+    begin
+        if DeferralLine.FindSet() then
+            repeat
+                DeferralLineAmount.Add(DeferralLine.RecordId, DeferralLine.Amount);
+            until DeferralLine.Next() = 0;
+    end;
+
+    local procedure RedistributeDeferralLines(var DeferralLine: Record "Deferral Line"; DeferralLineAmount: Dictionary of [RecordId, Decimal]; DeferralHeader: Record "Deferral Header")
+    var
+        InitialDeferralLineAmount: Decimal;
+        TotalDeferralLineAmount: Decimal;
+    begin
+        if DeferralLineAmount.Count = 0 then
+            exit;
+
+        FilterDeferralLines(DeferralLine, DeferralHeader."Deferral Doc. Type".AsInteger(), DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name", DeferralHeader."Document Type", DeferralHeader."Document No.", DeferralHeader."Line No.");
+        if DeferralLine.FindSet(true) then
+            repeat
+                if DeferralLineAmount.ContainsKey(DeferralLine.RecordId) then begin
+                    InitialDeferralLineAmount := DeferralLineAmount.Get(DeferralLine.RecordId);
+                    DeferralLine.Validate(Amount, Round(DeferralHeader."Amount to Defer" / 100 * InitialDeferralLineAmount, AmountRoundingPrecision));
+                    DeferralLine.Modify(true);
+                    TotalDeferralLineAmount += DeferralLine.Amount;
+                end;
+            until DeferralLine.Next() = 0;
+
+        if TotalDeferralLineAmount = DeferralHeader."Amount to Defer" then
+            exit;
+        DeferralLine.Validate(Amount, DeferralLine.Amount + DeferralHeader."Amount to Defer" - TotalDeferralLineAmount);
+        DeferralLine.Modify(true);
     end;
 
     procedure CalcDeferralNoOfPeriods(CalcMethod: Enum "Deferral Calculation Method"; NoOfPeriods: Integer; StartDate: Date): Integer
@@ -1027,7 +1089,7 @@ codeunit 1720 "Deferral Utilities"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateDeferralSchedule(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; AmountToDefer: Decimal; CalcMethod: Enum "Deferral Calculation Method"; var StartDate: Date; var NoOfPeriods: Integer; ApplyDeferralPercentage: Boolean; DeferralDescription: Text[100]; var AdjustStartDate: Boolean; CurrencyCode: Code[10]; var IsHandled: Boolean)
+    local procedure OnBeforeCreateDeferralSchedule(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; AmountToDefer: Decimal; CalcMethod: Enum "Deferral Calculation Method"; var StartDate: Date; var NoOfPeriods: Integer; ApplyDeferralPercentage: Boolean; DeferralDescription: Text[100]; var AdjustStartDate: Boolean; CurrencyCode: Code[10]; var IsHandled: Boolean; var RedistributeDeferralSchedule: Boolean)
     begin
     end;
 
