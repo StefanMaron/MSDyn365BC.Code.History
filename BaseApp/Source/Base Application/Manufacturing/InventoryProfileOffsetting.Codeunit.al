@@ -4317,10 +4317,12 @@ codeunit 99000854 "Inventory Profile Offsetting"
         DemandInvtProfile.SetFilter("Due Date", '%1..', PlanningStartDate);
         if DemandInvtProfile.FindSet() then
             repeat
-                if TempSafetyStockInvtProfile."Due Date" <> DemandInvtProfile."Due Date" then
+                if TempSafetyStockInvtProfile."Due Date" <> DemandInvtProfile."Due Date" then begin
                     CreateDemand(
-                      TempSafetyStockInvtProfile, TempSKU, TempSKU."Safety Stock Quantity",
-                      DemandInvtProfile."Due Date", OrderRelation::"Safety Stock");
+                        TempSafetyStockInvtProfile, TempSKU, TempSKU."Safety Stock Quantity", DemandInvtProfile."Due Date", OrderRelation::"Safety Stock");
+                    TempSafetyStockInvtProfile."MPS Order" := DemandInvtProfile."MPS Order";
+                    TempSafetyStockInvtProfile.Modify();
+                end;
             until DemandInvtProfile.Next() = 0;
 
         DemandInvtProfile.SetRange("Due Date", PlanningStartDate);
