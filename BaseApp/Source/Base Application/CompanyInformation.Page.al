@@ -110,6 +110,12 @@ Page 1 "Company Information"
                     Importance = Additional;
                     ToolTip = 'Specifies the company''s industrial classification code.';
                 }
+                field("Registration No."; Rec."Registration No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the company''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
+                }
                 field(Picture; Picture)
                 {
                     ApplicationArea = Basic, Suite;

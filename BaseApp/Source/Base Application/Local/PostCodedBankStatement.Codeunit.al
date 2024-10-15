@@ -121,6 +121,8 @@ codeunit 2000042 "Post Coded Bank Statement"
                     GenJnlLine."Journal Batch Name" := BatchName;
                     GenJnlLine."Line No." := LineNo;
                     GenJnlLine."Posting Date" := "Posting Date";
+                    GenJnlLine."VAT Reporting Date" := "Posting Date";
+                    GenJnlLine."Source Code" := GenJnlTemplate."Source Code";
                     GenJnlLine.Validate("Bal. Account Type", GenJnlTemplate."Bal. Account Type");
                     GenJnlLine.Validate("Bal. Account No.", GenJnlTemplate."Bal. Account No.");
                     GenJnlLine."Account Type" := "Account Type";

@@ -4,7 +4,6 @@ page 103 "Account Schedule Names"
     Caption = 'Row Definitions';
     PageType = List;
     SourceTable = "Acc. Schedule Name";
-    AdditionalSearchTerms = 'Account Schedules';
     UsageCategory = Lists;
 
     layout

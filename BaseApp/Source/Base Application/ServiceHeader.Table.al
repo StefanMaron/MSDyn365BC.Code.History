@@ -3318,7 +3318,14 @@
     end;
 
     local procedure PriceMsgIfServLinesExist(ChangedFieldName: Text[100])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePriceMsgIfServLinesExist(Rec, ChangedFieldName, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServLineExists() then
             Message(
               Text019,
@@ -4380,32 +4387,35 @@
 
     local procedure UpdateShipToAddressFromGeneralAddress(FieldNumber: Integer)
     begin
-        if ("Ship-to Code" = '') and (not ShipToAddressModified()) then
-            case FieldNumber of
-                FieldNo("Ship-to Address"):
-                    if xRec.Address = "Ship-to Address" then
-                        "Ship-to Address" := Address;
-                FieldNo("Ship-to Address 2"):
-                    if xRec."Address 2" = "Ship-to Address 2" then
-                        "Ship-to Address 2" := "Address 2";
-                FieldNo("Ship-to City"), FieldNo("Ship-to Post Code"):
-                    begin
-                        if xRec.City = "Ship-to City" then
-                            "Ship-to City" := City;
-                        if xRec."Post Code" = "Ship-to Post Code" then
-                            "Ship-to Post Code" := "Post Code";
-                        if xRec.County = "Ship-to County" then
-                            "Ship-to County" := County;
-                        if xRec."Country/Region Code" = "Ship-to Country/Region Code" then
-                            "Ship-to Country/Region Code" := "Country/Region Code";
-                    end;
-                FieldNo("Ship-to County"):
+        if ("Ship-to Code" <> '') or ShipToAddressModified() then
+            exit;
+
+        case FieldNumber of
+            FieldNo("Ship-to Address"):
+                if xRec.Address = "Ship-to Address" then
+                    "Ship-to Address" := Address;
+            FieldNo("Ship-to Address 2"):
+                if xRec."Address 2" = "Ship-to Address 2" then
+                    "Ship-to Address 2" := "Address 2";
+            FieldNo("Ship-to City"), FieldNo("Ship-to Post Code"):
+                begin
+                    if xRec.City = "Ship-to City" then
+                        "Ship-to City" := City;
+                    if xRec."Post Code" = "Ship-to Post Code" then
+                        "Ship-to Post Code" := "Post Code";
                     if xRec.County = "Ship-to County" then
                         "Ship-to County" := County;
-                FieldNo("Ship-to Country/Region Code"):
                     if xRec."Country/Region Code" = "Ship-to Country/Region Code" then
                         "Ship-to Country/Region Code" := "Country/Region Code";
-            end;
+                end;
+            FieldNo("Ship-to County"):
+                if xRec.County = "Ship-to County" then
+                    "Ship-to County" := County;
+            FieldNo("Ship-to Country/Region Code"):
+                if xRec."Country/Region Code" = "Ship-to Country/Region Code" then
+                    "Ship-to Country/Region Code" := "Country/Region Code";
+        end;
+        OnAfterUpdateShipToAddressFromGeneralAddress(Rec, xRec, FieldNumber);
     end;
 
     procedure CopyCustomerFilter()
@@ -4763,6 +4773,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePriceMsgIfServLinesExist(ServiceHeader: Record "Service Header"; ChangedFieldName: Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyCustomerFields(var ServiceHeader: Record "Service Header"; Customer: Record Customer)
     begin
     end;
@@ -4819,6 +4834,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateServLinesByFieldNo(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ChangedFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateShipToAddressFromGeneralAddress(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; FieldNo: Integer)
     begin
     end;
 

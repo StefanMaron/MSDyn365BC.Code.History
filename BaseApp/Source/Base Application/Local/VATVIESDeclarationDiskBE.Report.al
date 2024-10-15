@@ -48,11 +48,11 @@ report 11315 "VAT-VIES Declaration Disk BE"
 
                     trigger OnPreDataItem()
                     begin
-                        SetCurrentKey(Type, "Bill-to/Pay-to No.", "Country/Region Code", "EU 3-Party Trade", "Posting Date");
+                        SetCurrentKey(Type, "Bill-to/Pay-to No.", "Country/Region Code", "EU 3-Party Trade", "VAT Reporting Date");
                         SetRange(Type, Type::Sale);
                         SetRange("Bill-to/Pay-to No.", VATCustomer."No.");
                         SetFilter("Country/Region Code", '<>%1', '');
-                        SetRange("Posting Date", Vdatefrom, Vdateto);
+                        SetRange("VAT Reporting Date", Vdatefrom, Vdateto);
                     end;
                 }
                 dataitem("VAT VIES Correction"; "VAT VIES Correction")
@@ -290,8 +290,8 @@ report 11315 "VAT-VIES Declaration Disk BE"
 
     trigger OnPreReport()
     begin
-        if "VAT Entry".GetFilter("Posting Date") <> '' then
-            Error(Text013, "VAT Entry".FieldCaption("Posting Date"));
+        if "VAT Entry".GetFilter("VAT Reporting Date") <> '' then
+            Error(Text013, "VAT Entry".FieldCaption("VAT Reporting Date"));
 
         ValidateMonthQuarter;
         ValidateYear;

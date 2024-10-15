@@ -81,6 +81,7 @@ page 396 "Sales Shipment Statistics"
             exit;
 
         SalesShptLine.SetRange("Document No.", "No.");
+        OnCalculateTotalsOnAfterSalesShptLineSetFilters(SalesShptLine, Rec);
         if SalesShptLine.Find('-') then
             repeat
                 LineQty += SalesShptLine.Quantity;
@@ -96,6 +97,11 @@ page 396 "Sales Shipment Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateTotals(SalesShipmentHeader: Record "Sales Shipment Header"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterSalesShptLineSetFilters(var SalesShipmentLine: Record "Sales Shipment Line"; SalesShipmentHeader: Record "Sales Shipment Header")
     begin
     end;
 

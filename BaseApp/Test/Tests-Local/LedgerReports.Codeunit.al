@@ -44,11 +44,12 @@ codeunit 144044 "Ledger Reports"
 
         // [GIVEN] Created and posted two invoices: "Inv1" with DocNo=1 and Posting Date=03.01.20, "Inv2" with DocNo=2 and Posting Date=02.01.20
         LibrarySales.CreateCustomer(Customer);
-        CreateAndPostSalesInvoiceForCustomerWithDate(PostedSalesDocumentNo1, Customer."No.", WorkDate + 1);
-        CreateAndPostSalesInvoiceForCustomerWithDate(PostedSalesDocumentNo2, Customer."No.", WorkDate());
+        CreateAndPostSalesInvoiceForCustomerWithDate(PostedSalesDocumentNo1, Customer."No.", LibraryInventory.CreateItemNo(), WorkDate() + 1);
+        CreateAndPostSalesInvoiceForCustomerWithDate(PostedSalesDocumentNo2, Customer."No.", LibraryInventory.CreateItemNo(), WorkDate());
 
         // [WHEN] Run Sales Ledger report for 2 days period
         LibraryVariableStorage.Enqueue('<2D>');
+        LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Sales Ledger", true, false);
 
@@ -79,11 +80,12 @@ codeunit 144044 "Ledger Reports"
 
         // [GIVEN] Created and posted two invoices: "Inv1" with DocNo=1 and Posting Date=03.01.20, "Inv2" with DocNo=2 and Posting Date=02.01.20
         LibraryPurchase.CreateVendor(Vendor);
-        CreateAndPostPurchaseInvoiceForVendorWithDate(PostedSalesDocumentNo1, Vendor."No.", WorkDate + 1);
-        CreateAndPostPurchaseInvoiceForVendorWithDate(PostedSalesDocumentNo2, Vendor."No.", WorkDate());
+        CreateAndPostPurchaseInvoiceForVendorWithDate(PostedSalesDocumentNo1, Vendor."No.", LibraryInventory.CreateItemNo(), WorkDate() + 1);
+        CreateAndPostPurchaseInvoiceForVendorWithDate(PostedSalesDocumentNo2, Vendor."No.", LibraryInventory.CreateItemNo(), WorkDate());
 
         // [WHEN] Run Purchase Ledger report for 2 days period
         LibraryVariableStorage.Enqueue('<2D>');
+        LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Purchase Ledger", true, false);
 
@@ -258,9 +260,145 @@ codeunit 144044 "Ledger Reports"
         LibraryReportValidation.VerifyCellValueByRef('R', 78, 4, PageTwoTxt);
     end;
 
-    local procedure Initialize()
+    [Test]
+    [HandlerFunctions('SalesLedgerReportRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesLedgerReportWithDeferralEntries()
+    var
+        DeferralTemplate: Record "Deferral Template";
+        InvoiceNo: Code[20];
     begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Ledger Reports");
+        // [FEATURE] [Sales] [Deferral]
+        // [SCENARIO 422924] Print Sales Ledger report with deferral G/L Entries
+        Initialize();
+
+        // [GIVEN] Posted sales invoice with deferral entries
+        LibraryERM.CreateDeferralTemplate(
+          DeferralTemplate,
+          DeferralTemplate."Calc. Method"::"Straight-Line", DeferralTemplate."Start Date"::"Beginning of Period", 2);
+        CreateAndPostSalesInvoiceForCustomerWithDate(
+          InvoiceNo, LibrarySales.CreateCustomerNo(), CreateItemWithDeferralCode(DeferralTemplate."Deferral Code"), WorkDate());
+
+        // [WHEN] Run Sales Ledger report with ExcludeDeferralEntries = No
+        LibraryVariableStorage.Enqueue('<2D>');
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(false); // ExcludeDeferralEntries
+        REPORT.Run(REPORT::"Sales Ledger", true, false);
+
+        // [THEN] Lines with deferral G/L account are exported
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('PrnDocno', InvoiceNo);
+        LibraryReportDataset.AssertElementWithValueExists('GLAccNo_GLEntry', DeferralTemplate."Deferral Account");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesLedgerReportRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesLedgerReportExcludingDeferralEntries()
+    var
+        DeferralTemplate: Record "Deferral Template";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Deferral]
+        // [SCENARIO 422924] Print Sales Ledger report excluding deferral G/L Entries
+        Initialize();
+
+        // [GIVEN] Posted sales invoice with deferral entries
+        LibraryERM.CreateDeferralTemplate(
+          DeferralTemplate,
+          DeferralTemplate."Calc. Method"::"Straight-Line", DeferralTemplate."Start Date"::"Beginning of Period", 2);
+        CreateAndPostSalesInvoiceForCustomerWithDate(
+          InvoiceNo, LibrarySales.CreateCustomerNo(), CreateItemWithDeferralCode(DeferralTemplate."Deferral Code"), WorkDate());
+
+        // [WHEN] Run Sales Ledger report with ExcludeDeferralEntries = Yes
+        LibraryVariableStorage.Enqueue('<2D>');
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(true); // ExcludeDeferralEntries
+        REPORT.Run(REPORT::"Sales Ledger", true, false);
+
+        // [THEN] Lines with deferral G/L account are not exported
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('PrnDocno', InvoiceNo);
+        LibraryReportDataset.AssertElementWithValueNotExist('GLAccNo_GLEntry', DeferralTemplate."Deferral Account");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseLedgerReportRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseLedgerReportWithDeferralEntries()
+    var
+        DeferralTemplate: Record "Deferral Template";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Deferral]
+        // [SCENARIO 422924] Print Sales Ledger report with deferral G/L Entries
+        Initialize();
+
+        // [GIVEN] Posted purchase invoice with deferral entries
+        LibraryERM.CreateDeferralTemplate(
+          DeferralTemplate,
+          DeferralTemplate."Calc. Method"::"Straight-Line", DeferralTemplate."Start Date"::"Beginning of Period", 2);
+        CreateAndPostPurchaseInvoiceForVendorWithDate(
+          InvoiceNo, LibraryPurchase.CreateVendorNo(), CreateItemWithDeferralCode(DeferralTemplate."Deferral Code"), WorkDate());
+
+        // [WHEN] Run Purchase Ledger report with ExcludeDeferralEntries = No
+        LibraryVariableStorage.Enqueue('<2D>');
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(false); // ExcludeDeferralEntries
+        REPORT.Run(REPORT::"Purchase Ledger", true, false);
+
+        // [THEN] Lines with deferral G/L account are exported
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('PrnDocno', InvoiceNo);
+        LibraryReportDataset.AssertElementWithValueExists('GLAccountNo_GLEntry', DeferralTemplate."Deferral Account");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseLedgerReportRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseLedgerReportExcludingDeferralEntries()
+    var
+        DeferralTemplate: Record "Deferral Template";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Deferral]
+        // [SCENARIO 422924] Print Sales Ledger report excluding deferral G/L Entries
+        Initialize();
+
+        // [GIVEN] Posted purchase invoice with deferral entries
+        LibraryERM.CreateDeferralTemplate(
+          DeferralTemplate,
+          DeferralTemplate."Calc. Method"::"Straight-Line", DeferralTemplate."Start Date"::"Beginning of Period", 2);
+        CreateAndPostPurchaseInvoiceForVendorWithDate(
+          InvoiceNo, LibraryPurchase.CreateVendorNo(), CreateItemWithDeferralCode(DeferralTemplate."Deferral Code"), WorkDate());
+
+        // [WHEN] Run Purchase Ledger report with ExcludeDeferralEntries = Yes
+        LibraryVariableStorage.Enqueue('<2D>');
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(true); // ExcludeDeferralEntries
+        REPORT.Run(REPORT::"Purchase Ledger", true, false);
+
+        // [THEN] Lines with deferral G/L account are not exported
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('PrnDocno', InvoiceNo);
+        LibraryReportDataset.AssertElementWithValueNotExist('GLAccountNo_GLEntry', DeferralTemplate."Deferral Account");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    local procedure Initialize()
+    var
+        ObjectOptions: Record "Object Options";
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Ledger Reports");
+
+        ObjectOptions.SetRange("Object Type", ObjectOptions."Object Type"::Report);
+        ObjectOptions.SetFilter("Object ID", '%1|%2', Report::"Sales Ledger", Report::"Purchase Ledger");
+        ObjectOptions.Deleteall();
+
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Ledger Reports");
@@ -272,7 +410,7 @@ codeunit 144044 "Ledger Reports"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Ledger Reports");
     end;
 
-    local procedure CreateAndPostSalesInvoiceForCustomerWithDate(var DocumentNo: Code[20]; CustomerNo: Code[20]; PostingDate: Date)
+    local procedure CreateAndPostSalesInvoiceForCustomerWithDate(var DocumentNo: Code[20]; CustomerNo: Code[20]; ItemNo: Code[20]; PostingDate: Date)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -280,11 +418,11 @@ codeunit 144044 "Ledger Reports"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, 1);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostPurchaseInvoiceForVendorWithDate(var DocumentNo: Code[20]; VendorNo: Code[20]; PostingDate: Date)
+    local procedure CreateAndPostPurchaseInvoiceForVendorWithDate(var DocumentNo: Code[20]; VendorNo: Code[20]; ItemNo: Code[20]; PostingDate: Date)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -292,7 +430,7 @@ codeunit 144044 "Ledger Reports"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, 1);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
@@ -319,6 +457,7 @@ codeunit 144044 "Ledger Reports"
         LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue('<1D>');
         LibraryVariableStorage.Enqueue(UseLocalCurrency); // Use local currency
+        LibraryVariableStorage.Enqueue(false);
         Commit();
         REPORT.Run(REPORT::"Sales Ledger", true, false, GenJournalTemplate);
 
@@ -391,6 +530,7 @@ codeunit 144044 "Ledger Reports"
         LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue('<1D>');
         LibraryVariableStorage.Enqueue(UseLocalCurrency); // Use local currency
+        LibraryVariableStorage.Enqueue(false);
         Commit();
         REPORT.Run(REPORT::"Purchase Ledger", true, false);
 
@@ -746,7 +886,7 @@ codeunit 144044 "Ledger Reports"
         end;
     end;
 
-    local procedure CreateAndPostPurchaseInvoiceWithVAT(): Code[20]
+    local procedure CreateAndPostPurchaseInvoiceWithVAT() DocNo: Code[20]
     var
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
@@ -763,11 +903,12 @@ codeunit 144044 "Ledger Reports"
             PurchHeader.Validate("Posting Date", WorkDate());
             PurchHeader.Modify(true);
 
-            exit(PostPurchaseDocument(PurchHeader, true, true));
+            DocNo := PostPurchaseDocument(PurchHeader, true, true);
+            VATPostingSetup.Delete();
         end;
     end;
 
-    local procedure CreateAndPostPurchaseCreditMemoWithVAT(): Code[20]
+    local procedure CreateAndPostPurchaseCreditMemoWithVAT() DocNo: Code[20]
     var
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
@@ -785,7 +926,8 @@ codeunit 144044 "Ledger Reports"
             PurchHeader.Validate("Posting Date", WorkDate());
             PurchHeader.Modify(true);
 
-            exit(PostPurchaseDocument(PurchHeader, true, true));
+            DocNo := PostPurchaseDocument(PurchHeader, true, true);
+            VATPostingSetup.Delete();
         end;
     end;
 
@@ -972,6 +1114,18 @@ codeunit 144044 "Ledger Reports"
         end;
     end;
 
+    local procedure CreateItemWithDeferralCode(DeferralCode: Code[10]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Default Deferral Template Code", DeferralCode);
+        Item.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        Item.Validate("Last Direct Cost", LibraryRandom.RandIntInRange(100, 200));
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
     local procedure ValidateGLAccountDescription(NoElementName: Text; DescriptionElementName: Text)
     var
         GLAccount: Record "G/L Account";
@@ -1050,6 +1204,8 @@ codeunit 144044 "Ledger Reports"
         LibraryVariableStorage.Dequeue(UseLcy);
         SalesLedgerReport.UseAmtsInAddCurr.SetValue(UseLcy);
 
+        SalesLedgerReport.ExcludeDeferralEntries.SetValue(LibraryVariableStorage.DequeueBoolean);
+
         SalesLedgerReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1076,6 +1232,8 @@ codeunit 144044 "Ledger Reports"
         // Show amounts in
         LibraryVariableStorage.Dequeue(UseLcy);
         PurchaseLedgerReport.UseAmtsInAddCurr.SetValue(UseLcy);
+
+        PurchaseLedgerReport.ExcludeDeferralEntries.SetValue(LibraryVariableStorage.DequeueBoolean);
 
         PurchaseLedgerReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

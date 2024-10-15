@@ -13,6 +13,7 @@
         TempJobJournalLine: Record "Job Journal Line" temporary;
         JobJnlPostLine: Codeunit "Job Jnl.-Post Line";
         JobTransferLine: Codeunit "Job Transfer Line";
+        UOMMgt: Codeunit "Unit of Measure Management";
         Text000: Label 'has been changed (initial a %1: %2= %3, %4= %5)';
         Text003: Label 'You cannot change the sales line because it is linked to\';
         Text004: Label ' %1: %2= %3, %4= %5.';
@@ -83,7 +84,26 @@
         if not JobPlanningLine."Usage Link" then
             exit;
         JobLedgerEntry.Get(JobPlanningLine."Job Ledger Entry No.");
+        if UsageLinkExist(JobLedgerEntry) then
+            exit;
         JobUsageLink.Create(JobPlanningLine, JobLedgerEntry);
+
+        JobPlanningLine.Use(
+            UOMMgt.CalcQtyFromBase(
+                JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",
+                JobLedgerEntry."Quantity (Base)", JobPlanningLine."Qty. per Unit of Measure"),
+            JobLedgerEntry."Total Cost", JobLedgerEntry."Line Amount", JobLedgerEntry."Posting Date", JobLedgerEntry."Currency Factor");
+    end;
+
+    local procedure UsageLinkExist(JobLedgEntry: Record "Job Ledger Entry"): Boolean
+    var
+        JobUsageLink: Record "Job Usage Link";
+    begin
+        JobUsageLink.SetRange("Job No.", JobLedgEntry."Job No.");
+        JobUsageLink.SetRange("Job Task No.", JobLedgEntry."Job Task No.");
+        JobUsageLink.SetRange("Entry No.", JobLedgEntry."Entry No.");
+        if not JobUsageLink.IsEmpty then
+            exit(true);
     end;
 
     procedure PostInvoiceContractLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")

@@ -185,6 +185,10 @@ report 11300 "Sales Ledger"
                         then
                             CurrReport.Skip();
 
+                        if ExcludeDeferrals and
+                            ("Source Code" in [SourceCodeSetup."General Deferral", SourceCodeSetup."Sales Deferral", SourceCodeSetup."Purchase Deferral"]) then
+                                CurrReport.Skip();
+
                         if OldName <> "Journal Templ. Name" then begin
                             OldDate := 0D;
                             OldName := "Journal Templ. Name";
@@ -347,6 +351,10 @@ report 11300 "Sales Ledger"
                                ("Debit Amount" = 0) and
                                ("Credit Amount" = 0)
                             then
+                                CurrReport.Skip();
+
+                            if ExcludeDeferrals and
+                                ("Source Code" in [SourceCodeSetup."General Deferral", SourceCodeSetup."Sales Deferral", SourceCodeSetup."Purchase Deferral"]) then
                                 CurrReport.Skip();
                         end;
 
@@ -679,6 +687,12 @@ report 11300 "Sales Ledger"
                         Caption = 'Show Amounts in';
                         ToolTip = 'Specifies if you want the amounts to be shown in the local currency with additional VAT information.';
                     }
+                    field(ExcludeDeferralEntries; ExcludeDeferrals)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Exclude Deferral Entries';
+                        ToolTip = 'Specifies if you want to exclude deferral ledger entries from the report.';
+                    }
                 }
             }
         }
@@ -708,6 +722,7 @@ report 11300 "Sales Ledger"
         GLSetup.Get();
         GLSetup.TestField("VAT Statement Template Name");
         GLSetup.TestField("VAT Statement Name");
+        SourceCodeSetup.Get();
     end;
 
     var
@@ -721,6 +736,7 @@ report 11300 "Sales Ledger"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GLSetup: Record "General Ledger Setup";
         VATStatementName: Record "VAT Statement Name";
+        SourceCodeSetup: Record "Source Code Setup";
         VATStmt: Report "VAT Statement";
         VATStmtAddCurr: Report "VAT Statement";
         OldName: Code[10];
@@ -748,6 +764,7 @@ report 11300 "Sales Ledger"
         MultipleVATEntries: Integer;
         OldTransactionNo: Integer;
         GLPostingDescription: Text;
+        ExcludeDeferrals: Boolean;
         PageNoCaptionLbl: Label 'Page';
         SalesLedgCaptionLbl: Label 'Sales Ledger';
         PostDateCaptionLbl: Label 'Posting Date';

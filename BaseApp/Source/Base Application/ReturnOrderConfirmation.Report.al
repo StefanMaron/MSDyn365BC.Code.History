@@ -218,6 +218,12 @@ report 6631 "Return Order Confirmation"
                     column(CompanyAddr6; CompanyAddr[6])
                     {
                     }
+                    column(CompanyAddr7; CompanyAddr[7])
+                    {
+                    }
+                    column(CompanyAddr8; CompanyAddr[8])
+                    {
+                    }
                     column(PricesInclVAT_SalesHdr; "Sales Header"."Prices Including VAT")
                     {
                     }

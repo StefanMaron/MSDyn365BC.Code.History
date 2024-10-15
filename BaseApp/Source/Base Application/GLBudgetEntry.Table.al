@@ -462,6 +462,7 @@ table 96 "G/L Budget Entry"
         TempDimSetEntry."Dimension Value Code" := DimValueCode;
         TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
         TempDimSetEntry.Insert();
+        OnAfterUpdateDimSet(Rec, TempDimSetEntry, DimCode, DimValueCode);
     end;
 
     local procedure UpdateDimensionSetId(DimCode: Code[20]; DimValueCode: Code[20])
@@ -498,6 +499,11 @@ table 96 "G/L Budget Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowDimensions(var GLBudgetEntry: Record "G/L Budget Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDimSet(GLBudgetEntry: Record "G/L Budget Entry"; var TempDimensionSetEntry: Record "Dimension Set Entry" temporary; DimCode: Code[20]; DimValueCode: Code[20])
     begin
     end;
 

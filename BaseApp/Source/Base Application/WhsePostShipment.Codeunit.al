@@ -457,7 +457,7 @@
                         SalesPost.SetWhseShptHeader(WhseShptHeader);
                         SalesPost.SetSuppressCommit(SuppressCommit);
                         IsHandled := false;
-                        OnPostSourceDocumentOnBeforePostSalesHeader(SalesPost, SalesHeader, WhseShptHeader, CounterSourceDocOK, SuppressCommit, IsHandled);
+                        OnPostSourceDocumentOnBeforePostSalesHeader(SalesPost, SalesHeader, WhseShptHeader, CounterSourceDocOK, SuppressCommit, IsHandled, Invoice);
                         if not IsHandled then
                             case WhseSetup."Shipment Posting Policy" of
                                 WhseSetup."Shipment Posting Policy"::"Posting errors are not processed":
@@ -1187,6 +1187,7 @@
         SumOfQtyToShip: Decimal;
         SumOfQtyToShipBase: Decimal;
         IsHandled: Boolean;
+        ShouldModifyShipmentDate: Boolean;
     begin
         IsHandled := false;
         OnBeforeHandleSalesLine(WhseShptLine, SalesLine, SalesHeader, WhseShptHeader, ModifyLine, IsHandled, Invoice);
@@ -1237,10 +1238,9 @@
                                       -"Qty. to Ship" + SalesLine."Return Qty. Received" - SalesLine."Quantity Invoiced");
                             end;
                         end;
-                        if (WhseShptHeader."Shipment Date" <> 0D) and
-                           (SalesLine."Shipment Date" <> WhseShptHeader."Shipment Date") and
-                           ("Qty. to Ship" = "Qty. Outstanding")
-                        then begin
+                        ShouldModifyShipmentDate := (WhseShptHeader."Shipment Date" <> 0D) and (SalesLine."Shipment Date" <> WhseShptHeader."Shipment Date") and ("Qty. to Ship" = "Qty. Outstanding");
+                        OnHandleSalesLineOnAfterCalcShouldModifyShipmentDate(WhseShptHeader, WhseShptLine, SalesLine, ShouldModifyShipmentDate);
+                        if ShouldModifyShipmentDate then begin
                             SalesLine."Shipment Date" := WhseShptHeader."Shipment Date";
                             ModifyLine := true;
                             if ATOLineFound then
@@ -1854,6 +1854,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnHandleSalesLineOnAfterCalcShouldModifyShipmentDate(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var SalesLine: Record "Sales Line"; var ShouldModifyShipmentDate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnHandleSalesLineOnAfterSalesLineModify(var SalesLine: Record "Sales Line"; ModifyLine: Boolean; WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
@@ -1964,7 +1969,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostSourceDocumentOnBeforePostSalesHeader(var SalesPost: Codeunit "Sales-Post"; SalesHeader: Record "Sales Header"; WhseShptHeader: Record "Warehouse Shipment Header"; var CounterSourceDocOK: Integer; SuppressCommit: Boolean; var IsHandled: Boolean)
+    local procedure OnPostSourceDocumentOnBeforePostSalesHeader(var SalesPost: Codeunit "Sales-Post"; var SalesHeader: Record "Sales Header"; WhseShptHeader: Record "Warehouse Shipment Header"; var CounterSourceDocOK: Integer; SuppressCommit: Boolean; var IsHandled: Boolean; var Invoice: Boolean)
     begin
     end;
 

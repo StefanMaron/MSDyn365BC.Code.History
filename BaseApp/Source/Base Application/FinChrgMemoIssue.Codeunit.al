@@ -13,7 +13,6 @@
         ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
         FinChrgCommentLine: Record "Fin. Charge Comment Line";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
-        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
         OnBeforeIssueFinChargeMemo(FinChrgMemoHeader);
 
@@ -22,7 +21,7 @@
             if (PostingDate <> 0D) and (ReplacePostingDate or ("Posting Date" = 0D)) then
                 Validate("Posting Date", PostingDate);
 
-            GenJnlCheckLine.CheckVATDateAllowed("VAT Reporting Date");
+            CheckVATDate(FinChrgMemoHeader);
             TestField("Customer No.");
             TestField("Posting Date");
             TestField("Document Date");
@@ -208,6 +207,7 @@
         DimMgt: Codeunit DimensionManagement;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        ErrorMessageMgt: Codeunit "Error Message Management";
         DocNo: Code[20];
         NextEntryNo: Integer;
         ReplacePostingDate: Boolean;
@@ -225,6 +225,7 @@
         Text002: Label 'The combination of dimensions used in %1 %2 is blocked. %3';
         Text003: Label 'A dimension in %1 %2 has caused an error. %3';
         MissingJournalFieldErr: Label 'Please enter a %1 when posting Additional Fees or Interest.', Comment = '%1 - field caption';
+        VATDateNotAllowedErr: Label '%1 is not within your range of allowed posting dates.', Comment = '%1 - VAT Date field caption';
 
     procedure Set(var NewFinChrgMemoHeader: Record "Finance Charge Memo Header"; NewReplacePostingDate: Boolean; NewPostingDate: Date)
     begin
@@ -263,6 +264,7 @@
                 TempGenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
             end;
             TempGenJnlLine."Posting Date" := "Posting Date";
+            TempGenJnlLine."VAT Reporting Date" := "VAT Reporting Date";
             TempGenJnlLine."Document Date" := "Document Date";
             TempGenJnlLine."Account Type" := AccType;
             TempGenJnlLine."Account No." := AccNo;
@@ -458,6 +460,29 @@
         CustLedgerEntry2.SetRange("Closing Interest Calculated", false);
         OnUpdateCustLedgEntriesCalculateInterestOnBeforeCustLedgerEntry2ModifyAll(CustLedgerEntry2, CustLedgerEntry);
         CustLedgerEntry2.ModifyAll("Closing Interest Calculated", true);
+    end;
+
+    local procedure CheckVATDate(var FinChrgMemoHeader: Record "Finance Charge Memo Header")
+    var
+        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
+        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
+        SetupRecID: RecordID;
+    begin
+        // ensure VAT Date is filled in
+        If FinChrgMemoHeader."VAT Reporting Date" = 0D then begin
+            FinChrgMemoHeader."VAT Reporting Date" := GLSetup.GetVATDate(FinChrgMemoHeader."Posting Date", FinChrgMemoHeader."Document Date");
+            FinChrgMemoHeader.Modify();
+        end;
+
+        // check whether VAT Date is within allowed VAT Periods
+        GenJnlCheckLine.CheckVATDateAllowed(FinChrgMemoHeader."VAT Reporting Date");
+
+        // check whether VAT Date is within Allowed period fedined in Gen. Ledger Setup
+        if GenJnlCheckLine.IsDateNotAllowed(FinChrgMemoHeader."VAT Reporting Date", SetupRecID, '') then
+            ErrorMessageMgt.LogContextFieldError(
+              FinChrgMemoHeader.FieldNo("VAT Reporting Date"), StrSubstNo(VATDateNotAllowedErr, FinChrgMemoHeader.FieldCaption("VAT Reporting Date")),
+              SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, GLSetup.FieldName("Allow Posting From")),
+              ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
     end;
 
 #if not CLEAN20

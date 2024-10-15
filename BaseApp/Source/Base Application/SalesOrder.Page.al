@@ -64,6 +64,14 @@ page 42 "Sales Order"
                         exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
+                field("VAT Registration No."; Rec."VAT Registration No.")
+                {
+                    ApplicationArea = VAT;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s VAT registration number for customers.';
+                    Visible = false;
+                }
                 group(Control114)
                 {
                     ShowCaption = false;
@@ -2410,6 +2418,7 @@ page 42 "Sales Order"
         SalesHeader: Record "Sales Header";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
+        IsHandled: Boolean;
     begin
         if GuiAllowed() then begin
             IsSalesLinesEditable := Rec.SalesLinesEditable();
@@ -2427,7 +2436,10 @@ page 42 "Sales Order"
                 SalesHeader.CalcFields("Amount Including VAT");
                 OnOnAfterGetCurrRecordOnBeforeSalesHeaderCheck(SalesHeader);
                 CustCheckCrLimit.SalesHeaderCheck(SalesHeader);
-                CheckItemAvailabilityInLines();
+                IsHandled := false;
+                OnAfterGetCurrRecordOnBeforeCheckItemAvailabilityInLines(Rec, IsHandled);
+                if not IsHandled then
+                    CheckItemAvailabilityInLines();
                 CallNotificationCheck := false;
             end;
             StatusStyleTxt := GetStatusStyleText();
@@ -2863,6 +2875,11 @@ page 42 "Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetCurrRecordOnBeforeCheckItemAvailabilityInLines(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

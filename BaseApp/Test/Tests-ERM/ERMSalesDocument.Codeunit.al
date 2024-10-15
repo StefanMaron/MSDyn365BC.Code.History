@@ -27,6 +27,8 @@ codeunit 134385 "ERM Sales Document"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         ArchiveManagement: Codeunit ArchiveManagement;
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+        LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
         VATAmountError: Label 'VAT %1 must be %2 in %3.';
         FieldError: Label '%1 must be %2 in %3.';
@@ -2290,6 +2292,116 @@ codeunit 134385 "ERM Sales Document"
 
     [Test]
     [Scope('OnPrem')]
+    procedure S461624_DefaultLocationCodeOnSalesOrderFromCustomer_ValidateCustomerBeforeInsert()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Customer] [Ship-to Address] [Location] [Sales Order] [UT]
+        // [SCENARIO 461624] Customer has default "Ship-to Address" defined with "Location Code" defined only on Customer.
+        // [SCENARIO 461624] "Location Code" in Sales Document must be copied from Customer when Sales Header is inserted after validating "Sell-to Customer No.".
+        Initialize();
+
+        // [GIVEN] Create Customer "C10000" with Location "BLUE".
+        // [GIVEN] Create Customer Ship-to Address "C10000_SA" without "Location Code".
+        // [GIVEN] Update "Ship-to Code" for Customer "C10000".
+        CreateCustomerWithLocationAndShipToAddressWithoutLocation(Customer, ShipToAddress);
+
+        // [WHEN] Create "Sales Header" for Sales Order and validate "Sell-to Customer No." with "C10000" before inserting Sales Order Header.
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Insert(true);
+
+        // [THEN] "Location Code" = "BLUE" in the Sales Order.
+        SalesHeader.TestField("Location Code", Customer."Location Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure S461624_DefaultLocationCodeOnSalesOrderFromCustomer_ValidateCustomerAfterInsert()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Customer] [Ship-to Address] [Location] [Sales Order] [UT]
+        // [SCENARIO 461624] Customer has default "Ship-to Address" defined with "Location Code" defined only on Customer.
+        // [SCENARIO 461624] "Location Code" in Sales Document must be copied from Customer when Sales Header is inserted before validating "Sell-to Customer No.".
+        Initialize();
+
+        // [GIVEN] Create Customer "C10000" with Location "BLUE".
+        // [GIVEN] Create Customer Ship-to Address "C10000_SA" without "Location Code".
+        // [GIVEN] Update "Ship-to Code" for Customer "C10000".
+        CreateCustomerWithLocationAndShipToAddressWithoutLocation(Customer, ShipToAddress);
+
+        // [WHEN] Create "Sales Header" for Sales Order and then validate "Sell-to Customer No." with "C10000" after inserting Sales Order Header.
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Modify(true);
+
+        // [THEN] "Location Code" = "BLUE" in the Sales Order.
+        SalesHeader.TestField("Location Code", Customer."Location Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure S461624_DefaultLocationCodeOnSalesOrderFromShipToAddress_ValidateCustomerBeforeInsert()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Customer] [Ship-to Address] [Location] [Sales Order] [UT]
+        // [SCENARIO 461624] Customer has default "Ship-to Address" defined with "Location Code" defined both on Customer and default "Ship-to Address".
+        // [SCENARIO 461624] "Location Code" in Sales Document must be copied from default "Ship-to Address" when Sales Header is inserted after validating "Sell-to Customer No.".
+        Initialize();
+
+        // [GIVEN] Create Customer "C10000" with Location "BLUE".
+        // [GIVEN] Create Customer Ship-to Address "C10000_SA" with Location "RED".
+        // [GIVEN] Update "Ship-to Code" for Customer "C10000".
+        CreateCustomerWithLocationAndShipToAddressWithDifferentLocation(Customer, ShipToAddress);
+
+        // [WHEN] Create "Sales Header" for Sales Order and validate "Sell-to Customer No." with "C10000" before inserting Sales Order Header.
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Insert(true);
+
+        // [THEN] "Location Code" = "RED" in the Sales Order.
+        SalesHeader.TestField("Location Code", ShipToAddress."Location Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure S461624_DefaultLocationCodeOnSalesOrderFromShipToAddress_ValidateCustomerAfterInsert()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Customer] [Ship-to Address] [Location] [Sales Order] [UT]
+        // [SCENARIO 461624] Customer has default "Ship-to Address" defined with "Location Code" defined both on Customer and default "Ship-to Address".
+        // [SCENARIO 461624] "Location Code" in Sales Document must be copied from default "Ship-to Address" when Sales Header is inserted before validating "Sell-to Customer No.".
+        Initialize();
+
+        // [GIVEN] Create Customer "C10000" with Location "BLUE".
+        // [GIVEN] Create Customer Ship-to Address "C10000_SA" with Location "RED".
+        // [GIVEN] Update "Ship-to Code" for Customer "C10000".
+        CreateCustomerWithLocationAndShipToAddressWithDifferentLocation(Customer, ShipToAddress);
+
+        // [WHEN] Create "Sales Header" for Sales Order and then validate "Sell-to Customer No." with "C10000" after inserting Sales Order Header.
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Modify(true);
+
+        // [THEN] "Location Code" = "RED" in the Sales Order.
+        SalesHeader.TestField("Location Code", ShipToAddress."Location Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure TestGLSplitByAditionalGroupingIdentifer()
     var
         SalesHeader: Record "Sales Header";
@@ -3419,6 +3531,85 @@ codeunit 134385 "ERM Sales Document"
         Assert.AreEqual(SalesLine[2]."Amount Including VAT", SalesInvoiceLine."Amount Including VAT", AmountNotMatchedErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,CopyDocRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifySalesQuoteIsCreatedWithArchivedSalesQuoteDocument()
+    var
+        Contact: Record Contact;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        CustomerTemplate: Record "Customer Templ.";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [SCENARIO 461942] Not possible to create a new Sales Quote using Copy Document from an archived Sales Quote which has no Customer No. assigned
+        Initialize();
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 0));
+        Item.Modify(true);
+
+        // [GIVEN] Create Customer Template
+        CreateCustomerTemplateWithPostingSetup(CustomerTemplate);
+
+        // [GIVEN] Create Contact
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [GIVEN] Created new Sales Quote and Archive Document
+        SalesQuote.OpenNew();
+        SalesQuote."Sell-to Customer Templ. Code".SetValue(CustomerTemplate.Code);
+        SalesQuote."Sell-to Contact No.".SetValue(Contact."No.");
+        SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesQuote."No.".Value);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::Item, Item."No.", LibraryRandom.RandDec(50, 0));
+        SalesQuote."Archive Document".Invoke();
+        SalesQuote.Close();
+
+        // [GIVEN] Open New Sales Quote Page to Create second new Sales Quote 
+        SalesQuote.OpenNew();
+        SalesQuote."Sell-to Contact No.".Activate();
+
+        // [WHEN] Use function "Copy Document" and use the No. of the first Sales Quote
+        LibraryVariableStorage.Enqueue(10); // doc type on the request page
+        LibraryVariableStorage.Enqueue(SalesHeader."No.");
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
+        Commit();
+        SalesQuote.CopyDocument.Invoke;
+
+        // [VERIFY] Verify: Second new Sales Quote is created with contact No.
+        Assert.AreEqual(SalesQuote."Sell-to Contact No.".Value, Contact."No.", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyPaymentTermCodeErrorOnDocumentDateBlank()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PaymentTerms: Record "Payment Terms";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 463454]  "You cannot base a date calculation on an undefined date." error message if you try to change the payment terms with a blank document date
+        Initialize();
+
+        // [GIVEN] Create Payment Term
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+
+        // [GIVEN] Create Sales Order document
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateCustomer);
+
+        // [WHEN] Blank the "Document Date"
+        SalesHeader.Validate("Document Date", 0D);
+        SalesHeader.Modify();
+
+        // [VERIFY] Verify the "Document Date" error will come.
+        asserterror SalesHeader.Validate("Payment Terms Code", PaymentTerms.Code);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -3788,6 +3979,31 @@ codeunit 134385 "ERM Sales Document"
     begin
         LibraryWarehouse.CreateLocation(Location);
         LibrarySales.CreateCustomerWithLocationCode(Customer, Location.Code);
+    end;
+
+    local procedure CreateCustomerWithLocationAndShipToAddressWithoutLocation(var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")
+    begin
+        CreateCustomerWithLocation(Customer);
+
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithLocationAndShipToAddressWithDifferentLocation(var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")
+    var
+        ShipToLocation: Record Location;
+    begin
+        CreateCustomerWithLocation(Customer);
+
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        LibraryWarehouse.CreateLocation(ShipToLocation);
+        ShipToAddress.Validate("Location Code", ShipToLocation.Code);
+        ShipToAddress.Modify(true);
+
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
     end;
 
     local procedure CreateCustomersWithSameName(var Customer1: Record Customer; var Customer2: Record Customer)
@@ -4925,6 +5141,21 @@ codeunit 134385 "ERM Sales Document"
         SalesLine.TestField(Type, SalesLineType);
     end;
 
+    local procedure CreateCustomerTemplateWithPostingSetup(var CustomerTemplate: Record "Customer Templ.")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
+        CustomerTemplate.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        CustomerTemplate.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        CustomerTemplate.Validate("Customer Posting Group", LibrarySales.FindCustomerPostingGroup);
+        CustomerTemplate.Modify(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -4973,6 +5204,33 @@ codeunit 134385 "ERM Sales Document"
     begin
         CombineShipments.PostingDate.SetValue(CalcDate('<1M>', WorkDate()));
         CombineShipments.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CopyDocRequestPageHandler(var CopySalesDocument: TestRequestPage "Copy Sales Document")
+    var
+        ValueFromQueue: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Doc type
+        CopySalesDocument.DocumentType.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Doc no
+        CopySalesDocument.DocumentNo.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Sell-to no
+        CopySalesDocument.SellToCustNo.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Sell-to name
+        CopySalesDocument.SellToCustName.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Include header
+        CopySalesDocument.IncludeHeader_Options.SetValue(ValueFromQueue);
+
+        LibraryVariableStorage.Dequeue(ValueFromQueue); // Recalc lines
+        CopySalesDocument.RecalculateLines.SetValue(ValueFromQueue);
+
+        CopySalesDocument.OK.Invoke;
     end;
 
     [MessageHandler]

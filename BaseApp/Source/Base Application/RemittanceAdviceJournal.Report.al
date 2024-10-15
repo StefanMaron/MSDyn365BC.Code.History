@@ -73,6 +73,12 @@ report 399 "Remittance Advice - Journal"
             column(CompAddr6; CompanyAddr[6])
             {
             }
+            column(CompAddr7; CompanyAddr[7])
+            {
+            }
+            column(CompAddr8; CompanyAddr[8])
+            {
+            }
             column(VendAddr7; VendorAddr[7])
             {
             }
@@ -476,7 +482,7 @@ report 399 "Remittance Advice - Journal"
         CurrCodeCaptionLbl: Label 'Curr. Code';
         TotalCaptionLbl: Label 'Total';
 
-	protected var
+    protected var
         TempAppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary;
 
     local procedure CurrencyCode(SrcCurrCode: Code[10]): Code[10]

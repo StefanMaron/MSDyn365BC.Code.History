@@ -226,6 +226,7 @@
         Telephone := Salesperson."Phone No.";
         Telefax := CompanyInfo."Telex No.";
         ElectronicMail := Salesperson."E-Mail";
+        OnAfterGetAccountingSupplierPartyContact(SalesHeader, ContactID, ContactName, Telephone, Telefax, ElectronicMail);
     end;
 
     procedure GetAccountingCustomerPartyInfo(SalesHeader: Record "Sales Header"; var CustomerEndpointID: Text; var CustomerSchemeID: Text; var CustomerPartyIdentificationID: Text; var CustomerPartyIDSchemeID: Text; var CustomerName: Text)
@@ -381,6 +382,7 @@
             DeliveryIDSchemeID := '0088'
         else
             DeliveryIDSchemeID := '';
+        OnAfterGetGLNDeliveryInfo(SalesHeader, ActualDeliveryDate, DeliveryID, DeliveryIDSchemeID);
     end;
 
     procedure GetGLNForHeader(SalesHeader: Record "Sales Header"): Code[13]
@@ -416,6 +418,7 @@
         PaymentID := '';
         PrimaryAccountNumberID := '';
         NetworkID := '';
+        OnAfterGetPaymentMeansInfo(SalesHeader, PaymentMeansCode, PaymentMeansListID, PaymentDueDate, PaymentChannelCode, PaymentID, PrimaryAccountNumberID, NetworkID);
     end;
 
     procedure GetPaymentMeansPayeeFinancialAcc(var PayeeFinancialAccountID: Text; var PaymentMeansSchemeID: Text; var FinancialInstitutionBranchID: Text; var FinancialInstitutionID: Text; var FinancialInstitutionSchemeID: Text; var FinancialInstitutionName: Text)
@@ -1151,9 +1154,7 @@
         ToFieldRef.Value := FromFieldRef.Value;
     end;
 
-    procedure FindNextInvoiceRec(var SalesInvoiceHeader: Record "Sales Invoice Header"; var ServiceInvoiceHeader: Record "Service Invoice Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer): Boolean
-    var
-        Found: Boolean;
+    procedure FindNextInvoiceRec(var SalesInvoiceHeader: Record "Sales Invoice Header"; var ServiceInvoiceHeader: Record "Service Invoice Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer) Found: Boolean
     begin
         case ProcessedDocType of
             ProcessedDocType::Sale:
@@ -1177,7 +1178,7 @@
         end;
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
 
-        exit(Found);
+        OnAfterFindNextInvoiceRec(SalesInvoiceHeader, ServiceInvoiceHeader, SalesHeader, ProcessedDocType, Position, Found);
     end;
 
     procedure FindNextInvoiceLineRec(var SalesInvoiceLine: Record "Sales Invoice Line"; var ServiceInvoiceLine: Record "Service Invoice Line"; var SalesLine: Record "Sales Line"; ProcessedDocType: Option Sale,Service; Position: Integer): Boolean
@@ -1211,9 +1212,7 @@
         exit(Found);
     end;
 
-    procedure FindNextCreditMemoRec(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer): Boolean
-    var
-        Found: Boolean;
+    procedure FindNextCreditMemoRec(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer) Found: Boolean
     begin
         case ProcessedDocType of
             ProcessedDocType::Sale:
@@ -1238,12 +1237,10 @@
 
         SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
 
-        exit(Found);
+        OnAfterFindNextCreditMemoRec(SalesCrMemoHeader, ServiceCrMemoHeader, SalesHeader, ProcessedDocType, Position, Found);
     end;
 
-    procedure FindNextCreditMemoLineRec(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var ServiceCrMemoLine: Record "Service Cr.Memo Line"; var SalesLine: Record "Sales Line"; ProcessedDocType: Option Sale,Service; Position: Integer): Boolean
-    var
-        Found: Boolean;
+    procedure FindNextCreditMemoLineRec(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var ServiceCrMemoLine: Record "Service Cr.Memo Line"; var SalesLine: Record "Sales Line"; ProcessedDocType: Option Sale,Service; Position: Integer) Found: Boolean
     begin
         case ProcessedDocType of
             ProcessedDocType::Sale:
@@ -1268,11 +1265,31 @@
                 end;
         end;
 
-        exit(Found);
+        OnAfterFindNextCreditMemoLineRec(SalesCrMemoLine, ServiceCrMemoLine, SalesLine, ProcessedDocType, Position, Found);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindNextInvoiceLineRec(var SalesInvoiceLine: Record "Sales Invoice Line"; var ServiceInvoiceLine: Record "Service Invoice Line"; var SalesLine: Record "Sales Line"; ProcessedDocType: Option Sale,Service; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindNextInvoiceRec(var SalesInvoiceHeader: Record "Sales Invoice Header"; var ServiceInvoiceHeader: Record "Service Invoice Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindNextCreditMemoRec(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindNextCreditMemoLineRec(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var ServiceCrMemoLine: Record "Service Cr.Memo Line"; var SalesLine: Record "Sales Line"; ProcessedDocType: Option Sale,Service; Position: Integer; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAccountingSupplierPartyContact(SalesHeader: Record "Sales Header"; var ContactID: Text; var ContactName: Text; var Telephone: Text; var Telefax: Text; var ElectronicMail: Text)
     begin
     end;
 
@@ -1296,6 +1313,10 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetGLNDeliveryInfo(SalesHeader: Record "Sales Header"; var ActualDeliveryDate: Text; var DeliveryID: Text; var DeliveryIDSchemeID: Text)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetLegalMonetaryInfo(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var TaxExclusiveAmount: Text; var TaxInclusiveAmount: Text; var AllowanceTotalAmount: Text; var ChargeTotalAmount: Text; var PrepaidAmount: Text; var PayableRoundingAmount: Text; var PayableAmount: Text)
@@ -1314,6 +1335,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetOrderReferenceInfo(SalesHeader: Record "Sales Header"; var OrderReferenceID: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPaymentMeansInfo(SalesHeader: Record "Sales Header"; var PaymentMeansCode: Text; var PaymentMeansListID: Text; var PaymentDueDate: Text; var PaymentChannelCode: Text; var PaymentID: Text; var PrimaryAccountNumberID: Text; var NetworkID: Text)
     begin
     end;
 

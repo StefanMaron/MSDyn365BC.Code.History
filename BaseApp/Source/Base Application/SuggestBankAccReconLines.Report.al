@@ -10,7 +10,12 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
             DataItemTableView = SORTING("No.");
 
             trigger OnAfterGetRecord()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
             begin
+                Session.LogMessage('0000JLH', Format(ExcludeReversedEntries), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccRecon.GetBankReconciliationTelemetryFeatureName());
+                Session.LogMessage('0000JLI', Format("Bank Account"."Disable Automatic Pmt Matching"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccRecon.GetBankReconciliationTelemetryFeatureName());
+                FeatureTelemetry.LogUptake('0000JLF', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
                 BankAccLedgEntry.Reset();
                 BankAccLedgEntry.SetCurrentKey("Bank Account No.", "Posting Date");
                 BankAccLedgEntry.SetRange("Bank Account No.", "No.");
@@ -26,6 +31,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                     MatchBLEToBankAccReconciliationLine(BankAccReconLine, BankAccLedgEntry);
                     EOFBankAccLedgEntries := BankAccLedgEntry.Next() = 0;
                 end;
+                FeatureTelemetry.LogUsage('0000JLG', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), EventNameTelemetryTxt);
             end;
 
             trigger OnPreDataItem()
@@ -112,6 +118,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
         BankAccSetStmtNo: Codeunit "Bank Acc. Entry Set Recon.-No.";
         StartDate: Date;
         EndDate: Date;
+        EventNameTelemetryTxt: Label 'Suggest lines', Locked = true;
         IncludeChecks: Boolean;
         EOFBankAccLedgEntries: Boolean;
         ExcludeReversedEntries: Boolean;
@@ -140,12 +147,16 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
     local procedure MatchBLEToBankAccReconciliationLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     var
         BankAccount: Record "Bank Account";
+        CheckLedgerEntry: Record "Check Ledger Entry";
     begin
         if BankAccount.Get(BankAccountLedgerEntry."Bank Account No.") then
             if not BankAccount."Disable Automatic Pmt Matching" then begin
                 BankAccReconciliationLine.Validate("Applied Amount", BankAccReconciliationLine."Statement Amount");
                 BankAccReconciliationLine."Applied Entries" := 1;
                 BankAccSetStmtNo.SetReconNo(BankAccountLedgerEntry, BankAccReconciliationLine);
+                CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
+                if CheckLedgerEntry.FindFirst() then
+                    BankAccReconciliationLine."Check No." := CheckLedgerEntry."Check No.";
             end;
         BankAccReconciliationLine.Modify();
     end;

@@ -95,6 +95,32 @@
                         QuickEntry = false;
                         ToolTip = 'Specifies the city of the customer''s address.';
                     }
+                    group(Control123)
+                    {
+                        ShowCaption = false;
+                        Visible = IsSellToCountyVisible;
+                        field("Sell-to County"; Rec."Sell-to County")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'County';
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the state, province or county of the address.';
+                        }
+                    }
+                    field("Sell-to Country/Region Code"; Rec."Sell-to Country/Region Code")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Country/Region Code';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the country or region of the address.';
+
+                        trigger OnValidate()
+                        begin
+                            IsSellToCountyVisible := FormatAddress.UseCounty("Sell-to Country/Region Code");
+                        end;
+                    }
                     field("Sell-to Contact No."; Rec."Sell-to Contact No.")
                     {
                         ApplicationArea = Suite;
@@ -398,11 +424,15 @@
                                             if ShipToAddressList.RunModal() = ACTION::LookupOK then begin
                                                 ShipToAddressList.GetRecord(ShipToAddress);
                                                 Validate("Ship-to Code", ShipToAddress.Code);
+                                                IsShipToCountyVisible := FormatAddress.UseCounty(ShipToAddress."Country/Region Code");
                                             end else
                                                 ShipToOptions := ShipToOptions::"Custom Address";
                                         end;
                                     ShipToOptions::"Custom Address":
-                                        Validate("Ship-to Code", '');
+                                        begin
+                                            Validate("Ship-to Code", '');
+                                            IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+                                        end;
                                 end;
 
                                 OnAfterValidateShipToOptions(Rec, ShipToOptions);
@@ -421,9 +451,17 @@
                                 ToolTip = 'Specifies the code for another shipment address than the customer''s own address, which is entered by default.';
 
                                 trigger OnValidate()
+                                var
+                                    ShipToAddress: Record "Ship-to Address";
                                 begin
                                     if (xRec."Ship-to Code" <> '') and ("Ship-to Code" = '') then
                                         Error(EmptyShipToCodeErr);
+
+                                    if "Ship-to Code" <> '' then begin
+                                        ShipToAddress.Get("Sell-to Customer No.", "Ship-to Code");
+                                        IsShipToCountyVisible := FormatAddress.UseCounty(ShipToAddress."Country/Region Code");
+                                    end else
+                                        IsShipToCountyVisible := false;
                                 end;
                             }
                             field("Ship-to Name"; Rec."Ship-to Name")
@@ -465,6 +503,19 @@
                                 QuickEntry = false;
                                 ToolTip = 'Specifies the city of the shipping address.';
                             }
+                            group(Control297)
+                            {
+                                ShowCaption = false;
+                                Visible = IsShipToCountyVisible;
+                                field("Ship-to County"; Rec."Ship-to County")
+                                {
+                                    ApplicationArea = Basic, Suite;
+                                    Caption = 'County';
+                                    Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                                    QuickEntry = false;
+                                    ToolTip = 'Specifies the state, province or county of the address.';
+                                }
+                            }
                             field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                             {
                                 ApplicationArea = Suite;
@@ -473,6 +524,11 @@
                                 Importance = Additional;
                                 QuickEntry = false;
                                 ToolTip = 'Specifies the country/region of the shipping address.';
+
+                                trigger OnValidate()
+                                begin
+                                    IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+                                end;
                             }
                         }
                         field("Ship-to Contact"; Rec."Ship-to Contact")
@@ -593,6 +649,36 @@
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the city of the billing address.';
+                        }
+                        group(Control130)
+                        {
+                            ShowCaption = false;
+                            Visible = IsBillToCountyVisible;
+                            field("Bill-to County"; Rec."Bill-to County")
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'County';
+                                Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                                Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                                Importance = Additional;
+                                QuickEntry = false;
+                                ToolTip = 'Specifies the state, province or county of the address.';
+                            }
+                        }
+                        field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Country/Region Code';
+                            Editable = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                            Enabled = (BillToOptions = BillToOptions::"Custom Address") OR ("Bill-to Customer No." <> "Sell-to Customer No.");
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the country or region of the address.';
+
+                            trigger OnValidate()
+                            begin
+                                IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
+                            end;
                         }
                         field("Bill-to Contact No."; Rec."Bill-to Contact No.")
                         {
@@ -1227,10 +1313,7 @@
 
         SetDocNoVisible();
 
-        GLSetup.Get();
-        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
-        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
-        IsSalesLinesEditable := Rec.SalesLinesEditable();
+        ActivateFields();
     end;
 
     var
@@ -1242,6 +1325,7 @@
         ArchiveManagement: Codeunit ArchiveManagement;
         SalesCalcDiscByType: Codeunit "Sales - Calc Discount By Type";
         CustomerMgt: Codeunit "Customer Mgt.";
+        FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         DocNoVisible: Boolean;
         OpenApprovalEntriesExistForCurrUser: Boolean;
@@ -1256,12 +1340,25 @@
         IsPaymentMethodCodeVisible: Boolean;
         [InDataSet]
         IsSalesLinesEditable: Boolean;
-
+        IsBillToCountyVisible: Boolean;
+        IsSellToCountyVisible: Boolean;
+        IsShipToCountyVisible: Boolean;
         EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
 
     protected var
         ShipToOptions: Enum "Sales Ship-to Options";
         BillToOptions: Enum "Sales Bill-to Options";
+
+    local procedure ActivateFields()
+    begin
+        IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
+        IsSellToCountyVisible := FormatAddress.UseCounty("Sell-to Country/Region Code");
+        IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+        IsSalesLinesEditable := Rec.SalesLinesEditable();
+    end;
 
     local procedure ApproveCalcInvDisc()
     begin
@@ -1336,4 +1433,3 @@
     begin
     end;
 }
-

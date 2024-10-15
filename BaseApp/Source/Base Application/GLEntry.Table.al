@@ -461,7 +461,7 @@ table 17 "G/L Entry"
         {
             SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "VAT Amount", Quantity;
         }
-        key(Key3; "G/L Account No.", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date")
+        key(Key3; "G/L Account No.", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date", "VAT Reporting Date")
         {
             SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "VAT Amount";
         }
@@ -778,7 +778,7 @@ table 17 "G/L Entry"
     begin
         if GenJnlLine."VAT Reporting Date" = 0D then
             "VAT Reporting Date" := GLSetup.GetVATDate(GenJnlLine."Posting Date", GenJnlLine."Document Date")
-        else 
+        else
             "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
     end;
 
