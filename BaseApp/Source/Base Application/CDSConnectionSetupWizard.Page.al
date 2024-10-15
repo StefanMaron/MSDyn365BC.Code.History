@@ -56,6 +56,45 @@ page 7201 "CDS Connection Setup Wizard"
                     ShowCaption = false;
                 }
             }
+            Group(StepConsent)
+            {
+                InstructionalText = 'Please review terms and conditions.';
+                Visible = ConsentStepVisible;
+                field(ConsentLbl; ConsentLbl)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ShowCaption = false;
+                    Editable = false;
+                    Caption = ' ';
+                    MultiLine = true;
+                    ToolTip = 'Agree with the customer consent.';
+                }
+                field(Consent; ConsentVar)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'I accept';
+                    ToolTip = 'Agree with the customer consent.';
+                    trigger OnValidate()
+                    begin
+                        NextActionEnabled := false;
+                        if ConsentVar then
+                            NextActionEnabled := true;
+                    end;
+                }
+                field(LearnMore; LearnMoreTok)
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ShowCaption = false;
+                    Caption = ' ';
+                    ToolTip = 'View information about the privacy.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Hyperlink(PrivacyLinkTxt);
+                    end;
+                }
+            }
             group(StepApplication)
             {
                 InstructionalText = 'Specify the ID, secret and redirect URL of the Azure Active Directory application that will be used to connect to Dataverse.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
@@ -472,7 +511,8 @@ page 7201 "CDS Connection Setup Wizard"
                     CDSConnectionSetup: Record "CDS Connection Setup";
                     AuthenticationType: Option Office365,AD,IFD,OAuth;
                 begin
-                    if Step = Step::Info then begin
+
+                    if Step = Step::Consent then begin
                         AuthenticationType := "Authentication Type";
                         GetCDSEnvironment();
                         "Authentication Type" := AuthenticationType;
@@ -679,7 +719,7 @@ page 7201 "CDS Connection Setup Wizard"
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         ClientTypeManagement: Codeunit "Client Type Management";
         CrmHelper: DotNet CrmHelper;
-        Step: Option Info,Application,Admin,IntegrationUser,OwnershipModel,CoupleSalespersons,FullSynchReview,Finish;
+        Step: Option Info,Consent,Application,Admin,IntegrationUser,OwnershipModel,CoupleSalespersons,FullSynchReview,Finish;
         Window: Dialog;
         [NonDebuggable]
         AdminAccessToken: Text;
@@ -710,6 +750,8 @@ page 7201 "CDS Connection Setup Wizard"
         AreAdminCredentialsCorrect: Boolean;
         FinishWithoutSynchronizingData: Boolean;
         SetupCompleted: Boolean;
+        ConsentVar: Boolean;
+        ConsentStepVisible: Boolean;
         InitialSynchRecommendations: Dictionary of [Code[20], Integer];
 #if CLEAN18
         ScopesLbl: Label 'https://globaldisco.crm.dynamics.com/user_impersonation', Locked = true;
@@ -718,6 +760,9 @@ page 7201 "CDS Connection Setup Wizard"
 #endif
         OpenCoupleSalespeoplePageQst: Label 'The Person ownership model requires that you couple salespersons in Business Central with users in Dataverse before you synchronize data. Otherwise, synchronization will not be successful.\\ Do you want to want to couple salespersons and users now?';
         SynchronizationRecommendationsLbl: Label 'Show synchronization recommendations';
+        ConsentLbl: Label 'By enabling this feature, you consent to your data being shared with a Microsoft service that might be outside of your organization''s selected geographic boundaries and might have different compliance and security standards than Microsoft Dynamics Business Central. Your privacy is important to us, and you can choose whether to share data with the service. To learn more, follow the link below.';
+        PrivacyLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=521839';
+        LearnMoreTok: Label 'Privacy and Cookies';
         [NonDebuggable]
         UserPassword: Text;
         SuccesfullyLoggedInTxt: Label 'The administrator is signed in.';
@@ -795,6 +840,8 @@ page 7201 "CDS Connection Setup Wizard"
         case Step of
             Step::Info:
                 ShowInfoStep();
+            Step::Consent:
+                ShowConsentStep();
             Step::Application:
                 ShowApplicationStep();
             Step::Admin:
@@ -818,6 +865,26 @@ page 7201 "CDS Connection Setup Wizard"
         FinishActionEnabled := false;
 
         InfoStepVisible := true;
+        ConsentStepVisible := false;
+        ApplicationStepVisible := false;
+        AdminStepVisible := false;
+        CredentialsStepVisible := false;
+        ImportSolutionStepVisible := false;
+        OwnershipModelStepVisible := false;
+        CoupleSalespersonsStepVisible := false;
+        FullSynchReviewStepVisible := false;
+    end;
+
+    local procedure ShowConsentStep()
+    begin
+        BackActionEnabled := true;
+        NextActionEnabled := true;
+        if not ConsentVar then
+            NextActionEnabled := false;
+        FinishActionEnabled := false;
+
+        InfoStepVisible := false;
+        ConsentStepVisible := true;
         ApplicationStepVisible := false;
         AdminStepVisible := false;
         CredentialsStepVisible := false;
@@ -833,6 +900,7 @@ page 7201 "CDS Connection Setup Wizard"
         NextActionEnabled := true;
         FinishActionEnabled := false;
 
+        ConsentStepVisible := false;
         InfoStepVisible := false;
         ApplicationStepVisible := true;
         AdminStepVisible := false;
@@ -853,6 +921,7 @@ page 7201 "CDS Connection Setup Wizard"
         FinishActionEnabled := false;
 
         InfoStepVisible := false;
+        ConsentStepVisible := false;
         ApplicationStepVisible := false;
         AdminStepVisible := true;
         CredentialsStepVisible := false;
@@ -871,6 +940,7 @@ page 7201 "CDS Connection Setup Wizard"
         FinishActionEnabled := false;
 
         InfoStepVisible := false;
+        ConsentStepVisible := false;
         ApplicationStepVisible := false;
         AdminStepVisible := false;
         CredentialsStepVisible := true;

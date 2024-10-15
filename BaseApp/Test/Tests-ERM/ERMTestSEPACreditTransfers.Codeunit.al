@@ -557,7 +557,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // [SCENARIO] Customer Bank Account information should be transferred by PaymentExportData.SetCustomerAsRecipient
         Customer.Init();
         Customer.Name := LibraryUtility.GenerateGUID;
-        Customer.Address := LibraryUtility.GenerateGUID;
+        Customer.Address := COPYSTR(LibraryRandom.RandText(100), 1, 100);
         Customer.City := LibraryUtility.GenerateGUID;
         Customer.County := LibraryUtility.GenerateGUID;
         Customer."Post Code" := LibraryUtility.GenerateGUID;
@@ -578,7 +578,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentExportData.SetCustomerAsRecipient(Customer, CustomerBankAccount);
 
         PaymentExportData.TestField("Recipient Name", Customer.Name);
-        PaymentExportData.TestField("Recipient Address", Customer.Address);
+        PaymentExportData.TestField("Recipient Address", CopyStr(Customer.Address, 1, 70));
         PaymentExportData.TestField("Recipient City", Customer.City);
         PaymentExportData.TestField("Recipient County", Customer.County);
         PaymentExportData.TestField("Recipient Post Code", Customer."Post Code");
@@ -607,7 +607,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // [SCENARIO] Vendor Bank Account information should be transferred by PaymentExportData.SetVendorAsRecipient
         Vendor.Init();
         Vendor.Name := LibraryUtility.GenerateGUID;
-        Vendor.Address := LibraryUtility.GenerateGUID;
+        Vendor.Address := COPYSTR(LibraryRandom.RandText(100), 1, 100);
         Vendor.City := LibraryUtility.GenerateGUID;
         Vendor.County := LibraryUtility.GenerateGUID;
         Vendor."Post Code" := LibraryUtility.GenerateGUID;
@@ -628,7 +628,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentExportData.SetVendorAsRecipient(Vendor, VendorBankAccount);
 
         PaymentExportData.TestField("Recipient Name", Vendor.Name);
-        PaymentExportData.TestField("Recipient Address", Vendor.Address);
+        PaymentExportData.TestField("Recipient Address", CopyStr(Vendor.Address, 1, 70));
         PaymentExportData.TestField("Recipient City", Vendor.City);
         PaymentExportData.TestField("Recipient County", Vendor.County);
         PaymentExportData.TestField("Recipient Post Code", Vendor."Post Code");
@@ -657,7 +657,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // [SCENARIO 274759] Employee bank account information should be transferred by PaymentExportData.SetEmployeeAsRecipient
         Employee.Init();
         Employee."First Name" := LibraryUtility.GenerateGUID;
-        Employee.Address := LibraryUtility.GenerateGUID;
+        Employee.Address := COPYSTR(LibraryRandom.RandText(100), 1, 100);
         Employee.City := LibraryUtility.GenerateGUID;
         Employee.County := LibraryUtility.GenerateGUID;
         Employee."Post Code" := LibraryUtility.GenerateGUID;
@@ -669,7 +669,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentExportData.SetEmployeeAsRecipient(Employee);
 
         PaymentExportData.TestField("Recipient Name", Employee.FullName);
-        PaymentExportData.TestField("Recipient Address", Employee.Address);
+        PaymentExportData.TestField("Recipient Address", CopyStr(Employee.Address, 1, 70));
         PaymentExportData.TestField("Recipient City", Employee.City);
         PaymentExportData.TestField("Recipient County", Employee.County);
         PaymentExportData.TestField("Recipient Post Code", Employee."Post Code");
@@ -1615,6 +1615,38 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         Assert.RecordCount(CreditTransferEntry, 3);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('VoidElecPmtRequestPageHandler,ConfirmHandler')]
+    procedure VoidPaymentFile_VendorAppliesToID()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ExpUserFeedbackGenJnl: Codeunit "Exp. User Feedback Gen. Jnl.";
+    begin
+        // [SCENARIO 412325] Table 82 "Gen. Journal Line".VoidPaymentFile() method clears "Exported to Payment File" on journal line and applied vendor entries (Applies-to ID case)
+        Init();
+
+        // [GIVEN] Journal line with applied vendor invoice (Applies-to ID)
+        CreateVendorPmtJournalLineWithAppliedToIdEntry(GenJournalLine, VendorLedgerEntry);
+        ExpUserFeedbackGenJnl.SetGivenExportFlagOnGenJnlLine(GenJournalLine, true);
+
+        // [GIVEN] Journal and vendor ledger entry have "Exported to Payment File" = True
+        VerifyExportedToPaymentFileFlagVendor(GenJournalLine, VendorLedgerEntry, true);
+
+        // [WHEN] Run "Gen. Journal Line".VoidPaymentFile()
+        Commit();
+        LibraryVariableStorage.Enqueue(true); // confirm "void"
+        GenJournalLine.VoidPaymentFile();
+
+        // [THEN] Journal and vendor ledger entry have "Exported to Payment File" = False
+        VerifyExportedToPaymentFileFlagVendor(GenJournalLine, VendorLedgerEntry, false);
+
+        // [THEN] "Vendor Ledger Entry"."Applies-to ID" = ''
+        VendorLedgerEntry.TestField("Applies-to ID", '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Init()
     var
         NoSeries: Record "No. Series";
@@ -1812,6 +1844,27 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             GenJournalLine, GenJournalLine."Document Type"::Payment,
             GenJournalLine."Account Type"::Vendor, VendorNo, 1);
         MockAppliedVendorLedgerEntry(GenJournalLine, VendorLedgerEntry);
+    end;
+
+    local procedure CreateVendorPmtJournalLineWithAppliedToIdEntry(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        VendorNo: Code[20];
+    begin
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, VendorNo, 1);
+        MockAppliedVendorLedgerEntry(GenJournalLine, VendorLedgerEntry);
+        GenJournalLine."Applies-to Doc. Type" := VendorLedgerEntry."Applies-to Doc. Type"::" ";
+        GenJournalLine."Applies-to Doc. No." := '';
+        GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        GenJournalLine.Modify();
+        VendorLedgerEntry."Applies-to Doc. Type" := VendorLedgerEntry."Applies-to Doc. Type"::" ";
+        VendorLedgerEntry."Applies-to Doc. No." := '';
+        VendorLedgerEntry."Applies-to ID" := GenJournalLine."Document No.";
+        VendorLedgerEntry.Modify();
     end;
 
     local procedure CreateCustomerPmtJournalLineWithAppliedEntry(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")

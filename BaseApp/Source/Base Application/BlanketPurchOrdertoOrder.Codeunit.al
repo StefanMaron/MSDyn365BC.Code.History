@@ -59,7 +59,7 @@ codeunit 97 "Blanket Purch. Order to Order"
                             PurchOrderLine.Validate("Expected Receipt Date", PurchBlanketOrderLine."Expected Receipt Date")
                         else
                             PurchOrderLine.Validate("Order Date", PurchOrderHeader."Order Date");
-                        PurchOrderLine.Validate("Direct Unit Cost", PurchBlanketOrderLine."Direct Unit Cost");
+                        UpdatePurchOrderLineDirectUnitCost();
                         PurchOrderLine.Validate("Line Discount %", PurchBlanketOrderLine."Line Discount %");
                         if PurchOrderLine.Quantity <> 0 then
                             PurchOrderLine.Validate("Inv. Discount Amount", PurchBlanketOrderLine."Inv. Discount Amount");
@@ -157,6 +157,18 @@ codeunit 97 "Blanket Purch. Order to Order"
                     then
                         QuantityOnOrders := QuantityOnOrders + PurchLine."Outstanding Qty. (Base)";
             until PurchLine.Next() = 0;
+    end;
+
+    local procedure UpdatePurchOrderLineDirectUnitCost()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdatePurchOrderLineDirectUnitCost(PurchOrderLine, PurchBlanketOrderLine, PurchOrderHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchOrderLine.Validate("Direct Unit Cost", PurchBlanketOrderLine."Direct Unit Cost");
     end;
 
     local procedure CheckBlanketOrderLineQuantity()
@@ -306,6 +318,11 @@ codeunit 97 "Blanket Purch. Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertPurchOrderLine(var PurchOrderLine: Record "Purchase Line"; PurchOrderHeader: Record "Purchase Header"; var BlanketOrderPurchLine: Record "Purchase Line"; BlanketOrderPurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePurchOrderLineDirectUnitCost(var PurchOrderLine: Record "Purchase Line"; PurchBlanketOrderLine: Record "Purchase Line"; PurchOrderHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

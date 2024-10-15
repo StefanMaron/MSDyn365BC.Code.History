@@ -98,6 +98,7 @@ codeunit 7307 "Whse.-Activity-Register"
             TempWhseActivityLineGrouped.DeleteAll();
 
             WhseActivLine.LockTable();
+            WhseJnlRegisterLine.LockTables();
 
             // breakbulk first to provide quantity for pick lines in smaller UoM
             WhseActivLine.SetFilter("Breakbulk No.", '<>0');
@@ -950,6 +951,7 @@ codeunit 7307 "Whse.-Activity-Register"
                     TempWhseActivLine.SetRange("Item No.", TempWhseActivLine."Item No.");
                     if ItemTrackingMgt.GetWhseItemTrkgSetup(TempWhseActivLine."Item No.", WhseItemTrackingSetup) then
                         repeat
+                            TempWhseActivLine.TestNonSpecificItemTracking();
                             TempWhseActivLine.TestTrackingIfRequired(WhseItemTrackingSetup);
                         until TempWhseActivLine.Next() = 0
                     else begin
@@ -1137,7 +1139,13 @@ codeunit 7307 "Whse.-Activity-Register"
     var
         WhseItemTrkgLine: Record "Whse. Item Tracking Line";
         QtyToHandleBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitTempTrackingSpecification(WhseActivLine2, QtyToRegisterBase, IsHandled);
+        if IsHandled then
+            exit(QtyToRegisterBase);
+
         QtyToRegisterBase := WhseActivLine2."Qty. to Handle (Base)";
         SetPointerFilter(WhseActivLine2, WhseItemTrkgLine);
 
@@ -2150,6 +2158,11 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRegisteredInvtMovementHdrInsert(var RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr."; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitTempTrackingSpecification(WarehouseActivityLine: Record "Warehouse Activity Line"; var QtyToRegisterBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 

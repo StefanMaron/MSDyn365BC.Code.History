@@ -1294,6 +1294,36 @@ codeunit 137157 "SCM Order Promising II"
         ReservationEntry.TestField("Shipment Date", WorkDate());
     end;
 
+    [Test]
+    procedure CapableToPromiseForSalesOrderWithTwoLinesSameItem()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        OrderPromisingLine: Record "Order Promising Line";
+        AvailabilityManagement: Codeunit AvailabilityManagement;
+        Qty: Decimal;
+        EarliestShipmentDate: Date;
+    begin
+        // [FEATURE] [Capable to Promise]
+        // [SCENARIO 409705] Capable to Promise for sales order with two same item lines.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        CreateItemWithLeadTimeCalculation(Item);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+
+        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityManagement.CalcCapableToPromise(OrderPromisingLine, SalesHeader."No.");
+
+        EarliestShipmentDate := OrderPromisingLine."Earliest Shipment Date";
+        OrderPromisingLine.SetRange("Earliest Shipment Date", EarliestShipmentDate);
+        Assert.RecordCount(OrderPromisingLine, 2);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

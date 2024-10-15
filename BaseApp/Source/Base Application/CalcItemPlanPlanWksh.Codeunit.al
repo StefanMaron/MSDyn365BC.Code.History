@@ -47,7 +47,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
             CopyFilter("Location Filter", ReqLineExtern."Location Code");
             ReqLineExtern.SetRange(Type, ReqLineExtern.Type::Item);
             ReqLineExtern.SetRange("No.", "No.");
-            OnCodeOnAfterSetReqLineFilters(ReqLineExtern);
+            OnCodeOnAfterSetReqLineFilters(ReqLineExtern, CurrTemplateName, CurrWorksheetName);
             if ReqLineExtern.Find('-') then
                 repeat
                     ReqLineExtern.Delete(true);
@@ -190,7 +190,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         NetChange := NetChange2;
     end;
 
-    local procedure PlanThisItem(): Boolean
+    local procedure PlanThisItem() Result: Boolean
     var
         SKU: Record "Stockkeeping Unit";
         ForecastEntry: Record "Production Forecast Entry";
@@ -203,9 +203,9 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePlanThisItem(Item, IsHandled);
+        OnBeforePlanThisItem(Item, IsHandled, MPS, MRP, NetChange, FromDate, ToDate, UseForecast, RespectPlanningParm, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         SKU.SetCurrentKey("Item No.");
         Item.CopyFilter("Variant Filter", SKU."Variant Code");
@@ -304,7 +304,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePlanThisItem(Item: Record Item; var IsHandled: Boolean)
+    local procedure OnBeforePlanThisItem(Item: Record Item; var IsHandled: Boolean; MPS: Boolean; MRP: Boolean; NetChange: Boolean; FromDate: Date; ToDate: Date; UseForecast: Code[10]; RespectPlanningParm: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -314,7 +314,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterSetReqLineFilters(var ReqLineExtern: Record "Requisition Line")
+    local procedure OnCodeOnAfterSetReqLineFilters(var ReqLineExtern: Record "Requisition Line"; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10])
     begin
     end;
 

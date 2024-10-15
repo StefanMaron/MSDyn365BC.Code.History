@@ -310,6 +310,7 @@ codeunit 1543 "Workflow Webhook Management"
         ResponseTypeNotExpected := WorkflowStepArgument."Response Type"::"Not Expected";
 
         if WorkflowStepArgument.IsEmpty or (WorkflowStepArgument."Response Type" <> ResponseTypeNotExpected) then begin
+            WorkflowStepInstance.SetLoadFields("Workflow Step ID");
             WorkflowStepInstance.Init();
             WorkflowStepInstance.SetRange(ID, WorkflowStepInstanceID);
             WorkflowStepInstance.SetRange("Workflow Code", WorkflowCode);

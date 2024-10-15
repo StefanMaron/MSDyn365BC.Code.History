@@ -24,8 +24,13 @@ page 8636 "Config. Field Mapping"
         }
     }
 
-    actions
-    {
-    }
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Rec.FilterGroup(2);
+        Rec."Package Code" := CopyStr(Rec.GetFilter("Package Code"), 1, MaxStrLen(rec."Package Code"));
+        if Evaluate(Rec."Table ID", Rec.GetFilter("Table ID")) then;
+        if Evaluate(Rec."Field ID", Rec.GetFilter("Field ID")) then;
+        Rec.FilterGroup(0);
+    end;
 }
 

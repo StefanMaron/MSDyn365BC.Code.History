@@ -393,6 +393,11 @@ table 254 "VAT Entry"
         {
             Editable = false;
         }
+        field(85; "G/L Acc. No."; Code[20])
+        {
+            Caption = 'G/L Account No.';
+            TableRelation = "G/L Account";
+        }
         field(10015; "Tax Exemption No."; Text[30])
         {
             Caption = 'Tax Exemption No.';
@@ -422,7 +427,7 @@ table 254 "VAT Entry"
         {
             Clustered = true;
         }
-        key(Key2; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date", "Tax Jurisdiction Code", "Use Tax")
+        key(Key2; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date", "G/L Acc. No.")
         {
             SumIndexFields = Base, Amount, "Additional-Currency Base", "Additional-Currency Amount", "Remaining Unrealized Amount", "Remaining Unrealized Base", "Add.-Curr. Rem. Unreal. Amount", "Add.-Curr. Rem. Unreal. Base";
         }
@@ -447,15 +452,18 @@ table 254 "VAT Entry"
         {
             MaintainSQLIndex = false;
         }
-        key(Key9; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Jurisdiction Code", "Use Tax", "Posting Date")
+        key(Key9; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Jurisdiction Code", "Use Tax", "Posting Date", "G/L Acc. No.")
         {
             SumIndexFields = Base, Amount, "Unrealized Amount", "Unrealized Base", "Additional-Currency Base", "Additional-Currency Amount", "Add.-Currency Unrealized Amt.", "Add.-Currency Unrealized Base", "Remaining Unrealized Amount";
         }
-        key(Key10; "Posting Date", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", Reversed)
+        key(Key10; "Posting Date", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", Reversed, "G/L Acc. No.")
         {
             SumIndexFields = Base, Amount, "Unrealized Amount", "Unrealized Base", "Additional-Currency Base", "Additional-Currency Amount", "Add.-Currency Unrealized Amt.", "Add.-Currency Unrealized Base", "Remaining Unrealized Amount";
         }
         key(Key11; "Document Date")
+        {
+        }
+        key(Key12; "G/L Acc. No.")
         {
         }
     }
@@ -469,6 +477,9 @@ table 254 "VAT Entry"
 
     var
         Text000: Label 'You cannot change the contents of this field when %1 is %2.';
+        ConfirmAdjustQst: Label 'Do you want to fill the G/L Account No. field in VAT entries that are linked to G/L Entries?';
+        ProgressMsg: Label 'Processed entries: @2@@@@@@@@@@@@@@@@@\';
+        AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
         Cust: Record Customer;
         Vend: Record Vendor;
         GLSetup: Record "General Ledger Setup";
@@ -603,6 +614,45 @@ table 254 "VAT Entry"
         "Tax Liable" := GenJnlLine."Tax Liable";
         "Tax Group Code" := GenJnlLine."Tax Group Code";
         "Use Tax" := GenJnlLine."Use Tax";
+    end;
+
+    procedure SetGLAccountNo(WithUI: Boolean)
+    var
+        GLEntry: Record "G/L Entry";
+        GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
+        ConfirmManagement: Codeunit "Confirm Management";
+        VATEntryEdit: Codeunit "VAT Entry - Edit";
+        Window: Dialog;
+        NoOfRecords: Integer;
+        Index: Integer;
+    begin
+        SetRange("G/L Acc. No.", '');
+        if WithUI then begin
+            if not ConfirmManagement.GetResponseOrDefault(ConfirmAdjustQst, false) then
+                exit;
+
+            if GuiAllowed() then begin
+                NoOfRecords := Count();
+                Window.Open(AdjustTitleMsg + ProgressMsg);
+            end;
+        end;
+        GLEntry.SetLoadFields("G/L Account No.");
+        SetLoadFields("G/L Acc. No.");
+        if FindSet(true) then
+            repeat
+                GLEntryVATEntryLink.SetRange("VAT Entry No.", "Entry No.");
+                if GLEntryVATEntryLink.FindFirst() then
+                    if GLEntry.Get(GLEntryVATEntryLink."G/L Entry No.") then begin
+                        VATEntryEdit.SetGLAccountNo(Rec, GLEntry."G/L Account No.");
+                        if WithUI and GuiAllowed() then begin
+                            Index += 1;
+                            Window.Update(2, Round(Index / NoOfRecords * 10000, 1));
+                        end;
+                    end;
+            until Next() = 0;
+        SetLoadFields();
+        if WithUI and GuiAllowed() then
+            Window.Close();
     end;
 
     procedure CopyAmountsFromVATEntry(VATEntry: Record "VAT Entry"; WithOppositeSign: Boolean)

@@ -1,4 +1,4 @@
-codeunit 99000837 "Prod. Order Line-Reserve"
+﻿codeunit 99000837 "Prod. Order Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Action Message Entry" = rm;
@@ -222,15 +222,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
 
         // Handle Item Tracking on output:
         Clear(CreateReservEntry);
-        if NewItemJnlLine."Entry Type" = NewItemJnlLine."Entry Type"::Output then
-            if NewItemJnlLine.TrackingExists then begin
-                // Try to match against Item Tracking on the prod. order line:
-                OldReservEntry.SetTrackingFilterFromItemJnlLine(NewItemJnlLine);
-                if OldReservEntry.IsEmpty() then
-                    OldReservEntry.ClearTrackingFilter
-                else
-                    ItemTrackingFilterIsSet := true;
-            end;
+        SetTrackingFilterFromItemJnlLine(OldReservEntry, NewItemJnlLine, ItemTrackingFilterIsSet);
 
         IsHandled := false;
         OnTransferPOLineToItemJnlLineOnBeforeTestItemJnlLineFields(NewItemJnlLine, OldProdOrderLine, IsHandled);
@@ -242,8 +234,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
 
         if ReservEngineMgt.InitRecordSet(OldReservEntry) then
             repeat
-                if NewItemJnlLine.TrackingExists then
-                    CreateReservEntry.SetNewTrackingFromItemJnlLine(NewItemJnlLine);
+                SetNewTrackingFromItemJnlLine(CreateReservEntry, NewItemJnlLine, OldReservEntry);
                 OldReservEntry.TestItemFields(OldProdOrderLine."Item No.", OldProdOrderLine."Variant Code", OldProdOrderLine."Location Code");
 
                 TransferPOLineToItemJnlLineReservEntry(OldProdOrderLine, NewItemJnlLine, OldReservEntry, TransferQty);
@@ -257,6 +248,40 @@ codeunit 99000837 "Prod. Order Line-Reserve"
                         EndLoop := true;
 
             until EndLoop or (TransferQty = 0);
+    end;
+
+
+    local procedure SetNewTrackingFromItemJnlLine(var CreateReservEntry: Codeunit "Create Reserv. Entry"; var NewItemJnlLine: Record "Item Journal Line"; OldReservEntry: Record "Reservation Entry")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetNewTrackingFromItemJnlLine(CreateReservEntry, NewItemJnlLine, OldReservEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        if NewItemJnlLine.TrackingExists then
+            CreateReservEntry.SetNewTrackingFromItemJnlLine(NewItemJnlLine);
+    end;
+
+    local procedure SetTrackingFilterFromItemJnlLine(var OldReservEntry: Record "Reservation Entry"; var NewItemJnlLine: Record "Item Journal Line"; var ItemTrackingFilterIsSet: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetTrackingFilterFromItemJnlLine(OldReservEntry, NewItemJnlLine, ItemTrackingFilterIsSet, IsHandled);
+        if IsHandled then
+            exit;
+
+        if NewItemJnlLine."Entry Type" = NewItemJnlLine."Entry Type"::Output then
+            if NewItemJnlLine.TrackingExists() then begin
+                // Try to match against Item Tracking on the prod. order line:
+                OldReservEntry.SetTrackingFilterFromItemJnlLine(NewItemJnlLine);
+                if OldReservEntry.IsEmpty() then
+                    OldReservEntry.ClearTrackingFilter()
+                else
+                    ItemTrackingFilterIsSet := true;
+            end;
     end;
 
     local procedure TransferPOLineToItemJnlLineReservEntry(ProdOrderLine: Record "Prod. Order Line"; ItemJnlLine: Record "Item Journal Line"; OldReservEntry: Record "Reservation Entry"; var TransferQty: Decimal)
@@ -612,6 +637,16 @@ codeunit 99000837 "Prod. Order Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferPOLineToPOLine(var OldProdOrderLine: Record "Prod. Order Line"; var NewProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetTrackingFilterFromItemJnlLine(OldReservEntry: Record "Reservation Entry"; var NewItemJnlLine: Record "Item Journal Line"; var ItemTrackingFilterIsSet: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetNewTrackingFromItemJnlLine(var CreateReservEntry: Codeunit "Create Reserv. Entry"; var NewItemJnlLine: Record "Item Journal Line"; OldReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 
