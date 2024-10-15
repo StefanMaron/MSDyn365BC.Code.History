@@ -646,6 +646,70 @@ codeunit 134907 "ERM Invoice and Reminder"
         GLEntry.FindFirst();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestIfReminderCanBeIssuedAfterCancellation()
+    var
+        Customer: Record Customer;
+        Reminder: Record "Reminder Header";
+        ReminderLine: Record "Reminder Line";
+        IssuedReminder: Record "Issued Reminder Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        CancelIssuedReminder: Codeunit "Cancel Issued Reminder";
+        ReminderNo: Code[20];
+        IssueNo: Code[20];
+        OldReminderLevel: Integer;
+        DocumentDate: Date;
+    begin
+        // [SCENARIO 435427] To check if Reminder is getting issued after cancelation of previous reminder where reminder level are updated manually by user in first document
+        Initialize();
+
+        // [GIVEN] Create a customer and issue areminder document
+        SetupAndPostSalesInvoice(Customer, DocumentDate, '', '');
+        CreateReminder(Customer."No.", DocumentDate, true);
+        ReminderNo := GetReminderNo(Customer."No.");
+        Reminder.Get(ReminderNo);
+        OldReminderLevel := Reminder."Reminder Level";
+
+        // [GIVEN] Update reminder Level on lines manually
+        ReminderLine.SetRange("Reminder No.", ReminderNo);
+        ReminderLine.SetFilter("No. of Reminders", '<>%1', 0);
+        if ReminderLine.findset() then
+            repeat
+                ReminderLine.Validate("No. of Reminders", 4);
+                ReminderLine.Modify(true);
+            until ReminderLine.Next() = 0;
+
+        // [GIVEN] Issue the reminder
+        IssueNo := IssueReminderWithReminderHeader(Reminder);
+        IssuedReminder.SetRange("No.", IssueNo);
+        IssuedReminder.FindFirst();
+
+        // [GIVEN] Cancel Issued Reminder
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalLine.Init();
+        GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
+        GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
+
+        CancelIssuedReminder.SetJournal(GenJournalLine);
+        CancelIssuedReminder.SetParameters(true, true, WorkDate(), true);
+        CancelIssuedReminder.Run(IssuedReminder);
+
+        // [WHEN] a new Reminder is generated with same parameters
+        CreateReminder(Customer."No.", DocumentDate, true);
+        ReminderNo := GetReminderNo(Customer."No.");
+        Reminder.Get(ReminderNo);
+
+        // [THEN] New reminder should have previous reminder levels on line
+        ReminderLine.SetRange("Reminder No.", Reminder."No.");
+        ReminderLine.SetRange("No. of Reminders", OldReminderLevel);
+
+        Assert.RecordIsNotEmpty(ReminderLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1110,6 +1174,85 @@ codeunit 134907 "ERM Invoice and Reminder"
             "Last Issued Reminder Level" := LastIssuedReminderLevel;
             Insert;
         end;
+    end;
+
+    local procedure SetupAndPostSalesInvoice(var Customer: Record Customer; var DocumentDate: Date; CurrencyCode: Code[10]; CurrencyCode2: Code[10]): Decimal
+    var
+        CustomerNo: Code[20];
+        ReminderLevel: Record "Reminder Level";
+        DueDate: Date;
+    begin
+        // Setup: Create a Customer with Currency and Reminder Terms attached to it. Create and Post Sales Invoice for the Customer with
+        // Currency selected. Create Reminder for the Customer after Grace Period Date.
+        CustomerNo := CreateCustomer();
+        Customer.Get(CustomerNo);
+        GetReminderLevel(ReminderLevel, Customer."Reminder Terms Code");
+        DueDate := CreateAndPostSalesInvoice(Customer."No.", CurrencyCode2);
+        DocumentDate := CalcDate('<1D>', CalcDate(ReminderLevel."Grace Period", DueDate));
+        exit(ReminderLevel."Additional Fee (LCY)");
+    end;
+
+    local procedure GetReminderLevel(var ReminderLevel: Record "Reminder Level"; ReminderTermsCode: Code[10])
+    begin
+        ReminderLevel.SetRange("Reminder Terms Code", ReminderTermsCode);
+        ReminderLevel.FindFirst;
+    end;
+
+    local procedure GetReminderNo(CustomerNo: Code[20]): Code[20]
+    var
+        ReminderHeader: Record "Reminder Header";
+    begin
+        ReminderHeader.SetRange("Customer No.", CustomerNo);
+        ReminderHeader.FindFirst;
+        exit(ReminderHeader."No.");
+    end;
+
+    local procedure CreateAndPostSalesInvoice(CustomerNo: Code[20]; CurrencyCode: Code[10]): Date
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // Take Random Quantity for Sales Invoice.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        exit(SalesHeader."Due Date");
+    end;
+
+    local procedure CreateItem(): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
+          Item, LibraryRandom.RandDec(1000, 2), LibraryRandom.RandDec(1000, 2));
+        exit(Item."No.");
+    end;
+
+    local procedure CreateReminder(CustomerNo: Code[20]; DocumentDate: Date; UseHeaderLevel: Boolean)
+    var
+        Customer: Record Customer;
+        CreateReminders: Report "Create Reminders";
+    begin
+        Clear(CreateReminders);
+        Customer.SetRange("No.", CustomerNo);
+        CreateReminders.SetTableView(Customer);
+        CreateReminders.InitializeRequest(DocumentDate, DocumentDate, true, UseHeaderLevel, false);
+        CreateReminders.UseRequestPage(false);
+        CreateReminders.Run;
+    end;
+
+    local procedure IssueReminderWithReminderHeader(ReminderHeader: Record "Reminder Header") IssuedReminderNo: Code[20]
+    var
+        IssuedReminder: Record "Issued Reminder Header";
+        ReminderIssue: Codeunit "Reminder-Issue";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        ReminderIssue.Set(ReminderHeader, false, ReminderHeader."Document Date");
+        LibraryERM.RunReminderIssue(ReminderIssue);
+        ReminderIssue.GetIssuedReminder(IssuedReminder);
+        IssuedReminderNo := IssuedReminder."No.";
     end;
 
     [ConfirmHandler]
