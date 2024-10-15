@@ -1,7 +1,7 @@
 ﻿xmlport 1010 "SEPA DD pain.008.001.02"
 {
-    Caption = 'SEPA DD pain.008.001.08';
-    DefaultNamespace = 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.08';
+    Caption = 'SEPA DD pain.008.001.02';
+    DefaultNamespace = 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02';
     Direction = Export;
     Encoding = UTF8;
     FormatEvaluate = Xml;
