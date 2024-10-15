@@ -249,6 +249,7 @@ table 11000001 "Payment History"
     [Scope('OnPrem')]
     procedure GenerateExportfilename(New: Boolean) FileName: Text[250]
     begin
+        OnBeforeGenerateExportfilename(Rec, New);
         if ("File on Disk" = '') or New then begin
             "Day Serial Nr." := GetNextDaySerialNo();
             "Sent On" := Today;
@@ -292,6 +293,11 @@ table 11000001 "Payment History"
         DimMgt: Codeunit DimensionManagement;
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Run No."));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenerateExportfilename(PaymentHistory: Record "Payment History"; New: Boolean)
+    begin
     end;
 }
 

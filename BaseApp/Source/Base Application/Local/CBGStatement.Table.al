@@ -379,7 +379,14 @@ table 11400 "CBG Statement"
     end;
 
     procedure CheckBalance()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckBalance(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcFields("Net Change Debit", "Net Change Credit");
 
         if "Opening Balance" - "Net Change Debit" + "Net Change Credit" <> "Closing Balance" then
@@ -646,6 +653,11 @@ table 11400 "CBG Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterProcessStatementASGenJournal(var CBGStatement: Record "CBG Statement")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBalance(var CBGStatement: Record "CBG Statement"; var IsHandled: Boolean)
     begin
     end;
 

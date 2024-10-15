@@ -70,10 +70,10 @@ codeunit 144051 "ERM EVAT"
         AttrBdObTok: Label 'xmlns:bd-ob';
         DownloadSubmissionMessageQst: Label 'Do you want to download the submission message?';
         NoSubmissionMessageAvailableErr: Label 'The submission message of the report is not available.';
-        BDDataEndpointTxt: Label 'https://www.nltaxonomie.nl/nt17/bd/20221207/dictionary/bd-data', Locked = true;
-        VATDeclarationSchemaEndpointTxt: Label 'https://www.nltaxonomie.nl/nt17/bd/20221207/entrypoints/bd-rpt-ob-aangifte-2023.xsd', Locked = true;
-        BDTuplesEndpointTxt: Label 'https://www.nltaxonomie.nl/nt17/bd/20221207/dictionary/bd-tuples', Locked = true;
-        ICPDeclarationSchemaEndpointTxt: Label 'https://www.nltaxonomie.nl/nt17/bd/20221207/entrypoints/bd-rpt-icp-opgaaf-2023.xsd', Locked = true;
+        BDDataEndpointTxt: Label 'http://www.nltaxonomie.nl/nt17/bd/20221207/dictionary/bd-data', Locked = true;
+        VATDeclarationSchemaEndpointTxt: Label 'http://www.nltaxonomie.nl/nt17/bd/20221207/entrypoints/bd-rpt-ob-aangifte-2023.xsd', Locked = true;
+        BDTuplesEndpointTxt: Label 'http://www.nltaxonomie.nl/nt17/bd/20221207/dictionary/bd-tuples', Locked = true;
+        ICPDeclarationSchemaEndpointTxt: Label 'http://www.nltaxonomie.nl/nt17/bd/20221207/entrypoints/bd-rpt-icp-opgaaf-2023.xsd', Locked = true;
 
     [Test]
     [HandlerFunctions('CreateElecVATDeclarationRequestPageHandler,VATStatementRequestPageHandler')]

@@ -46,7 +46,7 @@ table 5051 "Contact Alt. Address"
 
             trigger OnLookup()
             begin
-                PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
+                LookupPostCode(Rec.FieldNo(City));
             end;
 
             trigger OnValidate()
@@ -71,7 +71,7 @@ table 5051 "Contact Alt. Address"
 
             trigger OnLookup()
             begin
-                PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
+                LookupPostCode(Rec.FieldNo("Post Code"));
             end;
 
             trigger OnValidate()
@@ -228,13 +228,24 @@ table 5051 "Contact Alt. Address"
             "Search E-Mail" := "E-Mail";
     end;
 
+    local procedure LookupPostCode(CalledFromField: Integer)
+    begin
+        PostCode.LookupPostCode(Rec.City, Rec."Post Code", Rec.County, Rec."Country/Region Code");
+        OnAfterLookupPostCode(Rec, CalledFromField, PostCode);
+    end;
+
 #if not CLEAN21
-    [Obsolete('Replaced by event OnBeforeValidatePostCode()','21.0')]
+    [Obsolete('Replaced by event OnBeforeValidatePostCode()', '21.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostPode(var ContactAltAddress: Record "Contact Alt. Address"; var IsHandled: Boolean)
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupPostCode(var ContactAltAddress: Record "Contact Alt. Address"; FieldNo: Integer; var PostCode: Record "Post Code")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateCity(var ContactAltAddress: Record "Contact Alt. Address"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);

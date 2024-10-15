@@ -60,6 +60,7 @@ codeunit 7036 "Price Source - Job" implements "Price Source"
     begin
         PriceSource.Description := Job.Description;
         PriceSource."Currency Code" := Job."Currency Code";
+        OnAfterFillAdditionalFields(PriceSource, Job);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Price Source List", 'OnBeforeAddChildren', '', false, false)]
@@ -77,5 +78,10 @@ codeunit 7036 "Price Source - Job" implements "Price Source"
                     TempChildPriceSource.Insert();
                 until JobTask.Next() = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillAdditionalFields(var PriceSource: Record "Price Source"; Job: Record Job)
+    begin
     end;
 }

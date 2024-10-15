@@ -1201,6 +1201,7 @@
     var
         PurchLineReserve: Codeunit "Purch. Line-Reserve";
     begin
+        OnBeforeDeleteRecord(Rec);
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
             if not PurchLineReserve.DeleteLineConfirm(Rec) then
@@ -1523,6 +1524,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSendLineInvoiceDiscountResetNotification(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteRecord(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 

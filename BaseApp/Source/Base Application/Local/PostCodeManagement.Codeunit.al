@@ -21,7 +21,7 @@ codeunit 11401 "Post Code Management"
     end;
 #endif
 
-    procedure FindStreetName(var Address: Text[100]; var Address2: Text[50]; var PostCode: Code[20]; var City: Text[30]; CountryCode: Code[10]; var PhoneNo: Text[30]; var FaxNo: Text[30])
+    procedure FindStreetName(var Address: Text[100]; var Address2: Text[50]; var PostCode: Code[20]; var City: Text[30]; var CountryCode: Code[10]; var PhoneNo: Text[30]; var FaxNo: Text[30])
     var
         NewAddress: Text[100];
         NewStreetname: Text[50];

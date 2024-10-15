@@ -291,7 +291,13 @@ codeunit 1006 "Copy Job"
         Job: Record Job;
         CurrExchRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExchangeJobPlanningLineAmounts(JobPlanningLine, CurrencyCode, IsHandled);
+        if IsHandled then
+            exit;
+
         Job.Get(JobPlanningLine."Job No.");
         if CurrencyCode <> Job."Currency Code" then
             if (CurrencyCode = '') and (Job."Currency Code" <> '') then begin
@@ -386,6 +392,11 @@ codeunit 1006 "Copy Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyJob(SourceJob: Record Job; TargetJobNo: Code[20]; TargetJobDescription: Text[100]; TargetJobSellToCustomer: Code[20]; TargetJobBillToCustomer: Code[20]; CopyDimensions: Boolean; CopyPrices: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExchangeJobPlanningLineAmounts(var JobPlanningLine: Record "Job Planning Line"; CurrencyCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

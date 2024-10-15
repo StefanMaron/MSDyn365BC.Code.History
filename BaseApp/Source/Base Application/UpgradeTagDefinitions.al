@@ -121,6 +121,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetVATDateFieldSalesPurchUpgrade());
         PerCompanyUpgradeTags.Add(GetSendCloudMigrationUpgradeTelemetryBaseAppTag());
         PerCompanyUpgradeTags.Add(GetVATDateFieldIssuedDocsUpgrade());
+        PerCompanyUpgradeTags.Add(GetDeferralSourceCodeUpdateTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -993,6 +994,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetSendCloudMigrationUpgradeTelemetryBaseAppTag(): Text[250]
     begin
         exit('MS-456494-CloudMigrationUptakeBaseApp-20220130');
+    end;
+
+    internal procedure GetDeferralSourceCodeUpdateTag(): Code[250]
+    begin
+        exit('MS-422924-GetDeferralSourceCodeUpdateTag-20230124');
     end;
 }
 

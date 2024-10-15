@@ -101,8 +101,7 @@ codeunit 11000000 "Process Proposal Lines"
         if IsHandled then
             exit;
 
-        if not Confirm(Text1000005, false) then
-            Error(Text1000006);
+        ShowProcessLinesConfirm();
 
         ErrorNumber := 0;
         NumberPosted := 0;
@@ -144,6 +143,19 @@ codeunit 11000000 "Process Proposal Lines"
                     Message(Text1000009, NumberPosted, ErrorNumber, NumberPosted -
                       ErrorNumber);
             end;
+    end;
+
+    local procedure ShowProcessLinesConfirm()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowProcessLinesConfirm(ProposalLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not Confirm(Text1000005, false) then
+            Error(Text1000006);
     end;
 
     [Scope('OnPrem')]
@@ -581,6 +593,8 @@ codeunit 11000000 "Process Proposal Lines"
         end;
 
         FinancialInterfaceTelebank.PostPaymReceived(GenJnlLine, PaymentHistoryLine, PaymentHistory);
+
+        OnAfterCreatePaymentHistoryLine(ProposalLine, PaymentHistory, PaymentHistoryLine);
     end;
 
     [Scope('OnPrem')]
@@ -632,12 +646,22 @@ codeunit 11000000 "Process Proposal Lines"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreatePaymentHistoryLine(var ProposalLine: Record "Proposal Line"; var PaymentHistory: Record "Payment History"; PaymentHistoryLine: Record "Payment History Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckProposalLines(var ProposalLine: Record "Proposal Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeProcessProposalLines(var ProposalLine: Record "Proposal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowProcessLinesConfirm(ProposalLine: Record "Proposal Line"; var IsHandled: Boolean)
     begin
     end;
 

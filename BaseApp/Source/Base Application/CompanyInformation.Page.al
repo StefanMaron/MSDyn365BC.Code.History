@@ -115,6 +115,12 @@ Page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the fiscal entity number is the VAT number assigned to a group of companies to report one consolidated VAT declaration.';
                 }
+                field("Registration No."; Rec."Registration No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the company''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
+                }
                 field(Picture; Picture)
                 {
                     ApplicationArea = Basic, Suite;

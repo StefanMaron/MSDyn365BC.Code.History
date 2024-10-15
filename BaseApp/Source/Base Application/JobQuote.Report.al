@@ -30,6 +30,12 @@ report 1016 "Job Quote"
             column(CompanyAddress6; CompanyAddr[6])
             {
             }
+            column(CompanyAddress7; CompanyAddr[7])
+            {
+            }
+            column(CompanyAddress8; CompanyAddr[8])
+            {
+            }
             column(CompanyPicture; CompanyInfo.Picture)
             {
             }

@@ -690,7 +690,7 @@ codeunit 134154 "ERM Intercompany III"
         UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
 
         // [GIVEN] Purchase Order "PO" for Vendor with IC Partner.
-        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode);
+        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode, false, 0);
 
         // [GIVEN] Sent Intercompany Purchase Order.
         ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
@@ -792,7 +792,7 @@ codeunit 134154 "ERM Intercompany III"
         UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
 
         // [GIVEN] Purchase Invoice "PI" for Vendor with IC Partner.
-        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Invoice, ICPartnerCode);
+        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Invoice, ICPartnerCode, false, 0);
 
         // [GIVEN] Sent Intercompany Purchase Invoice.
         ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
@@ -894,7 +894,7 @@ codeunit 134154 "ERM Intercompany III"
         UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
 
         // [GIVEN] Purchase Credit Memo "PCM" for Vendor with IC Partner.
-        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::"Credit Memo", ICPartnerCode);
+        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::"Credit Memo", ICPartnerCode, false, 0);
 
         // [GIVEN] Sent Intercompany Purchase Credit Memo.
         ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
@@ -996,7 +996,7 @@ codeunit 134154 "ERM Intercompany III"
         UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
 
         // [GIVEN] Purchase Return Order "PRO" for Vendor with IC Partner.
-        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::"Return Order", ICPartnerCode);
+        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::"Return Order", ICPartnerCode, false, 0);
 
         // [GIVEN] Sent Intercompany Purchase Return Order.
         ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
@@ -1587,7 +1587,7 @@ codeunit 134154 "ERM Intercompany III"
         UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
 
         // [GIVEN] Purchase Order "PO" for Vendor with IC Partner.
-        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode);
+        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode, false, 0);
 
         // [GIVEN] Sent Intercompany Purchase Order.
         ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
@@ -2323,7 +2323,7 @@ codeunit 134154 "ERM Intercompany III"
         UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
 
         // [GIVEN] Purchase Order "PO" for Vendor with IC Partner.
-        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode);
+        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode, false, 0);
 
         // [GIVEN] Sent Intercompany Purchase Order. IC Inbox Transaction "A" for Sales Order is created.
         ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
@@ -2398,7 +2398,7 @@ codeunit 134154 "ERM Intercompany III"
         UpdateAutoAcceptTransOnICPartner(ICPartnerCode, true);
 
         // [GIVEN] Purchase Order "PO" for Vendor with IC Partner.
-        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode);
+        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode, false, 0);
 
         // [WHEN] Send Intercompany Purchase Order.
         ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
@@ -2494,7 +2494,7 @@ codeunit 134154 "ERM Intercompany III"
 
         // [GIVEN] Purchase Order "PO" with one Purchase Line for Vendor with IC Partner.
         // [GIVEN] Purchase Line has "Description 2" = "A".
-        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode);
+        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode, false, 0);
         LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
         UpdateDescription2OnPurchaseLine(PurchaseLine, LibraryUtility.GenerateGUID());
 
@@ -2538,7 +2538,7 @@ codeunit 134154 "ERM Intercompany III"
 
         // [GIVEN] Purchase Order "PO" with one Purchase Line for Vendor with IC Partner.
         // [GIVEN] Purchase Line has blank "Description 2".
-        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode);
+        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode, false, 0);
         LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
         UpdateDescription2OnPurchaseLine(PurchaseLine, '');
 
@@ -2811,6 +2811,53 @@ codeunit 134154 "ERM Intercompany III"
         Assert.AreEqual(SalesHeader."External Document No.", SalesShipmentHeader."External Document No.", '');
     end;
 
+    [Test]
+    [HandlerFunctions('CompleteICInboxActionPageHandler')]
+    procedure VerifySalesOrderIsCreatedFromICInboxForLineDiscountOver50AndPricesIncludingVATinICPurchaseOrder()
+    var
+        Customer: Record Customer;
+        PurchaseHeader: Record "Purchase Header";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICInboxTransactions: TestPage "IC Inbox Transactions";
+        ICOutboxTransactions: TestPage "IC Outbox Transactions";
+        ICPartnerCode: Code[20];
+    begin
+        // [SCENARIO 462965] Verify Sales Order is created from IC inbox for line discount over 50% and Prices Including VAT in IC Purchase Order
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+        ICInboxTransaction.DeleteAll();
+
+        // [GIVEN] Customer with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateCustomerWithICPartner(Customer, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Purchase Order "PO" for Vendor with IC Partner.
+        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode, true, 55);
+
+        // [GIVEN] Sent Intercompany Purchase Order. IC Inbox Transaction "A" for Sales Order is created.
+        ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+
+        // [GIVEN] Open Intercompany Outbox Transactions page, and send PO to IC partner
+        ICOutboxTransactions.OpenEdit;
+        ICOutboxTransactions.Filter.SetFilter("IC Partner Code", ICPartnerCode);
+        ICOutboxTransactions.SendToICPartner.Invoke;
+
+        // [GIVEN] IC Outbox Transaction "B" for Sales Order is created.
+        ICInboxTransactions.OpenEdit();
+        ICInboxTransactions.Filter.SetFilter("IC Partner Code", ICPartnerCode);
+        ICInboxTransactions.Accept.Invoke();
+
+        // [WHEN] Create Sales Order from IC Inbox Transaction
+        LibraryVariableStorage.Enqueue(ICPartnerCode);
+        ICInboxTransactions."Complete Line Actions".Invoke();
+
+        // [THEN] Verify Sales Order is created with Line Discount from Purchase Order
+        VerifySalesOrder(PurchaseHeader, 55);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3066,7 +3113,7 @@ codeunit 134154 "ERM Intercompany III"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocumentForICPartnerVendor(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ICPartnerCode: Code[20])
+    local procedure CreatePurchaseDocumentForICPartnerVendor(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ICPartnerCode: Code[20]; PricesIncludingVAT: Boolean; LineDiscount: Decimal)
     var
         Vendor: Record Vendor;
         PurchaseLine: Record "Purchase Line";
@@ -3074,8 +3121,13 @@ codeunit 134154 "ERM Intercompany III"
     begin
         CreateVendorWithICPartner(Vendor, ICPartnerCode);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, Vendor."No.");
+        if PricesIncludingVAT then
+            PurchaseHeader.Validate("Prices Including VAT", PricesIncludingVAT);
+        PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        if LineDiscount <> 0 then
+            PurchaseLine.Validate("Line Discount %", LineDiscount);
         PurchaseLine.Modify(true);
     end;
 
@@ -3850,6 +3902,21 @@ codeunit 134154 "ERM Intercompany III"
         WarehouseSetup.Modify(true);
     end;
 
+    local procedure VerifySalesOrder(PurchaseHeader: Record "Purchase Header"; LineDiscount: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        SalesHeader.SetRange("Document Type", PurchaseHeader."Document Type");
+        SalesHeader.SetRange("External Document No.", PurchaseHeader."No.");
+        Assert.RecordIsNotEmpty(SalesHeader);
+        SalesHeader.FindFirst();
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        SalesLine.TestField("Line Discount %", LineDiscount);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
@@ -3891,6 +3958,16 @@ codeunit 134154 "ERM Intercompany III"
     procedure GLPostingPreviewPageHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
     begin
         GLPostingPreview.Close();
+    end;
+
+    [RequestPageHandler]
+    procedure CompleteICInboxActionPageHandler(var CompleteICInboxAction: TestRequestPage "Complete IC Inbox Action")
+    var
+        ICPartnerCode: Code[20];
+    begin
+        ICPartnerCode := LibraryVariableStorage.DequeueText();
+        CompleteICInboxAction."IC Inbox Transaction".SetFilter("IC Partner Code", ICPartnerCode);
+        CompleteICInboxAction.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSendICDocument', '', false, false)]

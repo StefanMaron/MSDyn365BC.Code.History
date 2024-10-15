@@ -391,11 +391,14 @@ report 11000000 "Get Proposal Entries"
         CustEntries: Record "Cust. Ledger Entry";
         VendEntries: Record "Vendor Ledger Entry";
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        ShouldShowPaymentReservationConfirm: Boolean;
     begin
         if "Value Date" < Today then
             Error(Text1000000);
 
-        if CopyStr(CompanyName, 1, 6) <> Text1000001 then
+        ShouldShowPaymentReservationConfirm := CopyStr(CompanyName, 1, 6) <> Text1000001;
+        OnPreReportOnAfterCalcShouldShowPaymentReservationConfirm("Value Date", ShouldShowPaymentReservationConfirm);
+        if ShouldShowPaymentReservationConfirm then
             if "Value Date" - Today > 14 then
                 if not Confirm(
                      StrSubstNo(
@@ -518,15 +521,18 @@ report 11000000 "Get Proposal Entries"
     end;
 
     local procedure BlankForeignCurrencyWithSameCurrencyCode()
+    var
+        ProposalLineLocal: Record "Proposal Line";
     begin
-        if ProposalLine.FindSet(true) then
+        ProposalLineLocal.SetRange("Our Bank No.", ProposalLine."Our Bank No.");
+        if ProposalLineLocal.FindSet(true) then
             repeat
-                if ProposalLine."Foreign Currency" = ProposalLine."Currency Code" then begin
-                    ProposalLine.Validate("Foreign Currency", '');
-                    ProposalLine.Validate("Foreign Amount", 0);
-                    ProposalLine.Modify();
+                if ProposalLineLocal."Foreign Currency" = ProposalLineLocal."Currency Code" then begin
+                    ProposalLineLocal.Validate("Foreign Currency", '');
+                    ProposalLineLocal.Validate("Foreign Amount", 0);
+                    ProposalLineLocal.Modify();
                 end;
-            until ProposalLine.Next() = 0;
+            until ProposalLineLocal.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
@@ -546,6 +552,11 @@ report 11000000 "Get Proposal Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnPreReportOnAfterConfirm(var TransactionMode: Record "Transaction Mode")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreReportOnAfterCalcShouldShowPaymentReservationConfirm(ValueDate: Date; var ShouldShowPaymentReservationConfirm: Boolean)
     begin
     end;
 }

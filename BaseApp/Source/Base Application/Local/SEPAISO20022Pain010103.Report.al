@@ -225,6 +225,7 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
             ServiceLevelCode := 'SEPA';
             ChargeBearer := 'SLEV';
         end;
+        OnAddPaymentInformationOnAfterAssignServiceLevelCode(ServiceLevelCode);
 
         PaymentInformationId := PaymentHistoryLine."Our Bank" + PaymentHistoryLine."Run No." + Format(PaymentHistoryLine."Line No.");
         if StrLen(PaymentInformationId) > 35 then
@@ -465,6 +466,11 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         if CurrencyCode = '' then
             exit(GLSetup."LCY Code");
         exit(CurrencyCode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddPaymentInformationOnAfterAssignServiceLevelCode(var ServiceLevelCode: Code[10])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

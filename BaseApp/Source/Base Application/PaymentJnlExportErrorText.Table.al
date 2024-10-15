@@ -96,7 +96,8 @@ table 1228 "Payment Jnl. Export Error Text"
     begin
         SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-        if (GenJnlLine."Journal Template Name" = '') and (GenJnlLine."Journal Batch Name" = '') then begin
+        if ((GenJnlLine."Journal Template Name" = '') and (GenJnlLine."Journal Batch Name" = '')) or
+           ((GenJnlLine."Journal Template Name" = '') and (GenJnlLine."Document No." <> '')) then begin
             SetRange("Document No.", GenJnlLine."Document No.");
             SetRange("Journal Batch Name", GenJnlLine."Bal. Account No."); // PaymentHistory."Our Bank"
         end;
