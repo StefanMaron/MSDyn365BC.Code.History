@@ -181,7 +181,8 @@ report 321 "Vendor - Balance to Date"
                     FilterVendorLedgerEntry(VendLedgEntry3);
                     if Find('-') then
                         repeat
-                            Mark(true);
+                            if CheckVendEntryIncluded("Entry No.") then
+                                Mark(true);
                         until Next() = 0;
 
                     SetCurrentKey("Entry No.");
@@ -238,15 +239,17 @@ report 321 "Vendor - Balance to Date"
             }
 
             trigger OnAfterGetRecord()
+            var
+                ShouldSkipVendor: Boolean;
             begin
                 MaxDate := GetRangeMax("Date Filter");
+                MinDate := GetRangeMin("Date Filter");
                 SetRange("Date Filter", 0D, MaxDate);
                 CalcFields("Net Change (LCY)", "Net Change");
 
-                if ("Net Change (LCY)" = 0) and
-                   ("Net Change" = 0) and
-                   (not ShowEntriesWithZeroBalance)
-                then
+                ShouldSkipVendor := ("Net Change (LCY)" = 0) and ("Net Change" = 0) and (not ShowEntriesWithZeroBalance);
+                OnVendorOnAfterGetRecordOnAfterCalcShouldSkipVendor(Vendor, ShouldSkipVendor);
+                if ShouldSkipVendor then
                     CurrReport.Skip();
             end;
         }
@@ -362,6 +365,7 @@ report 321 "Vendor - Balance to Date"
         PrintOnePrPage: Boolean;
         VendFilter: Text;
         MaxDate: Date;
+        MinDate: Date;
         OriginalAmt: Decimal;
         Amt: Decimal;
         RemainingAmt: Decimal;
@@ -441,12 +445,13 @@ report 321 "Vendor - Balance to Date"
                 until DetailedVendorLedgEntry.Next() = 0;
 
             FilterVendorLedgerEntry(VendorLedgerEntry);
-            if VendorLedgerEntry.FindSet then
+            if VendorLedgerEntry.FindSet() then
                 repeat
-                    if not Get(VendorLedgerEntry."Entry No.") then begin
-                        TempVendorLedgerEntry := VendorLedgerEntry;
-                        Insert;
-                    end;
+                    if not Get(VendorLedgerEntry."Entry No.") then
+                        if CheckVendEntryIncluded(VendorLedgerEntry."Entry No.") then begin
+                            TempVendorLedgerEntry := VendorLedgerEntry;
+                            Insert();
+                        end;
                 until VendorLedgerEntry.Next() = 0;
 
             SetCurrentKey("Entry No.");
@@ -477,14 +482,17 @@ report 321 "Vendor - Balance to Date"
     local procedure CheckVendEntryIncluded(EntryNo: Integer): Boolean
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ClosingVendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         if VendorLedgerEntry.Get(EntryNo) and (VendorLedgerEntry."Posting Date" <= MaxDate) then begin
             VendorLedgerEntry.SetRange("Date Filter", 0D, MaxDate);
             VendorLedgerEntry.CalcFields("Remaining Amount");
             if VendorLedgerEntry."Remaining Amount" <> 0 then
                 exit(true);
+            // if "Show Entries with Zero Balance" is checked, show only closed entries that were closed within the report date filter
             if ShowEntriesWithZeroBalance then
-                exit(true);
+                if ClosingVendorLedgerEntry.Get(VendorLedgerEntry."Closed by Entry No.") then
+                    exit((ClosingVendorLedgerEntry."Posting Date" >= MinDate) and (ClosingVendorLedgerEntry."Posting Date" <= MaxDate));
             if PrintUnappliedEntries then
                 exit(CheckUnappliedEntryExists(EntryNo));
         end;
@@ -513,6 +521,11 @@ report 321 "Vendor - Balance to Date"
             exit(VendorLedgerEntry."External Document No.");
 
         exit('');
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnVendorOnAfterGetRecordOnAfterCalcShouldSkipVendor(var Vendor: Record Vendor; var ShouldSkipVendor: Boolean)
+    begin
     end;
 }
 

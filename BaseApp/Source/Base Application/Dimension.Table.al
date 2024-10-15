@@ -384,29 +384,7 @@ table 348 Dimension
                 until ItemBudgetName.Next() = 0;
         end;
 
-        if CheckAllDim or CheckAnalysisViewDim then begin
-            if AnalysisViewChecked <> '' then
-                AnalysisView.SetRange(Code, AnalysisViewChecked);
-            if AnalysisView.FindSet then
-                repeat
-                    if (DimTypeChecked <> DimTypeChecked::Analysis1) and
-                       (DimChecked = AnalysisView."Dimension 1 Code")
-                    then
-                        UsedAsAnalysisViewDim := true;
-                    if (DimTypeChecked <> DimTypeChecked::Analysis2) and
-                       (DimChecked = AnalysisView."Dimension 2 Code")
-                    then
-                        UsedAsAnalysisViewDim := true;
-                    if (DimTypeChecked <> DimTypeChecked::Analysis3) and
-                       (DimChecked = AnalysisView."Dimension 3 Code")
-                    then
-                        UsedAsAnalysisViewDim := true;
-                    if (DimTypeChecked <> DimTypeChecked::Analysis4) and
-                       (DimChecked = AnalysisView."Dimension 4 Code")
-                    then
-                        UsedAsAnalysisViewDim := true;
-                until AnalysisView.Next() = 0;
-        end;
+        CheckIfDimUsedAsAnalysisViewDim(AnalysisView, DimChecked, DimTypeChecked, CheckAllDim, CheckAnalysisViewDim, AnalysisViewChecked);
 
         if CheckAllDim or CheckItemAnalysisViewDim then begin
             if AnalysisViewChecked <> '' then begin
@@ -442,6 +420,40 @@ table 348 Dimension
             exit(true);
         end;
         exit(false);
+    end;
+
+    local procedure CheckIfDimUsedAsAnalysisViewDim(AnalysisView: Record "Analysis View"; DimChecked: Code[20]; DimTypeChecked: Option " ",Global1,Global2,Shortcut3,Shortcut4,Shortcut5,Shortcut6,Shortcut7,Shortcut8,Budget1,Budget2,Budget3,Budget4,Analysis1,Analysis2,Analysis3,Analysis4,ItemBudget1,ItemBudget2,ItemBudget3,ItemAnalysis1,ItemAnalysis2,ItemAnalysis3; CheckAllDim: Boolean; CheckAnalysisViewDim: Boolean; AnalysisViewChecked: Code[10])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckIfDimUsedAsAnalysisViewDim(AnalysisView, DimChecked, DimTypeChecked, CheckAllDim, CheckAnalysisViewDim, AnalysisViewChecked, UsedAsAnalysisViewDim, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CheckAllDim or CheckAnalysisViewDim then begin
+            if AnalysisViewChecked <> '' then
+                AnalysisView.SetRange(Code, AnalysisViewChecked);
+            if AnalysisView.FindSet then
+                repeat
+                    if (DimTypeChecked <> DimTypeChecked::Analysis1) and
+                       (DimChecked = AnalysisView."Dimension 1 Code")
+                    then
+                        UsedAsAnalysisViewDim := true;
+                    if (DimTypeChecked <> DimTypeChecked::Analysis2) and
+                       (DimChecked = AnalysisView."Dimension 2 Code")
+                    then
+                        UsedAsAnalysisViewDim := true;
+                    if (DimTypeChecked <> DimTypeChecked::Analysis3) and
+                       (DimChecked = AnalysisView."Dimension 3 Code")
+                    then
+                        UsedAsAnalysisViewDim := true;
+                    if (DimTypeChecked <> DimTypeChecked::Analysis4) and
+                       (DimChecked = AnalysisView."Dimension 4 Code")
+                    then
+                        UsedAsAnalysisViewDim := true;
+                until AnalysisView.Next() = 0;
+        end;
     end;
 
     local procedure MakeCheckDimErr(CustomDimErr: Text)
@@ -591,6 +603,11 @@ table 348 Dimension
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIfDimUsed(DimChecked: Code[20]; DimTypeChecked: Option " ",Global1,Global2,Shortcut3,Shortcut4,Shortcut5,Shortcut6,Shortcut7,Shortcut8,Budget1,Budget2,Budget3,Budget4,Analysis1,Analysis2,Analysis3,Analysis4,ItemBudget1,ItemBudget2,ItemBudget3,ItemAnalysis1,ItemAnalysis2,ItemAnalysis3; var UsedAsCustomDim: Boolean; var CustomDimErr: Text; AnalysisViewChecked: Code[10]; AnalysisAreaChecked: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfDimUsedAsAnalysisViewDim(AnalysisView: Record "Analysis View"; DimChecked: Code[20]; DimTypeChecked: Option " ",Global1,Global2,Shortcut3,Shortcut4,Shortcut5,Shortcut6,Shortcut7,Shortcut8,Budget1,Budget2,Budget3,Budget4,Analysis1,Analysis2,Analysis3,Analysis4,ItemBudget1,ItemBudget2,ItemBudget3,ItemAnalysis1,ItemAnalysis2,ItemAnalysis3; CheckAllDim: Boolean; CheckAnalysisViewDim: Boolean; AnalysisViewChecked: Code[10]; var UsedAsAnalysisViewDim: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

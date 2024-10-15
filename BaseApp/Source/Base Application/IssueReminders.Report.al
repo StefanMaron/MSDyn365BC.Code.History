@@ -156,6 +156,8 @@ report 190 "Issue Reminders"
         IsOfficeAddin := OfficeMgt.IsAvailable;
         if IsOfficeAddin then
             PrintDoc := 2;
+
+        OnAfterInitReport(PrintDoc, ReplacePostingDate, PostingDateReq, HideDialog);
     end;
 
     var
@@ -182,6 +184,11 @@ report 190 "Issue Reminders"
         [InDataSet]
         IsOfficeAddin: Boolean;
         ProceedOnIssuingWithInvRoundingQst: Label 'The invoice rounding amount will be added to the reminder when it is posted according to invoice rounding setup.\Do you want to continue?';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitReport(var PrintDoc: Option " ",Print,Email; var ReplacePostingDate: Boolean; var PostingDateReq: Date; var HideDialog: Boolean)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintIssuedReminderHeader(var IssuedReminderHeader: Record "Issued Reminder Header"; var IsHandled: Boolean)

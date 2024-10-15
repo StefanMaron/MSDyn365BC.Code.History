@@ -215,6 +215,13 @@ codeunit 29 "Error Message Handler"
         end;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnGetCachedLastErrorID', '', false, false)]
+    local procedure OnGetCachedLastErrorID(var ID: Integer)
+    begin
+        if Active then
+            ID := TempErrorMessage.GetCachedLastID();
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnLogError', '', false, false)]
     local procedure OnLogErrorHandler(MessageType: Option; ContextFieldNo: Integer; ErrorMessage: Text; SourceVariant: Variant; SourceFieldNo: Integer; HelpArticleCode: Code[30]; var IsLogged: Boolean)
     begin

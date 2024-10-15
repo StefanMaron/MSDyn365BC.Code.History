@@ -304,6 +304,8 @@ codeunit 5774 "Whse.-Production Release"
             end else
                 Location.Get(LocationCode);
         end;
+
+        OnAfterGetLocation(Location, LocationCode);
     end;
 
     local procedure SignFactor(Quantity: Decimal): Integer
@@ -315,6 +317,11 @@ codeunit 5774 "Whse.-Production Release"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteLine(var ProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetLocation(var Location: Record Location; LocationCode: Code[10])
     begin
     end;
 

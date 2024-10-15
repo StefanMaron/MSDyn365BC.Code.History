@@ -493,7 +493,7 @@ page 610 "IC General Journal"
                     group(Control1902759701)
                     {
                         Caption = 'Balance';
-                        field(Balance; Balance + "Balance (LCY)" - xRec."Balance (LCY)")
+                        field(Balance; Balance)
                         {
                             ApplicationArea = Intercompany;
                             AutoFormatType = 1;
@@ -506,7 +506,7 @@ page 610 "IC General Journal"
                     group("Total Balance")
                     {
                         Caption = 'Total Balance';
-                        field(TotalBalance; TotalBalance + "Balance (LCY)" - xRec."Balance (LCY)")
+                        field(TotalBalance; TotalBalance)
                         {
                             ApplicationArea = Intercompany;
                             AutoFormatType = 1;
