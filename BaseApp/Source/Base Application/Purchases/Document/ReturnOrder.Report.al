@@ -25,6 +25,7 @@ report 6641 "Return Order"
     RDLCLayout = './Purchases/Document/ReturnOrder.rdlc';
     Caption = 'Return Order';
     PreviewMode = PrintLayout;
+    WordMergeDataItem = "Purchase Header";
 
     dataset
     {
@@ -942,7 +943,6 @@ report 6641 "Return Order"
         VATBaseAmount: Decimal;
         VATDiscountAmount: Decimal;
         TotalAmountInclVAT: Decimal;
-        LogInteraction: Boolean;
         VALVATBaseLCY: Decimal;
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
@@ -1001,6 +1001,9 @@ report 6641 "Return Order"
         RegistrationNoCaptionLbl: Label 'Reg.No.';
         VendorNoCaptionLbl: Label 'Vendor No.';
         ML_Continued: Label 'Continued';
+
+    protected var
+        LogInteraction: Boolean;
 
     local procedure InitLogInteraction()
     begin

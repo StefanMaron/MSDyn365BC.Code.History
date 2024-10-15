@@ -262,7 +262,9 @@ codeunit 1380 "Batch Processing Mgt."
         if (GetLastErrorCallstack = '') and Result and not BatchProcessingMgt.GetIsCustomProcessingHandled() then begin
             ErrorMessageMgt.PushContext(
               ErrorContextElement, RecRef.RecordId, 0, StrSubstNo(ProcessingMsg, ProcessingCodeunitID, RecRef.RecordId));
+            OnInvokeProcessingOnBeforeRunProcessingCodeunitID(RecRef);
             Result := CODEUNIT.Run(ProcessingCodeunitID, RecVar);
+            OnInvokeProcessingOnAfterRunProcessingCodeunitID(RecRef);
         end;
         if BatchProcessingMgt.GetIsCustomProcessingHandled() then
             KeepParameters := BatchProcessingMgt.GetKeepParameters();
@@ -657,6 +659,16 @@ codeunit 1380 "Batch Processing Mgt."
 
     [InternalEvent(false, false)]
     local procedure OnGetArtifacts(ArtifactType: Enum "Batch Processing Artifact Type"; var TempBatchProcessingArtifactResult: Record "Batch Processing Artifact" temporary; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInvokeProcessingOnBeforeRunProcessingCodeunitID(RecordRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInvokeProcessingOnAfterRunProcessingCodeunitID(RecordRef: RecordRef)
     begin
     end;
 }

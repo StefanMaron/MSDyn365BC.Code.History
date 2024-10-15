@@ -212,6 +212,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Campaign Segments - NamedType UnknownError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2091466862 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(LookupHint=Codeunit Marketing Campaign Segments - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2091466862 - NamedType 997028772" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong Mailing Group Description field length.]]></Val>
@@ -590,6 +599,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Interaction - NamedType IsNotFoundOnPageErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1825309050 - NamedType 1800701938" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Logged Segment entry was created]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Interaction - NamedType LoggedSegemntEntriesCreateMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1825309050 - NamedType 3948915085" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Value %1 from merged file are not equal to %2.]]></Val>
@@ -606,6 +624,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Interaction - NamedType NoAttachmentErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1825309050 - NamedType 2175666467" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No. of Interaction Entries must match.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Interaction - NamedType NoOfInteractionEntriesMustMatchErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1825309050 - NamedType 2038633821" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

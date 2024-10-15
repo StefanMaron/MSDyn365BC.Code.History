@@ -224,7 +224,7 @@ page 508 "Blanket Sales Order Subform"
                 }
                 field("Work Type Code"; Rec."Work Type Code")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Service;
                     ToolTip = 'Specifies the work type code of the service line linked to this entry.';
                     Visible = false;
                 }
@@ -1180,6 +1180,8 @@ page 508 "Blanket Sales Order Subform"
 
     procedure NoOnAfterValidate()
     begin
+        OnBeforeNoOnAfterValidate(Rec, xRec);
+
         InsertExtendedText(false);
 
         SaveAndAutoAsmToOrder();
@@ -1308,6 +1310,11 @@ page 508 "Blanket Sales Order Subform"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 

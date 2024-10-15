@@ -6,6 +6,7 @@ namespace Microsoft.Finance.AuditFileExport;
 
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Period;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Telemetry;
@@ -29,7 +30,6 @@ report 11015 "Export Business Data"
             trigger OnAfterGetRecord()
             var
                 StartDateTime: DateTime;
-                LastStreamNo: Integer;
             begin
                 TestField(Description);
                 if "DTD File Name" = '' then
@@ -37,22 +37,22 @@ report 11015 "Export Business Data"
 
                 CheckRecordDefinition("Data Export Code", "Data Exp. Rec. Type Code");
                 StartDateTime := CurrentDateTime;
-                LastStreamNo := OpenStreams("Data Export Record Definition");
+                InitStreams("Data Export Record Definition");
+                CreateZipArchive();
 
                 if GuiAllowed then
                     Window.Update(1, CreatingXMLFileMsg);
-                DataCompression.CreateZipArchive();
                 CreateIndexFile("Data Export Record Definition");
-
                 ExportDTDFile("Data Export Record Definition");
 
                 WriteData("Data Export Record Definition");
-                CloseStreams(LastStreamNo);
+                SaveBlobDataToZipEntries();
 
                 if GuiAllowed then
                     Window.Update(1, CreatingLogFileMsg);
                 CreateLogFile(CurrentDateTime - StartDateTime);
 
+                SaveZipArchive();
                 DownloadFiles("Data Export Record Definition");
             end;
 
@@ -120,6 +120,8 @@ report 11015 "Export Business Data"
 
         StartDate := AccPeriod.GetFiscalYearStartDate(WorkDate());
         EndDate := AccPeriod.GetFiscalYearEndDate(WorkDate());
+        if BlobMaxSizeThreshold = 0 then
+            BlobMaxSizeThreshold := 1800000000; // ~1.7 GB
     end;
 
     trigger OnPreReport()
@@ -136,10 +138,15 @@ report 11015 "Export Business Data"
     var
         GLSetup: Record "General Ledger Setup";
         TempDataExportRecordSource: Record "Data Export Record Source" temporary;
+        TempBlobZipArchive: Codeunit "Temp Blob";
         TempBlobArray: array[100] of Codeunit "Temp Blob";
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        DataCompression: Codeunit "Data Compression";
-        DotNet_StreamWriterArr: array[100] of Codeunit DotNet_StreamWriter;
+        DotNetEncoding: Codeunit DotNet_Encoding;
+        DotNetStreamWriterArr: array[100] of Codeunit DotNet_StreamWriter;
+        BlobDataApproxSizeArr: array[100] of Integer;
+        FileNameArr: array[100] of Text;
+        BlobsToExport: Dictionary of [Integer, List of [Integer]];
+        ZipArchive: DotNet ZipArchive;
         StartDate: Date;
         EndDate: Date;
         Window: Dialog;
@@ -148,34 +155,38 @@ report 11015 "Export Business Data"
         NoOfRecordsArr: array[100] of Integer;
         StepValue: Integer;
         NextStep: Integer;
+        LastBlobIndex: Integer;
+        BlobMaxSizeThreshold: Integer;
+        BOMSize: Integer;
+        BytesPerChar: Integer;
         CloseDate: Boolean;
+        CharsToDelete: Text;
+        NewLine: Text[2];
+        ClientFileName: Text;
         DataTok: Label 'DACH Data Export', Locked = true;
         ValueWithQuotesTxt: Label '"%1"', Locked = true;
         CreatingXMLFileMsg: Label 'Creating XML File...';
         StartDateErr: Label 'You must enter a starting date.';
         EndDateErr: Label 'You must enter an ending date.';
-        DateFilterMsg: Label '%1 to %2.', Comment = '<01.01.2014> to <31.01.2014>';
-        DefineTableRelationErr: Label 'You must define a %1 for table %2.';
+        DateFilterMsg: Label '%1 to %2.', Comment = '%1, %2 - <01.01.2014> to <31.01.2014>';
+        DefineTableRelationErr: Label 'You must define a %1 for table %2.', Comment = '%1 - "Data Export Table Relation", %2 - table name';
         DTDFileNotExistsErr: Label 'The DTD file does not exist.';
         NoticeMsg: Label 'Important Notice:';
-        PrimaryKeyField1Msg: Label 'The %1 for table %2 that you defined contains primary key fields that are not specified at the top of the list.', Comment = 'The <Data Export Record Field> for table <G/L Entry> that you defined.';
+        PrimaryKeyField1Msg: Label 'The %1 for table %2 that you defined contains primary key fields that are not specified at the top of the list.', Comment = '%1 - "Data Export Record Field", %2 - table name';
         PrimaryKeyField2Msg: Label 'In this case, the order of the fields that you want to export will not match the order that is stated in the .xml file.';
         PrimaryKeyField3Msg: Label 'If you want to use the exported data for digital audit purposes, make sure that primary key fields are specified first, followed by ordinary fields.';
         PrimaryKeyField4Msg: Label 'Do you want to continue?';
-        TableNameMsg: Label 'Table Name:       #1#################\';
+        TableNameMsg: Label 'Table Name:       #1#################\', Comment = '#1 - table name';
         CreatingLogFileMsg: Label 'Creating Log File...';
-        DurationMsg: Label 'Duration: %1.';
-        LogEntryMsg: Label 'For table %1, %2 data records were exported, and file %3 was created.', Comment = 'For table <G/L Entry>, <9491> data records were exported, and file <GL_Entry.txt> was created.';
+        DurationMsg: Label 'Duration: %1.', Comment = '%1 - how long the report runs';
+        LogEntryMsg: Label 'For table %1, %2 data records were exported, and file %3 was created.', Comment = '%1 - table name, %2 - number of exported records, %3 - file name to which records were exported';
         LogFileNameTxt: Label 'Log.txt';
         IndexFileNameTxt: Label 'index.xml';
-        NoOfDefinedTablesMsg: Label 'Number of defined tables: %1.';
-        NoOfEmptyTablesMsg: Label 'Number of empty tables: %1.';
+        NoOfDefinedTablesMsg: Label 'Number of defined tables: %1.', Comment = '%1 - number of tables to be exported';
+        NoOfEmptyTablesMsg: Label 'Number of empty tables: %1.', Comment = '%1 - number of empty tables';
         ProgressBarMsg: Label 'Progress:         @5@@@@@@@@@@@@@@@@@\';
-        NoExportFieldsErr: Label 'Data cannot be exported because no fields have been defined for one or more tables in the %1 data export.';
-        CharsToDelete: Text;
-        NewLine: Text[2];
-        ExceedNoOfStreamsErr: Label '%2 cannot write to more than %1 files.', Comment = '%2 - product name';
-        ClientFileName: Text;
+        NoExportFieldsErr: Label 'Data cannot be exported because no fields have been defined for one or more tables in the %1 data export.', Comment = '%1 - data export code';
+        ExceedNoOfStreamsErr: Label '%2 cannot write to more than %1 files.', Comment = '%1 - number of files to zip, %2 - product name';
 
     [Scope('OnPrem')]
     procedure InitializeRequest(FromDate: Date; ToDate: Date)
@@ -185,55 +196,73 @@ report 11015 "Export Business Data"
         CloseDate := false;
     end;
 
-    local procedure OpenStreams(DataExportRecordDefinition: Record "Data Export Record Definition") LastStreamNo: Integer
+    procedure InitializeBlobMaxSizeThreshold(NewBlobMaxSizeThreshold: Integer)
+    begin
+        BlobMaxSizeThreshold := NewBlobMaxSizeThreshold;
+    end;
+
+    local procedure InitStreams(DataExportRecordDefinition: Record "Data Export Record Definition")
     var
-        DataExportRecordSource: Record "Data Export Record Source";
-        DotNet_Encoding: Codeunit DotNet_Encoding;
-        DotNet_StreamWriter: Codeunit DotNet_StreamWriter;
-        FileWriteStream: OutStream;
+        DataExportRecSource: Record "Data Export Record Source";
+        DotNetStreamWriter: Codeunit DotNet_StreamWriter;
+        BlobOutStream: OutStream;
+        BlobIndexes: List of [Integer];
         MaxNumOfStreams: Integer;
+        BlobIndex: Integer;
     begin
         Clear(NoOfRecordsArr);
-        Clear(DotNet_StreamWriterArr);
-        DotNet_Encoding.Encoding(GetCodePageByEncodingName(Format(DataExportRecordDefinition."File Encoding")));
+        Clear(TempBlobArray);
+        Clear(DotNetStreamWriterArr);
+        Clear(BlobsToExport);
+        Clear(FileNameArr);
 
-        with DataExportRecordSource do begin
-            Reset();
-            SetCurrentKey("Data Export Code", "Data Exp. Rec. Type Code", "Line No.");
-            SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
-            SetRange("Data Exp. Rec. Type Code", DataExportRecordDefinition."Data Exp. Rec. Type Code");
-            MaxNumOfStreams := ArrayLen(DotNet_StreamWriterArr);
-            if Count > MaxNumOfStreams then
-                Error(ExceedNoOfStreamsErr, MaxNumOfStreams, PRODUCTNAME.Full());
-            LastStreamNo := 0;
-            if FindSet() then
-                repeat
-                    TestField("Export File Name");
-                    Validate("Table Filter");
+        DotNetEncoding.Encoding(GetCodePageByEncodingName(Format(DataExportRecordDefinition."File Encoding")));
+        BytesPerChar := 1;
+        if DotNetEncoding.CodePage() = 1200 then        // UTF-16
+            BytesPerChar := 2;
 
-                    CalcFields("Table Name");
-                    if GuiAllowed then
-                        Window.Update(1, "Table Name");
+        DataExportRecSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
+        DataExportRecSource.SetRange("Data Exp. Rec. Type Code", DataExportRecordDefinition."Data Exp. Rec. Type Code");
+        MaxNumOfStreams := ArrayLen(DotNetStreamWriterArr);
+        if DataExportRecSource.Count() > MaxNumOfStreams then
+            Error(ExceedNoOfStreamsErr, MaxNumOfStreams, ProductName.Full());
+        BlobIndex := 0;
+        if DataExportRecSource.FindSet() then
+            repeat
+                DataExportRecSource.TestField("Export File Name");
+                DataExportRecSource.Validate("Table Filter");
 
-                    LastStreamNo += 1;
+                DataExportRecSource.CalcFields("Table Name");
+                if GuiAllowed then
+                    Window.Update(1, DataExportRecSource."Table Name");
 
-                    Clear(FileWriteStream);
-                    Clear(DotNet_StreamWriter);
+                BlobIndex += 1;
 
-                    TempBlobArray[LastStreamNo].CreateOutStream(FileWriteStream);
-                    FileWriteStream.Write("Export File Name");
-                    DotNet_StreamWriter.StreamWriter(FileWriteStream, DotNet_Encoding);
+                Clear(BlobOutStream);
+                Clear(DotNetStreamWriter);
 
-                    DotNet_StreamWriterArr[LastStreamNo] := DotNet_StreamWriter;
+                TempBlobArray[BlobIndex].CreateOutStream(BlobOutStream);
+                DotNetStreamWriter.StreamWriter(BlobOutStream, DotNetEncoding);
+                DotNetStreamWriterArr[BlobIndex] := DotNetStreamWriter;
 
-                    InsertFilesExportBuffer(DataExportRecordSource, LastStreamNo);
+                // get BOM size in bytes for UTF-7/8/16 encoding to skip them during archiving
+                DotNetStreamWriterArr[BlobIndex].Flush();
+                BOMSize := TempBlobArray[BlobIndex].Length();
 
-                    TotalNoOfRecords += CountRecords(TempDataExportRecordSource);
-                until Next() = 0;
-            StepValue := TotalNoOfRecords div 100;
-            if GuiAllowed then
-                Window.Update(1, '');
-        end;
+                FileNameArr[BlobIndex] := DataExportRecSource."Export File Name";
+
+                Clear(BlobIndexes);
+                BlobIndexes.Add(BlobIndex);
+                BlobsToExport.Add(DataExportRecSource."Line No.", BlobIndexes);
+
+                InsertFilesExportBuffer(DataExportRecSource);
+
+                TotalNoOfRecords += CountRecords(TempDataExportRecordSource);
+            until DataExportRecSource.Next() = 0;
+        LastBlobIndex := BlobIndex;
+        StepValue := TotalNoOfRecords div 100;
+        if GuiAllowed then
+            Window.Update(1, '');
     end;
 
     local procedure CountRecords(DataExportRecordSource: Record "Data Export Record Source") TotalRecords: Integer
@@ -249,41 +278,36 @@ report 11015 "Export Business Data"
         end;
     end;
 
-    local procedure InsertFilesExportBuffer(DataExportRecordSource: Record "Data Export Record Source"; StreamNo: Integer)
+    local procedure InsertFilesExportBuffer(DataExportRecordSource: Record "Data Export Record Source")
     begin
-        with TempDataExportRecordSource do begin
-            TempDataExportRecordSource := DataExportRecordSource;
-            Indentation := StreamNo;
-            if "Key No." = 0 then
-                "Key No." := 1;
-            Insert();
-        end;
+        TempDataExportRecordSource := DataExportRecordSource;
+        if TempDataExportRecordSource."Key No." = 0 then
+            TempDataExportRecordSource."Key No." := 1;
+        TempDataExportRecordSource.Insert();
     end;
 
-    local procedure CreateIndexFile(DataExportRecordDefinition: Record "Data Export Record Definition")
+    local procedure CreateIndexFile(DataExportRecDefinition: Record "Data Export Record Definition")
     var
         TempBlob: Codeunit "Temp Blob";
         DataExportManagement: Codeunit "Data Export Management";
-        FileReadStream: InStream;
-        FileWriteStream: OutStream;
+        FileInStream: InStream;
+        FileOutStream: OutStream;
     begin
-        TempBlob.CreateOutStream(FileWriteStream);
-        with DataExportRecordDefinition do
-            DataExportManagement.CreateIndexXmlStream(
-              TempDataExportRecordSource, FileWriteStream, Description, StartDate, EndDate, "DTD File Name", Format("File Encoding"));
-        TempBlob.CreateInStream(FileReadStream);
-        DataCompression.AddEntry(FileReadStream, IndexFileNameTxt);
+        TempBlob.CreateOutStream(FileOutStream);
+        DataExportManagement.CreateIndexXmlStream(
+            TempDataExportRecordSource, FileOutStream, DataExportRecDefinition.Description, StartDate, EndDate,
+            DataExportRecDefinition."DTD File Name", Format(DataExportRecDefinition."File Encoding"));
+        TempBlob.CreateInStream(FileInStream);
+        AddZipEntry(FileInStream, IndexFileNameTxt);
     end;
 
-    local procedure ExportDTDFile(DataExportRecordDefinition: Record "Data Export Record Definition")
+    local procedure ExportDTDFile(DataExportRecDefinition: Record "Data Export Record Definition")
     var
-        InStr: InStream;
+        DTDFileInStream: InStream;
     begin
-        with DataExportRecordDefinition do begin
-            CalcFields("DTD File");
-            "DTD File".CreateInStream(InStr);
-            DataCompression.AddEntry(InStr, "DTD File Name");
-        end;
+        DataExportRecDefinition.CalcFields("DTD File");
+        DataExportRecDefinition."DTD File".CreateInStream(DTDFileInStream);
+        AddZipEntry(DTDFileInStream, DataExportRecDefinition."DTD File Name");
     end;
 
     local procedure CreateLogFile(Duration: Duration)
@@ -293,6 +317,7 @@ report 11015 "Export Business Data"
         FileWriteStream: OutStream;
         NoOfDefinedTables: Integer;
         NoOfEmptyTables: Integer;
+        FirstBlobIndex: Integer;
     begin
         TempBlob.CreateOutStream(FileWriteStream);
         WriteLineToOutStream(FileWriteStream, StrSubstNo(DateFilterMsg, Format(StartDate), Format(CalcEndDate(EndDate))));
@@ -304,12 +329,13 @@ report 11015 "Export Business Data"
                 NoOfEmptyTables := 0;
                 WriteLineToOutStream(FileWriteStream, "Data Export Code" + ';' + "Data Exp. Rec. Type Code");
                 repeat
-                    if NoOfRecordsArr[Indentation] = 0 then
+                    FirstBlobIndex := GetFirstBlobIndex("Line No.");
+                    if NoOfRecordsArr[FirstBlobIndex] = 0 then
                         NoOfEmptyTables += 1
                     else
                         NoOfDefinedTables += 1;
                     CalcFields("Table Name");
-                    WriteLineToOutStream(FileWriteStream, StrSubstNo(LogEntryMsg, "Table Name", NoOfRecordsArr[Indentation], "Export File Name"));
+                    WriteLineToOutStream(FileWriteStream, StrSubstNo(LogEntryMsg, "Table Name", NoOfRecordsArr[FirstBlobIndex], "Export File Name"));
                 until Next() = 0;
             end;
         end;
@@ -317,7 +343,7 @@ report 11015 "Export Business Data"
         WriteLineToOutStream(FileWriteStream, StrSubstNo(NoOfEmptyTablesMsg, NoOfEmptyTables));
         WriteLineToOutStream(FileWriteStream, StrSubstNo(DurationMsg, Duration));
         TempBlob.CreateInStream(FileReadStream);
-        DataCompression.AddEntry(FileReadStream, LogFileNameTxt);
+        AddZipEntry(FileReadStream, LogFileNameTxt);
     end;
 
     local procedure WriteData(DataExportRecordDefinition: Record "Data Export Record Definition")
@@ -345,15 +371,19 @@ report 11015 "Export Business Data"
     local procedure WriteTable(DataExportRecordSource: Record "Data Export Record Source"; var RecRef: RecordRef)
     var
         RecRefToExport: RecordRef;
+        CurrBlobIndex: Integer;
+        FirstBlobIndex: Integer;
     begin
         with DataExportRecordSource do
             if RecRef.FindSet() then begin
-                NoOfRecordsArr[Indentation] += RecRef.Count();
+                CurrBlobIndex := GetCurrentBlobIndex(DataExportRecordSource."Line No.");
+                FirstBlobIndex := GetFirstBlobIndex(DataExportRecordSource."Line No.");
+                NoOfRecordsArr[FirstBlobIndex] += RecRef.Count();
                 if GuiAllowed then
                     Window.Update(1, RecRef.Caption);
                 repeat
                     RecRefToExport := RecRef.Duplicate();
-                    WriteRecord(DataExportRecordSource, RecRefToExport);
+                    WriteRecord(DataExportRecordSource, RecRefToExport, CurrBlobIndex);
                     UpdateProgressBar();
                     WriteRelatedRecords(DataExportRecordSource, RecRefToExport);
                 until RecRef.Next() = 0;
@@ -440,13 +470,15 @@ report 11015 "Export Business Data"
         end;
     end;
 
-    local procedure WriteRecord(var DataExportRecordSource: Record "Data Export Record Source"; var RecRef: RecordRef)
+    local procedure WriteRecord(var DataExportRecordSource: Record "Data Export Record Source"; var RecRef: RecordRef; var CurrBlobIndex: Integer)
     var
         DataExportRecordField: Record "Data Export Record Field";
         RecordText: Text;
         FieldValue: Text;
     begin
         if FindFields(DataExportRecordField, DataExportRecordSource) then begin
+            if IsCurrentBlobFull(CurrBlobIndex) then
+                CurrBlobIndex := InitNewTempBlob(DataExportRecordSource."Line No.", CurrBlobIndex);
             repeat
                 FieldValue :=
                   GetDataExportRecFieldValue(
@@ -454,7 +486,8 @@ report 11015 "Export Business Data"
                 RecordText += FieldValue + ';';
             until DataExportRecordField.Next() = 0;
             RecordText := CopyStr(RecordText, 1, StrLen(RecordText) - 1);
-            DotNet_StreamWriterArr[DataExportRecordSource.Indentation].WriteLine(RecordText);
+            DotNetStreamWriterArr[CurrBlobIndex].WriteLine(RecordText);
+            UpdateBlobDataSize(CurrBlobIndex, StrLen(RecordText));
         end else
             Error(NoExportFieldsErr, DataExportRecordSource."Data Export Code");
     end;
@@ -495,8 +528,8 @@ report 11015 "Export Business Data"
         DataExportRecordSource: Record "Data Export Record Source";
         DataExportRecordField: Record "Data Export Record Field";
         RecRef: RecordRef;
-        KeyRef: KeyRef;
         FieldRef: FieldRef;
+        KeyRef: KeyRef;
         ActiveKeyFound: Boolean;
         KeyFieldFound: Boolean;
         NonKeyFieldFound: Boolean;
@@ -658,37 +691,48 @@ report 11015 "Export Business Data"
         end;
     end;
 
-    local procedure CloseStreams(LastStreamNo: Integer)
+    local procedure SaveBlobDataToZipEntries()
     var
-        FileReadStream: InStream;
+        ZipEntry: DotNet ZipArchiveEntry;
+        BlobInStream: InStream;
+        ZipEntryStream: DotNet Stream;
         FileName: Text;
+        DummyBOMByte: Byte;
+        BlobIndexes: List of [Integer];
+        BlobIndex: Integer;
+        RecSourceLineNo: Integer;
         i: Integer;
     begin
-        for i := 1 to LastStreamNo do begin
-            DotNet_StreamWriterArr[i].Dispose();
-            TempBlobArray[i].CreateInStream(FileReadStream);
-            FileReadStream.ReadText(FileName);
-            DataCompression.AddEntry(FileReadStream, FileName);
+        foreach RecSourceLineNo in BlobsToExport.Keys() do begin
+            BlobIndexes := BlobsToExport.Get(RecSourceLineNo);
+            FileName := FileNameArr[BlobIndexes.Get(1)];
+            ZipEntry := ZipArchive.CreateEntry(FileName);
+            ZipEntryStream := ZipEntry.Open();
+            foreach BlobIndex in BlobIndexes do begin
+                DotNetStreamWriterArr[BlobIndex].Dispose();
+                TempBlobArray[BlobIndex].CreateInStream(BlobInStream);
+                for i := 1 to BOMSize do
+                    BlobInStream.Read(DummyBOMByte);        // skip BOM bytes
+                CopyStream(ZipEntryStream, BlobInStream);
+            end;
+            ZipEntryStream.Dispose();       // dispose stream to close ZipEntry
         end;
     end;
 
     local procedure DownloadFiles(DataExportRecordDefinition: Record "Data Export Record Definition")
     var
         FileMgt: Codeunit "File Management";
-        TempBlob: Codeunit "Temp Blob";
-        ZipReadStream: InStream;
+        ZipArchiveInStream: InStream;
         ZipFileNameOnServer: Text;
         ZipFileName: Text;
     begin
-        DataCompression.SaveZipArchive(TempBlob);
-        DataCompression.CloseZipArchive();
-        TempBlob.CreateInStream(ZipReadStream);
+        TempBlobZipArchive.CreateInStream(ZipArchiveInStream);
         ZipFileName := DataExportRecordDefinition."Data Exp. Rec. Type Code" + '.zip';
         if ClientFileName <> '' then begin
-            ZipFileNameOnServer := FileMgt.InstreamExportToServerFile(ZipReadStream, '.zip');
+            ZipFileNameOnServer := FileMgt.InstreamExportToServerFile(ZipArchiveInStream, '.zip');
             FileMgt.DownloadHandler(ZipFileNameOnServer, '', '', '', ClientFileName);
         end else
-            FileMgt.DownloadFromStreamHandler(ZipReadStream, '', '', '', ZipFileName);
+            FileMgt.DownloadFromStreamHandler(ZipArchiveInStream, '', '', '', ZipFileName);
     end;
 
     [Scope('OnPrem')]
@@ -696,7 +740,6 @@ report 11015 "Export Business Data"
     begin
         exit(StrLen(DelChr(InputString, '=', DelChr(InputString, '=', ','))));
     end;
-
 
     local procedure GetCodePageByEncodingName(EncodingName: Text): Integer
     begin
@@ -714,6 +757,76 @@ report 11015 "Export Business Data"
             'OEM':
                 exit(437); // OEM United States
         end;
+    end;
+
+    local procedure CreateZipArchive()
+    var
+        ZipArchiveMode: DotNet ZipArchiveMode;
+        CompressedOutStream: OutStream;
+    begin
+        TempBlobZipArchive.CreateOutStream(CompressedOutStream);
+        ZipArchive := ZipArchive.ZipArchive(CompressedOutStream, ZipArchiveMode.Create);
+    end;
+
+    local procedure SaveZipArchive()
+    begin
+        ZipArchive.Dispose();
+    end;
+
+    local procedure AddZipEntry(InStreamToAdd: InStream; ZipEntryFileName: Text)
+    var
+        ZipEntry: DotNet ZipArchiveEntry;
+    begin
+        ZipEntry := ZipArchive.CreateEntry(ZipEntryFileName);
+        CopyStream(ZipEntry.Open(), InStreamToAdd);
+    end;
+
+    local procedure GetCurrentBlobIndex(RecSourceLineNo: Integer): Integer
+    var
+        BlobIndexes: List of [Integer];
+    begin
+        if BlobsToExport.Get(RecSourceLineNo, BlobIndexes) then
+            exit(BlobIndexes.Get(BlobIndexes.Count()));
+    end;
+
+    local procedure GetFirstBlobIndex(RecSourceLineNo: Integer): Integer
+    var
+        BlobIndexes: List of [Integer];
+    begin
+        if BlobsToExport.Get(RecSourceLineNo, BlobIndexes) then
+            exit(BlobIndexes.Get(1));
+    end;
+
+    local procedure IsCurrentBlobFull(BlobIndex: Integer): Boolean
+    begin
+        exit(BlobDataApproxSizeArr[BlobIndex] > BlobMaxSizeThreshold);
+    end;
+
+    local procedure InitNewTempBlob(RecSourceLineNo: Integer; CurrBlobIndex: Integer) NewBlobIndex: Integer
+    var
+        DotNetStreamWriter: Codeunit DotNet_StreamWriter;
+        BlobIndexes: List of [Integer];
+        BlobOutStream: OutStream;
+    begin
+        DotNetStreamWriterArr[CurrBlobIndex].Flush();
+
+        LastBlobIndex += 1;
+        if LastBlobIndex > ArrayLen(TempBlobArray) then
+            Error(ExceedNoOfStreamsErr, ArrayLen(TempBlobArray), ProductName.Full());
+
+        NewBlobIndex := LastBlobIndex;
+        TempBlobArray[NewBlobIndex].CreateOutStream(BlobOutStream);
+        DotNetStreamWriter.StreamWriter(BlobOutStream, DotNetEncoding);
+        DotNetStreamWriterArr[NewBlobIndex] := DotNetStreamWriter;
+
+        if BlobsToExport.Get(RecSourceLineNo, BlobIndexes) then
+            BlobIndexes.Add(NewBlobIndex);
+    end;
+
+    local procedure UpdateBlobDataSize(BlobIndex: Integer; TextLength: Integer)
+    begin
+        // we assume that most characters are 2 bytes long for UTF-16 and 1 byte long for other supported encodings
+        BlobDataApproxSizeArr[BlobIndex] += BytesPerChar * (TextLength + 2);      // 2 bytes for CR+LF
     end;
 
     local procedure WriteLineToOutStream(OutStr: OutStream; TextLine: Text)

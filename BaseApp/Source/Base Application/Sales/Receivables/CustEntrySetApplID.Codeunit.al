@@ -75,6 +75,20 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
         OnAfterUpdateCustLedgerEntry(CustLedgerEntry, TempCustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID);
     end;
 
+    procedure RemoveApplId(var CustLedgerEntry: Record "Cust. Ledger Entry"; AppliestoID: Code[50])
+    begin
+        if CustLedgerEntry.FindSet() then
+            repeat
+                if CustLedgerEntry."Applies-to ID" = AppliestoID then begin
+                    CustLedgerEntry."Applies-to ID" := '';
+                    CustLedgerEntry."Accepted Pmt. Disc. Tolerance" := false;
+                    CustLedgerEntry."Accepted Payment Tolerance" := 0;
+                    CustLedgerEntry."Amount to Apply" := 0;
+                    CustLedgerEntry.Modify();
+                end;
+            until CustLedgerEntry.Next() = 0;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]; var IsHandled: Boolean; var CustEntryApplID: Code[50]);
     begin

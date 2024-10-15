@@ -34,7 +34,7 @@
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
 
         // [THEN] Buffer table is filled
-        Assert.RecordCount(TempOptionLookupBuffer, 10);
+        Assert.RecordCount(TempOptionLookupBuffer, 11);
 
         // [THEN] Buffer table has entry for 'Comment'
         TempOptionLookupBuffer.Get(SalesLine.FormatType());
@@ -65,7 +65,7 @@
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
 
         // [THEN] Buffer table is filled: 6 W1 values + 4 CH values + 1 custom
-        Assert.RecordCount(TempOptionLookupBuffer, 11);
+        Assert.RecordCount(TempOptionLookupBuffer, 12);
 
         // [THEN] Buffer table has entry for 'Comment'
         TempOptionLookupBuffer.Get(SalesLine.FormatType());
@@ -111,7 +111,7 @@
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
 
         // [THEN] Buffer table is filled
-        Assert.RecordCount(TempOptionLookupBuffer, 6);
+        Assert.RecordCount(TempOptionLookupBuffer, 7);
 
         // [THEN] Buffer table has entry for 'Comment'
         TempOptionLookupBuffer.Get(PurchaseLine.FormatType());
@@ -546,8 +546,8 @@
         // [THEN] The Subtype is set to "Resource"
         PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(Format(PurchaseLine.Type::Resource));
 
-        // [WHEN] Setting the Subtype on the purchase line to 'ac'
-        PurchaseOrder.PurchLines.FilteredTypeField.SetValue(CopyStr(Format(PurchaseLine.Type::"G/L Account"), 5, 2));
+        // [WHEN] Setting the Subtype on the purchase line to 'G/L A'
+        PurchaseOrder.PurchLines.FilteredTypeField.SetValue(CopyStr(Format(PurchaseLine.Type::"G/L Account"), 1, 5));
         // [THEN] The Subtype is set to "G/L Account"
         PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(Format(PurchaseLine.Type::"G/L Account"));
 

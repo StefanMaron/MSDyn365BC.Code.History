@@ -882,7 +882,10 @@ codeunit 10 "Type Helper"
     var
         CurrencyPositivePattern: Integer;
     begin
-        // set position of cyrrency symbol based on the locale
+        // set position of currency symbol based on the locale
+        if LocaleId <= 0 then
+            exit(GetDefaultAmountFormat());
+
         if not GetCurrencyStyle(LocaleId, CurrencyPositivePattern) then
             exit(GetDefaultAmountFormat());
 

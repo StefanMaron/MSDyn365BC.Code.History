@@ -89,6 +89,7 @@ codeunit 5816 "Undo Return Receipt Line"
                 repeat
                     if not HideDialog then
                         Window.Open(Text003);
+                    OnCodeOnBeforeCallCheckReturnRcptLine(ReturnRcptLine);
                     CheckReturnRcptLine(ReturnRcptLine);
                 until Next() = 0;
 
@@ -447,6 +448,11 @@ codeunit 5816 "Undo Return Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckReturnRcptLineOnBeforeCollectItemLedgEntries(var ReturnRcptLine: Record "Return Receipt Line"; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeCallCheckReturnRcptLine(var ReturnReceiptLine: Record "Return Receipt Line")
     begin
     end;
 }

@@ -156,6 +156,13 @@ page 9633 "Page Inspection Extensions"
     var
         VSCodeRequestHelper: Codeunit "VS Code Request Helper";
     begin
+        if (PageId = CurrentPageId) and (TableId = CurrentTableId) then
+            exit;
+
+        CurrentPageId := PageId;
+        CurrentTableId := TableId;
+        CurrentFormId := FormId;
+
         VSCodeRequestHelper.FilterForExtAffectingPage(PageId, TableId, FormId, Rec);
         CurrPage.Update(false);
     end;

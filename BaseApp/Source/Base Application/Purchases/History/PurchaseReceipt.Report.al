@@ -21,6 +21,7 @@ report 408 "Purchase - Receipt"
     RDLCLayout = './Purchases/History/PurchaseReceipt.rdlc';
     Caption = 'Purchase - Receipt';
     PreviewMode = PrintLayout;
+    WordMergeDataItem = "Purch. Rcpt. Header";
 
     dataset
     {

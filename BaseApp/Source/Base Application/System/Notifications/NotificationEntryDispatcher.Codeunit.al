@@ -176,14 +176,18 @@ codeunit 1509 "Notification Entry Dispatcher"
             NotificationManagement.MoveNotificationEntryToSentNotificationEntries(
               NotificationEntry, BodyText, true, NotificationSetup."Notification Method"::Email.AsInteger())
         else begin
-            ErrorText := GetLastErrorText();
-            if ErrorText = '' then
-                if not MailManagement.IsEnabled() then
-                    ErrorText := NoEmailAccountsErr;
+            IsHandled := false;
+            OnCreateMailAndDispatchOnBeforeLogError(NotificationEntry, Email, BodyText, IsHandled);
+            if not IsHandled then begin
+                ErrorText := GetLastErrorText();
+                if ErrorText = '' then
+                    if not MailManagement.IsEnabled() then
+                        ErrorText := NoEmailAccountsErr;
 
-            NotificationEntry."Error Message" := ErrorText;
-            NotificationEntry.Modify(true);
-            ErrorMessageMgt.LogError(NotificationEntry, ErrorText, '');
+                NotificationEntry."Error Message" := ErrorText;
+                NotificationEntry.Modify(true);
+                ErrorMessageMgt.LogError(NotificationEntry, ErrorText, '');
+            end;
         end;
 
         OnAfterCreateMailAndDispatch(NotificationEntry, Email, IsEmailedSuccessfully);
@@ -457,6 +461,11 @@ codeunit 1509 "Notification Entry Dispatcher"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApprovalNotificationEntryIsOutdated(var NotificationEntry: Record "Notification Entry"; var IsOutdated: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateMailAndDispatchOnBeforeLogError(var NotificationEntry: Record "Notification Entry"; Email: Text; BodyText: Text; var IsHandled: Boolean)
     begin
     end;
 }

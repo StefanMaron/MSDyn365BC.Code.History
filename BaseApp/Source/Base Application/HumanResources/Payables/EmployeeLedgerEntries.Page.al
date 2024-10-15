@@ -212,6 +212,19 @@ page 5237 "Employee Ledger Entries"
                 }
             }
         }
+        area(factboxes)
+        {
+            systempart(RecordLinks; Links)
+            {
+                ApplicationArea = RecordLinks;
+                Visible = false;
+            }
+            systempart(RecordNotes; Notes)
+            {
+                ApplicationArea = Notes;
+                Visible = false;
+            }
+        }
     }
 
     actions

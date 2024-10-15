@@ -521,7 +521,7 @@ page 95 "Sales Quote Subform"
                 }
                 field("Work Type Code"; Rec."Work Type Code")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to when the sale is related to a job.';
                     Visible = false;
                 }
@@ -1111,7 +1111,7 @@ page 95 "Sales Quote Subform"
 
                     trigger OnAction()
                     var
-                        AllocAccManualOverride: Page Microsoft.Finance.AllocationAccount."Redistribute Acc. Allocations";
+                        AllocAccManualOverride: Page "Redistribute Acc. Allocations";
                     begin
                         if ((Rec."Type" <> Rec."Type"::"Allocation Account") and (Rec."Selected Alloc. Account No." = '')) then
                             Error(ActionOnlyAllowedForAllocationAccountsErr);
@@ -1239,13 +1239,11 @@ page 95 "Sales Quote Subform"
     end;
 
     var
-        Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SalesCalcDiscByType: Codeunit "Sales - Calc Discount By Type";
-        DocumentTotals: Codeunit "Document Totals";
         AmountWithDiscountAllowed: Decimal;
         VariantCodeMandatory: Boolean;
         IsFoundation: Boolean;
@@ -1258,8 +1256,10 @@ page 95 "Sales Quote Subform"
         ExcelFileNameTxt: Label 'Sales Quote %1 - Lines', Comment = '%1 = document number, ex. 10000';
 
     protected var
+        Currency: Record Currency;
         TotalSalesHeader: Record "Sales Header";
         TotalSalesLine: Record "Sales Line";
+        DocumentTotals: Codeunit "Document Totals";
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -1470,11 +1470,17 @@ page 95 "Sales Quote Subform"
     end;
 
     procedure DeltaUpdateTotals()
+    var
+        IsHandled: Boolean;
     begin
         if SuppressTotals then
             exit;
 
-        OnBeforeDeltaUpdateTotals(Rec, xRec);
+        IsHandled := false;
+        OnBeforeDeltaUpdateTotals(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if Rec."Line Amount" <> xRec."Line Amount" then
             Rec.SendLineInvoiceDiscountResetNotification();
@@ -1653,7 +1659,7 @@ page 95 "Sales Quote Subform"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

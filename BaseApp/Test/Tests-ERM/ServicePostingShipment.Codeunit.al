@@ -30,7 +30,7 @@ codeunit 136107 "Service Posting - Shipment"
         ExpectedCostPostingEnableConfirm: Label 'If you enable the Expected Cost Posting to G/L';
         ExpectedCostPostingDisableConfirm: Label 'If you disable the Expected Cost Posting to G/L';
         WhseShptIsCreatedMsg: Label 'Warehouse Shipment Header has been created.', Locked = true;
-        WhseShptIsNotCreatedErr: Label 'There are no Warehouse Shipment Lines created.', Locked = true;
+        WhseShptIsNotCreatedErr: Label 'There are no warehouse shipment lines created.', Locked = true;
 
     [Test]
     [Scope('OnPrem')]

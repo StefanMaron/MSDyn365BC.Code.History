@@ -26,6 +26,7 @@ report 208 "Sales - Shipment"
     Caption = 'Sales - Shipment';
     PreviewMode = PrintLayout;
     DefaultRenderingLayout = "SalesShipment.rdlc";
+    WordMergeDataItem = "Sales Shipment Header";
 
     dataset
     {

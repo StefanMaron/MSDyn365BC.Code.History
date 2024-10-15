@@ -24,6 +24,7 @@ report 410 "Blanket Purchase Order"
     RDLCLayout = './Purchases/Document/BlanketPurchaseOrder.rdlc';
     Caption = 'Blanket Purchase Order';
     PreviewMode = PrintLayout;
+    WordMergeDataItem = "Purchase Header";
 
     dataset
     {

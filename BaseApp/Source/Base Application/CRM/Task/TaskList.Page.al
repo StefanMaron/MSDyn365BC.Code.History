@@ -10,6 +10,7 @@ using Microsoft.CRM.Team;
 
 page 5096 "Task List"
 {
+    ApplicationArea = Basic, Suite;
     Caption = 'Task List';
     CardPageID = "Task Card";
     DataCaptionExpression = GetCaption();

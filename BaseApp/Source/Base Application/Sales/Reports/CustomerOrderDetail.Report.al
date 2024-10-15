@@ -14,6 +14,7 @@ report 108 "Customer - Order Detail"
     Caption = 'Customer - Order Detail';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    WordMergeDataItem = Customer;
 
     dataset
     {

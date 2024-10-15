@@ -26,6 +26,7 @@ report 6631 "Return Order Confirmation"
     RDLCLayout = './Sales/Document/ReturnOrderConfirmation.rdlc';
     Caption = 'Return Order Confirmation';
     PreviewMode = PrintLayout;
+    WordMergeDataItem = "Sales Header";
 
     dataset
     {

@@ -278,6 +278,7 @@ report 99001015 "Calculate Subcontracts"
         ItemVendor."Variant Code" := ReqLine."Variant Code";
         Item.FindItemVend(ItemVendor, ReqLine."Location Code");
         ReqLine.Validate("Vendor Item No.", ItemVendor."Vendor Item No.");
+        OnAfterSetVendorItemNo(ReqLine, ItemVendor, Item);
     end;
 
     [IntegrationEvent(false, false)]
@@ -312,6 +313,11 @@ report 99001015 "Calculate Subcontracts"
 
     [IntegrationEvent(false, false)]
     local procedure OnProdOrderRoutingLineOnAfterGetRecordOnAfterProdOrderLineSetFilters(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetVendorItemNo(var RequisitionLine: Record "Requisition Line"; ItemVendor: Record "Item Vendor"; Item: Record Item)
     begin
     end;
 }

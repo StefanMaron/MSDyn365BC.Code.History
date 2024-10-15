@@ -1218,8 +1218,13 @@ page 6631 "Sales Return Order Subform"
     trigger OnDeleteRecord(): Boolean
     var
         SalesLineReserve: Codeunit "Sales Line-Reserve";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
-        OnBeforeOnDeleteRecord(Rec);
+        IsHandled := false;
+        OnBeforeOnDeleteRecord(Rec, DocumentTotals, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         if (Rec.Quantity <> 0) and Rec.ItemExists(Rec."No.") then begin
             Commit();
@@ -1277,15 +1282,12 @@ page 6631 "Sales Return Order Subform"
     end;
 
     var
-        Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SalesCalcDiscByType: Codeunit "Sales - Calc Discount By Type";
-        DocumentTotals: Codeunit "Document Totals";
         AmountWithDiscountAllowed: Decimal;
-        LocationCodeMandatory: Boolean;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
         VariantCodeMandatory: Boolean;
@@ -1296,8 +1298,10 @@ page 6631 "Sales Return Order Subform"
         AttachingLinesEnabled: Boolean;
 
     protected var
+        Currency: Record Currency;
         TotalSalesHeader: Record "Sales Header";
         TotalSalesLine: Record "Sales Line";
+        DocumentTotals: Codeunit "Document Totals";
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -1315,6 +1319,7 @@ page 6631 "Sales Return Order Subform"
         ShowAllLinesEnabled: Boolean;
         IsCommentLine: Boolean;
         ItemReferenceVisible: Boolean;
+        LocationCodeMandatory: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
         AttachToInvtItemEnabled: Boolean;
         VATAmount: Decimal;
@@ -1418,6 +1423,8 @@ page 6631 "Sales Return Order Subform"
 
     procedure NoOnAfterValidate()
     begin
+        OnBeforeNoOnAfterValidate(Rec, xRec);
+
         InsertExtendedText(false);
         if (Rec.Type = Rec.Type::"Charge (Item)") and (Rec."No." <> xRec."No.") and
            (xRec."No." <> '')
@@ -1622,6 +1629,11 @@ page 6631 "Sales Return Order Subform"
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnBeforeNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnAfterQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
@@ -1667,7 +1679,7 @@ page 6631 "Sales Return Order Subform"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnDeleteRecord(SalesLine: Record "Sales Line")
+    local procedure OnBeforeOnDeleteRecord(SalesLine: Record "Sales Line"; var DocumentTotals: Codeunit "Document Totals"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

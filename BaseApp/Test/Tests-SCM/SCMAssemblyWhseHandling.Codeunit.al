@@ -23,6 +23,7 @@ codeunit 137932 "SCM Assembly Whse. Handling"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
+        ZoneCodeMustMatchErr: Label 'Zone Code must match.';
 
     [Test]
     [Scope('OnPrem')]
@@ -219,6 +220,213 @@ codeunit 137932 "SCM Assembly Whse. Handling"
         RequirePickOrShipDoesNotInfluenceAssemblyConsumptionWhseHandling(false, true);
         RequirePickOrShipDoesNotInfluenceAssemblyConsumptionWhseHandling(true, false);
         RequirePickOrShipDoesNotInfluenceAssemblyConsumptionWhseHandling(true, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SimpleMessageHandler')]
+    procedure EnablingDisablingAsmConsumpWhseHandlingOnLocation()
+    var
+        Item: Record Item;
+        CompItem1: Record Item;
+        CompItem2: Record Item;
+        Location: Record Location;
+        AssemblyHeader: Record "Assembly Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        // [SCENARIO] Cannot disable asm. consump. whse. handling on location if an inventory activity for assembly exists.
+        Initialize();
+
+        CreateAssemblyOrderWithLocationBinsAndTwoComponents(AssemblyHeader, Location, Item, CompItem1, CompItem2);
+        Location."Asm. Consump. Whse. Handling" := "Asm. Consump. Whse. Handling"::"Warehouse Pick (Optional)";
+        Location.Modify(true);
+        LibraryAssembly.ReleaseAO(AssemblyHeader);
+
+        LibraryAssembly.CreateWhsePick(AssemblyHeader, '', 0, false, true, false);
+
+        Commit();
+        asserterror Location.Validate("Asm. Consump. Whse. Handling", "Asm. Consump. Whse. Handling"::"No Warehouse Handling");
+
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+        WarehouseActivityHeader.Delete(true);
+
+        Location.Validate("Asm. Consump. Whse. Handling", "Asm. Consump. Whse. Handling"::"No Warehouse Handling");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ZoneCodeShouldFlowToWarehouseEntriesWhenPostAssemblyOrder()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        Zone: Record Zone;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        // [SCENARIO 481027] Zone is missing in warehouse entries created via for production posting
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Item 2.
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create Location.
+        CreateLocation(Location);
+
+        // [GIVEN] Create Zone.
+        LibraryWarehouse.CreateZone(Zone, Zone.Code, Location.Code, '', '', '', 0, false);
+
+        // [GIVEN] Create Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, Zone.Code, '');
+
+        // [GIVEN] Create Item Journal Line & Validate Location Code & Bin Code.
+        CreateItemJournalLine(ItemJournalTemplate, ItemJournalBatch, ItemJournalLine, Item);
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Validate("Bin Code", Bin.Code);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Create Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+
+        // [GIVEN] Create Assembly Header.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item2."No.", '', LibraryRandom.RandInt(0), '');
+
+        // [GIVEN] Create Assembly Line.
+        LibraryAssembly.CreateAssemblyLine(
+            AssemblyHeader,
+            AssemblyLine,
+            AssemblyLine.Type::Item,
+            Item."No.",
+            Item."Base Unit of Measure",
+            LibraryRandom.RandInt(0),
+            LibraryRandom.RandInt(0),
+            Item.Description);
+
+        // [GIVEN] Validate Location Code & Bin Code in Assembly Line.
+        AssemblyLine.Validate("Location Code", Location.Code);
+        AssemblyLine.Validate("Bin Code", Bin.Code);
+        AssemblyLine.Modify(true);
+
+        // [GIVEN] Post Assembly Header.
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [WHEN] Find Warehouse Entry of Bin Code.
+        WarehouseEntry.SetRange("Bin Code", Bin.Code);
+        WarehouseEntry.FindFirst();
+
+        // [VERIFY] Verify Warehouse Entry Zone Code & Zone Code are same.
+        Assert.AreEqual(Zone.Code, WarehouseEntry."Zone Code", ZoneCodeMustMatchErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ZoneCodeShouldFlowToWarehouseEntriesWhenCreatePickFromAssemblyOrder()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        Bin2: Record Bin;
+        Zone: Record Zone;
+        Zone2: Record Zone;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        // [SCENARIO 481027] Zone is missing in warehouse entries created via for production posting
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Item 2.
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create Location & Validate Assembly Consumption Warehouse Handling.
+        CreateLocation(Location);
+        Location.Validate("Asm. Consump. Whse. Handling", Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
+        Location.Modify(true);
+
+        // [GIVEN] Create Zone.
+        LibraryWarehouse.CreateZone(Zone, Zone.Code, Location.Code, '', '', '', 0, false);
+
+        // [GIVEN] Create Zone 2.
+        LibraryWarehouse.CreateZone(Zone2, Zone2.Code, Location.Code, '', '', '', 0, false);
+
+        // [GIVEN] Create Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, Zone.Code, '');
+
+        // [GIVEN] Create Bin 2.
+        LibraryWarehouse.CreateBin(Bin2, Location.Code, Bin2.Code, Zone2.Code, '');
+
+        // [GIVEN] Create Item Journal Line & Validate Location Code & Bin Code.
+        CreateItemJournalLine(ItemJournalTemplate, ItemJournalBatch, ItemJournalLine, Item);
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Validate("Bin Code", Bin.Code);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+
+        // [GIVEN] Create Assembly Header.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item2."No.", '', LibraryRandom.RandInt(0), '');
+
+        // [GIVEN] Create Assembly Line.
+        LibraryAssembly.CreateAssemblyLine(
+            AssemblyHeader,
+            AssemblyLine,
+            AssemblyLine.Type::Item,
+            Item."No.",
+            Item."Base Unit of Measure",
+            LibraryRandom.RandInt(0),
+            LibraryRandom.RandInt(0),
+            Item.Description);
+
+        // [GIVEN] Validate Location Code & Bin Code in Assembly Line.
+        AssemblyLine.Validate("Location Code", Location.Code);
+        AssemblyLine.Validate("Bin Code", Bin2.Code);
+        AssemblyLine.Modify(true);
+
+        // [GIVEN] Release Assembly Order.
+        LibraryAssembly.ReleaseAO(AssemblyHeader);
+
+        // [GIVEN] Create Warehouse Pick.
+        LibraryAssembly.CreateWhsePick(AssemblyHeader, '', 0, false, false, false);
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [GIVEN] Register Warehouse Pick.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Find Warehouse Entry of Bin Code.
+        WarehouseEntry.SetRange("Bin Code", Bin.Code);
+        WarehouseEntry.FindFirst();
+
+        // [VERIFY] Verify Warehouse Entry Zone Code & Zone Code are same.
+        Assert.AreEqual(Zone.Code, WarehouseEntry."Zone Code", ZoneCodeMustMatchErr);
+
+        // [WHEN] Find Warehouse Entry of Bin 2 Code.
+        WarehouseEntry.SetRange("Bin Code", Bin2.Code);
+        WarehouseEntry.FindFirst();
+
+        // [VERIFY] Verify Warehouse Entry Zone Code & Zone 2 Code are same.
+        Assert.AreEqual(Zone2.Code, WarehouseEntry."Zone Code", ZoneCodeMustMatchErr);
     end;
 
     local procedure Initialize()
@@ -452,11 +660,45 @@ codeunit 137932 "SCM Assembly Whse. Handling"
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
+    local procedure CreateLocation(var Location: Record Location): Code[10]
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        exit(Location.Code);
+    end;
+
+    local procedure CreateItemJournalLine(
+        var ItemJnlTemplate: Record "Item Journal Template";
+        var ItemJnlBatch: Record "Item Journal Batch";
+        var ItemJnlLine: Record "Item Journal Line";
+        Item: Record Item)
+    begin
+        LibraryInventory.CreateItemJournalTemplate(ItemJnlTemplate);
+        LibraryInventory.CreateItemJournalBatch(ItemJnlBatch, ItemJnlTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJnlLine,
+            ItemJnlTemplate.Name,
+            ItemJnlBatch.Name,
+            ItemJnlLine."Entry Type"::"Positive Adjmt.",
+            Item."No.",
+            LibraryRandom.RandInt(100));
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure SimpleMessageHandler(Message: Text[1024])
     begin
         LibraryVariableStorage.Enqueue(Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 }
 
