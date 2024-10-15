@@ -643,15 +643,18 @@ codeunit 950 "Time Sheet Management"
     end;
 
     procedure GetDateFilter(StartingDate: Date; EndingDate: Date) DateFilter: Text[30]
+    var
+        Date: Record Date;
     begin
-        case true of
-            (StartingDate <> 0D) and (EndingDate <> 0D):
-                DateFilter := StrSubstNo('%1..%2', StartingDate, EndingDate);
-            (StartingDate = 0D) and (EndingDate <> 0D):
-                DateFilter := StrSubstNo('..%1', EndingDate);
-            (StartingDate <> 0D) and (EndingDate = 0D):
-                DateFilter := StrSubstNo('%1..', StartingDate);
+        if StartingDate = 0D then begin
+            Date.FindFirst();
+            StartingDate := Date."Period Start";
         end;
+        if EndingDate = 0D then begin
+            Date.FindLast();
+            EndingDate := Date."Period Start";
+        end;
+        DateFilter := StrSubstNo('%1..%2', StartingDate, EndingDate);
     end;
 
     procedure CreateServDocLinesFromTS(ServiceHeader: Record "Service Header")

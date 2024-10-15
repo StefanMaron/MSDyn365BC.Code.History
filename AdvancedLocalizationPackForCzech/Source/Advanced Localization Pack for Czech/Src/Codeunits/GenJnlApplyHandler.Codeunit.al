@@ -12,6 +12,7 @@ codeunit 31379 "Gen. Jnl.-Apply Handler CZA"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Apply", 'OnBeforeRun', '', false, false)]
     local procedure GLEntryPostApplicationOnBeforeRun(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     var
+        CrossApplicationMgtCZL: Codeunit "Cross Application Mgt. CZL";
         AccType: Enum "Gen. Journal Account Type";
         AccNo: Code[20];
         AccBalance: Boolean;
@@ -42,6 +43,7 @@ codeunit 31379 "Gen. Jnl.-Apply Handler CZA"
 
         if AccType = AccType::"G/L Account" then begin
             ApplyGLEntryCZA(GenJnlLine, AccNo, AccBalance);
+            CrossApplicationMgtCZL.SetAppliesToID(GenJnlLine."Applies-to ID");
             IsHandled := true;
         end;
     end;

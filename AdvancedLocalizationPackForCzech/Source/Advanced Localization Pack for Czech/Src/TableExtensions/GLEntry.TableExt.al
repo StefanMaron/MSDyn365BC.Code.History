@@ -65,6 +65,14 @@ tableextension 31265 "G/L Entry CZA" extends "G/L Entry"
         }
     }
 
+    keys
+    {
+        key(AppliestoIDKeyCZA; "Applies-to ID CZA", "Applying Entry CZA")
+        {
+            SumIndexFields = "Amount to Apply CZA";
+        }
+    }
+
     procedure RemainingAmountCZA() Result: Decimal
     var
         IsHandled: Boolean;

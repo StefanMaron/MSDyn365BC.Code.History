@@ -73,6 +73,11 @@ codeunit 31419 "Cross Application Mgt. CZL"
         Page.Run(Page::"Cross Application CZL", TempCrossApplicationBufferCZL);
     end;
 
+    procedure SetAppliesToID(AppliesToID: Code[50])
+    begin
+        OnSetAppliesToID(AppliesToID);
+    end;
+
     [IntegrationEvent(false, false)]
     procedure OnGetSuggestedAmountForCustLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry";
                                                      var TempCrossApplicationBufferCZL: Record "Cross Application Buffer CZL" temporary;
@@ -98,6 +103,11 @@ codeunit 31419 "Cross Application Mgt. CZL"
     procedure OnGetSuggestedAmountForPurchAdvLetterHeader(PurchAdvLetterHeaderNo: Code[20];
                                                           var TempCrossApplicationBufferCZL: Record "Cross Application Buffer CZL" temporary;
                                                           ExcludeTableID: Integer; ExcludeDocumentNo: Code[20]; ExcludeLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnSetAppliesToID(AppliesToID: Code[50])
     begin
     end;
 }

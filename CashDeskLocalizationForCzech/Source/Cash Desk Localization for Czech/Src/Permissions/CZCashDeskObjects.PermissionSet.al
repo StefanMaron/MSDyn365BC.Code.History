@@ -29,6 +29,7 @@ permissionset 11782 "CZ Cash Desk - Objects CZP"
                   Codeunit "Gen. Ledger Setup Handler CZP" = X,
                   Codeunit "Guided Experience Handler CZP" = X,
                   Codeunit "Install Application CZP" = X,
+                  Codeunit "Manual Cross App. Handler CZP" = X,
                   Codeunit "Navigate Handler CZP" = X,
                   Codeunit "Notification Handler CZP" = X,
                   Codeunit "Purchase Handler CZP" = X,

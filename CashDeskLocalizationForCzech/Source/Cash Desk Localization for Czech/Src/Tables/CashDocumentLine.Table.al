@@ -1168,14 +1168,19 @@ table 11733 "Cash Document Line CZP"
     var
         GenJournalLine: Record "Gen. Journal Line";
         CashDocumentPostCZP: Codeunit "Cash Document-Post CZP";
+        ManualCrossAppHandlerCZP: Codeunit "Manual Cross App. Handler CZP";
     begin
         CashDocumentHeaderCZP.Get("Cash Desk No.", "Cash Document No.");
         if "Account Type" = "Account Type"::Customer then
             CashDocumentHeaderCZP.TestNotEETCashRegister();
         CashDocumentPostCZP.InitGenJnlLine(CashDocumentHeaderCZP, Rec);
         CashDocumentPostCZP.GetGenJnlLine(GenJournalLine);
+        BindSubscription(ManualCrossAppHandlerCZP);
         Codeunit.Run(Codeunit::"Gen. Jnl.-Apply", GenJournalLine);
-        "Applies-to ID" := GenJournalLine."Applies-to ID";
+        "Applies-to ID" := ManualCrossAppHandlerCZP.GetAppliesToID();
+        UnbindSubscription(ManualCrossAppHandlerCZP);
+        if "Applies-to ID" = '' then
+            "Applies-to ID" := GenJournalLine."Applies-to ID";
         if Amount = 0 then
             if CashDocumentHeaderCZP."Amounts Including VAT" then
                 Validate(Amount, SignAmount() * GenJournalLine.Amount)

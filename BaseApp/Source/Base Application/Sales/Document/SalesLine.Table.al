@@ -9031,15 +9031,23 @@ table 37 "Sales Line"
     end;
 
     procedure GetDateForCalculations() CalculationDate: Date;
+    var
+        FromSalesHeader: Record "Sales Header";
+    begin
+        if Rec."Document No." <> '' then
+            FromSalesHeader := Rec.GetSalesHeader();
+        CalculationDate := GetDateForCalculations(FromSalesHeader);
+    end;
+
+    procedure GetDateForCalculations(FromSalesHeader: Record "Sales Header") CalculationDate: Date;
     begin
         if Rec."Document No." = '' then
             CalculationDate := Rec."Posting Date"
         else begin
-            Rec.GetSalesHeader();
-            if SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::"Credit Memo"] then
-                CalculationDate := SalesHeader."Posting Date"
+            if FromSalesHeader."Document Type" in [FromSalesHeader."Document Type"::Invoice, FromSalesHeader."Document Type"::"Credit Memo"] then
+                CalculationDate := FromSalesHeader."Posting Date"
             else
-                CalculationDate := SalesHeader."Order Date";
+                CalculationDate := FromSalesHeader."Order Date";
         end;
         if CalculationDate = 0D then
             CalculationDate := WorkDate();
