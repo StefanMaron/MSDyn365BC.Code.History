@@ -236,7 +236,7 @@ table 9054 "Finance Cue"
         field(40; "Reminders not Send"; Integer)
         {
             FieldClass = FlowField;
-            CalcFormula = count("Issued Reminder Header" where("Sent For Current Level" = const(false)));
+            CalcFormula = count("Issued Reminder Header" where("Sent For Current Level" = const(false), Canceled = const(false)));
             Caption = 'Reminders not Send';
         }
         field(41; "Active Reminder Automation"; Integer)

@@ -264,7 +264,7 @@ table 5851 "Invt. Document Line"
                     "Unit Amount" := "Unit Cost";
                     UpdateAmount();
 
-                    if (ItemLedgEntry."Lot No." <> '') or (ItemLedgEntry."Serial No." <> '') then
+                    if (ItemLedgEntry."Lot No." <> '') or (ItemLedgEntry."Serial No." <> '') or (ItemLedgEntry."Package No." <> '') then
                         Error(UseItemTrackingLinesErr, FieldCaption("Applies-from Entry"));
                 end else begin
                     RetrieveCosts();

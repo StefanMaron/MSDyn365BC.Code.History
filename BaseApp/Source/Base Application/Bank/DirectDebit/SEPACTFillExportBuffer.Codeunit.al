@@ -1,4 +1,4 @@
-namespace Microsoft.Bank.DirectDebit;
+﻿namespace Microsoft.Bank.DirectDebit;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -116,6 +116,12 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                     begin
                         Employee.Get(TempGenJnlLine."Account No.");
                         PaymentExportData.SetEmployeeAsRecipient(Employee);
+                    end;
+                TempGenJnlLine."Account Type"::"Bank Account":
+                    begin
+                        BankAccount.Get(TempGenJnlLine."Account No.");
+                        PaymentExportData.SetBankAsRecipient(BankAccount);
+                        OnFillExportBufferOnAfterSetBankAsRecipient(PaymentExportData, TempGenJnlLine, BankAccount);
                     end;
                 else
                     OnFillExportBufferOnSetAsRecipient(GenJnlLine, PaymentExportData, TempGenJnlLine, CreditTransferRegister);
@@ -338,6 +344,11 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnFillExportBufferOnAfterSetVendorAsRecipient(var PaymentExportData: Record "Payment Export Data"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; Vendor: Record Vendor; VendorBankAccount: Record "Vendor Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillExportBufferOnAfterSetBankAsRecipient(var PaymentExportData: Record "Payment Export Data"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; BankAccount: Record "Bank Account")
     begin
     end;
 

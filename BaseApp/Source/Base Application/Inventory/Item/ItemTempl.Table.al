@@ -1214,14 +1214,18 @@ table 1382 "Item Templ."
         SrcFieldRef: FieldRef;
         DestFieldRef: FieldRef;
         i: Integer;
+        IsHandled: Boolean;
     begin
         for i := 3 to SrcRecRef.FieldCount do begin
             SrcFieldRef := SrcRecRef.FieldIndex(i);
             DestFieldRef := DestRecRef.Field(SrcFieldRef.Number);
-            if not Reverse then
-                DestFieldRef.Value := SrcFieldRef.Value
-            else
-                SrcFieldRef.Value := DestFieldRef.Value();
+            IsHandled := false;
+            OnTransferFieldValuesOnBeforeTransferFieldValue(SrcFieldRef, DestFieldRef, Reverse, IsHandled);
+            if not IsHandled then
+                if not Reverse then
+                    DestFieldRef.Value := SrcFieldRef.Value
+                else
+                    SrcFieldRef.Value := DestFieldRef.Value();
         end;
 
         OnAfterTransferFieldValues(SrcRecRef, DestRecRef, Reverse);
@@ -1244,6 +1248,11 @@ table 1382 "Item Templ."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFieldValues(var SrcRecRef: RecordRef; var DestRecRef: RecordRef; Reverse: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferFieldValuesOnBeforeTransferFieldValue(var SrcFieldRef: FieldRef; var DestFieldRef: FieldRef; Reverse: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

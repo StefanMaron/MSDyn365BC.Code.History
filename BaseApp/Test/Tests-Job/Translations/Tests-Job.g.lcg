@@ -124,7 +124,7 @@
   </Item>
   <Item ItemId=";Codeunit 4205319588 - NamedType 1517313969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Outstanding Sales Invoice exist for Project No. %1.\It is not possible to restore the Project.]]></Val>
+      <Val><![CDATA[Outstanding Sales Invoice exists for Project No. %1.\It is not possible to restore the Project.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -480,6 +480,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - Project No.]D;]A;(LookupHint=Codeunit Job Invoicing - NamedType JobMustNotBeBlockedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1338490621 - NamedType 1126852379" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 should be %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption, %2 = Field Value]D;]A;(LookupHint=Codeunit Job Invoicing - NamedType LineDiscountPctErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1338490621 - NamedType 3359697259" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

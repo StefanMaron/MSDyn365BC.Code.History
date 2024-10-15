@@ -32,6 +32,7 @@ codeunit 144192 "IT - Fiscal Reports"
         LibraryService: Codeunit "Library - Service";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUTUtility: Codeunit "Library UT Utility";
+        LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         IsInitialized: Boolean;
         FinalPrintMessageErr: Label 'Final Print Message expected.';
         ReprintInfoErr: Label 'Correct Reprint Information Fiscal Reports was not created.';
@@ -53,6 +54,7 @@ codeunit 144192 "IT - Fiscal Reports"
         PageNumberingErr: Label 'Page numbers are not correct in the report.';
         NameTok: Label 'Name';
         VATRegTok: Label 'VATReg';
+        RowMustExistErr: Label 'Row Must Exist.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1061,6 +1063,105 @@ codeunit 144192 "IT - Fiscal Reports"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('PostingDateConfim,CancelEntriesRequestPage,CancelFaEntryMessageHandler,GLBookRequestPage')]
+    procedure GLBookReportsTToRunAfterFixedAssetsDeletion()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        DepreciationBook: Record "Depreciation Book";
+        FALedgerEntry: Record "FA Ledger Entry";
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        FAGLJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        FALedgerEntries: TestPage "FA Ledger Entries";
+        FAGLDoc: code[20];
+        InvoiceNo: Code[20];
+        StartDate: Date;
+        EndDate: Date;
+    begin
+        // [SCENIRIO] 524065 Error occur on G/L book when printing after the deletion of the fixed asset.
+        Initialize();
+
+        // [GIVEN] Create a Fixed Asste with Posting Group.
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+
+        // [GIVEN] Depreciation Book created.
+        DepreciationBook.Get(LibraryFixedAsset.GetDefaultDeprBook());
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
+
+        // [GIVEN] Validation of FA Posting Group, Depreciation Book Code and Depreciation Starting Date.
+        FADepreciationBook.Validate("FA Posting Group", FixedAsset."FA Posting Group");
+        FADepreciationBook.Validate("Depreciation Book Code", DepreciationBook.Code);
+        FADepreciationBook.Validate("Depreciation Starting Date", Today());
+
+        // [GIVEN] Depreciation Ending is calculated one year from Today.
+        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<1Y>', Today()));
+        FADepreciationBook.Modify(true);
+
+        // [GIVEN] Create a Purchase Header with Document type Invoice and Validate Posting date.
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        PurchHeader.Validate("Posting Date", Today + 1);
+        PurchHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Line with Type Fixed assets and validate the Price.
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::"Fixed Asset", FixedAsset."No.", LibraryRandom.RandInt(10));
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchLine.Modify(true);
+
+        // [GIVEN] Post the cretaed Purchase Document.
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+
+        // [GIVEN] FA Ledger Entry is found for respective Purchase Order.
+        FALedgerEntry.SetRange("Document No.", InvoiceNo);
+        FALedgerEntry.FindFirst();
+
+        // [GIVEN] Invoke the Cancel Entry of the same FA Ledger Entry.
+        FALedgerEntries.OpenEdit();
+        FALedgerEntries.FILTER.SetFilter("Entry No.", Format(FALedgerEntry."Entry No."));
+        FALedgerEntries.CancelEntries.Invoke();
+
+        // [GIVEN] Create GL Account for Balancing Account.
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // [GIVEN] Find the Canceled Entry and add Balancing Entry.
+        FAGLJournalLine.SetRange("Account No.", FixedAsset."No.");
+        FAGLJournalLine.FindLast();
+
+        // [GIVEN] Assign No Series to a variable.
+        FAGLDoc := LibraryERM.CreateNoSeriesCode();
+
+        // [GIVEN] Validate Balance Account Type and Account No with Created GL Account.
+        FAGLJournalLine.Validate("Document No.", FAGLDoc);
+        FAGLJournalLine.Validate("Bal. Account Type", FAGLJournalLine."Bal. Account Type"::"G/L Account");
+        FAGLJournalLine.Validate("Bal. Account No.", GLAccount."No.");
+        FAGLJournalLine.Modify(true);
+
+        // [GIVEN] Post the Fixed Assets Gen Journal.
+        FAGLJournalLine.SetRange("Document No.", FAGLDoc);
+        FAGLJournalLine.FindFirst();
+        Codeunit.Run(Codeunit::"Gen. Jnl.-Post Line", FAGLJournalLine);
+
+        // [THEN] Delete the Fixed Asstes.
+        FixedAsset.Delete(true);
+
+        // [GIVEN] Assign The Start Date and End Date.
+        StartDate := GetStartDate(false);
+        EndDate := GetEndDate(StartDate);
+
+        // [GIVEN] Enqueue all The Values set in request page.
+        LibraryVariableStorage.Enqueue(StartDate);
+        LibraryVariableStorage.Enqueue(EndDate);
+        Commit();
+
+        // [THEN] Run GL Book Report to ensure it is not effected.
+        REPORT.Run(REPORT::"G/L Book - Print");
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), RowMustExistErr);
+    end;
+
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1742,6 +1843,37 @@ codeunit 144192 "IT - Fiscal Reports"
         VATRegisterPrint.PrintCompanyInformations.SetValue(PrintCompanyInfo);
 
         VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [ConfirmHandler]
+    procedure PostingDateConfim(Que: Text; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [RequestPageHandler]
+    procedure CancelEntriesRequestPage(var CancelEntries: TestRequestPage "Cancel FA Entries")
+    begin
+        CancelEntries.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    procedure CancelFaEntryMessageHandler(Message: Text)
+    begin
+    end;
+
+    [RequestPageHandler]
+    procedure GLBookRequestPage(var GLBookPrint: TestRequestPage "G/L Book - Print")
+    var
+        StartDate: Variant;
+        EndDate: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(StartDate);
+        LibraryVariableStorage.Dequeue(EndDate);
+        GLBookPrint.StartingDate.SetValue(Format(StartDate));
+        GLBookPrint.EndingDate.SetValue(Format(EndDate));
+        GLBookPrint.PrintCompanyInformations.SetValue(true);
+        GLBookPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

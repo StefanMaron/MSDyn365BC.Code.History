@@ -77,6 +77,16 @@ codeunit 5611 "Calculate Normal Depreciation"
         Text007: Label '%1 must not be used together with %2 for %3.';
         Text008: Label '%1 must not be used together with %2 = %3 for %4.';
 
+    procedure Calculate(var DeprAmount: Decimal; var NumberOfDays4: Integer; FANo: Code[20]; DeprBookCode2: Code[10]; UntilDate2: Date; EntryAmounts2: array[4] of Decimal; DateFromProjection2: Date; DaysInPeriod2: Integer)
+    var
+        Custom1Amount2: Decimal;
+        Custom2Amount2: Decimal;
+    begin
+        Calculate(
+            DeprAmount, NumberOfDays4, FANo, DeprBookCode2, UntilDate2, EntryAmounts2, DateFromProjection2, DaysInPeriod2,
+            false, false, Custom1Amount2, Custom2Amount2, 0, 0);
+    end;
+
     procedure Calculate(var DeprAmount: Decimal; var NumberOfDays4: Integer; FANo: Code[20]; DeprBookCode2: Code[10]; UntilDate2: Date; EntryAmounts2: array[4] of Decimal; DateFromProjection2: Date; DaysInPeriod2: Integer; UseCustom11: Boolean; UseCustom21: Boolean; var Custom1Amount2: Decimal; var Custom2Amount2: Decimal; ForcedPercent11: Decimal; ForcedPercent22: Decimal)
     var
         i: Integer;
@@ -603,7 +613,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         DeprBasis := FADeprBook."Depreciable Basis";
         SalvageValue := FADeprBook."Salvage Value";
 
-        OnAfterBookValueRecalculateBookValue(FA, DeprBook, FALedgEntry, DeprBasis, BookValue, EndingDate, FADeprBook."Disposal Date", FADeprBook, DateFromProjection);
+        OnAfterBookValueRecalculateBookValue(FA, DeprBook, FALedgEntry, DeprBasis, BookValue, EndingDate, FADeprBook."Disposal Date", FADeprBook, DateFromProjection, SalvageValue);
 
         BookValue2 := BookValue;
         SalvageValue2 := SalvageValue;
@@ -1014,7 +1024,7 @@ codeunit 5611 "Calculate Normal Depreciation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterBookValueRecalculateBookValue(FixedAsset: Record "Fixed Asset"; DeprBook: Record "Depreciation Book"; FAledgEntry2: Record "FA Ledger Entry"; var DeprBasis: Decimal; var BookValue: Decimal; var DeprEndingDate: Date; DisposalDate: Date; var FADepreciationBook: Record "FA Depreciation Book"; DateFromProjection: Date)
+    local procedure OnAfterBookValueRecalculateBookValue(FixedAsset: Record "Fixed Asset"; DeprBook: Record "Depreciation Book"; FAledgEntry2: Record "FA Ledger Entry"; var DeprBasis: Decimal; var BookValue: Decimal; var DeprEndingDate: Date; DisposalDate: Date; var FADepreciationBook: Record "FA Depreciation Book"; DateFromProjection: Date; var SalvageValue: Decimal)
     begin
     end;
 

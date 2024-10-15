@@ -97,7 +97,7 @@ table 5095 "Duplicate Search String Setup"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeLookupFieldName(Field, IsHandled);
+        OnBeforeLookupFieldName(Rec, Field, IsHandled);
         if IsHandled then
             exit;
 
@@ -109,7 +109,7 @@ table 5095 "Duplicate Search String Setup"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupFieldName(var Field: Record "Field"; var IsHandled: Boolean)
+    local procedure OnBeforeLookupFieldName(var DuplicateSearchStringSetup: Record "Duplicate Search String Setup"; var Field: Record "Field"; var IsHandled: Boolean)
     begin
     end;
 }

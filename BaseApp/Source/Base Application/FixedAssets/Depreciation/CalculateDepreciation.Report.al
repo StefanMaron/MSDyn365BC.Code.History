@@ -249,7 +249,7 @@ report 5692 "Calculate Depreciation"
                         OnAfterFAInsertGLAccGetBalAcc(GenJnlLine, GenJnlNextLineNo, BalAccount, TempGenJnlLine);
                     until TempGenJnlLine.Next() = 0;
                 OnAfterPostDataItem();
-                if NeedCommit then
+                if NeedCommit and not SuppressCommit then
                     Commit();
             end;
         }
@@ -594,6 +594,7 @@ report 5692 "Calculate Depreciation"
         FAJnlLineCreatedCount: Integer;
         GenJnlLineCreatedCount: Integer;
         DeprUntilDateModified: Boolean;
+        SuppressCommit: Boolean;	
 #if CLEAN24
         DocumentNo2: Code[20];
         DocumentNo3: Code[20];
@@ -706,6 +707,11 @@ report 5692 "Calculate Depreciation"
         end;
 #endif
     end;
+
+    procedure SetSuppressCommit(NewSuppressCommmit: Boolean)
+    begin
+        SuppressCommit := NewSuppressCommmit;  
+    end;	  
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateDepreciation(FANo: Code[20]; var TempGenJournalLine: Record "Gen. Journal Line" temporary; var TempFAJournalLine: Record "FA Journal Line" temporary; var DeprAmount: Decimal; var NumberOfDays: Integer; DeprBookCode: Code[10]; DeprUntilDate: Date; EntryAmounts: array[4] of Decimal; DaysInPeriod: Integer)

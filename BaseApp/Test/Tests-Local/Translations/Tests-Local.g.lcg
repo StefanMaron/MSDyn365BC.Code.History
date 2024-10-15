@@ -3002,6 +3002,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - Fiscal Reports - NamedType ReprintInfoShouldNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3552075409 - NamedType 2900446141" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Row Must Exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - Fiscal Reports - NamedType RowMustExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3552075409 - NamedType 2656490008" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must update the %1 field in the %2 window when you have printed the report.]]></Val>

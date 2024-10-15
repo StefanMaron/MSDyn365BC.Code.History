@@ -816,6 +816,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
                 PurchInvLine.GetItemLedgEntries(TempItemLedgerEntry, false);
                 if PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchInvLine."Order No.", PurchInvLine."Order Line No.") then begin
                     UpdatePurchaseOrderLineInvoicedQuantity(PurchaseLine, PurchInvLine.Quantity, PurchInvLine."Quantity (Base)");
+                    UpdateReverseItemChargeAssignment(PurchaseLine, PurchInvLine.Quantity);
                     TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
                     UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, PurchaseLine."Expected Receipt Date", true);
                 end;
@@ -860,6 +861,23 @@ codeunit 1313 "Correct Posted Purch. Invoice"
             Result := Item.IsInventoriableType();
 
         OnAfterIsCheckDirectCostAppliedAccount(PurchInvLine, Result);
+    end;
+
+    local procedure UpdateReverseItemChargeAssignment(PurchaseLine: Record "Purchase Line"; CancelledQuantity: Decimal)
+    var
+        ItemChargeAssgnt: Record "Item Charge Assignment (Purch)";
+        ItemChargeAssignment: Codeunit "Item Charge Assgnt. (Purch.)";
+    begin
+        if PurchaseLine.Type = PurchaseLine.Type::"Charge (Item)" then
+            exit;
+
+        ItemChargeAssgnt.SetLoadFields("Applies-to Doc. No.", "Applies-to Doc. Line No.", "Item No.", "Qty. Assigned");
+        ItemChargeAssgnt.SetRange("Applies-to Doc. No.", PurchaseLine."Document No.");
+        ItemChargeAssgnt.SetRange("Applies-to Doc. Line No.", PurchaseLine."Line No.");
+        ItemChargeAssgnt.SetRange("Item No.", PurchaseLine."No.");
+        ItemChargeAssgnt.SetFilter("Qty. Assigned", '<>%1', 0);
+        if ItemChargeAssgnt.FindFirst() then
+            ItemChargeAssignment.ReverseItemChargeAssgnt(ItemChargeAssgnt, CancelledQuantity);
     end;
 
     [Scope('OnPrem')]

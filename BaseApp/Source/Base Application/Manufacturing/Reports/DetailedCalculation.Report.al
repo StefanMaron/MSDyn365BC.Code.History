@@ -264,6 +264,8 @@ report 99000756 "Detailed Calculation"
                             CurrReport.Break();
                         ProdBOMLine[Level].SetRange("Production BOM No.", PBOMNoList[Level]);
                         ProdBOMLine[Level].SetRange("Version Code", PBOMVersionCode[Level]);
+
+                        OnAfterGetRecordBOMLoopOnAfterProdBOMLineLevelSetFilters(ProdBOMLine, Level);
                     end;
 
                     NextLevel := Level;
@@ -323,6 +325,7 @@ report 99000756 "Detailed Calculation"
                     ProdBOMLine[Level].SetRange("Version Code", PBOMVersionCode[Level]);
                     ProdBOMLine[Level].SetFilter("Starting Date", '%1|..%2', 0D, CalculateDate);
                     ProdBOMLine[Level].SetFilter("Ending Date", '%1|%2..', 0D, CalculateDate);
+                    OnPreDataItemBOMLoopOnProdBOMLineLevelSetFilters(ProdBOMLine, Level);
 
                     Quantity[Level] := CostCalcMgt.CalcQtyAdjdForBOMScrap(Item."Lot Size", Item."Scrap %");
 
@@ -494,4 +497,14 @@ report 99000756 "Detailed Calculation"
         SingleLevelMfgOvhd: Decimal;
         FooterProdTotalCost: Decimal;
         FooterCostTotal: Decimal;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordBOMLoopOnAfterProdBOMLineLevelSetFilters(var ProductionBOMLineArray: array[99] of Record "Production BOM Line"; var Level: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreDataItemBOMLoopOnProdBOMLineLevelSetFilters(var ProductionBOMLineArray: array[99] of Record "Production BOM Line"; var Level: Integer)
+    begin
+    end;
 }

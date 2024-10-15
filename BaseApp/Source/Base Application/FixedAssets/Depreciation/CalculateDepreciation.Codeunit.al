@@ -13,6 +13,15 @@ codeunit 5610 "Calculate Depreciation"
         CalculateNormalDepr: Codeunit "Calculate Normal Depreciation";
         CalculateCustom1Depr: Codeunit "Calculate Custom 1 Depr.";
 
+    procedure Calculate(var DeprAmount: Decimal; var Custom1Amount: Decimal; var NumberOfDays: Integer; var Custom1NumberOfDays: Integer; FANo: Code[20]; DeprBookCode: Code[10]; UntilDate: Date; EntryAmounts: array[4] of Decimal; DateFromProjection: Date; DaysInPeriod: Integer)
+    var
+        Custom2Amount: Decimal;
+    begin
+        Calculate(
+            DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays, FANo, DeprBookCode, UntilDate, EntryAmounts, DateFromProjection, DaysInPeriod,
+            false, false, Custom2Amount, 0, 0);
+    end;
+
     procedure Calculate(var DeprAmount: Decimal; var Custom1Amount: Decimal; var NumberOfDays: Integer; var Custom1NumberOfDays: Integer; FANo: Code[20]; DeprBookCode: Code[10]; UntilDate: Date; EntryAmounts: array[4] of Decimal; DateFromProjection: Date; DaysInPeriod: Integer; UseCustom1: Boolean; UseCustom2: Boolean; var Custom2Amount: Decimal; ForcedPercent1: Decimal; ForcedPercent2: Decimal)
     var
         IsHandled: Boolean;

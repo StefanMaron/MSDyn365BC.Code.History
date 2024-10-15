@@ -118,7 +118,7 @@ codeunit 395 "FinChrgMemo-Issue"
                             TotalAmount := TotalAmount - TempGenJnlLine.Amount;
                             TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
                             TempGenJnlLine."Bill-to/Pay-to No." := FinChrgMemoHeader."Customer No.";
-                            OnRunOnBeforeGLAccountGenJnlLineInsert(TempGenJnlLine);
+                            OnRunOnBeforeGLAccountGenJnlLineInsert(TempGenJnlLine, FinChrgMemoLine);
                             TempGenJnlLine.Insert();
                             OnRunOnAfterGLAccountGenJnlLineInsert(TempGenJnlLine);
                         end;
@@ -536,7 +536,7 @@ codeunit 395 "FinChrgMemo-Issue"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeGLAccountGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnRunOnBeforeGLAccountGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line"; FinanceChargeMemoLine: Record "Finance Charge Memo Line")
     begin
     end;
 

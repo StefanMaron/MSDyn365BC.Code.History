@@ -177,13 +177,42 @@ codeunit 134288 "Non-Deductible VAT Journal"
         GLEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GLEntry.FindFirst();
         // [THEN] "Non-Deductible VAT Amount" is zero in all non-VAT G/L entries
-        GLEntry.TestField("Non-Deductible VAT Amount", Round(GenJournalLine."VAT Amount" * VATPostingSetup."Non-Deductible VAT %" / 100));
+		// Bug 523795: Bal. Non-Deductible VAT amount is not correct 
+        GLEntry.TestField("Non-Deductible VAT Amount", Round(GenJournalLine."Bal. VAT Amount" * VATPostingSetup."Non-Deductible VAT %" / 100));
         GLEntry.SetRange("VAT Bus. Posting Group", '');
         GLEntry.SetRange("VAT Prod. Posting Group", '');
         GLEntry.FindSet();
         repeat
             GLEntry.TestField("Non-Deductible VAT Amount", 0);
         until GLEntry.Next() = 0;
+    end;
+
+    [Test]
+    procedure BalNonDeductibleVATPctInGenJournalLineAfterValidatingBalVATBusAndProdPostingGroup()
+    var
+        GLAccount: Record "G/L Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [SCENARIO 523795] Bal. Non-Deductible VAT % is correctly set in Gen. Journal Line after validating Bal. VAT Bus. & Prod. Posting Group fields
+        Initialize();
+
+        // [GIVEN] Create Non-Deductible VAT Posting Setup with s"Non-Deductible VAT %" = "X"
+        LibraryNonDeductibleVAT.CreateNonDeductibleNormalVATPostingSetup(VATPostingSetup);
+
+        // [GIVEN] General journal line with Non-Deductible VAT Setup on the "Bal. Account No."
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+
+        // [WHEN] Validate Bal. VAT Bus. & Prod. Posting Group fields
+        GenJournalLine.Validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GenJournalLine.Validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GenJournalLine.Modify(true);
+
+        // [THEN] "Bal. Non-Ded. VAT %" is "X"
+        GenJournalLine.TestField("Bal. Non-Ded. VAT %", VATPostingSetup."Non-Deductible VAT %");
     end;
 
     local procedure Initialize()

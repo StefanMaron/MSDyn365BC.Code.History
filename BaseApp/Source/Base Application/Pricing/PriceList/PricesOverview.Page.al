@@ -593,7 +593,6 @@ page 7024 "Prices Overview"
     end;
 
     var
-        PriceAsset: Record "Price Asset";
         PriceSource: Record "Price Source";
         CurrPriceListHeader: Record "Price List Header";
         PriceListManagement: Codeunit "Price List Management";
@@ -607,7 +606,6 @@ page 7024 "Prices Overview"
         ParentSourceNoFilterEditable: Boolean;
         SourceNoFilter: Text;
         SourceNoFilterEditable: Boolean;
-        AssetNoFilter: Text;
         AssetNoFilterEditable: Boolean;
         CurrencyCodeFilter: Text;
         StartingDateFilter: Text;
@@ -652,6 +650,10 @@ page 7024 "Prices Overview"
         UoMVisible: Boolean;
         UoMLookupVisible: Boolean;
         WorkTypeCodeEditable: Boolean;
+
+    protected var
+        PriceAsset: Record "Price Asset";
+        AssetNoFilter: Text;
 
     procedure SetRecFilters()
     begin

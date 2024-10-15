@@ -154,6 +154,7 @@ table 99000829 "Planning Component"
                 SubcontractingManagement: Codeunit SubcontractingManagement;
                 GetPlanningParameters: Codeunit "Planning-Get Parameters";
                 LicensePermission: Record "License Permission";
+                IsHandled: Boolean;
             begin
                 if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then
                     Validate("Expected Quantity", Quantity)
@@ -173,9 +174,13 @@ table 99000829 "Planning Component"
                         if (PlanningRtngLine.Type = PlanningRtngLine.Type::"Work Center") then
                             if LicensePermission.Get(LicensePermission."Object Type"::Codeunit, CODEUNIT::SubcontractingManagement) then
                                 if LicensePermission."Execute Permission" <> LicensePermission."Execute Permission"::" " then begin
-                                    if SubcontractingManagement.GetSubcontractor(PlanningRtngLine."No.", Vendor) then
-                                        if Vendor."Subcontractor Procurement" then
-                                            Validate("Location Code", Vendor."Subcontracting Location Code");
+                                    if SubcontractingManagement.GetSubcontractor(PlanningRtngLine."No.", Vendor) then begin
+                                        IsHandled := false;
+                                        OnValidateRoutingLinkCodeOnBeforeSubcontractorProcurementCheck(Rec, Vendor, IsHandled);
+                                        if not IsHandled then
+                                            if Vendor."Subcontractor Procurement" then
+                                                Validate("Location Code", Vendor."Subcontracting Location Code");
+                                    end;					    
                                 end;
                     end;
                 end else begin
@@ -1378,6 +1383,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetRefOrderTypeBinOnAfterGetBinCodeFromRoutingLine(var PlanningComponent: Record "Planning Component"; var PlanningRoutingLine: Record "Planning Routing Line"; var RequisitionLine: Record "Requisition Line"; var BinCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRoutingLinkCodeOnBeforeSubcontractorProcurementCheck(var PlanningComponent: Record "Planning Component"; Vendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
 }

@@ -149,7 +149,6 @@ codeunit 104000 "Upgrade - BaseApp"
         CreateDefaultAADApplication();
         CreatePowerPagesAAdApplications();
         UpgradePowerBIOptin();
-        UpgradeReportLayouts();
     end;
 
     trigger OnUpgradePerCompany()
@@ -2686,20 +2685,6 @@ codeunit 104000 "Upgrade - BaseApp"
         TargetMediaRepository."File Name" := ImageName;
         TargetMediaRepository."Display Target" := Format(targetClientType);
         exit(TargetMediaRepository.Insert());
-    end;
-
-    local procedure UpgradeReportLayouts()
-    var
-        FeatureReportSelection: Codeunit "Feature - Report Selection";
-        FeatureManagementFacade: codeunit "Feature Management Facade";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUpgradePlatformReportLayoutsUpgradeTag()) then
-            exit;
-        if not FeatureManagementFacade.IsEnabled('EnablePlatformBasedReportSelection') then
-            FeatureReportSelection.MigrateCustomReportLayouts();
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUpgradePlatformReportLayoutsUpgradeTag());
     end;
 
     local procedure UpgradeRemoveSmartListGuidedExperience()

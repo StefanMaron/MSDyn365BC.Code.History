@@ -191,8 +191,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
 
                     CreateNewFAJnlLine();
                 end;
-        if FAJnlBatch."No. Series" <> '' then
-                NoSeriesBatch.SaveState();
+        NoSeriesBatch.SaveState();
 
         OnBeforeCommit(FARegNo);
 

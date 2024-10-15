@@ -490,6 +490,7 @@ table 1226 "Payment Export Data"
     var
         TempPaymentExportRemittanceText: Record "Payment Export Remittance Text" temporary;
         PreserveNonLatinCharacters: Boolean;
+        BankMustHaveBankAccountNoErr: Label 'You must specify either Bank Account No. or IBAN for Bank Account %1.', Comment = '%1 = Bank Account Name';
         EmployeeMustHaveBankAccountNoErr: Label 'You must specify either Bank Account No. or IBAN for employee %1.', Comment = '%1 - Employee name';
 
     procedure InitData(var GenJnlLine: Record "Gen. Journal Line")
@@ -532,6 +533,17 @@ table 1226 "Payment Export Data"
             BankAccount.TestField(CUC);
             exit(BankAccount.CUC);
         end;
+    end;
+
+    procedure GetSenderCreditorNo(): Text
+    var
+        BankAccount: Record "Bank Account";
+        CreditorNo: Text;
+    begin
+        BankAccount.Get("Sender Bank Account Code");
+        CreditorNo := BankAccount."Creditor No.";
+        OnAfterGetSenderCreditorNo(Rec, CreditorNo);
+        exit(CreditorNo);
     end;
 
     procedure AddGenJnlLineErrorText(GenJnlLine: Record "Gen. Journal Line"; NewText: Text)
@@ -656,6 +668,22 @@ table 1226 "Payment Export Data"
         OnAfterSetEmployeeAsRecipient(Employee);
     end;
 
+    procedure SetBankAsRecipient(var BankAccount: Record "Bank Account")
+    begin
+        "Recipient Name" := BankAccount.Name;
+        "Recipient Address" := BankAccount.Address;
+        "Recipient City" := BankAccount.City;
+        "Recipient County" := BankAccount.County;
+        "Recipient Post Code" := BankAccount."Post Code";
+        "Recipient Country/Region Code" := BankAccount."Country/Region Code";
+        "Recipient Email Address" := BankAccount."E-Mail";
+        if BankAccount.GetBankAccountNo() = '' then
+            Error(BankMustHaveBankAccountNoErr, BankAccount.Name);
+        "Recipient Bank Acc. No." := CopyStr(BankAccount.GetBankAccountNo(), 1, MaxStrLen(Rec."Recipient Bank Acc. No."));
+        "Recipient Bank BIC" := BankAccount."SWIFT Code";
+        OnAfterSetBankAsRecipient(Rec, BankAccount);
+    end;
+
     procedure SetBankAsSenderBank(BankAccount: Record "Bank Account")
     begin
         "Sender Bank Name" := BankAccount.Name;
@@ -711,6 +739,12 @@ table 1226 "Payment Export Data"
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnAfterGetSenderCreditorNo(PaymentExportData: Record "Payment Export Data"; var CreditorNo: Text)
+    begin
+    end;
+
+
+    [IntegrationEvent(true, false)]
     local procedure OnAfterSetBankAsSenderBank(BankAccount: Record "Bank Account")
     begin
     end;
@@ -727,6 +761,11 @@ table 1226 "Payment Export Data"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetVendorAsRecipient(var PaymentExportData: Record "Payment Export Data"; var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account");
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetBankAsRecipient(var PaymentExportData: Record "Payment Export Data"; var BankAccount: Record "Bank Account")
     begin
     end;
 }

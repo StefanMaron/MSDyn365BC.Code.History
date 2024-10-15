@@ -973,7 +973,6 @@ table 79 "Company Information"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetTaxCode(): Code[20]
     begin
         if "Fiscal Code" <> '' then

@@ -112,7 +112,7 @@ report 1086 "Job Calculate WIP"
                 JobWIPEntry.SetRange("Job No.", Job."No.");
                 PAGE.RunModal(PAGE::"Job WIP Entries", JobWIPEntry);
 
-                WIPQst := StrSubstNo(RunWIPFunctionsQst, 'Job Post WIP to G/L');
+                WIPQst := StrSubstNo(RunWIPFunctionsQst, 'Project Post WIP to G/L');
                 if DIALOG.Confirm(WIPQst) then
                     REPORT.RunModal(REPORT::"Job Post WIP to G/L", true, false, Job);
             end;

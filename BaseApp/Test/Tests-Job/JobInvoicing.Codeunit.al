@@ -56,6 +56,7 @@ codeunit 136306 "Job Invoicing"
         ExtDocNoErr: Label 'The actual %1 External Document No. and the expected %2 External Document No. are not equal', Comment = '%1 = Project, %2 = Sales Header';
         YourReferenceErr: Label 'The actual %1 Your Reference and the expected %2 Your Reference are not equal', Comment = '%1 = Project, %2 = Sales Header';
         DetailLevel: Option All,"Per Job","Per Job Task","Per Job Planning Line";
+        LineDiscountPctErr: Label '%1 should be %2', Comment = '%1 = Field Caption, %2 = Field Value';
 
     [Test]
     [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
@@ -3794,6 +3795,45 @@ codeunit 136306 "Job Invoicing"
         JobJournalPage.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,TransferToInvoiceHandler')]
+    [Scope('OnPrem')]
+    procedure CorrectPostedSalesInvoicePostWithoutErrorWhenLineDiscountPctExist()
+    var
+        SalesHeader: Record "Sales Header";
+        NewSalesInvoiceHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        CancelledDocument: Record "Cancelled Document";
+        JobPlanningLine: Record "Job Planning Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        LineDiscountPct: Decimal;
+    begin
+        // [SCENARIO 500639] "Line Discount % has been changed (initial a Job Task: Job No.= XX, Job Task No.= YY) in Sales Line Doc Type='Credit Memo'" error occurs if you create a credit memo from a posted sales invoice that includes a discount from the job planning lines
+        Initialize();
+
+        // [GIVEN] Create and Post sales invoice with job
+        LineDiscountPct := LibraryRandom.RandDecInRange(1, 5, 2);
+        CreateSimpleSalesInvoiceFromJobPlanningLineWithLineDiscountPct(SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract(), 1, LineDiscountPct);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Correct Invoice function is being run
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, NewSalesInvoiceHeader);
+
+        // [THEN] Credit Memo posted without error
+        CancelledDocument.FindSalesCancelledInvoice(SalesInvoiceHeader."No.");
+        SalesCrMemoHeader.Get(CancelledDocument."Cancelled By Doc. No.");
+
+        // [VERIFY] Verify: Posted Credit Memo line contains Line Discount %
+        SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
+        SalesCrMemoLine.SetFilter(Type, '<>0');
+        SalesCrMemoLine.FindFirst();
+        Assert.AreEqual(
+            LineDiscountPct, SalesCrMemoLine."Line Discount %",
+            StrSubstNo(LineDiscountPctErr, SalesCrMemoLine.FieldCaption("Line Discount %"), Format(LineDiscountPct)));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5429,6 +5469,25 @@ codeunit 136306 "Job Invoicing"
         SalesLine.Validate("Document No.", SalesHeader."No.");
         RecRef.GetTable(SalesLine);
         SalesLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, SalesLine.FieldNo("Line No.")));
+    end;
+
+    local procedure CreateSimpleSalesInvoiceFromJobPlanningLineWithLineDiscountPct(
+        var SalesHeader: Record "Sales Header";
+        var JobPlanningLine: Record "Job Planning Line";
+        LineType: Enum "Job Planning Line Line Type";
+        QtyInvoiceFraction: Decimal;
+        LineDiscountPct: Decimal): Code[20]
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+    begin
+        CreateJob(Job, '', false);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.ResourceType(), JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("Line Discount %", LineDiscountPct);
+        JobPlanningLine.Modify(true);
+        TransferJobPlanningLine(JobPlanningLine, QtyInvoiceFraction, false, SalesHeader);
+        exit(Job."No.");
     end;
 
     [RequestPageHandler]

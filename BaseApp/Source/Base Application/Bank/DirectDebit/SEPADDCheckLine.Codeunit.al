@@ -61,9 +61,13 @@ codeunit 1233 "SEPA DD-Check Line"
             AddFieldEmptyError(DirectDebitCollectionEntry, Customer.TableCaption(), Customer.FieldCaption(Name), DirectDebitCollectionEntry."Customer No.");
 
         DirectDebitCollection.Get(DirectDebitCollectionEntry."Direct Debit Collection No.");
-        if Customer."Partner Type" <> DirectDebitCollection."Partner Type" then
-            DirectDebitCollectionEntry.InsertPaymentFileError(StrSubstNo(PartnerTypeErr, Customer.FieldCaption("Partner Type"), Customer."Partner Type",
-                DirectDebitCollection."Partner Type"));
+
+        IsHandled := false;
+        OnBeforeCheckCustomerPartnerType(Customer, DirectDebitCollectionEntry, IsHandled);
+        if not IsHandled then
+            if Customer."Partner Type" <> DirectDebitCollection."Partner Type" then
+                DirectDebitCollectionEntry.InsertPaymentFileError(StrSubstNo(PartnerTypeErr, Customer.FieldCaption("Partner Type"), Customer."Partner Type",
+                    DirectDebitCollection."Partner Type"));
 
         if DirectDebitCollection."Partner Type" = DirectDebitCollection."Partner Type"::" " then
             DirectDebitCollectionEntry.InsertPaymentFileError(StrSubstNo(PartnerTypeBlankErr, DirectDebitCollection.FieldCaption("Partner Type")));
@@ -112,6 +116,11 @@ codeunit 1233 "SEPA DD-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCollectionEntry(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCustomerPartnerType(Customer: Record Customer; DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var IsHandled: Boolean)
     begin
     end;
 }

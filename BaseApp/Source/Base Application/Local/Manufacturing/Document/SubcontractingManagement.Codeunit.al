@@ -49,6 +49,7 @@ codeunit 12152 SubcontractingManagement
         Vendor: Record Vendor;
         PurchLine: Record "Purchase Line";
         PurchHeader: Record "Purchase Header";
+        IsHandled: Boolean;
     begin
         ProdOrdComponent.CalcFields("Qty. on Transfer Order (Base)");
         if ProdOrdComponent."Qty. on Transfer Order (Base)" <> 0 then
@@ -68,6 +69,10 @@ codeunit 12152 SubcontractingManagement
 
                 Vendor.Get(WorkCenter."Subcontractor No.");
                 if Vendor."Subcontractor Procurement" then begin
+                    IsHandled := false;
+                    OnGetConsLocationOnBeforeConfirmSubcontractingLocationCode(ProdOrdComponent, Vendor, LocationCode, IsHandled);
+                    if IsHandled then
+                        exit(LocationCode);
                     ProdOrdComponent.TestField("Location Code", Vendor."Subcontracting Location Code");
                     exit(Vendor."Subcontracting Location Code");
                 end;
@@ -182,6 +187,7 @@ codeunit 12152 SubcontractingManagement
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         SKU: Record "Stockkeeping Unit";
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
+        IsHandled: Boolean;
     begin
         ProdOrderRoutingLine.Get(
             ProdOrderRoutingLine.Status::Released, ReqLine."Prod. Order No.",
@@ -205,7 +211,10 @@ codeunit 12152 SubcontractingManagement
                     ProdOrdComponent.Validate("Location Code", Vendor."Subcontracting Location Code")
                 else
                     ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
-                ProdOrdComponent.Modify();
+                IsHandled := false;
+                OnCheckVendorVsWorkCenterOnBeforeModify(ReqLine, ProdOrdComponent, ProdOrdLine, SKU, IsHandled);
+                if not IsHandled then
+                    ProdOrdComponent.Modify();
             until ProdOrdComponent.Next() = 0;
 
             if ShowMsg then
@@ -320,6 +329,16 @@ codeunit 12152 SubcontractingManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdLinkedComponentsOnBeforeModify(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderComponent: Record "Prod. Order Component"; var ProdOrderLine: Record "Prod. Order Line"; var StockkeepingUnit: Record "Stockkeeping Unit"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckVendorVsWorkCenterOnBeforeModify(var RequisitionLine: Record "Requisition Line"; var ProdOrderComponent: Record "Prod. Order Component"; var ProdOrderLine: Record "Prod. Order Line"; var StockkeepingUnit: Record "Stockkeeping Unit"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetConsLocationOnBeforeConfirmSubcontractingLocationCode(var ProdOrderComponent: Record "Prod. Order Component"; Vendor: Record Vendor; var LocationCode: Code[10]; IsHandled: Boolean)
     begin
     end;
 }
