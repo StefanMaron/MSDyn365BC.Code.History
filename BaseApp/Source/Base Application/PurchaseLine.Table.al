@@ -1360,6 +1360,8 @@
                 IsHandled: Boolean;
             begin
                 TestStatusOpen;
+                if "Prepmt. Amt. Inv." <> 0 then
+                    Error(CannotChangeVATGroupWithPrepmInvErr);
                 VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                 OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(VATPostingSetup);
                 "VAT Difference" := 0;
@@ -2234,10 +2236,7 @@
 
             trigger OnValidate()
             begin
-                if "Drop Shipment" then
-                    Error(
-                      Text001,
-                      FieldCaption("Prod. Order No."), "Sales Order No.");
+                CheckDropShipment();
 
                 AddOnIntegrMgt.ValidateProdOrderOnPurchLine(Rec);
             end;
@@ -3442,6 +3441,7 @@
             PurchLine2.SetRange("Document No.", "Document No.");
             PurchLine2.SetRange("Attached to Line No.", "Line No.");
             PurchLine2.SetFilter("Line No.", '<>%1', "Line No.");
+            OnDeleteOnBeforePurchLineDeleteAll(PurchLine2);
             PurchLine2.DeleteAll(true);
         end;
 
@@ -3601,6 +3601,8 @@
         LineInvoiceDiscountAmountResetTok: Label 'The value in the Inv. Discount Amount field in %1 has been cleared.', Comment = '%1 - Record ID';
         BlockedItemNotificationMsg: Label 'Item %1 is blocked, but it is allowed on this type of document.', Comment = '%1 is Item No.';
         CannotAllowInvDiscountErr: Label 'The value of the %1 field is not valid when the VAT Calculation Type field is set to "Full VAT".', Comment = '%1 is the name of not valid field';
+        CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
+        CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
 
     procedure InitOutstanding()
     begin
@@ -4149,9 +4151,10 @@
             OnUpdateDirectUnitCostOnBeforeFindPrice(PurchHeader, Rec, CalledByFieldNo, CurrFieldNo, IsHandled);
             if not IsHandled then begin
                 GetPriceCalculationHandler(PurchHeader, PriceCalculation);
-                PriceCalculation.ApplyPrice(CalledByFieldNo);
-                if not ("Copied From Posted Doc." and IsCreditDocType) then
+                if not ("Copied From Posted Doc." and IsCreditDocType()) then begin                
+                    PriceCalculation.ApplyPrice(CalledByFieldNo);
                     PriceCalculation.ApplyDiscount();
+                end;
                 GetLineWithPrice(PriceCalculation);
             end;
             Validate("Direct Unit Cost");
@@ -4376,8 +4379,12 @@
         TotalAmount: Decimal;
         TotalAmountInclVAT: Decimal;
         TotalQuantityBase: Decimal;
+        IsHandled: Boolean;
     begin
-        OnBeforeUpdateVATAmounts(Rec);
+        IsHandled := false;
+        OnBeforeUpdateVATAmounts(Rec, IsHandled);
+        if IsHandled then
+            exit;
 
         GetPurchHeader;
         PurchLine2.SetRange("Document Type", "Document Type");
@@ -4545,6 +4552,8 @@
                 VATPostingSetup.TestField("VAT Calculation Type", "VAT Calculation Type");
             end else
                 Clear(VATPostingSetup);
+            if ("Prepayment VAT %" <> 0) and ("Prepayment VAT %" <> VATPostingSetup."VAT %") and ("Prepmt. Amt. Inv." <> 0) then
+                Error(CannotChangePrepmtAmtDiffVAtPctErr);
             "Prepayment VAT %" := VATPostingSetup."VAT %";
             "Prepmt. VAT Calc. Type" := VATPostingSetup."VAT Calculation Type";
             "Prepayment VAT Identifier" := VATPostingSetup."VAT Identifier";
@@ -4927,8 +4936,10 @@
         TestField("No.");
         TestField(Quantity);
 
-        if Type <> Type::"Charge (Item)" then
-            Error(ItemChargeAssignmentErr);
+        if Type <> Type::"Charge (Item)" then begin
+            Message(ItemChargeAssignmentErr);
+            exit;
+        end;
 
         GetPurchHeader;
         if PurchHeader."Currency Code" = '' then
@@ -6374,11 +6385,17 @@
         SetRange("Job No.", ' ');
     end;
 
-    procedure GetVPGInvRoundAcc(var PurchHeader: Record "Purchase Header"): Code[20]
+    procedure GetVPGInvRoundAcc(var PurchHeader: Record "Purchase Header") AccountNo: Code[20]
     var
         Vendor: Record Vendor;
         VendorPostingGroup: Record "Vendor Posting Group";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetVPGInvRoundAcc(PurchHeader, Vendor, AccountNo, IsHandled);
+        if IsHandled then
+            exit(AccountNo);
+
         GetPurchSetup;
         if PurchSetup."Invoice Rounding" then
             if Vendor.Get(PurchHeader."Pay-to Vendor No.") then
@@ -6926,7 +6943,7 @@
         if PurchHeader."Prices Including VAT" and ("Amount Including VAT" > 0) and ("Amount Including VAT" < "Prepmt. Line Amount") then
             "Prepmt. Line Amount" := "Amount Including VAT";
 
-        OnAfterUpdateBaseAmounts(Rec, xRec, CurrFieldNo);
+        OnAfterUpdateBaseAmounts(Rec, xRec, CurrFieldNo, NewAmount, NewAmountIncludingVAT, NewVATBaseAmount);
     end;
 
     local procedure UpdatePrepmtAmounts()
@@ -7060,6 +7077,19 @@
                 CheckWarehouse();
             WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
         end;
+    end;
+
+    local procedure CheckDropShipment()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckDropShipment(IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Drop Shipment" then
+            Error(Text001, FieldCaption("Prod. Order No."), "Sales Order No.");
     end;
 
     [IntegrationEvent(false, false)]
@@ -7308,7 +7338,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateBaseAmounts(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line"; CurrFieldNo: Integer)
+    local procedure OnAfterUpdateBaseAmounts(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line"; CurrFieldNo: Integer; NewAmount: Decimal; NewAmountIncludingVAT: Decimal; NewVATBaseAmount: Decimal)
     begin
     end;
 
@@ -7448,6 +7478,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetVPGInvRoundAcc(PurchHeader: Record "Purchase Header"; Vendor: Record Vendor; var AccountNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInitJobFields(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -7558,7 +7593,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateVATAmounts(var PurchaseLine: Record "Purchase Line")
+    local procedure OnBeforeUpdateVATAmounts(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7613,7 +7648,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShortcutDimCode(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; IsHandled: Boolean)
+    local procedure OnBeforeValidateShortcutDimCode(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -7649,6 +7684,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforePurchLineDeleteAll(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -7893,6 +7933,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeValidateJobTaskNo(xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckDropShipment(var IsHandled: Boolean)
     begin
     end;
 }

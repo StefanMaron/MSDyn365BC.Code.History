@@ -28,6 +28,8 @@
         IncorrectGLEntryExistsErr: Label 'Incorrect G/L Entry exists.';
         CountDimSetEntriesErr: Label 'Count of Dimension Set Entries is wrong.';
         IncorrectVATEntryAmountErr: Label 'Incorrect VAT Entry Amount.';
+        CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
+        CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
 
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
@@ -2841,6 +2843,151 @@
           UnitCost * (Quantity - 1), UnitInvDiscAmt * (Quantity - 1));
         VerifyGLEntriesAmount(
           -(UnitCost - UnitInvDiscAmt) * (Quantity - 1), PostedDocNo2, GeneralPostingSetup."Purch. Prepayments Account");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NotPossibleToChangeVATProdPostGroupAfterPostingSalesPrepmtInv()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 364426] Stan cannot change the "VAT Product Posting Group" in Sales Order with posted prepayment
+
+        Initialize;
+        // [GIVEN] Sales Order with "VAT Product Posting Group" = "X"
+        CreatePrepmtSalesOrder(SalesHeader, SalesLine);
+
+        // [GIVEN] Posted prepayment invoice
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [GIVEN] New VAT Product Posting Group "Y"
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, SalesHeader."VAT Bus. Posting Group", VATProductPostingGroup.Code);
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+        SalesLine.Find;
+
+        // [WHEN] Change "VAT Product Posting Group" of sales line to "Y"
+        asserterror SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        // [THEN] An error message "You cannot change the VAT product posting group because prepayment invoices have been posted" shown
+        Assert.ExpectedError(CannotChangeVATGroupWithPrepmInvErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NotPossibleToChangeSalesPrepmtAmountIfPrepmtAmountHasDiffVATGroup()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 364364] Stan cannot change the prepayment amount if prepayment G/L Account has different VAT Product posting group
+
+        Initialize;
+        // [GIVEN] Sales Order with sales prepayment account that has "VAT Product Posting Group" with VAT rate = "X"
+        CreatePrepmtSalesOrder(SalesHeader, SalesLine);
+
+        // [GIVEN] Posted prepayment invoice
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [GIVEN] New VAT Product Posting Group with VAT rate "Y"
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, SalesHeader."VAT Bus. Posting Group", VATProductPostingGroup.Code);
+
+        // [GIVEN] Change the "VAT Product Posting Group" of G/L account to one with VAT rate "Y"
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+        SalesLine.Find;
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+
+        // [WHEN] Change prepayment amount in sales line
+        asserterror SalesLine.Validate("Prepayment %", SalesLine."Prepayment %" + 1);
+
+        // [THEN] An error message "You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage" shown
+        Assert.ExpectedError(CannotChangePrepmtAmtDiffVAtPctErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NotPossibleToChangeVATProdPostGroupAfterPostingPurchPrepmtInv()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 364426] Stan cannot change the "VAT Product Posting Group" in Purchase Order with posted prepayment
+
+        Initialize;
+        // [GIVEN] Purchase Order with "VAT Product Posting Group" = "X"
+        CreatePrepmtPurchOrder(PurchaseHeader);
+
+        // [GIVEN] Posted prepayment invoice
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [GIVEN] New VAT Product Posting Group "Y"
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, PurchaseHeader."VAT Bus. Posting Group", VATProductPostingGroup.Code);
+        PurchaseHeader.Find;
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+
+        // [WHEN] Change "VAT Product Posting Group" of purchase line to "Y"
+        asserterror PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        // [THEN] An error message "You cannot change the VAT product posting group because prepayment invoices have been posted" shown
+        Assert.ExpectedError(CannotChangeVATGroupWithPrepmInvErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NotPossibleToChangePurchPrepmtAmountIfPrepmtAmountHasDiffVATGroup()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 364364] Stan cannot change the prepayment amount if prepayment G/L Account has different VAT Product posting group
+
+        Initialize;
+        // [GIVEN] Purchase Order with purchase prepayment account that has "VAT Product Posting Group" with VAT rate = "X"
+        CreatePrepmtPurchOrder(PurchaseHeader);
+
+        // [GIVEN] Posted prepayment invoice
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [GIVEN] New VAT Product Posting Group with VAT rate "Y"
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, PurchaseHeader."VAT Bus. Posting Group", VATProductPostingGroup.Code);
+
+        // [GIVEN] Change the "VAT Product Posting Group" of G/L account to one with VAT rate "Y"
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        GLAccount.Get(GeneralPostingSetup."Purch. Prepayments Account");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+
+        // [WHEN] Change prepayment amount in purchase line
+        asserterror PurchaseLine.Validate("Prepayment %", PurchaseLine."Prepayment %" + 1);
+
+        // [THEN] An error message "You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage" shown
+        Assert.ExpectedError(CannotChangePrepmtAmtDiffVAtPctErr);
     end;
 
     local procedure Initialize()

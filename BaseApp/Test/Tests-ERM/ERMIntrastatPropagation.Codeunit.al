@@ -13,6 +13,7 @@ codeunit 134149 "ERM Intrastat Propagation"
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
 
     [Test]
@@ -24,6 +25,8 @@ codeunit 134149 "ERM Intrastat Propagation"
     begin
         // [FEATURE] [Tariff Number]
         // [GIVEN] Tariff number "TARIFF NUM" does not exists
+        Initialize();
+
         LibraryLowerPermissions.SetO365BusFull;
         TariffNumber.DeleteAll();
         Assert.RecordCount(TariffNumber, 0);
@@ -96,14 +99,20 @@ codeunit 134149 "ERM Intrastat Propagation"
     var
         IntrastatSetup: Record "Intrastat Setup";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Intrastat Propagation");
+
         if IsInitialized then
             exit;
+
         IsInitialized := true;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Intrastat Propagation");
         LibraryService.SetupServiceMgtNoSeries;
         LibraryERM.FindIntrastatSetup(IntrastatSetup);
         LibraryERM.SetDefaultTransactionTypesInIntrastatSetup;
 
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Intrastat Propagation");
     end;
 
     local procedure GetDefaultTransactionType(): Code[10]

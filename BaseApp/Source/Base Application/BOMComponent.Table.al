@@ -275,10 +275,15 @@ table 90 "BOM Component"
     end;
 
     local procedure CopyFromItem()
+    var
+        IsHandled: Boolean;
     begin
         Item.Get("No.");
         ValidateAgainstRecursion("No.");
-        OnBeforeCopyFromItem(Rec, xRec, Item, CurrFieldNo);
+        IsHandled := false;
+        OnBeforeCopyFromItem(Rec, xRec, Item, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
 
         Item.CalcFields("Assembly BOM");
         "Assembly BOM" := Item."Assembly BOM";
@@ -315,7 +320,7 @@ table 90 "BOM Component"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyFromItem(var BOMComponent: Record "BOM Component"; xBOMComponent: Record "BOM Component"; Item: Record Item; CallingFieldNo: Integer)
+    local procedure OnBeforeCopyFromItem(var BOMComponent: Record "BOM Component"; xBOMComponent: Record "BOM Component"; Item: Record Item; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -182,7 +182,11 @@ page 5353 "CRM Sales Order List"
                         if IsEmpty then
                             exit;
 
+                        SendTraceTag('0000DFA', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+                            StrSubstNo(StartingToCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
                         if CRMSalesOrderToSalesOrder.CreateInNAV(Rec, SalesHeader) then begin
+                            SendTraceTag('0000DFB', CrmTelemetryCategoryTok, VERBOSITY::Normal,
+                                StrSubstNo(CommittingAfterCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
                             Commit();
                             PAGE.RunModal(PAGE::"Sales Order", SalesHeader);
                         end;
@@ -210,7 +214,11 @@ page 5353 "CRM Sales Order List"
     end;
 
     var
+        CRMProductName: Codeunit "CRM Product Name";
         CRMIntegrationEnabled: Boolean;
         HasRecords: Boolean;
+        CrmTelemetryCategoryTok: Label 'AL CRM Integration', Locked = true;
+        StartingToCreateSalesOrderTelemetryMsg: Label 'Starting to create sales order from %1 order %2 via a page action.', Locked = true;
+        CommittingAfterCreateSalesOrderTelemetryMsg: Label 'Committing after processing %1 order %2 via a page action.', Locked = true;
 }
 

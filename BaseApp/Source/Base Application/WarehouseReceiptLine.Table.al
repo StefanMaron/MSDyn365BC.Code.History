@@ -1,4 +1,4 @@
-table 7317 "Warehouse Receipt Line"
+﻿table 7317 "Warehouse Receipt Line"
 {
     Caption = 'Warehouse Receipt Line';
     DrillDownPageID = "Whse. Receipt Lines";
@@ -487,7 +487,14 @@ table 7317 "Warehouse Receipt Line"
     end;
 
     procedure AutofillQtyToReceive(var WhseReceiptLine: Record "Warehouse Receipt Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAutofillQtyToReceive(WhseReceiptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseReceiptLine do begin
             if Find('-') then
                 repeat
@@ -499,15 +506,20 @@ table 7317 "Warehouse Receipt Line"
     end;
 
     procedure DeleteQtyToReceive(var WhseReceiptLine: Record "Warehouse Receipt Line")
+    var
+        IsHandled: Boolean;
     begin
-        with WhseReceiptLine do begin
-            if Find('-') then
-                repeat
-                    Validate("Qty. to Receive", 0);
-                    OnDeleteQtyToReceiveOnBeforeModify(WhseReceiptLine);
-                    Modify;
-                until Next = 0;
-        end;
+        IsHandled := false;
+        OnBeforeDeleteQtyToReceive(WhseReceiptLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if WhseReceiptLine.FindSet() then
+            repeat
+                WhseReceiptLine.Validate("Qty. to Receive", 0);
+                OnDeleteQtyToReceiveOnBeforeModify(WhseReceiptLine);
+                WhseReceiptLine.Modify();
+            until WhseReceiptLine.Next() = 0;
     end;
 
     local procedure GetItem()
@@ -739,6 +751,16 @@ table 7317 "Warehouse Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteQtyToReceiveOnBeforeModify(var WhseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAutofillQtyToReceive(var WhseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteQtyToReceive(var WhseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean)
     begin
     end;
 }

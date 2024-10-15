@@ -244,6 +244,8 @@ codeunit 1520 "Workflow Event Handling"
         WorkflowEvent: Record "Workflow Event";
         SystemInitialization: Codeunit "System Initialization";
     begin
+        OnBeforeAddEventToLibrary(FunctionName, Description);
+
         if WorkflowEvent.Get(FunctionName) then
             exit;
 
@@ -818,6 +820,11 @@ codeunit 1520 "Workflow Event Handling"
     procedure RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocFail(var IncomingDocument: Record "Incoming Document")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocFailCode, IncomingDocument);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddEventToLibrary(FunctionName: Code[128]; Description: Text[250])
+    begin
     end;
 }
 

@@ -516,8 +516,10 @@ codeunit 5906 ServLogManagement
                 ServOrderLog."Event No." := 20;
             ServOrderLog."Document Type"::"Credit Memo":
                 ServOrderLog."Event No." := 21;
-            else
-                ServOrderLog."Event No." := 1
+            else begin
+                    ServOrderLog."Event No." := 1;
+                    OnServHeaderCreateOnCaseElse(ServOrderLog, ServHeader);
+                end;
         end;
         ServOrderLog.Insert(true);
     end;
@@ -730,6 +732,11 @@ codeunit 5906 ServLogManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnServItemEventDescription(EventNo: Integer; var Description: Text[50]; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServHeaderCreateOnCaseElse(var ServOrderLog: Record "Service Document Log"; ServHeader: Record "Service Header")
     begin
     end;
 

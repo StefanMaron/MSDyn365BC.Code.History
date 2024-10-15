@@ -285,7 +285,10 @@ table 309 "No. Series Line"
         while (i > 1) and ("Starting No."[i] in ['0' .. '9']) do
             i -= 1;
         if (i > 0) and (i + StrLen(NumberCode) <= MaxStrLen(NumberCode)) then
-            exit(CopyStr("Starting No.", 1, i) + NumberCode);
+            if (i = 1) and ("Starting No."[i] in ['0' .. '9']) then
+                exit(NumberCode)
+            else
+                exit(CopyStr("Starting No.", 1, i) + NumberCode);
         exit(NumberCode); // should ideally not be possible, as bigints can produce max 18 digits
     end;
 }

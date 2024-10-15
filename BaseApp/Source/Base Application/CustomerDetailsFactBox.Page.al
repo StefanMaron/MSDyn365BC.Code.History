@@ -13,7 +13,6 @@ page 9084 "Customer Details FactBox"
                 ApplicationArea = All;
                 Caption = 'Customer No.';
                 ToolTip = 'Specifies the number of the customer. The field is either filled automatically from a defined number series, or you enter the number manually because you have enabled manual number entry in the number-series setup.';
-                Visible = ShowCustomerNo;
 
                 trigger OnDrillDown()
                 begin
@@ -106,11 +105,6 @@ page 9084 "Customer Details FactBox"
         StyleTxt := SetStyle;
     end;
 
-    trigger OnInit()
-    begin
-        ShowCustomerNo := true;
-    end;
-
     var
         StyleTxt: Text;
         ShowCustomerNo: Boolean;
@@ -120,6 +114,7 @@ page 9084 "Customer Details FactBox"
         PAGE.Run(PAGE::"Customer Card", Rec);
     end;
 
+    [Obsolete('Visibility of the Customer No. can be controlled through personalizaition or PTE', '16.0')]
     procedure SetCustomerNoVisibility(Visible: Boolean)
     begin
         ShowCustomerNo := Visible;
