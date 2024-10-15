@@ -3368,8 +3368,10 @@
         if (LastDocNo = '') or ("Document No." <> LastDocNo) then begin
             DocNo := NoSeriesMgtInstance.GetNextNo(NoSeriesCode, "Posting Date", false);
             if not "Exported to Payment File" then
-                if "Document No." <> DocNo then
+                if "Document No." <> DocNo then begin
                     NoSeriesMgtInstance.TestManualWithDocumentNo(NoSeriesCode, "Document No.");  // allow use of manual document numbers.
+                    NoSeriesMgtInstance.ClearNoSeriesLine();
+                end;
         end;
     end;
 
