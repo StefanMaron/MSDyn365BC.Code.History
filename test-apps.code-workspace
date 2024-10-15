@@ -243,6 +243,9 @@
       "path": "./Email - SMTP API/Test/Email - SMTP API Tests"
     },
     {
+      "path": "./saf-t/test/SAF-T Tests"
+    },
+    {
       "path": "./statisticalaccounts/test/Statistical Accounts Tests"
     },
     {
@@ -253,6 +256,9 @@
     },
     {
       "path": "./Email - Microsoft 365 Connector/Test/Email - Microsoft 365 Connector Tests"
+    },
+    {
+      "path": "./SAFTModificationDK/Test/SAF-T Modification DK Tests"
     },
     {
       "path": "./Email - Current User Connector/Test/Email - Current User Connector Tests"

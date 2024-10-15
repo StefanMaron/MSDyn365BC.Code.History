@@ -12257,6 +12257,9 @@ End Function
         <Field Name="CompanyInfoBankAccNo">
           <DataField>CompanyInfoBankAccNo</DataField>
         </Field>
+        <Field Name="CompanyInfoIBAN">
+          <DataField>CompanyInfoIBAN</DataField>
+        </Field>
         <Field Name="CompanyInfoBankName">
           <DataField>CompanyInfoBankName</DataField>
         </Field>
@@ -12334,6 +12337,9 @@ End Function
         </Field>
         <Field Name="BankAccNoCaption">
           <DataField>BankAccNoCaption</DataField>
+        </Field>
+        <Field Name="IBANCaption">
+          <DataField>IBANCaption</DataField>
         </Field>
         <Field Name="BankNameCaption">
           <DataField>BankNameCaption</DataField>

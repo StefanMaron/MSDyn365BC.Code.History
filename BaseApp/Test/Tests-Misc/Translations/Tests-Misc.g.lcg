@@ -313,7 +313,7 @@
   </Item>
   <Item ItemId=";Codeunit 4219887268 - NamedType 1694455252" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must select an interaction template with an attachment.]]></Val>
+      <Val><![CDATA[The interaction template has no attachment for the selected language code.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

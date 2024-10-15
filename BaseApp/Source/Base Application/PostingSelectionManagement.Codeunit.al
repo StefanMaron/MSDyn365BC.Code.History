@@ -252,8 +252,14 @@ codeunit 99 "Posting Selection Management"
         UserSetupManagement: Codeunit "User Setup Management";
         ConfirmManagement: Codeunit "Confirm Management";
         Ship: Boolean;
-        Invoice: Boolean;
+        Invoice, IsHandled, Result : Boolean;
     begin
+        Result := false;
+        IsHandled := false;
+        OnBeforeGetShipInvoiceSelectionForWhseActivity(DefaultOption, Selection, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         UserSetupManagement.GetSalesInvoicePostingPolicy(Ship, Invoice);
         case true of
             not Ship and not Invoice:
@@ -347,6 +353,11 @@ codeunit 99 "Posting Selection Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnConfirmPostSalesDocumentOnBeforeSalesOrderReturnGetSalesInvoicePostingPolicy(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetShipInvoiceSelectionForWhseActivity(DefaultOption: Integer; var Selection: Integer; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 }

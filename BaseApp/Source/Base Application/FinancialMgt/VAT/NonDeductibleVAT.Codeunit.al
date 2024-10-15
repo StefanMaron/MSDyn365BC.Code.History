@@ -491,6 +491,14 @@ codeunit 6200 "Non-Deductible VAT"
     end;
 
     /// <summary>
+    /// Check that a Non-Deductible VAT % is allowed in the purchase line
+    /// </summary>
+    procedure CheckNonDeductibleVATPctIsAllowed(PurchaseLine: Record "Purchase Line")
+    begin
+        NonDedVATImpl.CheckNonDeductibleVATPctIsAllowed(PurchaseLine);
+    end;
+
+    /// <summary>
     /// Throws an error if the total Non-Deductible VAT difference is not allowed
     /// </summary>
     /// <param name="TempVATAmountLine"></param>
@@ -946,8 +954,13 @@ codeunit 6200 "Non-Deductible VAT"
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     internal procedure OnBeforeCheckVATPostingSetupChangeIsAllowed(VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    internal procedure OnBeforeCheckNonDeductibleVATPctIsAllowed(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }
