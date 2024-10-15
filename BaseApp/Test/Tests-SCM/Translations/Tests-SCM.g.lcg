@@ -2462,13 +2462,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory - Orders - NamedType DummyConfirmQst)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3222706049 - NamedType 3684710647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3222706049 - NamedType 594489307" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[If you change the %1, the program must update table %2.This can take several hours.\Do you really want to change the %1?]]></Val>
+      <Val><![CDATA[If you disable the %1, the program must update table %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory - Orders - NamedType ExpectedCostPostingDialog)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory - Orders - NamedType ExpectedCostPostingDisableDialog)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3222706049 - NamedType 2405817344" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[If you enable the %1, the program must update table %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory - Orders - NamedType ExpectedCostPostingEnableDialog)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3222706049 - NamedType 2833396573" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4390,7 +4399,7 @@
   </Item>
   <Item ItemId=";Codeunit 210072710 - NamedType 2642168692" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[If you change the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.This can take several hours.]]></Val>
+      <Val><![CDATA[If you enable the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.This can take several hours.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -9509,6 +9518,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Orders VI - NamedType DiscountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 248268497 - NamedType 3251087585" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[If you disable the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Orders VI - NamedType ExpectedCostPostingDisableToGLQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 248268497 - NamedType 2318618630" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[If you enable the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Orders VI - NamedType ExpectedCostPostingEnableToGLQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 248268497 - NamedType 2785410544" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Expected Cost Posting to G/L has been changed to Yes. You should now run Post Inventory Cost to G/L.]]></Val>
@@ -9516,15 +9543,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Orders VI - NamedType ExpectedCostPostingToGLMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 248268497 - NamedType 2105172837" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[If you change the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Orders VI - NamedType ExpectedCostPostingToGLQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 248268497 - NamedType 991048581" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
