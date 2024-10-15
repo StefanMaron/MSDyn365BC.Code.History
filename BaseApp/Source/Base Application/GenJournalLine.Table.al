@@ -1,4 +1,4 @@
-table 81 "Gen. Journal Line"
+﻿table 81 "Gen. Journal Line"
 {
     Caption = 'Gen. Journal Line';
     Permissions = TableData "Sales Invoice Header" = r,
@@ -4302,15 +4302,25 @@ table 81 "Gen. Journal Line"
     end;
 
     local procedure UpdateSalesPurchLCY()
+    var
+        VATAmount: Decimal;
+        VATAmountLCY: Decimal;
     begin
         "Sales/Purch. (LCY)" := 0;
-        if (not "System-Created Entry") and ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) then begin
+        if (not "System-Created Entry") and ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) and (Amount <> 0) then begin
             if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) and
                (("Bal. Account No." <> '') or ("Recurring Method" <> "Recurring Method"::" "))
             then
                 "Sales/Purch. (LCY)" := "Amount (LCY)" + "Bal. VAT Amount (LCY)";
+
             if ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor]) and ("Account No." <> '') then
                 "Sales/Purch. (LCY)" := -("Amount (LCY)" - "VAT Amount (LCY)");
+
+            if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) and ("Bal. Account No." = '') then begin
+                CalculateVATAmount(VATAmount, VATAmountLCY);
+                IF VATAmountLCY <> 0 then
+                    "Sales/Purch. (LCY)" := ("Amount (LCY)" + VATAmountLCY);
+            end;
         end;
 
         OnAfterUpdateSalesPurchLCY(Rec);
@@ -5865,6 +5875,7 @@ table 81 "Gen. Journal Line"
         "Source Currency Amount" := GenJnlAlloc."Additional-Currency Amount";
         Amount := GenJnlAlloc.Amount;
         "Amount (LCY)" := GenJnlAlloc.Amount;
+        "VAT Amount (LCY)" := CalcVATAmountLCY();
 
         OnAfterCopyGenJnlLineFromGenJnlAllocation(GenJnlAlloc, Rec);
     end;
@@ -8531,6 +8542,50 @@ table 81 "Gen. Journal Line"
                     LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection());
 
         exit(VATAmountLCY);
+    end;
+
+    local procedure CalculateVATAmount(var VATAmount: Decimal; var VATAmountLCY: Decimal)
+    var
+        GenJnlLine1: Record "Gen. Journal Line";
+        tempVATAmount: Decimal;
+    begin
+        If "Document No." = '' then
+            exit;
+        If ("Recurring Method" <> "Recurring Method"::" ") then begin
+            CalculateVATAmountonGenJnlAllocation(Rec, VATAmount);
+            tempVATAmount := "VAT Amount";
+            "VAT Amount" := VATAmount;
+            VATAmountLCY := CalcVATAmountLCY();
+            "VAT Amount" := tempVATAmount;
+        end;
+
+        GenJnlLine1.SetRange("Journal Template Name", "Journal Template Name");
+        GenJnlLine1.SetRange("Journal Batch Name", "Journal Batch Name");
+        GenJnlLine1.SetRange("Document No.", "Document No.");
+        GenJnlLine1.CalcSums("VAT Amount", "VAT Amount (LCY)");
+        VATAmount := VATAmount + GenJnlLine1."VAT Amount";
+        VATAmountLCY := VATAmountLCY + GenJnlLine1."VAT Amount (LCY)";
+
+        If Amount < 0 then
+            VATAmount := Abs(VATAmount)
+        else
+            VATAmount := -1 * Abs(VATAmount);
+
+        If "Amount (LCY)" < 0 then
+            VATAmountLCY := Abs(VATAmountLCY)
+        else
+            VATAmountLCY := -1 * Abs(VATAmountLCY);
+    end;
+
+    local procedure CalculateVATAmountonGenJnlAllocation(GenJnlLine1: Record "Gen. Journal Line"; var VATAmount: Decimal)
+    var
+        GenJnlAlloc1: Record "Gen. Jnl. Allocation";
+    begin
+        GenJnlAlloc1.SetRange("Journal Template Name", GenJnlLine1."Journal Template Name");
+        GenJnlAlloc1.SetRange("Journal Batch Name", GenJnlLine1."Journal Batch Name");
+        GenJnlAlloc1.SetRange("Journal Line No.", GenJnlLine1."Line No.");
+        GenJnlAlloc1.CalcSums("VAT Amount");
+        VATAmount := GenJnlAlloc1."VAT Amount";
     end;
 
     [IntegrationEvent(false, false)]
