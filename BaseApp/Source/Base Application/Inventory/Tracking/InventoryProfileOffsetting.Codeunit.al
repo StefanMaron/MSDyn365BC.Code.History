@@ -2345,7 +2345,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 end;
 
             if ((TempSKU."Replenishment System" = TempSKU."Replenishment System"::"Prod. Order") and (TempSKU."Manufacturing Policy" = TempSKU."Manufacturing Policy"::"Make-to-Stock"))
-                or (TempSKU."Replenishment System" = TempSKU."Replenishment System"::Purchase) then
+                or (TempSKU."Replenishment System" = TempSKU."Replenishment System"::Purchase) or (TempSKU."Replenishment System" = TempSKU."Replenishment System"::Assembly) then
                 ReorderQty += AdjustReorderQty(ReorderQty, TempSKU, SupplyInvtProfile."Line No.", SupplyInvtProfile."Min. Quantity");
             SupplyInvtProfile."Max. Quantity" := TempSKU."Maximum Order Quantity";
         end;
