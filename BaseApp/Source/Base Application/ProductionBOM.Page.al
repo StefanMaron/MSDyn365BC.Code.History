@@ -30,7 +30,7 @@ page 99000786 "Production BOM"
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
+                    ToolTip = 'Specifies the manufacturing batch unit of measure.';
                     ShowMandatory = true;
                 }
                 field(Status; Status)

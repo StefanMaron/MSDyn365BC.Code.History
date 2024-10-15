@@ -2273,7 +2273,7 @@
                           <TablixMembers>
                             <TablixMember>
                               <Visibility>
-                                <Hidden>=IIF(Fields!ClearingAccNo.Value&lt;&gt;0,False,True)</Hidden>
+                                <Hidden>=IIF(Fields!ClearingAccNo.Value&lt;&gt;"",False,True)</Hidden>
                               </Visibility>
                             </TablixMember>
                             <TablixMember>

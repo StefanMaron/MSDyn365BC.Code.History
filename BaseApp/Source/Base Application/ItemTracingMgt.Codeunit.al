@@ -81,8 +81,11 @@ codeunit 6520 "Item Tracing Mgt."
         ItemLedgEntry.SetFilter("Package No.", PackageNoFilter);
         ItemLedgEntry.SetFilter("Item No.", ItemNoFilter);
         ItemLedgEntry.SetFilter("Variant Code", VariantFilter);
-        if Direction = Direction::Forward then
+        if Direction = Direction::Forward then begin
             ItemLedgEntry.SetRange(Positive, true);
+            ItemLedgEntry.SetFilter("Entry Type", '<>%1', ItemLedgEntry."Entry Type"::Consumption);
+        end;
+
 
         OnFirstLevelOnAfterSetLedgerEntryFilters(ItemLedgEntry, SerialNoFilter, LotNoFilter, ItemNoFilter);
 
@@ -256,7 +259,6 @@ codeunit 6520 "Item Tracing Mgt."
                     if ShowComponents <> ShowComponents::No then begin
                         ItemLedgEntry.SetFilter("Entry Type", '%1|%2', ItemLedgEntry."Entry Type"::Consumption,
                           ItemLedgEntry."Entry Type"::"Assembly Consumption");
-                        ItemLedgEntry.SetRange(Positive, false);
                         if ItemLedgEntry.Find('-') then
                             repeat
                                 if (ShowComponents = ShowComponents::All) or ItemLedgEntry.TrackingExists() then begin
@@ -277,7 +279,6 @@ codeunit 6520 "Item Tracing Mgt."
                         exit;
                     ItemLedgEntry.SetFilter("Entry Type", '%1|%2', ItemLedgEntry."Entry Type"::Consumption,
                       ItemLedgEntry."Entry Type"::"Assembly Consumption");
-                    ItemLedgEntry.SetRange(Positive, false);
                 end;
                 OnFindComponentsOnAfterSetFilters(ItemLedgEntry, ItemLedgEntry2);
                 CurrentLevel += 1;

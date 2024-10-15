@@ -2,15 +2,16 @@ table 372 "Payment Buffer"
 {
     Caption = 'Payment Buffer';
     ReplicateData = false;
-#pragma warning disable AS0074
 #if CLEAN22
     TableType = Temporary;
+    ObsoleteReason = 'Replaced by Vendor Payment Buffer.';
+    ObsoleteState = Removed;
+    ObsoleteTag = '25.0';
 #else
-    ObsoleteReason = 'This table will be marked as temporary. Make sure you are not using this table to store records.';
+    ObsoleteReason = 'This table will be replaced by Vendor Payment Buffer.';
     ObsoleteState = Pending;
     ObsoleteTag = '22.0';
 #endif
-#pragma warning restore AS0074
 
     fields
     {
@@ -150,6 +151,11 @@ table 372 "Payment Buffer"
         GenJournalLine."Applies-to Ext. Doc. No." := "Applies-to Ext. Doc. No.";
 
         OnCopyFieldsToGenJournalLine(Rec, GenJournalLine);
+    end;
+
+    procedure CopyFieldsFromVendorPaymentBuffer(TempVendorPaymentBuffer: Record "Vendor Payment Buffer")
+    begin
+        Rec.TransferFields(TempVendorPaymentBuffer, true, true);
     end;
 
     [IntegrationEvent(false, false)]

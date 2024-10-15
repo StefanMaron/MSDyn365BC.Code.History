@@ -126,6 +126,7 @@ page 1702 "Deferral Schedule"
         EarliestPostingDate: Date;
         RecCount: Integer;
         ExpectedCount: Integer;
+        ShowNoofPeriodsError: Boolean;
     begin
         // Prevent closing of the window if the sum of the periods does not equal the Amount to Defer
         if DeferralHeader.Get("Deferral Doc. Type",
@@ -145,10 +146,13 @@ page 1702 "Deferral Schedule"
         DeferralLine.SetRange("Document Type", "Document Type");
         DeferralLine.SetRange("Document No.", "Document No.");
         DeferralLine.SetRange("Line No.", "Line No.");
+        OnOnQueryClosePageOnAfterDeferralLineSetFilters(Rec, DeferralLine);
 
         RecCount := DeferralLine.Count();
         ExpectedCount := DeferralUtilities.CalcDeferralNoOfPeriods("Calc. Method", "No. of Periods", "Start Date");
-        if ExpectedCount <> RecCount then
+        ShowNoofPeriodsError := ExpectedCount <> RecCount;
+        OnOnQueryClosePageOnAfterCalcShowNoofPeriodsError(Rec, DeferralLine, ShowNoofPeriodsError);
+        if ShowNoofPeriodsError then
             FieldError("No. of Periods");
 
         DeferralLine.SetFilter("Posting Date", '>%1', 0D);
@@ -216,6 +220,16 @@ page 1702 "Deferral Schedule"
                     PostingDate := PurchaseHeader."Posting Date";
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnQueryClosePageOnAfterCalcShowNoofPeriodsError(DeferralHeader: Record "Deferral Header"; DeferralLine: Record "Deferral Line"; var ShowNoofPeriodsError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnQueryClosePageOnAfterDeferralLineSetFilters(DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line")
+    begin
     end;
 }
 

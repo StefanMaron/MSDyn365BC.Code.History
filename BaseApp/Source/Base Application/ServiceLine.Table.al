@@ -4220,21 +4220,24 @@
     var
         IsHandled: Boolean;
     begin
-        OnBeforeInitQtyToShip(Rec, CurrFieldNo);
-        if LineRequiresShipmentOrReceipt() then begin
-            "Qty. to Ship" := 0;
-            "Qty. to Ship (Base)" := 0;
-        end else begin
-            "Qty. to Ship" := "Outstanding Quantity";
-            "Qty. to Ship (Base)" := "Outstanding Qty. (Base)";
-        end;
-        Validate("Qty. to Consume");
-
         IsHandled := false;
-        OnInitQtyToShipOnBeforeInitQtyToInvoice(Rec, IsHandled);
-        if not IsHandled then
-            InitQtyToInvoice();
+        OnBeforeInitQtyToShip(Rec, CurrFieldNo, IsHandled);
+        if not IsHandled then begin
+            if LineRequiresShipmentOrReceipt() then begin
+                "Qty. to Ship" := 0;
+                "Qty. to Ship (Base)" := 0;
+            end else begin
+                "Qty. to Ship" := "Outstanding Quantity";
+                "Qty. to Ship (Base)" := "Outstanding Qty. (Base)";
+            end;
+            Validate("Qty. to Consume");
 
+            IsHandled := false;
+            OnInitQtyToShipOnBeforeInitQtyToInvoice(Rec, IsHandled);
+            if not IsHandled then
+                InitQtyToInvoice();
+
+        end;
         OnAfterInitQtyToShip(Rec, CurrFieldNo);
     end;
 
@@ -6174,7 +6177,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitQtyToShip(var ServiceLine: Record "Service Line"; CurrFieldNo: Integer)
+    local procedure OnBeforeInitQtyToShip(var ServiceLine: Record "Service Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

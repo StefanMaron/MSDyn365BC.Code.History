@@ -23,6 +23,11 @@ table 210 "Job Journal Line"
                 JobSetup: Record "Jobs Setup";
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobNo(Rec, Cust, DimMgt, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Job No." = '' then begin
                     Validate("Currency Code", '');
                     Validate("Job Task No.", '');
@@ -42,7 +47,7 @@ table 210 "Job Journal Line"
                 "Customer Price Group" := Job."Customer Price Group";
                 Validate("Currency Code", Job."Currency Code");
                 CreateDimFromDefaultDim(Rec.FieldNo("Job No."));
-                Validate("Country/Region Code", Job."Bill-to Country/Region Code");
+                SetCountryRegionCodeFromJob(Job);
                 "Price Calculation Method" := Job.GetPriceCalculationMethod();
                 "Cost Calculation Method" := Job.GetCostCalculationMethod();
                 JobSetup.Get();
@@ -1407,7 +1412,14 @@ table 210 "Job Journal Line"
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetLocation(Rec, Location, LocationCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if LocationCode = '' then
             Clear(Location)
         else
@@ -1482,7 +1494,13 @@ table 210 "Job Journal Line"
     procedure InitRoundingPrecisions()
     var
         Currency: Record Currency;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitRoundingPrecisions(Rec, AmountRoundingPrecision, UnitAmountRoundingPrecision, AmountRoundingPrecisionFCY, UnitAmountRoundingPrecisionFCY, IsHandled);
+        if IsHandled then
+            exit;
+
         if (AmountRoundingPrecision = 0) or
            (UnitAmountRoundingPrecision = 0) or
            (AmountRoundingPrecisionFCY = 0) or
@@ -1534,6 +1552,18 @@ table 210 "Job Journal Line"
         exit(
           (ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)") /
           ItemLedgEntry.Quantity * "Qty. per Unit of Measure");
+    end;
+
+    local procedure SetCountryRegionCodeFromJob(Job: Record Job)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetCountryRegionCodeFromJob(Rec, Job, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate(Rec."Country/Region Code", Job."Bill-to Country/Region Code");
     end;
 
     local procedure SelectItemEntry(CurrentFieldNo: Integer)
@@ -1664,7 +1694,7 @@ table 210 "Job Journal Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateUnitCost(Rec, IsHandled);
+        OnBeforeUpdateUnitCost(Rec, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -1701,7 +1731,10 @@ table 210 "Job Journal Line"
                 end else
                     "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
         end else
-            "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
+            if (Type = Type::Resource) and ("Posting Date" <> xRec."Posting Date") and ("Currency Code" <> '') then
+                "Unit Cost (LCY)" := "Unit Cost (LCY)"
+            else
+                "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
 
         OnAfterUpdateUnitCost(Rec, UnitAmountRoundingPrecision, CurrFieldNo);
     end;
@@ -1753,7 +1786,7 @@ table 210 "Job Journal Line"
                         exit(false);
                 Type::Resource:
                     if not (CalledByFieldNo in
-                         [FieldNo("No."), FieldNo(Quantity), FieldNo("Work Type Code"), FieldNo("Unit of Measure Code")])
+                         [FieldNo("No."), FieldNo(Quantity), FieldNo("Work Type Code"), FieldNo("Unit of Measure Code"), FieldNo("Posting Date")])
                     then
                         exit(false);
                 Type::"G/L Account":
@@ -1776,7 +1809,8 @@ table 210 "Job Journal Line"
                 if ("No." <> xRec."No.") or
                     IsQuantityChangedForPrice() or
                    ("Work Type Code" <> xRec."Work Type Code") or
-                   ("Unit of Measure Code" <> xRec."Unit of Measure Code")
+                   ("Unit of Measure Code" <> xRec."Unit of Measure Code") or
+                   (("Posting Date" <> xRec."Posting Date") and ("Currency Code" <> ''))
                 then
                     exit(true);
             Type::"G/L Account":
@@ -1929,7 +1963,14 @@ table 210 "Job Journal Line"
     end;
 
     local procedure HandleCostFactor()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHandleCostFactor(Rec, Item, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Cost Factor" <> 0) and
            ((("Unit Cost" <> xRec."Unit Cost") or ("Cost Factor" <> xRec."Cost Factor")) or
             ((Quantity <> xRec.Quantity) or ("Location Code" <> xRec."Location Code")))
@@ -1946,7 +1987,7 @@ table 210 "Job Journal Line"
     local procedure UpdateUnitPrice()
     begin
         "Unit Price (LCY)" := ConvertAmountToLCY("Unit Price", UnitAmountRoundingPrecision);
-        OnAfterUpdateUnitPrice(Rec);
+        OnAfterUpdateUnitPrice(Rec, xRec, AmountRoundingPrecision, AmountRoundingPrecisionFCY);
     end;
 
     local procedure UpdateTotalPrice()
@@ -2288,7 +2329,7 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateUnitPrice(var JobJournalLine: Record "Job Journal Line")
+    local procedure OnAfterUpdateUnitPrice(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; var AmountRoundingPrecision: Decimal; var AmountRoundingPrecisionFCY: Decimal)
     begin
     end;
 
@@ -2325,6 +2366,21 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetLocation(var JobJournalLine: Record "Job Journal Line"; var Location: Record Location; LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandleCostFactor(var JobJournalLine: Record "Job Journal Line"; Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitRoundingPrecisions(var JobJournalLine: Record "Job Journal Line"; var AmountRoundingPrecision: Decimal; var UnitAmountRoundingPrecision: Decimal; var AmountRoundingPrecisionFCY: Decimal; var UnitAmountRoundingPrecisionFCY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeEmptyLine(var JobJournalLine: Record "Job Journal Line"; var LineIsEmpty: Boolean)
     begin
     end;
@@ -2336,6 +2392,11 @@ table 210 "Job Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetUpNewLine(var JobJournalLine: Record "Job Journal Line"; var xJobJournalLine: Record "Job Journal Line"; LastJobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCountryRegionCodeFromJob(var JobJournalLine: Record "Job Journal Line"; Job: Record Job; var IsHandled: Boolean)
     begin
     end;
 
@@ -2364,13 +2425,18 @@ table 210 "Job Journal Line"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateJobNo(var JobJournalLine: Record "Job Journal Line"; var Customer: Record Customer; var DimensionManagement: Codeunit DimensionManagement; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeUpdateAllAmounts(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateUnitCost(var JobJounralLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateUnitCost(var JobJounralLine: Record "Job Journal Line"; var IsHandled: Boolean; xJobJounralLine: Record "Job Journal Line")
     begin
     end;
 
@@ -2379,7 +2445,7 @@ table 210 "Job Journal Line"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateAllAmounts(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line")
     begin
     end;

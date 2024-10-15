@@ -616,6 +616,7 @@
             Clear(TempPurchLine);
             Clear(PurchPost);
             PurchPost.GetPurchLines(Rec, TempPurchLine, i - 1);
+            OnRefreshOnAfterGetRecordOnAfterGetPurchLines(Rec, TempPurchLine);
             Clear(PurchPost);
             case i of
                 1:
@@ -924,6 +925,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePrepmtTotalAmount2(PurchaseHeader: Record "Purchase Header"; var PrepmtTotalAmount: Decimal; var PrepmtTotalAmount2: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRefreshOnAfterGetRecordOnAfterGetPurchLines(PuchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
 
