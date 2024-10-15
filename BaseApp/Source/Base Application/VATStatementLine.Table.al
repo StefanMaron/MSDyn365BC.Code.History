@@ -83,6 +83,12 @@ table 256 "VAT Statement Line"
         field(12; "Amount Type"; Enum "VAT Statement Line Amount Type")
         {
             Caption = 'Amount Type';
+
+            trigger OnValidate()
+            begin
+                if "Amount Type" <> "Amount Type"::Amount then
+                    "Incl. Non Deductible VAT" := false;
+            end;
         }
         field(13; "Calculate with"; Option)
         {
@@ -142,6 +148,16 @@ table 256 "VAT Statement Line"
             begin
                 if "VAT Code" <> '' then
                     Testfield(Type, Type::"VAT Entry Totaling");
+            end;
+        }
+        field(10601; "Incl. Non Deductible VAT"; Boolean)
+        {
+            Caption = 'Incl. Non Deductible VAT';
+
+            trigger OnValidate()
+            begin
+                if not ("Amount Type" in ["Amount Type"::Amount, "Amount Type"::Base]) then
+                    FieldError("Amount Type");
             end;
         }
     }

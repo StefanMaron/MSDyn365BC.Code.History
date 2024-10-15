@@ -85,6 +85,7 @@
                         CrossReferenceNoLookUp();
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -111,6 +112,7 @@
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec, SalesHeader);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                         OnReferenceNoOnAfterLookup(Rec);
                     end;
 
@@ -1376,6 +1378,7 @@
                             trigger OnAction()
                             begin
                                 RollupAsmPrice();
+                                CalculateTotals();
                             end;
                         }
                         action("Roll Up &Cost")
@@ -1389,6 +1392,7 @@
                             trigger OnAction()
                             begin
                                 RollUpAsmCost();
+                                CalculateTotals();
                             end;
                         }
                     }

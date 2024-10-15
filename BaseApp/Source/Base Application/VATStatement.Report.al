@@ -271,6 +271,7 @@ report 12 "VAT Statement"
     procedure CalcLineTotalWithBase(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalBase: Decimal; Level: Integer): Boolean
     var
         VATReportSetup: Record "VAT Report Setup";
+        DummyVATAmount: Decimal;
     begin
         if Level = 0 then begin
             TotalBase := 0;
@@ -331,11 +332,13 @@ report 12 "VAT Statement"
                                 if VATReportSetup.Get() then;
                                 if VATReportSetup."Report VAT Base" then
                                     Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
+                                AddNonDeductibleVAT(Base, Amount, VATStmtLine2);
                             end;
                         VATStmtLine2."Amount Type"::Base:
                             begin
                                 VATEntry.CalcSums(Base, "Additional-Currency Base");
                                 Amount := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
+                                AddNonDeductibleVAT(Amount, DummyVATAmount, VATStmtLine2);
                             end;
                         VATStmtLine2."Amount Type"::"Unrealized Amount":
                             begin
@@ -431,6 +434,23 @@ report 12 "VAT Statement"
             exit(GLSetup."Additional Reporting Currency");
 
         exit('');
+    end;
+
+    local procedure AddNonDeductibleVAT(var VATBase: Decimal; var VATAmount: Decimal; VATStmtLine: Record "VAT Statement Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        if not VATPostingSetup.Get(VATStmtLine."VAT Bus. Posting Group", VATStmtLine."VAT Prod. Posting Group") then
+            exit;
+        if not VATPostingSetup."Calc. Prop. Deduction VAT" then
+            exit;
+
+        if VATPostingSetup."Proportional Deduction VAT %" = 0 then
+            VATAmount := Round(VATBase * VATPostingSetup."VAT %" / 100)
+        else begin
+            VATBase := Round(VATBase * 100 / VATPostingSetup."Proportional Deduction VAT %");
+            VATAmount := Round(VATAmount * 100 / VATPostingSetup."Proportional Deduction VAT %");
+        end;
     end;
 
     [IntegrationEvent(false, false)]

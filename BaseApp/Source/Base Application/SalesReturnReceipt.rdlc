@@ -2187,7 +2187,7 @@ Cstr(Fields!EnterpriseRegister.Value)
         <Height>8.8822cm</Height>
         <Style />
       </Body>
-      <Width>19cm</Width>
+      <Width>18cm</Width>
       <Page>
         <PageHeader>
           <Height>9.71903cm</Height>
@@ -3439,7 +3439,7 @@ Cstr(Fields!EnterpriseRegister.Value)
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>15cm</Left>
+              <Left>14cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>46</ZIndex>

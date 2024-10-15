@@ -223,20 +223,20 @@ page 2141 "O365 Sales Quote"
                     Caption = 'Net Total';
                     DrillDown = false;
                     Lookup = false;
-                    ToolTip = 'Specifies the total amount on the sales invoice excluding tax.';
+                    ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite, Invoicing;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
-                    Caption = 'Total Including Tax';
+                    Caption = 'Total Including VAT';
                     DrillDown = false;
                     Importance = Promoted;
                     Lookup = false;
                     Style = Strong;
                     StyleExpr = TRUE;
-                    ToolTip = 'Specifies the total amount on the sales invoice including tax.';
+                    ToolTip = 'Specifies the sum of amounts, including VAT, on all the lines in the document. This will include invoice discounts.';
                 }
             }
             group(Control10)

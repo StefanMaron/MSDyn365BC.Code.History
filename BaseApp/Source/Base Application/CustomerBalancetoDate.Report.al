@@ -428,6 +428,7 @@ report 121 "Customer - Balance to Date"
     local procedure CheckCustEntryIncluded(EntryNo: Integer): Boolean
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        ClosingCustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         if CustLedgerEntry.Get(EntryNo) and (CustLedgerEntry."Posting Date" <= MaxDate) then begin
             CustLedgerEntry.SetRange("Date Filter", 0D, MaxDate);
@@ -435,7 +436,8 @@ report 121 "Customer - Balance to Date"
             if CustLedgerEntry."Remaining Amount" <> 0 then
                 exit(true);
             if ShowEntriesWithZeroBalance then
-                exit(true);
+                if ClosingCustLedgerEntry.Get(CustLedgerEntry."Closed by Entry No.") then
+                    exit(ClosingCustLedgerEntry."Posting Date" <= MaxDate);
             if PrintUnappliedEntries then
                 exit(CheckUnappliedEntryExists(EntryNo));
         end;
