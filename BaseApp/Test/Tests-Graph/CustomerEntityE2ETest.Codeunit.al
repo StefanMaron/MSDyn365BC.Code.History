@@ -16,6 +16,8 @@ codeunit 135502 "Customer Entity E2E Test"
         LibraryGraphMgt: Codeunit "Library - Graph Mgt";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryRapidStart: Codeunit "Library - Rapid Start";
+        LibraryDimension: Codeunit "Library - Dimension";
         IsInitialized: Boolean;
         PhoneNumberNameTxt: Label 'phoneNumber';
         EmailNameTxt: Label 'email';
@@ -357,6 +359,105 @@ codeunit 135502 "Customer Entity E2E Test"
         Customer.TestField(County, '');
         Customer.TestField("Country/Region Code", '');
         Customer.TestField("Post Code", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCreateCustomerWithTemplateWithDimensions()
+    var
+        DefaultDimension: Record "Default Dimension";
+        CountryRegion: Record "Country/Region";
+        TempCustomer: Record Customer temporary;
+        Customer: Record Customer;
+        RequestBody: Text;
+        Response: Text;
+        TargetURL: Text;
+    begin
+        // [SCENARIO 414933] Create customer via API using template with dimensions
+        Initialize();
+
+        // [GIVEN] Config. template "T" with dimensions "D"
+        // [GIVEN] API setup
+        TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Customer Entity", ServiceNameTxt);
+        CountryRegion.FindLast();
+        CreateConfigTmplSelectionRules(
+            Database::Customer,
+            CreateConfigTemplateWithDimensions(Database::Customer, Customer.FieldNo("Country/Region Code"), CountryRegion.Code),
+            Page::"Customer Entity");
+        CreateSimpleCustomer(TempCustomer);
+        RequestBody := GetSimpleCustomerJSON(TempCustomer);
+
+        // [WHEN] Create customer "C" via API
+        LibraryGraphMgt.PostToWebService(TargetURL, RequestBody, Response);
+
+        // [THEN] "C" is created with dimensions "D"
+        Customer.Get(TempCustomer."No.");
+        DefaultDimension.SetRange("Table ID", Database::Customer);
+        DefaultDimension.SetRange("No.", Customer."No.");
+        Assert.RecordCount(DefaultDimension, 1);
+    end;
+
+    local procedure CreateConfigTemplateWithDimensions(TableId: Integer; FieldId: Integer; DefaultValue: Text): Code[10]
+    var
+        DimConfigTemplateHeader: Record "Config. Template Header";
+        ConfigTemplateHeader: Record "Config. Template Header";
+        ConfigTemplateLine: Record "Config. Template Line";
+    begin
+        LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
+        ConfigTemplateHeader."Table ID" := TableId;
+        ConfigTemplateHeader.Modify();
+
+        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
+        ConfigTemplateLine."Field ID" := FieldId;
+        ConfigTemplateLine."Default Value" := DefaultValue;
+        ConfigTemplateLine.Modify(true);
+
+        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
+        ConfigTemplateLine.Type := ConfigTemplateLine.Type::"Related Template";
+        ConfigTemplateLine."Template Code" := CreateDimConfigTemplate();
+        ConfigTemplateLine.Modify(true);
+
+        exit(ConfigTemplateHeader.Code);
+    end;
+
+    local procedure CreateDimConfigTemplate(): Code[10]
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+        ConfigTemplateLine: Record "Config. Template Line";
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+    begin
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+
+        LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
+        ConfigTemplateHeader."Table ID" := Database::"Default Dimension";
+        ConfigTemplateHeader.Modify();
+
+        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
+        ConfigTemplateLine."Field ID" := DefaultDimension.FieldNo("Dimension Code");
+        ConfigTemplateLine."Default Value" := DimensionValue."Dimension Code";
+        ConfigTemplateLine.Modify(true);
+
+        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
+        ConfigTemplateLine."Field ID" := DefaultDimension.FieldNo("Dimension Value Code");
+        ConfigTemplateLine."Default Value" := DimensionValue.Code;
+        ConfigTemplateLine.Modify(true);
+
+        exit(ConfigTemplateHeader.Code);
+    end;
+
+    local procedure CreateConfigTmplSelectionRules(TableId: Integer; TemplateCode: Code[10]; PageId: Integer)
+    var
+        ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
+    begin
+        ConfigTmplSelectionRules.DeleteAll();
+
+        ConfigTmplSelectionRules.Init();
+        ConfigTmplSelectionRules.Order := 0;
+        ConfigTmplSelectionRules."Table ID" := TableId;
+        ConfigTmplSelectionRules."Template Code" := TemplateCode;
+        ConfigTmplSelectionRules."Page ID" := PageId;
+        ConfigTmplSelectionRules.Insert(true);
     end;
 
     local procedure CreateCustomerWithAddress(var Customer: Record Customer)

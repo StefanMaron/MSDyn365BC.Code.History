@@ -2848,8 +2848,21 @@ codeunit 5330 "CRM Integration Management"
         end;
     end;
 
-    local procedure UserCanRescheduleJob(): Boolean
+    [Scope('OnPrem')]
+    procedure UserCanRescheduleJob(): Boolean
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        DummyErrorMessageRegister: Record "Error Message Register";
+        DummyErrorMessage: Record "Error Message";
     begin
+        If not JobQueueEntry.ReadPermission then
+            exit(false);
+        if not JobQueueEntry.WritePermission then
+            exit(false);
+        if not DummyErrorMessageRegister.WritePermission then
+            exit(false);
+        if not DummyErrorMessage.WritePermission then
+            exit(false);
         if not TaskScheduler.CanCreateTask() then
             exit(false);
         exit(true);

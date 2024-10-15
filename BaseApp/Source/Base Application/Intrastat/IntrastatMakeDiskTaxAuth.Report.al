@@ -400,7 +400,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 Format(IntrastatJnlLine."Internal Ref. No.", 10) +
                 Format(CountryRegion."Intrastat Code", 3) +
                 Format(IntrastatJnlLine."Transaction Type", 2) +
-                '0' + Format(IntrastatJnlLine."Transport Method", 1) + PadStr(IntrastatJnlLine."Tariff No.", 9, '0') +
+                '0' + Format(IntrastatJnlLine."Transport Method", 1) + PadStr(DelChr(IntrastatJnlLine."Tariff No."), 9, '0') +
                 DecimalNumeralZeroFormat(IntrastatJnlLine."Total Weight", 15) +
                 DecimalNumeralZeroFormat(IntrastatJnlLine.Quantity, 10) +
                 DecimalNumeralZeroFormat(IntrastatJnlLine."Statistical Value", 15),
@@ -412,6 +412,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         CountryRegion: Record "Country/Region";
         OriginCountryRegion: Record "Country/Region";
         sep: Text[1];
+        QuantityText: Text;
     begin
         CountryRegion.Get(IntrastatJnlLine."Country/Region Code");
         CountryRegion.TestField("Intrastat Code");
@@ -422,15 +423,17 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     OriginCountryRegion.Code := OriginCountryRegion."Intrastat Code";
 
         sep[1] := 9; // TAB
+        if IntrastatJnlLine."Supplementary Units" then
+            QuantityText := TextZeroFormat(DecimalFormat(IntrastatJnlLine.Quantity, '<Integer><Decimals,4><Comma,,>'), 14);
 
         IntrastatFileWriter.WriteLine(
-            PadStr(IntrastatJnlLine."Tariff No.", 8, '0') + sep +
+            PadStr(DelChr(IntrastatJnlLine."Tariff No."), 8, '0') + sep +
             IntrastatJnlLine."Item Description" + sep +
             IntrastatJnlLine."Country/Region Code" + sep +
             IntrastatJnlLine."Country/Region of Origin Code" + sep +
             Format(IntrastatJnlLine."Transaction Type", 2) + sep +
             TextZeroFormat(DecimalFormat(IntrastatJnlLine."Total Weight", '<Integer><Decimals,4><Comma,,>'), 14) + sep +
-            TextZeroFormat(DecimalFormat(IntrastatJnlLine.Quantity, '<Integer><Decimals,4><Comma,,>'), 14) + sep +
+            QuantityText + sep +
             TextZeroFormat(DecimalFormat(IntrastatJnlLine.Amount, '<Integer><Decimals,3><Comma,,>'), 13) + sep +
             TextZeroFormat(DecimalFormat(IntrastatJnlLine."Statistical Value", '<Integer><Decimals,3><Comma,,>'), 13) + sep +
             CopyStr(DelChr(IntrastatJnlLine."Partner VAT ID"), 1, 14));

@@ -532,18 +532,47 @@ codeunit 144061 "Intrastat AT"
         FileTempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Intrastat] [Export]
-        // [SCENARIO 420178] Intrastat journal basic file export in format of 2022
+        // [SCENARIO 420178] Intrastat journal basic file export in format of 2022 (Supplementary Units = True)
         Initialize();
         IntrastatJnlLine.DeleteAll();
 
-        // [GIVEN] Intrastat journal line
+        // [GIVEN] Intrastat journal line (Supplementary Units = True)
         PrepareIntrastatJnlLine(IntrastatJnlLine);
 
         // [WHEN] Export Intrastat journal to file using format 2022
         RunIntrastatExport2022(FileTempBlob, IntrastatJnlLine);
 
         // [THEN] Basic fields are exported in format of 2022
-        VerifyIntrastatExportedFile2022(FileTempBlob, IntrastatJnlLine);
+        // [THEN] Quantity value is exported (TFS 423724)
+        // [THEN] Tariff No value is exported w\o spaces (TFS 423720)
+        VerifyIntrastatExportedFile2022(
+            FileTempBlob, IntrastatJnlLine,
+            TextZeroFormat(Format(IntrastatJnlLine.Quantity, 0, '<Integer><Decimals,4><Comma,,>'), 14));
+    end;
+
+    [Test]
+    procedure IntrastatExport2022_NonSupplementary()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        FileTempBlob: Codeunit "Temp Blob";
+    begin
+        // [FEATURE] [Intrastat] [Export]
+        // [SCENARIO 423724] Intrastat journal basic file export in format of 2022 (Supplementary Units = False)
+        Initialize();
+        IntrastatJnlLine.DeleteAll();
+
+        // [GIVEN] Intrastat journal line (Supplementary Units = False)
+        PrepareIntrastatJnlLine(IntrastatJnlLine);
+        IntrastatJnlLine."Supplementary Units" := False;
+        IntrastatJnlLine.Modify();
+
+        // [WHEN] Export Intrastat journal to file using format 2022
+        RunIntrastatExport2022(FileTempBlob, IntrastatJnlLine);
+
+        // [THEN] Basic fields are exported in format of 2022
+        // [THEN] Quantity value is not exported (blanked value) (TFS 423724)
+        // [THEN] Tariff No value is exported w\o spaces (TFS 423720)
+        VerifyIntrastatExportedFile2022(FileTempBlob, IntrastatJnlLine, '');
     end;
 
     [Test]
@@ -638,7 +667,7 @@ codeunit 144061 "Intrastat AT"
     begin
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine."Tariff No." := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(9, 0), 1, 9);
+        IntrastatJnlLine."Tariff No." := '0123 45 67 89';
         IntrastatJnlLine."Item Description" :=
             CopyStr(
                 LibraryUtility.GenerateRandomText(MaxStrLen(IntrastatJnlLine."Item Description")),
@@ -653,6 +682,7 @@ codeunit 144061 "Intrastat AT"
         IntrastatJnlLine.Quantity := LibraryRandom.RandDecInRange(1000, 2000, 2);
         IntrastatJnlLine.Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         IntrastatJnlLine."Statistical Value" := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        IntrastatJnlLine."Supplementary Units" := true;
         IntrastatJnlLine.Modify();
     end;
 
@@ -1150,7 +1180,7 @@ codeunit 144061 "Intrastat AT"
         VerifyStringInstancesInFile(FilenameSales, SearchString, 1);
     end;
 
-    local procedure VerifyIntrastatExportedFile2022(var ZipFileTempBlob: Codeunit "Temp Blob"; IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    local procedure VerifyIntrastatExportedFile2022(var ZipFileTempBlob: Codeunit "Temp Blob"; IntrastatJnlLine: Record "Intrastat Jnl. Line"; QtyText: Text)
     var
         CountryRegion: Record "Country/Region";
         FileBlob: Codeunit "Temp Blob";
@@ -1168,7 +1198,7 @@ codeunit 144061 "Intrastat AT"
         Assert.AreEqual(10, Values.Count(), '');
 
         Values.Get(1, Line);
-        Assert.AreEqual(Format(IntrastatJnlLine."Tariff No.", 8), Line, 'Tariff No');
+        Assert.AreEqual(PadStr(DelChr(IntrastatJnlLine."Tariff No."), 8, '0'), Line, 'Tariff No');
         Values.Get(2, Line);
         Assert.AreEqual(IntrastatJnlLine."Item Description", Line, 'Item Description');
         Values.Get(3, Line);
@@ -1181,8 +1211,7 @@ codeunit 144061 "Intrastat AT"
         dec := IntrastatJnlLine."Total Weight";
         Assert.AreEqual(TextZeroFormat(Format(dec, 0, '<Integer><Decimals,4><Comma,,>'), 14), Line, 'Total Weight');
         Values.Get(7, Line);
-        dec := IntrastatJnlLine.Quantity;
-        Assert.AreEqual(TextZeroFormat(Format(dec, 0, '<Integer><Decimals,4><Comma,,>'), 14), Line, 'Quantity');
+        Assert.AreEqual(QtyText, Line, 'Quantity');
         Values.Get(8, Line);
         dec := IntrastatJnlLine.Amount;
         Assert.AreEqual(TextZeroFormat(Format(dec, 0, '<Integer><Decimals,3><Comma,,>'), 13), Line, 'Amount');
