@@ -120,6 +120,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         DimensionValueErr: Label 'Invalid Dimension Value';
         VATDateOutOfVATDatesErr: Label 'The VAT Date is not within the range of allowed VAT dates.';
         AppliesToIdErr: Label 'Applies to ID must not be same after 10000 lines.';
+        NoSeriesErr: Label 'No. Series should be increased only once.';
 
     [Test]
     [Scope('OnPrem')]
@@ -4123,6 +4124,48 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Assert.AreEqual(DocumentNo, CBGStatementLine."Document No.", 'Document No. was not set manually');
     end;
 
+    [Test]
+    procedure NoSeriesShouldNotIncreaseUnexpectedlyFromBankGiroJournalPage()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+        NoSeriesCode: Text;
+    begin
+        // [SCENARIO: 542496] Document No. does not stores Next No. Series value which will not cause gaps in No. Series.
+        Initialize();
+
+        // [GIVEN] Create No. Series.
+        LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
+
+        // [GIVEN] Create No. Series Line for No. Series.
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+
+        // [GIVEN] Create Journal Template.
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+
+        // [GIVEN] Validate Type, Bal. Account Type, Bal. Account No. and No. Series.
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Bank);
+        GenJournalTemplate.Validate("Bal. Account Type", GenJournalTemplate."Bal. Account Type"::"Bank Account");
+        GenJournalTemplate.Validate("Bal. Account No.", CreateBankAccount());
+        GenJournalTemplate.Validate("No. Series", NoSeries.Code);
+        GenJournalTemplate.Modify(true);
+
+        // [GIVEN] Open Bank Giro Journal twice.
+        OpenAndCloseBankGiroJournal();
+        OpenAndCloseBankGiroJournal();
+
+        // [WHEN] Open Bank Giro Journal and set Document Date and Close.
+        BankGiroJournal.OpenNew();
+        BankGiroJournal."Document Date".SetValue(Today());
+        NoSeriesCode := BankGiroJournal."Document No.".Value();
+        BankGiroJournal.Close();
+
+        // [THEN] No. Series should not have gaps.
+        Assert.AreEqual(NoSeriesLine."Starting No.", NoSeriesCode, NoSeriesErr);
+    end;
+
     local procedure Initialize()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -6065,6 +6108,14 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GLAccount.Modify(true);
         exit(GLAccount."No.");
+    end;
+
+    local procedure OpenAndCloseBankGiroJournal()
+    var
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+    begin
+        BankGiroJournal.OpenNew();
+        BankGiroJournal.Close();
     end;
 
     [ModalPageHandler]

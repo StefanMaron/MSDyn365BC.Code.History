@@ -174,6 +174,7 @@ table 11400 "CBG Statement"
     trigger OnInsert()
     begin
         InitRecord("Journal Template Name");
+        InitNoSeries(true);
         "No." := GetNewRecNo();
     end;
 
@@ -203,11 +204,6 @@ table 11400 "CBG Statement"
         JournalTemplate: Record "Gen. Journal Template";
         BankAccount: Record "Bank Account";
         GLAccount: Record "G/L Account";
-        NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         "Journal Template Name" := DelChr(UseTemplate, '<>', '''');
@@ -274,21 +270,7 @@ table 11400 "CBG Statement"
             "Closing Balance" := 0;
         end;
 
-        if (JournalTemplate.Type = JournalTemplate.Type::Bank) and ("Document No." = '') then begin
-            JournalTemplate.TestField("No. Series");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(JournalTemplate."No. Series", xRec."No. Series", Date, "Document No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
-                "No. Series" := JournalTemplate."No. Series";
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
-                "Document No." := NoSeries.GetNextNo("No. Series", Date);
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", JournalTemplate."No. Series", Date, "Document No.");
-            end;
-#endif
-        end;
+        InitNoSeries(false);
 
         if JournalTemplate.Type = JournalTemplate.Type::Bank then
             DimManagement.AddDimSource(DefaultDimSource, Database::"Bank Account", "Account No.")// Use the Bank Account
@@ -297,6 +279,38 @@ table 11400 "CBG Statement"
         CreateDim(DefaultDimSource);
 
         OnAfterInitRecord(CBGStatement, Rec);
+    end;
+
+    local procedure InitNoSeries(IncreaseNoSeries: Boolean)
+    var
+        JournalTemplate: Record "Gen. Journal Template";
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
+    begin
+        JournalTemplate.SetLoadFields(Type, "No. Series");
+        JournalTemplate.Get("Journal Template Name");
+        if (JournalTemplate.Type = JournalTemplate.Type::Bank) and (("Document No." = '') or (IncreaseNoSeries)) then begin
+            JournalTemplate.TestField("No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(JournalTemplate."No. Series", xRec."No. Series", Date, "Document No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := JournalTemplate."No. Series";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+
+                if IncreaseNoSeries then
+                    "Document No." := NoSeries.GetNextNo("No. Series", Date)
+                else
+                    "Document No." := NoSeries.PeekNextNo("No. Series", Date);
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", JournalTemplate."No. Series", Date, "Document No.");
+            end;
+#endif
+        end;
     end;
 
     procedure CLAccountNo() CLAccNo: Text[80]
