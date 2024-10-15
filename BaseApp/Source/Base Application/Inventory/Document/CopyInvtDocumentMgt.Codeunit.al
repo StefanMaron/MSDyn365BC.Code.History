@@ -317,6 +317,8 @@ codeunit 5857 "Copy Invt. Document Mgt."
             ToInvtDocLine.Insert()
         else
             LinesNotCopied := LinesNotCopied + 1;
+
+        OnAfterCopyInvtDocLine(ToInvtDocLine, FromInvtDocHeader, FromInvtDocLine);
     end;
 
     procedure CheckItemAvailable(var ToInvtDocHeader: Record "Invt. Document Header"; var ToInvtDocLine: Record "Invt. Document Line")
@@ -545,6 +547,11 @@ codeunit 5857 "Copy Invt. Document Mgt."
 
     [IntegrationEvent(false, false)]
     procedure OnCopyInvtDocLineOnBeforeCopyItemTrackingAndAppliesValues(var ToInvtDocumentHeader: Record "Invt. Document Header"; var ToInvtDocumentLine: Record "Invt. Document Line"; var FromInvtDocumentHeader: Record "Invt. Document Header"; var FromInvtDocumentLine: Record "Invt. Document Line"; FromInvtDocType: Enum "Invt. Doc. Document Type From"; var CopyThisLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyInvtDocLine(var ToInvtDocumentLine: Record "Invt. Document Line"; var FromInvtDocumentHeader: Record "Invt. Document Header"; var FromInvtDocumentLine: Record "Invt. Document Line")
     begin
     end;
 }

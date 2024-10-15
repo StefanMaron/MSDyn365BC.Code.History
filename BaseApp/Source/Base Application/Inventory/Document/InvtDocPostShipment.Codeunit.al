@@ -190,6 +190,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
                     InvtShptLine."Item Reference Unit of Measure" := InvtDocLine."Item Reference Unit of Measure";
                     InvtShptLine."Item Reference Type" := InvtDocLine."Item Reference Type";
                     InvtShptLine."Item Reference Type No." := InvtDocLine."Item Reference Type No.";
+                    InvtShptLine."Source Code" := SourceCode;
                     InvtShptLine."Dimension Set ID" := InvtDocLine."Dimension Set ID";
                     OnRunOnBeforeInvtShptLineInsert(InvtShptLine, InvtDocLine, InvtShptHeader, InvtDocHeader);
                     InvtShptLine.Insert();

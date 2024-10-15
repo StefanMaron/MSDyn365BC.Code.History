@@ -203,7 +203,7 @@ codeunit 99000773 "Calculate Prod. Order"
         if ProdBOMLine[Level].Find('-') then
             repeat
                 IsHandled := false;
-                OnBeforeTransferBOMComponent(ProdOrder, ProdOrderLine, ProdBOMLine[Level], ErrorOccured, IsHandled);
+                OnBeforeTransferBOMComponent(ProdOrder, ProdOrderLine, ProdBOMLine[Level], ErrorOccured, IsHandled, Level);
                 if not IsHandled then begin
                     if ProdBOMLine[Level]."Routing Link Code" <> '' then begin
                         ProdOrderRoutingLine2.SetRange(Status, ProdOrderLine.Status);
@@ -440,6 +440,7 @@ codeunit 99000773 "Calculate Prod. Order"
     local procedure CalculateRouting(Direction: Option Forward,Backward; LetDueDateDecrease: Boolean)
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        IsHandled: Boolean;
     begin
         if ProdOrderRouteMgt.NeedsCalculation(
              ProdOrderLine.Status,
@@ -466,6 +467,11 @@ codeunit 99000773 "Calculate Prod. Order"
             CalculateLeadTime(ProdOrderLine, Direction, LetDueDateDecrease);
             exit;
         end;
+
+        IsHandled := false;
+        OnCalculateRoutingOnBeforeUpdateProdOrderRoutingLineDates(ProdOrderRoutingLine, ProdOrderLine, IsHandled);
+        if IsHandled then
+            exit;
 
         if Direction = Direction::Forward then begin
             ProdOrderRoutingLine."Starting Date" := ProdOrderLine."Starting Date";
@@ -1030,7 +1036,7 @@ codeunit 99000773 "Calculate Prod. Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransferBOMComponent(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; var ProdBOMLine: Record "Production BOM Line"; var ErrorOccured: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeTransferBOMComponent(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; var ProdBOMLine: Record "Production BOM Line"; var ErrorOccured: Boolean; var IsHandled: Boolean; Level: Integer)
     begin
     end;
 
@@ -1191,6 +1197,11 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyRoutingComments(var RoutingCommentLine: Record "Routing Comment Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; VersionCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingOnBeforeUpdateProdOrderRoutingLineDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 }

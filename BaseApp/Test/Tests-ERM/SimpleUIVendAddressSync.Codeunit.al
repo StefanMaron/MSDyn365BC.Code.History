@@ -242,7 +242,6 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         LibraryVariableStorage.Enqueue(true); // Replace Pay-to Vendor
         LibraryVariableStorage.Enqueue(true); // Recreate Purchase Lines
         LibraryVariableStorage.Enqueue(true);
-        LibraryVariableStorage.Enqueue(true);
 
         ReplacePurchaseInvoiceBuyFromVendor(OriginalVendor."No.", ReplacementVendor.Name);
 

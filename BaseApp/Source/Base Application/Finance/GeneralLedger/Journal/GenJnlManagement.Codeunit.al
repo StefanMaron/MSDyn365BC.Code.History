@@ -466,6 +466,7 @@ codeunit 230 GenJnlManagement
         TempGenJnlLine: Record "Gen. Journal Line";
     begin
         TempGenJnlLine.CopyFilters(GenJnlLine);
+        OnCalcBalanceOnAfterCopyFilters(TempGenJnlLine);
         if CurrentClientType in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4, CLIENTTYPE::Api] then
             ShowTotalBalance := false
         else
@@ -489,6 +490,7 @@ codeunit 230 GenJnlManagement
                 Balance := TempGenJnlLine."Balance (LCY)";
                 TempGenJnlLine.CopyFilters(GenJnlLine);
                 TempGenJnlLine := LastGenJnlLine;
+                OnCalcBalanceOnBeforeTempGenJnlLineNext(TempGenJnlLine);
                 if TempGenJnlLine.Next() = 0 then
                     Balance := Balance + LastGenJnlLine."Balance (LCY)";
             end;
@@ -556,9 +558,9 @@ codeunit 230 GenJnlManagement
                 end;
             1:
                 GenJnlTemplate.FindFirst();
-        else
-        TemplateSelected := PAGE.RunModal(0, GenJnlTemplate) = ACTION::LookupOK;
-    end;
+            else
+                TemplateSelected := PAGE.RunModal(0, GenJnlTemplate) = ACTION::LookupOK;
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -652,6 +654,16 @@ codeunit 230 GenJnlManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcBalance(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcBalanceOnAfterCopyFilters(var TempGenJournalLine: Record "Gen. Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcBalanceOnBeforeTempGenJnlLineNext(var TempGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

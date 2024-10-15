@@ -83,4 +83,3 @@ page 2503 "Extension Installation"
     end;
 }
 
-

@@ -22,7 +22,14 @@ codeunit 5644 "FA Reclass. Jnl.-Transfer"
         Text003: Label 'The journal lines were successfully reclassified. You are now in the %1 journal.';
 
     local procedure "Code"()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCode(FAReclassJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with FAReclassJnlLine do begin
             FAReclassJnlTempl.Get("Journal Template Name");
 
@@ -52,6 +59,11 @@ codeunit 5644 "FA Reclass. Jnl.-Transfer"
                 "Line No." := 1;
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var FAReclassJournalLine: Record "FA Reclass. Journal Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

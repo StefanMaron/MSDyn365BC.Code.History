@@ -121,9 +121,11 @@ table 5054 "Contact Business Relation"
         if "No." = '' then
             exit;
 
-        if ContBusRel.FindByContact("Link to Table", "Contact No.") then
-            Error(Text000, Cont.TableCaption(), "Contact No.", TableCaption(), "Link to Table", ContBusRel."No.");
-
+        IsHandled := false;
+        OnInsertOnBeforeFindByContact(Rec, IsHandled);
+        if not IsHandled then
+            if ContBusRel.FindByContact("Link to Table", "Contact No.") then
+                Error(Text000, Cont.TableCaption(), "Contact No.", TableCaption(), "Link to Table", ContBusRel."No.");
 
         IsHandled := false;
         OnInsertOnBeforeFindByRelation(Rec, IsHandled);
@@ -476,6 +478,11 @@ table 5054 "Contact Business Relation"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertOnBeforeFindByRelation(ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeFindByContact(ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -309,14 +309,14 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
             ContainsAllocationAccountLines := true;
             VerifyGenJournalLines(AllocationAccountGenJournalLine);
         end;
-        
+
         AllocationAccountGenJournalLine.SetRange("Bal. Account Type");
         AllocationAccountGenJournalLine.SetRange("Account Type", AllocationAccountGenJournalLine."Account Type"::"Allocation Account");
         if not AllocationAccountGenJournalLine.IsEmpty() then begin
             ContainsAllocationAccountLines := true;
             VerifyGenJournalLines(AllocationAccountGenJournalLine);
         end;
-        
+
         AllocationAccountGenJournalLine.CopyFilters(GenJournalLine);
         AllocationAccountGenJournalLine.SetFilter("Selected Alloc. Account No.", '<>%1', '');
         if not AllocationAccountGenJournalLine.IsEmpty() then begin
@@ -338,7 +338,7 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
 
         GenJournalLine.Validate(Amount, AllocationLine.Amount);
         TransferDimensionSetID(GenJournalLine, AllocationLine, AllocationAccountGenJournalLine."Alloc. Acc. Modified by User");
-        OnBeforeCreateGeneralJournalLine(GenJournalLine, AllocationLine);
+        OnBeforeCreateGeneralJournalLine(GenJournalLine, AllocationLine, AllocationAccountGenJournalLine);
         GenJournalLine.Insert(true);
         LastJournalLineNo := GenJournalLine."Line No.";
     end;
@@ -492,7 +492,7 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; var AllocationLine: Record "Allocation Line")
+    local procedure OnBeforeCreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; var AllocationLine: Record "Allocation Line"; var AllocationAccountGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

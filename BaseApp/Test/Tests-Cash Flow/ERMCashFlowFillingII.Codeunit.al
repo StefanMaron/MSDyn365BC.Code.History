@@ -32,6 +32,9 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         MinusOneDayFormula: DateFormula;
         SourceType: Enum "Cash Flow Source Type";
         UnexpectedCFWorksheetLineCountForMultipleSourcesErr: Label 'ENU=Unexpected Cash Flow journal line count within filter: Cash Flow No.: %1, Document No.: %2, %3, %4.', Comment = 'Unexpected Cash Flow journal line count within filter: Cash Flow No.: Cash Flow No, Document No.: Sales Order No, Purchase Order No, Service Order No.';
+        DescriptionTxt: Label 'Taxes from VAT Entries';
+        AmountZeroErr: Label 'Amount must be zero.';
+        TaxAmountErr: Label 'Tax Amount must be equal.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2115,6 +2118,57 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Assert.AreNotEqual(0, DimSetID, 'The Dimension Set ID must have non-zero value.');
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestWorksheetLinesTaxesPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyCalculationForSourceTypeTax()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        Customer: Record Customer;
+        GenJnlDocumentType: Enum "Gen. Journal Document Type";
+        InvoiceAmount: array[3] of Decimal;
+        CreditMemoAmount: Decimal;
+        BalAccountNo: Code[20];
+    begin
+        // [SCENARIO 492129] Calculation error in cash flow for the source type tax (origin no. 254)
+        Initialize();
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Save amount
+        InvoiceAmount[1] := LibraryRandom.RandDec(100, 2);
+        InvoiceAmount[2] := LibraryRandom.RandDec(100, 2);
+        InvoiceAmount[3] := LibraryRandom.RandDec(100, 2);
+        CreditMemoAmount := -InvoiceAmount[1];
+
+        // [GIVEN] Create BAl. Account No.
+        BalAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
+
+        // [GIVEN] Set today as WorkDate.
+        WorkDate := CalcDate('<+5Y>', Today);
+
+        // [GIVEN] Create General Journal Batch
+        CreateGeneralJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create four Sales Journal Line
+        CreateSalesJournalLine(GenJournalLine, GenJournalBatch, GenJnlDocumentType::Invoice, Customer, BalAccountNo, InvoiceAmount[1]);
+        CreateSalesJournalLine(GenJournalLine, GenJournalBatch, GenJnlDocumentType::"Credit Memo", Customer, BalAccountNo, CreditMemoAmount);
+        CreateSalesJournalLine(GenJournalLine, GenJournalBatch, GenJnlDocumentType::Invoice, Customer, BalAccountNo, InvoiceAmount[2]);
+        CreateSalesJournalLine(GenJournalLine, GenJournalBatch, GenJnlDocumentType::Invoice, Customer, BalAccountNo, InvoiceAmount[3]);
+
+        // [THEN] Post Gen. Journal Line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create Cash Flow Forecast and run Suggest Line Worksheet Report
+        CreateCashFlowForecastLine(CashFlowForecast);
+
+        // [VERIFY] Verify Tax Entries
+        VerifyTaxEntries(CashFlowForecast."No.", Customer."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2603,6 +2657,57 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryCashFlowHelper.VerifyExpectedCFAmount(ExpectedAmount, TotalAmount);
     end;
 
+    local procedure CreateCashFlowForecastLine(var CashFlowForecast: Record "Cash Flow Forecast")
+    begin
+        LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
+        Commit();  // Commit Required for REPORT.RUN.
+        LibraryVariableStorage.Enqueue(CashFlowForecast."No.");  // Enqueue SuggestWorksheetLinesReqPageHandler.
+        REPORT.Run(REPORT::"Suggest Worksheet Lines");
+    end;
+
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
+    local procedure CreateSalesJournalLine(
+        var GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJnlDocumentType: Enum "Gen. Journal Document Type";
+        Customer: Record Customer;
+        BalAccountNo: Code[20];
+        Amount: Decimal)
+    begin
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJnlDocumentType, GenJournalLine."Account Type"::Customer, Customer."No.",
+          Amount);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure VerifyTaxEntries(CashFlowForecastNo: Code[20]; CustomerNo: Code[20])
+    var
+        CashFlowWorksheetLine: Record "Cash Flow Worksheet Line";
+        VatEntry: Record "VAT Entry";
+    begin
+        CashFlowWorksheetLine.SetRange("Cash Flow Forecast No.", CashFlowForecastNo);
+        CashFlowWorksheetLine.SetRange("Source No.", '254');
+        CashFlowWorksheetLine.SetRange(Description, DescriptionTxt);
+        CashFlowWorksheetLine.FindFirst();
+
+        Assert.AreEqual(0, CashFlowWorksheetLine."Amount (LCY)", AmountZeroErr);
+
+        VatEntry.SetRange("Bill-to/Pay-to No.", CustomerNo);
+        VatEntry.CalcSums(Amount);
+
+        CashFlowWorksheetLine.Next();
+        Assert.AreEqual(VatEntry.Amount, CashFlowWorksheetLine."Amount (LCY)", TaxAmountErr);
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure AccountScheduleOverviewPageHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
@@ -2691,6 +2796,29 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         SuggestWorksheetLines.OK.Invoke;
     end;
 
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestWorksheetLinesTaxesPageHandler(var SuggestWorksheetLines: TestRequestPage "Suggest Worksheet Lines")
+    var
+        CashFlowNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(CashFlowNo);
+        SuggestWorksheetLines.CashFlowNo.SetValue(CashFlowNo);
+        SuggestWorksheetLines."ConsiderSource[SourceType::Tax]".SetValue(true);
+
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Liquid Funds""]".SetValue(false);  // Liquid Funds
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Service Orders""]".SetValue(false);
+        SuggestWorksheetLines."ConsiderSource[SourceType::Receivables]".SetValue(false);  // Receivables.
+        SuggestWorksheetLines."ConsiderSource[SourceType::Payables]".SetValue(false);  // Payables.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Purchase Order""]".SetValue(false);  // Purchase Order.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Cash Flow Manual Revenue""]".SetValue(false);  // Cash Flow Manual Revenue.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Sales Order""]".SetValue(false);  // Sales Order.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Budgeted Fixed Asset""]".SetValue(false);  // Budgeted Fixed Asset.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Cash Flow Manual Expense""]".SetValue(false);  // Cash Flow Manual Expense.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Sale of Fixed Asset""]".SetValue(false);  // Sale of Fixed Asset.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""G/L Budget""]".SetValue(false);  // G/L Budget.
+        SuggestWorksheetLines.OK.Invoke;
+    end;
 
     [PageHandler]
     [Scope('OnPrem')]

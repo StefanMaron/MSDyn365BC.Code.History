@@ -204,9 +204,14 @@ table 27 Item
             Caption = 'Type';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                if ExistsItemLedgerEntry() then
-                    Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", ItemLedgEntryTableCaptionTxt);
+                IsHandled := false;
+                OnValidateTypeOnBeforeCheckExistsItemLedgerEntry(Rec, xRec, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    if ExistsItemLedgerEntry() then
+                        Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", ItemLedgEntryTableCaptionTxt);
                 TestNoWhseEntriesExist(FieldCaption(Type));
                 CheckJournalsAndWorksheets(FieldNo(Type));
                 CheckDocuments(FieldNo(Type));
@@ -4292,7 +4297,7 @@ table 27 Item
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestNoItemLedgEntiesExist(Item: Record Item; CurrentFieldName: Text[100]; var IsHandled: Boolean)
+    local procedure OnBeforeTestNoItemLedgEntiesExist(var Item: Record Item; CurrentFieldName: Text[100]; var IsHandled: Boolean)
     begin
     end;
 
@@ -4544,5 +4549,10 @@ table 27 Item
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindItemVend(var ItemVendor: Record "Item Vendor"; Item: Record Item; StockkeepingUnit: Record "Stockkeeping Unit"; LocationCode: Code[10])
     begin
-    end;    
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateTypeOnBeforeCheckExistsItemLedgerEntry(var Item: Record Item; xItem: Record Item; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
 }

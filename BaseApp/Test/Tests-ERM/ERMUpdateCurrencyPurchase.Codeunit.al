@@ -20,6 +20,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         ERMUpdateCurrencyPurchase: Codeunit "ERM Update Currency - Purchase";
+        LibraryDimension: Codeunit "Library - Dimension";
         isInitialized: Boolean;
         PostingDateMessageText: Text[1024];
         UnknownError: Label 'Unknown error.';
@@ -648,6 +649,40 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('StatisticsMessageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ExchRateAdjustmentWithPurchaseInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        VendorInvNo: Code[35];
+    begin
+        // [SCENARIO: 494354] When Exch. Rate Adjustment (596, Report Request) is run with Dimension Posting option "Source Entry Dimensions" and 
+        // entries are posted to G/L, the Global dimensions are not updated in G/L table, although the Dimension Set ID is added correctly
+
+        // [GIVEN] Setup: Create and Post General Journal Line for Vendor, make Currency with Exchange Rate and modify.
+        Initialize();
+        VendorInvNo := LibraryRandom.RandText(35);
+
+        BindSubscription(ERMUpdateCurrencyPurchase);
+
+        // [GIVEN] Create and Post Purchase Invoice with "Currency Code" = "C1"
+        CreatePurchaseDocument(PurchaseHeader, CurrencyExchangeRate, PurchaseHeader."Document Type"::Invoice);
+        UpdatePurchaseInvoice(PurchaseHeader, VendorInvNo);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Update Currency Exchange Rate
+        UpdateExchangeAndAdjustmentRateAmounts(CurrencyExchangeRate);
+
+        // [THEN] Run Exch. Rate Adjustment batch job.
+        RunExchRateAdjustmentReport(CurrencyExchangeRate);
+        UnbindSubscription(ERMUpdateCurrencyPurchase);
+
+        // [VERIFY] Verify: Global Dimension on G/L Entry or available after running Exch. Rate Adjustment Report
+        VerifyGlobalDimensionOnGLEntryAdjustExchange(VendorInvNo, CurrencyExchangeRate."Currency Code");
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1085,6 +1120,54 @@ codeunit 134086 "ERM Update Currency - Purchase"
     begin
         // Generate Dummy message. Required for executing the test case successfully.
         if Confirm(StrSubstNo(ExpectedMessage)) then;
+    end;
+
+    local procedure RunExchRateAdjustmentReport(CurrencyExchangeRate: Record "Currency Exchange Rate")
+    var
+        Currency: Record Currency;
+        ExchRateAdjustment: Report "Exch. Rate Adjustment";
+    begin
+        Currency.SetRange(Code, CurrencyExchangeRate."Currency Code");
+        Clear(ExchRateAdjustment);
+        ExchRateAdjustment.SetTableView(Currency);
+        ExchRateAdjustment.InitializeRequest2(
+            0D, WorkDate(), LibraryRandom.RandText(10), WorkDate(),
+            CurrencyExchangeRate."Currency Code", true, false);
+        ExchRateAdjustment.UseRequestPage(false);
+        ExchRateAdjustment.Run();
+    end;
+
+    local procedure UpdatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; VendorInvNo: Code[35])
+    var
+        DimensionValue: Record "Dimension Value";
+    begin
+        PurchaseHeader.Validate("Vendor Invoice No.", VendorInvNo);
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        PurchaseHeader.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
+        PurchaseHeader.Validate("Shortcut Dimension 2 Code", DimensionValue.Code);
+        PurchaseHeader.Modify(true);
+    end;
+
+    local procedure UpdateExchangeAndAdjustmentRateAmounts(var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    begin
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", CurrencyExchangeRate."Exchange Rate Amount" + LibraryRandom.RandInt(2));
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
+        CurrencyExchangeRate.Modify(true);
+    end;
+
+    local procedure VerifyGlobalDimensionOnGLEntryAdjustExchange(VendorInvNo: Code[35]; CurrencyCode: Code[10])
+    var
+        GLEntry: Record "G/L Entry";
+        GLEntry2: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", CurrencyCode);
+        GLEntry.FindFirst();
+        GLEntry2.SetRange("External Document No.", VendorInvNo);
+        GLEntry2.FindFirst();
+
+        Assert.AreEqual(GLEntry."Global Dimension 1 Code", GLEntry2."Global Dimension 1 Code", '');
+        Assert.AreEqual(GLEntry."Global Dimension 2 Code", GLEntry2."Global Dimension 2 Code", '');
     end;
 
     [ConfirmHandler]

@@ -4,7 +4,7 @@ page 99000794 "Routing Comment Sheet"
 {
     AutoSplitKey = true;
     Caption = 'Comment Sheet';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     LinksAllowed = false;
     MultipleNewLines = true;
     PageType = List;

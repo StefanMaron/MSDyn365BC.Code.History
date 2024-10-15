@@ -4,7 +4,7 @@ page 99000840 "Prod. Order Rtng. Cmt. Sh."
 {
     AutoSplitKey = true;
     Caption = 'Comment Sheet';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     LinksAllowed = false;
     MultipleNewLines = true;
     PageType = List;

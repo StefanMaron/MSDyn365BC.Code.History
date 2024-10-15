@@ -26,6 +26,7 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     var
+        LibraryERM: Codeunit "Library - ERM";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryUTUtility: Codeunit "Library UT Utility";
@@ -1590,6 +1591,33 @@ codeunit 142055 "UT REP Vendor 1099"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH_Foreign')]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMedia_ForeignEntity()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        FileManagement: Codeunit "File Management";
+        FileName: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 491564] A "Vendor 1099 Magnetic Media" report has Foreign Entity indicator in position 740 for foreign vendors
+        Initialize();
+
+        // [GIVEN] Vendor ledger entries for vendor "A" with "MISC-02" code
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc, LibraryRandom.RandIntInRange(5000, 10000));
+
+        Commit();
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report with foreign vendor info on request page
+        RunVendor1099MagneticMediaReportSingleVendor(FileName, VendorLedgerEntry."Vendor No.");
+
+        // [THEN] Foreign Vendor indicator is '1' in position 740
+        Assert.AreEqual('1', LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 1, 740, 1), 'Foreign Vendor indicator is not "1"');
+
+        FileManagement.DeleteServerFile(FileName);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1952,6 +1980,32 @@ codeunit 142055 "UT REP Vendor 1099"
     begin
         Vendor1099Nec2022.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         Vendor1099Nec2022.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaRPH_Foreign(var Vendor1099MagneticMedia: TestRequestPage "Vendor 1099 Magnetic Media")
+    var
+        PostCode: Record "Post Code";
+    begin
+        PostCode.SetFilter("Country/Region Code", '<>%1&<>%2', 'US', 'USA');
+        LibraryERM.FindPostCode(PostCode);
+        Vendor1099MagneticMedia.VendorInfoCity.SetValue(PostCode.City);
+        Vendor1099MagneticMedia.VendorInfoPostCode.SetValue(PostCode.Code);
+    
+        Vendor1099MagneticMedia.Year.SetValue(Date2DMY(WorkDate(), 3));
+        Vendor1099MagneticMedia.TransCode.SetValue(CopyStr(LibraryUTUtility.GetNewCode(), 1, 5));
+        Vendor1099MagneticMedia.ContactName.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.ContactPhoneNo.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.VendContactName.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.VendContactPhoneNo.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.VendorInfoName.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.VendorInfoAddress.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.VendorInfoCounty.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.VendorInfoEMail.SetValue(LibraryUTUtility.GetNewCode());
+
+        Vendor1099MagneticMedia.VendorData.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Vendor1099MagneticMedia.OK().Invoke();
     end;
 }
 

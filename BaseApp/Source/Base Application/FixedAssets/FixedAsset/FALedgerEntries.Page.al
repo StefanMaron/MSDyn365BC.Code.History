@@ -94,6 +94,14 @@ page 5604 "FA Ledger Entries"
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = false;
                 }
+                field(RunningBalance; CalcRunningFABalance.GetFABalance(Rec))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Running Balance';
+                    ToolTip = 'Specifies the running balance.';
+                    AutoFormatType = 1;
+                    Visible = false;
+                }
                 field("Reclassification Entry"; Rec."Reclassification Entry")
                 {
                     ApplicationArea = Dimensions;
@@ -334,6 +342,7 @@ page 5604 "FA Ledger Entries"
                             Error(CannotUndoErr, Rec."Entry No.", Rec."Depreciation Book Code");
                         Rec.TestField("G/L Entry No.");
                         ReversalEntry.ReverseTransaction(Rec."Transaction No.");
+                        Clear(CalcRunningFABalance);
                     end;
                 }
             }
@@ -379,6 +388,7 @@ page 5604 "FA Ledger Entries"
     var
         FALedgEntry: Record "FA Ledger Entry";
         CancelFAEntries: Report "Cancel FA Entries";
+        CalcRunningFABalance: Codeunit "Calc. Running FA Balance";
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
         Navigate: Page Navigate;
         CannotUndoErr: Label 'You cannot undo the FA Ledger Entry No. %1 by using the Reverse Transaction function because Depreciation Book %2 does not have the appropriate G/L integration setup.';
