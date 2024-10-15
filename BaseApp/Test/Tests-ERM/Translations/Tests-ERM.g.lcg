@@ -1913,6 +1913,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Copy Purch/Sales Doc - NamedType OneLineShouldBeCopiedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 556740976 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(LookupHint=Codeunit ERM Copy Purch/Sales Doc - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 556740976 - NamedType 1475647686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong data after copy purchase resource]]></Val>
@@ -3297,6 +3306,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Invoice and Reminder - NamedType ReminderLineError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3781175034 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(LookupHint=Codeunit ERM Invoice and Reminder - NamedType ValueMustBeEqualErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4157697238 - NamedType 1906012420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7979,6 +7997,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit PEPPOL Management Tests - NamedType InvoiceDiscAmtTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1507343860 - NamedType 3955957870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Invoice File Sucessfully Send in PEEPOL Format]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit PEPPOL Management Tests - NamedType InvoiceElectronicallySendPEPPOLFormatTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1507343860 - NamedType 671347863" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[It cannot be negative if you want to send the posted document as an electronic document. \\Do you want to continue?]]></Val>
@@ -10848,6 +10875,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - Status, %2 - Document Type, %3 - Document No., %4 - Expected Status]D;]A;(LookupHint=Codeunit Service Order Check - NamedType ReleasedStatusErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 414629551 - NamedType 908304621" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Service Item Line must exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Order Check - NamedType ServiceItemLineErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 414629551 - NamedType 3176777329" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

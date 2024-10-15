@@ -5,7 +5,7 @@ page 5260 "G/L Account Mapping"
     UsageCategory = Administration;
     SourceTable = "G/L Account Mapping Header";
     Caption = 'G/L Account Mapping';
-    CardPageId = "G/L Account Mapping Card";
+    CardPageId = "G/L Acc. Mapping Card";
     Editable = false;
 
     layout

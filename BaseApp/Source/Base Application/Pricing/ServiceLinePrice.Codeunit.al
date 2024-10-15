@@ -163,6 +163,10 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
         // Currency
         PriceCalculationBuffer.Validate("Currency Code", ServiceHeader."Currency Code");
         PriceCalculationBuffer."Currency Factor" := ServiceHeader."Currency Factor";
+        if (PriceCalculationBuffer."Price Type" = PriceCalculationBuffer."Price Type"::Purchase) and
+           (PriceCalculationBuffer."Asset Type" = PriceCalculationBuffer."Asset Type"::Resource)
+        then
+            PriceCalculationBuffer."Calculation in LCY" := true;
 
         // UoM
         PriceCalculationBuffer.Quantity := Abs(ServiceLine.Quantity);

@@ -1,4 +1,4 @@
-﻿#if not CLEAN22
+#if not CLEAN22
 // variables are moved to protected var via !106447
 report 594 "Get Item Ledger Entries"
 {
@@ -520,11 +520,9 @@ report 594 "Get Item Ledger Entries"
                         case true of
                             (("Order Type" <> "Order Type"::Transfer) or ("Order No." = '')),
                             "Document Type" = "Document Type"::"Direct Transfer":
-                                begin
-                                    Location.Get("Location Code");
+                                if Location.Get("Location Code") then
                                     if (Location."Country/Region Code" <> '') and (Location."Country/Region Code" <> CompanyInfo."Country/Region Code") then
                                         exit(false);
-                                end;
                             "Document Type" = "Document Type"::"Transfer Receipt":
                                 begin
                                     ItemLedgEntry2.SetCurrentKey("Order Type", "Order No.");

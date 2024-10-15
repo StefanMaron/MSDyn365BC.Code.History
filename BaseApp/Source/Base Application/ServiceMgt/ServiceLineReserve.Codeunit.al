@@ -292,6 +292,7 @@ codeunit 99000842 "Service Line-Reserve"
     var
         OldReservEntry: Record "Reservation Entry";
         ReservStatus: Enum "Reservation Status";
+        IsHandled: Boolean;
     begin
         if not FindReservEntry(OldServLine, OldReservEntry) then
             exit;
@@ -308,10 +309,13 @@ codeunit 99000842 "Service Line-Reserve"
                 repeat
                     OldReservEntry.TestItemFields(OldServLine."No.", OldServLine."Variant Code", OldServLine."Location Code");
 
-                    TransferQty :=
-                        CreateReservEntry.TransferReservEntry(DATABASE::"Service Line",
-                            NewServLine."Document Type".AsInteger(), NewServLine."Document No.", '', 0,
-                            NewServLine."Line No.", NewServLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+                    IsHandled := false;
+                    OnTransServLineToServLineOnBeforeCreateReservEntry(OldReservEntry, OldServLine, TransferQty, IsHandled);
+                    if not IsHandled then
+                        TransferQty :=
+                            CreateReservEntry.TransferReservEntry(DATABASE::"Service Line",
+                                NewServLine."Document Type".AsInteger(), NewServLine."Document No.", '', 0,
+                                NewServLine."Line No.", NewServLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
                 until (OldReservEntry.Next() = 0) or (TransferQty = 0);
         end;
@@ -720,6 +724,11 @@ codeunit 99000842 "Service Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyChange(var NewServiceLine: Record "Service Line"; var OldServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransServLineToServLineOnBeforeCreateReservEntry(OldReservationEntry: Record "Reservation Entry"; OldServiceLine: Record "Service Line"; var TransferQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

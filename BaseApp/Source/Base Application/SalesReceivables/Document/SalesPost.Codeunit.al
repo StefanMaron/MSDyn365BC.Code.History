@@ -608,8 +608,10 @@
                 InitProgressWindow(SalesHeader);
 
             // Update
-            if Invoice then
+            if Invoice then begin
                 CreatePrepaymentLines(SalesHeader, true);
+                CreatePrepaymentLineForCreditMemo(SalesHeader);
+            end;
 
             ModifyHeader := UpdatePostingNos(SalesHeader);
 
@@ -5164,9 +5166,10 @@
                             FinalInvoice := false;
                     until not FinalInvoice or (TempSalesLineShipmentBuffer.Next() = 0);
 
-            UpdatePrepmtSalesLineWithRounding(
-              PrepmtSalesLine, TotalRoundingAmount, TotalPrepmtAmount,
-              FinalInvoice, PricesInclVATRoundingAmount);
+            if SalesHeader."Document Type" <> SalesHeader."Document Type"::"Credit Memo" then
+                UpdatePrepmtSalesLineWithRounding(
+                  PrepmtSalesLine, TotalRoundingAmount, TotalPrepmtAmount,
+                  FinalInvoice, PricesInclVATRoundingAmount);
         end;
     end;
 
@@ -10423,6 +10426,90 @@
 
         SalesLine."Gen. Prod. Posting Group" := ItemCharge."Gen. Prod. Posting Group";
         SalesLine.Modify(false);
+    end;
+
+    local procedure CreatePrepaymentLineForCreditMemo(var SalesHeader: Record "Sales Header")
+    var
+        GLAccount: Record "G/L Account";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        TempPrepmtSalesLine: Record "Sales Line" temporary;
+        TempExtendedTextLine: Record "Extended Text Line" temporary;
+        TransferExtendedText: Codeunit "Transfer Extended Text";
+        LineNo: Integer;
+    begin
+        if not CheckApplicationExistForCreditMemo(SalesHeader) then
+            exit;
+
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindLast() then
+            LineNo := SalesLine."Line No." + 10000
+        else
+            LineNo := 10000;
+
+        TempPrepmtSalesLine.SetHasBeenShown();
+        SalesInvoiceLine.SetRange("Document No.", SalesHeader."Applies-to Doc. No.");
+        SalesInvoiceLine.SetRange("Prepayment Line", true);
+        if SalesInvoiceLine.FindSet() then
+            repeat
+                GeneralPostingSetup.Get(SalesInvoiceLine."Gen. Bus. Posting Group", SalesInvoiceLine."Gen. Prod. Posting Group");
+                GLAccount.Get(GeneralPostingSetup.GetSalesPrepmtAccount());
+
+                TempPrepmtSalesLine.Init();
+                TempPrepmtSalesLine."Document Type" := SalesHeader."Document Type";
+                TempPrepmtSalesLine."Document No." := SalesHeader."No.";
+                TempPrepmtSalesLine."Line No." := LineNo;
+                TempPrepmtSalesLine."System-Created Entry" := true;
+                TempPrepmtSalesLine.Validate(Type, TempPrepmtSalesLine.Type::"G/L Account");
+                TempPrepmtSalesLine.Validate("No.", GLAccount."No.");
+                TempPrepmtSalesLine.Validate(Quantity, -1);
+                TempPrepmtSalesLine.Validate("Qty. to Ship", TempPrepmtSalesLine.Quantity);
+                TempPrepmtSalesLine.Validate("Qty. to Invoice", TempPrepmtSalesLine.Quantity);
+                TempPrepmtSalesLine.Validate("Unit Price", SalesInvoiceLine."Unit Price");
+                TempPrepmtSalesLine.Validate("Prepayment Line", true);
+                TempPrepmtSalesLine.Validate("Shortcut Dimension 1 Code", SalesInvoiceLine."Shortcut Dimension 1 Code");
+                TempPrepmtSalesLine.Validate("Shortcut Dimension 2 Code", SalesInvoiceLine."Shortcut Dimension 2 Code");
+                TempPrepmtSalesLine.Validate("Dimension Set ID", SalesInvoiceLine."Dimension Set ID");
+                LineNo := LineNo + 10000;
+                TempPrepmtSalesLine.Insert(true);
+
+                TransferExtendedText.PrepmtGetAnyExtText(
+                    TempPrepmtSalesLine."No.",
+                    DATABASE::"Sales Cr.Memo Line",
+                    SalesHeader."Document Date",
+                    SalesHeader."Language Code",
+                    TempExtendedTextLine);
+
+                if TempExtendedTextLine.FindSet() then
+                    repeat
+                        TempPrepmtSalesLine.Init();
+                        TempPrepmtSalesLine.Validate(Description, TempExtendedTextLine.Text);
+                        TempPrepmtSalesLine.Validate("System-Created Entry", true);
+                        TempPrepmtSalesLine.Validate("Prepayment Line", true);
+                        TempPrepmtSalesLine.Validate("Line No.", LineNo);
+                        LineNo := LineNo + 10000;
+                        TempPrepmtSalesLine.Insert(true);
+                    until TempExtendedTextLine.Next() = 0;
+            until SalesInvoiceLine.Next() = 0;
+
+        if TempPrepmtSalesLine.FindSet() then
+            repeat
+                TempSalesLineGlobal := TempPrepmtSalesLine;
+                TempSalesLineGlobal.Insert(true);
+            until TempPrepmtSalesLine.Next() = 0;
+    end;
+
+    local procedure CheckApplicationExistForCreditMemo(SalesHeader: Record "Sales Header"): Boolean
+    begin
+        if not (SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo") then
+            exit(false);
+
+        if (SalesHeader."Applies-to Doc. Type" <> SalesHeader."Applies-to Doc. Type"::" ") and
+           (SalesHeader."Applies-to Doc. No." <> '')
+        then
+            exit(true);
     end;
 
     [IntegrationEvent(false, false)]

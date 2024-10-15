@@ -17,7 +17,9 @@ codeunit 144047 "Test CH Item Features"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryCH: Codeunit "Library - CH";
         LibraryRandom: Codeunit "Library - Random";
+        Assert: Codeunit Assert;
         IsInitialized: Boolean;
+        PositionFieldErr: Label 'Position field values are different';
 
     local procedure Initialize()
     var
@@ -209,6 +211,51 @@ codeunit 144047 "Test CH Item Features"
         VATEntry.TestField("Base (FCY)", -ServiceLine.Amount);
         VATEntry.TestField("Currency Code", Customer."Currency Code");
         VATEntry.TestField("VAT %", VATPostingSetup."VAT %");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyPostionFieldInSalesLine()
+    var
+        Customer: array[2] of Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Position: Integer;
+    begin
+        // [SCENARIO 474638] Position value will have a correct value after changing the Sell-to Customer No. on Sales Header
+        Initialize();
+
+        // [GIVEN] Create two Customers
+        LibrarySales.CreateCustomer(Customer[1]);
+        LibrarySales.CreateCustomer(Customer[2]);
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Sales Header of Document Type Order for first customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer[1]."No.");
+
+        // [GIVEN] Create Sales Line for one Item
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [GIVEN] Save the Position field of Sales Line
+        Position := SalesLine.Position;
+
+        // [WHEN] Validate the Sel-to Customer No. field on Sales Header with new Customer 
+        SalesHeader.Validate("Sell-to Customer No.", Customer[2]."No.");
+        SalesHeader.Modify();
+
+        // [VERIFY] Verify the Position field not be change to 0.
+        Assert.AreEqual(Position, SalesLine.Position, PositionFieldErr);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

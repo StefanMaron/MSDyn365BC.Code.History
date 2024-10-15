@@ -1454,6 +1454,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test CH FCY - NamedType WrongNoOfEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1831772793 - NamedType 3929904418" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Position field values are different]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test CH Item Features - NamedType PositionFieldErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2552876844 - NamedType 3933859625" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot post and apply general journal line %1, %2, %3 because the corresponding balance contains VAT.]]></Val>

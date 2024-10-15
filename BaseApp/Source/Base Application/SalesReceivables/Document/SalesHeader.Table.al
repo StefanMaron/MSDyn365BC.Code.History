@@ -131,7 +131,7 @@
                    (xRec."VAT Bus. Posting Group" <> "VAT Bus. Posting Group")
                 then
                     RecreateSalesLines(SellToCustomerTxt);
-
+                  
                 OnValidateSellToCustomerNoOnBeforeUpdateSellToCont(Rec, xRec, Customer, SkipSellToContact);
                 if not SkipSellToContact then
                     UpdateSellToCont("Sell-to Customer No.");
@@ -6152,7 +6152,7 @@
             SalesLine.Validate("Shipment Date", TempSalesLine."Shipment Date");
         end;
         OnBeforeSalesLineInsert(SalesLine, TempSalesLine, Rec);
-        SalesLine.Insert();
+        SalesLine.Insert(true);
         OnAfterCreateSalesLine(SalesLine, TempSalesLine);
     end;
 
