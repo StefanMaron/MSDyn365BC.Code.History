@@ -317,6 +317,8 @@ codeunit 139729 "APIV1 - Purchase Invoices E2E"
         LibraryUtility.AddTempField(TempIgnoredFieldsForComparison, ApiPurchaseHeader.FIELDNO("No."), DATABASE::"Purchase Header");
         LibraryUtility.AddTempField(
           TempIgnoredFieldsForComparison, ApiPurchaseHeader.FIELDNO("Posting Description"), DATABASE::"Purchase Header");
+        // Special ignore case for GB
+        LibraryUtility.AddTempField(TempIgnoredFieldsForComparison, ApiPurchaseHeader.FieldNo("Invoice Received Date"), Database::"Purchase Header");
 #pragma warning disable AL0432
         LibraryUtility.AddTempField(TempIgnoredFieldsForComparison, ApiPurchaseHeader.FIELDNO(Id), DATABASE::"Purchase Header");
 #pragma warning restore AL0432
