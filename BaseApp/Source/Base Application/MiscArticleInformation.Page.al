@@ -1,0 +1,97 @@
+page 5219 "Misc. Article Information"
+{
+    Caption = 'Misc. Article Information';
+    DataCaptionFields = "Employee No.";
+    PageType = List;
+    SourceTable = "Misc. Article Information";
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Control1)
+            {
+                ShowCaption = false;
+                field("Employee No."; "Employee No.")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies a number for the employee.';
+                    Visible = false;
+                }
+                field("Misc. Article Code"; "Misc. Article Code")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies a code to define the type of miscellaneous article.';
+                }
+                field(Description; Description)
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies a description of the miscellaneous article.';
+                }
+                field("Serial No."; "Serial No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the serial number of the miscellaneous article.';
+                }
+                field("From Date"; "From Date")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the date when the employee first received the miscellaneous article.';
+                }
+                field("To Date"; "To Date")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies the date when the employee no longer possesses the miscellaneous article.';
+                }
+                field("In Use"; "In Use")
+                {
+                    ApplicationArea = BasicHR;
+                    ToolTip = 'Specifies that the miscellaneous article is in use.';
+                }
+                field(Comment; Comment)
+                {
+                    ApplicationArea = Comments;
+                    ToolTip = 'Specifies if a comment is associated with this entry.';
+                }
+            }
+        }
+        area(factboxes)
+        {
+            systempart(Control1900383207; Links)
+            {
+                ApplicationArea = RecordLinks;
+                Visible = false;
+            }
+            systempart(Control1905767507; Notes)
+            {
+                ApplicationArea = Notes;
+                Visible = true;
+            }
+        }
+    }
+
+    actions
+    {
+        area(navigation)
+        {
+            group("Mi&sc. Article")
+            {
+                Caption = 'Mi&sc. Article';
+                Image = FiledOverview;
+                action("Co&mments")
+                {
+                    ApplicationArea = Comments;
+                    Caption = 'Co&mments';
+                    Image = ViewComments;
+                    RunObject = Page "Human Resource Comment Sheet";
+                    RunPageLink = "Table Name" = CONST("Misc. Article Information"),
+                                  "No." = FIELD("Employee No."),
+                                  "Alternative Address Code" = FIELD("Misc. Article Code"),
+                                  "Table Line No." = FIELD("Line No.");
+                    ToolTip = 'View or add comments for the record.';
+                }
+            }
+        }
+    }
+}
+

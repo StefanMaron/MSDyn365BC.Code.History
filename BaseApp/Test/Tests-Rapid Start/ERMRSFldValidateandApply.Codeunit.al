@@ -1,0 +1,943 @@
+codeunit 136609 "ERM RS Fld. Validate and Apply"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Config Package] [Rapid Start]
+    end;
+
+    var
+        LibraryRapidStart: Codeunit "Library - Rapid Start";
+        Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryUtility: Codeunit "Library - Utility";
+        ConfigValidateManagement: Codeunit "Config. Validate Management";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryRandom: Codeunit "Library - Random";
+        isInitialized: Boolean;
+        SingleEntryRecNo: Integer;
+        MigrationError: Label 'There are errors in Migration Data Error.';
+        NoMigrationError: Label 'There must be errors in Migration Data Error.';
+        NoDataInTableAfterApply: Label 'There is no data in table after apply procedure.';
+        DataIsInvalidAfterApply: Label 'Invalid data in field %1.';
+        PackageValidationError: Label 'Package validation errors.';
+        InvalidDataExpected: Label 'Config. package record is expected to be invalid.';
+        ListMustBeEmpty: Label '%1 must be empty.';
+        OptionNoExistsErr: Label 'OptionNoExists function returns wrong result.';
+        GetOptionNoErr: Label 'GetOptionNo function returns wrong result.';
+        ConfigPackContErr: Label 'Config Package contains errors';
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM RS Fld. Validate and Apply");
+        LibraryRapidStart.CleanUp('');
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM RS Fld. Validate and Apply");
+
+        SingleEntryRecNo := 1;
+
+        LibraryRapidStart.SetAPIServicesEnabled(false);
+        isInitialized := true;
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM RS Fld. Validate and Apply");
+    end;
+
+    local procedure CreateResource(var Resource: Record Resource; var ResourcePrice: Record "Resource Price")
+    var
+        LibraryResource: Codeunit "Library - Resource";
+    begin
+        Resource.Init;
+        Resource.Validate("No.", LibraryUtility.GenerateRandomCode(Resource.FieldNo("No."), DATABASE::Resource));
+        Resource.Insert(true);
+
+        LibraryResource.CreateResourcePrice(ResourcePrice, ResourcePrice.Type::Resource, Resource."No.", '', '');
+    end;
+
+    local procedure GeneratePackageWithFieldFillingDependency(var ConfigPackage: Record "Config. Package"; FieldPriorityWithDependency: Integer; FieldPriorityWithoutDependency: Integer; var ResourcePriceCode: Code[20]; SavePackageRecord: Boolean)
+    var
+        ConfigPackageTable: Record "Config. Package Table";
+        Resource: Record Resource;
+        ResourcePrice: Record "Resource Price";
+    begin
+        CreateResource(Resource, ResourcePrice);
+
+        ResourcePriceCode := ResourcePrice.Code;
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Resource Price",
+          ResourcePrice.FieldNo(Type),
+          Format(ResourcePrice.Type::All),
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Resource Price",
+          ResourcePrice.FieldNo(Code),
+          ResourcePrice.Code,
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Resource Price",
+          ResourcePrice.FieldNo("Work Type Code"),
+          ResourcePrice."Work Type Code",
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Resource Price",
+          ResourcePrice.FieldNo("Currency Code"),
+          ResourcePrice."Currency Code",
+          SingleEntryRecNo);
+
+        LibraryRapidStart.SetProcessingOrderForField(
+          ConfigPackage.Code, ConfigPackageTable."Table ID", ResourcePrice.FieldNo(Type), FieldPriorityWithoutDependency);
+        LibraryRapidStart.SetProcessingOrderForField(
+          ConfigPackage.Code, ConfigPackageTable."Table ID", ResourcePrice.FieldNo(Code), FieldPriorityWithDependency);
+
+        if not SavePackageRecord then
+            ResourcePrice.Delete;
+    end;
+
+    local procedure GenerateSimplePackage(UseInvalidGLAccountCode: Boolean; SavePackageRecord: Boolean; ValidateFields: Boolean; var ConfigPackage: Record "Config. Package"; var CustPostingGroupCode: Code[20]; var GLAccountNo: Code[20])
+    var
+        GLAccount: Record "G/L Account";
+        CustPostingGroup: Record "Customer Posting Group";
+        ConfigPackageTable: Record "Config. Package Table";
+    begin
+        CustPostingGroup.Code := LibraryUtility.GenerateRandomCode(CustPostingGroup.FieldNo(Code), DATABASE::"Customer Posting Group");
+
+        if UseInvalidGLAccountCode then
+            CustPostingGroup."Receivables Account" :=
+              LibraryUtility.GenerateRandomCode(CustPostingGroup.FieldNo("Receivables Account"), DATABASE::"Customer Posting Group")
+        else begin
+            LibraryERM.FindGLAccount(GLAccount);
+            CustPostingGroup."Receivables Account" := GLAccount."No.";
+        end;
+
+        if SavePackageRecord then
+            CustPostingGroup.Insert;
+
+        CustPostingGroupCode := CustPostingGroup.Code;
+        GLAccountNo := CustPostingGroup."Receivables Account";
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Customer Posting Group",
+          CustPostingGroup.FieldNo(Code),
+          CustPostingGroup.Code,
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Customer Posting Group",
+          CustPostingGroup.FieldNo("Receivables Account"),
+          CustPostingGroup."Receivables Account",
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Customer Posting Group",
+          CustPostingGroup.FieldNo("Service Charge Acc."),
+          '',
+          SingleEntryRecNo);
+
+        SetPackageFieldsValidation(ConfigPackage.Code, ValidateFields);
+    end;
+
+    local procedure SetPackageFieldsValidation(PackageCode: Code[20]; ValidateFields: Boolean)
+    var
+        ConfigPackageTable: Record "Config. Package Table";
+        ConfigPackageField: Record "Config. Package Field";
+    begin
+        ConfigPackageTable.SetRange("Package Code", PackageCode);
+        if ConfigPackageTable.FindSet then
+            repeat
+                ConfigPackageField.SetRange("Package Code", PackageCode);
+                ConfigPackageField.SetRange("Table ID", ConfigPackageTable."Table ID");
+                if ConfigPackageField.FindSet then
+                    repeat
+                        if not ConfigPackageField."Primary Key" then begin
+                            ConfigPackageField.Validate("Validate Field", ValidateFields);
+                            ConfigPackageField.Modify(true);
+                        end;
+                    until ConfigPackageField.Next = 0;
+            until ConfigPackageTable.Next = 0;
+    end;
+
+    local procedure SetPackageFieldValue(ConfigPackageCode: Code[20]; TableID: Integer; RecordNo: Integer; FieldNo: Integer; NewValue: Text[250])
+    var
+        ConfigPackageData: Record "Config. Package Data";
+    begin
+        ConfigPackageData.Get(ConfigPackageCode, TableID, RecordNo, FieldNo);
+        ConfigPackageData.Validate(Value, NewValue);
+        ConfigPackageData.Modify(true);
+    end;
+
+    local procedure CheckOptionNoExists(Value: Text; ExpectedResult: Boolean)
+    var
+        SalesLine: Record "Sales Line";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+    begin
+        RecRef.Open(DATABASE::"Sales Line");
+        FieldRef := RecRef.Field(SalesLine.FieldNo(Type));
+        Assert.AreEqual(ExpectedResult, ConfigValidateManagement.OptionNoExists(FieldRef, CopyStr(Value, 1, 250)), OptionNoExistsErr);
+    end;
+
+    local procedure CheckGetOptionNo(Value: Text; ExpectedResult: Integer)
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+    begin
+        RecRef.Open(DATABASE::"Sales Cr.Memo Line");
+        FieldRef := RecRef.Field(SalesCrMemoLine.FieldNo("IC Partner Ref. Type"));
+        Assert.AreEqual(ExpectedResult, ConfigValidateManagement.GetOptionNo(CopyStr(Value, 1, 250), FieldRef), GetOptionNoErr);
+    end;
+
+    local procedure VerifyOption(OptionNo: Integer)
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+    begin
+        SalesCrMemoLine.Init;
+        SalesCrMemoLine."IC Partner Ref. Type" := OptionNo;
+        CheckGetOptionNo(Format(SalesCrMemoLine."IC Partner Ref. Type"), OptionNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TableValidation_ValidateTableWithWrongOrderInPK_PackageErrorGenerated()
+    var
+        ConfigPackageError: Record "Config. Package Error";
+        ConfigPackage: Record "Config. Package";
+        ResourcePriceCode: Code[20];
+    begin
+        Initialize;
+
+        GeneratePackageWithFieldFillingDependency(ConfigPackage, 1, 0, ResourcePriceCode, false);
+
+        LibraryRapidStart.ValidatePackage(ConfigPackage, false);
+
+        Assert.IsTrue(not ConfigPackageError.IsEmpty, NoMigrationError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TableValidation_ValidateTableWithCorrectOrderInPK_NoPackageErrors()
+    var
+        ConfigPackageError: Record "Config. Package Error";
+        ConfigPackage: Record "Config. Package";
+        ResourcePriceCode: Code[20];
+    begin
+        Initialize;
+
+        GeneratePackageWithFieldFillingDependency(ConfigPackage, 0, 1, ResourcePriceCode, false);
+
+        LibraryRapidStart.ValidatePackage(ConfigPackage, false);
+
+        Assert.IsTrue(ConfigPackageError.IsEmpty, MigrationError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TableApplying_ApplyTableWithWrongOrderInPK_PackageErrorGenerated()
+    var
+        ConfigPackageError: Record "Config. Package Error";
+        ConfigPackage: Record "Config. Package";
+        ResourcePriceCode: Code[20];
+    begin
+        Initialize;
+
+        GeneratePackageWithFieldFillingDependency(ConfigPackage, 1, 0, ResourcePriceCode, false);
+
+        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
+
+        Assert.IsTrue(not ConfigPackageError.IsEmpty, NoMigrationError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TableApplying_ApplyTableWithCorrectOrderInPK_DataInTable()
+    var
+        ConfigPackage: Record "Config. Package";
+        ResourcePrice: Record "Resource Price";
+        ResourcePriceCode: Code[20];
+    begin
+        Initialize;
+
+        GeneratePackageWithFieldFillingDependency(ConfigPackage, 0, 1, ResourcePriceCode, false);
+
+        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
+
+        Assert.IsTrue(ResourcePrice.Get(ResourcePrice.Type::All, ResourcePriceCode, '', ''), NoDataInTableAfterApply);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TableApplying_ApplyValidTableDataWithoutFieldValidation()
+    var
+        ConfigPackage: Record "Config. Package";
+        CustPostingGroup: Record "Customer Posting Group";
+        CustPostingGroupCode: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        Initialize;
+
+        GenerateSimplePackage(false, false, false, ConfigPackage, CustPostingGroupCode, GLAccountNo);
+
+        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
+
+        Assert.IsTrue(CustPostingGroup.Get(CustPostingGroupCode), NoDataInTableAfterApply);
+        Assert.AreEqual(
+          GLAccountNo, CustPostingGroup."Receivables Account",
+          StrSubstNo(DataIsInvalidAfterApply, CustPostingGroup.FieldCaption("Receivables Account")));
+
+        CustPostingGroup.Delete(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TableApplying_ApplyInvalidTableDataWithoutFieldValidation()
+    var
+        ConfigPackage: Record "Config. Package";
+        CustPostingGroup: Record "Customer Posting Group";
+        CustPostingGroupCode: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        Initialize;
+
+        GenerateSimplePackage(true, false, false, ConfigPackage, CustPostingGroupCode, GLAccountNo);
+
+        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
+
+        Assert.IsTrue(CustPostingGroup.Get(CustPostingGroupCode), NoDataInTableAfterApply);
+        Assert.AreEqual(
+          GLAccountNo, CustPostingGroup."Receivables Account",
+          StrSubstNo(DataIsInvalidAfterApply, CustPostingGroup.FieldCaption("Receivables Account")));
+
+        CustPostingGroup.Delete(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TableApplying_ApplyTableWhenAppliedRecordExists()
+    var
+        ConfigPackage: Record "Config. Package";
+        CustPostingGroup: Record "Customer Posting Group";
+        CustPostingGroupCode: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        Initialize;
+
+        GenerateSimplePackage(false, true, false, ConfigPackage, CustPostingGroupCode, GLAccountNo);
+
+        CustPostingGroup.Get(CustPostingGroupCode);
+        CustPostingGroup."Receivables Account" := '';
+        CustPostingGroup.Modify;
+
+        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
+
+        Assert.IsTrue(CustPostingGroup.Get(CustPostingGroupCode), NoDataInTableAfterApply);
+        Assert.AreEqual(
+          GLAccountNo, CustPostingGroup."Receivables Account",
+          StrSubstNo(DataIsInvalidAfterApply, CustPostingGroup.FieldCaption("Receivables Account")));
+
+        CustPostingGroup.Delete(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TableValidation_ValidateValidTableDataWithoutFieldValidation()
+    var
+        ConfigPackageError: Record "Config. Package Error";
+        ConfigPackage: Record "Config. Package";
+        CustPostingGroupCode: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        Initialize;
+
+        GenerateSimplePackage(false, false, false, ConfigPackage, CustPostingGroupCode, GLAccountNo);
+
+        LibraryRapidStart.ValidatePackage(ConfigPackage, false);
+
+        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
+        Assert.IsTrue(ConfigPackageError.IsEmpty, PackageValidationError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TableValidation_ValidateInvalidTableDataWithoutFieldValidation()
+    var
+        ConfigPackageError: Record "Config. Package Error";
+        ConfigPackage: Record "Config. Package";
+        CustPostingGroupCode: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        Initialize;
+
+        GenerateSimplePackage(true, false, false, ConfigPackage, CustPostingGroupCode, GLAccountNo);
+
+        LibraryRapidStart.ValidatePackage(ConfigPackage, false);
+
+        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
+        Assert.IsTrue(ConfigPackageError.IsEmpty, PackageValidationError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TableValidation_ValidateTableWhenValidatedRecordExists()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageError: Record "Config. Package Error";
+        ResourcePriceCode: Code[20];
+    begin
+        // Verify that ValidatePackage works correctly when a record being validated exists in DB
+
+        Initialize;
+
+        GeneratePackageWithFieldFillingDependency(ConfigPackage, 0, 1, ResourcePriceCode, true);
+
+        LibraryRapidStart.ValidatePackage(ConfigPackage, false);
+
+        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
+        Assert.IsTrue(ConfigPackageError.IsEmpty, PackageValidationError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TableValidation_ValidateMultipleErrorsCreated()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageData: Record "Config. Package Data";
+        ConfigPackageError: Record "Config. Package Error";
+        CustPostingGroup: Record "Customer Posting Group";
+        CustPostingGroupCode: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        // Verify that a package error is created for every invalid fata entry when a single package line contains more than one error
+
+        Initialize;
+
+        // The package is created with one error in data
+        GenerateSimplePackage(
+          true,// Generate package with invalid G/L Account code
+          false,// Do not save package record
+          true,// Validate package fields
+          ConfigPackage,// Resulting package
+          CustPostingGroupCode,// Code of customer posting group loaded to package
+          GLAccountNo); // G/L Account No. used in package
+
+        // Invalidate one more field
+        SetPackageFieldValue(
+          ConfigPackage.Code, DATABASE::"Customer Posting Group", 1, CustPostingGroup.FieldNo("Service Charge Acc."), GLAccountNo);
+
+        LibraryRapidStart.ValidatePackage(ConfigPackage, false);
+
+        // Make sure that two errors have been created
+        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
+        Assert.AreEqual(2, ConfigPackageError.Count, PackageValidationError);
+
+        ConfigPackageData.Get(ConfigPackage.Code, DATABASE::"Customer Posting Group", 1, CustPostingGroup.FieldNo("Receivables Account"));
+        Assert.IsTrue(ConfigPackageData.Invalid, InvalidDataExpected);
+
+        ConfigPackageData.Get(ConfigPackage.Code, DATABASE::"Customer Posting Group", 1, CustPostingGroup.FieldNo("Service Charge Acc."));
+        Assert.IsTrue(ConfigPackageData.Invalid, InvalidDataExpected);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TableValidation_CorrectPackageErrorAfterValidation()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageData: Record "Config. Package Data";
+        ConfigPackageError: Record "Config. Package Error";
+        CustPostingGroup: Record "Customer Posting Group";
+        GLAccount: Record "G/L Account";
+        CustPostingGroupCode: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        // Verify that a package error is deleted when the invalid record is corrected
+
+        Initialize;
+
+        GenerateSimplePackage(
+          true,// Generate package with invalid G/L Account code
+          false,// Do not save package record
+          true,// Validate package fields
+          ConfigPackage,// Resulting package
+          CustPostingGroupCode,// Code of customer posting group loaded to package
+          GLAccountNo); // G/L Account No. used in package
+
+        LibraryRapidStart.ValidatePackage(ConfigPackage, false);
+
+        // Make sure that the error is created
+        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
+        Assert.AreEqual(1, ConfigPackageError.Count, PackageValidationError);
+
+        ConfigPackageData.Get(ConfigPackage.Code, DATABASE::"Customer Posting Group", 1, CustPostingGroup.FieldNo("Receivables Account"));
+        Assert.IsTrue(ConfigPackageData.Invalid, InvalidDataExpected);
+
+        // Now, fix it
+        LibraryERM.FindGLAccount(GLAccount);
+        SetPackageFieldValue(
+          ConfigPackage.Code, DATABASE::"Customer Posting Group", 1, CustPostingGroup.FieldNo("Receivables Account"), GLAccount."No.");
+        LibraryRapidStart.ValidatePackage(ConfigPackage, false);
+
+        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
+        Assert.IsTrue(ConfigPackageError.IsEmpty, PackageValidationError);
+
+        ConfigPackageData.Get(ConfigPackage.Code, DATABASE::"Customer Posting Group", 1, CustPostingGroup.FieldNo("Receivables Account"));
+        Assert.IsFalse(ConfigPackageData.Invalid, PackageValidationError);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ConfigPackageRecordsHandler(var ConfigPackageRecords: TestPage "Config. Package Records")
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.FindGLAccount(GLAccount);
+
+        ConfigPackageRecords.First;
+        ConfigPackageRecords.Field2.SetValue(GLAccount."No.");
+
+        Assert.IsFalse(ConfigPackageRecords.First, StrSubstNo(ListMustBeEmpty, ConfigPackageRecords.Caption));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfigPackageRecordsHandler')]
+    [Scope('OnPrem')]
+    procedure PageValidation_CorrectPackageErrorFromPage()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageData: Record "Config. Package Data";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        ConfigPackageCard: TestPage "Config. Package Card";
+        CustPostingGroupCode: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        // Verify that a package error can be corrected from "Config. Package Records" page
+
+        Initialize;
+
+        GenerateSimplePackage(
+          true,// Generate package with invalid G/L Account code
+          false,// Do not save package record
+          true,// Validate package fields
+          ConfigPackage,// Resulting package
+          CustPostingGroupCode,// Code of customer posting group loaded to package
+          GLAccountNo); // G/L Account No. used in package
+
+        LibraryRapidStart.ValidatePackage(ConfigPackage, false);
+
+        ConfigPackageData.SetRange("Package Code", ConfigPackage.Code);
+        ConfigPackageData.SetRange("Field ID", CustomerPostingGroup.FieldNo("Receivables Account"));
+        ConfigPackageData.SetRange(Invalid, false);
+        Assert.IsTrue(ConfigPackageData.IsEmpty, InvalidDataExpected);
+
+        ConfigPackageCard.OpenView;
+        ConfigPackageCard.GotoRecord(ConfigPackage);
+        ConfigPackageCard.Control10.GotoKey(ConfigPackage.Code, DATABASE::"Customer Posting Group");
+
+        ConfigPackageCard.Control10.PackageErrors.Invoke;
+
+        ConfigPackageData.Get(
+          ConfigPackage.Code, DATABASE::"Customer Posting Group", 1, CustomerPostingGroup.FieldNo("Receivables Account"));
+        Assert.IsFalse(ConfigPackageData.Invalid, PackageValidationError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OptionNoExistsUT_NonIntegerValue_False()
+    begin
+        CheckOptionNoExists('A', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OptionNoExistsUT_NegativeValue_False()
+    begin
+        CheckOptionNoExists('-1', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OptionNoExistsUT_ZeroValue_True()
+    begin
+        CheckOptionNoExists('0', true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OptionNoExistsUT_BetweenZeroAndMaxOptionNo_True()
+    begin
+        CheckOptionNoExists('2', true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OptionNoExistsUT_MaxOptionNo_True()
+    begin
+        CheckOptionNoExists('5', true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OptionNoExistsUT_MoreThanMax_False()
+    begin
+        CheckOptionNoExists('10', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetOptionNoUT_NonOptionSubstring_NoOption()
+    begin
+        CheckGetOptionNo(Format(CreateGuid), -1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetOptionNoUT_OptionSubstringNotEqualToOption_NoOption()
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+    begin
+        SalesCrMemoLine."IC Partner Ref. Type" := SalesCrMemoLine."IC Partner Ref. Type"::Item;
+        CheckGetOptionNo(
+          CopyStr(
+            Format(SalesCrMemoLine."IC Partner Ref. Type"), 1,
+            StrLen(Format(SalesCrMemoLine."IC Partner Ref. Type")) / 2), -1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetOptionNoUT_EmptySubstringAndEmptyOptionExists_NoFound()
+    begin
+        CheckGetOptionNo('', 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetOptionNoUT_FirstOption_OptionFound()
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+    begin
+        VerifyOption(SalesCrMemoLine."IC Partner Ref. Type"::" ");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetOptionNoUT_MiddleOption_OptionFound()
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+    begin
+        VerifyOption(SalesCrMemoLine."IC Partner Ref. Type"::"Charge (Item)");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetOptionNoUT_LastOption_OptionFound()
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+    begin
+        VerifyOption(SalesCrMemoLine."IC Partner Ref. Type"::"Common Item No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TableApplying_ApplyTableDataWithCurrency()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        GenJnlLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        LibrarySales: Codeunit "Library - Sales";
+        RecRef: RecordRef;
+        CurrencyCode: Code[10];
+    begin
+        // Create Config. Package Record (Gen. Jnl Line with Currency)
+        // Check no package errors exist after Package Application
+        Initialize;
+
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(
+            WorkDate - LibraryRandom.RandInt(365),
+            LibraryRandom.RandDec(2, 2),
+            LibraryRandom.RandDec(2, 2));
+        LibrarySales.CreateCustomer(Customer);
+        Customer."Currency Code" := CurrencyCode;
+        Customer.Modify(true);
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Gen. Journal Line",
+          GenJnlLine.FieldNo("Journal Template Name"),
+          GenJournalTemplate.Name,
+          SingleEntryRecNo);
+
+        RecRef.GetTable(GenJnlLine);
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Gen. Journal Line",
+          GenJnlLine.FieldNo("Line No."),
+          Format(LibraryUtility.GetNewLineNo(RecRef, GenJnlLine.FieldNo("Line No."))),
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Gen. Journal Line",
+          GenJnlLine.FieldNo("Account Type"),
+          Format(GenJnlLine."Account Type"::Customer),
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Gen. Journal Line",
+          GenJnlLine.FieldNo("Account No."),
+          Customer."No.",
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Gen. Journal Line",
+          GenJnlLine.FieldNo("Posting Date"),
+          Format(WorkDate),
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Gen. Journal Line",
+          GenJnlLine.FieldNo("Currency Code"),
+          CurrencyCode,
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Gen. Journal Line",
+          GenJnlLine.FieldNo(Amount),
+          Format(LibraryRandom.RandDecInRange(1, 1000, 2)),
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Gen. Journal Line",
+          GenJnlLine.FieldNo("Journal Batch Name"),
+          GenJournalBatch.Name,
+          SingleEntryRecNo);
+
+        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
+
+        ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::"Gen. Journal Line");
+        ConfigPackageTable.CalcFields("No. of Package Errors");
+
+        // Validate
+        Assert.AreEqual(0, ConfigPackageTable."No. of Package Errors", ConfigPackContErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UT_SalesPriceTableProcessingOrder()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+    begin
+        // [FEATURE] [Sales Price] [UT]
+        // [SCENARIO 375680] Field included in primary key should have higher Processing Order in configuration package
+
+        // [GIVEN] Configuration package
+        Initialize;
+        LibraryRapidStart.CreatePackage(ConfigPackage);
+
+        // [WHEN] Add table "Sales Price" in configuration package
+        LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::"Sales Price");
+
+        // [THEN] Key field "Sales Type" with ID = "13" has "Processing Order" = 2
+        VerifyProcessingOrder(ConfigPackage.Code, ConfigPackageTable."Table ID", 13, 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyTableFilterFieldValue()
+    var
+        ConfigPackage: Record "Config. Package";
+        Permission: Record Permission;
+        PermissionSet: Record "Permission Set";
+        GLAccount: Record "G/L Account";
+        SecurityFilter: Text[250];
+    begin
+        // [SCENARIO 363000] RapidStart Record with Field of TableFilter applies with no errors
+        Initialize;
+
+        // [GIVEN] Permission Set
+        with PermissionSet do begin
+            Init;
+            Validate(
+              "Role ID",
+              LibraryUtility.GenerateRandomCode(FieldNo("Role ID"), DATABASE::"Permission Set"));
+            Insert(true);
+        end;
+
+        // [GIVEN] RapidStart Package Data for Permission Record with Security Filter = X (TableFilter field type).
+        SecurityFilter := GLAccount.TableCaption + ': ' + GLAccount.FieldCaption("Account Type") + '=' +
+          Format(GLAccount."Account Type"::Heading);
+        CreateRSPackageForPermissionRecord(
+          ConfigPackage, PermissionSet."Role ID", Permission."Object Type"::"Table Data", DATABASE::"G/L Account",
+          SecurityFilter);
+
+        // [WHEN] RapidStart Package is applied
+        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
+
+        // [THEN] New Permission Record is created with Security Filter = X;
+        Permission.Get(PermissionSet."Role ID", Permission."Object Type"::"Table Data", DATABASE::"G/L Account");
+        Assert.AreEqual(
+          SecurityFilter, Format(Permission."Security Filter"),
+          StrSubstNo(DataIsInvalidAfterApply, Permission.FieldCaption("Security Filter")));
+    end;
+
+    local procedure VerifyProcessingOrder(PackageCode: Code[20]; TableID: Integer; FieldID: Integer; ProcessingOrder: Integer)
+    var
+        ConfigPackageField: Record "Config. Package Field";
+    begin
+        ConfigPackageField.Get(PackageCode, TableID, FieldID);
+        ConfigPackageField.TestField("Processing Order", ProcessingOrder);
+    end;
+
+    local procedure CreateRSPackageForPermissionRecord(var ConfigPackage: Record "Config. Package"; RoleID: Code[20]; ObjectType: Option; ObjectID: Integer; SecurityFilter: Text[250])
+    var
+        ConfigPackageTable: Record "Config. Package Table";
+        Permission: Record Permission;
+    begin
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::Permission,
+          Permission.FieldNo("Role ID"),
+          RoleID,
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::Permission,
+          Permission.FieldNo("Object Type"),
+          Format(ObjectType),
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::Permission,
+          Permission.FieldNo("Object ID"),
+          Format(ObjectID),
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::Permission,
+          Permission.FieldNo("Security Filter"),
+          SecurityFilter,
+          SingleEntryRecNo);
+    end;
+
+    local procedure InsertODataEdmTypeEntry()
+    var
+        ODataEdmType: Record "OData Edm Type";
+    begin
+        ODataEdmType.Init;
+        ODataEdmType.Key := LibraryUtility.GenerateGUID;
+        ODataEdmType.Insert;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyPackageNotCreateIntRecIfAPIServicesDisabled()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        IntegrationRecord: Record "Integration Record";
+        Customer: Record Customer;
+        ConfigPackageError: Record "Config. Package Error";
+    begin
+        // [FEATURE] [API Setup] [Integration Record]
+        // [SCENARIO 269852] RS engine taking into account API setup configuration "enabled" setting
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage, ConfigPackageTable, DATABASE::Customer, Customer.FieldNo("No."), Customer."No.", 1);
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage, ConfigPackageTable, DATABASE::Customer, Customer.FieldNo(Address), LibraryUtility.GenerateGUID, 1);
+
+        // [GIVEN] API Services are not enabled, Integration Records do not exist.
+        InsertODataEdmTypeEntry;
+        Customer.Delete;
+        IntegrationRecord.DeleteAll;
+        LibraryRapidStart.SetAPIServicesEnabled(false);
+        Commit;
+        // [WHEN] Data is applied
+        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
+
+        // [THEN] No Integration Records created
+        Assert.RecordIsEmpty(IntegrationRecord);
+        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
+        Assert.RecordIsEmpty(ConfigPackageError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyPackageCreateIntRecIfAPIServicesEnabled()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        IntegrationRecord: Record "Integration Record";
+        Customer: Record Customer;
+        ConfigPackageError: Record "Config. Package Error";
+    begin
+        // [FEATURE] [API Setup] [Integration Record]
+        // [SCENARIO 269852] RS engine taking into account API setup configuration "enabled" setting
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage, ConfigPackageTable, DATABASE::Customer, Customer.FieldNo("No."), Customer."No.", 1);
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage, ConfigPackageTable, DATABASE::Customer, Customer.FieldNo(Address), LibraryUtility.GenerateGUID, 1);
+
+        // [GIVEN] API Services are enabled, Integration Records do not exist.
+        InsertODataEdmTypeEntry;
+        Customer.Delete;
+        IntegrationRecord.DeleteAll;
+        LibraryRapidStart.SetAPIServicesEnabled(true);
+        Commit;
+        // [WHEN] Data is applied
+        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
+
+        // [THEN] Integration Records created
+        Assert.RecordIsNotEmpty(IntegrationRecord);
+        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
+        Assert.RecordIsEmpty(ConfigPackageError);
+    end;
+}
+
