@@ -7349,6 +7349,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Manufacturing - NamedType CapLedgEntryCap)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1233714583 - NamedType 4287258854" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The production BOM %1 has a circular reference. Pay attention to the production BOM %2 that closes the loop.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Production BOM No., %2 = Production BOM No.]D;]A;(LookupHint=Codeunit SCM Manufacturing - NamedType CircularRefInBOMErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1233714583 - NamedType 3078490734" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Production Order was not copied successfully.]]></Val>

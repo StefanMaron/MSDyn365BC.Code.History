@@ -526,6 +526,18 @@
         PriceListManagement.SetPriceListLineFilters(PriceListLine, PriceSourceList, AmountType);
     end;
 
+    procedure SetPriceListLineFilters(PriceAssetList: Codeunit "Price Asset List"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"): Boolean;
+    var
+        PriceListLine: Record "Price List Line";
+        PriceSource: Record "Price Source";
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        PriceSource."Price Type" := PriceType;
+        PriceListManagement.FindIfPriceExists();
+        PriceListManagement.SetPriceListLineFilters(PriceListLine, PriceSource, PriceAssetList, AmountType);
+        exit(PriceListManagement.IsPriceFound());
+    end;
+
     procedure SetPriceListLineFilters(var PriceListLine: Record "Price List Line"; PriceAssetList: Codeunit "Price Asset List"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
     var
         PriceSource: Record "Price Source";
