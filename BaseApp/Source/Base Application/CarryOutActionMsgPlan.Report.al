@@ -50,6 +50,8 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
                 CarryOutAction.PrintTransferOrders;
 
+                CarryOutAction.PrintAsmOrders();
+
                 if PurchOrderChoice in [PurchOrderChoice::"Make Purch. Orders",
                                         PurchOrderChoice::"Make Purch. Orders & Print"]
                 then begin

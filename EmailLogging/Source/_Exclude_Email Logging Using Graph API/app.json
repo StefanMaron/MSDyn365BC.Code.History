@@ -2,7 +2,7 @@
     "id":  "114e4e19-182b-42e2-b5a9-91d8b8ee8ce1",
     "name":  "_Exclude_Email Logging Using Graph API",
     "publisher":  "Microsoft",
-    "version":  "18.16.44351.0",
+    "version":  "18.17.45832.0",
     "brief":  "_Exclude_Email Logging Using Graph API",
     "description":  "_Exclude_Email Logging Using Graph API",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -27,5 +27,5 @@
     "platform":  "18.0.0.0",
     "target":  "OnPrem",
     "showMyCode":  true,
-    "application":  "18.16.0.0"
+    "application":  "18.17.0.0"
 }
