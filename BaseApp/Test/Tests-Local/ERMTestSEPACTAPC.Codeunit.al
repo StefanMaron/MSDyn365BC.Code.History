@@ -153,8 +153,8 @@ codeunit 144060 "ERM Test SEPA CT APC"
         OutStr: OutStream;
     begin
         TempBlob.CreateOutStream(OutStr);
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
-        SEPA_CT_APCExportFile.PostProcessXMLDocument(TempBlob);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJnlLine);
+        SEPA_CT_APCExportFile.PostProcessXMLDocument(TempBlob, BankAccount.GetPaymentExportXMLPortID());
     end;
 
     local procedure Init()
