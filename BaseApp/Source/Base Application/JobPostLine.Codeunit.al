@@ -431,6 +431,7 @@ codeunit 1001 "Job Post-Line"
             SetRange("Gen. Prod. Posting Group", TempInvoicePostBuffer."Gen. Prod. Posting Group");
             SetRange("VAT Bus. Posting Group", TempInvoicePostBuffer."VAT Bus. Posting Group");
             SetRange("VAT Prod. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
+            SetRange("Dimension Set ID", TempInvoicePostBuffer."Dimension Set ID");
             OnPostPurchaseGLAccountsOnAfterTempPurchaseLineJobSetFilters(TempPurchaseLineJob, TempInvoicePostBuffer);
             if FindSet then begin
                 repeat

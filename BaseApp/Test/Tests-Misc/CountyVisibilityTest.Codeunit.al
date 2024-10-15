@@ -16,6 +16,7 @@ codeunit 134449 "County Visibility Test"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         CountyVisibleTxt: Label 'County field %1 should be visible';
         CountyNotVisibleTxt: Label 'County field %1 should not be visible';
@@ -1323,6 +1324,68 @@ codeunit 134449 "County Visibility Test"
 
         Assert.IsFalse(FormatAddress.UseCounty(CountryWithoutCounty.Code), 'County is not used');
         Assert.IsTrue(FormatAddress.UseCounty(CountryWithCounty.Code), 'County is used');
+    end;
+
+    [Test]
+    procedure ClearCountyInSalesHeaderAfterChangeCountryCode()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 413649] The fields "Bill-to County" and "Sell-to County" must be empty after validate country without county
+        Initialize();
+
+        SalesHeader.Init();
+        SalesHeader.Validate("Sell-to Country/Region Code", CountryWithCounty.Code);
+        SalesHeader.Validate("Sell-to County", LibraryUtility.GenerateGUID());
+        SalesHeader.Validate("Bill-to Country/Region Code", CountryWithCounty.Code);
+        SalesHeader.Validate("Bill-to County", LibraryUtility.GenerateGUID());
+
+        SalesHeader.Validate("Sell-to Country/Region Code", CountryWithoutCounty.Code);
+        SalesHeader.Validate("Bill-to Country/Region Code", CountryWithoutCounty.Code);
+
+        SalesHeader.TestField("Sell-to County", '');
+        SalesHeader.TestField("Bill-to County", '');
+    end;
+
+    [Test]
+    procedure ClearCountyInPurchaseHeaderAfterChangeCountryCode()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 413649] The fields "Pay-to County" and "Buy-from County" must be empty after validate country without county
+        Initialize();
+
+        PurchaseHeader.Init();
+        PurchaseHeader.Validate("Pay-to Country/Region Code", CountryWithCounty.Code);
+        PurchaseHeader.Validate("Pay-to County", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Validate("Buy-from Country/Region Code", CountryWithCounty.Code);
+        PurchaseHeader.Validate("Buy-from County", LibraryUtility.GenerateGUID());
+
+        PurchaseHeader.Validate("Pay-to Country/Region Code", CountryWithoutCounty.Code);
+        PurchaseHeader.Validate("Buy-from Country/Region Code", CountryWithoutCounty.Code);
+
+        PurchaseHeader.TestField("Pay-to County", '');
+        PurchaseHeader.TestField("Buy-from County", '');
+    end;
+
+    [Test]
+    procedure ClearCountyInServiceHeaderAfterChangeCountryCode()
+    var
+        ServiceHeader: Record "Service Header";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 413649] The field "County" must be empty after validate country without county
+        Initialize();
+
+        ServiceHeader.Init();
+        ServiceHeader.Validate("Country/Region Code", CountryWithCounty.Code);
+        ServiceHeader.Validate(County, LibraryUtility.GenerateGUID());
+
+        ServiceHeader.Validate("Country/Region Code", CountryWithoutCounty.Code);
+
+        ServiceHeader.TestField(County, '');
     end;
 
     local procedure Initialize()

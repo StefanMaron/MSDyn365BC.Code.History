@@ -35,7 +35,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
             trigger OnPostDataItem()
             var
                 ToFile: Text[1024];
-                JournalType: Text[1];
+                NilReturn: Boolean;
             begin
 #if CLEAN19
                 IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
@@ -46,28 +46,12 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 NoOfRecords := LineCount + 1;
                 LineCount := 1;
 
-                NilReturn := not IntrastatJnlLineTemp.Find('-');
-                if NilReturn then
-                    NilReturnCode := 'N'
-                else
-                    NilReturnCode := 'X';
-
                 Window.Update(3, LineCount);
                 Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
-                if Type = Type::Shipment then
-                    JournalType := 'D'
-                else
-                    JournalType := 'A';
-                CurrFile.Write(
-                  'T' + ',' +
-                  DelChr(CompanyInfo."VAT Registration No.", '=', DelChr(CompanyInfo."VAT Registration No.", '=', '0123456789')) + ',' +
-                  ',' +
-                  CopyStr(CompanyInfo.Name, 1, 30) + ',' +
-                  NilReturnCode + ',' +
-                  JournalType + ',' +
-                  Format(WorkDate, 0, Text1040021) + ',' +
-                  IntrastatJnlBatch."Statistics Period" + ',' +
-                  'CSV02');
+
+                NilReturn := not IntrastatJnlLineTemp.Find('-');
+                WriteHeader(NilReturn, Type = Type::Shipment);
+
                 if not NilReturn then
                     WriteFile;
 
@@ -125,6 +109,19 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
         layout
         {
+            area(Content)
+            {
+                group(Options)
+                {
+                    Caption = 'Options';
+                    field(ExportFormatField; ExportFormat)
+                    {
+                        Caption = 'Export Format';
+                        ToolTip = 'Specifies the year for which to report Intrastat. This ensures that the report has the correct format for that year.';
+                        ApplicationArea = BasicEU;
+                    }
+                }
+            }
         }
 
         actions
@@ -154,6 +151,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
     trigger OnPreReport()
     begin
         FileName := FileMgt.ServerTempFileName('');
+
+        if ExportFormatIsSpecified then
+            ExportFormat := SpecifiedExportFormat;
     end;
 
     var
@@ -163,19 +163,18 @@ report 593 "Intrastat - Make Disk Tax Auth"
         FileMgt: Codeunit "File Management";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLineTemp: Record "Intrastat Jnl. Line" temporary;
-        SupplementaryUnits: Text[11];
         FileName: Text;
         Window: Dialog;
         NoOfRecords: Integer;
         LineCount: Integer;
         EndPos: Integer;
-        NilReturn: Boolean;
-        NilReturnCode: Code[10];
-        CountryOfOriginCode: Code[10];
         CurrFile: File;
         ServerFileName: Text;
         DefaultFilenameTxt: Label 'Default.txt', Locked = true;
         GroupTotal: Boolean;
+        ExportFormat: Enum "Intrastat Export Format";
+        SpecifiedExportFormat: Enum "Intrastat Export Format";
+        ExportFormatIsSpecified: Boolean;
         Text1040013: Label 'must be either Receipt or Shipment';
         Text1040014: Label 'You must specify a filename.';
         Text1040015: Label 'Checking lines        #2######################\';
@@ -192,26 +191,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 LineCount := LineCount + 1;
                 Window.Update(3, LineCount);
                 Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
-
-                if "Supplementary Units" then
-                    SupplementaryUnits := Format(Quantity, 0, 1)
-                else
-                    SupplementaryUnits := '';
-                if Type = Type::Shipment then
-                    CountryOfOriginCode := ''
-                else
-                    CountryOfOriginCode := "Country/Region of Origin Code";
-
-                CurrFile.Write(
-                  DelChr("Tariff No.") + ',' +
-                  Format("Statistical Value", 0, 1) + ',' +
-                  "Shpt. Method Code" + ',' +
-                  "Transaction Type" + ',' +
-                  Format(Round("Total Weight", 1, '>'), 0, 1) + ',' +
-                  SupplementaryUnits + ',' +
-                  "Country/Region Code" + ',' +
-                  "Document No.");
-
+                WriteGrTotalsToFile(IntrastatJnlLineTemp);
             until Next() = 0;
         end;
     end;
@@ -230,6 +210,99 @@ report 593 "Intrastat - Make Disk Tax Auth"
     procedure InitializeRequest(newServerFileName: Text)
     begin
         ServerFileName := newServerFileName;
+    end;
+
+    procedure InitializeRequestWithExportFormat(newServerFileName: Text; NewExportFormat: Enum "Intrastat Export Format")
+    begin
+        ServerFileName := newServerFileName;
+        SpecifiedExportFormat := NewExportFormat;
+        ExportFormatIsSpecified := true;
+    end;
+
+    local procedure WriteHeader(NilReturn: Boolean; IsShipment: Boolean)
+    var
+        JournalType: Text[1];
+        NilReturnCode: Code[10];
+    begin
+        if NilReturn then
+            NilReturnCode := 'N'
+        else
+            NilReturnCode := 'X';
+
+        if IsShipment then
+            JournalType := 'D'
+        else
+            JournalType := 'A';
+        CurrFile.Write(
+            'T' + ',' +
+            DelChr(CompanyInfo."VAT Registration No.", '=', DelChr(CompanyInfo."VAT Registration No.", '=', '0123456789')) + ',' +
+            ',' +
+            CopyStr(CompanyInfo.Name, 1, 30) + ',' +
+            NilReturnCode + ',' +
+            JournalType + ',' +
+            Format(WorkDate, 0, Text1040021) + ',' +
+            IntrastatJnlBatch."Statistics Period" + ',' +
+            'CSV02');
+    end;
+
+    local procedure WriteGrTotalsToFile(IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    var
+        SupplementaryUnits: Text[11];
+    begin
+        IntrastatJnlLine."Total Weight" := IntraJnlManagement.RoundTotalWeight(IntrastatJnlLine."Total Weight");
+
+        if ExportFormat = ExportFormat::"2022" then begin
+            WriteGrTotalsToFile2022(IntrastatJnlLine);
+            exit;
+        end;
+
+        if IntrastatJnlLine."Supplementary Units" then
+            SupplementaryUnits := Format(IntrastatJnlLine.Quantity, 0, 1)
+        else
+            SupplementaryUnits := '';
+
+        CurrFile.Write(
+            DelChr(IntrastatJnlLine."Tariff No.") + ',' +
+            Format(IntrastatJnlLine."Statistical Value", 0, 1) + ',' +
+            IntrastatJnlLine."Shpt. Method Code" + ',' +
+            IntrastatJnlLine."Transaction Type" + ',' +
+            Format(IntrastatJnlLine."Total Weight", 0, 1) + ',' +
+            SupplementaryUnits + ',' +
+            IntrastatJnlLine."Country/Region Code" + ',' +
+            IntrastatJnlLine."Document No.");
+    end;
+
+    local procedure WriteGrTotalsToFile2022(IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    var
+        CountryRegion: Record "Country/Region";
+        CountryOfOriginCode: Code[10];
+        SupplementaryUnits: Text[11];
+    begin
+        if IntrastatJnlLineTemp."Supplementary Units" then
+            SupplementaryUnits := Format(IntrastatJnlLineTemp.Quantity, 0, 1)
+        else
+            SupplementaryUnits := '';
+
+        if IntrastatJnlLine.Type = IntrastatJnlLine.Type::Shipment then
+            CountryOfOriginCode := ''
+        else begin
+            CountryOfOriginCode := IntrastatJnlLine."Country/Region of Origin Code";
+            if CountryRegion.Get(CountryOfOriginCode) then
+                if CountryRegion."Intrastat Code" <> '' then
+                    CountryOfOriginCode := CountryRegion."Intrastat Code";
+        end;
+
+        CurrFile.Write(
+            DelChr(IntrastatJnlLine."Tariff No.") + ',' +
+            Format(IntrastatJnlLine."Statistical Value", 0, 1) + ',' +
+            IntrastatJnlLine."Shpt. Method Code" + ',' +
+            IntrastatJnlLine."Transaction Type" + ',' +
+            Format(IntrastatJnlLine."Total Weight", 0, 1) + ',' +
+            SupplementaryUnits + ',' +
+            IntrastatJnlLine."Country/Region Code" + ',' +
+            IntrastatJnlLine."Partner VAT ID" + ',' +
+            CountryOfOriginCode + ',' +
+            IntrastatJnlLine."Document No.");
     end;
 }
 

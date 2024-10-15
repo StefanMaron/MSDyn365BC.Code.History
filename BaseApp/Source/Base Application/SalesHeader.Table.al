@@ -1331,7 +1331,11 @@
             TableRelation = "Country/Region";
 
             trigger OnValidate()
+            var
+                FormatAddress: Codeunit "Format Address";
             begin
+                if not FormatAddress.UseCounty("Bill-to Country/Region Code") then
+                    "Bill-to County" := '';
                 ModifyBillToCustomerAddress;
             end;
         }
@@ -1379,7 +1383,11 @@
             TableRelation = "Country/Region";
 
             trigger OnValidate()
+            var
+                FormatAddress: Codeunit "Format Address";
             begin
+                if not FormatAddress.UseCounty("Sell-to Country/Region Code") then
+                    "Sell-to County" := '';
                 UpdateShipToAddressFromSellToAddress(FieldNo("Ship-to Country/Region Code"));
                 ModifyCustomerAddress;
                 Validate("Ship-to Country/Region Code");
@@ -2229,31 +2237,8 @@
             TableRelation = Contact;
 
             trigger OnLookup()
-            var
-                Cont: Record Contact;
-                ContBusinessRelation: Record "Contact Business Relation";
-                IsHandled: Boolean;
             begin
-                IsHandled := false;
-                OnBeforeLookupSellToContactNo(Rec, xRec, IsHandled);
-                if IsHandled then
-                    exit;
-
-                if "Sell-to Customer No." <> '' then
-                    if Cont.Get("Sell-to Contact No.") then
-                        Cont.SetRange("Company No.", Cont."Company No.")
-                    else
-                        if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Customer, "Sell-to Customer No.") then
-                            Cont.SetRange("Company No.", ContBusinessRelation."Contact No.")
-                        else
-                            Cont.SetRange("No.", '');
-
-                if "Sell-to Contact No." <> '' then
-                    if Cont.Get("Sell-to Contact No.") then;
-                if PAGE.RunModal(0, Cont) = ACTION::LookupOK then begin
-                    xRec := Rec;
-                    Validate("Sell-to Contact No.", Cont."No.");
-                end;
+                SelltoContactLookup();
             end;
 
             trigger OnValidate()
@@ -3107,6 +3092,10 @@
         ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field on the sales order, %2, will be deleted. Do you want to continue?', Comment = '%1 - Contact No., %2 - Email';
         FullSalesTypesTxt: Label 'Sales Quote,Sales Order,Sales Invoice,Sales Credit Memo,Sales Blanket Order,Sales Return Order';
         RecreateSalesLinesCancelErr: Label 'You must delete the existing sales lines before you can change %1.', Comment = '%1 - Field Name, Sample: You must delete the existing sales lines before you can change Currency Code.';
+        SalesLinesCategoryLbl: Label 'Sales Lines', Locked = true;
+        SalesHeaderIsTemporaryLbl: Label 'Sales Header must be not temporary.', Locked = true;
+        SalesHeaderDoesNotExistLbl: Label 'Sales Header must exist.', Locked = true;
+        SalesHeaderCannotModifyLbl: Label 'Cannot modify Sales Header.', Locked = true;
         CalledFromWhseDoc: Boolean;
 
     protected var
@@ -3752,6 +3741,16 @@
         SalesLine: Record "Sales Line";
         IsHandled: Boolean;
     begin
+        if Rec.IsTemporary() then begin
+            Session.LogMessage('0000G92', SalesHeaderIsTemporaryLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SalesLinesCategoryLbl);
+            exit;
+        end;
+
+        if IsNullGuid(Rec.SystemId) then begin
+            Session.LogMessage('0000G93', SalesHeaderDoesNotExistLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SalesLinesCategoryLbl);
+            exit;
+        end;
+
         IsHandled := false;
         OnBeforeUpdateSalesLineAmounts(Rec, xRec, CurrFieldNo, IsHandled);
         if IsHandled then
@@ -3765,7 +3764,10 @@
         SalesLine.LockTable();
         LockTable();
         if SalesLine.FindSet then begin
-            Modify;
+            if not Rec.Modify() then begin
+                Session.LogMessage('0000G94', SalesHeaderCannotModifyLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SalesLinesCategoryLbl);
+                exit;
+            end;
             OnUpdateSalesLineAmountsOnAfterSalesHeaderModify(Rec, SalesLine);
             repeat
                 if (SalesLine."Quantity Invoiced" <> SalesLine.Quantity) or
@@ -3788,6 +3790,16 @@
         IsHandled: Boolean;
         ShouldConfirmReservationDateConflict: Boolean;
     begin
+        if Rec.IsTemporary() then begin
+            Session.LogMessage('0000G95', SalesHeaderIsTemporaryLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SalesLinesCategoryLbl);
+            exit;
+        end;
+
+        if IsNullGuid(Rec.SystemId) then begin
+            Session.LogMessage('0000G96', SalesHeaderDoesNotExistLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SalesLinesCategoryLbl);
+            exit;
+        end;
+
         IsHandled := false;
         OnBeforeUpdateSalesLinesByFieldNo(Rec, ChangedFieldNo, AskQuestion, IsHandled, xRec);
         if IsHandled then
@@ -3820,7 +3832,10 @@
         end;
 
         SalesLine.LockTable();
-        Modify;
+        if not Rec.Modify() then begin
+            Session.LogMessage('0000G97', SalesHeaderCannotModifyLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SalesLinesCategoryLbl);
+            exit;
+        end;
 
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
@@ -7228,6 +7243,37 @@
         end;
 
         OnAfterInitPostingNoSeries(Rec, xRec);
+    end;
+
+    procedure SelltoContactLookup(): Boolean
+    var
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeLookupSellToContactNo(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Sell-to Customer No." <> '' then
+            if Contact.Get("Sell-to Contact No.") then
+                Contact.SetRange("Company No.", Contact."Company No.")
+            else
+                if ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, "Sell-to Customer No.") then
+                    Contact.SetRange("Company No.", ContactBusinessRelation."Contact No.")
+                else
+                    Contact.SetRange("No.", '');
+
+        if "Sell-to Contact No." <> '' then
+            if Contact.Get("Sell-to Contact No.") then;
+        if Page.RunModal(0, Contact) = Action::LookupOK then begin
+            xRec := Rec;
+            CurrFieldNo := FieldNo("Sell-to Contact No.");
+            Validate("Sell-to Contact No.", Contact."No.");
+            exit(true);
+        end;
+        exit(false);
     end;
 
     [IntegrationEvent(false, false)]
