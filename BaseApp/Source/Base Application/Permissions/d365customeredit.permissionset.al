@@ -1,8 +1,10 @@
 permissionset 5729 "D365 CUSTOMER, EDIT"
 {
     Assignable = true;
-
     Caption = 'Dynamics 365 Create customers';
+
+    IncludedPermissionSets = "D365 CUSTOMER, VIEW";
+
     Permissions = tabledata "Bank Account Ledger Entry" = rm,
                   tabledata Bin = R,
                   tabledata "Check Ledger Entry" = r,
@@ -13,14 +15,14 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Contact Industry Group" = Rd,
                   tabledata "Contact Job Responsibility" = Rd,
                   tabledata "Contact Mailing Group" = Rd,
-                  tabledata "Contact Profile Answer" = Rd,
+                  tabledata "Contact Profile Answer" = d,
                   tabledata "Contact Web Source" = Rd,
                   tabledata "Contract Gain/Loss Entry" = rm,
                   tabledata Currency = RM,
-                  tabledata "Cust. Invoice Disc." = RIMD,
-                  tabledata "Cust. Ledger Entry" = RM,
+                  tabledata "Cust. Invoice Disc." = IMD,
+                  tabledata "Cust. Ledger Entry" = M,
                   tabledata Customer = RIMD,
-                  tabledata "Customer Bank Account" = RIMD,
+                  tabledata "Customer Bank Account" = IMD,
                   tabledata "Customer Discount Group" = RIMD,
                   tabledata "Customer Template" = r,
                   tabledata "Detailed Cust. Ledg. Entry" = Rimd,
@@ -58,7 +60,6 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Registered Whse. Activity Line" = rm,
                   tabledata "Reminder Level" = R,
                   tabledata "Reminder Text" = R,
-                  tabledata "Reminder/Fin. Charge Entry" = R,
                   tabledata "Res. Journal Line" = r,
                   tabledata "Return Receipt Header" = rm,
                   tabledata "Return Receipt Line" = rm,
@@ -83,9 +84,7 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Service Item Line" = Rm,
                   tabledata "Service Ledger Entry" = rm,
                   tabledata "Service Line" = r,
-                  tabledata "Service Zone" = R,
                   tabledata "Ship-to Address" = RIMD,
-                  tabledata "Shipping Agent Services" = R,
                   tabledata "Social Listening Search Topic" = RIMD,
                   tabledata "Standard Customer Sales Code" = RIMD,
                   tabledata "Standard Sales Code" = RIMD,
@@ -95,7 +94,7 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "VAT Reg. No. Srv Config" = RIMD,
                   tabledata "VAT Reg. No. Srv. Template" = RIMD,
                   tabledata "VAT Registration Log Details" = RIMD,
-                  tabledata "VAT Registration No. Format" = RIMD,
+                  tabledata "VAT Registration No. Format" = IMD,
                   tabledata "Vendor Ledger Entry" = rm,
                   tabledata "Warehouse Activity Header" = rm,
                   tabledata "Warehouse Activity Line" = rm,

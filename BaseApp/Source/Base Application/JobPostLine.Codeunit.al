@@ -252,9 +252,19 @@ codeunit 1001 "Job Post-Line"
 
     procedure CalcLineAmountLCY(JobPlanningLine: Record "Job Planning Line"; Qty: Decimal): Decimal
     var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
         TotalPrice: Decimal;
+        UnitPriceLCY: Decimal;
     begin
-        TotalPrice := Round(Qty * JobPlanningLine."Unit Price (LCY)", 0.01);
+        if JobPlanningLine."Currency Code" <> '' then
+            UnitPriceLCY :=
+              CurrencyExchangeRate.ExchangeAmtFCYToLCY(
+                JobPlanningLine."Currency Date", JobPlanningLine."Currency Code",
+                JobPlanningLine."Unit Price", JobPlanningLine."Currency Factor")
+        else
+            UnitPriceLCY := JobPlanningLine."Unit Price";
+
+        TotalPrice := Round(Qty * UnitPriceLCY, 0.01);
         exit(TotalPrice - Round(TotalPrice * JobPlanningLine."Line Discount %" / 100, 0.01));
     end;
 

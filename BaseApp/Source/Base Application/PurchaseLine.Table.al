@@ -3792,7 +3792,7 @@
         end else
             if "Qty. to Receive" <> 0 then
                 "Qty. to Receive (Base)" :=
-                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Receive", "Qty. per Unit of Measure");
+                    MaxQtyToReceiveBase(UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Receive", "Qty. per Unit of Measure"));
 
         OnAfterInitQtyToReceive(Rec, CurrFieldNo);
 
@@ -3960,6 +3960,14 @@
             exit("Return Qty. Shipped (Base)" + "Return Qty. to Ship (Base)" - "Qty. Invoiced (Base)");
 
         exit("Qty. Received (Base)" + "Qty. to Receive (Base)" - "Qty. Invoiced (Base)");
+    end;
+
+    procedure MaxQtyToReceiveBase(QtyToReceiveBase: Decimal): Decimal
+    begin
+        if Abs(QtyToReceiveBase) > Abs("Outstanding Qty. (Base)") then
+            exit("Outstanding Qty. (Base)");
+
+        exit(QtyToReceiveBase);
     end;
 
     procedure CalcInvDiscToInvoice()
@@ -4634,6 +4642,7 @@
         TotalInvDiscAmount: Decimal;
         TotalAmount: Decimal;
         TotalAmountInclVAT: Decimal;
+        TotalVATDifference: Decimal;
         TotalQuantityBase: Decimal;
         IsHandled: Boolean;
     begin
@@ -4676,11 +4685,12 @@
             then begin
                 PurchLine2.SetFilter("VAT %", '<>0');
                 if not PurchLine2.IsEmpty() then begin
-                    PurchLine2.CalcSums("Line Amount", "Inv. Discount Amount", Amount, "Amount Including VAT", "Quantity (Base)");
+                    PurchLine2.CalcSums("Line Amount", "Inv. Discount Amount", Amount, "Amount Including VAT", "Quantity (Base)", "VAT Difference");
                     TotalLineAmount := PurchLine2."Line Amount";
                     TotalInvDiscAmount := PurchLine2."Inv. Discount Amount";
                     TotalAmount := PurchLine2.Amount;
                     TotalAmountInclVAT := PurchLine2."Amount Including VAT";
+                    TotalVATDifference := PurchLine2."VAT Difference";
                     TotalQuantityBase := PurchLine2."Quantity (Base)";
                     OnAfterUpdateTotalAmounts(Rec, PurchLine2, TotalAmount, TotalAmountInclVAT, TotalLineAmount, TotalInvDiscAmount);
                 end;
@@ -4752,7 +4762,7 @@
                               Round(
                                 (TotalAmount + Amount) * (1 - PurchHeader."VAT Base Discount %" / 100) * "VAT %" / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection) -
-                              TotalAmountInclVAT;
+                              TotalAmountInclVAT + TotalVATDifference;
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         begin
@@ -6758,7 +6768,13 @@
     var
         Item: Record Item;
         ItemVend: Record "Item Vendor";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetVendorItemNo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetItem(Item);
         ItemVend.Init();
         ItemVend."Vendor No." := "Buy-from Vendor No.";
@@ -8266,6 +8282,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelectMultipleItems(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetVendorItemNo(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

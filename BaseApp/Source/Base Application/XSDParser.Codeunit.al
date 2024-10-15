@@ -870,7 +870,7 @@ codeunit 9610 "XSD Parser"
         XMLSchemaElement.SetRange(Selected, true);
     end;
 
-    local procedure LoadDependentSchemaSeparately(XMLSchema: Record "XML Schema")
+    local procedure LoadDependentSchemaSeparately(var XMLSchema: Record "XML Schema")
     var
         XMLSchemaElement: Record "XML Schema Element";
         MainDocumentXMLSchema: Record "XML Schema";

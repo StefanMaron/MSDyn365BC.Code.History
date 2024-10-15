@@ -380,6 +380,7 @@
                             CopyShipToCustomerAddressFieldsFromCust(Cust);
                         end;
 
+                GetShipmentMethodCode();
                 GetShippingTime(FieldNo("Ship-to Code"));
 
                 if (xRec."Sell-to Customer No." = "Sell-to Customer No.") and
@@ -3525,6 +3526,7 @@
                 SalesLine.BlockDynamicTracking(true);
                 repeat
                     RecreateSalesLinesHandleSupplementTypes(TempSalesLine, ExtendedTextAdded, TempItemChargeAssgntSales, TempInteger);
+                    RestoreSalesCommentLine(TempSalesCommentLine, TempSalesLine."Line No.", SalesLine."Line No.");
                     SalesLineReserve.CopyReservEntryFromTemp(TempReservEntry, TempSalesLine, SalesLine."Line No.");
                     RecreateReqLine(TempSalesLine, SalesLine."Line No.", false);
                     SynchronizeForReservations(SalesLine, TempSalesLine);
@@ -3538,7 +3540,7 @@
                     end;
                 until TempSalesLine.Next() = 0;
 
-                RestoreSalesCommentLineFromTemp(TempSalesCommentLine);
+                RestoreSalesCommentLine(TempSalesCommentLine, 0, 0);
 
                 CreateItemChargeAssgntSales(TempItemChargeAssgntSales, TempSalesLine, TempInteger);
 
@@ -3605,15 +3607,17 @@
             until SalesCommentLine.Next() = 0;
     end;
 
-    local procedure RestoreSalesCommentLineFromTemp(var TempSalesCommentLine: Record "Sales Comment Line" temporary)
+    local procedure RestoreSalesCommentLine(var TempSalesCommentLine: Record "Sales Comment Line" temporary; OldDocumnetLineNo: Integer; NewDocumentLineNo: Integer)
     var
         SalesCommentLine: Record "Sales Comment Line";
     begin
         TempSalesCommentLine.SetRange("Document Type", "Document Type");
         TempSalesCommentLine.SetRange("No.", "No.");
-        if TempSalesCommentLine.FindSet() then 
+        TempSalesCommentLine.SetRange("Document Line No.", OldDocumnetLineNo);
+        if TempSalesCommentLine.FindSet() then
             repeat
                 SalesCommentLine := TempSalesCommentLine;
+                SalesCommentLine."Document Line No." := NewDocumentLineNo;
                 SalesCommentLine.Insert();
             until TempSalesCommentLine.Next() = 0;
     end;
@@ -3883,6 +3887,8 @@
                 OnUpdateSalesLinesByFieldNoOnBeforeSalesLineModify(SalesLine, ChangedFieldNo, CurrFieldNo);
                 SalesLine.Modify(true);
             until SalesLine.Next() = 0;
+
+        OnAfterUpdateSalesLinesByFieldNo(Rec, xRec, ChangedFieldNo);
     end;
 
     procedure ConfirmReservationDateConflict()
@@ -4569,6 +4575,28 @@
                (GetFilterContNo = '')
             then
                 Validate("Sell-to Customer Templ. Code", SelectSalesHeaderNewCustomerTemplate());
+    end;
+
+    local procedure GetShipmentMethodCode()
+    var
+        ShipToAddress: Record "Ship-to Address";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetShipmentMethodCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Ship-to Code" <> '' then begin
+            ShipToAddress.Get("Sell-to Customer No.", "Ship-to Code");
+            if ShipToAddress."Shipment Method Code" <> '' then
+                Validate("Shipment Method Code", ShipToAddress."Shipment Method Code");
+        end else
+            if "Sell-to Customer No." <> '' then begin
+                GetCust("Sell-to Customer No.");
+                if Cust."Shipment Method Code" <> '' then
+                    Validate("Shipment Method Code", Cust."Shipment Method Code");
+            end;
     end;
 
     procedure GetShippingTime(CalledByFieldNo: Integer)
@@ -5989,8 +6017,6 @@
             Validate("Ship-to Country/Region Code", SellToCustomer."Country/Region Code");
         end;
         "Ship-to Contact" := Cust.Contact;
-        if Cust."Shipment Method Code" <> '' then
-            Validate("Shipment Method Code", Cust."Shipment Method Code");
 #if not CLEAN18
         if not CustomerTemplMgt.IsEnabled() then begin
             if not SellToCustTemplate.Get("Sell-to Customer Template Code") then begin
@@ -6041,8 +6067,6 @@
         "Ship-to County" := ShipToAddr.County;
         Validate("Ship-to Country/Region Code", ShipToAddr."Country/Region Code");
         "Ship-to Contact" := ShipToAddr.Contact;
-        if ShipToAddr."Shipment Method Code" <> '' then
-            Validate("Shipment Method Code", ShipToAddr."Shipment Method Code");
         if ShipToAddr."Location Code" <> '' then
             Validate("Location Code", ShipToAddr."Location Code");
         "Shipping Agent Code" := ShipToAddr."Shipping Agent Code";
@@ -7251,6 +7275,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateSalesLinesByFieldNo(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; ChangedFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAssistEdit(var SalesHeader: Record "Sales Header"; OldSalesHeader: Record "Sales Header"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
@@ -7397,6 +7426,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetShippingTime(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var CalledByFieldNo: Integer; var IsHandled: Boolean; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetShipmentMethodCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

@@ -97,4 +97,11 @@
         if GuiAllowed then
             Window.Close();
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Change Log Management", 'OnAfterIsAlwaysLoggedTable', '', false, false)]
+    local procedure OnAfterIsAlwaysLoggedTableHandler(TableID: Integer; var AlwaysLogTable: Boolean)
+    begin
+        if TableID = Database::"Dimension Set Entry" then
+            AlwaysLogTable := true;
+    end;
 }

@@ -114,7 +114,6 @@ table 5062 Attachment
         Text008: Label 'Error during copying file: %1.';
         Text009: Label 'Do you want to remove %1?';
         Text010: Label 'External file could not be removed.';
-        Text013: Label 'You can only print Microsoft Word documents.';
         Text014: Label 'You can only fax Microsoft Word documents.';
         Text015: Label 'The email cannot be displayed or has been deleted.';
         Text016: Label 'When you have finished working with a document, you should delete the associated temporary file. Please note that this will not delete the document.\\Do you want to delete the temporary file?';
@@ -132,7 +131,9 @@ table 5062 Attachment
     procedure OpenAttachment(Caption: Text[260]; IsTemporary: Boolean; LanguageCode: Code[10])
     var
         SegmentLine: Record "Segment Line";
+#if not CLEAN17
         WordManagement: Codeunit WordManagement;
+#endif
         FileName: Text;
     begin
         if IsHTML then begin
@@ -176,13 +177,39 @@ table 5062 Attachment
 #endif
     end;
 
+    procedure ShowAttachment(var SegLine: Record "Segment Line"; WordCaption: Text)
+    var
+        WordTemplateInteractions: Codeunit "Word Template Interactions";
+        IsHandled: Boolean;
+    begin
+        OnBeforeShowAttachment(SegLine, WordCaption, IsHandled);
+        if IsHandled then
+            exit;
+
+        if IsHTML() then begin
+            PreviewHTMLContent(SegLine);
+            exit;
+        end;
+
+        if "Storage Type" = "Storage Type"::Embedded then
+            CalcFields("Attachment File");
+
+        if WordTemplateInteractions.IsWordDocumentExtension("File Extension") then
+            WordTemplateInteractions.RunMergedDocument(SegLine, Rec)
+        else
+            ProcessWebAttachment(WordCaption + '.' + "File Extension");
+    end;
+
+#if not CLEAN19
     [Scope('OnPrem')]
+    [Obsolete('Replaced with an overload with two parameters.', '19.0')]
     procedure ShowAttachment(var SegLine: Record "Segment Line"; WordCaption: Text[260]; IsTemporary: Boolean; Handler: Boolean)
     begin
         RunAttachment(SegLine, WordCaption, IsTemporary, true, Handler);
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced with procedure ShowAttachment with two parameters.', '19.0')]
     procedure RunAttachment(var SegLine: Record "Segment Line"; WordCaption: Text[260]; IsTemporary: Boolean; IsVisible: Boolean; Handler: Boolean)
     var
         WordManagement: Codeunit WordManagement;
@@ -242,6 +269,7 @@ table 5062 Attachment
 
         WordManagement.Deactivate(5062);
     end;
+#endif
 
     local procedure PreviewHTMLContent(SegmentLine: Record "Segment Line")
     var
@@ -546,14 +574,9 @@ table 5062 Attachment
 
     procedure CheckCorrespondenceType(CorrespondenceType: Enum "Correspondence Type"): Text[80]
     begin
-        case CorrespondenceType of
-            CorrespondenceType::"Hard Copy":
-                if (UpperCase("File Extension") <> 'DOC') and (UpperCase("File Extension") <> 'DOCX') then
-                    exit(Text013);
-            CorrespondenceType::Fax:
-                if (UpperCase("File Extension") <> 'DOC') and (UpperCase("File Extension") <> 'DOCX') then
-                    exit(Text014);
-        end;
+        if CorrespondenceType = CorrespondenceType::Fax then
+            if (UpperCase("File Extension") <> 'DOC') and (UpperCase("File Extension") <> 'DOCX') then
+                exit(Text014);
     end;
 
     procedure LinkToMessage(MessageID: Text; EntryID: Text; RunTrigger: Boolean)
@@ -794,8 +817,21 @@ table 5062 Attachment
         RecordRef.SetTable(Rec);
     end;
 
+    internal procedure SetAttachmentFileFromStream(InStream: InStream)
+    var
+        OutStream: OutStream;
+    begin
+        Rec."Attachment File".CreateOutStream(OutStream);
+        CopyStream(OutStream, InStream);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunAttachment(var SegLine: Record "Segment Line"; WordCaption: Text[260]; IsTemporary: Boolean; IsVisible: Boolean; Handler: Boolean; var iSHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowAttachment(var SegLine: Record "Segment Line"; WordCaption: Text; var IsHandled: Boolean)
     begin
     end;
 
