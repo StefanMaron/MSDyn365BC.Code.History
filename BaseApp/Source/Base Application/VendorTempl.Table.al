@@ -305,6 +305,10 @@ table 1383 "Vendor Templ."
         {
             Caption = 'Partner Type';
         }
+        field(133; "Intrastat Partner Type"; Enum "Partner Type")
+        {
+            Caption = 'Intrastat Partner Type';
+        }
         field(5050; "Contact Type"; Enum "Contact Type")
         {
             Caption = 'Contact Type';
