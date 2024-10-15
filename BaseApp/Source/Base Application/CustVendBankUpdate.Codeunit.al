@@ -42,22 +42,26 @@ codeunit 5055 "CustVendBank-Update"
     var
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
         VATRegNo: Text[20];
+        IsHandled: Boolean;
     begin
-        with Cust do begin
-            Get(ContBusRel."No.");
-            OnUpdateCustomerOnAfterGetCust(Cust, Cont, ContBusRel);
-            NoSeries := "No. Series";
-            VATRegNo := "VAT Registration No.";
-            CustCopyFieldsFromCont(Cont);
-            "No." := ContBusRel."No.";
-            "No. Series" := NoSeries;
-            "Last Modified Date Time" := CurrentDateTime;
-            "Last Date Modified" := Today;
-            OnAfterUpdateCustomer(Cust, Cont, ContBusRel);
-            Modify;
-            if ("VAT Registration No." <> '') and ("VAT Registration No." <> VATRegNo) then
-                VATRegistrationLogMgt.LogCustomer(Cust);
-        end;
+        IsHandled := false;
+        OnBeforeUpdateCustomer(Cust, Cont, ContBusRel, IsHandled);
+        if not IsHandled then
+            with Cust do begin
+                Get(ContBusRel."No.");
+                OnUpdateCustomerOnAfterGetCust(Cust, Cont, ContBusRel);
+                NoSeries := "No. Series";
+                VATRegNo := "VAT Registration No.";
+                CustCopyFieldsFromCont(Cont);
+                "No." := ContBusRel."No.";
+                "No. Series" := NoSeries;
+                "Last Modified Date Time" := CurrentDateTime;
+                "Last Date Modified" := Today;
+                OnAfterUpdateCustomer(Cust, Cont, ContBusRel);
+                Modify();
+                if ("VAT Registration No." <> '') and ("VAT Registration No." <> VATRegNo) then
+                    VATRegistrationLogMgt.LogCustomer(Cust);
+            end;
 
         OnAfterUpdateCustomerProcedure(Cust, Cont, ContBusRel);
     end;
@@ -78,24 +82,28 @@ codeunit 5055 "CustVendBank-Update"
     var
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
         VATRegNo: Text[20];
+        IsHandled: Boolean;
     begin
-        with Vend do begin
-            Get(ContBusRel."No.");
-            OnUpdateVendorOnAfterGetVend(Vend, Cont, ContBusRel);
-            NoSeries := "No. Series";
-            PurchaserCode := "Purchaser Code";
-            VATRegNo := "VAT Registration No.";
-            VendCopyFieldsFromCont(Cont);
-            "No." := ContBusRel."No.";
-            "No. Series" := NoSeries;
-            "Purchaser Code" := PurchaserCode;
-            "Last Modified Date Time" := CurrentDateTime;
-            "Last Date Modified" := Today;
-            OnAfterUpdateVendor(Vend, Cont, ContBusRel);
-            Modify;
-            if ("VAT Registration No." <> '') and ("VAT Registration No." <> VATRegNo) then
-                VATRegistrationLogMgt.LogVendor(Vend);
-        end;
+        IsHandled := false;
+        OnBeforeUpdateVendor(Vend, Cont, ContBusRel, IsHandled);
+        if not IsHandled then
+            with Vend do begin
+                Get(ContBusRel."No.");
+                OnUpdateVendorOnAfterGetVend(Vend, Cont, ContBusRel);
+                NoSeries := "No. Series";
+                PurchaserCode := "Purchaser Code";
+                VATRegNo := "VAT Registration No.";
+                VendCopyFieldsFromCont(Cont);
+                "No." := ContBusRel."No.";
+                "No. Series" := NoSeries;
+                "Purchaser Code" := PurchaserCode;
+                "Last Modified Date Time" := CurrentDateTime;
+                "Last Date Modified" := Today;
+                OnAfterUpdateVendor(Vend, Cont, ContBusRel);
+                Modify();
+                if ("VAT Registration No." <> '') and ("VAT Registration No." <> VATRegNo) then
+                    VATRegistrationLogMgt.LogVendor(Vend);
+            end;
 
         OnAfterUpdateVendorProcedure(Vend, Cont, ContBusRel);
     end;
@@ -113,20 +121,25 @@ codeunit 5055 "CustVendBank-Update"
     end;
 
     procedure UpdateBankAccount(var Cont: Record Contact; var ContBusRel: Record "Contact Business Relation")
+    var
+        IsHandled: Boolean;
     begin
-        with BankAcc do begin
-            Get(ContBusRel."No.");
-            NoSeries := "No. Series";
-            OurContactCode := "Our Contact Code";
-            Validate("Currency Code", Cont."Currency Code");
-            BankAccountCopyFieldsFromCont(Cont);
-            "No." := ContBusRel."No.";
-            "No. Series" := NoSeries;
-            "Our Contact Code" := OurContactCode;
-            "Last Date Modified" := Today;
-            OnAfterUpdateBankAccount(BankAcc, Cont, ContBusRel);
-            Modify;
-        end;
+        IsHandled := false;
+        OnBeforeUpdateBankAccount(BankAcc, Cont, ContBusRel, IsHandled);
+        if not IsHandled then
+            with BankAcc do begin
+                Get(ContBusRel."No.");
+                NoSeries := "No. Series";
+                OurContactCode := "Our Contact Code";
+                Validate("Currency Code", Cont."Currency Code");
+                BankAccountCopyFieldsFromCont(Cont);
+                "No." := ContBusRel."No.";
+                "No. Series" := NoSeries;
+                "Our Contact Code" := OurContactCode;
+                "Last Date Modified" := Today;
+                OnAfterUpdateBankAccount(BankAcc, Cont, ContBusRel);
+                Modify();
+            end;
 
         OnAfterUpdateBankAccountProcedure(BankAcc, Cont, ContBusRel);
     end;
@@ -209,6 +222,21 @@ codeunit 5055 "CustVendBank-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCustCopyFieldsFromCont(var Customer: Record Customer; var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCustomer(var Customer: Record Customer; var Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateVendor(var Vendor: Record Vendor; var Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateBankAccount(var BankAccount: Record "Bank Account"; var Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
 

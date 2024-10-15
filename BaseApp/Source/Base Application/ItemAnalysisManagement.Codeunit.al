@@ -238,7 +238,7 @@ codeunit 7153 "Item Analysis Management"
                 SetFilter("Budget Filter", BudgetFilter);
         end;
 
-        OnAfterSetCommonFilters(CurrentAnalysisArea, ItemStatisticsBuffer);
+        OnAfterSetCommonFilters(CurrentAnalysisArea, ItemStatisticsBuffer, CurrentAnalysisViewCode);
     end;
 
     procedure AnalysisViewSelection(CurrentAnalysisArea: Option; var CurrentItemAnalysisViewCode: Code[10]; var ItemAnalysisView: Record "Item Analysis View"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var Dim1Filter: Code[250]; var Dim2Filter: Code[250]; var Dim3Filter: Code[250])
@@ -285,6 +285,8 @@ codeunit 7153 "Item Analysis Management"
         ItemStatisticsBuffer.SetFilter("Dimension 3 Filter", Dim3Filter);
 
         PrevItemAnalysisView := ItemAnalysisView;
+
+        OnAfterSetItemAnalysisView(CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode);
     end;
 
     procedure LookupItemAnalysisView(CurrentAnalysisArea: Option; var CurrentItemAnalysisViewCode: Code[10]; var ItemAnalysisView: Record "Item Analysis View"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var Dim1Filter: Code[250]; var Dim2Filter: Code[250]; var Dim3Filter: Code[250])
@@ -571,6 +573,7 @@ codeunit 7153 "Item Analysis Management"
         PeriodPageMgt: Codeunit PeriodPageManagement;
         Found: Boolean;
     begin
+        OnBeforeFindRecord(DimType, DimVal);
         case DimType of
             DimType::Item:
                 begin
@@ -664,6 +667,7 @@ codeunit 7153 "Item Analysis Management"
         PeriodPageMgt: Codeunit PeriodPageManagement;
         ResultSteps: Integer;
     begin
+        OnBeforeNextRecord(DimType, DimVal);
         case DimType of
             DimType::Item:
                 begin
@@ -952,6 +956,11 @@ codeunit 7153 "Item Analysis Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetItemAnalysisView(CurrentAnalysisArea: Option; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalcActualAmount(ValueType: Option "Sales Amount","Cost Amount",Quantity; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10]; var Amount: Decimal)
     begin
     end;
@@ -962,7 +971,7 @@ codeunit 7153 "Item Analysis Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetCommonFilters(CurrentAnalysisArea: Enum "Analysis Area Type"; var ItemStatisticsBuffer: Record "Item Statistics Buffer")
+    local procedure OnAfterSetCommonFilters(CurrentAnalysisArea: Enum "Analysis Area Type"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentAnalysisViewCode: Code[10])
     begin
     end;
 
@@ -988,6 +997,16 @@ codeunit 7153 "Item Analysis Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDimCodeNotAllowed(DimCode: Text[30]; ItemAnalysisView: Record "Item Analysis View"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindRecord(DimType: Enum "Item Analysis Dimension Type"; var DimensionValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNextRecord(DimType: Enum "Item Analysis Dimension Type"; var DimensionValue: Record "Dimension Value")
     begin
     end;
 

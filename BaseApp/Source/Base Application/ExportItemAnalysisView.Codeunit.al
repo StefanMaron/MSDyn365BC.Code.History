@@ -566,6 +566,8 @@ codeunit 7152 "Export Item Analysis View"
             ItemAnalysisViewEntry.SetFilter("Dimension 3 Value Code", Dim3Filter);
         if LocationFilter <> '' then
             ItemAnalysisViewEntry.SetFilter("Location Code", LocationFilter);
+
+        OnAfterSetCommonFilters(ItemAnalysisViewEntry, CurrentAnalysisArea, CurrentAnalysisViewCode);
     end;
 
     local procedure AddAcc(ShowName: Boolean; Account: Text; AccName: Text)
@@ -616,6 +618,11 @@ codeunit 7152 "Export Item Analysis View"
     procedure SetSkipDownload()
     begin
         SkipDownload := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCommonFilters(var ItemAnalysisViewEntry: Record "Item Analysis View Entry"; CurrentAnalysisArea: Option; ItemAnalysisViewCode: Code[10])
+    begin
     end;
 }
 

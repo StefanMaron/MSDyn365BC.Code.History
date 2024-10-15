@@ -17,6 +17,7 @@ page 9861 "AAD Application Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Standard;
+                    Editable = EditableByNotEnabled;
                     Caption = 'Client ID';
                     ToolTip = 'Specifies the client ID for the app.';
                 }
@@ -25,7 +26,12 @@ page 9861 "AAD Application Card"
                     ShowMandatory = true;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Description';
-                    ToolTip = 'Specifies a description of the app.';
+                    ToolTip = 'Specifies a description of the app. The description will be automatically added in the User Name field of the card the first time the app is enabled.';
+                    Editable = EditableByNotEnabled;
+                    trigger OnValidate()
+                    begin
+                        UpdateControl();
+                    end;
                 }
                 field(State; State)
                 {
@@ -33,10 +39,15 @@ page 9861 "AAD Application Card"
                     Importance = Standard;
                     Caption = 'State';
                     ToolTip = 'Specifies if the app is enabled or disabled.';
+                    trigger OnValidate()
+                    begin
+                        UpdateControl();
+                    end;
                 }
                 field("Contact Information"; "Contact Information")
                 {
                     ApplicationArea = Basic, Suite;
+                    Editable = EditableByNotEnabled;
                     Caption = 'Contact Information';
                     ToolTip = 'Specifies the contact information of the app.';
                 }
@@ -45,15 +56,46 @@ page 9861 "AAD Application Card"
                     field("App ID"; "App ID")
                     {
                         ApplicationArea = Basic, Suite;
+                        Editable = EditableByNotEnabled;
                         Caption = 'App ID';
                         ToolTip = 'Specifies the app ID of the extension.';
                     }
                     field("App Name"; "App Name")
                     {
                         ApplicationArea = Basic, Suite;
+                        Editable = EditableByNotEnabled;
                         Caption = 'App Name';
                         ToolTip = 'Specifies the app name of the extension.';
                     }
+                }
+                group("User information")
+                {
+                    field("User ID"; "User id")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Editable = false;
+                        Caption = 'User ID';
+                        ToolTip = 'Specifies the unique ID (GUID) assigned to the application. This field is automatically filled in once the app is enabled. The user ID. like the user name, is used to indicate sessions and operations that are run by the app.';
+                    }
+                    field("User name"; Username)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Editable = false;
+                        Caption = 'User Name';
+                        ToolTip = 'Specifies the user name assigned to the app. This field is automatically filled in with the value of the Description field once the app is enabled. The user name, like the user ID, is used to indicate sessions and operations that are run by the app..';
+                    }
+                }
+                field(ShowEnableWarning; ShowEnableWarning)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ShowCaption = false;
+                    AssistEdit = false;
+                    Editable = false;
+                    Enabled = NOT EditableByNotEnabled;
+                    trigger OnDrillDown()
+                    begin
+                        DrilldownCode();
+                    end;
                 }
             }
 
@@ -61,6 +103,7 @@ page 9861 "AAD Application Card"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Groups';
+                Enabled = SetUserPermissionEnabled;
                 SubPageLink = "User Security ID" = field("User ID");
                 UpdatePropagation = Both;
             }
@@ -68,6 +111,7 @@ page 9861 "AAD Application Card"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Permission Sets';
+                Enabled = SetUserPermissionEnabled;
                 SubPageLink = "User Security ID" = field("User Id");
             }
 
@@ -104,6 +148,7 @@ page 9861 "AAD Application Card"
         AADApplicationSetup: Codeunit "AAD Application Setup";
     begin
         IsVEApp := LowerCase(GraphMgtGeneralTools.StripBrackets(Format(Rec."Client Id"))) = AADApplicationSetup.GetD365BCForVEAppId();
+        UpdateControl();
     end;
 
     var
@@ -111,7 +156,13 @@ page 9861 "AAD Application Card"
         CommonOAuthAuthorityUrlLbl: Label 'https://login.microsoftonline.com/common/adminconsent', Locked = true;
         ConsentFailedErr: Label 'Failed to give consent.';
         ConsentSuccessTxt: Label 'Consent was given successfully.';
+        EnabledWarningTok: Label 'You must set the State field to Disabled before you can make changes to this app.';
+        DisableEnableQst: Label 'Do you want to disable this app?';
+        UserName: Text;
+        ShowEnableWarning: Text;
         IsVEApp: Boolean;
+        SetUserPermissionEnabled: Boolean;
+        EditableByNotEnabled: Boolean;
 
     [NonDebuggable]
     [Scope('OnPrem')]
@@ -130,5 +181,30 @@ page 9861 "AAD Application Card"
         Message(ConsentSuccessTxt);
         Rec."Permission Granted" := true;
         Rec.Modify();
+    end;
+
+    local procedure UpdateControl()
+    var
+        User: Record User;
+    begin
+        SetUserPermissionEnabled := true;
+        if IsNullGuid(Rec."User ID") then
+            SetUserPermissionEnabled := false;
+        EditableByNotEnabled := Rec.State = Rec.State::Disabled;
+        ShowEnableWarning := '';
+        if CurrPage.Editable and (Rec.State = Rec.State::Enabled) then
+            ShowEnableWarning := EnabledWarningTok;
+        UserName := '';
+        If User.Get("User Id") then
+            UserName := USer."User Name";
+    end;
+
+    local procedure DrilldownCode()
+    begin
+        IF Confirm(DisableEnableQst, true) then begin
+            Validate(Rec.State, Rec.State::Disabled);
+            UpdateControl();
+            CurrPage.Update();
+        end;
     end;
 }

@@ -191,7 +191,10 @@ page 5607 "Fixed Asset Setup"
     }
 
     trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUptake('0000H4E', 'Fixed Asset Setup', Enum::"Feature Uptake Status"::Discovered);
         Reset;
         if not Get then begin
             Init;

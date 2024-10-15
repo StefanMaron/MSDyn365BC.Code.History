@@ -43,7 +43,7 @@ codeunit 6502 "Late Binding Management"
         // "Buffer Value4" : Qty for reallocation (negative = need for reallocation)
         // "Buffer Value5" : Total non-specific reserved inventory (can be un-reserved through reallocation)
 
-        CleanUpVariables;
+        CleanUpVariables();
 
         TempTrackingSpecification.CalcSums("Buffer Value1"); // Non-allocated item tracking
 
@@ -75,7 +75,7 @@ codeunit 6502 "Late Binding Management"
         Reallocate(TempTrackingSpecification);
 
         // Write to database in the end
-        WriteToDatabase;
+        WriteToDatabase();
     end;
 
     local procedure Reallocate(var TempTrackingSpecification: Record "Tracking Specification" temporary) AllocationsChanged: Boolean
@@ -145,7 +145,7 @@ codeunit 6502 "Late Binding Management"
                                 QtyToPrepare += TempReservEntry."Quantity (Base)";
                         until TempReservEntry.Next() = 0;
                     if TempSupplyReservEntry."Quantity (Base)" = 0 then
-                        TempSupplyReservEntry.Delete
+                        TempSupplyReservEntry.Delete()
                 end;
 
                 DeleteOrderTrackingSurplusEntryForItemLedgEntry(ItemLedgEntry."Entry No.");
@@ -333,7 +333,7 @@ codeunit 6502 "Late Binding Management"
                         ReservEntry."Entry No." := 0;
                     end;
                 ReservEntry.Validate("Quantity (Base)");
-                ReservEntry.UpdateItemTracking;
+                ReservEntry.UpdateItemTracking();
                 ReservEntry.Insert();
                 LastInsertedEntryNo := ReservEntry."Entry No.";
             until TempReservEntryInsert.Next() = 0;
@@ -458,26 +458,30 @@ codeunit 6502 "Late Binding Management"
     end;
 
     local procedure InsertTempSupplyReservEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    var
+        IsHandled: Boolean;
     begin
-        TempSupplyReservEntry.Init();
-        TempSupplyReservEntry."Entry No." := -ItemLedgEntry."Entry No.";
-        TempSupplyReservEntry.Positive := true;
-
-        TempSupplyReservEntry."Source Type" := DATABASE::"Item Ledger Entry";
-        TempSupplyReservEntry."Source Ref. No." := ItemLedgEntry."Entry No.";
-
-        TempSupplyReservEntry."Item No." := ItemLedgEntry."Item No.";
-        TempSupplyReservEntry."Variant Code" := ItemLedgEntry."Variant Code";
-        TempSupplyReservEntry."Location Code" := ItemLedgEntry."Location Code";
-        TempSupplyReservEntry."Qty. per Unit of Measure" := ItemLedgEntry."Qty. per Unit of Measure";
-        TempSupplyReservEntry.Description := ItemLedgEntry.Description;
-        TempSupplyReservEntry.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
-        TempSupplyReservEntry."Quantity (Base)" := ItemLedgEntry."Remaining Quantity";
-        TempSupplyReservEntry."Reservation Status" := TempSupplyReservEntry."Reservation Status"::Surplus;
-        TempSupplyReservEntry."Expected Receipt Date" := 0D;
-        TempSupplyReservEntry."Shipment Date" := 0D;
-        OnBeforeTempSupplyReservEntryInsert(TempSupplyReservEntry, ItemLedgEntry);
-        TempSupplyReservEntry.Insert();
+        IsHandled := false;
+        OnBeforeInsertTempSupplyReservEntry(TempSupplyReservEntry, ItemLedgEntry, IsHandled);
+        if not IsHandled then begin
+            TempSupplyReservEntry.Init();
+            TempSupplyReservEntry."Entry No." := -ItemLedgEntry."Entry No.";
+            TempSupplyReservEntry.Positive := true;
+            TempSupplyReservEntry."Source Type" := DATABASE::"Item Ledger Entry";
+            TempSupplyReservEntry."Source Ref. No." := ItemLedgEntry."Entry No.";
+            TempSupplyReservEntry."Item No." := ItemLedgEntry."Item No.";
+            TempSupplyReservEntry."Variant Code" := ItemLedgEntry."Variant Code";
+            TempSupplyReservEntry."Location Code" := ItemLedgEntry."Location Code";
+            TempSupplyReservEntry."Qty. per Unit of Measure" := ItemLedgEntry."Qty. per Unit of Measure";
+            TempSupplyReservEntry.Description := ItemLedgEntry.Description;
+            TempSupplyReservEntry.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
+            TempSupplyReservEntry."Quantity (Base)" := ItemLedgEntry."Remaining Quantity";
+            TempSupplyReservEntry."Reservation Status" := TempSupplyReservEntry."Reservation Status"::Surplus;
+            TempSupplyReservEntry."Expected Receipt Date" := 0D;
+            TempSupplyReservEntry."Shipment Date" := 0D;
+            OnBeforeTempSupplyReservEntryInsert(TempSupplyReservEntry, ItemLedgEntry);
+            TempSupplyReservEntry.Insert();
+        end;
     end;
 
     procedure NonspecificReservedQty(var ItemLedgEntry: Record "Item Ledger Entry") UnspecificQty: Decimal
@@ -690,6 +694,11 @@ codeunit 6502 "Late Binding Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnPrepareTempDataSetOnAfterItemLedgEntrySetFilters(var ItemLedgEntry: Record "Item Ledger Entry"; var TempTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertTempSupplyReservEntry(var TempSupplyReservEntry: Record "Reservation Entry" temporary; ItemLedgEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

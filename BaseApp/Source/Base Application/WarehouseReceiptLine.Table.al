@@ -132,7 +132,7 @@ table 7317 "Warehouse Receipt Line"
             begin
                 "Qty. Outstanding" := UOMMgt.RoundAndValidateQty("Qty. Outstanding", "Qty. Rounding Precision", FieldCaption("Qty. Outstanding"));
                 "Qty. Outstanding (Base)" := MaxQtyOutstandingBase(CalcBaseQty("Qty. Outstanding", FieldCaption("Qty. Outstanding"), FieldCaption("Qty. Outstanding (Base)")));
-                Validate("Qty. to Receive", "Qty. Outstanding");
+                InitQtyToReceive();
             end;
         }
         field(20; "Qty. Outstanding (Base)"; Decimal)
@@ -153,7 +153,7 @@ table 7317 "Warehouse Receipt Line"
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateQtyToReceive(Rec, IsHandled);
+                OnBeforeValidateQtyToReceive(Rec, IsHandled, CurrFieldNo);
                 if not OverReceiptProcessing() then
                     if not IsHandled then
                         if "Qty. to Receive" > "Qty. Outstanding" then
@@ -692,6 +692,13 @@ table 7317 "Warehouse Receipt Line"
         Validate("Qty. Outstanding", Quantity - "Qty. Received");
     end;
 
+    local procedure InitQtyToReceive()
+    begin
+        Validate("Qty. to Receive", "Qty. Outstanding");
+
+        OnAfterInitQtyToReceive(Rec, CurrFieldNo);
+    end;
+
     procedure GetWhseRcptLine(ReceiptNo: Code[20]; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer): Boolean
     begin
         SetRange("No.", ReceiptNo);
@@ -764,7 +771,7 @@ table 7317 "Warehouse Receipt Line"
         OnValidateQtyToReceiveOnBeforeUOMMgtValidateQtyIsBalanced(Rec, xRec, IsHandled);
         if IsHandled then
             exit;
-            
+
         UOMMgt.ValidateQtyIsBalanced(Quantity, "Qty. (Base)", "Qty. to Receive", "Qty. to Receive (Base)", "Qty. Received", "Qty. Received (Base)");
     end;
 
@@ -784,6 +791,11 @@ table 7317 "Warehouse Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenItemTrackingLines(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SecondSourceQtyArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitQtyToReceive(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -813,7 +825,7 @@ table 7317 "Warehouse Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateQtyToReceive(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateQtyToReceive(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 

@@ -1,4 +1,4 @@
-codeunit 5600 "FA Insert Ledger Entry"
+﻿codeunit 5600 "FA Insert Ledger Entry"
 {
     Permissions = TableData "FA Ledger Entry" = rim,
                   TableData "FA Depreciation Book" = rim,
@@ -48,8 +48,10 @@ codeunit 5600 "FA Insert Ledger Entry"
 
     procedure InsertFA(var FALedgEntry3: Record "FA Ledger Entry")
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         IsHandled: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000GY8', 'Fixed Asset', Enum::"Feature Uptake Status"::Used);
         if NextEntryNo = 0 then begin
             FALedgEntry.LockTable();
             NextEntryNo := FALedgEntry.GetLastEntryNo();
@@ -117,6 +119,8 @@ codeunit 5600 "FA Insert Ledger Entry"
             FALedgEntry."FA No." := FALedgEntry3."FA No.";
             OnInsertFAOnAfterSetFALedgEntryFANo(FALedgEntry3, FALedgEntry2, FALedgEntry, NextEntryNo);
         end;
+
+        OnInsertFAOnBeforeFACheckConsistency(FALedgEntry, FALedgEntry3);
 
         if FALedgEntry3."FA Posting Category" = FALedgEntry3."FA Posting Category"::" " then
             if FALedgEntry3."FA Posting Type".AsInteger() <= FALedgEntry3."FA Posting Type"::"Salvage Value".AsInteger() then
@@ -441,6 +445,7 @@ codeunit 5600 "FA Insert Ledger Entry"
                 FALedgEntry3."Journal Batch Name" := '';
                 FALedgEntry3."FA No./Budgeted FA No." := '';
                 FALedgEntry3.Insert(true);
+                OnInsertReverseEntryOnBeforeFACheckConsistency(FALedgEntry3);
                 CODEUNIT.Run(CODEUNIT::"FA Check Consistency", FALedgEntry3);
                 OnInsertReverseEntryOnBeforeInsertRegister(FALedgEntry3);
                 InsertRegister("FA Register Called From"::"Fixed Asset", NextEntryNo);
@@ -661,6 +666,11 @@ codeunit 5600 "FA Insert Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertReverseEntryOnBeforeFACheckConsistency(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertReverseEntryOnNonSalvageValueFAPostingTypeOnBeforeCheckDimValuePosting(var TableID: array[10] of Integer; var AccNo: array[10] of Code[20]; var FALedgEntry3: Record "FA Ledger Entry");
     begin
     end;
@@ -670,8 +680,13 @@ codeunit 5600 "FA Insert Ledger Entry"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnInsertFAOnAfterSetFALedgEntryFANo(FALedgEntry3: Record "FA Ledger Entry"; FALedgEntry2: Record "FA Ledger Entry"; FALedgEntry: Record "FA Ledger Entry"; var NextEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFAOnBeforeFACheckConsistency(var FALedgerEntry: Record "FA Ledger Entry"; FALedgerEntry3: Record "FA Ledger Entry")
     begin
     end;
 

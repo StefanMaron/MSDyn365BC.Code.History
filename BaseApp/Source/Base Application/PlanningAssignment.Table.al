@@ -111,15 +111,21 @@ table 99000850 "Planning Assignment"
             end else
                 exit
         else
-            if (NewSKU."Safety Stock Quantity" <> OldSKU."Safety Stock Quantity") or
-               (NewSKU."Safety Lead Time" <> OldSKU."Safety Lead Time") or
-               (NewSKU."Lead Time Calculation" <> OldSKU."Lead Time Calculation") or
-               (NewSKU."Reorder Point" <> OldSKU."Reorder Point") or
-               (NewSKU."Reordering Policy" <> OldSKU."Reordering Policy") or
-               (NewSKU."Replenishment System" <> OldSKU."Replenishment System") or
-               (NewSKU."Include Inventory" <> OldSKU."Include Inventory")
-            then
-                AssignOne(NewSKU."Item No.", NewSKU."Variant Code", NewSKU."Location Code", WorkDate);
+            if PlanningSKUParametersChanged(NewSKU, OldSKU) then
+                AssignOne(NewSKU."Item No.", NewSKU."Variant Code", NewSKU."Location Code", WorkDate());
+    end;
+
+    local procedure PlanningSKUParametersChanged(NewSKU: Record "Stockkeeping Unit"; OldSKU: Record "Stockkeeping Unit") Result: Boolean
+    begin
+        Result := (NewSKU."Safety Stock Quantity" <> OldSKU."Safety Stock Quantity") or
+                (NewSKU."Safety Lead Time" <> OldSKU."Safety Lead Time") or
+                (NewSKU."Lead Time Calculation" <> OldSKU."Lead Time Calculation") or
+                (NewSKU."Reorder Point" <> OldSKU."Reorder Point") or
+                (NewSKU."Reordering Policy" <> OldSKU."Reordering Policy") or
+                (NewSKU."Replenishment System" <> OldSKU."Replenishment System") or
+                (NewSKU."Include Inventory" <> OldSKU."Include Inventory");
+
+        OnAfterPlanningSKUParametersChanged(NewSKU, OldSKU, Result);
     end;
 
     procedure RoutingReplace(var Item: Record Item; OldRoutingNo: Code[20])
@@ -298,6 +304,11 @@ table 99000850 "Planning Assignment"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPlanningParametersChanged(NewItem: Record Item; OldItem: Record Item; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPlanningSKUParametersChanged(NewSKU: Record "Stockkeeping Unit"; OldSKU: Record "Stockkeeping Unit"; var Result: Boolean)
     begin
     end;
 

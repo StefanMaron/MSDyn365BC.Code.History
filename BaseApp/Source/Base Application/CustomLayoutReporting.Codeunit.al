@@ -1274,7 +1274,13 @@ codeunit 8800 "Custom Layout Reporting"
         IteratorTableFieldName: Text;
         i: Integer;
         DataRecordJoinTable: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetIteratorJoinFieldRef(ReportDataRecordRef, BalAcctTypeFieldRef, AcctTypeFieldRef, IsHandled);
+        if IsHandled then
+            exit;
+
         BalAcctTypeFieldRef := ReportDataRecordRef.Field(63);
         AcctTypeFieldRef := ReportDataRecordRef.Field(3);
 
@@ -1592,6 +1598,11 @@ codeunit 8800 "Custom Layout Reporting"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunReportWithCustomReportSelection(var DataRecRef: RecordRef; var ReportID: Integer; var CustomReportSelection: Record "Custom Report Selection"; var EmailPrintIfEmailIsMissing: Boolean; var TempBlobIndicesNameValueBuffer: Record "Name/Value Buffer" temporary; var TempBlobList: Codeunit "Temp Blob List"; var OutputType: Option; var AnyOutputExists: Boolean; var InHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetIteratorJoinFieldRef(var ReportDataRecordRef: RecordRef; var BalAcctTypeFieldRef: FieldRef; var AcctTypeFieldRef: FieldRef; var IsHandled: Boolean)
     begin
     end;
 

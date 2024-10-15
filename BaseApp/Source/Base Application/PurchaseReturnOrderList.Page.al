@@ -242,13 +242,13 @@ page 9311 "Purchase Return Order List"
                 field(Amount; Amount)
                 {
                     ApplicationArea = PurchReturnOrder;
-                    ToolTip = 'Specifies the sum of amounts in the Line Amount field on the purchase return order lines.';
+                    ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
                     Visible = false;
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
                 {
                     ApplicationArea = PurchReturnOrder;
-                    ToolTip = 'Specifies the total of the amounts, including VAT, on all the lines in the document.';
+                    ToolTip = 'Specifies the sum of amounts, including VAT, on all the lines in the document. This will include invoice discounts.';
                     Visible = false;
                 }
                 field("Posting Description"; "Posting Description")
@@ -648,8 +648,7 @@ page 9311 "Purchase Return Order List"
                     begin
                         CurrPage.SetSelectionFilter(PurchaseHeader);
 
-                        BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::Invoice, true);
-                        BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::Ship, true);
+                        BatchProcessingMgt.SetParametersForPageID(Page::"Purchase Return Order List");
 
                         PurchaseBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
                         PurchaseBatchPostMgt.RunWithUI(PurchaseHeader, Count, ReadyToPostQst);

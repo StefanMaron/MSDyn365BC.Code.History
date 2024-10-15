@@ -1,5 +1,6 @@
 codeunit 450 "Job Queue Error Handler"
 {
+    Permissions = TableData "Job Queue Entry" = rimd;
     TableNo = "Job Queue Entry";
 
     trigger OnRun()

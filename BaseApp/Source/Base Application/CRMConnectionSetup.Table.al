@@ -985,22 +985,10 @@ table 5330 "CRM Connection Setup"
     end;
 
     procedure EnableCRMConnectionFromWizard()
-    var
-        CRMSystemuser: Record "CRM Systemuser";
     begin
         Get;
         Validate("Is Enabled", true);
         Modify(true);
-
-        FilterCRMSystemUser(CRMSystemuser);
-        CRMSystemuser.FindFirst();
-        if (CRMSystemuser.InviteStatusCode <> CRMSystemuser.InviteStatusCode::InvitationAccepted) or
-           (not CRMSystemuser.IsIntegrationUser)
-        then begin
-            CRMSystemuser.InviteStatusCode := CRMSystemuser.InviteStatusCode::InvitationAccepted;
-            CRMSystemuser.IsIntegrationUser := true;
-            CRMSystemuser.Modify(true);
-        end;
     end;
 
     procedure RestoreConnection()

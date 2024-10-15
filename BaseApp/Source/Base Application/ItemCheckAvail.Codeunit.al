@@ -14,6 +14,7 @@ codeunit 311 "Item-Check Avail."
         ItemNo: Code[20];
         UnitOfMeasureCode: Code[10];
         ItemLocationCode: Code[10];
+        VariantCode: Code[10];
         NewItemNetChange: Decimal;
         OldItemNetChange: Decimal;
         OldItemNetResChange: Decimal;
@@ -224,6 +225,7 @@ codeunit 311 "Item-Check Avail."
         OldItemNetChange := ConvertQty(OldItemNetChangeArg);
         OldItemShipmentDate := OldShipmentDateArg;
         ItemLocationCode := ItemLocationCodeArg;
+        VariantCode := ItemVariantCodeArg;
 
         if NewItemNetChange >= 0 then
             exit(false);
@@ -238,7 +240,7 @@ codeunit 311 "Item-Check Avail."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetFilterOnItem(Item, ItemNo, ItemVariantCode, ItemLocationCode, ShipmentDate, UseOrderPromise, IsHandled);
+        OnBeforeSetFilterOnItem(Item, ItemNo, ItemVariantCode, ItemLocationCode, ShipmentDate, UseOrderPromise, IsHandled, UnitOfMeasureCode);
         if IsHandled then
             exit;
 
@@ -624,6 +626,7 @@ codeunit 311 "Item-Check Avail."
         ItemAvailabilityCheck.PopulateDataOnNotification(AvailabilityCheckNotification, ItemNo, UnitOfMeasureCode,
           InventoryQty, GrossReq, ReservedReq, SchedRcpt, ReservedRcpt, CurrentQuantity, CurrentReservedQty,
           TotalQuantity, EarliestAvailDate, LocationCode);
+        ItemAvailabilityCheck.PopulateDataOnNotification(AvailabilityCheckNotification, 'VariantCode', VariantCode);
         NotificationLifecycleMgt.SendNotificationWithAdditionalContext(
           AvailabilityCheckNotification, RecordId, GetItemAvailabilityNotificationId);
         exit(false);
@@ -769,7 +772,7 @@ codeunit 311 "Item-Check Avail."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetFilterOnItem(var Item: Record Item; ItemNo: Code[20]; ItemVariantCode: Code[10]; ItemLocationCode: Code[10]; ShipmentDate: Date; UseOrderPromise: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSetFilterOnItem(var Item: Record Item; ItemNo: Code[20]; ItemVariantCode: Code[10]; ItemLocationCode: Code[10]; ShipmentDate: Date; UseOrderPromise: Boolean; var IsHandled: Boolean; UnitOfMeasureCode: Code[10])
     begin
     end;
 

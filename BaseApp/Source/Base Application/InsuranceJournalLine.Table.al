@@ -278,7 +278,7 @@ table 5635 "Insurance Journal Line"
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Line No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         OnAfterShowDimensions(Rec);
