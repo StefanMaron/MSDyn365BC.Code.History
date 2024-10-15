@@ -74,7 +74,7 @@ codeunit 5402 "Unit of Measure Management"
 
         QtyRounded := RoundQty(QtyBase / QtyPerUOM);
 
-        OnAfterCalcQtyFromBasePerUnitOfMeasure(ItemNo, VariantCode, UOMCode, QtyPerUOM, QtyBase, QtyRounded);
+        OnAfterCalcQtyFromBasePerUnitOfMeasure(ItemNo, VariantCode, UOMCode, QtyBase, QtyPerUOM, QtyRounded);
     end;
 
     procedure RoundQty(Qty: Decimal): Decimal

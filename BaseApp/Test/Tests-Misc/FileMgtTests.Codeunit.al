@@ -1254,6 +1254,27 @@ codeunit 139016 "File Mgt. Tests"
     end;
 
     [Test]
+    procedure AppendFileNameWithIndex()
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 401532] COD 419 "File Management".AppendFileNameWithIndex() unit tests
+        Assert.AreEqual(' (0)', FileMgt.AppendFileNameWithIndex('', 0), '');
+        Assert.AreEqual('file (1)', FileMgt.AppendFileNameWithIndex('file', 1), '');
+        Assert.AreEqual('file name (2)', FileMgt.AppendFileNameWithIndex('file name', 2), '');
+        Assert.AreEqual('c:\temp\file name (3)', FileMgt.AppendFileNameWithIndex('c:\temp\file name', 3), '');
+
+        Assert.AreEqual(' (10).txt', FileMgt.AppendFileNameWithIndex('.txt', 10), '');
+        Assert.AreEqual('file (11).txt', FileMgt.AppendFileNameWithIndex('file.txt', 11), '');
+        Assert.AreEqual('file name (12).txt', FileMgt.AppendFileNameWithIndex('file name.txt', 12), '');
+        Assert.AreEqual('c:\temp\file name (13).txt', FileMgt.AppendFileNameWithIndex('c:\temp\file name.txt', 13), '');
+
+        Assert.AreEqual('.txt (20).pdf', FileMgt.AppendFileNameWithIndex('.txt.pdf', 20), '');
+        Assert.AreEqual('file.txt (21).pdf', FileMgt.AppendFileNameWithIndex('file.txt.pdf', 21), '');
+        Assert.AreEqual('file name.txt (22).pdf', FileMgt.AppendFileNameWithIndex('file name.txt.pdf', 22), '');
+        Assert.AreEqual('c:\temp\file name.txt (23).pdf', FileMgt.AppendFileNameWithIndex('c:\temp\file name.txt.pdf', 23), '');
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure AppendToFile()
     var

@@ -1385,10 +1385,13 @@ table 130 "Incoming Document"
     [Scope('OnPrem')]
     procedure SendToOCR(ShowMessages: Boolean)
     var
+        IncomingDocumentCopy: Record "Incoming Document";
         SendIncomingDocumentToOCR: Codeunit "Send Incoming Document to OCR";
     begin
+        IncomingDocumentCopy.Copy(Rec);
+        IncomingDocumentCopy.Reset();
         SendIncomingDocumentToOCR.SetShowMessages(ShowMessages);
-        SendIncomingDocumentToOCR.SendDocToOCR(Rec);
+        SendIncomingDocumentToOCR.SendDocToOCR(IncomingDocumentCopy);
         SendIncomingDocumentToOCR.ScheduleJobQueueReceive;
     end;
 

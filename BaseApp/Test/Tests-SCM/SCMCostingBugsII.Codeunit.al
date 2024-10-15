@@ -1816,6 +1816,53 @@ codeunit 137621 "SCM Costing Bugs II"
         ValueEntry.TestField("Cost Amount (Actual)", 0);
     end;
 
+    [Test]
+    procedure CostApplicationFalseOnValuedByAverageCostOutboundEntryAppliedToTransferReceipt()
+    var
+        Item: Record Item;
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        LocationInTransit: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Average Costing Method] [Item Application Entry] [Cost Application] [Transfer]
+        // [SCENARIO 378792] "Cost Application" is false for outbound entry valued by average cost applied to transfer receipt for item with costing method = "Average"
+        Initialize();
+
+        // [GIVEN] Item with costing method = "Average".
+        CreateItem(Item, Item."Costing Method"::Average, 0, Item."Replenishment System"::Purchase, 1);
+        LibraryWarehouse.CreateTransferLocations(LocationFrom, LocationTo, LocationInTransit);
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Post sales for "X" pcs on location "To".
+        // [GIVEN] This results in negative inventory on "To" and Value Entry with "Valued by Average Cost" = TRUE.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationTo.Code, '', Qty);
+        ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::Sale);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Post positive inventory adjustment for "X" pcs on location "From".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationFrom.Code, '', Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [WHEN] Transfer the inventory from "From" to "To" in order to fulfill the sales.
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true);
+
+        // [THEN] "Cost Application" is FALSE on item application entry for item entry type of "Sale".
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::Sale, LocationTo.Code, false);
+        ItemApplicationEntry.SetRange("Outbound Item Entry No.", ItemLedgerEntry."Entry No.");
+        ItemApplicationEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
+        ItemApplicationEntry.FindFirst();
+        ItemApplicationEntry.TestField("Cost Application", false);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
