@@ -615,8 +615,6 @@ report 1306 "Standard Sales - Invoice"
                 }
 
                 trigger OnAfterGetRecord()
-                var
-                    EnvironmentInfo: Codeunit "Environment Information";
                 begin
                     InitializeShipmentLine;
                     if Type = Type::"G/L Account" then
@@ -656,14 +654,8 @@ report 1306 "Standard Sales - Invoice"
                         Clear(DummyCompanyInfo.Picture);
                     FirstLineHasBeenOutput := true;
 
-                    if ("Job No." <> '') and (not EnvironmentInfo.IsSaaS) then
-                        JobNo := ''
-                    else
-                        JobNo := "Job No.";
-                    if ("Job Task No." <> '') and (not EnvironmentInfo.IsSaaS) then
-                        JobTaskNo := ''
-                    else
-                        JobTaskNo := "Job Task No.";
+                    JobNo := "Job No.";
+                    JobTaskNo := "Job Task No.";
 
                     if JobTaskNo <> '' then begin
                         JobTaskNoLbl := JobTaskNoLbl2;

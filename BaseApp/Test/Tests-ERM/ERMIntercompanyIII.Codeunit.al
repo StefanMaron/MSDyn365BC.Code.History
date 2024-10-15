@@ -26,6 +26,7 @@ codeunit 134154 "ERM Intercompany III"
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
+        TheTransactionAlreadyExistInOutboxHandledErr: Label 'Document %1 %2 for %3 %4 already exists in the %5 table.';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerYes,ICSetupPageHandler')]
@@ -639,6 +640,886 @@ codeunit 134154 "ERM Intercompany III"
 
         // [THEN] Sales Order with line is created. Sales Line has Quantity = "Q1", Reserved Quantity = 0.
         VerifyReservedQuantityOnSalesLine(Customer."No.", ICInboxSalesLine.Quantity, 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTheSendICDocumentWorkCorrectlyForPurchaseOrder()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        PurchaseHeader: Record "Purchase Header";
+        ICPartner: Record "IC Partner";
+        Vendor: Record Vendor;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 366071] Create Purchase Order and send as IC Document
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Customer No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Customer No.", LibrarySales.CreateCustomerNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Purchase Order
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        PurchaseHeader.Validate("Buy-from IC Partner Code", ICPartnerCode);
+        PurchaseHeader.Validate("Send IC Document", true);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Set IC Parthner Code for created Vendor
+        Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
+        Vendor.Validate("IC Partner Code", ICPartnerCode);
+        Vendor.Modify(true);
+
+        // [WHEN] Sent Intercompany Purchase Order
+        ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+
+        // [THEN] Outbox transaction created by posting is Handled by auto send
+        HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::Order);
+        HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Purchase Document");
+        HandledICOutboxTrans.SetRange("Document No.", PurchaseHeader."No.");
+        HandledICOutboxTrans.SetRange("IC Partner Code", ICPartnerCode);
+        HandledICOutboxTrans.FindFirst();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckItIsImpossibleToSendCopyOfPurchaseOrderAlreadySended()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        PurchaseHeader: Record "Purchase Header";
+        ICPartner: Record "IC Partner";
+        Vendor: Record Vendor;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 366071] Create Purchase Order and send as IC Document, than send the same document again
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Customer No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Customer No.", LibrarySales.CreateCustomerNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Purchase Order
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        PurchaseHeader.Validate("Buy-from IC Partner Code", ICPartnerCode);
+        PurchaseHeader.Validate("Send IC Document", true);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Set IC Parthner Code for created Vendor
+        Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
+        Vendor.Validate("IC Partner Code", ICPartnerCode);
+        Vendor.Modify(true);
+
+        // [GIVEN] Sent Intercompany Purchase Order
+        ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+
+        // [WHEN] Sent The Same Document again
+        asserterror ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+
+        // [THEN] The error that Transaction in Handled IC Outbox have already had the same document was shown
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(TheTransactionAlreadyExistInOutboxHandledErr,
+            HandledICOutboxTrans."Document Type"::Order, PurchaseHeader."No.",
+            HandledICOutboxTrans.FieldCaption("IC Partner Code"), ICPartnerCode, HandledICOutboxTrans.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTheSendICDocumentWorkCorrectlyForPurchaseInvoice()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        PurchaseHeader: Record "Purchase Header";
+        ICPartner: Record "IC Partner";
+        Vendor: Record Vendor;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 366071] Create Purchase Invoice and send as IC Document
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Customer No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Customer No.", LibrarySales.CreateCustomerNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Purchase Invoice
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PurchaseHeader.Validate("Buy-from IC Partner Code", ICPartnerCode);
+        PurchaseHeader.Validate("Send IC Document", true);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Set IC Parthner Code for created Vendor
+        Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
+        Vendor.Validate("IC Partner Code", ICPartnerCode);
+        Vendor.Modify(true);
+
+        // [WHEN] Sent Intercompany Purchase Invoice
+        ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+
+        // [THEN] Outbox transaction created by posting is Handled by auto send
+        HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::Invoice);
+        HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Purchase Document");
+        HandledICOutboxTrans.SetRange("Document No.", PurchaseHeader."No.");
+        HandledICOutboxTrans.SetRange("IC Partner Code", ICPartnerCode);
+        HandledICOutboxTrans.FindFirst();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckItIsImpossibleToSendCopyOfPurchaseInvoiceAlreadySended()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        PurchaseHeader: Record "Purchase Header";
+        ICPartner: Record "IC Partner";
+        Vendor: Record Vendor;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 366071] Create Purchase Invoice and send as IC Document, than send the same document again
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Customer No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Customer No.", LibrarySales.CreateCustomerNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Purchase Invoice
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PurchaseHeader.Validate("Buy-from IC Partner Code", ICPartnerCode);
+        PurchaseHeader.Validate("Send IC Document", true);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Set IC Parthner Code for created Vendor
+        Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
+        Vendor.Validate("IC Partner Code", ICPartnerCode);
+        Vendor.Modify(true);
+
+        // [GIVEN] Sent Intercompany Purchase Invoice
+        ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+
+        // [WHEN] Sent The Same Document again
+        asserterror ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+
+        // [THEN] The error that Transaction in Handled IC Outbox have already had the same document was shown
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(TheTransactionAlreadyExistInOutboxHandledErr,
+            HandledICOutboxTrans."Document Type"::Invoice, PurchaseHeader."No.",
+            HandledICOutboxTrans.FieldCaption("IC Partner Code"), ICPartnerCode, HandledICOutboxTrans.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTheSendICDocumentWorkCorrectlyForPurchaseCrMemo()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        PurchaseHeader: Record "Purchase Header";
+        ICPartner: Record "IC Partner";
+        Vendor: Record Vendor;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 366071] Create Purchase Cr. Memo and send as IC Document
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Customer No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Customer No.", LibrarySales.CreateCustomerNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Purchase Cr. Memo
+        LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
+        PurchaseHeader.Validate("Buy-from IC Partner Code", ICPartnerCode);
+        PurchaseHeader.Validate("Send IC Document", true);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Set IC Parthner Code for created Vendor
+        Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
+        Vendor.Validate("IC Partner Code", ICPartnerCode);
+        Vendor.Modify(true);
+
+        // [WHEN] Sent Intercompany Purchase Cr. Memo
+        ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+
+        // [THEN] Outbox transaction created by posting is Handled by auto send
+        HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::"Credit Memo");
+        HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Purchase Document");
+        HandledICOutboxTrans.SetRange("Document No.", PurchaseHeader."No.");
+        HandledICOutboxTrans.SetRange("IC Partner Code", ICPartnerCode);
+        HandledICOutboxTrans.FindFirst();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckItIsImpossibleToSendCopyOfPurchaseCrMemoAlreadySended()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        PurchaseHeader: Record "Purchase Header";
+        ICPartner: Record "IC Partner";
+        Vendor: Record Vendor;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 366071] Create Purchase Cr. Memo and send as IC Document, than send the same document again
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Customer No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Customer No.", LibrarySales.CreateCustomerNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Purchase Cr. Memo
+        LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
+        PurchaseHeader.Validate("Buy-from IC Partner Code", ICPartnerCode);
+        PurchaseHeader.Validate("Send IC Document", true);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Set IC Parthner Code for created Vendor
+        Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
+        Vendor.Validate("IC Partner Code", ICPartnerCode);
+        Vendor.Modify(true);
+
+        // [GIVEN] Sent Intercompany Purchase Cr. Memo
+        ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+
+        // [WHEN] Sent The Same Document again
+        asserterror ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+
+        // [THEN] The error that Transaction in Handled IC Outbox have already had the same document was shown
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(TheTransactionAlreadyExistInOutboxHandledErr,
+            HandledICOutboxTrans."Document Type"::"Credit Memo", PurchaseHeader."No.",
+            HandledICOutboxTrans.FieldCaption("IC Partner Code"), ICPartnerCode, HandledICOutboxTrans.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTheSendICDocumentWorkCorrectlyForPurchaseReturnOrder()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        PurchaseHeader: Record "Purchase Header";
+        ICPartner: Record "IC Partner";
+        Vendor: Record Vendor;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 366071] Create Purchase Return Order and send as IC Document
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Customer No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Customer No.", LibrarySales.CreateCustomerNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Purchase Return Order
+        LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
+        PurchaseHeader.Validate("Buy-from IC Partner Code", ICPartnerCode);
+        PurchaseHeader.Validate("Send IC Document", true);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Set IC Parthner Code for created Vendor
+        Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
+        Vendor.Validate("IC Partner Code", ICPartnerCode);
+        Vendor.Modify(true);
+
+        // [WHEN] Sent Intercompany Purchase Return Order
+        ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+
+        // [THEN] Outbox transaction created by posting is Handled by auto send
+        HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::"Return Order");
+        HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Purchase Document");
+        HandledICOutboxTrans.SetRange("Document No.", PurchaseHeader."No.");
+        HandledICOutboxTrans.SetRange("IC Partner Code", ICPartnerCode);
+        HandledICOutboxTrans.FindFirst();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckItIsImpossibleToSendCopyOfPurchaseReturnOrderAlreadySended()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        PurchaseHeader: Record "Purchase Header";
+        ICPartner: Record "IC Partner";
+        Vendor: Record Vendor;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 366071] Create Purchase Return Order and send as IC Document, than send the same document again
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Customer No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Customer No.", LibrarySales.CreateCustomerNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Purchase Return Order
+        LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
+        PurchaseHeader.Validate("Buy-from IC Partner Code", ICPartnerCode);
+        PurchaseHeader.Validate("Send IC Document", true);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Set IC Parthner Code for created Vendor
+        Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
+        Vendor.Validate("IC Partner Code", ICPartnerCode);
+        Vendor.Modify(true);
+
+        // [GIVEN] Sent Intercompany Purchase Return Order
+        ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+
+        // [WHEN] Sent The Same Document again
+        asserterror ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+
+        // [THEN] The error that Transaction in Handled IC Outbox have already had the same document was shown
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(TheTransactionAlreadyExistInOutboxHandledErr,
+            HandledICOutboxTrans."Document Type"::"Return Order", PurchaseHeader."No.",
+            HandledICOutboxTrans.FieldCaption("IC Partner Code"), ICPartnerCode, HandledICOutboxTrans.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTheSendICDocumentWorkCorrectlyForSalesOrder()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        SalesHeader: Record "Sales Header";
+        ICPartner: Record "IC Partner";
+        Customer: Record Customer;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 366071] Create Sales Order and send as IC Document
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Vendor No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Sales Order
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        SalesHeader.Validate("Sell-to IC Partner Code", ICPartnerCode);
+        SalesHeader.Validate("Send IC Document", true);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Set IC Parthner Code for created Customer
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        Customer.Validate("IC Partner Code", ICPartnerCode);
+        Customer.Modify(true);
+
+        // [WHEN] Sent Intercompany Sales Order
+        ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+
+        // [THEN] Outbox transaction created by posting is Handled by auto send
+        HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::Order);
+        HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Sales Document");
+        HandledICOutboxTrans.SetRange("Document No.", SalesHeader."No.");
+        HandledICOutboxTrans.SetRange("IC Partner Code", ICPartnerCode);
+        HandledICOutboxTrans.FindFirst();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckItIsImpossibleToSendCopyOfSalesOrderAlreadySended()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        SalesHeader: Record "Sales Header";
+        ICPartner: Record "IC Partner";
+        Customer: Record Customer;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 366071] Create Sales Order and send as IC Document, than send the same document again
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Vendor No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Sales Order
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        SalesHeader.Validate("Sell-to IC Partner Code", ICPartnerCode);
+        SalesHeader.Validate("Send IC Document", true);
+        SalesHeader.Modify(true);
+
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        Customer.Validate("IC Partner Code", ICPartnerCode);
+        Customer.Modify(true);
+
+        // [WHEN] Sent Intercompany Sales Order
+        ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+
+        // [WHEN] Sent The Same Document again
+        asserterror ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+
+        // [THEN] The error that Transaction in Handled IC Outbox have already had the same document was shown
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(TheTransactionAlreadyExistInOutboxHandledErr,
+            HandledICOutboxTrans."Document Type"::Order, SalesHeader."No.",
+            HandledICOutboxTrans.FieldCaption("IC Partner Code"), ICPartnerCode, HandledICOutboxTrans.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTheSendICDocumentWorkCorrectlyForSalesInvoice()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        SalesHeader: Record "Sales Header";
+        ICPartner: Record "IC Partner";
+        Customer: Record Customer;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 366071] Create Sales Invoice and send as IC Document
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Vendor No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Sales Invoice
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesHeader.Validate("Sell-to IC Partner Code", ICPartnerCode);
+        SalesHeader.Validate("Send IC Document", true);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Set IC Parthner Code for created Customer
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        Customer.Validate("IC Partner Code", ICPartnerCode);
+        Customer.Modify(true);
+
+        // [WHEN] Sent Intercompany Sales Invoice
+        ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+
+        // [THEN] Outbox transaction created by posting is Handled by auto send
+        HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::Invoice);
+        HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Sales Document");
+        HandledICOutboxTrans.SetRange("Document No.", SalesHeader."No.");
+        HandledICOutboxTrans.SetRange("IC Partner Code", ICPartnerCode);
+        HandledICOutboxTrans.FindFirst();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckItIsImpossibleToSendCopyOfSalesInvoiceAlreadySended()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        SalesHeader: Record "Sales Header";
+        ICPartner: Record "IC Partner";
+        Customer: Record Customer;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 366071] Create Sales Invoice and send as IC Document, than send the same document again
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Vendor No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Sales Invoice
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesHeader.Validate("Sell-to IC Partner Code", ICPartnerCode);
+        SalesHeader.Validate("Send IC Document", true);
+        SalesHeader.Modify(true);
+
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        Customer.Validate("IC Partner Code", ICPartnerCode);
+        Customer.Modify(true);
+
+        // [WHEN] Sent Intercompany Sales Invoice
+        ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+
+        // [WHEN] Sent The Same Document again
+        asserterror ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+
+        // [THEN] The error that Transaction in Handled IC Outbox have already had the same document was shown
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(TheTransactionAlreadyExistInOutboxHandledErr,
+            HandledICOutboxTrans."Document Type"::Invoice, SalesHeader."No.",
+            HandledICOutboxTrans.FieldCaption("IC Partner Code"), ICPartnerCode, HandledICOutboxTrans.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTheSendICDocumentWorkCorrectlyForSalesCrMemo()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        SalesHeader: Record "Sales Header";
+        ICPartner: Record "IC Partner";
+        Customer: Record Customer;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 366071] Create Sales Cr. Memo and send as IC Document
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Vendor No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Sales Cr. Memo
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+        SalesHeader.Validate("Sell-to IC Partner Code", ICPartnerCode);
+        SalesHeader.Validate("Send IC Document", true);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Set IC Parthner Code for created Customer
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        Customer.Validate("IC Partner Code", ICPartnerCode);
+        Customer.Modify(true);
+
+        // [WHEN] Sent Intercompany Sales Cr. Memo
+        ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+
+        // [THEN] Outbox transaction created by posting is Handled by auto send
+        HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::"Credit Memo");
+        HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Sales Document");
+        HandledICOutboxTrans.SetRange("Document No.", SalesHeader."No.");
+        HandledICOutboxTrans.SetRange("IC Partner Code", ICPartnerCode);
+        HandledICOutboxTrans.FindFirst();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckItIsImpossibleToSendCopyOfSalesCrMemoAlreadySended()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        SalesHeader: Record "Sales Header";
+        ICPartner: Record "IC Partner";
+        Customer: Record Customer;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 366071] Create Sales Cr. Memo and send as IC Document, than send the same document again
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Vendor No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Sales Cr. Memo
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+        SalesHeader.Validate("Sell-to IC Partner Code", ICPartnerCode);
+        SalesHeader.Validate("Send IC Document", true);
+        SalesHeader.Modify(true);
+
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        Customer.Validate("IC Partner Code", ICPartnerCode);
+        Customer.Modify(true);
+
+        // [WHEN] Sent Intercompany Sales Cr. Memo
+        ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+
+        // [WHEN] Sent The Same Document again
+        asserterror ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+
+        // [THEN] The error that Transaction in Handled IC Outbox have already had the same document was shown
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(TheTransactionAlreadyExistInOutboxHandledErr,
+            HandledICOutboxTrans."Document Type"::"Credit Memo", SalesHeader."No.",
+            HandledICOutboxTrans.FieldCaption("IC Partner Code"), ICPartnerCode, HandledICOutboxTrans.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTheSendICDocumentWorkCorrectlyForSalesReturnOrder()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        SalesHeader: Record "Sales Header";
+        ICPartner: Record "IC Partner";
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 366071] Create Sales Return Order and send as IC Document
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Vendor No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Sales Return Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        SalesHeader.Validate("Sell-to IC Partner Code", ICPartnerCode);
+        SalesHeader.Validate("Send IC Document", true);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Set IC Parthner Code for created Customer
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        Customer.Validate("IC Partner Code", ICPartnerCode);
+        Customer.Modify(true);
+
+        // [WHEN] Sent Intercompany Sales Return Order
+        ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+
+        // [THEN] Outbox transaction created by posting is Handled by auto send
+        HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::"Return Order");
+        HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Sales Document");
+        HandledICOutboxTrans.SetRange("Document No.", SalesHeader."No.");
+        HandledICOutboxTrans.SetRange("IC Partner Code", ICPartnerCode);
+        HandledICOutboxTrans.FindFirst();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckItIsImpossibleToSendCopyOfSalesReturnOrderAlreadySended()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        SalesHeader: Record "Sales Header";
+        ICPartner: Record "IC Partner";
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 366071] Create Sales Order and send as IC Document, than send the same document again
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] IC Parthner with Vendor No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Sales Return Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        SalesHeader.Validate("Sell-to IC Partner Code", ICPartnerCode);
+        SalesHeader.Validate("Send IC Document", true);
+        SalesHeader.Modify(true);
+
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        Customer.Validate("IC Partner Code", ICPartnerCode);
+        Customer.Modify(true);
+
+        // [WHEN] Sent Intercompany Sales Order
+        ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+
+        // [WHEN] Sent The Same Document again
+        asserterror ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+
+        // [THEN] The error that Transaction in Handled IC Outbox have already had the same document was shown
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(TheTransactionAlreadyExistInOutboxHandledErr,
+            HandledICOutboxTrans."Document Type"::"Return Order", SalesHeader."No.",
+            HandledICOutboxTrans.FieldCaption("IC Partner Code"), ICPartnerCode, HandledICOutboxTrans.TableCaption));
     end;
 
     local procedure Initialize()
