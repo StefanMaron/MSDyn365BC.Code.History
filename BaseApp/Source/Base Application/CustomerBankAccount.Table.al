@@ -111,8 +111,9 @@ table 287 "Customer Bank Account"
             begin
                 if not LocalFunctionalityMgt.CheckBankAccNo("Bank Account No.", "Country/Region Code", "Bank Account No.") then
                     Message(Text1000001, "Bank Account No.");
-		    
-		        OnValidateBankAccount(Rec, 'Bank Account No.');
+
+                UpdateBankAccountNo();
+                OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }
         field(15; "Transit No."; Text[20])
@@ -337,10 +338,7 @@ table 287 "Customer Bank Account"
     var
         ProposalLine: Record "Proposal Line";
     begin
-        ProposalLine.SetRange("Account Type", ProposalLine."Account Type"::Customer);
-        ProposalLine.SetRange("Account No.", "Customer No.");
-        ProposalLine.SetRange("Bank Account No.", "Bank Account No.");
-        if ProposalLine.FindSet then
+        if FindProposalLines(ProposalLine) then
             ProposalLine.ModifyAll("Direct Debit Mandate ID", "Direct Debit Mandate ID")
     end;
 
@@ -348,10 +346,7 @@ table 287 "Customer Bank Account"
     var
         ProposalLine: Record "Proposal Line";
     begin
-        ProposalLine.SetRange("Account Type", ProposalLine."Account Type"::Customer);
-        ProposalLine.SetRange("Account No.", "Customer No.");
-        ProposalLine.SetRange("Bank Account No.", "Bank Account No.");
-        if ProposalLine.FindSet then
+        if FindProposalLines(ProposalLine) then
             ProposalLine.ModifyAll(IBAN, IBAN)
     end;
 
@@ -359,11 +354,24 @@ table 287 "Customer Bank Account"
     var
         ProposalLine: Record "Proposal Line";
     begin
+        if FindProposalLines(ProposalLine) then
+            ProposalLine.ModifyAll("SWIFT Code", "SWIFT Code")
+    end;
+
+    local procedure UpdateBankAccountNo()
+    var
+        ProposalLine: Record "Proposal Line";
+    begin
+        if FindProposalLines(ProposalLine) then
+            ProposalLine.ModifyAll("Bank Account No.", "Bank Account No.")
+    end;
+
+    local procedure FindProposalLines(var ProposalLine: Record "Proposal Line"): Boolean
+    begin
         ProposalLine.SetRange("Account Type", ProposalLine."Account Type"::Customer);
         ProposalLine.SetRange("Account No.", "Customer No.");
-        ProposalLine.SetRange("Bank Account No.", "Bank Account No.");
-        if ProposalLine.FindSet then
-            ProposalLine.ModifyAll("SWIFT Code", "SWIFT Code")
+        ProposalLine.SetRange(Bank, "Code");
+        exit(not ProposalLine.IsEmpty());
     end;
 
     procedure GetBankAccountNoWithCheck() AccountNo: Text

@@ -1124,7 +1124,7 @@ codeunit 139020 "Test Job Queue SNAP"
     begin
         CreateFailingJobQueueEntry(JobQueueEntry);
         // The message does not matter, it is replaced when JQE page is opened
-        // Replaced to "The job terminated for an unknown reason." and status becomes error'd
+        // Replaced to "Something went wrong and the job has stopped." and status becomes error
         JobQueueEntry."Error Message" := 'Part 1' + 'Part 2' + 'Part 3' + 'Part 4';
         JobQueueEntry.Modify(true);
 
@@ -1502,7 +1502,7 @@ codeunit 139020 "Test Job Queue SNAP"
     procedure CanShowErrorMessageHandler(Message: Text)
     begin
         Assert.IsTrue(Message <> 'There is no error message.', 'Expected error message but found ''' + Message + '''');
-        Assert.IsTrue(Message = 'The job terminated for an unknown reason.', 'Expected concatinated error message but found: ''' + Message + '''');
+        Assert.IsTrue(Message = 'Something went wrong and the job has stopped. Likely causes are system updates or routine maintenance processes. To restart the job, set the status to Ready.', 'Expected a different error message. Found: ''' + Message + '''');
     end;
 
     [Normal]

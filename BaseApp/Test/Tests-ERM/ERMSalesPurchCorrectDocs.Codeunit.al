@@ -21,6 +21,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryErrorMessage: Codeunit "Library - Error Message";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         IsInitialized: Boolean;
         QtyErr: Label '%1 is wrong';
         CancelQtyErr: Label '%1 is wrong after cancel';
@@ -28,6 +29,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         CannotCancelPurchInvInventoryPeriodClosedErr: Label 'You cannot cancel this posted purchase invoice because the posting inventory period is already closed.';
         SalesBlockedGLAccountErr: Label 'You cannot correct this posted sales invoice because %1 G/L ACCOUNT is blocked.';
         PurchaseBlockedGLAccountErr: Label 'You cannot correct this posted purchase invoice because %1 G/L ACCOUNT is blocked.';
+        WMSLocationCancelCorrectErr: Label 'You cannot cancel or correct this posted sales invoice because Warehouse Receive is required';
 
     [Test]
     [Scope('OnPrem')]
@@ -1722,6 +1724,120 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
 
         LibraryNotificationMgt.RecallNotificationsForRecordID(PurchasesPayablesSetup.RecordId);
         RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectPostedPurchInvoiceWithZeroQuantityItemCharge()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [FEATURE] [Purchase] [Order] 
+        // [SCENARIO 417381] It is be possible to correct posted invoice with zero quantity item charge
+        Initialize();
+
+        // [GIVEN] Create purchase order with item "I" line
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
+        PurchaseLine.Modify(true);
+        // [GIVEN] Create purchase line for item charge "IC", unit cost = 1000 and quantity to receipt/invoice = 0
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Validate("Qty. to Receive", 0);
+        PurchaseLine.Validate("Qty. to Invoice", 0);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post purchase order
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [WHEN] Run "Correct" action for posted invoice
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, false);
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+
+        // [THEN] Purchase order corrected
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.TestField("Quantity Invoiced", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectPostedSalesInvoiceWithZeroQuantityItemCharge()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales] [Order] 
+        // [SCENARIO 417381] It is be possible to correct posted invoice with zero quantity item charge
+        Initialize();
+
+        // [GIVEN] Create sales order with item "I" line
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
+        SalesLine.Modify(true);
+        // [GIVEN] Create sales line for item charge "IC", unit price = 1000 and quantity to ship/invoice = 0
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Validate("Qty. to Ship", 0);
+        SalesLine.Validate("Qty. to Invoice", 0);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post sales order
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Run "Correct" action for posted invoice
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        // [THEN] Sales order corrected
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        SalesLine.TestField("Quantity Invoiced", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectSalesInvoiceWithWMSLocationUT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Location: Record Location;
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+
+    begin
+        // [SCENARIO 417759] Correct posted sales invoice with location has "Directed Put-away and Pick"
+        Initialize();
+
+        // [GIVEN] Posted sales invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Location Code", LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location));
+        SalesLine.Modify(true);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [GIVEN] Mock WMS location
+        Location."Directed Put-away and Pick" := true;
+        Location.Modify();
+
+        // [WHEN] Run check procedure on "Correct" action for posted invoice
+        asserterror CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
+
+        // [THEN] Error message is appeared
+        Assert.ExpectedError(WMSLocationCancelCorrectErr);
     end;
 
     local procedure Initialize()

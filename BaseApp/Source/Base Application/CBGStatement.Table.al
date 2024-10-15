@@ -260,6 +260,8 @@ table 11400 "CBG Statement"
             CreateDim(DATABASE::"Bank Account", "Account No.", 0, '', 0, '', 0, '', 0, '')// Use the Bank Account
         else
             CreateDim(DATABASE::"G/L Account", "Account No.", 0, '', 0, '', 0, '', 0, '');// Use the G/L Account
+
+        OnAfterInitRecord(CBGStatement, Rec);
     end;
 
     [Scope('OnPrem')]
@@ -592,6 +594,11 @@ table 11400 "CBG Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var CBGStatement: Record "CBG Statement"; CurrentFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitRecord(var CBGStatement: Record "CBG Statement"; var Rec: Record "CBG Statement")
     begin
     end;
 

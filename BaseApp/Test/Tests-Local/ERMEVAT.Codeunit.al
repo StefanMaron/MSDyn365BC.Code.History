@@ -1108,6 +1108,7 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclarationLine: Record "Elec. Tax Declaration Line";
         VATEntry: Record "VAT Entry";
         CountryRegion: Record "Country/Region";
+        FileManagement: Codeunit "File Management";
         ElecTaxDeclHeaderNo: Code[20];
     begin
         // [SCENARIO 405527] ICP declaration does not contains VAT entries with country/region code outside EU
@@ -1128,6 +1129,13 @@ codeunit 144051 "ERM EVAT"
         FilterOnElecTaxDeclLine(
           ElecTaxDeclarationLine, ElecTaxDeclarationLine."Declaration Type"::"ICP Declaration", ElecTaxDeclHeaderNo,
           ElecTaxDeclarationLine."Line Type"::Element, 'bd-i:SuppliesAmount');
+        Assert.IsTrue(ElecTaxDeclarationLine.IsEmpty(), 'Electronic tax declaration line has been generated');
+
+        // [THEN] No electronic tax declaration line has been generated with 'bd-t:IntraCommunitySupplies' name
+        // Bug id 420957: No electronic tax declaration line must be generated for non-EU country
+        FilterOnElecTaxDeclLine(
+          ElecTaxDeclarationLine, ElecTaxDeclarationLine."Declaration Type"::"ICP Declaration", ElecTaxDeclHeaderNo,
+          ElecTaxDeclarationLine."Line Type"::Element, 'bd-t:IntraCommunitySupplies');
         Assert.IsTrue(ElecTaxDeclarationLine.IsEmpty(), 'Electronic tax declaration line has been generated');
 
         LibraryVariableStorage.AssertEmpty();

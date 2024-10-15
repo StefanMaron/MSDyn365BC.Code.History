@@ -2386,6 +2386,182 @@ codeunit 134154 "ERM Intercompany III"
         Assert.IsFalse(FileManagement.ServerFileExists(FileName), 'IC transaction file should not exist on preview.');
     end;
 
+    [Test]
+    procedure Description2SetOnHandledICOutboxPurchaseLine()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        Customer: Record Customer;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [SCENARIO 414124] Description 2 of Handled IC Outbox Purchase Line after sending Purchase Order with Description 2 of Purchase Line set.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Auto Send Transactions is enabled.
+        UpdateAutoSendTransactionsOnCompanyInfo(true);
+
+        // [GIVEN] Customer with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateCustomerWithICPartner(Customer, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Purchase Order "PO" with one Purchase Line for Vendor with IC Partner.
+        // [GIVEN] Purchase Line has "Description 2" = "A".
+        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode);
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+        UpdateDescription2OnPurchaseLine(PurchaseLine, LibraryUtility.GenerateGUID());
+
+        // [WHEN] Send Intercompany Purchase Order.
+        ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+        Commit();
+
+        // [THEN] Transaction for Purchase Order is created in Handled IC Outbox. It has one line with Description 2 = "A".
+        FindHandledICOutboxTransaction(
+            HandledICOutboxTrans, HandledICOutboxTrans."Source Type"::"Purchase Document",
+            ICTransactionDocType::Order, PurchaseHeader."No.", ICPartnerCode);
+        VerifyHandledICOutboxPurchLineDescription2(HandledICOutboxTrans, ICPartnerRefType::Item, PurchaseLine."No.", PurchaseLine."Description 2");
+
+        // tear down
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    procedure Description2BlankOnHandledICOutboxPurchaseLine()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        Customer: Record Customer;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [SCENARIO 414124] Description 2 of Handled IC Outbox Purchase Line after sending Purchase Order with blank Description 2 of Purchase Line.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Auto Send Transactions is enabled.
+        UpdateAutoSendTransactionsOnCompanyInfo(true);
+
+        // [GIVEN] Customer with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateCustomerWithICPartner(Customer, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Purchase Order "PO" with one Purchase Line for Vendor with IC Partner.
+        // [GIVEN] Purchase Line has blank "Description 2".
+        CreatePurchaseDocumentForICPartnerVendor(PurchaseHeader, PurchaseDocType::Order, ICPartnerCode);
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+        UpdateDescription2OnPurchaseLine(PurchaseLine, '');
+
+        // [WHEN] Send Intercompany Purchase Order.
+        ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+        Commit();
+
+        // [THEN] Transaction for Purchase Order is created in Handled IC Outbox. It has one line with blank Description 2.
+        FindHandledICOutboxTransaction(
+            HandledICOutboxTrans, HandledICOutboxTrans."Source Type"::"Purchase Document",
+            ICTransactionDocType::Order, PurchaseHeader."No.", ICPartnerCode);
+        VerifyHandledICOutboxPurchLineDescription2(HandledICOutboxTrans, ICPartnerRefType::Item, PurchaseLine."No.", '');
+
+        // tear down
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    procedure Description2SetOnHandledICOutboxSalesLine()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        Vendor: Record Vendor;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [SCENARIO 414124] Description 2 of Handled IC Outbox Sales Line after sending Sales Order with Description 2 of Sales Line set.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Auto Send Transactions is enabled.
+        UpdateAutoSendTransactionsOnCompanyInfo(true);
+
+        // [GIVEN] Vendor with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateVendorWithICPartner(Vendor, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Sales Order "SO" with one Sales Line for Customer with IC Partner.
+        // [GIVEN] Sales Line has "Description 2" = "A".
+        CreateSalesDocumentForICPartnerCustomer(SalesHeader, SalesDocType::Order, ICPartnerCode);
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        UpdateDescription2OnSalesLine(SalesLine, LibraryUtility.GenerateGUID());
+
+        // [WHEN] Send Intercompany Sales Order.
+        ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+        Commit();
+
+        // [THEN] Transaction for Sales Order is created in Handled IC Outbox. It has one line with Description 2 = "A".
+        FindHandledICOutboxTransaction(
+            HandledICOutboxTrans, HandledICOutboxTrans."Source Type"::"Sales Document",
+            ICTransactionDocType::Order, SalesHeader."No.", ICPartnerCode);
+        VerifyHandledICOutboxSalesLineDescription2(HandledICOutboxTrans, ICPartnerRefType::Item, SalesLine."No.", SalesLine."Description 2");
+
+        // tear down
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    procedure Description2BlankOnHandledICOutboxSalesLine()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        Vendor: Record Vendor;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICPartnerCode: Code[20];
+    begin
+        // [SCENARIO 414124] Description 2 of Handled IC Outbox Sales Line after sending Sales Order with blank Description 2 of Sales Line.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Auto Send Transactions is enabled.
+        UpdateAutoSendTransactionsOnCompanyInfo(true);
+
+        // [GIVEN] Vendor with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateVendorWithICPartner(Vendor, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Sales Order "SO" with one Sales Line for Customer with IC Partner.
+        // [GIVEN] Sales Line has blank "Description 2".
+        CreateSalesDocumentForICPartnerCustomer(SalesHeader, SalesDocType::Order, ICPartnerCode);
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        UpdateDescription2OnSalesLine(SalesLine, '');
+
+        // [WHEN] Send Intercompany Sales Order.
+        ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+        Commit();
+
+        // [THEN] Transaction for Sales Order is created in Handled IC Outbox. It has one line with blank Description 2.
+        FindHandledICOutboxTransaction(
+            HandledICOutboxTrans, HandledICOutboxTrans."Source Type"::"Sales Document",
+            ICTransactionDocType::Order, SalesHeader."No.", ICPartnerCode);
+        VerifyHandledICOutboxSalesLineDescription2(HandledICOutboxTrans, ICPartnerRefType::Item, SalesLine."No.", '');
+
+        // tear down
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2691,6 +2867,16 @@ codeunit 134154 "ERM Intercompany III"
         ICOutboxTransaction.SetRange("Document No.", DocumentNo);
         ICOutboxTransaction.SetRange("IC Partner Code", ICPartnerCode);
         ICOutboxTransaction.FindFirst();
+    end;
+
+    local procedure FindHandledICOutboxTransaction(var HandledICOutboxTrans: Record "Handled IC Outbox Trans."; SourceType: Option; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20]; ICPartnerCode: Code[20])
+    begin
+        HandledICOutboxTrans.Reset();
+        HandledICOutboxTrans.SetRange("Source Type", SourceType);
+        HandledICOutboxTrans.SetRange("Document Type", DocumentType);
+        HandledICOutboxTrans.SetRange("Document No.", DocumentNo);
+        HandledICOutboxTrans.SetRange("IC Partner Code", ICPartnerCode);
+        HandledICOutboxTrans.FindFirst();
     end;
 
     local procedure GetICDimensionValueFromDimensionValue(var ICDimensionValue: Record "IC Dimension Value"; DimensionValue: Record "Dimension Value")
@@ -3003,6 +3189,18 @@ codeunit 134154 "ERM Intercompany III"
         PurchaseLine.Modify(true);
     end;
 
+    local procedure UpdateDescription2OnSalesLine(var SalesLine: Record "Sales Line"; Description2: Text[50]);
+    begin
+        SalesLine.Validate("Description 2", Description2);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure UpdateDescription2OnPurchaseLine(var PurchaseLine: Record "Purchase Line"; Description2: Text[50]);
+    begin
+        PurchaseLine.Validate("Description 2", Description2);
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure UpdateReserveOnCustomer(var Customer: Record Customer; ReserveMethod: Enum "Reserve Method")
     begin
         Customer.Validate(Reserve, ReserveMethod);
@@ -3217,6 +3415,32 @@ codeunit 134154 "ERM Intercompany III"
         ICOutboxSalesLine.SetRange("IC Partner Reference", ICPartnerReference);
         ICOutboxSalesLine.FindFirst();
         Assert.AreEqual(ExpectedQuantity, ICOutboxSalesLine.Quantity, '');
+    end;
+
+    local procedure VerifyHandledICOutboxSalesLineDescription2(HandledICOutboxTrans: Record "Handled IC Outbox Trans."; ICPartnerRefType: Enum "IC Partner Reference Type"; ICPartnerReference: Code[20]; ExpectedDescription2: Text[50])
+    var
+        HandledICOutboxSalesLine: Record "Handled IC Outbox Sales Line";
+    begin
+        HandledICOutboxSalesLine.SetRange("IC Transaction No.", HandledICOutboxTrans."Transaction No.");
+        HandledICOutboxSalesLine.SetRange("IC Partner Code", HandledICOutboxTrans."IC Partner Code");
+        HandledICOutboxSalesLine.SetRange("Transaction Source", HandledICOutboxTrans."Transaction Source");
+        HandledICOutboxSalesLine.SetRange("IC Partner Ref. Type", ICPartnerRefType);
+        HandledICOutboxSalesLine.SetRange("IC Partner Reference", ICPartnerReference);
+        HandledICOutboxSalesLine.FindFirst();
+        HandledICOutboxSalesLine.TestField("Description 2", ExpectedDescription2);
+    end;
+
+    local procedure VerifyHandledICOutboxPurchLineDescription2(HandledICOutboxTrans: Record "Handled IC Outbox Trans."; ICPartnerRefType: Enum "IC Partner Reference Type"; ICPartnerReference: Code[20]; ExpectedDescription2: Text[50])
+    var
+        HandledICOutboxPurchLine: Record "Handled IC Outbox Purch. Line";
+    begin
+        HandledICOutboxPurchLine.SetRange("IC Transaction No.", HandledICOutboxTrans."Transaction No.");
+        HandledICOutboxPurchLine.SetRange("IC Partner Code", HandledICOutboxTrans."IC Partner Code");
+        HandledICOutboxPurchLine.SetRange("Transaction Source", HandledICOutboxTrans."Transaction Source");
+        HandledICOutboxPurchLine.SetRange("IC Partner Ref. Type", ICPartnerRefType);
+        HandledICOutboxPurchLine.SetRange("IC Partner Reference", ICPartnerReference);
+        HandledICOutboxPurchLine.FindFirst();
+        HandledICOutboxPurchLine.TestField("Description 2", ExpectedDescription2);
     end;
 
     [ConfirmHandler]

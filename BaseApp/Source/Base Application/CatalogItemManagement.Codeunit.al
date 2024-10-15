@@ -461,7 +461,7 @@ codeunit 5703 "Catalog Item Management"
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
         OnBeforeInsertItemUnitOfMeasure(UnitOfMeasureCode, ItemNo);
-        InsertUnitOfMeasure(UnitOfMeasureCode);
+        InsertUnitOfMeasure(UnitOfMeasureCode, ItemNo);
         if not ItemUnitOfMeasure.Get(ItemNo, UnitOfMeasureCode) then begin
             ItemUnitOfMeasure."Item No." := ItemNo;
             ItemUnitOfMeasure.Code := UnitOfMeasureCode;
@@ -470,7 +470,7 @@ codeunit 5703 "Catalog Item Management"
         end;
     end;
 
-    local procedure InsertUnitOfMeasure(UnitOfMeasureCode: Code[10])
+    local procedure InsertUnitOfMeasure(UnitOfMeasureCode: Code[10]; ItemNo: Code[20])
     var
         UnitOfMeasure: Record "Unit of Measure";
     begin
@@ -478,7 +478,7 @@ codeunit 5703 "Catalog Item Management"
             UnitOfMeasure.Code := UnitOfMeasureCode;
             UnitOfMeasure.Insert();
         end;
-        OnAfterInsertUnitOfMeasure(UnitOfMeasureCode);
+        OnAfterInsertUnitOfMeasure(UnitOfMeasureCode, ItemNo);
     end;
 
     procedure GetNewItemNo(NonstockItem: Record "Nonstock Item"; Length1: Integer; Length2: Integer) NewItemNo: Code[20]
@@ -573,6 +573,7 @@ codeunit 5703 "Catalog Item Management"
         Item."VAT Prod. Posting Group" := ItemTempl."VAT Prod. Posting Group";
         Item."Item Disc. Group" := ItemTempl."Item Disc. Group";
         Item."Item Category Code" := ItemTempl."Item Category Code";
+        Item."Reordering Policy" := ItemTempl."Reordering Policy";
 
         OnAfterInitItemFromTemplate(Item, ItemTempl, NonstockItem);
     end;
@@ -604,7 +605,7 @@ codeunit 5703 "Catalog Item Management"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertUnitOfMeasure(UnitOfMeasureCode: Code[10])
+    local procedure OnAfterInsertUnitOfMeasure(UnitOfMeasureCode: Code[10]; ItemNo: Code[20])
     begin
     end;
 

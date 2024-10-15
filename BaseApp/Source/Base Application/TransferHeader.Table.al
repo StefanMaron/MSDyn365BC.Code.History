@@ -494,6 +494,10 @@ table 5740 "Transfer Header"
             Caption = 'Transport Method';
             TableRelation = "Transport Method";
         }
+        field(49; "Partner VAT ID"; Code[20])
+        {
+            Caption = 'Partner VAT ID';
+        }
         field(59; "Entry/Exit Point"; Code[10])
         {
             Caption = 'Entry/Exit Point';

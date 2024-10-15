@@ -314,6 +314,7 @@ page 11310 "General Ledger Entries Apply"
                         TempGLEntryApplicationBuffer.Copy(Rec, true);
                         TempGLEntryApplicationBuffer.SetRecFilter();
                         Undo(TempGLEntryApplicationBuffer);
+                        CurrPage.Update(false);
                     end;
                 }
             }
@@ -477,6 +478,8 @@ page 11310 "General Ledger Entries Apply"
             IncludeEntryFilter::Closed:
                 SetRange(Open, false);
         end;
+
+        OnAfterSetIncludeEntryFilter(Rec, IncludeEntryFilter);
     end;
 
     local procedure UpdateAmounts()
@@ -513,6 +516,11 @@ page 11310 "General Ledger Entries Apply"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostApplication(var GLEntryApplicationBuffer: Record "G/L Entry Application Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetIncludeEntryFilter(var GLEntryApplicationBuffer: Record "G/L Entry Application Buffer"; var IncludeEntryFilter: Option)
     begin
     end;
 
