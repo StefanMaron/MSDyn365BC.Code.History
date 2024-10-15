@@ -87,10 +87,10 @@ codeunit 6301 "Power BI Service Mgt."
 
         if PowerBIReportConfiguration.Find('-') then
             repeat
-                if PowerBIReportConfiguration.EmbedUrl <> '' then begin
+                if PowerBIReportConfiguration.ReportEmbedUrl <> '' then begin
                     // get it from cache
                     TempPowerBIReportBuffer.ReportID := PowerBIReportConfiguration."Report ID";
-                    TempPowerBIReportBuffer.EmbedUrl := PowerBIReportConfiguration.EmbedUrl;
+                    TempPowerBIReportBuffer.Validate(ReportEmbedUrl, PowerBIReportConfiguration.ReportEmbedUrl);
                     TempPowerBIReportBuffer.Enabled := true;
                     if TempPowerBIReportBuffer.Insert then;
                 end else begin
@@ -433,7 +433,8 @@ codeunit 6301 "Power BI Service Mgt."
             if not IsNull(ReturnedReport) then begin
                 WasSuccessful := true;
                 PowerBIReportUploads."Uploaded Report ID" := ReturnedReport.ReportId;
-                PowerBIReportUploads."Embed Url" := ReturnedReport.EmbedUrl;
+                PowerBIReportUploads.Validate("Report Embed Url",
+                    CopyStr(ReturnedReport.EmbedUrl, 1, MaxStrLen(PowerBIReportUploads."Report Embed Url")));
                 PowerBIReportUploads."Import ID" := NullGuidTxt;
                 PowerBIReportUploads."Should Retry" := false;
                 PowerBIReportUploads."Retry After" := 0DT;
@@ -516,7 +517,7 @@ codeunit 6301 "Power BI Service Mgt."
                     PowerBIReportConfiguration.Init;
                     PowerBIReportConfiguration."User Security ID" := UserSecurityId;
                     PowerBIReportConfiguration."Report ID" := PowerBIReportUploads."Uploaded Report ID";
-                    PowerBIReportConfiguration.EmbedUrl := PowerBIReportUploads."Embed Url";
+                    PowerBIReportConfiguration.Validate(ReportEmbedUrl, PowerBIReportUploads."Report Embed Url");
                     PowerBIReportConfiguration.Context := PowerBIDefaultSelection.Context;
                     if PowerBIReportConfiguration.Insert then;
 
@@ -956,14 +957,14 @@ codeunit 6301 "Power BI Service Mgt."
 
         // report embedding url
         JToken := JObj.SelectToken('embedUrl');
-        TempPowerBIReportBuffer.EmbedUrl := JToken.ToString;
+        TempPowerBIReportBuffer.Validate(ReportEmbedUrl, JToken.ToString);
 
         PowerBIReportConfiguration.Reset;
         if PowerBIReportConfiguration.Get(UserSecurityId, TempPowerBIReportBuffer.ReportID, EnglishContext) then begin
             // report enabled
             TempPowerBIReportBuffer.Enabled := true;
 
-            if PowerBIReportConfiguration.EmbedUrl = '' then
+            if PowerBIReportConfiguration.ReportEmbedUrl = '' then
                 UpdateEmbedCache := true;
         end;
 
@@ -1037,9 +1038,9 @@ codeunit 6301 "Power BI Service Mgt."
             TempPowerBIReportBuffer.Reset;
             if TempPowerBIReportBuffer.Find('-') then
                 repeat
-                    if TempPowerBIReportBuffer.EmbedUrl <> '' then
+                    if TempPowerBIReportBuffer.ReportEmbedUrl <> '' then
                         if PowerBIReportConfiguration.Get(UserSecurityId, TempPowerBIReportBuffer.ReportID, EnglishContext) then begin
-                            PowerBIReportConfiguration.EmbedUrl := TempPowerBIReportBuffer.EmbedUrl;
+                            PowerBIReportConfiguration.Validate(ReportEmbedUrl, TempPowerBIReportBuffer.ReportEmbedUrl);
                             if PowerBIReportConfiguration.Modify then;
                         end;
                 until TempPowerBIReportBuffer.Next = 0;

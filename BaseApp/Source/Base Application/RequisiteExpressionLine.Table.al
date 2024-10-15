@@ -3,6 +3,7 @@ table 26560 "Requisite Expression Line"
     Caption = 'Requisite Expression Line';
     ObsoleteReason = 'Obsolete functionality';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

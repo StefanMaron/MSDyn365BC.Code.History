@@ -88,7 +88,7 @@ codeunit 99000830 "Create Reserv. Entry"
             ReservEntry2."Qty. per Unit of Measure" := InsertReservEntry2."Qty. per Unit of Measure";
             ReservEntry2."Untracked Surplus" := InsertReservEntry2."Untracked Surplus" and not ReservEntry2.Positive;
 
-            OnAfterCopyFromInsertReservEntry(InsertReservEntry2, ReservEntry2);
+            OnAfterCopyFromInsertReservEntry(InsertReservEntry2, ReservEntry2, ReservEntry);
 
             if not QtyToHandleAndInvoiceIsSet then begin
                 ReservEntry2."Qty. to Handle (Base)" := ReservEntry2."Quantity (Base)";
@@ -121,15 +121,19 @@ codeunit 99000830 "Create Reserv. Entry"
         if TrackingSpecificationExists then
             SetupSplitReservEntry(ReservEntry, ReservEntry2);
 
+        OnCreateEntryOnBeforeOnBeforeSplitReservEntry(ReservEntry, ReservEntry2);
+
         FirstSplit := true;
         while SplitReservEntry(ReservEntry, ReservEntry2, TrackingSpecificationExists, FirstSplit) do begin
             ReservEntry."Entry No." := 0;
             ReservEntry.UpdateItemTracking;
             OnBeforeReservEntryInsert(ReservEntry);
-            ReservEntry.Insert;
+            ReservEntry.Insert();
+            OnAfterReservEntryInsert(ReservEntry);
             if Status < Status::Surplus then begin
                 ReservEntry2."Entry No." := ReservEntry."Entry No.";
-                ReservEntry2.UpdateItemTracking;
+                OnBeforeReservEntryUpdateItemTracking(ReservEntry, ReservEntry2);
+                ReservEntry2.UpdateItemTracking();
                 OnBeforeReservEntryInsertNonSurplus(ReservEntry2);
                 ReservEntry2.Insert;
                 OnAfterReservEntryInsertNonSurplus(ReservEntry2, ReservEntry);
@@ -358,7 +362,8 @@ codeunit 99000830 "Create Reserv. Entry"
 
             if not ReservEntry.Get(NewReservEntry."Entry No.", NewReservEntry.Positive) then begin
                 // Means that only one record exists = surplus or prospect
-                NewReservEntry.Insert;
+                NewReservEntry.Insert();
+                OnTransferReservEntryOnAfterNewReservEntryInsert(NewReservEntry);
                 // Delete the original record:
                 NewReservEntry.Positive := not NewReservEntry.Positive;
                 NewReservEntry.Delete;
@@ -431,6 +436,7 @@ codeunit 99000830 "Create Reserv. Entry"
 
         SynchronizeTransferOutboundToInboundItemTracking(NewReservEntry."Entry No.");
 
+        OnAfterTransferReservEntry(NewReservEntry, OldReservEntry);
         xTransferQty -= TransferQty;
         exit(xTransferQty * CurrSignFactor);
     end;
@@ -904,7 +910,12 @@ codeunit 99000830 "Create Reserv. Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyFromInsertReservEntry(var InsertReservEntry: Record "Reservation Entry"; var ReservEntry: Record "Reservation Entry")
+    local procedure OnAfterCopyFromInsertReservEntry(var InsertReservEntry: Record "Reservation Entry"; var ReservEntry: Record "Reservation Entry"; FromReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReservEntryInsert(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 
@@ -915,6 +926,11 @@ codeunit 99000830 "Create Reserv. Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSignFactor(ReservationEntry: Record "Reservation Entry"; var Sign: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferReservEntry(NewReservEntry: Record "Reservation Entry"; OldReservEntry: Record "Reservation Entry")
     begin
     end;
 
@@ -939,6 +955,11 @@ codeunit 99000830 "Create Reserv. Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeReservEntryUpdateItemTracking(var ReservationEntry: Record "Reservation Entry"; var ReservationEntry2: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSplitNonSurplusReservEntry(var TempTrackingSpecification: Record "Tracking Specification" temporary; var ReservationEntry: Record "Reservation Entry")
     begin
     end;
@@ -954,6 +975,11 @@ codeunit 99000830 "Create Reserv. Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateEntryOnBeforeOnBeforeSplitReservEntry(var ReservEntry: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateEntryOnBeforeSurplusCondition(var ReservEntry: Record "Reservation Entry")
     begin
     end;
@@ -965,6 +991,11 @@ codeunit 99000830 "Create Reserv. Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferReservEntryOnBeforeUpdateItemTracking(var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReservEntryOnAfterNewReservEntryInsert(var NewReservEntry: Record "Reservation Entry")
     begin
     end;
 

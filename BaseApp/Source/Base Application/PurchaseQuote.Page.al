@@ -743,7 +743,8 @@
                     Promoted = true;
                     PromotedCategory = Category9;
                     RunObject = Page "Vendor Card";
-                    RunPageLink = "No." = FIELD("Buy-from Vendor No.");
+                    RunPageLink = "No." = FIELD("Buy-from Vendor No."),
+                                  "Date Filter" = FIELD("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the vendor on the purchase document.';
                 }
@@ -1244,6 +1245,8 @@
             SetRange("Responsibility Center", UserMgt.GetPurchasesFilter);
             FilterGroup(0);
         end;
+
+        SetRange("Date Filter", 0D, WorkDate());
 
         ActivateFields;
 

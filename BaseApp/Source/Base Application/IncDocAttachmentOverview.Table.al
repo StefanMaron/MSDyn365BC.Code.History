@@ -85,7 +85,7 @@ table 137 "Inc. Doc. Attachment Overview"
         NotAvailableAttachmentMsg: Label 'The attachment is no longer available.';
         ClientTypeManagement: Codeunit "Client Type Management";
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure NameDrillDown()
     var
         IncomingDocument: Record "Incoming Document";

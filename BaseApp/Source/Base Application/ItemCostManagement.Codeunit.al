@@ -257,19 +257,15 @@ codeunit 5804 ItemCostManagement
 
         if AverageQty <> 0 then begin
             CostAmt := AverageCost + CalculateCostAmt(Item, true) + CalculateCostAmt(Item, false);
-            if (CostAmt <> 0) and (Abs(CostAmt) = GLSetup."Amount Rounding Precision") then begin
+            if (CostAmt > 0) and (CostAmt = GLSetup."Amount Rounding Precision") then
                 NeedCalcPreciseAmt := true;
-                CostAmt := AverageCost;
-            end;
 
             GetGLSetup;
             if GLSetup."Additional Reporting Currency" <> '' then begin
                 Currency.Get(GLSetup."Additional Reporting Currency");
                 CostAmtACY := AverageCostACY + CalculateCostAmtACY(Item, true) + CalculateCostAmtACY(Item, false);
-                if (CostAmtACY <> 0) and (Abs(CostAmtACY) = Currency."Amount Rounding Precision") then begin
+                if (CostAmtACY > 0) and (CostAmtACY = Currency."Amount Rounding Precision") then
                     NeedCalcPreciseAmtACY := true;
-                    CostAmtACY := AverageCostACY;
-                end;
             end;
 
             if NeedCalcPreciseAmt or NeedCalcPreciseAmtACY then
@@ -356,14 +352,48 @@ codeunit 5804 ItemCostManagement
 
     local procedure CalculatePreciseCostAmounts(var Item: Record Item; NeedCalcPreciseAmt: Boolean; NeedCalcPreciseAmtACY: Boolean; var PreciseAmt: Decimal; var PreciseAmtACY: Decimal)
     var
-        ItemLedgerEntry: Record "Item Ledger Entry";
+        OpenInbndItemLedgEntry: Record "Item Ledger Entry";
+        OpenOutbndItemLedgEntry: Record "Item Ledger Entry";
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+        ItemApplicationEntry: Record "Item Application Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", Item."No.");
-            SetRange(Open, true);
-            SetRange(Positive, true);
-            SetFilter("Location Code", Item.GetFilter("Location Filter"));
-            SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+        // Collect precise (not rounded) remaining cost on:
+        // 1. open inbound item ledger entries;
+        // 2. closed inbound item ledger entries the open outbound item entries are applied to.
+        PreciseAmt := 0;
+        PreciseAmtACY := 0;
+
+        OpenInbndItemLedgEntry.SetRange("Item No.", Item."No.");
+        OpenInbndItemLedgEntry.SetRange(Open, true);
+        OpenInbndItemLedgEntry.SetRange(Positive, true);
+        OpenInbndItemLedgEntry.SetRange("Location Code", Item.GetFilter("Location Filter"));
+        OpenInbndItemLedgEntry.SetRange("Variant Code", Item.GetFilter("Variant Filter"));
+        if OpenInbndItemLedgEntry.FindSet() then
+            repeat
+                TempItemLedgerEntry := OpenInbndItemLedgEntry;
+                TempItemLedgerEntry.Insert();
+            until OpenInbndItemLedgEntry.Next() = 0;
+
+        OpenOutbndItemLedgEntry.CopyFilters(OpenInbndItemLedgEntry);
+        OpenOutbndItemLedgEntry.SetRange(Positive, false);
+        if OpenOutbndItemLedgEntry.FindSet() then
+            repeat
+                if ItemApplicationEntry.GetInboundEntriesTheOutbndEntryAppliedTo(OpenOutbndItemLedgEntry."Entry No.") then
+                    repeat
+                        if TempItemLedgerEntry.Get(ItemApplicationEntry."Inbound Item Entry No.") then begin
+                            TempItemLedgerEntry."Remaining Quantity" -= ItemApplicationEntry.Quantity;
+                            TempItemLedgerEntry.Modify();
+                        end else begin
+                            OpenInbndItemLedgEntry.Get(ItemApplicationEntry."Inbound Item Entry No.");
+                            TempItemLedgerEntry := OpenInbndItemLedgEntry;
+                            TempItemLedgerEntry."Remaining Quantity" := -ItemApplicationEntry.Quantity;
+                            TempItemLedgerEntry.Insert();
+                        end;
+                    until ItemApplicationEntry.Next() = 0;
+            until OpenOutbndItemLedgEntry.Next() = 0;
+
+        with TempItemLedgerEntry do begin
+            Reset();
             if FindSet then
                 repeat
                     if NeedCalcPreciseAmt then begin

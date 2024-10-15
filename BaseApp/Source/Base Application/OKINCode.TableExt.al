@@ -8,6 +8,7 @@ tableextension 17361 OKINCode extends Language
             ObsoleteReason = 'Not used';
             ObsoleteState = Pending;
             TableRelation = "Classificator OKIN".Code WHERE(Group = CONST('04'));
+            ObsoleteTag = '15.0';
         }
     }
 }

@@ -106,55 +106,13 @@ table 1003 "Job Planning Line"
 
                 case Type of
                     Type::Resource:
-                        begin
-                            Res.Get("No.");
-                            Res.CheckResourcePrivacyBlocked(false);
-                            Res.TestField(Blocked, false);
-                            Res.TestField("Gen. Prod. Posting Group");
-                            if Description = '' then
-                                Description := Res.Name;
-                            if "Description 2" = '' then
-                                "Description 2" := Res."Name 2";
-                            "Gen. Prod. Posting Group" := Res."Gen. Prod. Posting Group";
-                            "Resource Group No." := Res."Resource Group No.";
-                            Validate("Unit of Measure Code", Res."Base Unit of Measure");
-                        end;
+                        CopyFromResource();
                     Type::Item:
-                        begin
-                            GetItem;
-                            Item.TestField(Blocked, false);
-                            Item.TestField("Gen. Prod. Posting Group");
-                            Description := Item.Description;
-                            "Description 2" := Item."Description 2";
-                            if Job."Language Code" <> '' then
-                                GetItemTranslation;
-                            "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
-                            Validate("Unit of Measure Code", Item."Base Unit of Measure");
-                            if "Usage Link" then
-                                if Item.Reserve = Item.Reserve::Optional then
-                                    Reserve := Job.Reserve
-                                else
-                                    Reserve := Item.Reserve;
-                        end;
+                        CopyFromItem();
                     Type::"G/L Account":
-                        begin
-                            GLAcc.Get("No.");
-                            GLAcc.CheckGLAcc;
-                            GLAcc.TestField("Direct Posting", true);
-                            GLAcc.TestField("Gen. Prod. Posting Group");
-                            Description := GLAcc.Name;
-                            "Gen. Bus. Posting Group" := GLAcc."Gen. Bus. Posting Group";
-                            "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
-                            "Unit of Measure Code" := '';
-                            "Direct Unit Cost (LCY)" := 0;
-                            "Unit Cost (LCY)" := 0;
-                            "Unit Price" := 0;
-                        end;
+                        CopyFromGLAccount();
                     Type::Text:
-                        begin
-                            StandardText.Get("No.");
-                            Description := StandardText.Description;
-                        end;
+                        CopyFromStandardText();
                 end;
 
                 if Type <> Type::Text then
@@ -844,7 +802,14 @@ table 1003 "Job Planning Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyToTransferToInvoice(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Qty. to Transfer to Invoice" = 0 then
                     exit;
 
@@ -1229,6 +1194,67 @@ table 1003 "Job Planning Line"
 
         if ItemCheckAvail.JobPlanningLineCheck(Rec) then
             ItemCheckAvail.RaiseUpdateInterruptedError;
+    end;
+
+    local procedure CopyFromResource()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyFromResource(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Res.Get("No.");
+        Res.CheckResourcePrivacyBlocked(false);
+        Res.TestField(Blocked, false);
+        Res.TestField("Gen. Prod. Posting Group");
+        if Description = '' then
+            Description := Res.Name;
+        if "Description 2" = '' then
+            "Description 2" := Res."Name 2";
+        "Gen. Prod. Posting Group" := Res."Gen. Prod. Posting Group";
+        "Resource Group No." := Res."Resource Group No.";
+        Validate("Unit of Measure Code", Res."Base Unit of Measure");
+    end;
+
+    local procedure CopyFromItem()
+    begin
+        GetItem;
+        Item.TestField(Blocked, false);
+        Item.TestField("Gen. Prod. Posting Group");
+        Description := Item.Description;
+        "Description 2" := Item."Description 2";
+        if Job."Language Code" <> '' then
+            GetItemTranslation;
+        "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
+        Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        if "Usage Link" then
+            if Item.Reserve = Item.Reserve::Optional then
+                Reserve := Job.Reserve
+            else
+                Reserve := Item.Reserve;
+    end;
+
+    local procedure CopyFromGLAccount()
+    begin
+        GLAcc.Get("No.");
+        GLAcc.CheckGLAcc;
+        GLAcc.TestField("Direct Posting", true);
+        GLAcc.TestField("Gen. Prod. Posting Group");
+        Description := GLAcc.Name;
+        "Gen. Bus. Posting Group" := GLAcc."Gen. Bus. Posting Group";
+        "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
+        "Unit of Measure Code" := '';
+        "Direct Unit Cost (LCY)" := 0;
+        "Unit Cost (LCY)" := 0;
+        "Unit Price" := 0;
+    end;
+
+    local procedure CopyFromStandardText()
+    begin
+        StandardText.Get("No.");
+        Description := StandardText.Description;
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -2115,12 +2141,22 @@ table 1003 "Job Planning Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromResource(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRetrieveCostPrice(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var ShouldRetrieveCostPrice: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAllAmounts(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyToTransferToInvoice(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 }

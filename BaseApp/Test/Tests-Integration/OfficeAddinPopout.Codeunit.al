@@ -13,6 +13,7 @@ codeunit 139053 "Office Addin Popout"
         LibraryMarketing: Codeunit "Library - Marketing";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         LibraryOfficeHostProvider: Codeunit "Library - Office Host Provider";
         OfficeHostType: DotNet OfficeHostType;
@@ -33,7 +34,7 @@ codeunit 139053 "Office Addin Popout"
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 156484] Stan can initiate tasks from the Sales Quote page
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
         TestEmail := RandomEmail;
@@ -62,7 +63,7 @@ codeunit 139053 "Office Addin Popout"
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 156492] Stan can initiate tasks from the Sales Invoice page
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
         TestEmail := RandomEmail;
@@ -91,7 +92,7 @@ codeunit 139053 "Office Addin Popout"
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 156493] Stan can initiate tasks from the Sales Credit Memo page
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
         TestEmail := RandomEmail;
@@ -120,7 +121,7 @@ codeunit 139053 "Office Addin Popout"
         // [FEATURE] [Contact] [Vendor]
         // [SCENARIO 156495] Stan can initiate tasks from the Purchase Invoice page
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact with email is created and assigned to customer
         TestEmail := RandomEmail;
@@ -149,7 +150,7 @@ codeunit 139053 "Office Addin Popout"
         // [FEATURE] [Contact] [Vendor]
         // [SCENARIO 156496] Stan can initiate tasks from the Purchase Credit Memo page
         // Setup
-        Initialize;
+        Initialize();
 
         SetDocNoSeries;
 
@@ -176,7 +177,7 @@ codeunit 139053 "Office Addin Popout"
     begin
         // [FEATURE] [Contact] [Vendor]
         // [SCENARIO 156496] Navigate action should not be visible on the "Apply Vendor Entries" page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Ledger Entry is create
         VendLedgEntry.SetRange(Open, true);
@@ -196,7 +197,9 @@ codeunit 139053 "Office Addin Popout"
         OfficeAddin: Record "Office Add-in";
         AddinManifestManagement: Codeunit "Add-in Manifest Management";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Office Addin Popout");
+
+        LibraryVariableStorage.Clear();
         Clear(LibraryOfficeHostProvider);
         BindSubscription(LibraryOfficeHostProvider);
         InitializeOfficeHostProvider(OfficeHostType.OutlookItemRead);
@@ -204,14 +207,18 @@ codeunit 139053 "Office Addin Popout"
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Office Addin Popout");
+
         AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
-        SetupSales;
-        SetupMarketing;
+        SetupSales();
+        SetupMarketing();
 
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
 
         IsInitialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Office Addin Popout");
     end;
 
     local procedure InitializeOfficeHostProvider(HostType: Text)

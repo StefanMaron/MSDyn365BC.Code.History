@@ -3,6 +3,7 @@ table 26559 "Stat. Report Requisite"
     Caption = 'Stat. Report Requisite';
     ObsoleteReason = 'Obsolete functionality';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

@@ -1173,6 +1173,8 @@ page 6510 "Item Tracking Lines"
         if (TrackingSpecification."Source Type" = DATABASE::"Transfer Line") and (FormRunMode = FormRunMode::Reclass) then
             CurrentEntryStatus := CurrentEntryStatus::Prospect;
 
+        OnSetSourceSpecOnAfterAssignCurrentEntryStatus(TrackingSpecification, CurrentEntryStatus);
+
         // Set controls for Qty to handle:
         SetControls(Controls::Handle, GetHandleSource(TrackingSpecification));
         // Set controls for Qty to Invoice:
@@ -3089,6 +3091,11 @@ page 6510 "Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetQtyToHandleAndInvoiceOnBeforeTrackingSpecModify(var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSourceSpecOnAfterAssignCurrentEntryStatus(var TrackingSpecification: Record "Tracking Specification"; var CurrentEntryStatus: Option)
     begin
     end;
 

@@ -18,6 +18,7 @@ page 8902 "Human Resources Manager RC"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This action will be removed from this page';
+                    ObsoleteTag = '15.3';
                 }
                 action("Absence Registration")
                 {
@@ -28,6 +29,7 @@ page 8902 "Human Resources Manager RC"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This action will be removed from this page';
+                    ObsoleteTag = '15.3';
                 }
                 group("Group3")
                 {
@@ -703,6 +705,7 @@ page 8902 "Human Resources Manager RC"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This action will be removed from this page';
+                    ObsoleteTag = '15.3';
                 }
                 action("Grounds for Termination")
                 {
@@ -713,6 +716,7 @@ page 8902 "Human Resources Manager RC"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This action will be removed from this page';
+                    ObsoleteTag = '15.3';
                 }
                 action("Unions")
                 {
@@ -723,6 +727,7 @@ page 8902 "Human Resources Manager RC"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This action will be removed from this page';
+                    ObsoleteTag = '15.3';
                 }
                 action("Employment Contracts")
                 {
@@ -733,6 +738,7 @@ page 8902 "Human Resources Manager RC"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This action will be removed from this page';
+                    ObsoleteTag = '15.3';
                 }
                 action("Relatives")
                 {
@@ -743,6 +749,7 @@ page 8902 "Human Resources Manager RC"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This action will be removed from this page';
+                    ObsoleteTag = '15.3';
                 }
                 action("Misc. Articles")
                 {
@@ -753,6 +760,7 @@ page 8902 "Human Resources Manager RC"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This action will be removed from this page';
+                    ObsoleteTag = '15.3';
                 }
                 action("Confidential")
                 {
@@ -763,6 +771,7 @@ page 8902 "Human Resources Manager RC"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This action will be removed from this page';
+                    ObsoleteTag = '15.3';
                 }
                 action("Qualifications")
                 {
@@ -773,6 +782,7 @@ page 8902 "Human Resources Manager RC"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This action will be removed from this page';
+                    ObsoleteTag = '15.3';
                 }
                 action("Payroll Periods")
                 {
@@ -783,6 +793,7 @@ page 8902 "Human Resources Manager RC"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This action will be removed from this page';
+                    ObsoleteTag = '15.3';
                 }
                 action("Payroll Calendars")
                 {

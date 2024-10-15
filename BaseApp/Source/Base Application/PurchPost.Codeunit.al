@@ -1,4 +1,4 @@
-codeunit 90 "Purch.-Post"
+﻿codeunit 90 "Purch.-Post"
 {
     Permissions = TableData "Sales Header" = m,
                   TableData "Sales Line" = m,
@@ -57,9 +57,9 @@ codeunit 90 "Purch.-Post"
         GetGLSetup;
         GetCurrency("Currency Code");
 
-        PurchSetup.Get;
-        InvtSetup.Get;
-        FASetup.Get;
+        GetPurchSetup();
+        InvtSetup.Get();
+        FASetup.Get();
         PurchHeader := Rec;
         FillTempLines(PurchHeader, TempPurchLineGlobal);
 
@@ -266,6 +266,7 @@ codeunit 90 "Purch.-Post"
         RoundingLineInserted: Boolean;
         DropShipOrder: Boolean;
         GLSetupRead: Boolean;
+        PurchSetupRead: Boolean;
         InvoiceGreaterThanReturnShipmentErr: Label 'The quantity you are attempting to invoice is greater than the quantity in return shipment %1.', Comment = '%1 = Return Shipment No.';
         ReturnShipmentLinesDeletedErr: Label 'Return shipment lines have been deleted.';
         InvoiceMoreThanShippedErr: Label 'You cannot invoice return order %1 for more than you have shipped.', Comment = '%1 = Order No.';
@@ -947,6 +948,8 @@ codeunit 90 "Purch.-Post"
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         TrackingSpecificationExists: Boolean;
     begin
+        OnBeforePostItemTrackingLineOnPostPurchLine(PurchHeader, PurchLine);
+
         if PurchLine."Prepayment Line" then
             exit;
 
@@ -1093,7 +1096,11 @@ codeunit 90 "Purch.-Post"
                           TempHandlingSpecification, 0);
                 end;
 
+            OnPostItemJnlLineOnBeforeItemJnlPostLineRunWithCheck(ItemJnlLine, PurchLine, DropShipOrder);
+
             RunItemJnlPostLine(ItemJnlLine);
+
+            OnPostItemJnlLineOnAfterItemJnlPostLineRunWithCheck(ItemJnlLine, PurchLine, PurchHeader);
 
             if not Subcontracting then
                 PostItemJnlLineTracking(
@@ -1242,10 +1249,12 @@ codeunit 90 "Purch.-Post"
                 then
                     CreatePositiveEntry(TempWhseJnlLine2, PurchLine."Job No.", PostBefore);
                 WhseJnlPostLine.Run(TempWhseJnlLine2);
-                if RevertWarehouseEntry(TempWhseJnlLine2, PurchLine."Job No.", PostBefore) then
+                if RevertWarehouseEntry(TempWhseJnlLine2, PurchLine."Job No.", PostBefore) then begin
                     WhseJnlPostLine.Run(TempWhseJnlLine2);
-            until TempWhseJnlLine2.Next = 0;
-        TempWhseTrackingSpecification.DeleteAll;
+                    OnPostItemJnlLineWhseLineOnAfterPostRevert(TempWhseJnlLine2, PurchLine);
+                end;
+            until TempWhseJnlLine2.Next() = 0;
+        TempWhseTrackingSpecification.DeleteAll();
     end;
 
     local procedure ShouldPostWhseJnlLine(PurchLine: Record "Purchase Line"; var ItemJnlLine: Record "Item Journal Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary) Result: Boolean
@@ -1985,7 +1994,7 @@ codeunit 90 "Purch.-Post"
                 if "FA Posting Type" = "FA Posting Type"::"Acquisition Cost" then begin
                     TestField("Maintenance Code", '');
                     DeprBook.TestField("G/L Integration - Acq. Cost", true);
-                    if GetTaxRegisterSetup then
+                    if GetTaxRegisterSetup() then
                         if TaxRegisterSetup."Calculate TD for each FA" and DeprBook."Control FA Acquis. Cost" then
                             TestField("Tax Difference Code");
                 end;
@@ -2132,12 +2141,20 @@ codeunit 90 "Purch.-Post"
                 "Return Shipment No." := '';
             end;
         end;
+
+        OnAfterUpdateLastPostingNos(PurchHeader);
     end;
 
     local procedure UpdatePostingNos(var PurchHeader: Record "Purchase Header") ModifyHeader: Boolean
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdatePostingNos(PurchHeader, NoSeriesMgt, ModifyHeader, SuppressCommit, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchHeader do begin
             if Receive and ("Receiving No." = '') then
                 if ("Document Type" = "Document Type"::Order) or
@@ -2902,8 +2919,8 @@ codeunit 90 "Purch.-Post"
         TempVATAmountLineRemainder.DeleteAll;
         OldPurchLine.CalcVATAmountLines(QtyType, PurchHeader, OldPurchLine, TempVATAmountLine);
         with PurchHeader do begin
-            GetGLSetup;
-            PurchSetup.Get;
+            GetGLSetup();
+            GetPurchSetup();
             GetCurrency("Currency Code");
             OldPurchLine.SetRange("Document Type", "Document Type");
             OldPurchLine.SetRange("Document No.", "No.");
@@ -3742,6 +3759,16 @@ codeunit 90 "Purch.-Post"
         if not GLSetupRead then
             GLSetup.Get;
         GLSetupRead := true;
+    end;
+
+    local procedure GetPurchSetup()
+    begin
+        if not PurchSetupRead then
+            PurchSetup.Get;
+
+        PurchSetupRead := true;
+
+        OnAfterGetPurchSetup(PurchSetup);
     end;
 
     local procedure CheckWarehouse(var TempItemPurchLine: Record "Purchase Line" temporary)
@@ -4884,7 +4911,7 @@ codeunit 90 "Purch.-Post"
         if not (PurchHeader."Document Type" in [PurchHeader."Document Type"::Order, PurchHeader."Document Type"::"Return Order"]) then
             exit;
 
-        PurchSetup.Get;
+        GetPurchSetup();
         if (PurchHeader."Document Type" = PurchHeader."Document Type"::Order) and not PurchSetup."Archive Orders" then
             exit;
         if (PurchHeader."Document Type" = PurchHeader."Document Type"::"Return Order") and not PurchSetup."Archive Return Orders" then
@@ -4943,6 +4970,12 @@ codeunit 90 "Purch.-Post"
                       PurchItemLedgEntryNo, IsNonInventoriableItem);
 
                 RunItemJnlPostLineWithReservation(ItemJournalLine, TempReservationEntry);
+
+                IsHandled := false;
+                OnPostItemJnlLineJobConsumptionOnBeforeJobPost(
+                    PurchHeader, PurchInvHeader, PurchCrMemoHeader, PurchRcptHeader, ReturnShptHeader, PurchLine, SrcCode, QtyToBeReceived, IsHandled);
+                if IsHandled then
+                    exit;
 
                 if QtyToBeInvoiced <> 0 then begin
                     "Qty. to Invoice" := QtyToBeInvoiced;
@@ -5088,6 +5121,8 @@ codeunit 90 "Purch.-Post"
                 JobPurchLine2."Direct Unit Cost" := 0
             else
                 JobPurchLine2."Direct Unit Cost" := JobPurchLine2."Direct Unit Cost" / (1 + JobPurchLine2."VAT %" / 100);
+
+        OnAfterCreateJobPurchLine(JobPurchLine2, PurchLine2);
     end;
 
     local procedure RevertWarehouseEntry(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; JobNo: Code[20]; PostJobConsumptionBeforePurch: Boolean): Boolean
@@ -7045,8 +7080,9 @@ codeunit 90 "Purch.-Post"
         VendLedgEntry.Reset;
         VendLedgEntry.SetCurrentKey("External Document No.");
         VendorMgt.SetFilterForExternalDocNo(
-          VendLedgEntry, GenJnlLineDocType, GenJnlLineExtDocNo, PurchaseHeader."Pay-to Vendor No.", PurchaseHeader."Document Date");
-        if VendLedgEntry.FindFirst then
+            VendLedgEntry, GenJnlLineDocType, GenJnlLineExtDocNo, PurchaseHeader."Pay-to Vendor No.", PurchaseHeader."Document Date");
+        OnCheckExternalDocumentNumberOnAfterSetFilters(VendLedgEntry, PurchaseHeader);
+        if VendLedgEntry.FindFirst() then
             Error(
               PurchaseAlreadyExistsErr, VendLedgEntry."Document Type", GenJnlLineExtDocNo);
     end;
@@ -7129,11 +7165,6 @@ codeunit 90 "Purch.-Post"
                     PostItemTrackingForShipment(PurchHeader, PurchLine, TrackingSpecificationExists, TempTrackingSpecification);
 
                 PostItemTrackingCheckShipment(PurchLine, RemQtyToBeInvoiced);
-                if Abs(RemQtyToBeInvoiced) > Abs(PurchLine."Return Qty. to Ship") then begin
-                    if "Document Type" = "Document Type"::"Credit Memo" then
-                        Error(InvoiceGreaterThanReturnShipmentErr, ReturnShptHeader."No.");
-                    Error(ReturnShipmentLinesDeletedErr);
-                end;
             end else begin
                 if (Abs(RemQtyToBeInvoiced) > Abs(PurchLine."Qty. to Receive")) or
                    (Abs(RemQtyToBeInvoiced) >= Abs(QtyToInvoiceBaseInTrackingSpec)) and (QtyToInvoiceBaseInTrackingSpec <> 0)
@@ -7141,11 +7172,6 @@ codeunit 90 "Purch.-Post"
                     PostItemTrackingForReceipt(PurchHeader, PurchLine, TrackingSpecificationExists, TempTrackingSpecification);
 
                 PostItemTrackingCheckReceipt(PurchLine, RemQtyToBeInvoiced);
-                if Abs(RemQtyToBeInvoiced) > Abs(PurchLine."Qty. to Receive") then begin
-                    if "Document Type" = "Document Type"::Invoice then
-                        Error(QuantityToInvoiceGreaterErr, PurchRcptHeader."No.");
-                    Error(ReceiptLinesDeletedErr);
-                end;
             end;
         end;
     end;
@@ -7229,6 +7255,8 @@ codeunit 90 "Purch.-Post"
                     PurchRcptLine.TestField("Unit of Measure Code", PurchLine."Unit of Measure Code");
                     PurchRcptLine.TestField("Variant Code", PurchLine."Variant Code");
                     PurchRcptLine.TestField("Prod. Order No.", PurchLine."Prod. Order No.");
+
+                    OnPostItemTrackingForReceiptOnAfterPurchRcptLineTestFields(PurchRcptLine, PurchLine);
 
                     UpdateQtyToBeInvoicedForReceipt(
                       QtyToBeInvoiced, QtyToBeInvoicedBase,
@@ -7374,6 +7402,7 @@ codeunit 90 "Purch.-Post"
     local procedure PostUpdateOrderLine(PurchHeader: Record "Purchase Header")
     var
         TempPurchLine: Record "Purchase Line" temporary;
+        SetDefaultQtyBlank: Boolean;
     begin
         OnBeforePostUpdateOrderLine(PurchHeader, TempPurchLineGlobal, SuppressCommit, PurchSetup);
 
@@ -7421,9 +7450,9 @@ codeunit 90 "Purch.-Post"
 
                     InitOutstanding;
 
-                    if WhseHandlingRequired(TempPurchLine) or
-                       (PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Blank)
-                    then begin
+                    SetDefaultQtyBlank := PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Blank;
+                    OnPostUpdateOrderLineOnSetDefaultQtyBlank(PurchHeader, TempPurchLine, PurchSetup, SetDefaultQtyBlank);
+                    if WhseHandlingRequired(TempPurchLine) or SetDefaultQtyBlank then begin
                         if "Document Type" = "Document Type"::"Return Order" then begin
                             "Return Qty. to Ship" := 0;
                             "Return Qty. to Ship (Base)" := 0;
@@ -7765,6 +7794,11 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateJobPurchLine(var JobPurchaseLine: Record "Purchase Line"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePostedDeferralScheduleFromPurchDoc(var PurchaseLine: Record "Purchase Line"; var PostedDeferralHeader: Record "Posted Deferral Header")
     begin
     end;
@@ -7776,6 +7810,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDivideAmount(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; QtyType: Option General,Invoicing,Shipping; PurchLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPurchSetup(var PurchSetup: Record "Purchases & Payables Setup")
     begin
     end;
 
@@ -8007,6 +8046,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateInvoicedQtyOnReturnShptLine(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ReturnShipmentLine: Record "Return Shipment Line"; PurchaseLine: Record "Purchase Line"; TempTrackingSpecification: Record "Tracking Specification" temporary; TrackingSpecificationExists: Boolean; QtyToBeInvoiced: Decimal; QtyToBeInvoicedBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateLastPostingNos(var PurchHeader: Record "Purchase Header")
     begin
     end;
 
@@ -8261,7 +8305,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforePostItemJnlLineJobConsumption(var ItemJournalLine: Record "Item Journal Line"; PurchaseLine: Record "Purchase Line"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; QtyToBeInvoiced: Decimal; QtyToBeInvoicedBase: Decimal; SourceCode: Code[10])
+    local procedure OnBeforePostItemJnlLineJobConsumption(var ItemJournalLine: Record "Item Journal Line"; var PurchaseLine: Record "Purchase Line"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; QtyToBeInvoiced: Decimal; QtyToBeInvoicedBase: Decimal; SourceCode: Code[10])
     begin
     end;
 
@@ -8281,6 +8325,11 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemTrackingLineOnPostPurchLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostItemTrackingForShipmentCondition(PurchaseLine: Record "Purchase Line"; ReturnShipmentLine: Record "Return Shipment Line"; var Condition: Boolean)
     begin
     end;
@@ -8291,7 +8340,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostUpdateOrderLine(PurchHeader: Record "Purchase Header"; var TempPurchLineGlobal: Record "Purchase Line" temporary; CommitIsSuppressed: Boolean; var PurchSetup: Record "Purchases & Payables Setup")
+    local procedure OnBeforePostUpdateOrderLine(PurchHeader: Record "Purchase Header"; var TempPurchLineGlobal: Record "Purchase Line" temporary; CommitIsSuppressed: Boolean; PurchSetup: Record "Purchases & Payables Setup")
     begin
     end;
 
@@ -8332,6 +8381,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateBlanketOrderLine(PurchLine: Record "Purchase Line"; Receive: Boolean; Ship: Boolean; Invoice: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePostingNos(var PurchHeader: Record "Purchase Header"; var NoSeriesMgt: Codeunit NoSeriesManagement; var ModifyHeader: Boolean; SuppressCommit: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -8442,6 +8496,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckAssocOrderLinesOnBeforeCheckOrderLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; SalesOrderLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckExternalDocumentNumberOnAfterSetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -8566,7 +8625,35 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineJobConsumptionOnBeforeJobPost(
+        var PurchaseHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        var PurchRcptHeader: Record "Purch. Rcpt. Header"; var ReturnShptHeader: Record "Return Shipment Header"; PurchaseLine: Record "Purchase Line";
+        SrcCode: Code[10]; QtyToBeReceived: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineWhseLineOnAfterPostRevert(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnAfterItemJnlPostLineRunWithCheck(var ItemJnlLine: Record "Item Journal Line"; var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnBeforeItemJnlPostLineRunWithCheck(var ItemJnlLine: Record "Item Journal Line"; var PurchaseLine: Record "Purchase Line"; DropShipOrder: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostItemTrackingForReceiptOnBeforeReceiptInvoiceErr(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemTrackingForReceiptOnAfterPurchRcptLineTestFields(PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -8602,6 +8689,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostUpdateOrderLineOnBeforeInitOutstanding(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUpdateOrderLineOnSetDefaultQtyBlank(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary; PurchPost: Record "Purchases & Payables Setup"; var SetDefaultQtyBlank: Boolean)
     begin
     end;
 

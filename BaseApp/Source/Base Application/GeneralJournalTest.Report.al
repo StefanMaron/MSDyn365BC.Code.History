@@ -1178,6 +1178,8 @@ report 2 "General Journal - Test"
             No[4] := "Salespers./Purch. Code";
             TableID[5] := DATABASE::Campaign;
             No[5] := "Campaign No.";
+            OnAfterAssignDimTableID(GenJournalLine, TableID, No);
+
             if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                 AddError(DimMgt.GetDimValuePostingErr);
         end;
@@ -2023,6 +2025,8 @@ report 2 "General Journal - Test"
                 if not JT.Get("Job No.", "Job Task No.") then
                     AddError(StrSubstNo(Text071, JT.TableCaption, "Job Task No."))
         end;
+
+        OnAfterTestJobFields(GenJnlLine, ErrorCounter, ErrorText);
     end;
 
     local procedure CheckFADocNo(GenJnlLine: Record "Gen. Journal Line")
@@ -2147,6 +2151,11 @@ report 2 "General Journal - Test"
         exit(GenJournalLine.IsEmpty);
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignDimTableID(GenJournalLine: Record "Gen. Journal Line"; TableID: array[10] of Integer; No: array[10] of Code[20])
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterCheckGLAcc(GenJournalLine: Record "Gen. Journal Line"; GLAccount: Record "G/L Account"; var ErrorCounter: Integer; var ErrorText: array[50] of Text[250])
     begin
@@ -2154,6 +2163,11 @@ report 2 "General Journal - Test"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterCheckGenJnlLine(GenJournalLine: Record "Gen. Journal Line"; var ErrorCounter: Integer; var ErrorText: array[50] of Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTestJobFields(GenJournalLine: Record "Gen. Journal Line"; var ErrorCounter: Integer; var ErrorText: array[50] of Text[250])
     begin
     end;
 

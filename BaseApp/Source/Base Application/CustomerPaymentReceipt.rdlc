@@ -2940,12 +2940,13 @@ Fields!CompanyInfoBankAccountNo.Value, 2)</Hidden>
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>DataSet_Result</DataSetName>
+            <Top>0.21799in</Top>
             <Height>3.9783cm</Height>
             <Width>17.9087cm</Width>
             <Style />
           </Tablix>
         </ReportItems>
-        <Height>3.9783cm</Height>
+        <Height>4.532cm</Height>
         <Style />
       </Body>
       <Width>17.91158cm</Width>
@@ -3000,7 +3001,7 @@ Fields!CompanyInfoBankAccountNo.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>5.29405cm</Top>
+              <Top>4.98175cm</Top>
               <Left>12.10165cm</Left>
               <Height>11pt</Height>
               <Width>2.67866cm</Width>
@@ -3052,7 +3053,7 @@ Fields!CompanyInfoBankAccountNo.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>6.51819cm</Top>
+              <Top>6.20589cm</Top>
               <Left>12.10165cm</Left>
               <Height>11pt</Height>
               <Width>2.67866cm</Width>
@@ -3078,7 +3079,7 @@ Fields!CompanyInfoBankAccountNo.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>6.13366cm</Top>
+              <Top>5.82136cm</Top>
               <Left>12.10165cm</Left>
               <Height>11pt</Height>
               <Width>2.67866cm</Width>
@@ -3104,7 +3105,7 @@ Fields!CompanyInfoBankAccountNo.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>5.71386cm</Top>
+              <Top>5.40156cm</Top>
               <Left>12.10165cm</Left>
               <Height>11pt</Height>
               <Width>2.67866cm</Width>
@@ -3130,9 +3131,9 @@ Fields!CompanyInfoBankAccountNo.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>4.87591cm</Top>
+              <Top>6.62922cm</Top>
               <Left>12.10165cm</Left>
-              <Height>11pt</Height>
+              <Height>24.04997pt</Height>
               <Width>2.67866cm</Width>
               <ZIndex>6</ZIndex>
               <Style>
@@ -3266,7 +3267,7 @@ Fields!CompanyInfoBankAccountNo.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.51819cm</Top>
+              <Top>6.20589cm</Top>
               <Left>14.81558cm</Left>
               <Height>11pt</Height>
               <Width>3.096cm</Width>
@@ -3294,7 +3295,7 @@ Fields!CompanyInfoBankAccountNo.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.13366cm</Top>
+              <Top>5.82136cm</Top>
               <Left>14.81558cm</Left>
               <Height>11pt</Height>
               <Width>3.096cm</Width>
@@ -3322,7 +3323,7 @@ Fields!CompanyInfoBankAccountNo.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.71386cm</Top>
+              <Top>5.40156cm</Top>
               <Left>14.81558cm</Left>
               <Height>11pt</Height>
               <Width>3.096cm</Width>
@@ -3350,7 +3351,7 @@ Fields!CompanyInfoBankAccountNo.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.29405cm</Top>
+              <Top>4.98175cm</Top>
               <Left>14.81558cm</Left>
               <Height>11pt</Height>
               <Width>3.096cm</Width>
@@ -3378,9 +3379,9 @@ Fields!CompanyInfoBankAccountNo.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>4.87591cm</Top>
+              <Top>6.62922cm</Top>
               <Left>14.81558cm</Left>
-              <Height>11pt</Height>
+              <Height>24.04997pt</Height>
               <Width>3.096cm</Width>
               <ZIndex>15</ZIndex>
               <Style>

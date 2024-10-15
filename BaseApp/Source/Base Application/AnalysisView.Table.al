@@ -343,7 +343,7 @@ table 363 "Analysis View"
         NewAnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
         Dim: Record Dimension;
         Text016: Label '%1 is not applicable for source type %2.';
-        Text017: Label 'When you enable %1, you need to update the analysis view. Do you want to update the analysis view now?';
+        AnalysisViewUpdateMsg: Label 'If you enable the %1 feature it can take significantly more time to post documents, such as sales or purchase orders and invoices. Do you want to continue? \\Additionally, enabling the %1 feature immediately updates the analysis view with the latest entries. Do you want to start using the feature, and update the analysis view now?', Comment = '%1 = The name of the feature that is being enabled';
         SkipConfirmationDialogue: Boolean;
 
     local procedure ModifyDim(DimFieldName: Text[100]; DimValue: Code[20]; xDimValue: Code[20])
@@ -665,7 +665,7 @@ table 363 "Analysis View"
             exit;
 
         if not "Update on Posting" and NewUpdateOnPosting then
-            if not Confirm(StrSubstNo(Text017, FieldCaption("Update on Posting")), false) then
+            if not Confirm(StrSubstNo(AnalysisViewUpdateMsg, FieldCaption("Update on Posting")), false) then
                 exit;
 
         "Update on Posting" := NewUpdateOnPosting;

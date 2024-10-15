@@ -142,6 +142,9 @@ report 790 "Calculate Inventory"
 
                 ItemJnlTemplate.Get(ItemJnlLine."Journal Template Name");
                 ItemJnlBatch.Get(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+                OnPreDataItemOnAfterGetItemJnlTemplateAndBatch(ItemJnlTemplate, ItemJnlBatch);
+
                 if NextDocNo = '' then begin
                     if ItemJnlBatch."No. Series" <> '' then begin
                         ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
@@ -836,7 +839,7 @@ report 790 "Calculate Inventory"
             "Entry No." := EntryNo;
             "Dimension Code" := DimCode;
             "Dimension Value Code" := DimValueCode;
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -887,6 +890,11 @@ report 790 "Calculate Inventory"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFunctionInsertItemJnlLine(ItemNo: Code[20]; VariantCode2: Code[10]; DimEntryNo2: Integer; BinCode2: Code[20]; Quantity2: Decimal; PhysInvQuantity: Decimal; var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreDataItemOnAfterGetItemJnlTemplateAndBatch(var ItemJnlTemplate: Record "Item Journal Template"; var ItemJnlBatch: Record "Item Journal Batch")
     begin
     end;
 

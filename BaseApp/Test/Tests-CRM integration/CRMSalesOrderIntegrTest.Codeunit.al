@@ -1346,90 +1346,6 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     end;
 
     [Test]
-    [HandlerFunctions('ConnectionBrokenMessageHandler')]
-    [Scope('OnPrem')]
-    procedure DisableBrokenConnectionPostCoupledSalesOrder()
-    var
-        SalesHeader: Record "Sales Header";
-        CRMSalesorder: Record "CRM Salesorder";
-        CRMSalesorderdetail: Record "CRM Salesorderdetail";
-        CRMSystemuser: Record "CRM Systemuser";
-        CRMConnectionSetup: Record "CRM Connection Setup";
-    begin
-        // [SCENARIO 257435] Disable broken connection when delete(post) coupled Sales Order
-        Initialize;
-        ClearCRMData;
-
-        // [GIVEN] CRM Connection is enabled
-        CRMConnectionSetup.Get;
-        CRMConnectionSetup."Is Enabled" := true;
-        CRMConnectionSetup.Modify;
-
-        // [GIVEN] Created NAV Order from CRM Order
-        CreateCRMSalesorderInLCY(CRMSalesorder);
-        LibraryCRMIntegration.CreateCRMSalesOrderLine(CRMSalesorder, CRMSalesorderdetail);
-        CreateSalesOrderInNAV(CRMSalesorder, SalesHeader);
-
-        // [GIVEN] CRM Connection is broken
-        CRMSystemuser.DeleteAll;
-
-        // [WHEN] Post Sales Order
-        // Deletion of Sales Document is happening, without running trigger
-        SalesHeader.Delete;
-
-        // [THEN] Message notifying user about broken connection and error text ET is shown
-        Assert.ExpectedMessage('The CRM Systemuser table is empty.', LibraryVariableStorage.DequeueText);
-
-        // [THEN] CRM Connection is disabled, "Disable Reason" = ET
-        CRMConnectionSetup.Get;
-        CRMConnectionSetup.TestField("Is Enabled", false);
-        CRMConnectionSetup.TestField("Disable Reason", 'The CRM Systemuser table is empty.');
-    end;
-
-    [Test]
-    [HandlerFunctions('ConnectionBrokenMessageHandler')]
-    [Scope('OnPrem')]
-    procedure DisableBrokenConnectionPostSalesOrderWithCoupledCustItem()
-    var
-        SalesHeader: Record "Sales Header";
-        Customer: Record Customer;
-        Item: Record Item;
-        SalesLine: Record "Sales Line";
-        CRMAccount: Record "CRM Account";
-        CRMProduct: Record "CRM Product";
-        CRMSystemuser: Record "CRM Systemuser";
-        CRMConnectionSetup: Record "CRM Connection Setup";
-    begin
-        // [SCENARIO 257435] Disable broken connection when post Sales Order for synced Account and Item
-        Initialize;
-        ClearCRMData;
-        CRMConnectionSetup.Get;
-        CRMConnectionSetup."Is Enabled" := true;
-        CRMConnectionSetup.Modify;
-
-        // [GIVEN] Item and Customer are synced with Product and Account in CRM
-        // [GIVEN] Sales Order with Customer and Item
-        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
-        LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
-
-        // [GIVEN] CRM Connection is broken
-        CRMSystemuser.DeleteAll;
-
-        // [WHEN] Post Sales Order
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [THEN] Posting interrupted with message about broken CRM connection with reason ET, posting continues
-        Assert.ExpectedMessage('The CRM Systemuser table is empty.', LibraryVariableStorage.DequeueText);
-
-        // [THEN] CRM Connection is disabled, "Disable Reason" = ET
-        CRMConnectionSetup.Get;
-        CRMConnectionSetup.TestField("Is Enabled", false);
-        CRMConnectionSetup.TestField("Disable Reason", 'The CRM Systemuser table is empty.');
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure PostToAccountWhenAccountDeleted()
     var
@@ -1945,13 +1861,6 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     [Scope('OnPrem')]
     procedure RecallNotificationHandler(var Notification: Notification): Boolean
     begin
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure ConnectionBrokenMessageHandler(Message: Text)
-    begin
-        LibraryVariableStorage.Enqueue(Message);
     end;
 }
 

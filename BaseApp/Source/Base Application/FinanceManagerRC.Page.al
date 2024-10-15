@@ -189,6 +189,7 @@ page 8901 "Finance Manager Role Center"
                             Visible = false;
                             ObsoleteState = Pending;
                             ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '15.3';
                         }
                         action("Unrealized VAT Analysis")
                         {
@@ -1487,6 +1488,7 @@ page 8901 "Finance Manager Role Center"
                         Visible = false;
                         ObsoleteState = Pending;
                         ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '15.3';
                     }
                     action("Combined Return Receipts")
                     {
@@ -1497,6 +1499,7 @@ page 8901 "Finance Manager Role Center"
                         Visible = false;
                         ObsoleteState = Pending;
                         ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '15.3';
                     }
                 }
                 group("Group30")

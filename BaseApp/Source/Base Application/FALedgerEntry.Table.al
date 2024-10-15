@@ -791,7 +791,7 @@ table 5601 "FA Ledger Entry"
         exit(VATEntry.Base);
     end;
 
-    [Obsolete('Replaced by event OnAfterConvertPostingTypeElse.')]
+    [Obsolete('Replaced by event OnAfterConvertPostingTypeElse.','15.3')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterConvertPostingType(FALedgerEntry: Record "FA Ledger Entry"; var FAJournalLine: Record "FA Journal Line")
     begin

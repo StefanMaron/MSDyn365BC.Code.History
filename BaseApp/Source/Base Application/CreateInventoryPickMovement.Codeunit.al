@@ -69,7 +69,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         if IsHandled then
             exit;
 
-        GetSourceDocHeader;
+        GetSourceDocHeader();
         UpdateWhseActivHeader(WhseRequest);
 
         case WhseRequest."Source Document" of
@@ -90,7 +90,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         end;
 
         if LineCreated then
-            WhseActivHeader.Modify
+            WhseActivHeader.Modify()
         else
             if not AutoCreation then
                 Message(Text000 + ExpiredItemMessageText);
@@ -123,7 +123,14 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     local procedure GetSourceDocHeader()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSourceDocHeader(WhseRequest, IsHandled);
+        if IsHandled then
+            exit;
+
         case WhseRequest."Source Document" of
             WhseRequest."Source Document"::"Purchase Order":
                 begin
@@ -731,7 +738,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                     InsertShelfWhseActivLine(NewWhseActivLine, RemQtyToPickBase);
         end;
 
-        OnAfterInsertWhseActivLine(NewWhseActivLine, SNRequired, LNRequired);
+        OnAfterInsertWhseActivLine(NewWhseActivLine, SNRequired, LNRequired, RemQtyToPickBase, CompleteShipment, ReservationExists);
     end;
 
     local procedure CalcRemQtyToPickOrMoveBase(NewWhseActivLine: Record "Warehouse Activity Line"; OutstandingQtyBase: Decimal; var RemQtyToPickBase: Decimal)
@@ -818,7 +825,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                         end else
                             QtyToPickBase := QtyAvailToPickBase;
 
-                        MakeHeader;
+                        MakeHeader();
 
                         repeat
                             MakeLine(NewWhseActivLine, "Bin Code", QtyToPickBase, RemQtyToPickBase);
@@ -843,7 +850,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         end else
             QtyToPickBase := RemQtyToPickBase;
 
-        MakeHeader;
+        MakeHeader();
 
         repeat
             MakeLine(NewWhseActivLine, '', QtyToPickBase, RemQtyToPickBase);
@@ -1395,7 +1402,14 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     local procedure MakeHeader()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMakeHeader(WhseActivHeader, AutoCreation, IsHandled);
+        if IsHandled then
+            exit;
+
         if AutoCreation and not LineCreated then begin
             WhseActivHeader."No." := '';
             WhseActivHeader.Insert(true);
@@ -1583,8 +1597,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertWhseActivLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SNRequired: Boolean; LNRequired: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInsertWhseActivLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SNRequired: Boolean; LNRequired: Boolean; var RemQtyToPickBase: Decimal; var CompleteShipment: Boolean; var ReservationExists: Boolean)
     begin
     end;
 
@@ -1704,12 +1718,22 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSourceDocHeader(var WhseRequest: Record "Warehouse Request"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePickStrictExpirationPosting(ItemNo: Code[20]; SNRequired: Boolean; LNRequired: Boolean; var StrictExpirationPosting: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindFromBinContent(var FromBinContent: Record "Bin Content"; var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeHeader(WhseActivHeader: Record "Warehouse Activity Header"; var AutoCreation: Boolean; var IsHandled: Boolean)
     begin
     end;
 

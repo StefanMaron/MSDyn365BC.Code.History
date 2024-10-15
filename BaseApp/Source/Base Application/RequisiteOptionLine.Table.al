@@ -3,6 +3,7 @@ table 26558 "Requisite Option Line"
     Caption = 'Requisite Option Line';
     ObsoleteReason = 'Obsolete functionality';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

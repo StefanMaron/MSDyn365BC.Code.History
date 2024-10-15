@@ -1960,7 +1960,9 @@ table 36 "Sales Header"
             var
                 MailManagement: Codeunit "Mail Management";
             begin
-                MailManagement.ValidateEmailAddressField("Sell-to E-Mail");
+                if "Sell-to E-Mail" = '' then
+                    exit;
+                MailManagement.CheckValidEmailAddresses("Sell-to E-Mail");
             end;
         }
         field(175; "Payment Instructions Id"; Integer)
@@ -2561,6 +2563,7 @@ table 36 "Sales Header"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(9000; "Assigned User ID"; Code[50])
         {
@@ -3293,8 +3296,11 @@ table 36 "Sales Header"
                     end;
             end;
 
-        if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote] then
-            "Shipment Date" := WorkDate;
+        IsHandled := false;
+        OnInitRecordOnBeforeAssignShipmentDate(Rec, IsHandled);
+        if not IsHandled then
+            if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote] then
+                "Shipment Date" := WorkDate;
 
         if not ("Document Type" in ["Document Type"::"Blanket Order", "Document Type"::Quote]) and
            ("Posting Date" = 0D)
@@ -3602,8 +3608,12 @@ table 36 "Sales Header"
                 TempReservEntry.DeleteAll;
                 RecreateReservEntryReqLine(TempSalesLine, TempATOLink, ATOLink);
                 TransferItemChargeAssgntSalesToTemp(ItemChargeAssgntSales, TempItemChargeAssgntSales);
-                SalesLine.DeleteAll(true);
-                SalesLine.Init;
+                IsHandled := false;
+                OnRecreateSalesLinesOnBeforeSalesLineDeleteAll(Rec, SalesLine, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    SalesLine.DeleteAll(true);
+
+                SalesLine.Init();
                 SalesLine."Line No." := 0;
                 TempSalesLine.FindSet;
                 ExtendedTextAdded := false;
@@ -4419,7 +4429,12 @@ table 36 "Sales Header"
     var
         ShippingAgentServices: Record "Shipping Agent Services";
         CustomerAgreement: Record "Customer Agreement";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetShippingTime(Rec, xRec, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
         if (CalledByFieldNo <> CurrFieldNo) and (CurrFieldNo <> 0) then
             exit;
 
@@ -4445,7 +4460,7 @@ table 36 "Sales Header"
             Contact.Get(Contact."Company No.");
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure GetSellToCustomerFaxNo(): Text
     var
         Customer: Record Customer;
@@ -4454,7 +4469,7 @@ table 36 "Sales Header"
             exit(Customer."Fax No.");
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure CheckCreditMaxBeforeInsert()
     var
         SalesHeader: Record "Sales Header";
@@ -4735,7 +4750,7 @@ table 36 "Sales Header"
         end;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure GetPstdDocLinesToRevere()
     var
         SalesPostedDocLines: Page "Posted Sales Document Lines";
@@ -4771,7 +4786,7 @@ table 36 "Sales Header"
             FilterGroup(0);
         end;
 
-        SetRange("Date Filter", 0D, WorkDate - 1);
+        SetRange("Date Filter", 0D, WorkDate());
     end;
 
     local procedure SynchronizeForReservations(var NewSalesLine: Record "Sales Line"; OldSalesLine: Record "Sales Line")
@@ -4859,7 +4874,7 @@ table 36 "Sales Header"
         exit(RunCheck);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure CheckItemAvailabilityInLines()
     var
         SalesLine: Record "Sales Line";
@@ -5486,7 +5501,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure OnCheckSalesPostRestrictions()
     begin
     end;
@@ -6783,6 +6798,11 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetShippingTime(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInitInsert(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
@@ -6953,6 +6973,11 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitRecordOnBeforeAssignShipmentDate(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertTempSalesLineInBufferOnBeforeTempSalesLineInsert(var TempSalesLine: Record "Sales Line" temporary; SalesLine: Record "Sales Line")
     begin
     end;
@@ -7044,6 +7069,26 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreateSalesLinesOnBeforeConfirm(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; ChangedFieldName: Text[100]; HideValidationDialog: Boolean; var Confirmed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateSalesLinesOnBeforeSalesLineDeleteAll(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestStatusIsNotPendingApproval(SalesHeader: Record "Sales Header"; var NotPending: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestStatusIsNotPendingPrepayment(SalesHeader: Record "Sales Header"; var NotPending: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestStatusIsNotReleased(SalesHeader: Record "Sales Header"; var NotReleased: Boolean)
     begin
     end;
 

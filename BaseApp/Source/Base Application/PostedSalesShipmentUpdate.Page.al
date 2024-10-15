@@ -96,7 +96,7 @@ page 1350 "Posted Sales Shipment - Update"
           ("Shipping Agent Service Code" <> xSalesShipmentHeader."Shipping Agent Service Code") or
           ("Consignor No." <> xSalesShipmentHeader."Consignor No.");
 
-        OnAfterRecordChanged(Rec, xRec, IsChanged);
+        OnAfterRecordChanged(Rec, xSalesShipmentHeader, IsChanged);
     end;
 
     [Scope('OnPrem')]

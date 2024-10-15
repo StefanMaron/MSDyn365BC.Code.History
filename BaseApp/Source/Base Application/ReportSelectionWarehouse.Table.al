@@ -46,6 +46,14 @@ table 7355 "Report Selection Warehouse"
     fieldgroups
     {
     }
+    trigger OnInsert()
+    begin
+        if ("Report ID" <= 0) then
+            Error(ReportIDErr);
+    end;
+
+    var
+        ReportIDErr: Label 'You must specify a value in the Report ID field. It cannot be less than or equal to 0.';
 
     procedure NewRecord()
     var
@@ -62,65 +70,77 @@ table 7355 "Report Selection Warehouse"
     var
         ReportSelectionMgt: Codeunit "Report Selection Mgt.";
     begin
-        SetRange(Usage, ReportUsage);
-        if IsEmpty then
-            ReportSelectionMgt.InitReportUsageWhse(ReportUsage);
-        if FindSet then
-            repeat
-                REPORT.Run("Report ID", not HideDialog, false, WhseActivHeader);
-            until Next = 0;
+        PrintDocuments(WhseActivHeader, ReportUsage, not HideDialog);
     end;
 
     procedure PrintWhseReceiptHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; HideDialog: Boolean)
-    var
-        ReportSelectionMgt: Codeunit "Report Selection Mgt.";
     begin
-        SetRange(Usage, Usage::Receipt);
-        if IsEmpty then
-            ReportSelectionMgt.InitReportUsageWhse(Usage);
-        if FindSet then
-            repeat
-                REPORT.Run("Report ID", not HideDialog, false, WarehouseReceiptHeader);
-            until Next = 0;
+        PrintDocuments(WarehouseReceiptHeader, Usage::Receipt, not HideDialog);
     end;
 
     procedure PrintPostedWhseReceiptHeader(var PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header"; HideDialog: Boolean)
-    var
-        ReportSelectionMgt: Codeunit "Report Selection Mgt.";
     begin
-        SetRange(Usage, Usage::"Posted Receipt");
-        if IsEmpty then
-            ReportSelectionMgt.InitReportUsageWhse(Usage);
-        if FindSet then
-            repeat
-                REPORT.Run("Report ID", not HideDialog, false, PostedWhseReceiptHeader);
-            until Next = 0;
+        PrintDocuments(PostedWhseReceiptHeader, Usage::"Posted Receipt", not HideDialog);
     end;
 
     procedure PrintWhseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; HideDialog: Boolean)
-    var
-        ReportSelectionMgt: Codeunit "Report Selection Mgt.";
     begin
-        SetRange(Usage, Usage::Shipment);
-        if IsEmpty then
-            ReportSelectionMgt.InitReportUsageWhse(Usage);
-        if FindSet then
-            repeat
-                REPORT.Run("Report ID", not HideDialog, false, WarehouseShipmentHeader);
-            until Next = 0;
+        PrintDocuments(WarehouseShipmentHeader, Usage::Shipment, not HideDialog);
     end;
 
     procedure PrintPostedWhseShipmentHeader(var PostedWhseShipmentHeader: Record "Posted Whse. Shipment Header"; HideDialog: Boolean)
+    begin
+        PrintDocuments(PostedWhseShipmentHeader, Usage::"Posted Shipment", not HideDialog);
+    end;
+
+    local procedure PrintDocuments(RecVarToPrint: Variant; ReportUsage: Integer; ShowRequestPage: Boolean)
+    var
+        TempReportSelectionWarehouse: Record "Report Selection Warehouse" temporary;
+        IsHandled: Boolean;
+    begin
+        SelectTempReportSelectionsToPrint(TempReportSelectionWarehouse, ReportUsage);
+        if TempReportSelectionWarehouse.FindSet() then begin
+            IsHandled := false;
+            OnBeforePrintDocument(TempReportSelectionWarehouse, ShowRequestPage, RecVarToPrint, IsHandled);
+            if not IsHandled then
+                Report.Run(TempReportSelectionWarehouse."Report ID", ShowRequestPage, false, RecVarToPrint);
+            OnAfterPrintDocument(TempReportSelectionWarehouse, ShowRequestPage, RecVarToPrint);
+        end;
+    end;
+
+    local procedure SelectTempReportSelectionsToPrint(var TempReportSelectionWarehouse: Record "Report Selection Warehouse"; ReportUsage: Integer)
     var
         ReportSelectionMgt: Codeunit "Report Selection Mgt.";
+        IsHandled: Boolean;
     begin
-        SetRange(Usage, Usage::"Posted Shipment");
+        SetRange(Usage, ReportUsage);
         if IsEmpty then
             ReportSelectionMgt.InitReportUsageWhse(Usage);
-        if FindSet then
+
+        OnSelectTempReportSelectionsToPrint(TempReportSelectionWarehouse, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if FindSet() then
             repeat
-                REPORT.Run("Report ID", not HideDialog, false, PostedWhseShipmentHeader);
-            until Next = 0;
+                TempReportSelectionWarehouse := Rec;
+                if TempReportSelectionWarehouse.Insert() then;
+            until Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintDocument(TempReportSelectionWarehouse: Record "Report Selection Warehouse" temporary; ShowRequestPage: Boolean; RecVarToPrint: Variant; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrintDocument(TempReportSelectionWarehouse: Record "Report Selection Warehouse" temporary; ShowRequestPage: Boolean; RecVarToPrint: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSelectTempReportSelectionsToPrint(var TempReportSelectionWarehouse: Record "Report Selection Warehouse" temporary; var FromReportSelectionWarehouse: Record "Report Selection Warehouse"; var IsHandled: Boolean)
+    begin
     end;
 }
 

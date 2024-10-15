@@ -15,6 +15,7 @@ table 26568 "Statutory Report Buffer"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Obsolete functionality';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(3; "Table Code"; Code[20])
         {

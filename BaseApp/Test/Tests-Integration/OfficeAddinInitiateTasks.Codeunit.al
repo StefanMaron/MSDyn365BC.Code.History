@@ -17,6 +17,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryOfficeHostProvider: Codeunit "Library - Office Host Provider";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
@@ -263,7 +264,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159038] Stan can initiate tasks from sales quotes page
-        Initialize;
+        Initialize();
 
         // [WHEN] Posted sales quotes page is opened
         SalesQuotes.Trap;
@@ -281,7 +282,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159038] Stan can initiate tasks from sales order page
-        Initialize;
+        Initialize();
 
         // [WHEN] Sales order page is opened
         SalesOrder.Trap;
@@ -299,7 +300,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159038] Stan can initiate tasks from sales order list page
-        Initialize;
+        Initialize();
 
         // [WHEN] Sales order list page is opened
         SalesOrderList.Trap;
@@ -317,7 +318,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159038] Stan can initiate tasks from posted sales invoice page
-        Initialize;
+        Initialize();
 
         // [WHEN] Posted sales invoice page is opened
         PostedSalesInvoice.Trap;
@@ -336,7 +337,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159038] Stan can initiate tasks from posted sales credit memo page
-        Initialize;
+        Initialize();
 
         // [WHEN] Posted sales credit memo page is opened
         PostedSalesCreditMemo.Trap;
@@ -355,7 +356,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159038] Stan can initiate tasks from posted sales invoices page
-        Initialize;
+        Initialize();
 
         // [WHEN] Posted sales invoices page is opened
         PostedSalesInvoices.Trap;
@@ -374,7 +375,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159038] Stan can initiate tasks from the posted sales credit memos page
-        Initialize;
+        Initialize();
 
         // [WHEN] Posted sales credit memos page is opened
         PostedSalesCreditMemos.Trap;
@@ -393,7 +394,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159038] Stan can initiate tasks from posted sales shipments page
-        Initialize;
+        Initialize();
 
         // [WHEN] Posted sales shipments page is opened
         PostedSalesShipments.Trap;
@@ -412,7 +413,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159038] Stan can initiate tasks from purchase credit memos page
-        Initialize;
+        Initialize();
 
         // [WHEN] Purchase credit memos page is opened
         PurchaseCreditMemos.Trap;
@@ -430,7 +431,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159038] Stan can initiate tasks from posted purchase invoices page
-        Initialize;
+        Initialize();
 
         // [WHEN] Posted purchase invoices page is opened
         PostedPurchaseInvoices.Trap;
@@ -449,7 +450,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159038] Stan can initiate tasks from posted purchase credit memos page
-        Initialize;
+        Initialize();
 
         // [WHEN] Posted purchase credit memos page is opened
         PostedPurchaseCreditMemos.Trap;
@@ -468,7 +469,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159038] Stan can initiate tasks from posted purchase receipts page
-        Initialize;
+        Initialize();
 
         // [WHEN] Posted purchase receipts page is opened
         PostedPurchaseReceipts.Trap;
@@ -489,7 +490,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159038] Stan can email from posted sales documents
-        Initialize;
+        Initialize();
 
         // [GIVEN] OfficeMgt is in test mode
         DocumentSendingProfile.GetOfficeAddinDefault(ExpectedDocSendingProfile, true);
@@ -562,7 +563,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer] [Sales Invoice]
         // [SCENARIO 156484] Stan initiates task Make Invoice from Quote
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact assigned to customer and Outlook retrieves
         CreateOfficeAddinContext(OfficeAddinContext);
@@ -591,7 +592,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 159038] Test Report should not be visible on Reminder page while the mail engine enabled.
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact assigned to customer and Outlook retrieves
         CreateOfficeAddinContext(OfficeAddinContext);
@@ -617,7 +618,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO 160756] Email option should only be available when in Addin on Issue Reminders page
-        Initialize;
+        Initialize();
 
         // [GIVEN] New contact assigned to customer and Outlook retrieves
         CreateOfficeAddinContext(OfficeAddinContext);
@@ -642,36 +643,42 @@ codeunit 139052 "Office Addin Initiate Tasks"
         OfficeAttachmentManager: Codeunit "Office Attachment Manager";
         OfficeHostType: DotNet OfficeHostType;
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Office Addin Initiate Tasks");
+
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         Clear(LibraryOfficeHostProvider);
         BindSubscription(LibraryOfficeHostProvider);
         InitializeOfficeHostProvider(OfficeHostType.OutlookItemRead);
-        OfficeAttachmentManager.Done;
+        OfficeAttachmentManager.Done();
 
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Office Addin Initiate Tasks");
+
         AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
-        LibraryERMCountryData.SetupReportSelections;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.SetupReportSelections();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySales.SetStockoutWarning(false);
-        SetupCompanyPaymentInfo;
-        SetupMarketing;
+        SetupCompanyPaymentInfo();
+        SetupMarketing();
         LibrarySetupStorage.Save(DATABASE::"Marketing Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
 
-        CreateDefaultDocSendingProfile;
-        ReportLayoutSelection.DeleteAll;
+        CreateDefaultDocSendingProfile();
+        ReportLayoutSelection.DeleteAll();
         SetRDLCLayout(REPORT::"Standard Sales - Quote");
         SetRDLCLayout(REPORT::"Standard Sales - Invoice");
         SetRDLCLayout(REPORT::"Standard Sales - Credit Memo");
         IsInitialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Office Addin Initiate Tasks");
     end;
 
     local procedure InitializeOfficeHostProvider(HostType: Text)
@@ -789,7 +796,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         NewBusRelCode: Code[10];
         TestEmail: Text[80];
     begin
-        Initialize;
+        Initialize();
         TestEmail := RandomEmail;
         CustomerNo := CreateContactFromCustomer(TestEmail, ContactNo, NewBusRelCode);
 

@@ -559,6 +559,7 @@ table 12453 "Item Document Line"
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(5801; "Item Charge No."; Code[20])
         {

@@ -1,4 +1,4 @@
-codeunit 134773 "New Document from Vendor List"
+﻿codeunit 134773 "New Document from Vendor List"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -11,6 +11,8 @@ codeunit 134773 "New Document from Vendor List"
     var
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        isInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -22,7 +24,7 @@ codeunit 134773 "New Document from Vendor List"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
@@ -65,7 +67,7 @@ codeunit 134773 "New Document from Vendor List"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
@@ -94,12 +96,24 @@ codeunit 134773 "New Document from Vendor List"
     var
         NoSeries: Record "No. Series";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"New Document from Vendor List");
+
+        if isInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"New Document from Vendor List");
+
         NoSeries.Get('PUR-13');
         NoSeries."Manual Nos." := false;
         NoSeries.Modify;
         NoSeries.Get('PUR-16');
         NoSeries."Manual Nos." := false;
-        NoSeries.Modify;
+        NoSeries.Modify();
+
+        Commit();
+        isInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"New Document from Vendor List");
     end;
 
     local procedure VerifyBillToAddressOnPurchaseCreditMemoIsVendorAddress(PurchaseCreditMemo: TestPage "Purchase Credit Memo"; Vendor: Record Vendor)

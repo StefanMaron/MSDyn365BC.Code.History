@@ -177,6 +177,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Archive Quotes and Orders';
             ObsoleteReason = 'Replaced by new fields Archive Quotes and Archive Orders';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(38; "Post with Job Queue"; Boolean)
         {
@@ -297,6 +298,7 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Pending;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
+            ObsoleteTag = '15.0';
         }
         field(171; "Insert Std. Lines on Quotes"; Boolean)
         {
@@ -304,6 +306,7 @@ table 312 "Purchases & Payables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(172; "Insert Std. Lines on Orders"; Boolean)
         {
@@ -311,6 +314,7 @@ table 312 "Purchases & Payables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(173; "Insert Std. Lines on Invoices"; Boolean)
         {
@@ -318,6 +322,7 @@ table 312 "Purchases & Payables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(174; "Insert Std. Lines on Cr. Memos"; Boolean)
         {
@@ -325,6 +330,7 @@ table 312 "Purchases & Payables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(210; "Copy Line Descr. to G/L Entry"; Boolean)
         {
