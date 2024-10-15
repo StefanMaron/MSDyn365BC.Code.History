@@ -140,7 +140,7 @@ report 5196 "Remove Contacts - Refine"
         SetSegmentView();
     end;
 
-    var
+    protected var
         ReduceRefineSegment: Report "Remove Contacts";
         EntireCompanies: Boolean;
 

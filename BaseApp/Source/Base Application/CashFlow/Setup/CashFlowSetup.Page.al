@@ -124,13 +124,6 @@ page 846 "Cash Flow Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of period that you want to see the forecast by.';
-                    trigger OnValidate();
-                    var
-                        CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
-                    begin
-                        if not xRec."Azure AI Enabled" and Rec."Azure AI Enabled" then
-                            Rec."Azure AI Enabled" := CustomerConsentMgt.ConfirmUserConsentToMicrosoftService();
-                    end;
                 }
                 field("Historical Periods"; Rec."Historical Periods")
                 {
@@ -167,6 +160,13 @@ page 846 "Cash Flow Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies status of Azure AI forecast.';
+                    trigger OnValidate();
+                    var
+                        CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+                    begin
+                        if not xRec."Azure AI Enabled" and Rec."Azure AI Enabled" then
+                            Rec."Azure AI Enabled" := CustomerConsentMgt.ConsentToMicrosoftServiceWithAI();
+                    end;
                 }
                 field("Total Proc. Time"; Format(AzureAIUsage.GetTotalProcessingTime(AzureAIService::"Machine Learning")))
                 {

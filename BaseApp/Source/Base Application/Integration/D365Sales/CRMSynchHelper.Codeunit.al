@@ -60,7 +60,7 @@ codeunit 5342 "CRM Synch. Helper"
         BaseCurrencyIsNullErr: Label 'The base currency is not defined. Disable and enable CRM connection to initialize setup properly.';
         CurrencyPriceListNameTxt: Label 'Price List in %1', Comment = '%1 - currency code';
         UnableToFindPageForRecordErr: Label 'Unable to find a page for record %1.', Comment = '%1 ID of the record';
-        MappingMustBeSetForGUIDFieldErr: Label 'Table %1 must be mapped to table %2 to transfer value between fields %3  and %4.', Comment = '%1 and %2 are table IDs, %3 and %4 are field captions.';
+        MappingMustBeSetForGUIDFieldErr: Label 'Table %1 must be mapped to table %2 to transfer value between fields %3 and %4.', Comment = '%1 and %2 are table captions, %3 and %4 are field captions.';
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         SetContactParentCompanyTxt: Label 'Setting contact parent company.', Locked = true;
         SetContactParentCompanySuccessfulTxt: Label 'Set contact parent company successfuly. Company No.: %1', Locked = true, Comment = '%1 = parent company no.';
@@ -74,6 +74,7 @@ codeunit 5342 "CRM Synch. Helper"
         CannotUseSameUnitGroupErr: Label 'Unit group %1 is assigned to multiple products. You cannot use the same unit group for multiple products.', Comment = '%1 - Unit group name';
         UnitOfMeasureDoesNotExistErr: Label 'Unit of measure %1 does not exist.', Comment = '%1 - unit of measure code';
         IncorrectFormatOrTypeErr: Label 'The value that you are trying to convert is in incorrect format.';
+        OrderPriceListLbl: Label 'Business Central Order %1 Price List', Locked = true, Comment = '%1 - Order No.';
 
     procedure ClearCache()
     begin
@@ -155,6 +156,113 @@ codeunit 5342 "CRM Synch. Helper"
         end;
     end;
 
+    procedure CreateCRMPriceList(SalesHeader: Record "Sales Header"; var CRMPricelevel: Record "CRM Pricelevel")
+    var
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        Resource: Record Resource;
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMTransactioncurrency: Record "CRM Transactioncurrency";
+        CRMProduct: Record "CRM Product";
+        CRMUom: Record "CRM Uom";
+        CRMId: Guid;
+    begin
+        CRMPricelevel.Init();
+        CRMPricelevel.Name := StrSubstNo(OrderPriceListLbl, SalesHeader."No.");
+        if SalesHeader."Currency Code" = '' then begin
+            FindNAVLocalCurrencyInCRM(CRMTransactioncurrency);
+            CRMPricelevel.TransactionCurrencyId := CRMTransactioncurrency.TransactionCurrencyId;
+        end else begin
+            FindCurrencyCRMIntegrationRecord(CRMIntegrationRecord, SalesHeader."Currency Code");
+            CRMPricelevel.TransactionCurrencyId := CRMIntegrationRecord."CRM ID";
+        end;
+        CRMPricelevel.Insert();
+
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                case SalesLine.Type of
+                    SalesLine.Type::Item:
+                        begin
+                            Item.Get(SalesLine."No.");
+                            if CRMIntegrationRecord.FindIDFromRecordID(Item.RecordId, CRMId) then
+                                if CRMProduct.Get(CRMId) then begin
+                                    CRMUom.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
+                                    if CRMUom.FindSet() then
+                                        repeat
+                                            CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMPricelevel.PriceLevelId, CRMUom);
+                                        until CRMUom.Next() = 0;
+                                end;
+                        end;
+                    SalesLine.Type::Resource:
+                        begin
+                            Resource.Get(SalesLine."No.");
+                            if CRMIntegrationRecord.FindIDFromRecordID(Resource.RecordId, CRMId) then
+                                if CRMProduct.Get(CRMId) then begin
+                                    CRMUom.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
+                                    if CRMUom.FindSet() then
+                                        repeat
+                                            CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMPricelevel.PriceLevelId, CRMUom);
+                                        until CRMUom.Next() = 0;
+                                end;
+                        end;
+                end;
+            until SalesLine.Next() = 0;
+    end;
+
+    procedure UpdateCRMPriceList(SalesHeader: Record "Sales Header"; CRMPricelevelId: Guid)
+    var
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        Resource: Record Resource;
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMProduct: Record "CRM Product";
+        CRMProductpricelevel: Record "CRM Productpricelevel";
+        CRMUom: Record "CRM Uom";
+        CRMId: Guid;
+    begin
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                case SalesLine.Type of
+                    SalesLine.Type::Item:
+                        begin
+                            Item.Get(SalesLine."No.");
+                            if CRMIntegrationRecord.FindIDFromRecordID(Item.RecordId, CRMId) then begin
+                                CRMProductpricelevel.SetRange(PriceLevelId, CRMPricelevelId);
+                                CRMProductpricelevel.SetRange(ProductId, CRMId);
+                                if CRMProductpricelevel.IsEmpty() then
+                                    if CRMProduct.Get(CRMId) then begin
+                                        CRMUom.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
+                                        if CRMUom.FindSet() then
+                                            repeat
+                                                CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMPricelevelId, CRMUom);
+                                            until CRMUom.Next() = 0;
+                                    end;
+                            end;
+                        end;
+                    SalesLine.Type::Resource:
+                        begin
+                            Resource.Get(SalesLine."No.");
+                            if CRMIntegrationRecord.FindIDFromRecordID(Resource.RecordId, CRMId) then begin
+                                CRMProductpricelevel.SetRange(PriceLevelId, CRMPricelevelId);
+                                CRMProductpricelevel.SetRange(ProductId, CRMId);
+                                if CRMProductpricelevel.IsEmpty() then
+                                    if CRMProduct.Get(CRMId) then begin
+                                        CRMUom.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
+                                        if CRMUom.FindSet() then
+                                            repeat
+                                                CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMPricelevelId, CRMUom);
+                                            until CRMUom.Next() = 0;
+                                    end;
+                            end;
+                        end;
+                end;
+            until SalesLine.Next() = 0;
+    end;
+
     local procedure CreateCRMProductpricelevelForProduct(CRMProduct: Record "CRM Product"; NewPriceLevelId: Guid)
     var
         CRMProductpricelevel: Record "CRM Productpricelevel";
@@ -182,7 +290,6 @@ codeunit 5342 "CRM Synch. Helper"
         CRMProductpricelevel.UoMScheduleId := CRMProduct.DefaultUoMScheduleId;
         CRMProductpricelevel.ProductId := CRMProduct.ProductId;
         CRMProductpricelevel.Amount := CRMProduct.Price * CRMUom.Quantity;
-        CRMProductpricelevel.TransactionCurrencyId := CRMProduct.TransactionCurrencyId;
         CRMProductpricelevel.ProductNumber := CRMProduct.ProductNumber;
         CRMProductpricelevel.Insert();
     end;
@@ -1497,9 +1604,11 @@ codeunit 5342 "CRM Synch. Helper"
         SourceTableID: Integer;
         DestinationTableID: Integer;
         Direction: Integer;
+        SourceTableName: Text;
+        DestinationTableName: Text;
     begin
-        SourceTableID := GetFieldRelation(SourceFieldRef);
-        DestinationTableID := GetFieldRelation(DestinationFieldRef);
+        SourceTableID := GetFieldRelation(SourceFieldRef, SourceTableName);
+        DestinationTableID := GetFieldRelation(DestinationFieldRef, DestinationTableName);
         if (SourceTableID <> 0) and (DestinationTableID <> 0) then begin
             if DestinationFieldRef.Type() = FieldType::GUID then begin
                 IntegrationTableMapping.SetRange("Table ID", SourceTableID);
@@ -1518,7 +1627,7 @@ codeunit 5342 "CRM Synch. Helper"
             end;
             Error(
                 MappingMustBeSetForGUIDFieldErr,
-                SourceTableID, DestinationTableID, SourceFieldRef.Name(), DestinationFieldRef.Name());
+                SourceTableName, DestinationTableName, SourceFieldRef.Name(), DestinationFieldRef.Name());
         end;
     end;
 
@@ -1769,7 +1878,7 @@ codeunit 5342 "CRM Synch. Helper"
         NewValue := UnitGroup.GetCode();
     end;
 
-    local procedure GetFieldRelation(FldRef: FieldRef) TableID: Integer
+    local procedure GetFieldRelation(FldRef: FieldRef; var TableName: Text) TableID: Integer
     var
         PriceListLine: Record "Price List Line";
         RecRef: RecordRef;
@@ -1786,6 +1895,12 @@ codeunit 5342 "CRM Synch. Helper"
                     end;
             end;
             OnAfterGetFieldRelation(RecRef, FldRef, TableID);
+            RecRef.Close();
+        end;
+        if TableID <> 0 then begin
+            RecRef.Open(TableID);
+            TableName := RecRef.Name;
+            RecRef.Close();
         end;
     end;
 

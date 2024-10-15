@@ -23,7 +23,7 @@ codeunit 6325 "Power BI Report Synchronizer"
         if not DeploymentServiceAvailable() then
             exit;
 #else
-        if not EnvironmentInformation.IsSaas() then
+        if not EnvironmentInformation.IsSaaSInfrastructure() then
             exit;
 #endif
         PageId := CopyStr(Rec."Parameter String", 1, MaxStrLen(PageId));
@@ -98,7 +98,7 @@ codeunit 6325 "Power BI Report Synchronizer"
         if not DeploymentServiceAvailable() then
             exit(false);
 #else
-        if not EnvironmentInformation.IsSaas() then
+        if not EnvironmentInformation.IsSaaSInfrastructure() then
             exit(false);
 #endif
 
@@ -245,7 +245,7 @@ codeunit 6325 "Power BI Report Synchronizer"
 #if not CLEAN22
     local procedure DeploymentServiceAvailable(): Boolean
     begin
-        if not EnvironmentInformation.IsSaas() then
+        if not EnvironmentInformation.IsSaaSInfrastructure() then
             exit(false);
 
         if PowerBiServiceMgt.IsPBIServiceAvailable() then

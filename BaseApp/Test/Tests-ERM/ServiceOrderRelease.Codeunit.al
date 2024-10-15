@@ -13,7 +13,7 @@ codeunit 136140 "Service Order Release"
         NothingToReleaseErr: Label 'There is nothing to release for Order %1.';
         OpenServiceOrderWarehouseShipmentErr: Label 'Release Status must be equal to ''%1''  in Service Header: Document Type=Order, No.=%2. Current value is ''%3''.';
         WarehouseShipmentMsg: Label '%1 Warehouse Shipment Header has been created.';
-        NoWarehouseShipmentsErr: Label 'There are no Warehouse Shipment Lines created.';
+        NoWarehouseShipmentsErr: Label 'There are no warehouse shipment lines created.';
         WarehouseshipmentExistsErr: Label 'The Service Line cannot be deleted when a related Warehouse Shipment Line exists.';
         ServiceOrderInGridTxt: Label 'Service Order';
         WarehouseJournalBatch: Record "Warehouse Journal Batch";

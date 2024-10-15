@@ -188,13 +188,15 @@ report 313 "Vendor/Item Purchases"
         PeriodText: Text;
         PrintOnlyOnePerPageReq: Boolean;
         PageGroupNo: Integer;
-        ResetItemTotal: Boolean;
         InvoicedQuantity: Decimal;
         CostAmountActual: Decimal;
         DiscountAmount: Decimal;
 
         PeriodTxt: Label 'Period: %1', Comment = '%1 - period text';
         TableFilterTxt: Label '%1: %2', Locked = true;
+
+    protected var
+        ResetItemTotal: Boolean;
 
     procedure InitializeRequest(NewPrintOnlyOnePerPage: Boolean)
     begin

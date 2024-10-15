@@ -22,7 +22,6 @@ codeunit 139182 "CRM Coupling Test"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         Assert: Codeunit Assert;
         LibraryTemplates: Codeunit "Library - Templates";
@@ -926,7 +925,6 @@ codeunit 139182 "CRM Coupling Test"
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
         SalesPriceList: TestPage "Sales Price List";
-        CustomerPriceGroups: TestPage "Customer Price Groups";
         JobQueueEntryID: Guid;
     begin
         // [FEATURE] [UI] [Price List]
@@ -1980,7 +1978,7 @@ codeunit 139182 "CRM Coupling Test"
         TestInit;
 
         // [GIVEN] Customer "CUST" is coupled with CRM Account "CRMACC"
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
+        GetIntegrationTableMapping(IntegrationTableMapping, Database::Customer);
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, true, false);
         // [GIVEN] Contact "CONT" is coupled with CRM Contact "CRMCONT"
@@ -2022,7 +2020,7 @@ codeunit 139182 "CRM Coupling Test"
         TestInit;
 
         // [GIVEN] Customer "CUST" is coupled with CRM Account "CRMACC"
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
+        GetIntegrationTableMapping(IntegrationTableMapping, Database::Customer);
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, true, false);
         // [GIVEN] Contact "CONT" is coupled with CRM Contact "CRMCONT"
@@ -2075,7 +2073,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMAccount.Modify();
 
         // [WHEN] Customer is being synched
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
+        GetIntegrationTableMapping(IntegrationTableMapping, Customer.RecordId);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, true, false);
 
         // [THEN] 'CRMACC' PrimaryContactId became empty
@@ -2114,7 +2112,7 @@ codeunit 139182 "CRM Coupling Test"
         SavedPrimaryContactId := CRMAccount.PrimaryContactId;
 
         // [WHEN] Customer is being synched
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
+        GetIntegrationTableMapping(IntegrationTableMapping, Customer.RecordId);
         JobQueueEntryID :=
           CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, true, false);
 
@@ -2163,7 +2161,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMAccount.Modify();
 
         // [WHEN] CRM Account is being synched
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
+        GetIntegrationTableMapping(IntegrationTableMapping, CRMAccount.RecordId);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMAccount.AccountId, false, false);
 
         // [THEN] 'CUST' "Primary Contact No." became empty
@@ -2207,7 +2205,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMAccount.Modify();
 
         // [WHEN] CRM Account is being synched
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
+        GetIntegrationTableMapping(IntegrationTableMapping, CRMAccount.RecordId);
         JobQueueEntryID :=
           CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMAccount.AccountId, false, false);
 
@@ -2374,9 +2372,9 @@ codeunit 139182 "CRM Coupling Test"
 
         SetCustomerPrimaryContact(Customer, Contact);
 
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
+        GetIntegrationTableMapping(IntegrationTableMapping, Customer.RecordId);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, true, false);
-        GetIntegrationTableMapping(DATABASE::Contact, IntegrationTableMapping);
+        GetIntegrationTableMapping(IntegrationTableMapping, Contact.RecordId);
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Contact.RecordId, true, false);
     end;
 
@@ -2422,11 +2420,19 @@ codeunit 139182 "CRM Coupling Test"
         exit(LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Item, Item.GetView(), IntegrationTableMapping));
     end;
 
-    local procedure GetIntegrationTableMapping(TableNo: Integer; var IntegrationTableMapping: Record "Integration Table Mapping")
+    local procedure GetIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; RecordId: RecordId)
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        IntegrationTableMapping.SetRange("Table ID", TableNo);
-        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
-        IntegrationTableMapping.FindFirst();
+        CRMIntegrationManagement.GetIntegrationTableMapping(IntegrationTableMapping, RecordId);
+        IntegrationTableMapping.Reset();
+    end;
+
+    local procedure GetIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; TableNo: Integer)
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        CRMIntegrationManagement.GetIntegrationTableMapping(IntegrationTableMapping, TableNo);
         IntegrationTableMapping.Reset();
     end;
 
@@ -2453,7 +2459,7 @@ codeunit 139182 "CRM Coupling Test"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        GetIntegrationTableMapping(Database::Customer, IntegrationTableMapping);
+        GetIntegrationTableMapping(IntegrationTableMapping, Database::Customer);
         exit(IntegrationTableMapping.Name);
     end;
 

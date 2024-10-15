@@ -230,7 +230,7 @@ page 6300 "Azure AD App Setup Wizard"
         BackEnabled: Boolean;
         FinishEnabled: Boolean;
         StepOutOfRangeErr: Label 'Wizard step out of range.';
-        PermissionsErr: Label 'Please contact an administrator to set up your Azure Active Directory application.';
+        PermissionsErr: Label 'Please contact an administrator to set up your Microsoft Entra application.';
         TopBannerVisible: Boolean;
         RegistrationDocsLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862265', Locked = true;
         RegistrationDocsTxt: Label 'Learn more about how to register on Azure';

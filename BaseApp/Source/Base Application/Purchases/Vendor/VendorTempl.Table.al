@@ -202,6 +202,11 @@ table 1383 "Vendor Templ."
             Caption = 'Payment Method Code';
             TableRelation = "Payment Method";
         }
+        field(48; "Format Region"; Text[80])
+        {
+            Caption = 'Format Region';
+            TableRelation = "Language Selection"."Language Tag";
+        }
         field(80; "Application Method"; Enum "Application Method")
         {
             Caption = 'Application Method';

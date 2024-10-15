@@ -665,6 +665,7 @@ codeunit 139616 "E-Doc Log Test"
     local procedure Initialize()
     var
         TransformationRule: Record "Transformation Rule";
+        SalesInvHeader: Record "Sales Invoice Header";
     begin
         IsInitialized := true;
         ErrorInExport := false;
@@ -674,6 +675,8 @@ codeunit 139616 "E-Doc Log Test"
         LibraryVariableStorage.Clear();
         TransformationRule.DeleteAll();
         TransformationRule.CreateDefaultTransformations();
+
+        SalesInvHeader.DeleteAll();
     end;
 
     procedure SetVariableStorage(var NewLibraryVariableStorage: Codeunit "Library - Variable Storage")

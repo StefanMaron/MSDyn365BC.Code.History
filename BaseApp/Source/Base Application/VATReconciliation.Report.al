@@ -1,10 +1,10 @@
+#if not CLEAN22 
 namespace Microsoft.Finance.VAT;
 
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.VAT.Ledger;
 
-#if not CLEAN22 
 report 13620 "VAT Reconciliation"
 {
     DefaultLayout = RDLC;

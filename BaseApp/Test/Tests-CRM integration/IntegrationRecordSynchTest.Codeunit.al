@@ -227,7 +227,6 @@ codeunit 139166 "Integration Record Synch. Test"
         IntegrationRecordSynch: Codeunit "Integration Record Synch.";
         SourceTableRecRef: RecordRef;
         DestinationTableRecRef: RecordRef;
-        SourceFieldRef: FieldRef;
     begin
         // [SCENARIO] Transfer fields with the unchanged unmapped field
         Initialize();
@@ -279,7 +278,6 @@ codeunit 139166 "Integration Record Synch. Test"
         IntegrationRecordSynch: Codeunit "Integration Record Synch.";
         SourceTableRecRef: RecordRef;
         DestinationTableRecRef: RecordRef;
-        SourceFieldRef: FieldRef;
     begin
         // [SCENARIO] Transfer fields with the changed unidirectional field
         Initialize();
@@ -334,7 +332,6 @@ codeunit 139166 "Integration Record Synch. Test"
         IntegrationRecordSynch: Codeunit "Integration Record Synch.";
         SourceTableRecRef: RecordRef;
         DestinationTableRecRef: RecordRef;
-        SourceFieldRef: FieldRef;
     begin
         // [SCENARIO] Transfer fields with the unchanged unidirectional field
         Initialize();
@@ -386,7 +383,6 @@ codeunit 139166 "Integration Record Synch. Test"
         IntegrationRecordSynch: Codeunit "Integration Record Synch.";
         SourceTableRecRef: RecordRef;
         DestinationTableRecRef: RecordRef;
-        SourceFieldRef: FieldRef;
     begin
         // [SCENARIO] Transfer fields with the changed bidirectional field
         Initialize();
@@ -441,7 +437,6 @@ codeunit 139166 "Integration Record Synch. Test"
         IntegrationRecordSynch: Codeunit "Integration Record Synch.";
         SourceTableRecRef: RecordRef;
         DestinationTableRecRef: RecordRef;
-        SourceFieldRef: FieldRef;
     begin
         // [SCENARIO] Transfer fields with the unchanged bidirectional field
         Initialize();

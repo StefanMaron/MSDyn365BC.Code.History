@@ -12,6 +12,7 @@ report 5604 "Fixed Asset - Details"
     ApplicationArea = FixedAssets;
     Caption = 'Fixed Asset Details';
     UsageCategory = ReportsAndAnalysis;
+    WordMergeDataItem = "Fixed Asset";
 
     dataset
     {
