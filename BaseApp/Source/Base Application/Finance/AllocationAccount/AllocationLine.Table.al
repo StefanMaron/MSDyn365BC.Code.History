@@ -98,6 +98,12 @@ table 2672 "Allocation Line"
             DataClassification = SystemMetadata;
             Caption = 'Percentage';
         }
+        field(20; Quantity; Decimal)
+        {
+            DataClassification = SystemMetadata;
+            Caption = 'Quantity';
+            DecimalPlaces = 0 : 5;
+        }
         field(37; "Global Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,1,1';
@@ -127,6 +133,39 @@ table 2672 "Allocation Line"
             Clustered = true;
         }
     }
+
+    internal procedure GetQuantityVisible(var AllocationLine: Record "Allocation Line"): Boolean
+    var
+        AllocationAccount: Record "Allocation Account";
+    begin
+        if not AllocationAccount.Get(AllocationLine."Allocation Account No.") then
+            exit(false);
+
+        exit(AllocationAccount."Document Lines Split" = AllocationAccount."Document Lines Split"::"Split Quantity");
+    end;
+
+    internal procedure GetQuantityDataForRedistributePage(var AllocationLine: Record "Allocation Line"; ParentSystemId: Guid; ParentTableId: Integer; var AmountPerQuantity: Decimal; var QuantityToDistribute: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        case ParentTableId of
+            Database::"Sales Line":
+                begin
+                    SalesLine.GetBySystemId(ParentSystemId);
+                    AmountPerQuantity := SalesLine."Unit Price";
+                    QuantityToDistribute := SalesLine.Quantity;
+                end;
+            Database::"Purchase Line":
+                begin
+                    PurchaseLine.GetBySystemId(ParentSystemId);
+                    AmountPerQuantity := PurchaseLine."Unit Cost";
+                    QuantityToDistribute := PurchaseLine.Quantity;
+                end;
+            else
+                exit;
+        end;
+    end;
 
     internal procedure GetOrGenerateAllocationLines(var AllocationLine: Record "Allocation Line"; ParentSystemId: Guid; ParentTableId: Integer; var AmountToAllocate: Decimal; var PostingDate: Date)
     var
@@ -178,6 +217,7 @@ table 2672 "Allocation Line"
             AllocAccManualOverride."Dimension Set ID" := AllocationLine."Dimension Set ID";
             AllocAccManualOverride."Global Dimension 1 Code" := AllocationLine."Global Dimension 1 Code";
             AllocAccManualOverride."Global Dimension 2 Code" := AllocationLine."Global Dimension 2 Code";
+            AllocAccManualOverride.Quantity := AllocationLine.Quantity;
             AllocAccManualOverride.Insert();
         until AllocationLine.Next() = 0;
 
@@ -224,6 +264,11 @@ table 2672 "Allocation Line"
         "Dimension Set ID" :=
           DimensionManagement.EditDimensionSet("Dimension Set ID", StrSubstNo(DimensionPageCaptionLbl, Rec.TableCaption(), Rec."Allocation Account No.", Rec."Line No."));
         DimensionManagement.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Global Dimension 1 Code", "Global Dimension 2 Code");
+    end;
+
+    internal procedure GetQuantityPercision(): Decimal
+    begin
+        exit(0.00001);
     end;
 
     var

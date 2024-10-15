@@ -1427,10 +1427,13 @@ codeunit 5763 "Whse.-Post Shipment"
                 repeat
                     SetRange("Source Line No.", TransLine."Line No.");
                     if Find('-') then begin
-                        OnAfterFindWhseShptLineForTransLine(WhseShptLine, TransLine);
-                        ModifyLine := TransLine."Qty. to Ship" <> "Qty. to Ship";
-                        if ModifyLine then
-                            ValidateTransferLineQtyToShip(TransLine, WhseShptLine);
+                        IsHandled := false;
+                        OnAfterFindWhseShptLineForTransLine(WhseShptLine, TransLine, IsHandled);
+                        if not IsHandled then begin
+                            ModifyLine := TransLine."Qty. to Ship" <> "Qty. to Ship";
+                            if ModifyLine then
+                                ValidateTransferLineQtyToShip(TransLine, WhseShptLine);
+                        end;    
                         if (WhseShptHeader."Shipment Date" <> 0D) and
                            (TransLine."Shipment Date" <> WhseShptHeader."Shipment Date") and
                            ("Qty. to Ship" = "Qty. Outstanding")
@@ -1782,7 +1785,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindWhseShptLineForTransLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var TransferLine: Record "Transfer Line")
+    local procedure OnAfterFindWhseShptLineForTransLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
 

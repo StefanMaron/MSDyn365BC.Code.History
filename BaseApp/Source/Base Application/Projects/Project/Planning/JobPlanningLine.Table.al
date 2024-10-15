@@ -1568,18 +1568,24 @@ table 1003 "Job Planning Line"
     end;
 
     local procedure CopyFromGLAccount()
+    var
+        IsHandled: Boolean;
     begin
-        GLAcc.Get("No.");
-        GLAcc.CheckGLAcc();
-        GLAcc.TestField("Direct Posting", true);
-        GLAcc.TestField("Gen. Prod. Posting Group");
-        Description := GLAcc.Name;
-        "Gen. Bus. Posting Group" := GLAcc."Gen. Bus. Posting Group";
-        "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
-        "Unit of Measure Code" := '';
-        "Direct Unit Cost (LCY)" := 0;
-        "Unit Cost (LCY)" := 0;
-        "Unit Price" := 0;
+        IsHandled := false;
+        OnBeforeCopyFromGLAccount(Rec, IsHandled, Job);
+        if not IsHandled then begin
+            GLAcc.Get("No.");
+            GLAcc.CheckGLAcc();
+            GLAcc.TestField("Direct Posting", true);
+            GLAcc.TestField("Gen. Prod. Posting Group");
+            Description := GLAcc.Name;
+            "Gen. Bus. Posting Group" := GLAcc."Gen. Bus. Posting Group";
+            "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
+            "Unit of Measure Code" := '';
+            "Direct Unit Cost (LCY)" := 0;
+            "Unit Cost (LCY)" := 0;
+            "Unit Price" := 0;
+        end;
 
         OnAfterCopyFromGLAccount(Rec, Job, GLAcc);
     end;
@@ -3306,6 +3312,11 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterControlUsageLink(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCopyFromGLAccount(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean; Job: Record Job)
     begin
     end;
 }

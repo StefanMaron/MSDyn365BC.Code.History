@@ -182,13 +182,15 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount.SetFilter("No.", ExchRateAdjmtParameters.GetFilter("Bank Account Filter"));
-        BankAccount.FilterGroup(2);
-        BankAccount.SetFilter("Currency Code", '<>%1', '');
-        OnAdjustCurrencyOnAfterSetBankAccountFilters(BankAccount);
-        BankAccount.FilterGroup(0);
-        BankAccNoTotal := BankAccount.Count();
-        BankAccount.Reset();
+        if ExchRateAdjmtParameters."Adjust Bank Accounts" then begin
+            BankAccount.SetFilter("No.", ExchRateAdjmtParameters.GetFilter("Bank Account Filter"));
+            BankAccount.FilterGroup(2);
+            BankAccount.SetFilter("Currency Code", '<>%1', '');
+            OnAdjustCurrencyOnAfterSetBankAccountFilters(BankAccount);
+            BankAccount.FilterGroup(0);
+            BankAccNoTotal := BankAccount.Count();
+            BankAccount.Reset();
+        end;
 
         Currency.SetView(ExchRateAdjmtParameters."Currency Filter");
         if Currency.FindSet() then
@@ -201,16 +203,18 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                 TempCurrencyToAdjust := Currency;
                 TempCurrencyToAdjust.Insert();
 
-                BankAccount.SetCurrentKey("Bank Acc. Posting Group");
-                BankAccount.SetRange("Currency Code", Currency.Code);
-                BankAccount.SetRange("Date Filter", ExchRateAdjmtParameters."Start Date", ExchRateAdjmtParameters."End Date");
-                OnAdjustCurrencyOnAfterSetBankAccountFiltersInLoop(BankAccount);
-                if BankAccount.FindSet() then
-                    repeat
-                        BankAccNo := BankAccNo + 1;
-                        Window.Update(1, Round(BankAccNo / BankAccNoTotal * 10000, 1));
-                        ProcessBankAccount(BankAccount, Currency);
-                    until BankAccount.Next() = 0;
+                if ExchRateAdjmtParameters."Adjust Bank Accounts" then begin
+                    BankAccount.SetCurrentKey("Bank Acc. Posting Group");
+                    BankAccount.SetRange("Currency Code", Currency.Code);
+                    BankAccount.SetRange("Date Filter", ExchRateAdjmtParameters."Start Date", ExchRateAdjmtParameters."End Date");
+                    OnAdjustCurrencyOnAfterSetBankAccountFiltersInLoop(BankAccount);
+                    if BankAccount.FindSet() then
+                        repeat
+                            BankAccNo := BankAccNo + 1;
+                            Window.Update(1, Round(BankAccNo / BankAccNoTotal * 10000, 1));
+                            ProcessBankAccount(BankAccount, Currency);
+                        until BankAccount.Next() = 0;
+                end;
             until Currency.Next() = 0;
     end;
 

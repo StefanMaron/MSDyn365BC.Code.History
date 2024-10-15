@@ -1213,6 +1213,27 @@ page 39 "General Journal"
                         AllocAccManualOverride.RunModal();
                     end;
                 }
+                action(ReplaceAllocationAccountWithLines)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Generate lines from Allocation Account Line';
+                    Image = CreateLinesFromJob;
+#pragma warning disable AA0219
+                    ToolTip = 'Use this action to replace the Allocation Account line with the actual lines that would be generated from the line itself.';
+#pragma warning restore AA0219
+
+                    trigger OnAction()
+                    var
+                        GenJournalAllocAccMgt: Codeunit "Gen. Journal Alloc. Acc. Mgt.";
+                    begin
+                        if (Rec."Account Type" <> Rec."Account Type"::"Allocation Account") and (Rec."Bal. Account Type" <> Rec."Bal. Account Type"::"Allocation Account") and (Rec."Selected Alloc. Account No." = '') then
+                            Error(ActionOnlyAllowedForAllocationAccountsErr);
+
+                        GenJournalAllocAccMgt.CreateLines(Rec);
+                        Rec.Delete();
+                        CurrPage.Update(false);
+                    end;
+                }
                 group(IncomingDocument)
                 {
                     Caption = 'Incoming Document';
@@ -2039,7 +2060,7 @@ page 39 "General Journal"
             UpdateBalance();
         EnableApplyEntriesAction();
         SetControlAppearance();
-        if GenJournalBatch.Get(Rec.GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
+        if GenJournalBatch.Get(GetJournalTemplateNameFromFilter(), CurrentJnlBatchName) then
             SetApprovalStateForBatch(GenJournalBatch, Rec, OpenApprovalEntriesExistForCurrUser, OpenApprovalEntriesOnJnlBatchExist, OpenApprovalEntriesOnBatchOrAnyJnlLineExist, CanCancelApprovalForJnlBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, CanRequestFlowApprovalForBatchAndAllLines, ApprovalEntriesExistSentByCurrentUser, EnabledGenJnlBatchWorkflowsExist, EnabledGenJnlLineWorkflowsExist);
         HasIncomingDocument := Rec."Incoming Document Entry No." <> 0;
         CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(Rec.RecordId);
@@ -2318,6 +2339,14 @@ page 39 "General Journal"
 
         EnabledGeneralJournalLineWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::"Gen. Journal Line", WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode());
         EnabledGeneralJournalBatchWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::"Gen. Journal Batch", WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode());
+    end;
+
+    local procedure GetJournalTemplateNameFromFilter(): Text[10]
+    begin
+        if Rec.GetFilter("Journal Template Name") = '' then
+            exit;
+
+        exit(Rec.GetRangeMax("Journal Template Name"));
     end;
 
     local procedure SetControlAppearance()

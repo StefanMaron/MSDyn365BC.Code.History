@@ -1208,37 +1208,12 @@ page 5052 "Contact List"
     trigger OnOpenPage()
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        IsHandled: Boolean;
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
-
-        UpdateContactBusinessRelationOnContacts();
-    end;
-
-    local procedure UpdateContactBusinessRelationOnContacts()
-    var
-        ContactToUpdate: Record Contact;
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        ContactRec: Record Contact;
-        ContactBusinessRelation: Enum "Contact Business Relation";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
         OnBeforeUpdateContactBusinessRelationOnContacts(Rec, IsHandled);
-        if IsHandled then
-            exit;
-
-        ContactRec.SetRange("Contact Business Relation", ContactBusinessRelation::" ");
-        if ContactRec.IsEmpty() then
-            exit;
-
-        ContactRec.FindSet();
-        repeat
-            ContactToUpdate.Get(ContactRec."No.");
-            if (ContactToUpdate.UpdateBusinessRelation()) then
-                ContactToUpdate.Modify();
-        until ContactRec.Next() = 0;
     end;
 
     var

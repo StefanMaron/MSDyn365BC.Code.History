@@ -650,7 +650,14 @@ page 9231 "Items by Location Matrix"
     end;
 
     local procedure MatrixOnDrillDown(ColumnID: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMatrixOnDrillDown(Rec, ItemLedgerEntry, ColumnID, IsHandled, MatrixRecords);
+        if IsHandled then
+            exit;
+
         ItemLedgerEntry.SetCurrentKey(
           "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
         ItemLedgerEntry.SetRange("Item No.", Rec."No.");
@@ -702,6 +709,11 @@ page 9231 "Items by Location Matrix"
 
     [IntegrationEvent(false, false)]
     local procedure OnMatrixOnDrillDownOnAfterItemLedgerEntrySetFilters(var Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; ColumnID: integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMatrixOnDrillDown(var Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; ColumnID: Integer; IsHandled: Boolean; var MatrixRecords: array[32] of Record Location)
     begin
     end;
 }
