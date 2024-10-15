@@ -20,6 +20,7 @@ codeunit 137617 "Production & Assembly Costing"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
+        LibraryERM: Codeunit "Library - ERM";
         isInitialized: Boolean;
         ValueMustBeEqualErr: Label '%1 must be equal to %2', Comment = '%1 = Field Caption , %2 = Expected Value';
 
@@ -877,6 +878,86 @@ codeunit 137617 "Production & Assembly Costing"
                 ProductionOrder."Dimension Set ID"));
     end;
 
+    [Test]
+    procedure AssemblyOrderWithDimensionShouldPostWithoutError()
+    var
+        DefaultDimension: Record "Default Dimension";
+        DefaultDimension2: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        AssembledItem: Record Item;
+        CompItem: Record Item;
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        PostedAssemblyHeader: Record "Posted Assembly Header";
+        PostedAssemblyLine: Record "Posted Assembly Line";
+    begin
+        // [SCENARIO 478427] When posting an Assembly Order a Dimension error is shown for a missing Dimension although the Dimension value is specified in the header and lines
+        Initialize();
+
+        // [GIVEN] Create Comp Item
+        CreateItem(CompItem);
+
+        // [GIVEN] Create Assembled Item
+        LibraryInventory.CreateItem(AssembledItem);
+        CreateDefaultDimensionForItem(DefaultDimension, AssembledItem."No.");
+
+        // [GIVEN] Create two Dimensions with its Dimension Values.
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+
+        // [GIVEN] Create a Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create a Default Dimension for Location.
+        LibraryDimension.CreateDefaultDimension(
+            DefaultDimension2,
+            Database::Location,
+            Location.Code,
+            DimensionValue."Dimension Code",
+            DimensionValue.Code);
+
+        // [GIVEN] Create an Item Journal Line to purchase inventory for assembly Item
+        LibraryInventory.CreateItemJnlLine(
+            ItemJournalLine,
+            "Item Ledger Entry Type"::Purchase,
+            WorkDate(),
+            CompItem."No.",
+            LibraryRandom.RandInt(10),
+            Location.Code);
+
+        // [GIVEN] Create Inventory Posting Setup for assembly Item  Inventory Posting Group & Location.
+        LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, Location.Code, CompItem."Inventory Posting Group");
+        InventoryPostingSetup."Inventory Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup.Modify();
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create an Assembly Order & Validate Dimension Set ID.
+        CreateAssemblyOrderWithLocationCode(AssemblyHeader, AssemblyLine, AssembledItem, CompItem, Location);
+
+        // [THEN] Post the created Assembly Order.
+        Codeunit.Run(Codeunit::"Assembly-Post", AssemblyHeader);
+
+        // [THEN] Find Posted Assembly Header.
+        PostedAssemblyHeader.SetRange("Order No.", AssemblyHeader."No.");
+        PostedAssemblyHeader.FindFirst();
+
+        // [THEN] Find Posted Assembly Line.
+        PostedAssemblyLine.Get(PostedAssemblyHeader."No.", AssemblyLine."Line No.");
+
+        // [VERIFY] Verify Dimension Set ID is same in Posted Assembly Line, and in the created Assembly Line.
+        Assert.AreEqual(
+            PostedAssemblyLine."Dimension Set ID",
+            AssemblyLine."Dimension Set ID",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                PostedAssemblyLine.FieldCaption("Dimension Set ID"),
+                AssemblyLine."Dimension Set ID"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1115,6 +1196,52 @@ codeunit 137617 "Production & Assembly Costing"
         ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)");
         ValueEntry.TestField("Item Ledger Entry Quantity", 0);
         ValueEntry.TestField("Cost Amount (Actual)", 0);
+    end;
+
+    local procedure CreateItem(var Item: Record Item)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", '', '', LibraryRandom.RandIntInRange(10, 20));
+        LibraryInventory.PostItemJournalLine(
+          ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateDefaultDimensionForItem(var DefaultDimension: Record "Default Dimension"; ItemNo: Code[20])
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DimensionValue: Record "Dimension Value";
+    begin
+        GeneralLedgerSetup.Get();
+        LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
+        LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, ItemNo, DimensionValue."Dimension Code", DimensionValue.Code);
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify();
+    end;
+
+    local procedure CreateAssemblyOrderWithLocationCode(
+        var AssemblyHeader: Record "Assembly Header";
+        var AssemblyLine: Record "Assembly Line";
+        MainItem: Record Item;
+        Item: Record Item;
+        Location: Record Location)
+    begin
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), MainItem."No.", '', LibraryRandom.RandInt(0), '');
+        AssemblyHeader.Validate("Location Code", Location.Code);
+        AssemblyHeader.Validate("Shortcut Dimension 1 Code", '');
+        AssemblyHeader.Modify(true);
+
+        LibraryAssembly.CreateAssemblyLine(
+            AssemblyHeader,
+            AssemblyLine,
+            "BOM Component Type"::Item,
+            Item."No.",
+            Item."Base Unit of Measure",
+            LibraryRandom.RandInt(0),
+            LibraryRandom.RandInt(0), Item.Description);
+        AssemblyLine.Modify(true);
     end;
 
     [ModalPageHandler]

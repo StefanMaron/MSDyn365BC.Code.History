@@ -9,7 +9,7 @@ codeunit 4886 "EU3 Feature Data Update" implements "Feature Data Update"
                   TableData "Purchase Header" = rm,
                   TableData "Purch. Inv. Header" = rm,
                   TableData "Purch. Cr. Memo Hdr." = rm,
-                  TableData "VAT Setup" = rm;
+                  TableData "VAT Setup" = rim;
 
     procedure IsDataUpdateRequired(): Boolean;
     var
@@ -148,7 +148,8 @@ codeunit 4886 "EU3 Feature Data Update" implements "Feature Data Update"
     begin
         if FeatureDataUpdateStatus."Feature Key" <> EU3PartyTradeFeatureMgt.GetFeatureKeyId() then
             exit;
-        VATSetup.Get();
+        if not VATSetup.Get() then
+            VATSetup.Insert();
         VATSetup."Enable EU 3-Party Purchase" := true;
         VATSetup.Modify(true);
         FeatureDataUpdateStatus."Feature Status" := "Feature Status"::Enabled;

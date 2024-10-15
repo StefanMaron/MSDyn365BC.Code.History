@@ -116,6 +116,9 @@ report 117 Reminder
                 column(CompanyInfoBankAccNo; CompanyBankAccount."Bank Account No.")
                 {
                 }
+                column(CompanyInfoIBAN; CompanyBankAccount.IBAN)
+                {
+                }
                 column(CompanyInfoBankName; CompanyBankAccount.Name)
                 {
                 }
@@ -198,6 +201,9 @@ report 117 Reminder
                 {
                 }
                 column(BankAccNoCaption; BankAccNoCaptionLbl)
+                {
+                }
+                column(IBANCaption; IBANCaptionLbl)
                 {
                 }
                 column(BankNameCaption; BankNameCaptionLbl)
@@ -881,6 +887,7 @@ report 117 Reminder
         PostingDateCaptionLbl: Label 'Posting Date';
         ReminderNoCaptionLbl: Label 'Reminder No.';
         BankAccNoCaptionLbl: Label 'Account No.';
+        IBANCaptionLbl: Label 'IBAN';
         BankNameCaptionLbl: Label 'Bank';
         GiroNoCaptionLbl: Label 'Giro No.';
         PhoneNoCaptionLbl: Label 'Phone No.';

@@ -777,6 +777,34 @@ table 115 "Sales Cr.Memo Line"
             until ValueEntry.Next() = 0;
     end;
 
+    internal procedure GetSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line")
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+    begin
+        CheckApplFromItemLedgEntry(ItemLedgerEntry);
+        ValueEntry.SetLoadFields("Item Ledger Entry No.", "Item Ledger Entry Type", "Document Type", "Document No.", "Document Line No.");
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntry."Entry Type");
+        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Invoice");
+        if ValueEntry.FindFirst() then
+            SalesInvoiceLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.");
+    end;
+
+    local procedure CheckApplFromItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+        if "Appl.-from Item Entry" = 0 then
+            exit;
+
+        TestField(Type, Type::Item);
+        TestField(Quantity);
+        ItemLedgerEntry.Get("Appl.-from Item Entry");
+        ItemLedgerEntry.TestField(Positive, false);
+        ItemLedgerEntry.TestField("Item No.", "No.");
+        ItemLedgerEntry.TestField("Variant Code", "Variant Code");
+        ItemLedgerEntry.CheckTrackingDoesNotExist(RecordId, FieldCaption("Appl.-from Item Entry"));
+    end;
+
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
     begin
         ValueEntry.Reset();

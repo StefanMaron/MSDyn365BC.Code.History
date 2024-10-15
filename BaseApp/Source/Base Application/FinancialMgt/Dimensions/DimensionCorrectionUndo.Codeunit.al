@@ -90,6 +90,7 @@ codeunit 2582 "Dimension Correction Undo"
     var
         InvalidatedDimCorrection: Record "Invalidated Dim Correction";
         DimensionManagement: Codeunit "DimensionManagement";
+        Result: Boolean;
     begin
         if GLEntry."Dimension Set ID" = TempDimCorrectionSetBuffer."Dimension Set ID" then
             exit(false);
@@ -111,7 +112,9 @@ codeunit 2582 "Dimension Correction Undo"
         GLEntry."Last Dim. Correction Entry No." := TempInvalidatedDimCorrection."Invalidated Entry No.";
         GLEntry.Modify(true);
 
-        exit(true);
+        Result := true;
+        OnAfterUndoGLEntry(GLEntry, TempDimCorrectionSetBuffer, Result, TempInvalidatedDimCorrection);
+        exit(Result);
     end;
 
     var
@@ -130,6 +133,11 @@ codeunit 2582 "Dimension Correction Undo"
 
     [IntegrationEvent(false, false)]
     local procedure OnUndoGLEntryOnAfterUpdateGlobalDimFromDimSetID(var GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUndoGLEntry(var GLEntry: Record "G/L Entry"; var TempDimCorrectionSetBuffer: Record "Dim Correction Set Buffer"; var Result: Boolean; var TempInvalidatedDimCorrection: Record "Invalidated Dim Correction" temporary)
     begin
     end;
 }
