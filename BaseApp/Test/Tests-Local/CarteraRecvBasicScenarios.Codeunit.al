@@ -143,21 +143,25 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         PaymentMethod: Record "Payment Method";
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];
+        BillNo: Code[20];
     begin
+        // [SCENARIO 384336] Payment Method is updated for Invoice Cartera Document
         Initialize;
 
-        // Setup
+        // [GIVEN] Customer with Cartera Payment Method "P1" where Invoice to Cartera = Yes
         LibraryCarteraReceivables.CreateSalesInvoiceWithCustBankAcc(SalesHeader, Customer, '');
 
-        // Exercise
+        // [GIVEN] Cartera Document is posted for the Customer
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        // Modify Payment Method Code.
+        // [GIVEN] Cartera Payment Method "P2" with Invoice to Cartera = No
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, true, false);
-        asserterror UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, true);
 
-        // Verify
-        Assert.ExpectedError(PaymentMethodCodeModifyErr);
+        // [WHEN] Modify Payment Method Code to "P2"
+        BillNo := UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, true);
+
+        // [THEN] Cartera Document has Payment Method = "P2"
+        VerifyCarteraDocPaymentMethod(DocumentNo, Customer."No.", PaymentMethod.Code, BillNo);
     end;
 
     [Test]
@@ -168,22 +172,24 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         PaymentMethod: Record "Payment Method";
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];
-        BillNo: Code[20];
     begin
+        // [SCENARIO 384336] Payment Method is not updated for Invoice Cartera Document
         Initialize;
 
-        // Setup
+        // [GIVEN] Customer with Cartera Payment Method "P1" where Invoice to Cartera = Yes
         LibraryCarteraReceivables.CreateSalesInvoiceWithCustBankAcc(SalesHeader, Customer, '');
 
-        // Exercise
+        // [GIVEN] Cartera Document is posted for the Customer
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        // Modify Payment Method Code.
+        // [GIVEN] Cartera Payment Method with Invoice to Cartera = Yes
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
-        BillNo := UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, true);
 
-        // Verify
-        VerifyCarteraDocPaymentMethod(DocumentNo, Customer."No.", PaymentMethod.Code, BillNo);
+        // [WHEN] Modify Payment Method Code to "P2"
+        asserterror UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, true);
+
+        // [THEN] Error appears
+        Assert.ExpectedError(PaymentMethodCodeModifyErr);
     end;
 
     [Test]
@@ -195,22 +201,25 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];
     begin
+        // [SCENARIO 384336] Payment Method is not updated for Invoice Cartera Document
         Initialize;
 
-        // Setup
+        // [GIVEN] Customer with Cartera Payment Method "P1" where Create Bills = No
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
         LibraryCarteraReceivables.CreateCustomer(Customer, '', PaymentMethod.Code);
 
-        // Exercise
+        // [GIVEN] Cartera Document is posted for the Customer
         LibraryCarteraReceivables.CreateSalesInvoice(SalesHeader, Customer."No.");
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        // Modify Payment Method Code.
+        // [GIVEN] Cartera Payment Method "P2"
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
-        UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, false);
 
-        // Verify
-        VerifyCarteraDocInvoicePaymentMethod(DocumentNo, Customer."No.", PaymentMethod.Code);
+        // [WHEN] Modify Payment Method Code to "P2".
+        asserterror UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, false);
+
+        // [THEN] Error apprears
+        Assert.ExpectedError(PaymentMethodCodeModifyErr);
     end;
 
     [Test]
@@ -222,11 +231,11 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];
     begin
-        // [SCENARIO 257959] Payment Method is updated for Invoice Cartera Document
+        // [SCENARIO 384336] Payment Method is updated for Invoice Cartera Document
         Initialize;
 
         // [GIVEN] Customer with Cartera Payment Method "P1" where Create Bills = No
-        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, false);
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
         LibraryCarteraReceivables.CreateCustomer(Customer, '', PaymentMethod.Code);
 
         // [GIVEN] Cartera Document is posted for the Customer
@@ -237,10 +246,10 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
 
         // [WHEN] Modify Payment Method Code to "P2".
-        asserterror UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, false);
+        UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, false);
 
         // [THEN] Cartera Document has Payment Method = "P2"
-        Assert.ExpectedError(PaymentMethodCodeModifyErr);
+        VerifyCarteraDocInvoicePaymentMethod(DocumentNo, Customer."No.", PaymentMethod.Code);
     end;
 
     [Test]
@@ -1211,6 +1220,74 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         Assert.ExpectedError(StrSubstNo(PostDocumentAppliedToBillInGroupErr, DocumentNo, BillGroup."No."));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PmtMethodCodeModificationInvToCarteraInvoiceDocSituationIsBlank()
+    var
+        Customer: Record Customer;
+        PaymentMethod: Record "Payment Method";
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 384336] Payment Method is updated for Invoice Cartera Document
+        Initialize;
+
+        // [GIVEN] Customer with Cartera Payment Method "P1"
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
+        LibraryCarteraReceivables.CreateCustomer(Customer, '', PaymentMethod.Code);
+
+        // [GIVEN] Cartera Document is posted for the Customer
+        LibraryCarteraReceivables.CreateSalesInvoice(SalesHeader, Customer."No.");
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Cust. Ledger Entry with Document Situation = " "
+        UpdateCustLedgerEntriesDocumentSituation(DocumentNo, Customer."No.", CustLedgerEntry."Document Situation"::" ");
+
+        // [GIVEN] Cartera Payment Method "P2"
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, true, false);
+
+        // [WHEN] Modify Payment Method Code to "P2".
+        UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, false);
+
+        // [THEN] Cartera Document has Payment Method = "P2"
+        VerifyCarteraDocInvoicePaymentMethod(DocumentNo, Customer."No.", PaymentMethod.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PmtMethodCodeModificationInvToCarteraInvoiceDocSituationIsNotBlank()
+    var
+        Customer: Record Customer;
+        PaymentMethod: Record "Payment Method";
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 384336] Payment Method is not updated for Invoice Cartera Document
+        Initialize;
+
+        // [GIVEN] Customer with Cartera Payment Method "P1"
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
+        LibraryCarteraReceivables.CreateCustomer(Customer, '', PaymentMethod.Code);
+
+        // [GIVEN] Cartera Document is posted for the Customer
+        LibraryCarteraReceivables.CreateSalesInvoice(SalesHeader, Customer."No.");
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Cust. Ledger Entry with Document Situation <> " "
+        UpdateCustLedgerEntriesDocumentSituation(DocumentNo, Customer."No.", CustLedgerEntry."Document Situation"::Cartera);
+
+        // [GIVEN] Cartera Payment Method "P2"
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, true, false);
+
+        // [WHEN] Modify Payment Method Code to "P2".
+        asserterror UpdateCustLedgEntryPaymentCode(DocumentNo, Customer."No.", PaymentMethod.Code, false);
+
+        // [THEN] Error appears
+        Assert.ExpectedError(PaymentMethodCodeModifyErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1591,6 +1668,17 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         BillGroupsList.OpenEdit;
         BillGroupsList.GotoKey(BillGroupNo);
         BillGroupsList.Post.Invoke;
+    end;
+
+    local procedure UpdateCustLedgerEntriesDocumentSituation(DocumentNo: Code[20]; CustomerNo: Code[20]; DocumentSituation: Option)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry."Document Situation" := DocumentSituation;
+        CustLedgerEntry.Modify();
     end;
 
     local procedure VerifyReportData(Customer: Record Customer)
