@@ -1365,7 +1365,11 @@
             trigger OnValidate()
             begin
                 Validate("VAT Prod. Posting Group");
+#if CLEAN23
+                NorwegianVATTools.InitVATCodePurchaseLine(Rec);
+#else
                 NorwegianVATTools.InitVATCode_PurchaseLine(Rec);
+#endif
             end;
         }
         field(90; "VAT Prod. Posting Group"; Code[20])
@@ -1420,7 +1424,11 @@
                     UpdateAmounts();
                 end;
 
+#if CLEAN23
+                NorwegianVATTools.InitVATCodePurchaseLine(Rec);
+#else
                 NorwegianVATTools.InitVATCode_PurchaseLine(Rec);
+#endif
             end;
         }
         field(91; "Currency Code"; Code[10])
@@ -3446,10 +3454,27 @@
         {
             Caption = 'VAT Code';
             TableRelation = "VAT Code".Code;
+            ObsoleteReason = 'Use the field "VAT Number" instead';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
 
             trigger OnValidate()
             begin
                 NorwegianVATTools.InitPostingGrps_PurchaseLine(Rec);
+            end;
+#endif
+        }
+        field(10610; "VAT Number"; Code[20])
+        {
+            TableRelation = "VAT Reporting Code".Code;
+
+            trigger OnValidate()
+            begin
+                NorwegianVATTools.InitPostingGroupsPurchaseLine(Rec);
             end;
         }
         field(99000750; "Routing No."; Code[20])

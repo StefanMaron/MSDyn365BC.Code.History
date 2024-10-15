@@ -2063,7 +2063,11 @@
         VATPostingSetup.SetRange("VAT Calculation Type", VATCalculationType);
         VATPostingSetup.SetFilter("VAT %", '>%1', 0);
         if VATCalculationType = VATPostingSetup."VAT Calculation Type"::"Normal VAT" then
+#if CLEAN23
+            VATPostingSetup.SetRange("VAT Number", '');
+#else
             VATPostingSetup.SetRange("VAT Code", '');
+#endif
         if not VATPostingSetup.FindFirst() then
             CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, LibraryRandom.RandDecInDecimalRange(10, 25, 0));
     end;
@@ -2077,7 +2081,11 @@
             VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
         if SearchPostingType <> SearchPostingType::Sales then
             VATPostingSetup.SetFilter("Purchase VAT Account", '<>%1', '');
+#if CLEAN23
+        VATPostingSetup.SetRange("VAT Number", '');
+#else
         VATPostingSetup.SetRange("VAT Code", '');
+#endif
         if not VATPostingSetup.FindFirst() then
             CreateVATPostingSetupWithAccounts(VATPostingSetup,
               VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInDecimalRange(10, 25, 0));

@@ -1660,7 +1660,11 @@
                     UpdatePricesFromJobJnlLine();
                 end;
 
+#if CLEAN23
+                NorwegianVATTools.InitVATCodeGenJournalLine(Rec, false);
+#else
                 NorwegianVATTools.InitVATCode_GenJnlLine(Rec, false);
+#endif
             end;
         }
         field(91; "VAT Prod. Posting Group"; Code[20])
@@ -1708,7 +1712,11 @@
                     UpdatePricesFromJobJnlLine();
                 end;
 
+#if CLEAN23
+                NorwegianVATTools.InitVATCodeGenJournalLine(Rec, false);
+#else
                 NorwegianVATTools.InitVATCode_GenJnlLine(Rec, false);
+#endif
             end;
         }
         field(92; "Bal. VAT Bus. Posting Group"; Code[20])
@@ -1724,7 +1732,11 @@
                     TestField("Bal. VAT Bus. Posting Group", '');
 
                 Validate("Bal. VAT Prod. Posting Group");
+#if CLEAN23
+                NorwegianVATTools.InitVATCodeGenJournalLine(Rec, true);
+#else
                 NorwegianVATTools.InitVATCode_GenJnlLine(Rec, true);
+#endif
             end;
         }
         field(93; "Bal. VAT Prod. Posting Group"; Code[20])
@@ -1762,7 +1774,11 @@
                         end;
                     end;
                 Validate("Bal. VAT %");
+#if CLEAN23
+                NorwegianVATTools.InitVATCodeGenJournalLine(Rec, true);
+#else
                 NorwegianVATTools.InitVATCode_GenJnlLine(Rec, true);
+#endif
             end;
         }
         field(95; "Additional-Currency Posting"; Option)
@@ -2781,21 +2797,37 @@
         {
             Caption = 'VAT Code';
             TableRelation = "VAT Code".Code;
+            ObsoleteReason = 'Use the field "VAT Number" instead';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
 
             trigger OnValidate()
             begin
                 NorwegianVATTools.InitPostingGrps_GenJnlLine(Rec, false);
             end;
+#endif
         }
         field(10605; "Bal. VAT Code"; Code[10])
         {
             Caption = 'Bal. VAT Code';
             TableRelation = "VAT Code".Code;
+            ObsoleteReason = 'Use the field "Bal. VAT Number" instead';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
 
             trigger OnValidate()
             begin
                 NorwegianVATTools.InitPostingGrps_GenJnlLine(Rec, true);
             end;
+#endif
         }
         field(10606; "Source Curr. Inv.tax Amount"; Decimal)
         {
@@ -2818,6 +2850,24 @@
             Caption = 'VAT Base Amount Type';
             OptionCaption = 'Automatic,With VAT,Without VAT';
             OptionMembers = Automatic,"With VAT","Without VAT";
+        }
+        field(10610; "VAT Number"; Code[20])
+        {
+            TableRelation = "VAT Reporting Code".Code;
+
+            trigger OnValidate()
+            begin
+                NorwegianVATTools.InitPostingGroupsGenJnlLine(Rec, false);
+            end;
+        }
+        field(10611; "Bal. VAT Number"; Code[20])
+        {
+            TableRelation = "VAT Reporting Code".Code;
+
+            trigger OnValidate()
+            begin
+                NorwegianVATTools.InitPostingGroupsGenJnlLine(Rec, true);
+            end;
         }
         field(15000000; "Remittance Account Code"; Code[10])
         {

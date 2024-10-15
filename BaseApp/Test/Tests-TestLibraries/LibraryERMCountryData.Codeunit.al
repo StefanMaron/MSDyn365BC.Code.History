@@ -294,6 +294,21 @@ codeunit 131305 "Library - ERM Country Data"
         SetupGLWithVATPostingSetup(GenPostingSetup."Purch. Prepayments Account");
     end;
 
+#if CLEAN23
+    local procedure RemoveVATCodesFromVATPostingSetup()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        with VATPostingSetup do begin
+            SetFilter("VAT Number", '<>%1', '');
+            if FindSet(true) then
+                repeat
+                    Validate("VAT Number", '');
+                    Modify(true);
+                until Next = 0;
+        end;
+    end;
+#else
     local procedure RemoveVATCodesFromVATPostingSetup()
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -307,6 +322,7 @@ codeunit 131305 "Library - ERM Country Data"
                 until Next = 0;
         end;
     end;
+#endif
 
     local procedure CreateMissingVATPostingSetup()
     var

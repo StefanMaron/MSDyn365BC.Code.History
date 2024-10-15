@@ -576,7 +576,7 @@ codeunit 144001 "VAT Tools Test"
         TempVATNote: Record "VAT Note" temporary;
         VATSpecification: Record "VAT Specification";
         VATNote: Record "VAT Note";
-        TempVATCode: Record "VAT Code" temporary;
+        TempVATReportingCode: Record "VAT Reporting Code" temporary;
         NorwegianVATTools: Codeunit "Norwegian VAT Tools";
     begin
         // [FEATURE] [DEMO]
@@ -597,8 +597,8 @@ codeunit 144001 "VAT Tools Test"
             VATNote := TempVATNote;
             VATNote.Insert();
         until TempVATNote.Next() = 0;
-        NorwegianVATTools.GetVATCodes2022(TempVATCode);
-        Assert.RecordCount(TempVATCode, 13);
+        NorwegianVATTools.GetVATReportingCodes2022(TempVATReportingCode);
+        Assert.RecordCount(TempVATReportingCode, 13);
     end;
 
     [Test]
@@ -609,7 +609,7 @@ codeunit 144001 "VAT Tools Test"
         VATStatementLine: Record "VAT Statement Line";
         VATReportHeader: Record "VAT Report Header";
         VATEntry: Record "VAT Entry";
-        VATCode: Code[10];
+        VATReportingCode: Code[20];
         PostingDate: Date;
     begin
         // [FEATURE] [VAT Return] [Suggest Lines]
@@ -620,9 +620,9 @@ codeunit 144001 "VAT Tools Test"
         LibraryVATReport.CreateVATReportConfigurationNo(Codeunit::"VAT Report Suggest Lines", 0, 0, 0, 0);
         PostingDate := FindPostingDateWithNoVATEntries();
         CreateVATReturn(VATReportHeader, DATE2DMY(PostingDate, 3));
-        VATCode := CreateVATCode();
-        SetupSingleVATStatementLineForVATCode(VATStatementLine, VATCode);
-        MockVATEntryWithVATCode(VATEntry, PostingDate, VATCode);
+        VATReportingCode := CreateVATReportingCode();
+        SetupSingleVATStatementLineForVATCode(VATStatementLine);
+        MockVATEntryWithVATCode(VATEntry, PostingDate, VATReportingCode);
         LibraryVariableStorage.Enqueue(VATStatementLine."Statement Template Name");
         LibraryVariableStorage.Enqueue(VATStatementLine."Statement Name");
         SuggestLinesWithPeriod(
@@ -1329,7 +1329,7 @@ codeunit 144001 "VAT Tools Test"
         VATReportSetup.Modify(true);
     end;
 
-    local procedure SetupSingleVATStatementLineForVATCode(var VATStatementLine: Record "VAT Statement Line"; VATCode: Code[10])
+    local procedure SetupSingleVATStatementLineForVATCode(var VATStatementLine: Record "VAT Statement Line")
     var
         VATStatementTemplate: Record "VAT Statement Template";
         VATStatementName: Record "VAT Statement Name";
@@ -1339,7 +1339,6 @@ codeunit 144001 "VAT Tools Test"
         LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name);
         VATStatementLine.Validate(Type, VATStatementLine.Type::"VAT Entry Totaling");
         VATStatementLine.Validate("Amount Type", VATStatementLine."Amount Type"::Amount);
-        VATStatementLine.Validate("VAT Code", VATCode);
         VATStatementLine.Validate("Box No.", LibraryUtility.GenerateGUID());
         VATStatementLine.Modify(true);
     end;
@@ -1354,13 +1353,13 @@ codeunit 144001 "VAT Tools Test"
         exit(WorkDate());
     end;
 
-    local procedure CreateVATCode(): Code[10]
+    local procedure CreateVATReportingCode(): Code[20]
     var
-        VATCode: Record "VAT Code";
+        VATReportingCode: Record "VAT Reporting Code";
     begin
-        VATCode.Code := LibraryUtility.GenerateGUID();
-        VATCode.Insert();
-        exit(VATCode.Code)
+        VATReportingCode.Code := LibraryUtility.GenerateGUID();
+        VATReportingCode.Insert();
+        exit(VATReportingCode.Code)
     end;
 
     local procedure CreateVATReturn(var VATReportHeader: Record "VAT Report Header"; PeriodYear: Integer);
@@ -1371,14 +1370,14 @@ codeunit 144001 "VAT Tools Test"
         VATReportHeader.Modify();
     end;
 
-    local procedure MockVATEntryWithVATCode(var VATEntry: Record "VAT Entry"; PostingDate: Date; VATCode: Code[10])
+    local procedure MockVATEntryWithVATCode(var VATEntry: Record "VAT Entry"; PostingDate: Date; VATReportingCode: Code[20])
     begin
         with VATEntry do begin
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FIELDNO("Entry No."));
             "Posting Date" := PostingDate;
             "VAT Reporting Date" := PostingDate;
             Closed := FALSE;
-            "VAT Code" := VATCode;
+            "VAT Number" := VATReportingCode;
             Amount := LibraryRandom.RandDec(1000, 2);
             Base := LibraryRandom.RandDec(1000, 2);
             "Remaining Unrealized Amount" := LibraryRandom.RandDec(1000, 2);

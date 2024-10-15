@@ -721,7 +721,11 @@
                     VATEntry."Base Before Pmt. Disc." := GLEntryAmount;
 
                 VATEntryAdjustForPropDeduction(GenJnlLine, VATPostingSetup);
+#if CLEAN23
+                NorwegianVATTools.VATEntrySetVATInformation(VATEntry, GenJnlLine);
+#else
                 NorwegianVATTools.VATEntrySetVATInfo(VATEntry, GenJnlLine);
+#endif
 
                 OnBeforeInsertVATEntry(VATEntry, GenJnlLine, NextVATEntryNo, TempGLEntryVATEntryLink, TempGLEntryBuf, GLReg);
                 VATEntry.Insert(true);

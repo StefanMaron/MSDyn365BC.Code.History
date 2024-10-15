@@ -1437,7 +1437,11 @@
             trigger OnValidate()
             begin
                 ValidateVATProdPostingGroup();
+#if CLEAN23
+                NorwegianVATTools.InitVATCodeSalesLine(Rec);
+#else
                 NorwegianVATTools.InitVATCode_SalesLine(Rec);
+#endif
             end;
         }
         field(90; "VAT Prod. Posting Group"; Code[20])
@@ -1496,7 +1500,11 @@
 
                 OnValidateVATProdPostingGroupOnBeforeUpdateAmounts(Rec, xRec, SalesHeader, Currency);
                 UpdateAmounts();
+#if CLEAN23
+                NorwegianVATTools.InitVATCodeSalesLine(Rec);
+#else
                 NorwegianVATTools.InitVATCode_SalesLine(Rec);
+#endif
             end;
         }
         field(91; "Currency Code"; Code[10])
@@ -3309,11 +3317,19 @@
         {
             Caption = 'VAT Code';
             TableRelation = "VAT Code".Code;
+            ObsoleteReason = 'Use the field "VAT Number" instead';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
 
             trigger OnValidate()
             begin
                 NorwegianVATTools.InitPostingGrps_SalesLine(Rec);
             end;
+#endif
         }
         field(10605; "Account Code"; Text[30])
         {
@@ -3323,6 +3339,15 @@
             begin
                 if (Type = Type::" ") and ("Account Code" <> '') then
                     Error(Text10600, FieldCaption("Account Code"), FieldCaption(Type), Type);
+            end;
+        }
+        field(10610; "VAT Number"; Code[20])
+        {
+            TableRelation = "VAT Reporting Code".Code;
+
+            trigger OnValidate()
+            begin
+                NorwegianVATTools.InitPostingGroupsSalesLine(Rec);
             end;
         }
     }
