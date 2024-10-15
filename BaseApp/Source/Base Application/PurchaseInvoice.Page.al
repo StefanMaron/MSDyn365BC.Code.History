@@ -197,11 +197,22 @@
                     Importance = Additional;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
+#if not CLEAN23
                 field("Invoice Receipt Date"; "Invoice Receipt Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by W1 field "Invoice Received Date".';
+                    ObsoleteTag = '23.0';
                     ToolTip = 'Specifies the date when the document was received.';
+                }
+#endif
+                field("Invoice Received Date"; Rec."Invoice Received Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the date when the related document was received.';
                 }
                 field("Posting Date"; "Posting Date")
                 {

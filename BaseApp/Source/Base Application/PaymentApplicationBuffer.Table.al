@@ -2,6 +2,15 @@ table 10562 "Payment Application Buffer"
 {
     Caption = 'Payment Application Buffer';
 
+    ObsoleteReason = 'This table is obsolete. Replaced by W1 extension "Payment Practices".';
+#if CLEAN23
+    ObsoleteState = Removed;
+    ObsoleteTag = '26.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '23.0';
+#endif
+
     fields
     {
         field(1; "Invoice Entry No."; Integer)
@@ -18,7 +27,7 @@ table 10562 "Payment Application Buffer"
         }
         field(4; "Invoice Receipt Date"; Date)
         {
-            Caption = 'Invoice Receipt Date';
+
         }
         field(5; "Due Date"; Date)
         {

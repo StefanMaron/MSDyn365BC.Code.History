@@ -1406,12 +1406,17 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Vendor/Item Purchases';
                         RunObject = report "Vendor/Item Purchases";
                     }
+#if not CLEAN23
                     action("Payment Practices")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Payment Practices';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This page is obsolete. Replaced by W1 extension "Payment Practices".';
+                        ObsoleteTag = '23.0';
                         RunObject = Report "Payment Practices";
                     }
+#endif
                 }
                 group("Group41")
                 {
@@ -1984,11 +1989,16 @@ page 8901 "Finance Manager Role Center"
                     Caption = 'Accounting Periods';
                     RunObject = page "Accounting Periods";
                 }
+#if not CLEAN23
                 action("Payment Period Setup")
                 {
                     Caption = 'Payment Period Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This page is obsolete. Replaced by W1 extension "Payment Practices".';
+                    ObsoleteTag = '23.0';
                     RunObject = page "Payment Period Setup";
                 }
+#endif
                 action("Standard Text Codes")
                 {
                     ApplicationArea = Basic, Suite;

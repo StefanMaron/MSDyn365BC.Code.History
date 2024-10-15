@@ -72,10 +72,12 @@
                     end;
 
                 Validate("Deferral Code", '');
+#if not CLEAN23
                 if FillInvRcptDate then
                     "Invoice Receipt Date" := "Document Date"
                 else
                     "Invoice Receipt Date" := 0D;
+#endif
             end;
         }
         field(4; "Account No."; Code[20])
@@ -227,10 +229,12 @@
                     end;
                 UpdateSalesPurchLCY;
                 ValidateApplyRequirements(Rec);
+#if not CLEAN23
                 if FillInvRcptDate then
                     Validate("Invoice Receipt Date", "Document Date")
                 else
                     Validate("Invoice Receipt Date", 0D);
+#endif
             end;
         }
         field(7; "Document No."; Code[20])
@@ -1161,10 +1165,12 @@
                     if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
                         FieldError("Bal. Account Type");
                 end;
+#if not CLEAN23
                 if FillInvRcptDate then
                     "Invoice Receipt Date" := "Document Date"
                 else
                     "Invoice Receipt Date" := 0D;
+#endif
             end;
         }
         field(64; "Bal. Gen. Posting Type"; Enum "General Posting Type")
@@ -2012,6 +2018,16 @@
         {
             Caption = 'Applies-to Ext. Doc. No.';
         }
+        field(175; "Invoice Received Date"; Date)
+        {
+            trigger OnValidate()
+            begin
+                if (Rec."Invoice Received Date" <> 0D) and
+                   (("Account Type" = "Account Type"::Vendor) or ("Bal. Account Type" = "Bal. Account Type"::Vendor))
+                then
+                    TestField("Document Type", "Document Type"::Invoice);
+            end;
+        }
         field(180; "Keep Description"; Boolean)
         {
             Caption = 'Keep Description';
@@ -2736,8 +2752,17 @@
         }
         field(10500; "Invoice Receipt Date"; Date)
         {
-            Caption = 'Invoice Receipt Date';
 
+            ObsoleteReason = 'Replaced by W1 field "Invoice Received Date".';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#endif
+
+#if not CLEAN23
             trigger OnValidate()
             begin
                 if ("Invoice Receipt Date" <> 0D) and
@@ -2745,6 +2770,7 @@
                 then
                     TestField("Document Type", "Document Type"::Invoice);
             end;
+#endif
         }
     }
 
@@ -3084,8 +3110,10 @@
         "Source Code" := GenJnlTemplate."Source Code";
         "Reason Code" := GenJnlBatch."Reason Code";
         "Posting No. Series" := GenJnlBatch."Posting No. Series";
+#if not CLEAN23
         if FillInvRcptDate then
             "Invoice Receipt Date" := "Document Date";
+#endif
 
         IsHandled := false;
         OnSetUpNewLineOnBeforeSetBalAccount(GenJnlLine, LastGenJnlLine, Balance, IsHandled, GenJnlTemplate, GenJnlBatch, BottomLine, Rec, CurrFieldNo);
@@ -5850,6 +5878,7 @@
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         "Due Date" := PurchHeader."Due Date";
+        "Invoice Received Date" := PurchHeader."Invoice Received Date";
         "Payment Terms Code" := PurchHeader."Payment Terms Code";
         "Pmt. Discount Date" := PurchHeader."Pmt. Discount Date";
         "Payment Discount %" := PurchHeader."Payment Discount %";
@@ -8170,12 +8199,14 @@
     begin
     end;
 
+#if not CLEAN23
     local procedure FillInvRcptDate(): Boolean
     begin
         exit(
           ("Document Type" = "Document Type"::Invoice) and
           (("Account Type" = "Account Type"::Vendor) or ("Bal. Account Type" = "Bal. Account Type"::Vendor)));
     end;
+#endif
 
     procedure ShowDeferralSchedule()
     begin

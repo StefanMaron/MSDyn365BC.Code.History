@@ -17,7 +17,9 @@ permissionset 1002 "LOCAL READ"
                   tabledata "MTD-Missing Fraud Prev. Hdr" = R,
                   tabledata "MTD-Session Fraud Prev. Hdr" = R,
                   tabledata "MTD-Default Fraud Prev. Hdr" = R,
+#if not CLEAN23
                   tabledata "Payment Application Buffer" = R,
                   tabledata "Payment Period Setup" = R,
+#endif
                   tabledata "Postcode Notification Memory" = R;
 }
