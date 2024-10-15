@@ -2617,7 +2617,7 @@
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateRequestedDeliveryDate(Rec, IsHandled);
+                OnBeforeValidateRequestedDeliveryDate(Rec, IsHandled, xRec, CurrFieldNo);
                 if IsHandled then
                     exit;
 
@@ -3562,7 +3562,7 @@
             exit;
 
         ShouldCreateSalsesLine := TempSalesLine."Attached to Line No." = 0;
-        OnRecreateSalesLinesHandleSupplementTypesOnAfterCalcShouldCreateSalsesLine(TempSalesLine, ShouldCreateSalsesLine);
+        OnRecreateSalesLinesHandleSupplementTypesOnAfterCalcShouldCreateSalsesLine(TempSalesLine, ShouldCreateSalsesLine, SalesLine);
         if ShouldCreateSalsesLine then begin
             CreateSalesLine(TempSalesLine);
             ExtendedTextAdded := false;
@@ -7816,7 +7816,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateRequestedDeliveryDate(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateRequestedDeliveryDate(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -8187,7 +8187,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRecreateSalesLinesHandleSupplementTypesOnAfterCalcShouldCreateSalsesLine(var TempSalesLine: Record "Sales Line"; var ShouldCreateSalsesLine: Boolean)
+    local procedure OnRecreateSalesLinesHandleSupplementTypesOnAfterCalcShouldCreateSalsesLine(var TempSalesLine: Record "Sales Line"; var ShouldCreateSalsesLine: Boolean; var SalesLine: Record "Sales Line")
     begin
     end;
 

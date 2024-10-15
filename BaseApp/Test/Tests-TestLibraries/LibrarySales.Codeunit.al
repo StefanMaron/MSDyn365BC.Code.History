@@ -649,7 +649,7 @@ codeunit 130509 "Library - Sales"
         if SalesHeader.HasFilter then
             TmpSalesHeader.CopyFilters(SalesHeader)
         else begin
-            SalesHeader.Get(SalesHeader."No.", SalesHeader."Document Type");
+            SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
             TmpSalesHeader.SetRange("Document Type", SalesHeader."Document Type");
             TmpSalesHeader.SetRange("No.", SalesHeader."No.");
         end;
@@ -675,7 +675,7 @@ codeunit 130509 "Library - Sales"
         if SalesHeader.HasFilter then
             TmpSalesHeader.CopyFilters(SalesHeader)
         else begin
-            SalesHeader.Get(SalesHeader."No.", SalesHeader."Document Type");
+            SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
             TmpSalesHeader.SetRange("Document Type", SalesHeader."Document Type");
             TmpSalesHeader.SetRange("No.", SalesHeader."No.");
         end;

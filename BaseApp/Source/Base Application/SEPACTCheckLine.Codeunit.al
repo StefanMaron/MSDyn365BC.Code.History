@@ -1,4 +1,4 @@
-codeunit 1223 "SEPA CT-Check Line"
+﻿codeunit 1223 "SEPA CT-Check Line"
 {
     TableNo = "Gen. Journal Line";
 
@@ -153,6 +153,8 @@ codeunit 1223 "SEPA CT-Check Line"
                                   GenJnlLine, Employee.TableCaption, Employee.FieldCaption(IBAN), "Recipient Bank Account");
                         end;
                     end;
+                else
+                    OnCheckCustVendEmplOnCaseElse(GenJnlLine);
             end;
         end;
     end;
@@ -185,6 +187,11 @@ codeunit 1223 "SEPA CT-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckCustVendEmplOnCaseElse(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

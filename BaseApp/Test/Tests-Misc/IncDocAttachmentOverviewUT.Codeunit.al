@@ -494,7 +494,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         PurchLine.Validate("Direct Unit Cost", 100);
         PurchLine.Modify(true);
 
-        IncomingDocument."Document Type" := IncomingDocument."Document Type"::"Sales Invoice";
+        IncomingDocument."Document Type" := IncomingDocument."Document Type"::"Purchase Invoice";
         IncomingDocument."Document No." := PurchHeader."No.";
         IncomingDocument.Modify();
     end;

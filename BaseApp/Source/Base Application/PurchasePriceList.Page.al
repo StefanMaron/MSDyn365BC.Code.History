@@ -112,6 +112,7 @@ page 7018 "Purchase Price List"
                         ToolTip = 'Specifies the amount type filter that defines the columns shown in the price list lines.';
                         trigger OnValidate()
                         begin
+                            Rec.Validate("Amount Type", ViewAmountType);
                             CurrPage.Lines.Page.SetSubFormLinkFilter(ViewAmountType);
                         end;
                     }
@@ -379,6 +380,8 @@ page 7018 "Purchase Price List"
                     IsJobGroup := true;
                     JobSourceType := "Job Price Source Type".FromInteger(Rec."Source Type".AsInteger());
                 end;
+            else
+                OnUpdateSourceTypeOnCaseElse(Rec, SourceType, IsJobGroup);
         end;
     end;
 
@@ -414,5 +417,10 @@ page 7018 "Purchase Price List"
         Rec.Validate("Source Type", SourceType);
         SetSourceNoEnabled();
         CurrPage.SaveRecord();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSourceTypeOnCaseElse(PriceListHeader: Record "Price List Header"; var SourceType: Enum "Purchase Price Source Type"; var IsJobGroup: Boolean)
+    begin
     end;
 }

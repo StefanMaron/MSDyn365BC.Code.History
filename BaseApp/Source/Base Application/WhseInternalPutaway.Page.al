@@ -188,7 +188,7 @@ page 7354 "Whse. Internal Put-away"
                     ShortCutKey = 'Ctrl+F9';
                     Promoted = true;
                     PromotedCategory = Category4;
-                    ToolTip = 'Release the document to the next stage of processing. When a document is released, it will be included in all availability calculations from the expected receipt date of the items. You must reopen the document before you can make changes to it.';
+                    ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
 
                     trigger OnAction()
                     var
