@@ -16,6 +16,9 @@ codeunit 10766 "Sales Cr.Memo Header - Edit"
         SalesCrMemoHeader."Special Scheme Code" := "Special Scheme Code";
         SalesCrMemoHeader."Cr. Memo Type" := "Cr. Memo Type";
         SalesCrMemoHeader."Correction Type" := "Correction Type";
+        SalesCrMemoHeader."ID Type" := "ID Type";
+        SalesCrMemoHeader."Succeeded Company Name" := "Succeeded Company Name";
+        SalesCrMemoHeader."Succeeded VAT Registration No." := "Succeeded VAT Registration No.";
         SalesCrMemoHeader.TestField("No.", "No.");
         SalesCrMemoHeader.Modify();
         Rec := SalesCrMemoHeader;

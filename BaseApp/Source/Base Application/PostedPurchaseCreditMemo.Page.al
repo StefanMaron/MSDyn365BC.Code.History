@@ -333,6 +333,24 @@ page 140 "Posted Purchase Credit Memo"
                         Editable = false;
                         ToolTip = 'Specifies the Correction Type.';
                     }
+                    field("ID Type"; "ID Type")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Editable = false;
+                        ToolTip = 'Specifies the ID Type.';
+                    }
+                    field("Succeeded Company Name"; "Succeeded Company Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Editable = false;
+                        ToolTip = 'Specifies the name of the company sucessor in connection with corporate restructuring.';
+                    }
+                    field("Succeeded VAT Registration No."; "Succeeded VAT Registration No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Editable = false;
+                        ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
+                    }
                     field("Do Not Send To SII"; "Do Not Send To SII")
                     {
                         ApplicationArea = Basic, Suite;

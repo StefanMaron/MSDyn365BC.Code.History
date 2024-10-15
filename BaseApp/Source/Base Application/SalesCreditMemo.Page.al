@@ -431,6 +431,16 @@ page 44 "Sales Credit Memo"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the ID Type.';
                     }
+                    field("Succeeded Company Name"; "Succeeded Company Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the name of the company sucessor in connection with corporate restructuring.';
+                    }
+                    field("Succeeded VAT Registration No."; "Succeeded VAT Registration No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
+                    }
                     field("SII First Summary Doc. No."; SIIFirstSummaryDocNo)
                     {
                         Caption = 'First Summary Doc. No.';

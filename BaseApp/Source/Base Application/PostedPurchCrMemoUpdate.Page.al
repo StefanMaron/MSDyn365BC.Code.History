@@ -80,6 +80,24 @@ page 10767 "Posted Purch. Cr.Memo - Update"
                     Editable = true;
                     ToolTip = 'Specifies the number of the posted invoice that you need to correct.';
                 }
+                field("ID Type"; "ID Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the ID Type.';
+                }
+                field("Succeeded Company Name"; "Succeeded Company Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the name of the company sucessor in connection with corporate restructuring.';
+                }
+                field("Succeeded VAT Registration No."; "Succeeded VAT Registration No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
+                }
             }
         }
     }
@@ -115,7 +133,10 @@ page 10767 "Posted Purch. Cr.Memo - Update"
           ("Special Scheme Code" <> xPurchCrMemoHdr."Special Scheme Code") or
           ("Cr. Memo Type" <> xPurchCrMemoHdr."Cr. Memo Type") or
           ("Corrected Invoice No." <> xPurchCrMemoHdr."Corrected Invoice No.") or
-          ("Correction Type" <> xPurchCrMemoHdr."Correction Type"));
+          ("Correction Type" <> xPurchCrMemoHdr."Correction Type") or
+          ("ID Type" <> xPurchCrMemoHdr."ID Type") or
+          ("Succeeded Company Name" <> xPurchCrMemoHdr."Succeeded Company Name") or
+          ("Succeeded VAT Registration No." <> xPurchCrMemoHdr."Succeeded VAT Registration No."));
         OnAfterRecordChanged(Rec, xPurchCrMemoHdr, IsChanged);
     end;
 
