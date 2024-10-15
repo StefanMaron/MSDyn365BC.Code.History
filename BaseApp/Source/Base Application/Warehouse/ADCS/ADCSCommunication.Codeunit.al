@@ -17,21 +17,37 @@ codeunit 7701 "ADCS Communication"
         XMLDOMMgt: Codeunit "XML DOM Management";
         RecRef: RecordRef;
         XMLDOM: DotNet XmlDocument;
+#pragma warning disable AA0074
         Text000: Label 'Failed to add a node.';
+#pragma warning disable AA0470
         Text001: Label 'Failed to add the element: %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Comment: Text[250];
         TableNo: Text[250];
         RecID: Text[250];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Failed to add the attribute: %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ActiveInput: Integer;
         InputCounter: Integer;
         RecRefRunning: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 is not a valid value for the %2 field.';
         Text004: Label 'The field %2 in the record %1 can only contain %3 characters. (%4).', Comment = 'The field [Field Caption] in the record [Record Caption] [Field Caption] can only contain [Field Length] characters. ([Attempted value to set]).';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         InputIsHidden: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'Miniform %1 not found.';
         Text006: Label 'There must be one miniform that is set to %1.';
+#pragma warning restore AA0470
         Text007: Label '<%1> not used.', Locked = true;
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure EncodeMiniForm(MiniFormHdr: Record "Miniform Header"; StackCode: Code[250]; var XMLDOMin: DotNet XmlDocument; ActiveInputField: Integer; cMessage: Text[250]; ADCSUserId: Text[250])
@@ -151,7 +167,7 @@ codeunit 7701 "ADCS Communication"
                 end;
 
                 if MiniFormLine.Area = MiniFormLine.Area::Body then
-                    if MiniFormHdr."Form Type" <> MiniFormHdr."Form Type"::Card then begin
+                    if MiniFormHdr."Form Type" <> MiniFormHdr."Form Type"::Card then
                         while MiniFormHdr."No. of Records in List" > LineCounter do begin
                             if ((MiniFormHdr."Form Type" = MiniFormHdr."Form Type"::"Data List") or
                                 (MiniFormHdr."Form Type" = MiniFormHdr."Form Type"::"Data List Input"))
@@ -180,7 +196,7 @@ codeunit 7701 "ADCS Communication"
                             end;
                             LineCounter := LineCounter + 1;
                         end
-                    end else
+                    else
                         SendComposition(MiniFormLine, AreaNode)
                 else
                     SendComposition(MiniFormLine, AreaNode);

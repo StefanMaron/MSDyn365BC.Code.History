@@ -365,17 +365,29 @@ report 5696 "Date Compress FA Ledger"
         DataArchiveProviderExists: Boolean;
         EqualDim: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You may set filters only on %1 and %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label '%1 must be specified.';
+#pragma warning restore AA0470
         Text005: Label 'Date compressing FA ledger entries...\\';
+#pragma warning disable AA0470
         Text006: Label 'FA No.               #1##########\';
         Text007: Label 'Date                 #2######\\';
         Text008: Label 'No. of new entries   #3######\';
         Text009: Label 'No. of entries del.  #4######';
+#pragma warning restore AA0470
         Text010: Label 'Date Compressed';
+#pragma warning disable AA0470
         Text011: Label 'The date compression has been interrupted. Another user changed the table %1.';
+#pragma warning restore AA0470
         Text012: Label 'Retain Dimensions';
+#pragma warning restore AA0074
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 

@@ -143,11 +143,15 @@ table 9650 "Custom Report Layout"
         FileFilterRdlcTxt: Label 'SQL Report Builder (*.rdl;*.rdlc)|*.rdl;*.rdlc', Comment = '{Split=r''\|''}{Locked=s''1''}';
         NoRecordsErr: Label 'There is no record in the list.';
         BuiltInTxt: Label 'Built-in layout';
+#pragma warning disable AA0470
         CopyOfTxt: Label 'Copy of %1';
+#pragma warning restore AA0470
         NewLayoutTxt: Label 'New layout';
         ErrorInLayoutErr: Label 'The following issue has been found in the layout %1 for report ID  %2:\%3.', Comment = '%1=a name, %2=a number, %3=a sentence/error description.';
         TemplateValidationQst: Label 'The RDLC layout does not comply with the current report design (for example, fields are missing or the report ID is wrong).\The following errors were detected during the layout validation:\%1\Do you want to continue?', Comment = '%1 = an error message.';
+#pragma warning disable AA0470
         TemplateValidationErr: Label 'The RDLC layout does not comply with the current report design (for example, fields are missing or the report ID is wrong).\The following errors were detected during the document validation:\%1\You must update the layout to match the current report design.';
+#pragma warning restore AA0470
         AbortWithValidationErr: Label 'The RDLC layout action has been canceled because of validation errors.';
         ModifyBuiltInLayoutQst: Label 'This is a built-in custom report layout, and it cannot be modified.\\Do you want to modify a copy of the custom report layout instead?';
         NoLayoutSelectedMsg: Label 'You must specify if you want to insert a Word layout or an RDLC layout for the report.';
@@ -165,7 +169,6 @@ table 9650 "Custom Report Layout"
         CustomReportLayout: Record "Custom Report Layout";
         TempBlob: Codeunit "Temp Blob";
         DocumentReportMgt: Codeunit "Document Report Mgt.";
-        InStr: InStream;
         OutStr: OutStream;
     begin
         if ReportID = 0 then
@@ -182,20 +185,17 @@ table 9650 "Custom Report Layout"
         case LayoutType of
             CustomReportLayout.Type::Word.AsInteger():
                 begin
-                    TempBlob.CreateOutStream(OutStr);
-                    if not REPORT.WordLayout(ReportID, InStr) then begin
+                    if not LoadInternalWordLayout(ReportID, TempBlob) then begin
+                        TempBlob.CreateOutStream(OutStr);
                         DocumentReportMgt.NewWordLayout(ReportID, OutStr);
                         CustomReportLayout.Description := CopyStr(NewLayoutTxt, 1, MaxStrLen(Description));
-                    end else
-                        CopyStream(OutStr, InStr);
+                    end;
+
                     CustomReportLayout.SetLayoutBlob(TempBlob);
                 end;
             CustomReportLayout.Type::RDLC.AsInteger():
-                if REPORT.RdlcLayout(ReportID, InStr) then begin
-                    TempBlob.CreateOutStream(OutStr);
-                    CopyStream(OutStr, InStr);
-                    CustomReportLayout.SetLayoutBlob(TempBlob);
-                end;
+                if LoadInternalRdlcLayout(ReportID, TempBlob) then
+                        CustomReportLayout.SetLayoutBlob(TempBlob);                    
             else
                 OnInitBuiltInLayout(CustomReportLayout, ReportID, LayoutType);
         end;
@@ -204,6 +204,50 @@ table 9650 "Custom Report Layout"
         CustomReportLayout.SetLayoutLastUpdated();
 
         exit(CustomReportLayout.Code);
+    end;
+
+    /// <summary>
+    /// Internal resplacement for the soon deprecated Report.WordLayout function. This function will load the internal Word layout for the given report using the virtual table Report Layout List.
+    /// </summary>
+    /// <param name="ReportID">Report Id.</param>
+    /// <param name="TempBlob">Layout will be provided in the blob object if the procedure return true.</param>
+    /// <returns>True if the layout was loaded.</returns>
+    local procedure LoadInternalWordLayout(ReportID: Integer; var TempBlob: Codeunit "Temp Blob"): Boolean
+    var
+        ReportLayoutList: Record "Report Layout List";
+        LayoutStream: OutStream;
+        ExportStatus: Boolean;
+    begin
+        ReportLayoutList.SetFilter("Report ID", '=%1', ReportID);
+        ReportLayoutList.SetFilter("Layout Format", '=%1', ReportLayoutList."Layout Format"::Word);
+        if not ReportLayoutList.FindFirst() then
+            exit(false);
+
+        TempBlob.CreateOutStream(LayoutStream);
+        ExportStatus := ReportLayoutList.Layout.ExportStream(LayoutStream);
+        exit(ExportStatus)
+    end;
+
+    /// <summary>
+    /// Internal resplacement for the soon deprecated Report.RdlcLayout function. This function will load the internal RDLC layout for the given report using the virtual table Report Layout List.
+    /// </summary>
+    /// <param name="ReportID">Report Id.</param>
+    /// <param name="TempBlob">Layout will be provided in the blob object if the procedure return true.</param>
+    /// <returns>True if the layout was loaded.</returns>
+    local procedure LoadInternalRdlcLayout(ReportID: Integer; var TempBlob: Codeunit "Temp Blob"): Boolean
+    var
+        ReportLayoutList: Record "Report Layout List";
+        LayoutStream: OutStream;
+        ExportStatus: Boolean;
+    begin
+        ReportLayoutList.SetFilter("Report ID", '=%1', ReportID);
+        ReportLayoutList.SetFilter("Layout Format", '=%1', ReportLayoutList."Layout Format"::RDLC);
+        if not ReportLayoutList.FindFirst() then
+            exit(false);
+
+        TempBlob.CreateOutStream(LayoutStream);
+        ExportStatus := ReportLayoutList.Layout.ExportStream(LayoutStream);
+        exit(ExportStatus)
     end;
 
     procedure CopyBuiltInReportLayout()
@@ -760,10 +804,12 @@ table 9650 "Custom Report Layout"
     procedure CanModify(): Boolean
     var
         User: Record User;
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        CustomReportLayout: Record "Custom Report Layout";
     begin
         if CurrentTransactionType() = TransactionType::Report then
             exit(false);
-        if not WritePermission then
+        if not CustomReportLayout.WritePermission() then
             exit(false);
         if not User.Get(UserSecurityId()) then
             exit(true);

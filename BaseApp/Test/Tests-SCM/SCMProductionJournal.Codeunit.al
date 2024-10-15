@@ -452,19 +452,14 @@ codeunit 137034 "SCM Production Journal"
 
         // [GIVEN] Released Production Order "PO" on Location "L" with parent and child lines and bins "B1" and "B2" related to them.
         CreateReleasedProdOrderWithTwoLines(ParentProdOrderLine, ChildProdOrderLine);
-
-        with ItemJournalLine do begin
-            // [GIVEN] Output journal line with "Order No." = "PO".
-            CreateProductionItemJournal(ItemJournalLine, "Entry Type"::Output, ParentProdOrderLine."Prod. Order No.");
-
-            // [WHEN] Select "Order Line No.". = parent Prod. Order Line no.
-            Validate("Order Line No.", ParentProdOrderLine."Line No.");
-
-            // [THEN] "Location Code" is equal to "L".
-            // [THEN] "Bin Code" is equal to "B1".
-            TestField("Location Code", ParentProdOrderLine."Location Code");
-            TestField("Bin Code", ParentProdOrderLine."Bin Code");
-        end;
+        // [GIVEN] Output journal line with "Order No." = "PO".
+        CreateProductionItemJournal(ItemJournalLine, ItemJournalLine."Entry Type"::Output, ParentProdOrderLine."Prod. Order No.");
+        // [WHEN] Select "Order Line No.". = parent Prod. Order Line no.
+        ItemJournalLine.Validate("Order Line No.", ParentProdOrderLine."Line No.");
+        // [THEN] "Location Code" is equal to "L".
+        // [THEN] "Bin Code" is equal to "B1".
+        ItemJournalLine.TestField("Location Code", ParentProdOrderLine."Location Code");
+        ItemJournalLine.TestField("Bin Code", ParentProdOrderLine."Bin Code");
     end;
 
     [Test]
@@ -481,20 +476,16 @@ codeunit 137034 "SCM Production Journal"
 
         // [GIVEN] Released Production Order "PO" on Location "L" with parent and child lines and bins "B1" and "B2" related to them.
         CreateReleasedProdOrderWithTwoLines(ParentProdOrderLine, ChildProdOrderLine);
-
-        with ItemJournalLine do begin
-            // [GIVEN] Consumption journal line with "Order No." = "PO".
-            CreateProductionItemJournal(ItemJournalLine, "Entry Type"::Consumption, ParentProdOrderLine."Prod. Order No.");
-            Validate(Quantity, 0); // nothing is picked yet
-
-            // [WHEN] Select "Item No." = child Prod. Order Line item.
-            Validate("Item No.", ChildProdOrderLine."Item No.");
-
-            // [THEN] "Location Code" is equal to "L".
-            // [THEN] "Bin Code" is equal to "B2".
-            TestField("Location Code", ChildProdOrderLine."Location Code");
-            TestField("Bin Code", ChildProdOrderLine."Bin Code");
-        end;
+        // [GIVEN] Consumption journal line with "Order No." = "PO".
+        CreateProductionItemJournal(ItemJournalLine, ItemJournalLine."Entry Type"::Consumption, ParentProdOrderLine."Prod. Order No.");
+        ItemJournalLine.Validate(Quantity, 0);
+        // nothing is picked yet
+        // [WHEN] Select "Item No." = child Prod. Order Line item.
+        ItemJournalLine.Validate("Item No.", ChildProdOrderLine."Item No.");
+        // [THEN] "Location Code" is equal to "L".
+        // [THEN] "Bin Code" is equal to "B2".
+        ItemJournalLine.TestField("Location Code", ChildProdOrderLine."Location Code");
+        ItemJournalLine.TestField("Bin Code", ChildProdOrderLine."Bin Code");
     end;
 
     [Test]
@@ -513,24 +504,18 @@ codeunit 137034 "SCM Production Journal"
 
         // [GIVEN] Released Production Order "PO" on Location "L" with parent and child lines and bins "B1" and "B2" related to them.
         CreateReleasedProdOrderWithTwoLines(ParentProdOrderLine, ChildProdOrderLine);
-
-        with ItemJournalLine do begin
-            // [GIVEN] Output journal line with "Order No." and "Item No." from parent Prod. Order Line.
-            CreateProductionItemJournal(ItemJournalLine, "Entry Type"::Output, ParentProdOrderLine."Prod. Order No.");
-            Validate("Item No.", ParentProdOrderLine."Item No.");
-            Modify(true);
-            SavedItemJournalLine := ItemJournalLine;
-
-            // [WHEN] Update "Item No." in Item Journal Line with "Item No." from child Prod. Order Line.
-            Validate("Item No.", ChildProdOrderLine."Item No.");
-            WMSManagement.CheckItemJnlLineFieldChange(ItemJournalLine, SavedItemJournalLine, FieldCaption("Item No."));
-
-            // [THEN] "Bin Code" is changed.
-            Assert.AreNotEqual("Bin Code", SavedItemJournalLine."Bin Code", InvalidBinCodeErr);
-
-            // [THEN] "Bin Code" is equal to "B2".
-            TestField("Bin Code", ChildProdOrderLine."Bin Code");
-        end;
+        // [GIVEN] Output journal line with "Order No." and "Item No." from parent Prod. Order Line.
+        CreateProductionItemJournal(ItemJournalLine, ItemJournalLine."Entry Type"::Output, ParentProdOrderLine."Prod. Order No.");
+        ItemJournalLine.Validate("Item No.", ParentProdOrderLine."Item No.");
+        ItemJournalLine.Modify(true);
+        SavedItemJournalLine := ItemJournalLine;
+        // [WHEN] Update "Item No." in Item Journal Line with "Item No." from child Prod. Order Line.
+        ItemJournalLine.Validate("Item No.", ChildProdOrderLine."Item No.");
+        WMSManagement.CheckItemJnlLineFieldChange(ItemJournalLine, SavedItemJournalLine, ItemJournalLine.FieldCaption("Item No."));
+        // [THEN] "Bin Code" is changed.
+        Assert.AreNotEqual(ItemJournalLine."Bin Code", SavedItemJournalLine."Bin Code", InvalidBinCodeErr);
+        // [THEN] "Bin Code" is equal to "B2".
+        ItemJournalLine.TestField("Bin Code", ChildProdOrderLine."Bin Code");
     end;
 
     [Test]
@@ -580,19 +565,14 @@ codeunit 137034 "SCM Production Journal"
 
         // [GIVEN] Released Production Order "PO" on Location "L" with parent and child lines and bins "B1" and "B2" related to them.
         CreateReleasedProdOrderWithTwoLines(ParentProdOrderLine, ChildProdOrderLine);
-
-        with ItemJournalLine do begin
-            // [GIVEN] Output journal line with "Order No." and "Item No." from parent Prod. Order Line.
-            CreateProductionItemJournal(ItemJournalLine, "Entry Type"::Output, ParentProdOrderLine."Prod. Order No.");
-            Validate("Order Line No.", ParentProdOrderLine."Line No.");
-            Validate("Bin Code", '');
-
-            // [WHEN] Validate "Bin Code" with "B1".
-            UpdateBinCodeInItemJournalLine(ItemJournalLine, ParentProdOrderLine."Bin Code");
-
-            // [THEN] No error raised. "Bin Code" in Item Journal Line is updated to "B1"
-            TestField("Bin Code", ParentProdOrderLine."Bin Code");
-        end;
+        // [GIVEN] Output journal line with "Order No." and "Item No." from parent Prod. Order Line.
+        CreateProductionItemJournal(ItemJournalLine, ItemJournalLine."Entry Type"::Output, ParentProdOrderLine."Prod. Order No.");
+        ItemJournalLine.Validate("Order Line No.", ParentProdOrderLine."Line No.");
+        ItemJournalLine.Validate("Bin Code", '');
+        // [WHEN] Validate "Bin Code" with "B1".
+        UpdateBinCodeInItemJournalLine(ItemJournalLine, ParentProdOrderLine."Bin Code");
+        // [THEN] No error raised. "Bin Code" in Item Journal Line is updated to "B1"
+        ItemJournalLine.TestField("Bin Code", ParentProdOrderLine."Bin Code");
     end;
 
     [Test]
@@ -614,19 +594,16 @@ codeunit 137034 "SCM Production Journal"
         // [GIVEN] Prod. Order Component for parent Prod. Order line.
         FindProdOrderCompLine(ProdOrderComponent, ParentProdOrderLine);
 
-        with ItemJournalLine do begin
-            // [GIVEN] Consumption journal line for Prod. Order Component with empty "Bin Code".
-            CreateProductionItemJournal(ItemJournalLine, "Entry Type"::Consumption, ProdOrderComponent."Prod. Order No.");
-            Validate(Quantity, 0); // nothing is picked yet
-            Validate("Item No.", ProdOrderComponent."Item No.");
-            Validate("Bin Code", '');
-
-            // [WHEN] Validate "Bin Code" with "B2".
-            UpdateBinCodeInItemJournalLine(ItemJournalLine, ChildProdOrderLine."Bin Code");
-
-            // [THEN] No error raised. "Bin Code" in Item Journal Line is updated to "B2"
-            TestField("Bin Code", ChildProdOrderLine."Bin Code");
-        end;
+        // [GIVEN] Consumption journal line for Prod. Order Component with empty "Bin Code".
+        CreateProductionItemJournal(ItemJournalLine, ItemJournalLine."Entry Type"::Consumption, ProdOrderComponent."Prod. Order No.");
+        ItemJournalLine.Validate(Quantity, 0);
+        // nothing is picked yet
+        ItemJournalLine.Validate("Item No.", ProdOrderComponent."Item No.");
+        ItemJournalLine.Validate("Bin Code", '');
+        // [WHEN] Validate "Bin Code" with "B2".
+        UpdateBinCodeInItemJournalLine(ItemJournalLine, ChildProdOrderLine."Bin Code");
+        // [THEN] No error raised. "Bin Code" in Item Journal Line is updated to "B2"
+        ItemJournalLine.TestField("Bin Code", ChildProdOrderLine."Bin Code");
     end;
 
     [Test]
@@ -643,19 +620,14 @@ codeunit 137034 "SCM Production Journal"
 
         // [GIVEN] Released Production Order "PO" on Location "L" with parent and child lines and bins "B1" and "B2" related to them.
         CreateReleasedProdOrderWithTwoLines(ParentProdOrderLine, ChildProdOrderLine);
-
-        with ItemJournalLine do begin
-            // [GIVEN] Output journal line with "Order No." and "Item No." from parent Prod. Order Line.
-            CreateProductionItemJournal(ItemJournalLine, "Entry Type"::Output, ParentProdOrderLine."Prod. Order No.");
-            Validate("Order Line No.", ParentProdOrderLine."Line No.");
-            Validate("Bin Code", '');
-
-            // [WHEN] Validate "Bin Code" with "B2".
-            asserterror UpdateBinCodeInItemJournalLine(ItemJournalLine, ChildProdOrderLine."Bin Code");
-
-            // [THEN] Error message is raised.
-            Assert.ExpectedError(StrSubstNo(LocationWithDirectedPutAwayAndPickErr, "Location Code"));
-        end;
+        // [GIVEN] Output journal line with "Order No." and "Item No." from parent Prod. Order Line.
+        CreateProductionItemJournal(ItemJournalLine, ItemJournalLine."Entry Type"::Output, ParentProdOrderLine."Prod. Order No.");
+        ItemJournalLine.Validate("Order Line No.", ParentProdOrderLine."Line No.");
+        ItemJournalLine.Validate("Bin Code", '');
+        // [WHEN] Validate "Bin Code" with "B2".
+        asserterror UpdateBinCodeInItemJournalLine(ItemJournalLine, ChildProdOrderLine."Bin Code");
+        // [THEN] Error message is raised.
+        Assert.ExpectedError(StrSubstNo(LocationWithDirectedPutAwayAndPickErr, ItemJournalLine."Location Code"));
     end;
 
     [Test]
@@ -676,21 +648,16 @@ codeunit 137034 "SCM Production Journal"
 
         // [GIVEN] Location "L2" with same bin codes as in Location "L1".
         CopyLocation(NewLocationCode, ParentProdOrderLine."Location Code", ParentProdOrderLine."Bin Code");
-
-        with ItemJournalLine do begin
-            // [GIVEN] Output journal line with "Order No." and "Item No." from parent Prod. Order Line.
-            // [GIVEN] Location Code is changed to "L2". Bin code is cleared.
-            CreateProductionItemJournal(ItemJournalLine, "Entry Type"::Output, ParentProdOrderLine."Prod. Order No.");
-            Validate("Order Line No.", ParentProdOrderLine."Line No.");
-            Validate("Location Code", NewLocationCode);
-            Validate("Bin Code", '');
-
-            // [WHEN] Validate "Bin Code" with "B1".
-            asserterror UpdateBinCodeInItemJournalLine(ItemJournalLine, ParentProdOrderLine."Bin Code");
-
-            // [THEN] Error message is raised.
-            Assert.ExpectedError(StrSubstNo(LocationWithDirectedPutAwayAndPickErr, "Location Code"));
-        end;
+        // [GIVEN] Output journal line with "Order No." and "Item No." from parent Prod. Order Line.
+        // [GIVEN] Location Code is changed to "L2". Bin code is cleared.
+        CreateProductionItemJournal(ItemJournalLine, ItemJournalLine."Entry Type"::Output, ParentProdOrderLine."Prod. Order No.");
+        ItemJournalLine.Validate("Order Line No.", ParentProdOrderLine."Line No.");
+        ItemJournalLine.Validate("Location Code", NewLocationCode);
+        ItemJournalLine.Validate("Bin Code", '');
+        // [WHEN] Validate "Bin Code" with "B1".
+        asserterror UpdateBinCodeInItemJournalLine(ItemJournalLine, ParentProdOrderLine."Bin Code");
+        // [THEN] Error message is raised.
+        Assert.ExpectedError(StrSubstNo(LocationWithDirectedPutAwayAndPickErr, ItemJournalLine."Location Code"));
     end;
 
     [Test]
@@ -1958,12 +1925,10 @@ codeunit 137034 "SCM Production Journal"
     begin
         LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, ChildItem."No.", LibraryRandom.RandInt(10));
         LibraryInventory.CreateItem(ParentItem);
-        with ParentItem do begin
-            Validate("Replenishment System", "Replenishment System"::"Prod. Order");
-            Validate("Production BOM No.", ProductionBOMHeader."No.");
-            Validate("Manufacturing Policy", "Manufacturing Policy"::"Make-to-Order");
-            Modify(true);
-        end;
+        ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
+        ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ParentItem.Validate("Manufacturing Policy", ParentItem."Manufacturing Policy"::"Make-to-Order");
+        ParentItem.Modify(true);
     end;
 
     local procedure CreateProdItem(var Item: Record Item; RoutingNo: Code[20])
@@ -2026,11 +1991,9 @@ codeunit 137034 "SCM Production Journal"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         CreateItemJournal(ItemJournalLine, ItemJournalBatch);
-        with ItemJournalLine do begin
-            Validate("Order Type", "Order Type"::Production);
-            Validate("Entry Type", EntryType);
-            Validate("Order No.", OrderNo);
-        end;
+        ItemJournalLine.Validate("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.Validate("Entry Type", EntryType);
+        ItemJournalLine.Validate("Order No.", OrderNo);
     end;
 
     local procedure CreateAndPostItemJournal(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Qty: Decimal)
@@ -2200,47 +2163,39 @@ codeunit 137034 "SCM Production Journal"
 
     local procedure FindProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; OperationNo: Code[10])
     begin
-        with ProdOrderRoutingLine do begin
-            SetRange(Status, ProdOrderStatus);
-            SetRange("Prod. Order No.", ProdOrderNo);
-            SetRange("Operation No.", OperationNo);
-            FindFirst();
-        end;
+        ProdOrderRoutingLine.SetRange(Status, ProdOrderStatus);
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderRoutingLine.SetRange("Operation No.", OperationNo);
+        ProdOrderRoutingLine.FindFirst();
     end;
 
     local procedure MockProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
     var
         ProductionOrder: Record "Production Order";
     begin
-        with ProductionOrder do begin
-            Init();
-            Status := Status::Released;
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Production Order");
-            Insert();
-        end;
+        ProductionOrder.Init();
+        ProductionOrder.Status := ProductionOrder.Status::Released;
+        ProductionOrder."No." := LibraryUtility.GenerateRandomCode(ProductionOrder.FieldNo("No."), DATABASE::"Production Order");
+        ProductionOrder.Insert();
 
-        with ProdOrderLine do begin
-            Init();
-            Status := ProductionOrder.Status;
-            "Prod. Order No." := ProductionOrder."No.";
-            "Line No." := LibraryUtility.GetNewRecNo(ProdOrderLine, FieldNo("Line No."));
-            Insert();
-        end;
+        ProdOrderLine.Init();
+        ProdOrderLine.Status := ProductionOrder.Status;
+        ProdOrderLine."Prod. Order No." := ProductionOrder."No.";
+        ProdOrderLine."Line No." := LibraryUtility.GetNewRecNo(ProdOrderLine, ProdOrderLine.FieldNo("Line No."));
+        ProdOrderLine.Insert();
     end;
 
     local procedure UpdateNextOperationOnProdOrderRoutingLine(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; OperationNo: Code[10]; NextOperationNo: Code[30])
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
-        with ProdOrderRoutingLine do begin
-            SetRange(Status, ProdOrderStatus);
-            SetRange("Prod. Order No.", ProdOrderNo);
-            SetRange("Operation No.", OperationNo);
-            FindFirst();
+        ProdOrderRoutingLine.SetRange(Status, ProdOrderStatus);
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderRoutingLine.SetRange("Operation No.", OperationNo);
+        ProdOrderRoutingLine.FindFirst();
 
-            Validate("Next Operation No.", NextOperationNo);
-            Modify(true);
-        end;
+        ProdOrderRoutingLine.Validate("Next Operation No.", NextOperationNo);
+        ProdOrderRoutingLine.Modify(true);
     end;
 
     local procedure UpdateProdOrderRoutingLineStatus(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; OperationNo: Code[10]; NewRoutingStatus: Enum "Prod. Order Routing Status")
@@ -2322,38 +2277,30 @@ codeunit 137034 "SCM Production Journal"
         ExistingLocation.Get(ExistingLocCode);
         ExistingBin.Get(ExistingLocCode, ExistingBinCode);
 
-        with NewLocation do begin
-            Init();
-            NewLocation := ExistingLocation;
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::Location));
-            Insert(true);
-            NewLocCode := Code;
-        end;
+        NewLocation.Init();
+        NewLocation := ExistingLocation;
+        NewLocation.Validate(Code, LibraryUtility.GenerateRandomCode(NewLocation.FieldNo(Code), DATABASE::Location));
+        NewLocation.Insert(true);
+        NewLocCode := NewLocation.Code;
 
-        with NewBin do begin
-            Init();
-            NewBin := ExistingBin;
-            Validate("Location Code", NewLocation.Code);
-            Insert(true);
-        end;
+        NewBin.Init();
+        NewBin := ExistingBin;
+        NewBin.Validate("Location Code", NewLocation.Code);
+        NewBin.Insert(true);
     end;
 
     local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderNo: Code[20]; ItemNo: Code[20])
     begin
-        with ProdOrderLine do begin
-            SetRange("Prod. Order No.", ProdOrderNo);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-        end;
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindProdOrderCompLine(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line")
     begin
-        with ProdOrderComponent do begin
-            SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-            SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-            FindFirst();
-        end;
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+        ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.FindFirst();
     end;
 
     local procedure UpdateBinCodeInItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; NewBinCode: Code[20])

@@ -82,7 +82,7 @@ codeunit 426 "Payment Tolerance Management"
             if ((Abs(AppliedAmount + ApplyingAmount) - ApplnRoundingPrecision) <= Abs(MaxPmtTolAmount)) and
                (MaxPmtTolAmount <> 0) and ((Abs(AppliedAmount + ApplyingAmount) - ApplnRoundingPrecision) <> 0)
                and (Abs(AppliedAmount + ApplyingAmount) > ApplnRoundingPrecision)
-            then begin
+            then
                 if GLSetup."Payment Tolerance Warning" then begin
                     if CallPmtTolWarning(
                          CustLedgEntry."Posting Date", CustLedgEntry."Customer No.", CustLedgEntry."Document No.",
@@ -96,7 +96,6 @@ codeunit 426 "Payment Tolerance Management"
                         exit(false);
                 end else
                     PutCustPmtTolAmount(CustLedgEntry, ApplyingAmount, AppliedAmount, CustEntryApplId);
-            end;
         end;
         exit(true);
     end;
@@ -151,7 +150,7 @@ codeunit 426 "Payment Tolerance Management"
             if ((Abs(AppliedAmount + ApplyingAmount) - ApplnRoundingPrecision) <= Abs(MaxPmtTolAmount)) and
                (MaxPmtTolAmount <> 0) and ((Abs(AppliedAmount + ApplyingAmount) - ApplnRoundingPrecision) <> 0) and
                (Abs(AppliedAmount + ApplyingAmount) > ApplnRoundingPrecision)
-            then begin
+            then
                 if GLSetup."Payment Tolerance Warning" then begin
                     if CallPmtTolWarning(
                          VendLedgEntry."Posting Date", VendLedgEntry."Vendor No.", VendLedgEntry."Document No.",
@@ -165,7 +164,6 @@ codeunit 426 "Payment Tolerance Management"
                         exit(false);
                 end else
                     PutVendPmtTolAmount(VendLedgEntry, ApplyingAmount, AppliedAmount, VendEntryApplID);
-            end;
         end;
         exit(true);
     end;
@@ -1588,7 +1586,7 @@ codeunit 426 "Payment Tolerance Management"
 
         OriginalAppliedAmount := AppliedAmount;
 
-        if GLSetup."Pmt. Disc. Tolerance Warning" then begin
+        if GLSetup."Pmt. Disc. Tolerance Warning" then
             case CBGStatementLine."Account Type" of
                 CBGStatementLine."Account Type"::Customer:
                     if not ManagePaymentDiscToleranceWarningCustomer(
@@ -1601,7 +1599,6 @@ codeunit 426 "Payment Tolerance Management"
                     then
                         exit(false);
             end;
-        end;
 
         if Abs(AmounttoApply) >= Abs(AppliedAmount - PmtDiscAmount - MaxPmtTolAmount) then begin
             AppliedAmount := AppliedAmount - PmtDiscAmount;
@@ -1631,7 +1628,7 @@ codeunit 426 "Payment Tolerance Management"
                             exit(false);
                     end else
                         PutCustPmtTolAmount(NewCustLedgEntry, AppliedAmount, ApplyingAmount, CBGStatementLineApplID);
-                end else begin
+                end else
                     if GLSetup."Payment Tolerance Warning" then begin
                         if CallPmtTolWarning(
                              CBGStatementLine.Date, CBGStatementLine."Account No.", UseDocumentNo,
@@ -1645,7 +1642,6 @@ codeunit 426 "Payment Tolerance Management"
                             exit(false);
                     end else
                         PutVendPmtTolAmount(NewVendLedgEntry, ApplyingAmount, AppliedAmount, CBGStatementLineApplID);
-                end;
             end;
 
         end;
@@ -1680,13 +1676,13 @@ codeunit 426 "Payment Tolerance Management"
             Currency.InitRoundingPrecision();
             if AppliedEntryCurrencyCode = '' then
                 ApplnRoundingPrecision := 0;
-        end else begin
+        end else
             if ApplnCurrencyCode <> AppliedEntryCurrencyCode then begin
                 Currency.Get(ApplnCurrencyCode);
                 ApplnRoundingPrecision := Currency."Appln. Rounding Precision";
             end else
                 ApplnRoundingPrecision := 0;
-        end;
+
         AmountRoundingPrecision := Currency."Amount Rounding Precision";
     end;
 
@@ -1709,7 +1705,7 @@ codeunit 426 "Payment Tolerance Management"
     local procedure GetCustPositiveFilter(DocumentType: Enum "Gen. Journal Document Type"; TempAmount: Decimal) PositiveFilter: Boolean
     begin
         PositiveFilter := TempAmount <= 0;
-        if ((TempAmount > 0) and (DocumentType = DocumentType::Refund) or (DocumentType = DocumentType::Invoice) or
+        if((TempAmount > 0) and (DocumentType = DocumentType::Refund) or (DocumentType = DocumentType::Invoice) or
             (DocumentType = DocumentType::"Credit Memo"))
         then
             PositiveFilter := true;
@@ -1719,7 +1715,7 @@ codeunit 426 "Payment Tolerance Management"
     local procedure GetVendPositiveFilter(DocumentType: Enum "Gen. Journal Document Type"; TempAmount: Decimal) PositiveFilter: Boolean
     begin
         PositiveFilter := TempAmount >= 0;
-        if ((TempAmount < 0) and (DocumentType = DocumentType::Refund) or (DocumentType = DocumentType::Invoice) or
+        if((TempAmount < 0) and (DocumentType = DocumentType::Refund) or (DocumentType = DocumentType::Invoice) or
             (DocumentType = DocumentType::"Credit Memo"))
         then
             PositiveFilter := true;
@@ -1890,12 +1886,12 @@ codeunit 426 "Payment Tolerance Management"
             Currency.Init();
             Currency.Code := '';
             Currency.InitRoundingPrecision();
-        end else begin
+        end else
             if ApplnInMultiCurrency then
                 Currency.Get(ApplnCurrencyCode)
             else
                 Currency.Init();
-        end;
+
         ApplnRoundingPrecision := Currency."Appln. Rounding Precision";
         AmountRoundingPrecision := Currency."Amount Rounding Precision";
     end;

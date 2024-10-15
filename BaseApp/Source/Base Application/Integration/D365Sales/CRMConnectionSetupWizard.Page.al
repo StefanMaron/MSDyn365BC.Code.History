@@ -109,6 +109,11 @@ page 1817 "CRM Connection Setup Wizard"
                         ExtendedDatatype = Masked;
                         Editable = ConnectionStringFieldsEditable;
                         ToolTip = 'Specifies the password of a Dynamics 365 Sales user account.';
+
+                        trigger OnValidate()
+                        begin
+                            PasswordEdited := true;
+                        end;
                     }
                 }
                 group(Control22)
@@ -216,8 +221,8 @@ page 1817 "CRM Connection Setup Wizard"
 
                 group(Control24)
                 {
-                    Caption = 'SET UP FIELD SERVICE INTEGRATION';
-                    InstructionalText = 'Get the Field Service Integration app to integrate Dynamics 365 Field Service with Business Central.';
+                    Caption = 'OPTIONALLY, SET UP FIELD SERVICE INTEGRATION';
+                    InstructionalText = 'Enabling integration to Dynamics 365 Sales is a prerequisite for enabling integration to Dynamics 365 Field Service. If you want to also enable integration to Dynamics 365 Field Service, you can get the Field Service Integration app to integrate Dynamics 365 Field Service with Business Central here. Otherwise, feel free to skip this and choose Finish to complete Dynamics 365 Sales integration only.';
                 }
                 group(Control25)
                 {
@@ -391,7 +396,7 @@ page 1817 "CRM Connection Setup Wizard"
             Rec."Server Address" := CRMConnectionSetup."Server Address";
             Rec."User Name" := CRMConnectionSetup."User Name";
             Rec."User Password Key" := CRMConnectionSetup."User Password Key";
-            Password := CRMConnectionSetup.GetPassword();
+            Password := '**********';
             ConnectionStringFieldsEditable := false;
         end else begin
             InitializeDefaultAuthenticationType();
@@ -442,6 +447,7 @@ page 1817 "CRM Connection Setup Wizard"
         AdvancedActionEnabled: Boolean;
         SimpleActionEnabled: Boolean;
         IsUserNamePasswordVisible: Boolean;
+        PasswordEdited: Boolean;
         SoftwareAsAService: Boolean;
         FieldServiceIntegrationAppInstalled: Boolean;
         [NonDebuggable]
@@ -582,8 +588,9 @@ page 1817 "CRM Connection Setup Wizard"
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         AdminEmail: Text;
         AdminPassword: Text;
-        AccessToken: Text;
+        AccessToken: SecretText;
         AdminADDomain: Text;
+        ImportSolutionFailed: Boolean;
     begin
         if ImportSolution and ImportCRMSolutionEnabled then begin
             case Rec."Authentication Type" of
@@ -596,7 +603,7 @@ page 1817 "CRM Connection Setup Wizard"
                     if not Rec.PromptForCredentials(AdminEmail, AdminPassword) then
                         exit(false);
             end;
-            CRMIntegrationManagement.ImportCRMSolution(Rec."Server Address", Rec."User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, Rec."Proxy Version", true);
+            CRMIntegrationManagement.ImportCRMSolution(Rec."Server Address", Rec."User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, Rec."Proxy Version", true, ImportSolutionFailed);
         end;
         if EnableBidirectionalSalesOrderIntegration then
             Rec.Validate("Bidirectional Sales Order Int.", true);
@@ -606,7 +613,10 @@ page 1817 "CRM Connection Setup Wizard"
             Rec."Item Availability Enabled" := true;
 
         CRMIntegrationManagement.InitializeCRMSynchStatus();
-        CRMConnectionSetup.UpdateFromWizard(Rec, Password);
+        if PasswordEdited then
+            CRMConnectionSetup.UpdateFromWizard(Rec, Password)
+        else
+            CRMConnectionSetup.UpdateFromWizard(Rec, CRMConnectionSetup.GetSecretPassword());
         if EnableCRMConnection then
             CRMConnectionSetup.EnableCRMConnectionFromWizard();
         if EnableSalesOrderIntegration and EnableSalesOrderIntegrationEnabled then

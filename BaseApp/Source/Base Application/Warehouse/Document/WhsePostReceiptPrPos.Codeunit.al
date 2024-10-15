@@ -16,7 +16,9 @@ codeunit 5766 "Whse.-Post Receipt + Pr. Pos."
     var
         PostedWhseRcptHeader: Record "Posted Whse. Receipt Header";
         WhseReceiptLine: Record "Warehouse Receipt Line";
+#pragma warning disable AA0074
         Text001: Label 'Number of posted whse. receipts printed: 1.';
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

@@ -101,6 +101,10 @@ table 7132 "Item Budget Name"
     var
         Dim: Record Dimension;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1\You cannot use the same dimension twice in the same budget.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

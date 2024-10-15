@@ -17,12 +17,16 @@ codeunit 1101 "CA Jnl.-Check Line"
 
     var
         SourceCodeSetup: Record "Source Code Setup";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Cost type or balance cost type must be defined.\Line %1, document %2, amount %3.';
         Text001: Label 'You cannot define both cost center and cost object.\Line %1, document %2, amount %3.';
         Text002: Label 'Balance cost center or balance cost object must be defined.\Line %1, document %2, amount %3.';
         Text003: Label 'You cannot define both balance cost center and balance cost object.\Line %1, document %2, amount %3.';
         Text004: Label 'Cost center or cost object must be defined. \Line %1, document %2, amount %3.';
+#pragma warning restore AA0470
         Text005: Label 'is not within the permitted range of posting dates', Comment = 'starts with "Posting Date"';
+#pragma warning restore AA0074
 
     procedure RunCheck(var CostJnlLine: Record "Cost Journal Line")
     var

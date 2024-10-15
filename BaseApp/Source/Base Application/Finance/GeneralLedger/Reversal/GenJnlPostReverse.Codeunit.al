@@ -338,6 +338,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         CustLedgerEntry."Applies-to ID" := '';
         CustLedgerEntry."Reversed by Entry No." := NewCustLedgerEntry."Entry No.";
         CustLedgerEntry.Reversed := true;
+        OnReverseCustLedgEntryOnBeforeModifyCustLedgerEntry(NewCustLedgerEntry, CustLedgerEntry);
         CustLedgerEntry.Modify();
         OnReverseCustLedgEntryOnBeforeInsertCustLedgEntry(NewCustLedgerEntry, CustLedgerEntry, GenJnlPostLine);
         NewCustLedgerEntry.Insert();
@@ -1164,5 +1165,10 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     begin
     end;
 #pragma warning restore AS0077
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseCustLedgEntryOnBeforeModifyCustLedgerEntry(NewCustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
 }
 

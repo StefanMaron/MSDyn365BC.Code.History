@@ -246,6 +246,7 @@ report 7132 "Export Item Budget to Excel"
         DoUpdateExistingWorksheet: Boolean;
         TestMode: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Analyzing Data...\\';
         Text001: Label 'Filters';
         Text002: Label 'Update Workbook';
@@ -256,12 +257,15 @@ report 7132 "Export Item Budget to Excel"
         Text007: Label 'Table Data';
         Text008: Label 'Show as Lines';
         Text009: Label 'Show as Columns';
+#pragma warning disable AA0470
         Text010: Label '%1 must not be blank.';
+#pragma warning restore AA0470
         Text011: Label 'Show Value as';
         Text012: Label 'Sales Amount';
         Text013: Label 'Cost Amount';
         Text014: Label 'COGS Amount';
         Text015: Label 'Quantity';
+#pragma warning restore AA0074
         ExcelFileExtensionTok: Label '.xlsx', Locked = true;
 
     procedure SetParameters(NewAnalysisArea: Enum "Analysis Area Type"; NewBudgName: Code[10]; NewValueType: Enum "Item Analysis Value Type"; NewGlobalDim1Filter: Text; NewGlobalDim2Filter: Text; NewBudgDim1Filter: Text; NewBudgDim2Filter: Text; NewBudgDim3Filter: Text; NewDateFilter: Text; NewSourceTypeFilter: Enum "Analysis Source Type"; NewSourceNoFilter: Text; NewItemFilter: Text; NewInternalDateFilter: Text; NewPeriodInitialized: Boolean; NewPeriodType: Enum "Analysis Period Type"; NewLineDimType: Enum "Item Budget Dimension Type"; NewColumnDimType: Enum "Item Budget Dimension Type"; NewLineDimCode: Text[30]; NewColumnDimCode: Text[30]; NewRoundingFactor: Enum "Analysis Rounding Factor")

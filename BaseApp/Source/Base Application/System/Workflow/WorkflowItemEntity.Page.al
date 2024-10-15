@@ -641,14 +641,6 @@ page 6409 "Workflow - Item Entity"
                     ApplicationArea = All;
                     Caption = 'Scheduled Receipt (Qty.)', Locked = true;
                 }
-                field(scheduledNeedQty; Rec."Scheduled Need (Qty.)")
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Use the field ''qtyOnComponentLines'' instead';
-                    ObsoleteTag = '18.0';
-                    ApplicationArea = All;
-                    Caption = 'Scheduled Need (Qty.)', Locked = true;
-                }
                 field(roundingPrecision; Rec."Rounding Precision")
                 {
                     ApplicationArea = All;
@@ -793,21 +785,6 @@ page 6409 "Workflow - Item Entity"
                 {
                     ApplicationArea = All;
                     Caption = 'Qty. Picked', Locked = true;
-                }
-                field(serviceItemGroup; Rec."Service Item Group")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Service Item Group', Locked = true;
-                }
-                field(qtyOnServiceOrder; Rec."Qty. on Service Order")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Qty. on Service Order', Locked = true;
-                }
-                field(resQtyOnServiceOrders; Rec."Res. Qty. on Service Orders")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Res. Qty. on Service Orders', Locked = true;
                 }
                 field(itemTrackingCode; Rec."Item Tracking Code")
                 {

@@ -114,6 +114,11 @@ page 6421 "FS Connection Setup Wizard"
                         ExtendedDatatype = Masked;
                         Editable = ConnectionStringFieldsEditable;
                         ToolTip = 'Specifies the password of a Dynamics 365 Field Service user account.';
+
+                        trigger OnValidate()
+                        begin
+                            PasswordSet := true;
+                        end;
                     }
                 }
                 group(Control22)
@@ -319,7 +324,8 @@ page 6421 "FS Connection Setup Wizard"
             Rec."Hour Unit of Measure" := FSConnectionSetup."Hour Unit of Measure";
             Rec."Line Synch. Rule" := FSConnectionSetup."Line Synch. Rule";
             Rec."Line Post Rule" := FSConnectionSetup."Line Post Rule";
-            Password := FSConnectionSetup.GetPassword();
+            if not FSConnectionSetup.GetPassword().IsEmpty() then
+                Password := '**********';
             ConnectionStringFieldsEditable := false;
         end else begin
             InitializeDefaultAuthenticationType();
@@ -363,6 +369,7 @@ page 6421 "FS Connection Setup Wizard"
         AdvancedActionEnabled: Boolean;
         SimpleActionEnabled: Boolean;
         IsUserNamePasswordVisible: Boolean;
+        PasswordSet: Boolean;
         [NonDebuggable]
         Password: Text;
         ConnectionNotSetUpQst: Label 'The %1 connection has not been set up.\\Are you sure you want to exit?', Comment = '%1 = CRM product name';
@@ -465,16 +472,16 @@ page 6421 "FS Connection Setup Wizard"
         end;
     end;
 
-    [NonDebuggable]
     local procedure FinalizeSetup(): Boolean
     var
         FSConnectionSetup: Record "FS Connection Setup";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         AdminEmail: Text;
-        AdminPassword: Text;
-        AccessToken: Text;
+        AdminPassword: SecretText;
+        AccessToken: SecretText;
         AdminADDomain: Text;
+        ImportSolutionFailed: Boolean;
     begin
         if ImportSolution and ImportFSSolutionEnabled then begin
             case Rec."Authentication Type" of
@@ -487,9 +494,13 @@ page 6421 "FS Connection Setup Wizard"
                     if not Rec.PromptForCredentials(AdminEmail, AdminPassword) then
                         exit(false);
             end;
-            CRMIntegrationManagement.ImportFSSolution(Rec."Server Address", Rec."User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, Rec."Proxy Version", true);
+            CRMIntegrationManagement.ImportFSSolution(Rec."Server Address", Rec."User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, Rec."Proxy Version", true, ImportSolutionFailed);
         end;
-        FSConnectionSetup.UpdateFromWizard(Rec, Password);
+        if PasswordSet then
+            FSConnectionSetup.UpdateFromWizard(Rec, Password)
+        else
+            FSConnectionSetup.UpdateFromWizard(Rec, FSConnectionSetup.GetPassword());
+
         if EnableFSConnection then
             FSConnectionSetup.EnableFSConnectionFromWizard();
         exit(true);

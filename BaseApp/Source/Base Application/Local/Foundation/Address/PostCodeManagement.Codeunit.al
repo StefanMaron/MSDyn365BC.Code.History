@@ -20,7 +20,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.Document;
 
 #pragma warning disable AA0217
 codeunit 11401 "Post Code Management"
@@ -442,32 +441,6 @@ codeunit 11401 "Post Code Management"
         FindStreetName(
             Rec."Sell-to Address", Rec."Sell-to Address 2", Rec."Sell-to Post Code", Rec."Sell-to City",
             Rec."Sell-to Country/Region Code", PhoneNo, FaxNo);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateEvent', 'Bill-to Address', false, false)]
-    local procedure ServiceHeaderOnAfterValidateBillToAddress(var Rec: Record "Service Header")
-    begin
-        FindStreetName(
-            Rec."Bill-to Address", Rec."Bill-to Address 2", Rec."Bill-to Post Code", Rec."Bill-to City",
-            Rec."Bill-to Country/Region Code", Rec."Phone No.", Rec."Fax No.");
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateEvent', 'Ship-to Address', false, false)]
-    local procedure ServiceHeaderOnAfterValidateShipToAddress(var Rec: Record "Service Header")
-    begin
-        FindStreetName(
-            Rec."Ship-to Address", Rec."Ship-to Address 2", Rec."Ship-to Post Code", Rec."Ship-to City",
-            Rec."Ship-to Country/Region Code", Rec."Ship-to Phone", Rec."Ship-to Fax No.");
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeValidateEvent', 'Address', false, false)]
-    local procedure ServiceHeaderOnAfterValidateAddress(var Rec: Record "Service Header")
-    var
-        PhoneNo: Text[30];
-        FaxNo: Text[30];
-    begin
-        FindStreetName(
-            Rec.Address, Rec."Address 2", Rec."Post Code", Rec.City, Rec."Country/Region Code", PhoneNo, FaxNo);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Ship-to Address", 'OnBeforeValidateEvent', 'Address', false, false)]

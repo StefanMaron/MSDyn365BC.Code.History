@@ -286,7 +286,7 @@ table 11401 "CBG Statement Line"
                 GenJnlLine: Record "Gen. Journal Line" temporary;
                 IsHandled: Boolean;
             begin
-                IsHandled := false;
+                isHandled := false;
                 OnBeforeLookupAppliesToDocNo(Rec, IsHandled);
                 if IsHandled then
                     exit;
@@ -564,7 +564,7 @@ table 11401 "CBG Statement Line"
                     Init();
                     InitRecord(CBGStatementLine);
 
-                    if CBGStatementLine."Account No." = '' then begin
+                    if CBGStatementLine."Account No." = '' then
                         case PaymentHistLine."Account Type" of
                             PaymentHistLine."Account Type"::Customer:
                                 Validate("Account Type", "Account Type"::Customer);
@@ -572,8 +572,8 @@ table 11401 "CBG Statement Line"
                                 Validate("Account Type", "Account Type"::Vendor);
                             PaymentHistLine."Account Type"::Employee:
                                 Validate("Account Type", "Account Type"::Employee);
-                        end;
-                    end else begin
+                        end
+                    else begin
                         case CBGStatementLine."Account Type" of
                             "Account Type"::Customer:
                                 PaymentHistLine.TestField("Account Type", PaymentHistLine."Account Type"::Customer);
@@ -736,12 +736,11 @@ table 11401 "CBG Statement Line"
                 if Date = 0D then
                     Date := WorkDate();
             CBGStatement.Type::"Bank/Giro":
-                if Date = 0D then begin
+                if Date = 0D then
                     if LastRecord.Date = 0D then
                         Date := CBGStatement.Date
                     else
                         Date := LastRecord.Date;
-                end;
         end;
 
         "Account Type" := LastRecord."Account Type";
@@ -1057,9 +1056,6 @@ table 11401 "CBG Statement Line"
         CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date");
         CustLedgEntry.SetRange("Customer No.", AccNo);
         CustLedgEntry.SetRange(Open, true);
-#if not CLEAN22
-        GenJnlLine.InvokeOnLookupAppliesToDocAnAfterSetCustLedgerEntryFilters(CustLedgEntry, GenJnlLine);
-#endif
         OnLookupAppliesToDocAnAfterSetCustLedgerEntryFilters(CustLedgEntry, GenJnlLine);
         if GenJnlLine."Applies-to Doc. No." <> '' then begin
             CustLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
@@ -1112,9 +1108,6 @@ table 11401 "CBG Statement Line"
             end;
             GenJnlLine."Applies-to Doc. Type" := CustLedgEntry."Document Type";
             GenJnlLine."Applies-to Doc. No." := CustLedgEntry."Document No.";
-#if not CLEAN22
-            GenJnlLine.InvokeOnLookupAppliesToDocNoOnAfterSetCustAppliesToDocNo(CustLedgEntry, GenJnlLine);
-#endif
             OnLookupAppliesToDocNoOnAfterSetCustAppliesToDocNo(CustLedgEntry, GenJnlLine);
             GenJnlLine."Applies-to ID" := '';
         end else
@@ -1129,9 +1122,6 @@ table 11401 "CBG Statement Line"
         VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
         VendLedgEntry.SetRange("Vendor No.", AccNo);
         VendLedgEntry.SetRange(Open, true);
-#if not CLEAN22
-        GenJnlLine.InvokeOnLookupAppliesToDocAnAfterSetVendorLedgerEntryFilters(VendLedgEntry, GenJnlLine);
-#endif
         OnLookupAppliesToDocAnAfterSetVendorLedgerEntryFilters(VendLedgEntry, GenJnlLine);
         if GenJnlLine."Applies-to Doc. No." <> '' then begin
             VendLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
@@ -1184,9 +1174,6 @@ table 11401 "CBG Statement Line"
             end;
             GenJnlLine."Applies-to Doc. Type" := VendLedgEntry."Document Type";
             GenJnlLine."Applies-to Doc. No." := VendLedgEntry."Document No.";
-#if not CLEAN22
-            GenJnlLine.InvokeOnLookupAppliesToDocNoOnAfterSetVendorAppliesToDocNo(VendLedgEntry, GenJnlLine);
-#endif
             OnLookupAppliesToDocNoOnAfterSetVendorAppliesToDocNo(VendLedgEntry, GenJnlLine);
             GenJnlLine."Applies-to ID" := '';
         end else

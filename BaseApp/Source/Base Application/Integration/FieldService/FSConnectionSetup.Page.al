@@ -41,7 +41,7 @@ page 6420 "FS Connection Setup"
 
                     trigger OnValidate()
                     begin
-                        ConnectionString := Rec.GetConnectionString();
+                        ConnectionString := Rec.GetConnectionStringAsStoredInSetup();
                     end;
                 }
                 field("Is Enabled"; Rec."Is Enabled")
@@ -377,7 +377,7 @@ page 6420 "FS Connection Setup"
         end else begin
             if not Rec."Is Enabled" then
                 Rec.LoadConnectionStringElementsFromCDSConnectionSetup();
-            ConnectionString := Rec.GetConnectionString();
+            ConnectionString := Rec.GetConnectionStringAsStoredInSetup();
             Rec.UnregisterConnection();
             if (not IsValidProxyVersion()) then begin
                 if not IsValidProxyVersion() then

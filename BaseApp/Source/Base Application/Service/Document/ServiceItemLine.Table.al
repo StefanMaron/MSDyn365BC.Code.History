@@ -753,14 +753,13 @@ table 5901 "Service Item Line"
                             Warranty := true;
                         end else
                             Warranty := false;
-                    end else begin
+                    end else
                         if ConfirmManagement.GetResponseOrDefault(Text025, true) then begin
                             Validate("Warranty Starting Date (Parts)", 0D);
                             Validate("Warranty Starting Date (Labor)", 0D);
                             Warranty := false;
                         end else
                             Warranty := true;
-                    end;
                     if ServItemLine.Get("Document Type", "Document No.", "Line No.") then
                         Modify();
                     CheckWarranty(ServHeader."Order Date");
@@ -1652,6 +1651,8 @@ table 5901 "Service Item Line"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The %1 allows only one %2 in each %3.';
         Text001: Label 'You cannot insert %1, because %2 is missing in %3 %4.\\You can create a customer by clicking Functions,Create Customer.';
         Text002: Label 'You cannot insert %1, because %2 is missing in %3 %4.';
@@ -1667,12 +1668,16 @@ table 5901 "Service Item Line"
         Text020: Label 'The %1 cannot be greater than the %2.';
         Text022: Label 'The %1 cannot be earlier than the %2 %3.';
         Text023: Label 'You cannot change the warranty information because %1 is selected.';
+#pragma warning restore AA0470
         Text024: Label 'Do you want to activate a warranty for this service item line?';
         Text025: Label 'Do you want to deactivate the warranty for this service item line?';
+#pragma warning disable AA0470
         Text026: Label 'You cannot reset the %1 field.\You can receive it by clicking Functions, Receive Loaner.';
         Text028: Label 'You cannot change the %1, because it has been lent in connection with %2 %3 %4.\\You can receive it by clicking Functions, Receive Loaner.', Comment = '1%=FIELDCAPTION("Loaner No."); 2%=FORMAT(ServHeader."Document Type"); 3%=ServHeader.FIELDCAPTION("No."); 4%=ServHeader."No.");';
         Text029: Label 'Do you want to lend %1 %2?';
         Text030: Label '%1 %2 has already been lent within %3 %4 %5.', Comment = '1%=TempServItemLine.FIELDCAPTION("Loaner No."); 2%=TempServItemLine."Loaner No."; 3%=FORMAT(ServHeader."Document Type"); 4%=ServHeader.FIELDCAPTION("No."); 5%=ServHeader."No.");';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ServMgtSetup: Record "Service Mgt. Setup";
         ServOrderAlloc: Record "Service Order Allocation";
         ServItem: Record "Service Item";
@@ -1701,17 +1706,31 @@ table 5901 "Service Item Line"
         TempDay: Integer;
         FirstServItemLine: Boolean;
         TempDate: Date;
+#pragma warning disable AA0074
         Text033: Label 'A service item line cannot belong to a service contract and to a service price group at the same time.';
+#pragma warning disable AA0470
         Text035: Label 'The %1 %2 cannot be used in service orders.';
         Text036: Label 'The %1 %2 cannot be used in service quotes.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         RepairStatusPriority: Integer;
         UseLineNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text037: Label 'It is not possible to select %1 because some linked service lines have been posted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         LoanerLent: Boolean;
         ServContractExist: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text038: Label 'Price adjustment on each existing %1 will be cancelled. Continue?';
+#pragma warning restore AA0470
         Text039: Label 'The update has been interrupted to respect the warning.';
+#pragma warning restore AA0074
         HideDialogBox: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text040: Label 'The selected %1 has a different %2 for this %3.\\Do you want to continue?';
         Text041: Label 'You must specify %1 on %2 in the %3 window for the %4 %5.', Comment = '1%=ServHour.FIELDCAPTION("Starting Time"); 2%=ServHour.Day; 3%=Text058=''Service Hours''; %4=ServHour.FIELDCAPTION("Service Contract No.");%5="Contract No.");';
         Text042: Label 'You must specify %1 on %2 in the %3 window.';
@@ -1724,15 +1743,21 @@ table 5901 "Service Item Line"
         Text050: Label 'Service contract %1 specified on the service order header does not include service item %2.';
         Text051: Label 'You cannot select contract %1 because it is owned by another customer.';
         Text052: Label 'Contract %1 is not signed.';
+#pragma warning restore AA0470
         Text053: Label 'You cannot change the contract number because some of the service lines have already been posted.';
         Text054: Label 'If you change the contract number, the existing service lines for this order line will be re-created.\Do you want to continue?';
+#pragma warning restore AA0074
         UseServItemLineAsxRec: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text055: Label 'You cannot change the %1 because %2 %3 has not been received.', Comment = '2%=FIELDCAPTION("Loaner No."); 3%="Loaner No.";';
         Text056: Label 'One or more service lines of %6 %7 and/or %8 exist for %1, %2 %3, %4 %5. There is a check mark in the %9 field of %10 %11, therefore %10 %11 cannot be applied to service line of %6 %7 and/or %8.\\ Do you want to apply it for other service lines?';
+#pragma warning restore AA0470
         Text057: Label 'Default Service Hours';
         Text058: Label 'Service Hours';
         Text059: Label 'Default warranty duration is negative. The warranty cannot be activated.';
         Text060: Label 'You may have changed a dimension.\\Do you want to update the lines?';
+#pragma warning restore AA0074
 
     protected var
         SkipResponseTimeHrsUpdate: Boolean;

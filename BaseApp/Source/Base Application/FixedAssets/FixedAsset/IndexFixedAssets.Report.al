@@ -269,10 +269,16 @@ report 5690 "Index Fixed Assets"
         GenJnlNextLineNo: Integer;
         i: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You must specify %1.';
+#pragma warning restore AA0470
         Text001: Label 'FA Posting Date must not be a closing date.';
+#pragma warning disable AA0470
         Text002: Label '%1 and %2 must be identical. %3 must be %4 in %5 %6 = %7.';
         Text003: Label 'Indexing fixed asset   #1##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         FAPostingDate: Date;

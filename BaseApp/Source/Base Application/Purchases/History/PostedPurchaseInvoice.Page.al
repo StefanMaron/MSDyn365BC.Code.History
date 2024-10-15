@@ -1,4 +1,4 @@
-namespace Microsoft.Purchases.History;
+﻿namespace Microsoft.Purchases.History;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Outlook;
@@ -461,6 +461,13 @@ page 138 "Posted Purchase Invoice"
                         Editable = false;
                         ToolTip = 'Specifies the country or region of the ship-to address.';
                     }
+                    field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                    }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Basic, Suite;
@@ -673,10 +680,23 @@ page 138 "Posted Purchase Invoice"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Purch. Inv. Header"),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Purch. Inv. Header"),
                               "No." = field("No.");
             }
@@ -857,7 +877,7 @@ page 138 "Posted Purchase Invoice"
                     Caption = 'Show Canceled/Corrective Credit Memo';
                     Image = CreditMemo;
                     ToolTip = 'Open the posted purchase credit memo that was created when you canceled the posted purchase invoice. If the posted purchase invoice is the result of a canceled purchase credit memo, then the canceled purchase credit memo will open.';
-                    Visible = Rec.Cancelled OR Rec.Corrective;
+                    Visible = Rec.Cancelled or Rec.Corrective;
 
                     trigger OnAction()
                     begin

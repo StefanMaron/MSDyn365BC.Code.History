@@ -540,13 +540,8 @@ table 99000758 "Machine Center"
             TableRelation = Bin.Code where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
-            var
-                WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                WhseIntegrationMgt.CheckBinCode("Location Code",
-                  "Open Shop Floor Bin Code",
-                  FieldCaption("Open Shop Floor Bin Code"),
-                  Database::"Machine Center", "No.");
+                CheckBinCode("Location Code", "Open Shop Floor Bin Code", FieldCaption("Open Shop Floor Bin Code"), "No.");
             end;
         }
         field(7302; "To-Production Bin Code"; Code[20])
@@ -555,13 +550,8 @@ table 99000758 "Machine Center"
             TableRelation = Bin.Code where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
-            var
-                WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                WhseIntegrationMgt.CheckBinCode("Location Code",
-                  "To-Production Bin Code",
-                  FieldCaption("To-Production Bin Code"),
-                  Database::"Machine Center", "No.");
+                CheckBinCode("Location Code", "To-Production Bin Code", FieldCaption("To-Production Bin Code"), "No.");
             end;
         }
         field(7303; "From-Production Bin Code"; Code[20])
@@ -570,13 +560,8 @@ table 99000758 "Machine Center"
             TableRelation = Bin.Code where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
-            var
-                WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                WhseIntegrationMgt.CheckBinCode("Location Code",
-                  "From-Production Bin Code",
-                  FieldCaption("From-Production Bin Code"),
-                  Database::"Machine Center", "No.");
+                CheckBinCode("Location Code", "From-Production Bin Code", FieldCaption("From-Production Bin Code"), "No.");
             end;
         }
     }
@@ -681,12 +666,6 @@ table 99000758 "Machine Center"
     end;
 
     var
-        Text000: Label 'The Machine Center is being used on production orders.';
-        Text001: Label 'Do you want to change %1?';
-        Text002: Label 'Work Center No. is corrected on\\';
-        Text003: Label 'Calendar Entry    #1###### @2@@@@@@@@@@@@@\';
-        Text004: Label 'Calendar Absent.  #3###### @4@@@@@@@@@@@@@\';
-        Text006: Label 'Prod. Order Need  #7###### @8@@@@@@@@@@@@@';
         PostCode: Record "Post Code";
         MfgSetup: Record "Manufacturing Setup";
         MachineCenter: Record "Machine Center";
@@ -699,9 +678,27 @@ table 99000758 "Machine Center"
         i: Integer;
         NoOfRecords: Integer;
         GLSetupRead: Boolean;
+
+#pragma warning disable AA0074
+        Text000: Label 'The Machine Center is being used on production orders.';
+#pragma warning disable AA0470
+        Text001: Label 'Do you want to change %1?';
+#pragma warning restore AA0470
+        Text002: Label 'Work Center No. is corrected on\\';
+#pragma warning disable AA0470
+        Text003: Label 'Calendar Entry    #1###### @2@@@@@@@@@@@@@\';
+        Text004: Label 'Calendar Absent.  #3###### @4@@@@@@@@@@@@@\';
+        Text006: Label 'Prod. Order Need  #7###### @8@@@@@@@@@@@@@';
+#pragma warning restore AA0470
         Text007: Label 'You cannot delete %1 %2 because there is at least one %3 associated with it.', Comment = '%1 = Table caption; %2 = Field Value; %3 = Table Caption';
+#pragma warning disable AA0470
         Text008: Label 'You cannot change the %1 on %2 unless it is linked to a %3.';
         Text009: Label 'If you change the %1, then all bin codes on the %2 will be removed. Are you sure that you want to continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
+        LocationMustBeBinMandatoryErr: Label 'Location %1 must be set up with Bin Mandatory if the Machine Center %2 uses it.', Comment = '%2 = Machine Center No.';
+#pragma warning restore AA0470
 
     procedure AssistEdit(OldMachineCenter: Record "Machine Center"): Boolean
     var
@@ -766,6 +763,21 @@ table 99000758 "Machine Center"
         RoutingLine.SetRange("No.", "No.");
         if not RoutingLine.IsEmpty() then
             Error(Text007, TableCaption(), "No.", RoutingLine.TableCaption());
+    end;
+
+    procedure CheckBinCode(LocationCode: Code[10]; BinCode: Code[20]; BinCaption: Text; MachineCenterNo: Code[20])
+    var
+        Bin: Record Bin;
+        Location: Record Location;
+        WhseIntegrationMgt: Codeunit "Whse. Integration Management";
+    begin
+        if BinCode <> '' then begin
+            Location.Get(LocationCode);
+            if not Location."Bin Mandatory" then
+                Error(LocationMustBeBinMandatoryErr, Location.Code, MachineCenterNo);
+            Bin.Get(LocationCode, BinCode);
+            WhseIntegrationMgt.CheckBinTypeAndCode(Database::"Machine Center", BinCaption, LocationCode, BinCode, 0);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

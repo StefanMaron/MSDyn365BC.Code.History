@@ -92,10 +92,14 @@ report 5693 "Delete Empty FA Registers"
         SkipConfirm: Boolean;
 
         DeleteRegistersQst: Label 'Do you want to delete the registers?';
+#pragma warning disable AA0074
         Text001: Label 'Deleting empty FA registers...\\';
+#pragma warning disable AA0470
         Text002: Label 'No.                      #1######\';
         Text003: Label 'Posted on                #2######\\';
         Text004: Label 'No. of registers deleted #3######';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         RequestFilterDate: Date;
 
     procedure SetSkipConfirm()

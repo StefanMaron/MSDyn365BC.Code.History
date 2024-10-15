@@ -332,7 +332,7 @@ table 80 "Gen. Journal Template"
         }
         field(11402; "No. of CBG Statements"; Integer)
         {
-            CalcFormula = Count("CBG Statement" where("Journal Template Name" = field(Name)));
+            CalcFormula = count("CBG Statement" where("Journal Template Name" = field(Name)));
             Caption = 'No. of CBG Statements';
             Editable = false;
             FieldClass = FlowField;

@@ -120,7 +120,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
             PaymentHistoryLine.SetFilter(Status, '%1|%2',
               PaymentHistoryLine.Status::Transmitted, PaymentHistoryLine.Status::"Request for Cancellation");
 
-            if PaymentHistoryLine.FindFirst() then begin
+            if PaymentHistoryLine.FindFirst() then
                 if (PaymentHistoryLine.Amount = CBGStatementLine.Amount) and
                    ((CBGStatementLine."Account No." = '') or (CBGStatementLine."Account No." = PaymentHistoryLine."Account No."))
                 then begin
@@ -145,7 +145,6 @@ codeunit 11000006 "CBG Statement Reconciliation"
                         NumberOfLinesChanged := NumberOfLinesChanged - 1;
                     RecChanged := true;
                 end;
-            end;
         end;
 
         IsHandled := false;
@@ -155,8 +154,8 @@ codeunit 11000006 "CBG Statement Reconciliation"
            (CBGStatementLine.Identification = '') and
            (CBGStatementLine."Reconciliation Status" <> CBGStatementLine."Reconciliation Status"::Applied) and
             not IsHandled
-        then begin
-            if CBGStatementLine."Account No." <> '' then begin
+        then
+            if CBGStatementLine."Account No." <> '' then
                 case CBGStatementLine."Account Type" of
                     CBGStatementLine."Account Type"::Customer:
                         begin
@@ -255,8 +254,6 @@ codeunit 11000006 "CBG Statement Reconciliation"
                             end;
                         end;
                 end;
-            end;
-        end;
 
         OnMatchCBGStatementLineOnBeforeModify(
           CBGStatementLine, NumberOfLinesChanged, RecChanged, EntriesCount, EntryNo, CBGStatement, NumberOfLinesApplied, strFilter);

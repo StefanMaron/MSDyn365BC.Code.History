@@ -51,14 +51,12 @@ codeunit 144101 "Test SEPA CT v03"
     begin
         // [FEATURE] [DEMO]
         // [SCENARIO 294684] There is a "Generic SEPA" Export Protocol in the default Cronus demodata
-        with ExportProtocol do begin
-            Get('GENERIC SEPA');
-            TestField(Description, 'Generic Payment File');
-            TestField("Check ID", CODEUNIT::"Check BTL91");
-            TestField("Export Object Type", "Export Object Type"::Report);
-            TestField("Export ID", REPORT::"SEPA ISO20022 Pain 01.01.03");
-            TestField("Docket ID", REPORT::Docket);
-        end;
+        ExportProtocol.Get('GENERIC SEPA');
+        ExportProtocol.TestField(Description, 'Generic Payment File');
+        ExportProtocol.TestField("Check ID", CODEUNIT::"Check BTL91");
+        ExportProtocol.TestField("Export Object Type", ExportProtocol."Export Object Type"::Report);
+        ExportProtocol.TestField("Export ID", REPORT::"SEPA ISO20022 Pain 01.01.03");
+        ExportProtocol.TestField("Docket ID", REPORT::Docket);
     end;
 
     [Test]
@@ -1856,13 +1854,11 @@ codeunit 144101 "Test SEPA CT v03"
     var
         PurchHeader: Record "Purchase Header";
     begin
-        with PurchHeader do begin
-            Get("Document Type"::Invoice, CreatePurchInvoice(VendorNo, false));
-            Validate(
-              "Vendor Invoice No.",
-              PadStr("Vendor Invoice No.", MaxStrLen("Vendor Invoice No."), Format(LibraryRandom.RandInt(9))));
-            Modify();
-        end;
+        PurchHeader.Get(PurchHeader."Document Type"::Invoice, CreatePurchInvoice(VendorNo, false));
+        PurchHeader.Validate(
+          "Vendor Invoice No.",
+          PadStr(PurchHeader."Vendor Invoice No.", MaxStrLen(PurchHeader."Vendor Invoice No."), Format(LibraryRandom.RandInt(9))));
+        PurchHeader.Modify();
         exit(LibraryPurchase.PostPurchaseDocument(PurchHeader, false, true));
     end;
 
@@ -1887,17 +1883,15 @@ codeunit 144101 "Test SEPA CT v03"
     var
         ExportProtocol: Record "Export Protocol";
     begin
-        with ExportProtocol do begin
-            Init();
-            Validate(Code, LibraryUtility.GenerateGUID());
-            Validate("Check ID", CheckID);
-            Validate("Docket ID", DocketID);
-            Validate("Export Object Type", ExportObjectType);
-            Validate("Export ID", ExportID);
-            Validate("Default File Names", DefaultFileNames);
-            Insert(true);
-            exit(Code);
-        end;
+        ExportProtocol.Init();
+        ExportProtocol.Validate(Code, LibraryUtility.GenerateGUID());
+        ExportProtocol.Validate("Check ID", CheckID);
+        ExportProtocol.Validate("Docket ID", DocketID);
+        ExportProtocol.Validate("Export Object Type", ExportObjectType);
+        ExportProtocol.Validate("Export ID", ExportID);
+        ExportProtocol.Validate("Default File Names", DefaultFileNames);
+        ExportProtocol.Insert(true);
+        exit(ExportProtocol.Code);
     end;
 
     local procedure CreateExportProtocolForReport(ExportProtocolReportID: Integer): Code[20]
@@ -1913,14 +1907,13 @@ codeunit 144101 "Test SEPA CT v03"
     var
         FreelyTransferableMaximum: Record "Freely Transferable Maximum";
     begin
-        with FreelyTransferableMaximum do
-            if not Get(CountryRegionCode, CurrencyCode) then begin
-                Init();
-                Validate("Country/Region Code", CountryRegionCode);
-                Validate("Currency Code", CurrencyCode);
-                Validate(Amount, GetMaxNoOfDocuments() * GetMaxDocumentAmount());
-                Insert(true);
-            end;
+        if not FreelyTransferableMaximum.Get(CountryRegionCode, CurrencyCode) then begin
+            FreelyTransferableMaximum.Init();
+            FreelyTransferableMaximum.Validate("Country/Region Code", CountryRegionCode);
+            FreelyTransferableMaximum.Validate("Currency Code", CurrencyCode);
+            FreelyTransferableMaximum.Validate(Amount, GetMaxNoOfDocuments() * GetMaxDocumentAmount());
+            FreelyTransferableMaximum.Insert(true);
+        end;
     end;
 
     local procedure CreateVendorWithBankAccount(var Vendor: Record Vendor; BankAccount: Record "Bank Account"; VendorCurrencyCode: Code[10])
@@ -2023,36 +2016,30 @@ codeunit 144101 "Test SEPA CT v03"
 
     local procedure MockPaymentHistory(var PaymentHistory: Record "Payment History")
     begin
-        with PaymentHistory do begin
-            Init();
-            "Our Bank" := LibraryERM.CreateBankAccountNo();
-            "Run No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        PaymentHistory.Init();
+        PaymentHistory."Our Bank" := LibraryERM.CreateBankAccountNo();
+        PaymentHistory."Run No." := LibraryUtility.GenerateGUID();
+        PaymentHistory.Insert();
     end;
 
     local procedure MockPaymentHistoryWithOurBank(var PaymentHistory: Record "Payment History"; OurBank: Code[20])
     begin
-        with PaymentHistory do begin
-            Init();
-            "Our Bank" := OurBank;
-            "Run No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        PaymentHistory.Init();
+        PaymentHistory."Our Bank" := OurBank;
+        PaymentHistory."Run No." := LibraryUtility.GenerateGUID();
+        PaymentHistory.Insert();
     end;
 
     local procedure MockPaymentHistoryLine(var PaymentHistoryLine: Record "Payment History Line"; PaymentHistory: Record "Payment History"; NewStatus: Option; NewAmount: Decimal)
     begin
-        with PaymentHistoryLine do begin
-            Init();
-            "Our Bank" := PaymentHistory."Our Bank";
-            "Run No." := PaymentHistory."Run No.";
-            "Line No." := LibraryUtility.GetNewRecNo(PaymentHistoryLine, FieldNo("Line No."));
-            Status := NewStatus;
-            Amount := NewAmount;
-            "Direct Debit Mandate ID" := MockSEPADirectDebitMandate();
-            Insert();
-        end;
+        PaymentHistoryLine.Init();
+        PaymentHistoryLine."Our Bank" := PaymentHistory."Our Bank";
+        PaymentHistoryLine."Run No." := PaymentHistory."Run No.";
+        PaymentHistoryLine."Line No." := LibraryUtility.GetNewRecNo(PaymentHistoryLine, PaymentHistoryLine.FieldNo("Line No."));
+        PaymentHistoryLine.Status := NewStatus;
+        PaymentHistoryLine.Amount := NewAmount;
+        PaymentHistoryLine."Direct Debit Mandate ID" := MockSEPADirectDebitMandate();
+        PaymentHistoryLine.Insert();
     end;
 
     local procedure MockPaymentHistoryLineWithAccount(var PaymentHistoryLine: Record "Payment History Line"; PaymentHistory: Record "Payment History")
@@ -2074,12 +2061,10 @@ codeunit 144101 "Test SEPA CT v03"
     var
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
     begin
-        with SEPADirectDebitMandate do begin
-            Init();
-            ID := LibraryUtility.GenerateGUID();
-            Insert();
-            exit(ID);
-        end;
+        SEPADirectDebitMandate.Init();
+        SEPADirectDebitMandate.ID := LibraryUtility.GenerateGUID();
+        SEPADirectDebitMandate.Insert();
+        exit(SEPADirectDebitMandate.ID);
     end;
 
     local procedure ModifyPaymentHistoryExportProtocol(var PaymentHistory: Record "Payment History"; ExportProtocol: Code[20])
@@ -2143,13 +2128,11 @@ codeunit 144101 "Test SEPA CT v03"
     var
         ExportProtocol: Record "Export Protocol";
     begin
-        with ExportProtocol do begin
-            SetRange("Check ID", CheckID);
-            SetRange("Export Object Type", ExportObjectType);
-            SetRange("Export ID", ExportID);
-            FindFirst();
-            exit(Code);
-        end;
+        ExportProtocol.SetRange("Check ID", CheckID);
+        ExportProtocol.SetRange("Export Object Type", ExportObjectType);
+        ExportProtocol.SetRange("Export ID", ExportID);
+        ExportProtocol.FindFirst();
+        exit(ExportProtocol.Code);
     end;
 
     local procedure FindPaymentHistoryToExport(var PaymentHistory: Record "Payment History"; BankAccountNo: Code[20]; ExportProtocolCode: Code[20])
@@ -2193,12 +2176,10 @@ codeunit 144101 "Test SEPA CT v03"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            Get();
-            if "Local Currency" = "Local Currency"::Euro then
-                exit("LCY Code");
-            exit("Currency Euro");
-        end;
+        GLSetup.Get();
+        if GLSetup."Local Currency" = GLSetup."Local Currency"::Euro then
+            exit(GLSetup."LCY Code");
+        exit(GLSetup."Currency Euro");
     end;
 
     local procedure MixDateAndUrgentValues(BankAccountNo: Code[20])
@@ -2390,14 +2371,12 @@ codeunit 144101 "Test SEPA CT v03"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            Validate("Local Currency", LocalCurrency);
-            if LocalCurrency = "Local Currency"::Other then
-                Validate("Currency Euro", CurrencyEuro);
-            Validate("LCY Code", LCYCode);
-            Modify(true);
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Local Currency", LocalCurrency);
+        if LocalCurrency = GeneralLedgerSetup."Local Currency"::Other then
+            GeneralLedgerSetup.Validate("Currency Euro", CurrencyEuro);
+        GeneralLedgerSetup.Validate("LCY Code", LCYCode);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure UpdateLocalInstrPrtyInGenLedgSetup(NewLocalInstrPrty: Boolean)
@@ -2566,11 +2545,9 @@ codeunit 144101 "Test SEPA CT v03"
     var
         ProposalLine: Record "Proposal Line";
     begin
-        with ProposalLine do begin
-            SetRange("Account Type", "Account Type"::Vendor);
-            SetRange("Account No.", VendorNo);
-            Assert.IsFalse(IsEmpty, ProposalEntryNotExistErr);
-        end;
+        ProposalLine.SetRange("Account Type", ProposalLine."Account Type"::Vendor);
+        ProposalLine.SetRange("Account No.", VendorNo);
+        Assert.IsFalse(ProposalLine.IsEmpty, ProposalEntryNotExistErr);
     end;
 
     local procedure VerifyBeginningOfXMLFile(FileName: Text; CheckString: Text[5])

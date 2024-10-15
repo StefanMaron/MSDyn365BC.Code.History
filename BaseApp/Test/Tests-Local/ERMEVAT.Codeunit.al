@@ -1314,27 +1314,25 @@ codeunit 144051 "ERM EVAT"
         NextEntryNo: Integer;
     begin
         NextEntryNo := 0;
-        with VATEntry do begin
-            Reset();
-            if FindLast() then
-                NextEntryNo := "Entry No.";
-            NextEntryNo += 1;
+        VATEntry.Reset();
+        if VATEntry.FindLast() then
+            NextEntryNo := VATEntry."Entry No.";
+        NextEntryNo += 1;
 
-            Init();
-            "Entry No." := NextEntryNo;
-            "VAT Calculation Type" := "VAT Calculation Type"::"Reverse Charge VAT";
-            Type := Type::Sale;
-            "Document Type" := DocumentType;
-            Base := BaseValue;
-            Amount := AmountValue;
-            "Posting Date" := CalcDate('<-3M>', Today);
-            "VAT Registration No." :=
-              LibraryUtility.GenerateRandomCode(FieldNo("VAT Registration No."), DATABASE::"VAT Entry");
-            "Country/Region Code" := GetRandomCountryCode(true);
-            "EU Service" := EUService;
-            "EU 3-Party Trade" := EUTrade;
-            Insert();
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := NextEntryNo;
+        VATEntry."VAT Calculation Type" := VATEntry."VAT Calculation Type"::"Reverse Charge VAT";
+        VATEntry.Type := VATEntry.Type::Sale;
+        VATEntry."Document Type" := DocumentType;
+        VATEntry.Base := BaseValue;
+        VATEntry.Amount := AmountValue;
+        VATEntry."Posting Date" := CalcDate('<-3M>', Today);
+        VATEntry."VAT Registration No." :=
+          LibraryUtility.GenerateRandomCode(VATEntry.FieldNo("VAT Registration No."), DATABASE::"VAT Entry");
+        VATEntry."Country/Region Code" := GetRandomCountryCode(true);
+        VATEntry."EU Service" := EUService;
+        VATEntry."EU 3-Party Trade" := EUTrade;
+        VATEntry.Insert();
     end;
 
     local procedure CreateReverseChargeSalesVATEntryWithCountryCode(var VATEntry: Record "VAT Entry"; CountryCode: Code[10])
@@ -1363,20 +1361,18 @@ codeunit 144051 "ERM EVAT"
 
     local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; VATCalculationType: Enum "Tax Calculation Type"; GenPostingType: Enum "General Posting Type"; BaseValue: Decimal; AmountValue: Decimal; PostingDate: Date; CountryRegionCode: Code[10]; VATRegistrationNo: Text[20])
     begin
-        with VATEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
-            "Document Type" := DocumentType;
-            "VAT Calculation Type" := VATCalculationType;
-            Type := GenPostingType;
-            Base := BaseValue;
-            Amount := AmountValue;
-            "Posting Date" := PostingDate;
-            "VAT Reporting Date" := PostingDate;
-            "Country/Region Code" := CountryRegionCode;
-            "VAT Registration No." := VATRegistrationNo;
-            Insert();
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry."Document Type" := DocumentType;
+        VATEntry."VAT Calculation Type" := VATCalculationType;
+        VATEntry.Type := GenPostingType;
+        VATEntry.Base := BaseValue;
+        VATEntry.Amount := AmountValue;
+        VATEntry."Posting Date" := PostingDate;
+        VATEntry."VAT Reporting Date" := PostingDate;
+        VATEntry."Country/Region Code" := CountryRegionCode;
+        VATEntry."VAT Registration No." := VATRegistrationNo;
+        VATEntry.Insert();
     end;
 
     local procedure MockCountryRegionRecord(var CountryRegion: Record "Country/Region"; Name: Text[50]; CountryRegionCode: Code[10]; EUCountryRegionCode: Code[10])
@@ -1408,12 +1404,10 @@ codeunit 144051 "ERM EVAT"
 
     local procedure FilterOnElecTaxDeclLine(var ElecTaxDeclLine: Record "Elec. Tax Declaration Line"; DeclarationType: Option; DeclarationNo: Code[20]; LineType: Option; ExpectedName: Text[80])
     begin
-        with ElecTaxDeclLine do begin
-            SetRange("Declaration Type", DeclarationType);
-            SetRange("Declaration No.", DeclarationNo);
-            SetRange("Line Type", LineType);
-            SetRange(Name, ExpectedName);
-        end;
+        ElecTaxDeclLine.SetRange("Declaration Type", DeclarationType);
+        ElecTaxDeclLine.SetRange("Declaration No.", DeclarationNo);
+        ElecTaxDeclLine.SetRange("Line Type", LineType);
+        ElecTaxDeclLine.SetRange(Name, ExpectedName);
     end;
 
     local procedure GetDeclarationPeriod(): Enum "Elec. Tax Declaration Period"

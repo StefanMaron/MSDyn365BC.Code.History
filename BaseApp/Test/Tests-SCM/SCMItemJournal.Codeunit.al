@@ -811,23 +811,16 @@
 
         // [GIVEN] Item "I" with Costing Method = "FIFO" and Unit Cost = "X".
         CreateItemWithCostingMethod(Item, Item."Costing Method"::FIFO);
-
-        with ItemJournalLine do begin
-            // [GIVEN] Positive adjustment item journal line with quantity "Q1" of item "I".
-            CreateItemJournalLine(ItemJournalLine, Item."No.");
-
-            // [GIVEN] Unit Cost on the journal line is updated to "Y".
-            Validate("Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
-
-            // [WHEN] Item No. is re-validated on the item journal.
-            Validate("Item No.", Item."No.");
-
-            // [THEN] Unit Amount is reset to "X".
-            TestField("Unit Amount", Item."Unit Cost");
-
-            // [THEN] Amount is equal to "Q1" * "X".
-            TestField(Amount, Item."Unit Cost" * Quantity);
-        end;
+        // [GIVEN] Positive adjustment item journal line with quantity "Q1" of item "I".
+        CreateItemJournalLine(ItemJournalLine, Item."No.");
+        // [GIVEN] Unit Cost on the journal line is updated to "Y".
+        ItemJournalLine.Validate("Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
+        // [WHEN] Item No. is re-validated on the item journal.
+        ItemJournalLine.Validate("Item No.", Item."No.");
+        // [THEN] Unit Amount is reset to "X".
+        ItemJournalLine.TestField("Unit Amount", Item."Unit Cost");
+        // [THEN] Amount is equal to "Q1" * "X".
+        ItemJournalLine.TestField(Amount, Item."Unit Cost" * ItemJournalLine.Quantity);
     end;
 
     [Test]
@@ -2245,12 +2238,10 @@
     local procedure CreateItemJournalLineWithEntryType(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; LocationCode: Code[10]; BinCode: Code[20])
     begin
         CreateItemJournal(ItemJournalLine);
-        with ItemJournalLine do begin
-            Validate("Entry Type", EntryType);
-            Validate("Location Code", LocationCode);
-            "Bin Code" := BinCode;
-            Modify(true);
-        end;
+        ItemJournalLine.Validate("Entry Type", EntryType);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine."Bin Code" := BinCode;
+        ItemJournalLine.Modify(true);
     end;
 
     local procedure CreatePositiveAdjmtItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
@@ -2304,18 +2295,16 @@
 
     local procedure MockReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
-        with ReservationEntry do begin
-            Init();
-            "Source Type" := DATABASE::"Item Journal Line";
-            "Source ID" := ItemJournalLine."Journal Template Name";
-            "Source Batch Name" := ItemJournalLine."Journal Batch Name";
-            "Source Ref. No." := ItemJournalLine."Line No.";
-            "Source Subtype" := ItemJournalLine."Entry Type".AsInteger();
-            "Source Prod. Order Line" := 0;
-            "Reservation Status" := "Reservation Status"::Reservation;
-            Quantity := LibraryRandom.RandDecInRange(1000, 2000, 2);
-            Insert();
-        end;
+        ReservationEntry.Init();
+        ReservationEntry."Source Type" := DATABASE::"Item Journal Line";
+        ReservationEntry."Source ID" := ItemJournalLine."Journal Template Name";
+        ReservationEntry."Source Batch Name" := ItemJournalLine."Journal Batch Name";
+        ReservationEntry."Source Ref. No." := ItemJournalLine."Line No.";
+        ReservationEntry."Source Subtype" := ItemJournalLine."Entry Type".AsInteger();
+        ReservationEntry."Source Prod. Order Line" := 0;
+        ReservationEntry."Reservation Status" := ReservationEntry."Reservation Status"::Reservation;
+        ReservationEntry.Quantity := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        ReservationEntry.Insert();
     end;
 
     local procedure CopyItemJournalLinesToTemp(var TempItemJournalLine: Record "Item Journal Line" temporary; ItemJournalLine: Record "Item Journal Line")
@@ -2622,15 +2611,13 @@
     begin
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, TemplateName, BatchName, ItemJournalLine."Entry Type"::Transfer, ItemNo, Qty);
-        with ItemJournalLine do begin
-            Validate("Location Code", OldLocationCode);
-            Validate("New Location Code", NewLocationCode);
-            "Bin Code" := OldBinCode;
-            "New Bin Code" := NewBinCode;
-            Validate(Quantity, Qty);
-            "Document No." := LibraryUtility.GenerateGUID();
-            Modify(true);
-        end;
+        ItemJournalLine.Validate("Location Code", OldLocationCode);
+        ItemJournalLine.Validate("New Location Code", NewLocationCode);
+        ItemJournalLine."Bin Code" := OldBinCode;
+        ItemJournalLine."New Bin Code" := NewBinCode;
+        ItemJournalLine.Validate(Quantity, Qty);
+        ItemJournalLine."Document No." := LibraryUtility.GenerateGUID();
+        ItemJournalLine.Modify(true);
 
         exit(ItemJournalLine."Document No.");
     end;

@@ -1416,33 +1416,29 @@ codeunit 134456 "ERM Fixed Asset Card"
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        with FALedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(FALedgerEntry, FieldNo("Entry No."));
-            "FA No." := FANo;
-            "Depreciation Book Code" := DepreciationBookCode;
-            "Part of Book Value" := true;
-            "FA Posting Date" := FAPostingDate;
-            Amount := BookValueAmount;
-            Insert();
-        end;
+        FALedgerEntry.Init();
+        FALedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(FALedgerEntry, FALedgerEntry.FieldNo("Entry No."));
+        FALedgerEntry."FA No." := FANo;
+        FALedgerEntry."Depreciation Book Code" := DepreciationBookCode;
+        FALedgerEntry."Part of Book Value" := true;
+        FALedgerEntry."FA Posting Date" := FAPostingDate;
+        FALedgerEntry.Amount := BookValueAmount;
+        FALedgerEntry.Insert();
     end;
 
     local procedure MockFALedgerEntryDisposal(FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingDate: Date; BookValueAmount: Decimal; FAPostingType: Enum "FA Ledger Entry FA Posting Type")
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        with FALedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(FALedgerEntry, FieldNo("Entry No."));
-            "FA No." := FANo;
-            "Depreciation Book Code" := DepreciationBookCode;
-            "FA Posting Category" := "FA Posting Category"::Disposal;
-            "FA Posting Type" := FAPostingType;
-            "FA Posting Date" := FAPostingDate;
-            Amount := -BookValueAmount;
-            Insert();
-        end;
+        FALedgerEntry.Init();
+        FALedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(FALedgerEntry, FALedgerEntry.FieldNo("Entry No."));
+        FALedgerEntry."FA No." := FANo;
+        FALedgerEntry."Depreciation Book Code" := DepreciationBookCode;
+        FALedgerEntry."FA Posting Category" := FALedgerEntry."FA Posting Category"::Disposal;
+        FALedgerEntry."FA Posting Type" := FAPostingType;
+        FALedgerEntry."FA Posting Date" := FAPostingDate;
+        FALedgerEntry.Amount := -BookValueAmount;
+        FALedgerEntry.Insert();
     end;
 
     local procedure ValidateBookValueMultibook(FixedAssetCard: TestPage "Fixed Asset Card"; DepreciationBookCode: Code[10]; BookValue: Decimal)

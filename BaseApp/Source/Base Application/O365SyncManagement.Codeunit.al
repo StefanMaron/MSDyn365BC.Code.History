@@ -24,8 +24,8 @@ codeunit 6700 "O365 Sync. Management"
         ExchangeConnectionID: Text;
         RegisterConnectionTxt: Label 'Register connection.';
         SetupO365Qst: Label 'Would you like to configure your connection to Office 365 now?';
-        BookingsConnectionString: Text;
-        ExchangeConnectionString: Text;
+        BookingsConnectionString: SecretText;
+        ExchangeConnectionString: SecretText;
         GettingContactsTxt: Label 'Getting Exchange contacts.';
         GettingBookingCustomersTxt: Label 'Getting Booking customers.';
         GettingBookingServicesTxt: Label 'Getting Booking services.';
@@ -63,15 +63,14 @@ codeunit 6700 "O365 Sync. Management"
         end;
     end;
 
-    [NonDebuggable]
     [Scope('OnPrem')]
     procedure IsO365Setup(AddOnTheFly: Boolean): Boolean
     var
         User: Record User;
         LocalExchangeSync: Record "Exchange Sync";
         AuthenticationEmail: Text[250];
-        Password: Text;
-        Token: Text;
+        Password: SecretText;
+        Token: SecretText;
     begin
         if GetUser(User, UserId()) then
             AuthenticationEmail := User."Authentication Email";
@@ -165,14 +164,23 @@ codeunit 6700 "O365 Sync. Management"
           ActivityDescription, ActivityMessage, UserID);
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by BuildBookingsConnectionStringAsSecretText', '25.0')]
     [NonDebuggable]
     [Scope('OnPrem')]
     procedure BuildBookingsConnectionString(var BookingSync: Record "Booking Sync") ConnectionString: Text
+    begin
+        exit(BuildBookingsConnectionStringAsSecretText(BookingSync).Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure BuildBookingsConnectionStringAsSecretText(var BookingSync: Record "Booking Sync") ConnectionString: SecretText
     var
         User: Record User;
         ExchangeSync: Record "Exchange Sync";
-        Password: Text;
-        Token: Text;
+        Password: SecretText;
+        Token: SecretText;
     begin
         // Example connection string
         // {UserName}="user@user.onmicrosoft.com";{Password}="1234";{FolderID}="Dynamics NAV";{Uri}=https://outlook.office365.com/EWS/Exchange.asmx
@@ -184,24 +192,33 @@ codeunit 6700 "O365 Sync. Management"
             Error(O365RecordMissingErr);
 
         ConnectionString :=
-          StrSubstNo(
+          SecretStrSubstNo(
             '{UserName}=%1;{Password}=%2;{Token}=%3;{Mailbox}=%4;',
             User."Authentication Email",
             Password,
             Token,
             BookingSync."Booking Mailbox Address");
 
-        if Token <> '' then
-            ConnectionString := StrSubstNo('%1;{Uri}=%2', ConnectionString, ExchangeSync.GetExchangeEndpoint());
+        if not Token.IsEmpty() then
+            ConnectionString := SecretStrSubstNo('%1;{Uri}=%2', ConnectionString, ExchangeSync.GetExchangeEndpoint());
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by BuildExchangeConnectionStringAsSecretText', '25.0')]
     [NonDebuggable]
     [Scope('OnPrem')]
     procedure BuildExchangeConnectionString(var ExchangeSync: Record "Exchange Sync") ConnectionString: Text
+    begin
+        exit(BuildExchangeConnectionStringAsSecretText(ExchangeSync).Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure BuildExchangeConnectionStringAsSecretText(var ExchangeSync: Record "Exchange Sync") ConnectionString: SecretText
     var
         User: Record User;
-        Token: Text;
-        Password: Text;
+        Token: SecretText;
+        Password: SecretText;
     begin
         // Example connection string
         // {UserName}="user@user.onmicrosoft.com";{Password}="1234";{FolderID}="Dynamics NAV";{Uri}=https://outlook.office365.com/EWS/Exchange.asmx
@@ -212,18 +229,17 @@ codeunit 6700 "O365 Sync. Management"
             Error(O365RecordMissingErr);
 
         ConnectionString :=
-          StrSubstNo(
+          SecretStrSubstNo(
             '{UserName}=%1;{Password}=%2;{Token}=%3;{FolderID}=%4;',
             User."Authentication Email",
             Password,
             Token,
             ExchangeSync."Folder ID");
 
-        if Token <> '' then
-            ConnectionString := StrSubstNo('%1;{Uri}=%2', ConnectionString, ExchangeSync.GetExchangeEndpoint());
+        if not Token.IsEmpty() then
+            ConnectionString := SecretStrSubstNo('%1;{Uri}=%2', ConnectionString, ExchangeSync.GetExchangeEndpoint());
     end;
 
-    [NonDebuggable]
     [Scope('OnPrem')]
     procedure RegisterBookingsConnection(BookingSync: Record "Booking Sync")
     var
@@ -268,14 +284,14 @@ codeunit 6700 "O365 Sync. Management"
     end;
 
     [TryFunction]
-    local procedure TryRegisterConnection(ConnectionID: Guid; ConnectionString: Text)
+    [NonDebuggable]
+    local procedure TryRegisterConnection(ConnectionID: Guid; ConnectionString: SecretText)
     begin
         // Using a try function, as these may throw an exception under certain circumstances (improper credentials, broken connection)
-        RegisterTableConnection(TABLECONNECTIONTYPE::Exchange, ConnectionID, ConnectionString);
+        RegisterTableConnection(TABLECONNECTIONTYPE::Exchange, ConnectionID, ConnectionString.Unwrap());
     end;
 
-    [NonDebuggable]
-    local procedure RegisterConnection(ExchangeSync: Record "Exchange Sync"; ConnectionID: Guid; ConnectionString: Text) Success: Boolean
+    local procedure RegisterConnection(ExchangeSync: Record "Exchange Sync"; ConnectionID: Guid; ConnectionString: SecretText) Success: Boolean
     begin
         Success := TryRegisterConnection(ConnectionID, ConnectionString);
         if not Success then
@@ -336,8 +352,8 @@ codeunit 6700 "O365 Sync. Management"
         WebCredentials: DotNet WebCredentials;
         OAuthCredentials: DotNet OAuthCredentials;
         AuthenticationEmail: Text[250];
-        Token: Text;
-        Password: Text;
+        Token: SecretText;
+        Password: SecretText;
     begin
         if GetUser(User, ExchangeSync."User ID") then
             AuthenticationEmail := User."Authentication Email";
@@ -346,10 +362,10 @@ codeunit 6700 "O365 Sync. Management"
         if not GetPasswordOrToken(ExchangeSync, Password, Token) then
             Error(O365RecordMissingErr);
 
-        if Token <> '' then
-            Credentials := OAuthCredentials.OAuthCredentials(Token)
+        if not Token.IsEmpty() then
+            Credentials := OAuthCredentials.OAuthCredentials(Token.Unwrap())
         else
-            Credentials := WebCredentials.WebCredentials(AuthenticationEmail, Password);
+            Credentials := WebCredentials.WebCredentials(AuthenticationEmail, Password.Unwrap());
     end;
 
     local procedure GetUser(var User: Record User; UserID: Text[50]): Boolean
@@ -379,38 +395,41 @@ codeunit 6700 "O365 Sync. Management"
     end;
 
     [NonDebuggable]
+    local procedure ConnectionStringChanged(Before: SecretText; After: SecretText): Boolean
+    begin
+        exit(Before.Unwrap() <> After.Unwrap());
+    end;
+
     local procedure BookingsConnectionReady(BookingSync: Record "Booking Sync") Ready: Boolean
     var
-        NewConnectionString: Text;
+        NewConnectionString: SecretText;
     begin
-        NewConnectionString := BuildBookingsConnectionString(BookingSync);
-        Ready := (BookingsConnectionID <> '') and (NewConnectionString = BookingsConnectionString);
+        NewConnectionString := BuildBookingsConnectionStringAsSecretText(BookingSync);
+        Ready := (BookingsConnectionID <> '') and (not ConnectionStringChanged(BookingsConnectionString, NewConnectionString));
         BookingsConnectionString := NewConnectionString;
     end;
 
-    [NonDebuggable]
     local procedure ExchangeConnectionReady(ExchangeSync: Record "Exchange Sync") Ready: Boolean
     var
-        NewConnectionString: Text;
+        NewConnectionString: SecretText;
     begin
-        NewConnectionString := BuildExchangeConnectionString(ExchangeSync);
-        Ready := (ExchangeConnectionID <> '') and (NewConnectionString = ExchangeConnectionString);
+        NewConnectionString := BuildExchangeConnectionStringAsSecretText(ExchangeSync);
+        Ready := (ExchangeConnectionID <> '') and (not ConnectionStringChanged(ExchangeConnectionString, NewConnectionString));
         ExchangeConnectionString := NewConnectionString;
     end;
 
-    [NonDebuggable]
     [Scope('OnPrem')]
-    local procedure GetPasswordOrToken(ExchangeSync: Record "Exchange Sync"; var Password: Text; var Token: Text): Boolean
+    local procedure GetPasswordOrToken(ExchangeSync: Record "Exchange Sync"; var Password: SecretText; var Token: SecretText): Boolean
     var
         AzureADMgt: Codeunit "Azure AD Mgt.";
-        Value: Text;
+        Value: SecretText;
     begin
-        Token := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false);
-        if (Token = '') and not IsNullGuid(ExchangeSync."Exchange Account Password Key") then
+        Token := AzureADMgt.GetAccessTokenAsSecretText(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false);
+        if Token.IsEmpty() and not IsNullGuid(ExchangeSync."Exchange Account Password Key") then
             if IsolatedStorageManagement.Get(ExchangeSync."Exchange Account Password Key", DATASCOPE::Company, Value) then
                 Password := Value;
 
-        exit((Token <> '') or (Password <> ''));
+        exit((not Token.IsEmpty()) or (not Password.IsEmpty()));
     end;
 
     local procedure CheckUserAccess(BookingSync: Record "Booking Sync")

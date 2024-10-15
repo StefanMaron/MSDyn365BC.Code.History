@@ -745,13 +745,19 @@ page 6030 "Service Statistics"
         AllowInvDisc: Boolean;
         AllowVATDifference: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Service %1 Statistics';
+#pragma warning restore AA0470
         Text001: Label 'Total';
         Text002: Label 'Amount';
+#pragma warning disable AA0470
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because there is a %1 record for %2 %3.', Comment = 'You cannot change the invoice discount because there is a Cust. Invoice Disc. record for Invoice Disc. Code 10000.';
+#pragma warning restore AA0470
         Text006: Label 'Placeholder';
+#pragma warning restore AA0074
 
     local procedure UpdateHeaderInfo(IndexNo: Integer; var VATAmountLine: Record "VAT Amount Line")
     var
@@ -810,7 +816,7 @@ page 6030 "Service Statistics"
 
     local procedure SetVATSpecification()
     begin
-        CurrPage.SubForm.PAGE.SetServHeader := Rec;
+        CurrPage.SubForm.PAGE.SetSourceHeader(Rec);
         CurrPage.SubForm.PAGE.SetTempVATAmountLine(TempVATAmountLine);
         CurrPage.SubForm.PAGE.InitGlobals(
           Rec."Currency Code", AllowVATDifference, AllowVATDifference,

@@ -1,7 +1,7 @@
 namespace Microsoft.Purchases.Pricing;
 
 using Microsoft.Pricing.Asset;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Pricing.Calculation;
 #endif
 using Microsoft.Pricing.PriceList;
@@ -120,7 +120,7 @@ page 7017 "Purchase Price Lists"
         }
     }
 
-#if not CLEAN23
+#if not CLEAN25
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";

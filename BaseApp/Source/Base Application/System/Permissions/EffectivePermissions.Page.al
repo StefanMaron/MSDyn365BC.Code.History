@@ -249,9 +249,12 @@ page 9852 "Effective Permissions"
     trigger OnOpenPage()
     var
         EffectivePermissionsMgt: Codeunit "Effective Permissions Mgt.";
+        EffectivePermissionsPageOpenLbl: Label 'The Effective Permissions page has been opened by UserSecurityId %1.', Locked = true;
     begin
         EffectivePermissionsMgt.DisallowViewingEffectivePermissionsForNonAdminUsers(UserSecurityId());
         FillByObject();
+
+        Session.LogAuditMessage(StrSubstNo(EffectivePermissionsPageOpenLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 2, 0);
     end;
 
     var

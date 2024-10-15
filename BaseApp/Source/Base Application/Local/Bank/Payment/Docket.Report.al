@@ -146,8 +146,8 @@ report 11000004 Docket
 
                     trigger OnAfterGetRecord()
                     begin
-                        CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                        CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                        CurrReport.Language := GlobalLanguage.GetLanguageIdOrDefault("Language Code");
+                        CurrReport.FormatRegion := GlobalLanguage.GetFormatRegionOrDefault("Format Region");
 
                         FormatAddr.Customer(CustAddr, Customer);
                         Cust.Get(Customer."No.", "Payment History Line".Bank);
@@ -197,8 +197,8 @@ report 11000004 Docket
 
                     trigger OnAfterGetRecord()
                     begin
-                        CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                        CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                        CurrReport.Language := GlobalLanguage.GetLanguageIdOrDefault("Language Code");
+                        CurrReport.FormatRegion := GlobalLanguage.GetFormatRegionOrDefault("Format Region");
 
                         FormatAddr.Vendor(VendAddr, Vendor);
                         VendBank.Get(Vendor."No.", "Payment History Line".Bank);
@@ -251,7 +251,7 @@ report 11000004 Docket
                         CountryRegionTranslation: Record "Country/Region Translation";
                     begin
                         if CountryRegionTranslation.Get("Country/Region Code") then
-                            CurrReport.Language := Language.GetLanguageIdOrDefault(CountryRegionTranslation."Language Code")
+                            CurrReport.Language := GlobalLanguage.GetLanguageIdOrDefault(CountryRegionTranslation."Language Code")
                         else
                             CurrReport.Language := ReportLanguage;
 
@@ -822,7 +822,7 @@ report 11000004 Docket
         Text1000001: Label 'Page %1';
         PaymHist: Record "Payment History";
         CompanyInfo: Record "Company Information";
-        Language: Codeunit Language;
+        GlobalLanguage: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         CustAddr: array[8] of Text[100];
         VendAddr: array[8] of Text[100];

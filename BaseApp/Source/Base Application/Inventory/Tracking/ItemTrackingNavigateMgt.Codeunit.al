@@ -16,11 +16,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
-using Microsoft.Service.Item;
-using Microsoft.Service.Loaner;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.History;
@@ -45,12 +40,6 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         FixedAsset: Record "Fixed Asset";
         WhseActivLine: Record "Warehouse Activity Line";
         RgstrdWhseActivLine: Record "Registered Whse. Activity Line";
-        ServItemLine: Record "Service Item Line";
-        Loaner: Record Loaner;
-        ServiceItem: Record "Service Item";
-        ServiceItemComponent: Record "Service Item Component";
-        ServContractLine: Record "Service Contract Line";
-        FiledContractLine: Record "Filed Contract Line";
         SerialNoInfo: Record "Serial No. Information";
         LotNoInfo: Record "Lot No. Information";
         PackageNoInfo: Record "Package No. Information";
@@ -70,16 +59,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         TempSalesShptHeader: Record "Sales Shipment Header" temporary;
         TempSalesInvHeader: Record "Sales Invoice Header" temporary;
         TempSalesCrMemoHeader: Record "Sales Cr.Memo Header" temporary;
-        TempServShptHeader: Record "Service Shipment Header" temporary;
-        TempServInvHeader: Record "Service Invoice Header" temporary;
-        TempServCrMemoHeader: Record "Service Cr.Memo Header" temporary;
         TempReturnShipHeader: Record "Return Shipment Header" temporary;
         TempReturnRcptHeader: Record "Return Receipt Header" temporary;
         TempTransShipHeader: Record "Transfer Shipment Header" temporary;
         TempTransRcptHeader: Record "Transfer Receipt Header" temporary;
         TempProdOrder: Record "Production Order" temporary;
         TempSalesLine: Record "Sales Line" temporary;
-        TempServLine: Record "Service Line" temporary;
         TempReqLine: Record "Requisition Line" temporary;
         TempPurchLine: Record "Purchase Line" temporary;
         TempItemJnlLine: Record "Item Journal Line" temporary;
@@ -141,12 +126,6 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             FindSerialNoInfo(ItemFilters);
             FindSerialNoMisc(ItemFilters);
             FindSerialNoFixedAsset(ItemFilters);
-            FindSerialNoServItemLine(ItemFilters);
-            FindSerialNoLoaner(ItemFilters);
-            FindSerialNoServiceItem(ItemFilters);
-            FindSerialNoServiceItemComponent(ItemFilters);
-            FindSerialNoServContractLine(ItemFilters);
-            FindSerialNoFiledContractLine(ItemFilters);
 
             OnFindTrackingRecordsOnAfterFindSerialNo(TempRecordBuffer, ItemFilters);
         end;
@@ -232,119 +211,6 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             until FixedAsset.Next() = 0;
     end;
 
-    local procedure FindSerialNoServItemLine(var ItemFilters: Record Item)
-    begin
-        if not ServItemLine.ReadPermission then
-            exit;
-
-        ServItemLine.Reset();
-        if ServItemLine.SetCurrentKey("Serial No.") then;
-        ServItemLine.SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
-        ServItemLine.SetFilter("Item No.", ItemFilters.GetFilter("No."));
-        ServItemLine.SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
-        if ServItemLine.FindSet() then
-            repeat
-                RecRef.GetTable(ServItemLine);
-                Clear(ItemTrackingSetup);
-                ItemTrackingSetup."Serial No." := ServItemLine."Serial No.";
-                InsertBufferRec(RecRef, ItemTrackingSetup, ServItemLine."Item No.", ServItemLine."Variant Code");
-            until ServItemLine.Next() = 0;
-    end;
-
-    local procedure FindSerialNoServiceItem(var ItemFilters: Record Item)
-    begin
-        if not ServiceItem.ReadPermission then
-            exit;
-
-        ServiceItem.Reset();
-        if ServiceItem.SetCurrentKey("Serial No.") then;
-        ServiceItem.SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
-        ServiceItem.SetFilter("Item No.", ItemFilters.GetFilter("No."));
-        ServiceItem.SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
-        if ServiceItem.FindSet() then
-            repeat
-                RecRef.GetTable(ServiceItem);
-                Clear(ItemTrackingSetup);
-                ItemTrackingSetup."Serial No." := ServiceItem."Serial No.";
-                InsertBufferRec(RecRef, ItemTrackingSetup, ServiceItem."Item No.", ServiceItem."Variant Code");
-            until ServiceItem.Next() = 0;
-    end;
-
-    local procedure FindSerialNoServiceItemComponent(var ItemFilters: Record Item)
-    begin
-        if not ServiceItemComponent.ReadPermission then
-            exit;
-
-        ServiceItemComponent.Reset();
-        if ServiceItemComponent.SetCurrentKey("Serial No.") then;
-        ServiceItemComponent.SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
-        ServiceItemComponent.SetFilter("Parent Service Item No.", ItemFilters.GetFilter("No."));
-        ServiceItemComponent.SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
-        if ServiceItemComponent.FindSet() then
-            repeat
-                RecRef.GetTable(ServiceItemComponent);
-                Clear(ItemTrackingSetup);
-                ItemTrackingSetup."Serial No." := ServiceItemComponent."Serial No.";
-                InsertBufferRec(RecRef, ItemTrackingSetup, ServiceItemComponent."Parent Service Item No.", ServiceItemComponent."Variant Code");
-            until ServiceItemComponent.Next() = 0;
-    end;
-
-    local procedure FindSerialNoServContractLine(var ItemFilters: Record Item)
-    begin
-        if not ServContractLine.ReadPermission then
-            exit;
-
-        ServContractLine.Reset();
-        if ServContractLine.SetCurrentKey("Serial No.") then;
-        ServContractLine.SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
-        ServContractLine.SetFilter("Item No.", ItemFilters.GetFilter("No."));
-        ServContractLine.SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
-        if ServContractLine.FindSet() then
-            repeat
-                RecRef.GetTable(ServContractLine);
-                Clear(ItemTrackingSetup);
-                ItemTrackingSetup."Serial No." := ServContractLine."Serial No.";
-                InsertBufferRec(RecRef, ItemTrackingSetup, ServContractLine."Item No.", ServContractLine."Variant Code");
-            until ServContractLine.Next() = 0;
-    end;
-
-    local procedure FindSerialNoLoaner(var ItemFilters: Record Item)
-    begin
-        if not Loaner.ReadPermission then
-            exit;
-
-        Loaner.Reset();
-        if Loaner.SetCurrentKey("Serial No.") then;
-        Loaner.SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
-        Loaner.SetFilter("Item No.", ItemFilters.GetFilter("No."));
-        if Loaner.FindSet() then
-            repeat
-                RecRef.GetTable(Loaner);
-                Clear(ItemTrackingSetup);
-                ItemTrackingSetup."Serial No." := Loaner."Serial No.";
-                InsertBufferRec(RecRef, ItemTrackingSetup, Loaner."Item No.", '');
-            until Loaner.Next() = 0;
-    end;
-
-    local procedure FindSerialNoFiledContractLine(var ItemFilters: Record Item)
-    begin
-        if not FiledContractLine.ReadPermission then
-            exit;
-
-        FiledContractLine.Reset();
-        if FiledContractLine.SetCurrentKey("Serial No.") then;
-        FiledContractLine.SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
-        FiledContractLine.SetFilter("Item No.", ItemFilters.GetFilter("No."));
-        FiledContractLine.SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
-        if FiledContractLine.FindSet() then
-            repeat
-                RecRef.GetTable(FiledContractLine);
-                Clear(ItemTrackingSetup);
-                ItemTrackingSetup."Serial No." := FiledContractLine."Serial No.";
-                InsertBufferRec(RecRef, ItemTrackingSetup, FiledContractLine."Item No.", FiledContractLine."Variant Code");
-            until FiledContractLine.Next() = 0;
-    end;
-
     local procedure FindPackageNoInfo(var ItemFilters: Record Item)
     begin
         if not PackageNoInfo.ReadPermission then
@@ -382,14 +248,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                         FindSalesInvoice(ValueEntry."Document No.");
                     ValueEntry."Document Type"::"Sales Credit Memo":
                         FindSalesCrMemo(ValueEntry."Document No.");
-                    ValueEntry."Document Type"::"Service Invoice":
-                        FindServInvoice(ValueEntry."Document No.");
-                    ValueEntry."Document Type"::"Service Credit Memo":
-                        FindServCrMemo(ValueEntry."Document No.");
                     ValueEntry."Document Type"::"Purchase Invoice":
                         FindPurchInvoice(ValueEntry."Document No.");
                     ValueEntry."Document Type"::"Purchase Credit Memo":
                         FindPurchCrMemo(ValueEntry."Document No.");
+                    else
+                        OnSearchValueEntriesOnAfterFindValueEntry(ValueEntry);
                 end;
             until ValueEntry.Next() = 0;
     end;
@@ -450,21 +314,6 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             InsertBufferRecFromReservEntry();
             TempSalesLine := SalesLine;
             if TempSalesLine.Insert() then;
-        end;
-    end;
-
-    local procedure FindServiceLines()
-    var
-        ServLine: Record "Service Line";
-    begin
-        if not ServLine.ReadPermission then
-            exit;
-
-        if ServLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.") then begin
-            RecRef.GetTable(ServLine);
-            InsertBufferRecFromReservEntry();
-            TempServLine := ServLine;
-            if TempServLine.Insert() then;
         end;
     end;
 
@@ -600,53 +449,6 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             InsertBufferRecFromReservEntry();
             TempTransLine := TransLine;
             if TempTransLine.Insert() then;
-        end;
-    end;
-
-    local procedure FindServInvoice(DocumentNo: Code[20])
-    var
-        ServInvHeader: Record "Service Invoice Header";
-    begin
-        if not ServInvHeader.ReadPermission then
-            exit;
-
-        if ServInvHeader.Get(DocumentNo) then begin
-            RecRef.GetTable(ServInvHeader);
-            InsertBufferRecFromItemLedgEntry();
-            TempServInvHeader := ServInvHeader;
-            if TempServInvHeader.Insert() then;
-        end;
-    end;
-
-    local procedure FindServCrMemo(DocumentNo: Code[20])
-    var
-        ServCrMemoHeader: Record "Service Cr.Memo Header";
-    begin
-        if not ServCrMemoHeader.ReadPermission then
-            exit;
-
-        if ServCrMemoHeader.Get(DocumentNo) then begin
-            RecRef.GetTable(ServCrMemoHeader);
-            InsertBufferRecFromItemLedgEntry();
-            TempServCrMemoHeader := ServCrMemoHeader;
-            if TempServCrMemoHeader.Insert() then;
-        end;
-    end;
-
-    local procedure FindServShptHeader(DocumentNo: Code[20])
-    var
-        ServShptHeader: Record "Service Shipment Header";
-    begin
-        if not ServShptHeader.ReadPermission then
-            exit;
-
-        if ServShptHeader.Get(DocumentNo) then begin
-            RecRef.GetTable(ServShptHeader);
-            InsertBufferRecFromItemLedgEntry();
-            TempServShptHeader := ServShptHeader;
-            if TempServShptHeader.Insert() then;
-            // Find Invoice if it exists
-            SearchValueEntries();
         end;
     end;
 
@@ -885,12 +687,6 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                             FindSalesShptHeader(ItemLedgEntry."Document No.");
                         ItemLedgEntry."Document Type"::"Sales Invoice":
                             FindSalesInvoice(ItemLedgEntry."Document No.");
-                        ItemLedgEntry."Document Type"::"Service Shipment":
-                            FindServShptHeader(ItemLedgEntry."Document No.");
-                        ItemLedgEntry."Document Type"::"Service Invoice":
-                            FindServInvoice(ItemLedgEntry."Document No.");
-                        ItemLedgEntry."Document Type"::"Service Credit Memo":
-                            FindServCrMemo(ItemLedgEntry."Document No.");
                         ItemLedgEntry."Document Type"::"Sales Return Receipt":
                             FindReturnRcptHeader(ItemLedgEntry."Document No.");
                         ItemLedgEntry."Document Type"::"Sales Credit Memo":
@@ -1050,8 +846,6 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                     case ReservEntry."Source Type" of
                         Database::"Sales Line":
                             FindSalesLines();
-                        Database::"Service Line":
-                            FindServiceLines();
                         Database::"Purchase Line":
                             FindPurchaseLines();
                         Database::"Requisition Line":
@@ -1141,18 +935,6 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 PAGE.Run(0, WhseActivLine);
             Database::"Registered Whse. Activity Line":
                 PAGE.Run(0, RgstrdWhseActivLine);
-            Database::"Service Item Line":
-                PAGE.Run(0, ServItemLine);
-            Database::Loaner:
-                PAGE.Run(0, Loaner);
-            Database::"Service Item":
-                PAGE.Run(0, ServiceItem);
-            Database::"Service Item Component":
-                PAGE.Run(0, ServiceItemComponent);
-            Database::"Service Contract Line":
-                PAGE.Run(0, ServContractLine);
-            Database::"Filed Contract Line":
-                PAGE.Run(0, FiledContractLine);
             Database::"Serial No. Information":
                 PAGE.Run(0, SerialNoInfo);
             Database::"Lot No. Information":
@@ -1181,12 +963,6 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 PAGE.Run(0, TempSalesInvHeader);
             Database::"Sales Cr.Memo Header":
                 PAGE.Run(0, TempSalesCrMemoHeader);
-            Database::"Service Shipment Header":
-                PAGE.Run(0, TempServShptHeader);
-            Database::"Service Invoice Header":
-                PAGE.Run(0, TempServInvHeader);
-            Database::"Service Cr.Memo Header":
-                PAGE.Run(0, TempServCrMemoHeader);
             Database::"Transfer Shipment Header":
                 PAGE.Run(0, TempTransShipHeader);
             Database::"Return Shipment Header":
@@ -1199,8 +975,6 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 PAGE.Run(0, TempProdOrder);
             Database::"Sales Line":
                 PAGE.Run(0, TempSalesLine);
-            Database::"Service Line":
-                PAGE.Run(0, TempServLine);
             Database::"Purchase Line":
                 PAGE.Run(0, TempPurchLine);
             Database::"Requisition Line":
@@ -1225,12 +999,14 @@ codeunit 6529 "Item Tracking Navigate Mgt."
                 PAGE.Run(0, TempPostedAssemblyLine);
             Database::"Posted Assembly Header":
                 PAGE.Run(0, TempPostedAssemblyHeader);
+            else
+                OnShowTable(TableNo, TempRecordBuffer);
         end;
 
         OnAfterShow(TableNo, TempRecordBuffer);
     end;
 
-    local procedure InsertBufferRecFromItemLedgEntry()
+    procedure InsertBufferRecFromItemLedgEntry()
     var
         TrackingRecRef: RecordRef;
     begin
@@ -1240,7 +1016,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         InsertBufferRec(RecRef, ItemTrackingSetup, ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code", TrackingRecRef);
     end;
 
-    local procedure InsertBufferRecFromReservEntry()
+    procedure InsertBufferRecFromReservEntry()
     begin
         Clear(ItemTrackingSetup);
         ItemTrackingSetup.CopyTrackingFromReservEntry(ReservEntry);
@@ -1424,7 +1200,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFindTrackingRecordsOnAfterFindSerialNo(var TempRecordBuffer: Record "Record Buffer" temporary; var ItemFilters: Record Item)
     begin
     end;
@@ -1441,6 +1217,16 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertBufferRecOnAfterCalcSkipProcedure(VariantCode: Code[10]; var SkipProcedure: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnSearchValueEntriesOnAfterFindValueEntry(ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowTable(TableNo: Integer; var TempRecordBuffer: Record "Record Buffer" temporary)
     begin
     end;
 }

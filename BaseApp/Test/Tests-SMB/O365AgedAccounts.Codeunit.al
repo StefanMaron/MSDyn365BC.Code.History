@@ -919,33 +919,29 @@ codeunit 138027 "O365 Aged Accounts"
 
     local procedure CreateCustomerLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; PostingDate: Date; DueDate: Date; AmountLCY: Decimal; DocOpen: Boolean; DocType: Enum "Gen. Journal Document Type"; CustPostingGroup: Code[20])
     begin
-        with CustLedgerEntry do begin
-            Init();
-            "Entry No." := GetCustLedgEntryNo();
-            "Due Date" := DueDate;
-            "Customer No." := CustomerNo;
-            Open := DocOpen;
-            "Document Type" := DocType;
-            "Customer Posting Group" := CustPostingGroup;
-            Insert();
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := GetCustLedgEntryNo();
+        CustLedgerEntry."Due Date" := DueDate;
+        CustLedgerEntry."Customer No." := CustomerNo;
+        CustLedgerEntry.Open := DocOpen;
+        CustLedgerEntry."Document Type" := DocType;
+        CustLedgerEntry."Customer Posting Group" := CustPostingGroup;
+        CustLedgerEntry.Insert();
 
-            CreateDetailedCustLedgEntry("Entry No.", AmountLCY, PostingDate, DocType);
-        end;
+        CreateDetailedCustLedgEntry(CustLedgerEntry."Entry No.", AmountLCY, PostingDate, DocType);
     end;
 
     local procedure CreateDetailedCustLedgEntry(CustLedgNo: Integer; AmountLCY: Decimal; PostingDate: Date; DocType: Enum "Gen. Journal Document Type")
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            Init();
-            "Entry No." := GetDetailedCustLedgEntryNo();
-            "Cust. Ledger Entry No." := CustLedgNo;
-            "Posting Date" := PostingDate;
-            "Amount (LCY)" := AmountLCY;
-            "Document Type" := DocType;
-            Insert();
-        end;
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := GetDetailedCustLedgEntryNo();
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgNo;
+        DetailedCustLedgEntry."Posting Date" := PostingDate;
+        DetailedCustLedgEntry."Amount (LCY)" := AmountLCY;
+        DetailedCustLedgEntry."Document Type" := DocType;
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure GetCustLedgEntryNo(): Integer
@@ -970,32 +966,28 @@ codeunit 138027 "O365 Aged Accounts"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            Init();
-            "Entry No." := GetVendLedgEntryNo();
-            "Due Date" := DueDate;
-            "Vendor No." := VendorNo;
-            Open := true;
-            "Document Type" := "Document Type"::Invoice;
-            Insert();
+        VendLedgEntry.Init();
+        VendLedgEntry."Entry No." := GetVendLedgEntryNo();
+        VendLedgEntry."Due Date" := DueDate;
+        VendLedgEntry."Vendor No." := VendorNo;
+        VendLedgEntry.Open := true;
+        VendLedgEntry."Document Type" := VendLedgEntry."Document Type"::Invoice;
+        VendLedgEntry.Insert();
 
-            CreateDetailedVendLedgEntry("Entry No.", AmountLCY, DueDate);
-        end;
+        CreateDetailedVendLedgEntry(VendLedgEntry."Entry No.", AmountLCY, DueDate);
     end;
 
     local procedure CreateDetailedVendLedgEntry(VendLedgEntryNo: Integer; AmountLCY: Decimal; PostingDate: Date)
     var
         DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendLedgEntry do begin
-            Init();
-            "Entry No." := GetDetailedVendLedgEntryNo();
-            "Vendor Ledger Entry No." := VendLedgEntryNo;
-            "Posting Date" := PostingDate;
-            "Amount (LCY)" := AmountLCY;
-            "Document Type" := "Document Type"::Invoice;
-            Insert();
-        end;
+        DetailedVendLedgEntry.Init();
+        DetailedVendLedgEntry."Entry No." := GetDetailedVendLedgEntryNo();
+        DetailedVendLedgEntry."Vendor Ledger Entry No." := VendLedgEntryNo;
+        DetailedVendLedgEntry."Posting Date" := PostingDate;
+        DetailedVendLedgEntry."Amount (LCY)" := AmountLCY;
+        DetailedVendLedgEntry."Document Type" := DetailedVendLedgEntry."Document Type"::Invoice;
+        DetailedVendLedgEntry.Insert();
     end;
 
     local procedure GetVendLedgEntryNo(): Integer

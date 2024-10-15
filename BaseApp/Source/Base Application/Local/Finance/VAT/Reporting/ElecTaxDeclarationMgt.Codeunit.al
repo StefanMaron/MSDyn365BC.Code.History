@@ -167,7 +167,7 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
     /// <param name="ResponseNo">ResponseNo of the first response message</param>
     /// <param name="ElecTaxDeclResponseMsg">Record where the response messages will get stored in</param>
     [NonDebuggable]
-    procedure ReceiveResponse(MessageID: Text; ResponseUrl: Text; ResponseNo: Integer; VAR ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg.")
+    procedure ReceiveResponse(MessageID: Text; ResponseUrl: Text; ResponseNo: Integer; var ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg.")
     var
         DotNet_SecureString: Codeunit DotNet_SecureString;
         ClientCertificateBase64: Text;
@@ -178,7 +178,7 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
     end;
 
     [NonDebuggable]
-    procedure ReceiveResponse(MessageID: Text; ResponseUrl: Text; ResponseNo: Integer; VAR ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg."; ClientCertificateBase64: Text; DotNet_SecureString: Codeunit DotNet_SecureString; ServiceCertificateBase64: Text)
+    procedure ReceiveResponse(MessageID: Text; ResponseUrl: Text; ResponseNo: Integer; var ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg."; ClientCertificateBase64: Text; DotNet_SecureString: Codeunit DotNet_SecureString; ServiceCertificateBase64: Text)
     var
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
         DigipoortCommunication: Codeunit "Digipoort Communication";
@@ -299,7 +299,7 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         VATReportHeaderForResponseMessage := VATReportHeader;
     end;
 
-    local procedure SetVATReportHeaderOnResponseMessage(VAR ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg.")
+    local procedure SetVATReportHeaderOnResponseMessage(var ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg.")
     begin
         if VATReportHeaderForResponseMessage."Message Id" = '' then
             exit;
@@ -397,7 +397,7 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         GetCertificates(ClientCertificateCode, ServiceCertificateCode, ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64);
     end;
 
-    local procedure GetCertificates(ClientCertificateCode: Code[20]; ServiceCertificateCode: Code[20]; VAR ClientCertificateBase64: Text; VAR DotNet_SecureString: Codeunit DotNet_SecureString; VAR ServiceCertificateBase64: Text)
+    local procedure GetCertificates(ClientCertificateCode: Code[20]; ServiceCertificateCode: Code[20]; var ClientCertificateBase64: Text; var DotNet_SecureString: Codeunit DotNet_SecureString; var ServiceCertificateBase64: Text)
     var
         IsolatedCertificate: Record "Isolated Certificate";
         CertificateManagement: Codeunit "Certificate Management";

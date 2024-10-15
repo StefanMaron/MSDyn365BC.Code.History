@@ -85,7 +85,7 @@ report 11000008 "Export BBV"
                             else
                                 if "Currency Code" <> '' then
                                     Settlementmethod_01(Text1000009);
-                    end else begin
+                    end else
                         if (("Foreign Currency" = '') and ("Foreign Amount" <> 0)) and
                            (AccountingSetup."Local Currency" = 0)
                         then
@@ -98,7 +98,6 @@ report 11000008 "Export BBV"
                             else
                                 if "Foreign Currency" <> '' then
                                     Settlementmethod_01(Text1000009);
-                    end;
 
                     if "Acc. Hold. Country/Region Code" <> '' then
                         Landcodeben_03("Acc. Hold. Country/Region Code")

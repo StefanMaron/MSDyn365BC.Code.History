@@ -383,6 +383,7 @@ page 1818 "Cash Flow Forecast Wizard"
         CashFlowSetup: Record "Cash Flow Setup";
         CashFlowManagement: Codeunit "Cash Flow Management";
         GuidedExperience: Codeunit "Guided Experience";
+        APIKeyAsSecretText: SecretText;
     begin
         CashFlowManagement.SetupCashFlow(LiquidFundsGLAccountFilter);
 
@@ -392,7 +393,8 @@ page 1818 "Cash Flow Forecast Wizard"
         CashFlowSetup.Get();
         CashFlowSetup.Validate("Azure AI Enabled", AzureAIEnabled);
         CashFlowSetup.Validate("API URL", APIURL);
-        CashFlowSetup.SaveUserDefinedAPIKey(APIKEY);
+        APIKeyAsSecretText := APIKEY;
+        CashFlowSetup.SaveUserDefinedAPIKey(APIKeyAsSecretText);
         CashFlowSetup.Validate("Automatic Update Frequency", UpdateFrequency);
         CashFlowSetup.Modify();
 

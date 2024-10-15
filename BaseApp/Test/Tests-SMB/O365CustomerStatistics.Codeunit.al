@@ -116,15 +116,14 @@ codeunit 138009 "O365 Customer Statistics"
         CreateInvoiceAndPayItPartially(Customer);
         Day1 := LibraryRandom.RandIntInRange(1, 50);
 
-        for i := 1 to 2 do
-            with CustLedgEntryInv do begin
-                CreateBasicCustLedgerEntryWithNoise(CustLedgEntryInv, Customer."No.");
-                "Document Type" := "Document Type"::Invoice;
-                Open := false;
+        for i := 1 to 2 do begin
+            CreateBasicCustLedgerEntryWithNoise(CustLedgEntryInv, Customer."No.");
+            CustLedgEntryInv."Document Type" := CustLedgEntryInv."Document Type"::Invoice;
+            CustLedgEntryInv.Open := false;
 
-                "Closed at Date" := WorkDate() + Day1;
-                Modify();
-            end;
+            CustLedgEntryInv."Closed at Date" := WorkDate() + Day1;
+            CustLedgEntryInv.Modify();
+        end;
 
         ValidateAvgDaysToPay(Day1, Customer);
     end;
@@ -166,39 +165,33 @@ codeunit 138009 "O365 Customer Statistics"
 
     local procedure CreateBasicCustLedgerEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; CustNo: Code[20])
     begin
-        with CustLedgEntry do begin
-            Init();
-            if FindLast() then
-                "Entry No." += 1
-            else
-                "Entry No." := 1;
+        CustLedgEntry.Init();
+        if CustLedgEntry.FindLast() then
+            CustLedgEntry."Entry No." += 1
+        else
+            CustLedgEntry."Entry No." := 1;
 
-            "Customer No." := CustNo;
-            "Posting Date" := WorkDate();
-            Open := true;
-            Insert();
-        end;
+        CustLedgEntry."Customer No." := CustNo;
+        CustLedgEntry."Posting Date" := WorkDate();
+        CustLedgEntry.Open := true;
+        CustLedgEntry.Insert();
     end;
 
     local procedure CreateBasicCustLedgerEntryWithNoise(var CustLedgEntry: Record "Cust. Ledger Entry"; CustNo: Code[20])
     var
         CustLedgEntryNoise: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntryNoise do begin
-            CreateBasicCustLedgerEntry(CustLedgEntryNoise, CustNo);
-            "Document Type" := "Document Type"::Invoice;
-            Open := false;
-            Modify();
-        end;
+        CreateBasicCustLedgerEntry(CustLedgEntryNoise, CustNo);
+        CustLedgEntryNoise."Document Type" := CustLedgEntryNoise."Document Type"::Invoice;
+        CustLedgEntryNoise.Open := false;
+        CustLedgEntryNoise.Modify();
 
         CreateBasicCustLedgerEntry(CustLedgEntry, CustNo);
 
-        with CustLedgEntryNoise do begin
-            CreateBasicCustLedgerEntry(CustLedgEntryNoise, CustNo);
-            "Document Type" := "Document Type"::Payment;
-            Open := false;
-            Modify();
-        end;
+        CreateBasicCustLedgerEntry(CustLedgEntryNoise, CustNo);
+        CustLedgEntryNoise."Document Type" := CustLedgEntryNoise."Document Type"::Payment;
+        CustLedgEntryNoise.Open := false;
+        CustLedgEntryNoise.Modify();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer): Code[20]
@@ -212,23 +205,19 @@ codeunit 138009 "O365 Customer Statistics"
         CustLedgEntryInv: Record "Cust. Ledger Entry";
         CustLedgEntryPmnt: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntryInv do begin
-            CreateBasicCustLedgerEntryWithNoise(CustLedgEntryInv, Customer."No.");
-            "Document Type" := "Document Type"::Invoice;
-            Open := false;
+        CreateBasicCustLedgerEntryWithNoise(CustLedgEntryInv, Customer."No.");
+        CustLedgEntryInv."Document Type" := CustLedgEntryInv."Document Type"::Invoice;
+        CustLedgEntryInv.Open := false;
 
-            Modify();
-        end;
+        CustLedgEntryInv.Modify();
 
-        with CustLedgEntryPmnt do begin
-            CreateBasicCustLedgerEntryWithNoise(CustLedgEntryPmnt, Customer."No.");
-            "Document Type" := "Document Type"::Payment;
-            Open := false;
+        CreateBasicCustLedgerEntryWithNoise(CustLedgEntryPmnt, Customer."No.");
+        CustLedgEntryPmnt."Document Type" := CustLedgEntryPmnt."Document Type"::Payment;
+        CustLedgEntryPmnt.Open := false;
 
-            "Posting Date" += PaiInDays;
-            "Closed by Entry No." := CustLedgEntryInv."Entry No.";
-            Modify();
-        end;
+        CustLedgEntryPmnt."Posting Date" += PaiInDays;
+        CustLedgEntryPmnt."Closed by Entry No." := CustLedgEntryInv."Entry No.";
+        CustLedgEntryPmnt.Modify();
     end;
 
     local procedure CreateInvoiceAndPayIt(Customer: Record Customer; PaiInDays: Integer)
@@ -236,23 +225,19 @@ codeunit 138009 "O365 Customer Statistics"
         CustLedgEntryInv: Record "Cust. Ledger Entry";
         CustLedgEntryPmnt: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntryPmnt do begin
-            CreateBasicCustLedgerEntryWithNoise(CustLedgEntryPmnt, Customer."No.");
-            "Document Type" := "Document Type"::Payment;
-            Open := false;
+        CreateBasicCustLedgerEntryWithNoise(CustLedgEntryPmnt, Customer."No.");
+        CustLedgEntryPmnt."Document Type" := CustLedgEntryPmnt."Document Type"::Payment;
+        CustLedgEntryPmnt.Open := false;
 
-            "Posting Date" += PaiInDays;
-            Modify();
-        end;
+        CustLedgEntryPmnt."Posting Date" += PaiInDays;
+        CustLedgEntryPmnt.Modify();
 
-        with CustLedgEntryInv do begin
-            CreateBasicCustLedgerEntryWithNoise(CustLedgEntryInv, Customer."No.");
-            "Document Type" := "Document Type"::Invoice;
-            Open := false;
+        CreateBasicCustLedgerEntryWithNoise(CustLedgEntryInv, Customer."No.");
+        CustLedgEntryInv."Document Type" := CustLedgEntryInv."Document Type"::Invoice;
+        CustLedgEntryInv.Open := false;
 
-            "Closed by Entry No." := CustLedgEntryPmnt."Entry No.";
-            Modify();
-        end;
+        CustLedgEntryInv."Closed by Entry No." := CustLedgEntryPmnt."Entry No.";
+        CustLedgEntryInv.Modify();
     end;
 
     local procedure CreateInvoiceAndPayItPartially(Customer: Record Customer)
@@ -260,33 +245,27 @@ codeunit 138009 "O365 Customer Statistics"
         CustLedgEntryInv: Record "Cust. Ledger Entry";
         CustLedgEntryPmnt: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntryInv do begin
-            CreateBasicCustLedgerEntry(CustLedgEntryInv, Customer."No.");
-            "Document Type" := "Document Type"::Invoice;
+        CreateBasicCustLedgerEntry(CustLedgEntryInv, Customer."No.");
+        CustLedgEntryInv."Document Type" := CustLedgEntryInv."Document Type"::Invoice;
 
-            Modify();
-        end;
+        CustLedgEntryInv.Modify();
 
-        with CustLedgEntryPmnt do begin
-            CreateBasicCustLedgerEntryWithNoise(CustLedgEntryPmnt, Customer."No.");
-            "Document Type" := "Document Type"::Payment;
-            Open := false;
+        CreateBasicCustLedgerEntryWithNoise(CustLedgEntryPmnt, Customer."No.");
+        CustLedgEntryPmnt."Document Type" := CustLedgEntryPmnt."Document Type"::Payment;
+        CustLedgEntryPmnt.Open := false;
 
-            "Closed by Entry No." := CustLedgEntryInv."Entry No.";
-            Modify();
-        end;
+        CustLedgEntryPmnt."Closed by Entry No." := CustLedgEntryInv."Entry No.";
+        CustLedgEntryPmnt.Modify();
     end;
 
     local procedure CreatePostedInvoiceWithAmount(CustNo: Code[20]; InvAmount: Decimal)
     var
         CustLedgEntryInv: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntryInv do begin
-            CreateBasicCustLedgerEntry(CustLedgEntryInv, CustNo);
-            "Document Type" := "Document Type"::Invoice;
-            "Sales (LCY)" := InvAmount;
-            Modify();
-        end;
+        CreateBasicCustLedgerEntry(CustLedgEntryInv, CustNo);
+        CustLedgEntryInv."Document Type" := CustLedgEntryInv."Document Type"::Invoice;
+        CustLedgEntryInv."Sales (LCY)" := InvAmount;
+        CustLedgEntryInv.Modify();
     end;
 
     local procedure CreatePostedCrMemoWithAmount(CustNo: Code[20]; var InvAmount: Decimal)
@@ -294,12 +273,10 @@ codeunit 138009 "O365 Customer Statistics"
         CustLedgEntryInv: Record "Cust. Ledger Entry";
     begin
         InvAmount := -Abs(InvAmount);
-        with CustLedgEntryInv do begin
-            CreateBasicCustLedgerEntry(CustLedgEntryInv, CustNo);
-            "Document Type" := "Document Type"::"Credit Memo";
-            "Sales (LCY)" := InvAmount;
-            Modify();
-        end;
+        CreateBasicCustLedgerEntry(CustLedgEntryInv, CustNo);
+        CustLedgEntryInv."Document Type" := CustLedgEntryInv."Document Type"::"Credit Memo";
+        CustLedgEntryInv."Sales (LCY)" := InvAmount;
+        CustLedgEntryInv.Modify();
     end;
 
     local procedure CreateSalesHeaderWithAmount(var SalesHeader: Record "Sales Header"; CustNo: Code[20]; DocType: Enum "Sales Document Type"; InvAmount: Decimal)

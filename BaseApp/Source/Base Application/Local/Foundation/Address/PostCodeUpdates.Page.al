@@ -13,7 +13,7 @@ page 11408 "Post Code Updates"
     PageType = List;
     SourceTable = "Post Code Update Log Entry";
     SourceTableView = sorting("No.")
-                      order(Descending);
+                      order(descending);
     UsageCategory = Lists;
 
     layout

@@ -80,7 +80,7 @@ table 11000005 "Export Protocol"
         }
         field(30; "Check Name"; Text[30])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
                                                                            "Object ID" = field("Check ID")));
             Caption = 'Check Name';
             Editable = false;
@@ -93,7 +93,7 @@ table 11000005 "Export Protocol"
         }
         field(32; "Docket Name"; Text[30])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
                                                                            "Object ID" = field("Docket ID")));
             Caption = 'Docket Name';
             Editable = false;

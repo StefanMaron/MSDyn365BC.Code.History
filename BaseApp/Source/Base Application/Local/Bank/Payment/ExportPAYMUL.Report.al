@@ -52,13 +52,12 @@ report 11000009 "Export PAYMUL"
                     then begin
                         AccountingSetup.TestField("LCY Code");
                         CurrencycodePayment := Currencycode;
-                    end else begin
+                    end else
                         if "Foreign Currency" = '' then begin
                             AccountingSetup.TestField("LCY Code");
                             CurrencycodePayment := AccountingSetup."LCY Code";
                         end else
                             CurrencycodePayment := "Foreign Currency";
-                    end;
                     TotAmount := TotAmount + UseAmount;
 
                     Concerns := Format("Nature of the Payment", 0, '<standard format,0>');
@@ -648,12 +647,11 @@ report 11000009 "Export PAYMUL"
     begin
         PaymLine.SetRange("Our Bank", "Payment History"."Our Bank");
         PaymLine.SetRange("Run No.", "Payment History"."Run No.");
-        if PaymLine.FindFirst() then begin
+        if PaymLine.FindFirst() then
             if PaymLine."Currency Code" = '' then
                 CurrCode := AccountingSetup."LCY Code"
             else
                 CurrCode := PaymLine."Currency Code";
-        end;
     end;
 
     local procedure GetSequenceNo(): Text[10]

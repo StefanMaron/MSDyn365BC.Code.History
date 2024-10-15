@@ -10,9 +10,11 @@ codeunit 8619 "Config. Pckg. Compression Mgt."
     end;
 
     var
+#pragma warning disable AA0470
         FileNotExistErr: Label 'The file %1 does not exist.';
         FileAlreadyExistErr: Label 'The file name %1 already exists.';
         NotValidFileNameErr: Label '%1 is not a valid file name.';
+#pragma warning restore AA0470
 
     [Scope('OnPrem')]
     procedure ServersideCompress(SourceFilePath: Text; DestinationFilePath: Text)

@@ -612,15 +612,13 @@ codeunit 137268 "SCM Package Tracking Fixes"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemJnlLine."Item No.");
-            SetRange("Source Type", DATABASE::"Item Journal Line");
-            SetRange("Source ID", ItemJnlLine."Journal Template Name");
-            SetRange("Source Batch Name", ItemJnlLine."Journal Batch Name");
-            FindFirst();
+        ReservationEntry.SetRange("Item No.", ItemJnlLine."Item No.");
+        ReservationEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
+        ReservationEntry.SetRange("Source ID", ItemJnlLine."Journal Template Name");
+        ReservationEntry.SetRange("Source Batch Name", ItemJnlLine."Journal Batch Name");
+        ReservationEntry.FindFirst();
 
-            TestField("New Package No.", ExpectedPackageNo);
-        end;
+        ReservationEntry.TestField("New Package No.", ExpectedPackageNo);
     end;
 
     local procedure SelectItemJournal(var ItemJournalBatch: Record "Item Journal Batch")

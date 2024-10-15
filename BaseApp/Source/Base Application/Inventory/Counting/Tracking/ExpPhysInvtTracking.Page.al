@@ -31,7 +31,7 @@ page 5895 "Exp. Phys. Invt. Tracking"
                 field("Quantity (Base)"; Rec."Quantity (Base)")
                 {
                     ApplicationArea = ItemTracking;
-                    ToolTip = 'Specifies the expected quantity of Serial No. and Lot No. that relates to the Base Unit of Measure Code, in the Inventory Order Line.';
+                    ToolTip = 'Specifies the expected quantity of Serial No., Lot No. and Package No. that relates to the Base Unit of Measure Code, in the Inventory Order Line.';
                 }
                 field("Order No"; Rec."Order No")
                 {

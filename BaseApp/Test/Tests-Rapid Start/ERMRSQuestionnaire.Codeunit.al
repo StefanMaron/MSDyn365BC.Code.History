@@ -23,7 +23,6 @@ codeunit 136600 "ERM RS Questionnaire"
         QuestionnaireError: Label 'The record in table %1 already exists. Identification fields and values:';
         QuestionnaireRenameError: Label 'You cannot rename a configuration questionnaire.';
         MustNotExistError: Label 'Record %1 in %2 must not exist.';
-        FieldDoesNotExistError: Label 'The Field does not exist. Identification fields and values: TableNo=''%1'',No.=''0''';
         ValueMustEqualError: Label '%1 in %2 must equal to %3.';
         RecordNotImportedError: Label '%1 was not imported.';
         AnswerNotAppliedError: Label 'The answer was not applied.';
@@ -318,7 +317,7 @@ codeunit 136600 "ERM RS Questionnaire"
         asserterror QuestionnaireManagement.ApplyAnswers(ConfigQuestionnaire);
 
         // [THEN] Check that the application generates an error on applying answers for a field that does not exist.
-        Assert.ExpectedError(StrSubstNo(FieldDoesNotExistError, ConfigQuestionArea."Table ID"));
+        Assert.ExpectedErrorCannotFind(Database::Field);
     end;
 
     [Test]

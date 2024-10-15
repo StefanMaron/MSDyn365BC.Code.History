@@ -11,10 +11,12 @@ codeunit 1106 CostJnlManagement
 
     var
         OpenFromBatch: Boolean;
+#pragma warning disable AA0074
         Text001: Label 'STANDARD';
         Text002: Label 'Standard Template';
         Text003: Label 'DEFAULT';
         Text004: Label 'Default Batch';
+#pragma warning restore AA0074
 
     procedure TemplateSelection(var CostJnlLine: Record "Cost Journal Line"; var JnlSelected: Boolean)
     var

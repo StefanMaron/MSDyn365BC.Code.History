@@ -48,22 +48,34 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'cannot be less than zero';
         Text001: Label 'Item Tracking is signed wrongly.';
+#pragma warning disable AA0470
         Text003: Label 'Reserved item %1 is not on inventory.';
+#pragma warning restore AA0470
         Text004: Label 'is too low';
+#pragma warning restore AA0074
         TrackingSpecificationMissingErr: Label 'Tracking Specification is missing.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text012: Label 'Item %1 must be reserved.';
         Text014: Label 'Serial No. %1 is already on inventory.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SerialNoRequiredErr: Label 'You must assign a serial number for item %1.', Comment = '%1 - Item No.';
         LotNoRequiredErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
         LineNoTxt: Label ' Line No. = ''%1''.', Comment = '%1 - Line No.';
+#pragma warning disable AA0074
         Text017: Label ' is before the posting date.';
+#pragma warning disable AA0470
         Text018: Label 'Item Tracking Serial No. %1 Lot No. %2 for Item No. %3 Variant %4 cannot be fully applied.';
         Text021: Label 'You must not define item tracking on %1 %2.';
         Text022: Label 'You cannot apply %1 to %2 on the same item %3 on Production Order %4.';
+#pragma warning restore AA0470
         Text100: Label 'Fatal error when retrieving Tracking Specification.';
         Text99000000: Label 'must not be filled out when reservations exist';
+#pragma warning restore AA0074
         CannotUnapplyItemLedgEntryErr: Label 'You cannot proceed with the posting as it will result in negative inventory for item %1. \Item ledger entry %2 cannot be left unapplied.', Comment = '%1 - Item no., %2 - Item ledger entry no.';
         GLSetup: Record "General Ledger Setup";
         Currency: Record Currency;
@@ -137,22 +149,35 @@ codeunit 22 "Item Jnl.-Post Line"
         CalledFromAdjustment: Boolean;
         PostToGL: Boolean;
         ProdOrderCompModified: Boolean;
+#pragma warning disable AA0074
         Text023: Label 'Entries applied to an Outbound Transfer cannot be unapplied.';
         Text024: Label 'Entries applied to a Drop Shipment Order cannot be unapplied.';
+#pragma warning restore AA0074
         CannotUnapplyCorrEntryErr: Label 'Entries applied to a Correction entry cannot be unapplied.';
         IsServUndoConsumption: Boolean;
+#pragma warning disable AA0074
         Text027: Label 'A fixed application was not unapplied and this prevented the reapplication. Use the Application Worksheet to remove the applications.';
         Text01: Label 'Checking for open entries.';
+#pragma warning restore AA0074
         BlockRetrieveIT: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text029: Label '%1 %2 for %3 %4 is reserved for %5.';
         Text030: Label 'The quantity that you are trying to invoice is larger than the quantity in the item ledger with the entry number %1.';
         Text031: Label 'You cannot invoice the item %1 with item tracking number %2 %3 in this purchase order before the associated sales order %4 has been invoiced.', Comment = '%2 = Lot No. %3 = Serial No. Both are tracking numbers.';
         Text032: Label 'You cannot invoice item %1 in this purchase order before the associated sales order %2 has been invoiced.';
+#pragma warning restore AA0470
         Text033: Label 'Quantity must be -1, 0 or 1 when Serial No. is stated.';
+#pragma warning restore AA0074
         SkipApplicationCheck: Boolean;
         CalledFromApplicationWorksheet: Boolean;
         SkipSerialNoQtyValidation: Boolean;
 
+    /// <summary>
+    /// Posts the provided item journal line. The line is copied to a global variable. A check is performed to ensure the Item and Variant are not blocked.
+    /// </summary>
+    /// <param name="ItemJnlLine2">Item journal line to post.</param>
+    /// <returns>True if item journal line was posted, otherwise false.</returns>
     procedure RunWithCheck(var ItemJnlLine2: Record "Item Journal Line"): Boolean
     var
         TrackingSpecExists: Boolean;
@@ -172,6 +197,12 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(PostSplitJnlLine(ItemJnlLine2, TrackingSpecExists));
     end;
 
+    /// <summary>
+    /// Posts the item journal line. Item journal lines are split before posting based on item tracking specification.
+    /// </summary>
+    /// <param name="ItemJnlLine2">Item journal line to post.</param>
+    /// <param name="ReservationEntry">Return value: Get the set of reservation entries used in posting.</param>
+    /// <returns>True if item journal line was posted, otherwise false.</returns>
     procedure RunPostWithReservation(var ItemJnlLine2: Record "Item Journal Line"; var ReservationEntry: Record "Reservation Entry"): Boolean
     var
         TrackingSpecExists: Boolean;
@@ -329,6 +360,16 @@ codeunit 22 "Item Jnl.-Post Line"
         OnAfterPostItemJnlLine(ItemJnlLine, GlobalItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment, CalledFromInvtPutawayPick, ItemReg, ItemLedgEntryNo, ItemApplnEntryNo, WhseJnlRegisterLine);
     end;
 
+    /// <summary>
+    /// Splits the item journal line into multiple lines based on item tracking specification and posts them.
+    /// <remarks>
+    /// After posting, corrects the valuation date of output entries in the item ledger 
+    /// based on the maximum consumption valuation date.
+    /// </remarks>
+    /// </summary>
+    /// <param name="ItemJnlLineToPost">Item journal line to post.</param>
+    /// <param name="TrackingSpecExists">True, if item tracking exists, otherwise false.</param>
+    /// <returns>True if item journal line was posted, otherwise false.</returns>
     procedure PostSplitJnlLine(var ItemJnlLineToPost: Record "Item Journal Line"; TrackingSpecExists: Boolean): Boolean
     var
         PostItemJnlLine: Boolean;
@@ -731,6 +772,10 @@ codeunit 22 "Item Jnl.-Post Line"
         ProdOrderRtngLine.Modify();
     end;
 
+    /// <summary>
+    /// Updates item journal line with information from the item or SKU and posts it creating item ledger, 
+    /// value and item application entries.
+    /// </summary>
     procedure PostItem()
     var
         IsHandled: Boolean;
@@ -1184,6 +1229,12 @@ codeunit 22 "Item Jnl.-Post Line"
         OnInsertCapValueEntryOnAfterUpdateCapLedgEntry(ValueEntry, ItemJournalLine);
     end;
 
+    /// <summary>
+    /// Posts the current item journal line in the global ItemJnlLine buffer, creating item ledger, value and application entries.
+    /// It checks if the quantity and invoiced quantity of the item journal line are different. If they are, 
+    /// it tests if the invoiced quantity is zero and raises an error otherwise.
+    /// Inserts an item ledger entry and a value entry from the item journal line information.
+    /// </summary>
     procedure ItemQtyPosting()
     var
         IsReserved: Boolean;
@@ -1278,6 +1329,13 @@ codeunit 22 "Item Jnl.-Post Line"
             ItemJnlLine.DisplayErrorIfItemVariantIsBlocked(ItemVariant);
     end;
 
+    /// <summary>
+    /// Posts balance of expected cost reversal if it's expected by item's costing method.
+    /// </summary>
+    /// <remarks>
+    /// If a balance is expected from a cost reversal based on the item's costing method and the properties of the 
+    /// item journal line then the procedure inserts a balance expected cost reversal entry for a value entry.
+    /// </remarks>
     procedure ItemValuePosting()
     var
         IsCostNotTracedDirectly: Boolean;
@@ -1452,6 +1510,14 @@ codeunit 22 "Item Jnl.-Post Line"
           OldItemJnlLine."Routing Reference No.", OldItemJnlLine."Routing No.", OldItemJnlLine."Operation No.");
     end;
 
+    /// <summary>
+    /// Posts the consumption of the component in a production order. 
+    /// </summary>
+    /// <param name="ProdOrder">Production order being posted.</param>
+    /// <param name="ProdOrderLine">Production order line being posted.</param>
+    /// <param name="ProdOrderComp">Production order component to post.</param>
+    /// <param name="ProdOrderRoutingLine">Production order routing line. This record is only used on events.</param>
+    /// <param name="OldItemJnlLine">Previous item journal line from which new one will be initialized.</param>
     procedure PostFlushedConsumption(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; OldItemJnlLine: Record "Item Journal Line")
     var
         CompItem: Record Item;
@@ -1573,6 +1639,10 @@ codeunit 22 "Item Jnl.-Post Line"
         OnAfterPostFlushedConsump(ProdOrderComp, ProdOrderRoutingLine, OldItemJnlLine);
     end;
 
+    /// <summary>
+    /// Updates the unit cost on item and SKU for the last direct cost from the value entry.
+    /// </summary>
+    /// <param name="ValueEntry">Value entry to calculate unit cost from.</param>
     procedure UpdateUnitCost(ValueEntry: Record "Value Entry")
     var
         ItemCostMgt: Codeunit ItemCostManagement;
@@ -1621,6 +1691,13 @@ codeunit 22 "Item Jnl.-Post Line"
         OnAfterUpdateUnitCost(ValueEntry, LastDirectCost, ItemJnlLine, Item);
     end;
 
+    /// <summary>
+    /// Unapplies the provided item application entry.
+    /// </summary>
+    /// <remarks>
+    /// Entries applied to an outbound transfer and drop shipment order cannot be unapplied.
+    /// </remarks>
+    /// <param name="ItemApplnEntry">Item application entry to unapply.</param>
     procedure UnApply(ItemApplnEntry: Record "Item Application Entry")
     var
         ItemLedgEntry1: Record "Item Ledger Entry";
@@ -1717,6 +1794,11 @@ codeunit 22 "Item Jnl.-Post Line"
         UpdateLinkedValuationUnapply(Valuationdate, CostItemLedgEntry."Entry No.", CostItemLedgEntry.Positive);
     end;
 
+    /// <summary>
+    /// Reapplies item ledger entries.
+    /// </summary>
+    /// <param name="ItemLedgEntry">Item ledger entry to reaplly.</param>
+    /// <param name="ApplyWith">Apply to item ledger entry no.</param>
     procedure ReApply(ItemLedgEntry: Record "Item Ledger Entry"; ApplyWith: Integer)
     var
         ItemLedgEntry2: Record "Item Ledger Entry";
@@ -1836,6 +1918,19 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(not Application.IsEmpty);
     end;
 
+    /// <summary>
+    /// Applies an item ledger entry to another item ledger entry.
+    /// </summary>
+    /// <remarks>
+    /// Usually used in inventory management where you want to match an incoming item ledger entry (like a purchase) 
+    /// with an outgoing item ledger entry (like a sale).
+    /// </remarks>
+    /// <param name="ItemLedgEntry">
+    /// Item Ledger entry to apply. If this is a cost application, the entry is marked as applied entry to adjust.
+    /// </param>
+    /// <param name="OldItemLedgEntry"> Return value: Item ledger entry the to-apply entry is applied to. </param>
+    /// <param name="ValueEntry">Return value: Value entry with updated valuation date.</param>
+    /// <param name="CausedByTransfer">Is caused by a transfer.</param>
     procedure ApplyItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry"; var OldItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; CausedByTransfer: Boolean)
     var
         ItemLedgEntry2: Record "Item Ledger Entry";
@@ -2339,6 +2434,10 @@ codeunit 22 "Item Jnl.-Post Line"
         OnAfterInsertTransferEntry(ItemJnlLine, NewItemLedgEntry, OldItemLedgEntry, NewValueEntry, ValueEntryNo);
     end;
 
+    /// <summary>
+    /// Initializes the item ledger entry record from the global item journal line variable.
+    /// </summary>
+    /// <param name="ItemLedgEntry">Return value: Initialized item ledger entry.</param>
     procedure InitItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry")
     begin
         ItemLedgEntryNo := ItemLedgEntryNo + 1;
@@ -2420,6 +2519,15 @@ codeunit 22 "Item Jnl.-Post Line"
         OnAfterInitItemLedgEntry(ItemLedgEntry, ItemJnlLine, ItemLedgEntryNo);
     end;
 
+    /// <summary>
+    /// Creates an item ledger entry record with information from the global journal line.
+    /// </summary>
+    /// <remarks>
+    /// If there is insufficient quantity of the item on the inventory, an error is raised.
+    /// Inserts or update an item register record.
+    /// </remarks>
+    /// <param name="ItemLedgEntry">Return value: Created item ledger entry.</param>
+    /// <param name="TransferItem">If true, new dimension information will be set.</param>
     procedure InsertItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry"; TransferItem: Boolean)
     var
         IsHandled: Boolean;
@@ -2560,6 +2668,10 @@ codeunit 22 "Item Jnl.-Post Line"
         end;
     end;
 
+    /// <summary>
+    /// Inserts a physical inventory ledger entry based on a given item journal line.
+    /// </summary>
+    /// <param name="ItemJournalLine">Item journal line to insert from.</param>
     procedure InsertPhysInventoryEntry(var ItemJournalLine: Record "Item Journal Line")
     var
         PhysInvtLedgEntry: Record "Phys. Inventory Ledger Entry";
@@ -2624,6 +2736,10 @@ codeunit 22 "Item Jnl.-Post Line"
         OnAfterInsertPhysInventoryEntry(PhysInvtLedgEntry, ItemJnlLineOrigin);
     end;
 
+    /// <summary>
+    /// Posts inventory transactions to the general ledger based on the provided value entry.
+    /// </summary>
+    /// <param name="ValueEntry">Value entry to post from.</param>
     procedure PostInventoryToGL(var ValueEntry: Record "Value Entry")
     var
         IsHandled: Boolean;
@@ -2670,6 +2786,19 @@ codeunit 22 "Item Jnl.-Post Line"
         ValueEntry."Expected Cost" := ExpectedCost;
     end;
 
+    /// <summary>
+    /// Creates an item application entry.
+    /// </summary>
+    /// <remarks>
+    /// If the item is non-inventoriable, procedure is not executed.
+    /// </remarks>
+    /// <param name="ItemLedgEntryNo">Item ledger entry no.</param>
+    /// <param name="InboundItemEntry">Inbound item ledger entry no.</param>
+    /// <param name="OutboundItemEntry">Outbound item ledger entry no.</param>
+    /// <param name="TransferedFromEntryNo">Transferred-from entry no.</param>
+    /// <param name="PostingDate">Item ledger entry posting date.</param>
+    /// <param name="Quantity">Item ledger entry quantity.</param>
+    /// <param name="CostToApply">If true, then cost application will be set to true.</param>
     procedure InsertApplEntry(ItemLedgEntryNo: Integer; InboundItemEntry: Integer; OutboundItemEntry: Integer; TransferedFromEntryNo: Integer; PostingDate: Date; Quantity: Decimal; CostToApply: Boolean)
     var
         ApplItemLedgEntry: Record "Item Ledger Entry";
@@ -3100,6 +3229,22 @@ codeunit 22 "Item Jnl.-Post Line"
         end;
     end;
 
+    /// <summary>
+    /// Inserts the value entry for an item ledger entry and posts it to the general ledger.
+    /// </summary>
+    /// <remarks>
+    /// Updates item ledger entry based on a value entry.
+    /// Posts value entry information to the general ledger.
+    /// Inserts or updates item register record based on a value entry.
+    /// </remarks>
+    /// <param name="ValueEntry">Return value: Inserted value entry record.</param>
+    /// <param name="ItemLedgEntry">Return value: Item ledger entry to insert value entry for.</param>
+    /// <param name="TransferItem">
+    /// If true, global dimension codes and dimension set ID will be changed to new shorcut dimension values 
+    /// instead of shortcut dimension values. A new shortcut dimension on an item journal line refers to adding a 
+    /// new dimension specifically for item-related entries, providing additional flexibility and analysis capabilities 
+    /// within the context of item transactions.
+    /// </param>
     procedure InsertValueEntry(var ValueEntry: Record "Value Entry"; var ItemLedgEntry: Record "Item Ledger Entry"; TransferItem: Boolean)
     var
         InvdValueEntry: Record "Value Entry";
@@ -3425,6 +3570,12 @@ codeunit 22 "Item Jnl.-Post Line"
         OutboundItemLedgEntry.Modify();
     end;
 
+    /// <summary>
+    /// Initializes a value entry record for a transfer item ledger entry.
+    /// Calculates the cost amounts and adjusted cost based on whether the average transfer is being used.
+    /// </summary>
+    /// <param name="ValueEntry">Return value: Initialized value entry.</param>
+    /// <param name="ItemLedgEntry">Item ledger entry to initialize value entry from.</param>
     procedure InitTransValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry")
     var
         AdjCostInvoicedLCY: Decimal;
@@ -4015,6 +4166,14 @@ codeunit 22 "Item Jnl.-Post Line"
         OnAfterMoveValEntryDimToValEntryDim(ToValueEntry, FromValueEntry);
     end;
 
+    /// <summary>
+    /// Updates reservation entries for the item ledger entry based on item order tracking requirements.
+    /// </summary>
+    /// <remarks>
+    /// If IsReserved parameter is false, and item doesn't have a tracking policy, reservations are not updated.
+    /// </remarks>
+    /// <param name="ItemLedgEntryRec">Item ledger entry to update reservation entries for.</param>
+    /// <param name="IsReserved">Indicates if the item ledger entry is reserved. </param>
     procedure AutoTrack(var ItemLedgEntryRec: Record "Item Ledger Entry"; IsReserved: Boolean)
     var
         ReservMgt: Codeunit "Reservation Management";
@@ -4037,6 +4196,13 @@ codeunit 22 "Item Jnl.-Post Line"
         ReservMgt.AutoTrack(ItemLedgEntryRec."Remaining Quantity");
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag PostponeReservationHandling.
+    /// </summary>
+    /// <remarks>
+    /// Used to skip reservation handling functionality.
+    /// </remarks>
+    /// <param name="Postpone">The new value to set.</param>
     procedure SetPostponeReservationHandling(Postpone: Boolean)
     begin
         // Used when posting Transfer Order receipts
@@ -4257,6 +4423,15 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(false);
     end;
 
+    /// <summary>
+    /// Copies all tracking specification lines from the global variable to the parameter, overriding all existing lines. 
+    /// After the transfer, all lines are deleted from the global record set.
+    /// </summary>
+    /// <remakrs>
+    /// Global and the provided target tracking specification record set is deleted.
+    /// </remakrs>
+    /// <param name="TargetTrackingSpecification">Return value: Copied tracking specification lines.</param>
+    /// <returns>True if any tracking specifications were transferred, otherwise false.</returns>
     procedure CollectTrackingSpecification(var TargetTrackingSpecification: Record "Tracking Specification" temporary) Result: Boolean
     var
         IsHandled: Boolean;
@@ -4282,6 +4457,16 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(true);
     end;
 
+    /// <summary>
+    /// Copies all value entry relation lines from the global variable to the parameter, overriding all existing lines. 
+    /// After the transfer, all lines are deleted from the global record set.
+    /// </summary>
+    /// <remakrs>
+    /// Global value entry relation record set is deleted after the transfer.
+    /// </remakrs>
+    /// <param name="TargetValueEntryRelation">Return value: Copied value entry relations lines.</param>
+    /// <param name="RowId">Unique identifier text of a line that will be used in source rowId field.</param>
+    /// <returns>True if any value entry relations were transferred, otherwise false.</returns>
     procedure CollectValueEntryRelation(var TargetValueEntryRelation: Record "Value Entry Relation" temporary; RowId: Text[250]): Boolean
     begin
         TempValueEntryRelation.Reset();
@@ -4301,6 +4486,15 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(true);
     end;
 
+    /// <summary>
+    /// Copies all item entry relation lines from the global variable to the parameter, overriding all existing lines. 
+    /// After the transfer, all lines are deleted from the global record set.
+    /// </summary>
+    /// <remakrs>
+    /// Global item entry relation record set is deleted after the transfer.
+    /// </remakrs>
+    /// <param name="TargetItemEntryRelation">Return value: Copied item entry relation lines.</param>
+    /// <returns>True if any item entry relation lines were transferred, otherwise false.</returns>
     procedure CollectItemEntryRelation(var TargetItemEntryRelation: Record "Item Entry Relation" temporary): Boolean
     begin
         TempItemEntryRelation.Reset();
@@ -4376,7 +4570,8 @@ codeunit 22 "Item Jnl.-Post Line"
 
             if (ItemJnlLine2."Entry Type" = ItemJnlLine2."Entry Type"::Transfer) and (ItemJnlLine2."Order Type" = ItemJnlLine2."Order Type"::Transfer) then begin
                 ItemTrackingSetup.CopyTrackingFromNewTrackingSpec(TempTrackingSpecification);
-                ItemTrackingMgt.ExistingExpirationDateAndQty(TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code", ItemTrackingSetup, SumOfEntries);
+                ExistingExpirationDate :=
+                    ItemTrackingMgt.ExistingExpirationDateAndQty(TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code", ItemTrackingSetup, SumOfEntries);
 
                 if TempTrackingSpecification."New Serial No." <> '' then
                     SumLot := SignFactor * ItemTrackingMgt.SumNewLotOnTrackingSpec(TempTrackingSpecification)
@@ -4585,6 +4780,11 @@ codeunit 22 "Item Jnl.-Post Line"
         OnAfterUndoQuantityPosting(NewItemLedgEntry, ItemJnlLine);
     end;
 
+    /// <summary>
+    /// Undoes the value entry posting of an item ledger entry with a job number.
+    /// </summary>
+    /// <param name="OldItemLedgEntryNo">Inbound item ledger entry number.</param>
+    /// <param name="NewItemLedgEntryNo">Outbound item ledger entry number.</param>
     procedure UndoValuePostingWithJob(OldItemLedgEntryNo: Integer; NewItemLedgEntryNo: Integer)
     var
         OldItemLedgEntry: Record "Item Ledger Entry";
@@ -4827,6 +5027,12 @@ codeunit 22 "Item Jnl.-Post Line"
         OnAfterCheckItemAndVariant(ItemJnlLine, CalledFromAdjustment);
     end;
 
+    /// <summary>
+    /// Checks the tracking information of an item journal. If serial, lot or package numbers are required but are missing, an error is thrown.
+    /// </summary>
+    /// <remarks>
+    /// If the journal line is a transfer, it also checks for new serial, lot and package numbers to be assigned during the posting.
+    /// </remarks>
     procedure CheckItemTracking()
     var
         IsHandled: Boolean;
@@ -4985,11 +5191,20 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(ItemJnlLine.IsNotInternalWhseMovement());
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag CalledFromInvtPutawayPick.
+    /// </summary>
+    /// <param name="NewCalledFromInvtPutawayPick">The new value to set.</param>
     procedure SetCalledFromInvtPutawayPick(NewCalledFromInvtPutawayPick: Boolean)
     begin
         CalledFromInvtPutawayPick := NewCalledFromInvtPutawayPick;
     end;
 
+    /// <summary>
+    /// Sets the values of the global flags CalledFromAdjustment and PostToGL.
+    /// </summary>
+    /// <param name="NewCalledFromAdjustment">The new value to set.</param>
+    /// <param name="NewPostToGL">The new value to set.</param>
     procedure SetCalledFromAdjustment(NewCalledFromAdjustment: Boolean; NewPostToGL: Boolean)
     begin
         OnBeforeSetCalledFromAdjustment(CalledFromAdjustment);
@@ -4998,6 +5213,11 @@ codeunit 22 "Item Jnl.-Post Line"
         PostToGL := NewPostToGL;
     end;
 
+    /// <summary>
+    /// Determines if the next operation number exists on the provided production order routing line.
+    /// </summary>
+    /// <param name="ProdOrderRtngLine">Production order routing line to check.</param>
+    /// <returns>True if next operation number exists, otherwise false.</returns>
     procedure NextOperationExist(var ProdOrderRtngLine: Record "Prod. Order Routing Line"): Boolean
     begin
         OnBeforeNextOperationExist(ProdOrderRtngLine);
@@ -5122,6 +5342,12 @@ codeunit 22 "Item Jnl.-Post Line"
             end;
     end;
 
+    /// <summary>
+    /// Determines if an adjustment is allowed on a given posting date based on the automatic cost adjustment setting 
+    /// in the inventory setup.
+    /// </summary>
+    /// <param name="TheDate">The date to check.</param>
+    /// <returns>True if adjustment is allowed, otherwise false.</returns>
     procedure AllowAdjmtOnPosting(TheDate: Date): Boolean
     begin
         GetInvtSetup();
@@ -5385,6 +5611,12 @@ codeunit 22 "Item Jnl.-Post Line"
         end;
     end;
 
+    /// <summary>
+    /// Reapplies all touched item ledger entries with remaining quantity, and deletes them afterwards.
+    /// </summary>
+    /// <remarks>
+    /// Touched item ledger entries are entries that have been marked or identified in some way during the posting process.
+    /// </remarks>
     procedure RedoApplications()
     var
         TouchedItemLedgEntry: Record "Item Ledger Entry";
@@ -5430,6 +5662,9 @@ codeunit 22 "Item Jnl.-Post Line"
         ValueEntry.ModifyAll("Valued By Average Cost", ValuedByAverage);
     end;
 
+    /// <summary>
+    /// Performs an inventory cost adjustment based on the automatic cost adjustment setting in the inventory setup.
+    /// </summary>
     procedure CostAdjust()
     var
         InvtSetup: Record "Inventory Setup";
@@ -5447,6 +5682,10 @@ codeunit 22 "Item Jnl.-Post Line"
         end;
     end;
 
+    /// <summary>
+    /// Marks an item ledger entry as touched by inserting it into a global buffer.
+    /// </summary>
+    /// <param name="EntryNo">Item ledger entry to mark.</param>
     procedure TouchEntry(EntryNo: Integer)
     var
         TouchedItemLedgEntry: Record "Item Ledger Entry";
@@ -5478,6 +5717,10 @@ codeunit 22 "Item Jnl.-Post Line"
         end;
     end;
 
+    /// <summary>
+    /// Determines if there are any temporary touched item ledger entries on the global record set.
+    /// </summary>
+    /// <returns>True if touched entires exists, otherwise false.</returns>
     procedure AnyTouchedEntries(): Boolean
     begin
         exit(TempTouchedItemLedgerEntries.Find('-'));
@@ -5524,6 +5767,16 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(Date2);
     end;
 
+    /// <summary>
+    /// Sets the valuation date of all value entry records associated with a given item ledger entry no. to a given date.
+    /// </summary>
+    /// <remarks>
+    /// The date is modified if the valuation date is not equal to the posting date, or if it's less than the given date, 
+    /// or if it's greater than the given date and the application is fixed.
+    /// </remarks>
+    /// <param name="ItemLedgerEntryNo">Item ledger entry no. to find value entries for.</param>
+    /// <param name="ValuationDate">Valuation date to set.</param>
+    /// <param name="FixedApplication">Indicates if it's a fixed application.</param>
     procedure SetValuationDateAllValueEntrie(ItemLedgerEntryNo: Integer; ValuationDate: Date; FixedApplication: Boolean)
     var
         ValueEntry: Record "Value Entry";
@@ -5543,16 +5796,29 @@ codeunit 22 "Item Jnl.-Post Line"
             until ValueEntry.Next() = 0;
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag IsServUndoConsumption.
+    /// </summary>
+    /// <param name="Value">The new value to set.</param>
     procedure SetServUndoConsumption(Value: Boolean)
     begin
         IsServUndoConsumption := Value;
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag ProdOrderCompModified.
+    /// </summary>
+    /// <param name="ProdOrderCompIsModified">The new value to set.</param>
     procedure SetProdOrderCompModified(ProdOrderCompIsModified: Boolean)
     begin
         ProdOrderCompModified := ProdOrderCompIsModified;
     end;
 
+    /// <summary>
+    /// Updates the country/region on the new item ledger entry based on the new or existing item ledger entry's location.
+    /// </summary>
+    /// <param name="NewItemLedgEntry">Return value: New item ledger entry with updated coutnry/region code.</param>
+    /// <param name="ItemLedgEntry">Existing item ledger entry.</param>
     procedure InsertCountryCode(var NewItemLedgEntry: Record "Item Ledger Entry"; ItemLedgEntry: Record "Item Ledger Entry")
     begin
         if ItemLedgEntry."Location Code" = '' then
@@ -5768,6 +6034,17 @@ codeunit 22 "Item Jnl.-Post Line"
         JobPlanningLineReserve.TransferJobLineToItemJnlLine(TempJobPlanningLine, ToItemJnlLine, ToItemJnlLine."Quantity (Base)");
     end;
 
+    /// <summary>
+    /// Splits a journal line based on the current global tracking specification line and stores it into a global buffer.
+    /// </summary>
+    /// <param name="ItemJnlLine2">Item journal line to split.</param>
+    /// <param name="SignFactor">Sign factor to multiply all amounts with.</param>
+    /// <param name="NonDistrQuantity">Total quantity used for determining the splitting factor.</param>
+    /// <param name="NonDistrAmount">Total amount to split and set.</param>
+    /// <param name="NonDistrAmountACY">Total Amount (ACY) to split and set.</param>
+    /// <param name="NonDistrDiscountAmount">Discount amount to split and set.</param>
+    /// <param name="Invoice">Indicates if journal line was already invoiced.</param>
+    /// <returns>True if created split item journal line needs to be posted, otherwise false.</returns>
     procedure SetupTempSplitItemJnlLine(ItemJnlLine2: Record "Item Journal Line"; SignFactor: Integer; var NonDistrQuantity: Decimal; var NonDistrAmount: Decimal; var NonDistrAmountACY: Decimal; var NonDistrDiscountAmount: Decimal; Invoice: Boolean): Boolean
     var
         FloatingFactor: Decimal;
@@ -5954,6 +6231,11 @@ codeunit 22 "Item Jnl.-Post Line"
             exit(0);
 
         exit(-Abs(OldItemLedgerEntry."Reserved Quantity"));
+    end;
+
+    procedure RunOnPublishPostingInventoryToGL()
+    begin
+        OnPublishPostingInventoryToGL(ItemJnlLine, InventoryPostingToGL);
     end;
 
     [IntegrationEvent(false, false)]
@@ -6949,6 +7231,15 @@ codeunit 22 "Item Jnl.-Post Line"
     begin
     end;
 
+    /// <summary>
+    /// Prepares provided item journal line for posting and copies it to the global ItemJnlLine record.
+    /// </summary>
+    /// <remarks>
+    /// If General Ledger Setup has additional reporting currency record, that record is retrieved 
+    /// and mandatory fields are checked. Checks if an item and its variant are blocked and retrieve their records 
+    /// if they are not.
+    /// </remarks>
+    /// <param name="ItemJnlLineToPost">Item journal line to prepare.</param>
     procedure PrepareItem(var ItemJnlLineToPost: Record "Item Journal Line")
     begin
         ItemJnlLine.Copy(ItemJnlLineToPost);
@@ -6960,11 +7251,24 @@ codeunit 22 "Item Jnl.-Post Line"
         OnAfterPrepareItem(ItemJnlLineToPost);
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag SkipApplicationCheck.
+    /// </summary>
+    /// <remarks>
+    /// If true, then application check is not executed when an item ledger entry is applied to another item ledger entry.
+    /// </remarks>
+    /// <param name="NewValue">The new value to set.</param>
     procedure SetSkipApplicationCheck(NewValue: Boolean)
     begin
         SkipApplicationCheck := NewValue;
     end;
 
+    /// <summary>
+    /// Logs the application of an item ledger entry by creating a new item application entry record and 
+    /// adding it to the global temporary item application entry history record set.
+    /// </summary>
+    /// <param name="ApplyItemLedgEntry">Inbound item ledger entry record.</param>
+    /// <param name="AppliedItemLedgEntry">Applied item ledger entry record.</param>
     procedure LogApply(ApplyItemLedgEntry: Record "Item Ledger Entry"; AppliedItemLedgEntry: Record "Item Ledger Entry")
     var
         ItemApplnEntry: Record "Item Application Entry";
@@ -6982,6 +7286,11 @@ codeunit 22 "Item Jnl.-Post Line"
         AddToApplicationLog(ItemApplnEntry, true);
     end;
 
+    /// <summary>
+    /// Logs un-application of an item ledger entry to the global temporary item application entry history record set 
+    /// with cost application set to false.
+    /// </summary>
+    /// <param name="ItemApplnEntry">Item application entry to log.</param>
     procedure LogUnapply(ItemApplnEntry: Record "Item Application Entry")
     begin
         AddToApplicationLog(ItemApplnEntry, false);
@@ -7000,11 +7309,21 @@ codeunit 22 "Item Jnl.-Post Line"
         TempItemApplnEntryHistory.Insert();
     end;
 
+    /// <summary>
+    /// Clears the global item application entry history temporary record set.
+    /// </summary>
     procedure ClearApplicationLog()
     begin
         TempItemApplnEntryHistory.DeleteAll();
     end;
 
+    /// <summary>
+    /// Undoes the applications of item ledger entries based on the records in the global 
+    /// item application entry history temporary record set.
+    /// </summary>
+    /// <remarks>
+    /// Used during undo manual changes action on application worksheet page.
+    /// </remarks>
     procedure UndoApplications()
     var
         ItemLedgEntry: Record "Item Ledger Entry";
@@ -7028,6 +7347,10 @@ codeunit 22 "Item Jnl.-Post Line"
         TempItemApplnEntryHistory.Ascending(true);
     end;
 
+    /// <summary>
+    /// Returns whether the global item application entry history record set is empty.
+    /// </summary>
+    /// <returns>True if item application entry history record set is empty, otherwise false.</returns>
     procedure ApplicationLogIsEmpty(): Boolean
     begin
         exit(TempItemApplnEntryHistory.IsEmpty);
@@ -7047,11 +7370,22 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(StrSubstNo(BasicTextString, ItemNo) + StrSubstNo(LineNoTxt, LineNo));
     end;
 
+    /// <summary>
+    /// Returns the value of the global flag CalledFromAdjustment.
+    /// </summary>
+    /// <returns>The value of the global flag CalledFromAdjustment.</returns>
     procedure GetCalledFromAdjustment(): Boolean
     begin
         exit(CalledFromAdjustment);
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag CalledFromApplicationWorksheet.
+    /// </summary>
+    /// <remarks>
+    /// If false, then touched entries are not tracked.
+    /// </remarks>
+    /// <param name="IsCalledFromApplicationWorksheet">The new value to set.</param>
     procedure SetCalledFromApplicationWorksheet(IsCalledFromApplicationWorksheet: Boolean)
     begin
         CalledFromApplicationWorksheet := IsCalledFromApplicationWorksheet;
@@ -7080,6 +7414,13 @@ codeunit 22 "Item Jnl.-Post Line"
         ItemApplicationEntryHistory.Insert();
     end;
 
+    /// <summary>
+    /// Marks the entries that were previously modified by the current user as touched. Items of these entries are added to TempItem.
+    /// </summary>
+    /// <remarks>
+    /// Used when opening the application worksheet.
+    /// </remarks>
+    /// <param name="TempItem">Return value: A collection of items of touched entries.</param>
     procedure RestoreTouchedEntries(var TempItem: Record Item temporary)
     var
         ItemApplicationEntryHistory: Record "Item Application Entry History";
@@ -7198,6 +7539,15 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(not PostedExpCostValueEntry.IsEmpty);
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag SkipSerialNoQtyValidation.
+    /// </summary>
+    /// <remarks>
+    /// If true and item tracking code has serial number specific tracking enabled, it skips the checks.
+    /// Enabled serial number specific tracking ensures that items are accurately traced with specific serial or lot numbers 
+    /// both backward and forward in the supply chain, which is crucial for quality assurance and product recalls.
+    /// </remarks>
+    /// <param name="NewSkipSerialNoQtyValidation">The new value to set.</param>
     procedure SetSkipSerialNoQtyValidation(NewSkipSerialNoQtyValidation: Boolean)
     begin
         SkipSerialNoQtyValidation := NewSkipSerialNoQtyValidation;
@@ -7230,6 +7580,10 @@ codeunit 22 "Item Jnl.-Post Line"
         Error(Text027);
     end;
 
+    /// <summary>
+    /// Marks the inbound item ledger entries that are applied to a specific outbound item ledger entry for adjustment.
+    /// </summary>
+    /// <param name="OutboundItemLedgerEntryNo">Outbound item ledger entry no.</param>
     procedure MarkAppliedInboundItemEntriesForAdjustment(OutboundItemLedgerEntryNo: Integer)
     var
         InboundItemLedgerEntry: Record "Item Ledger Entry";
@@ -7855,6 +8209,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyItemLedgEntryOnAfterSetLoadFieldsOnReservEntry(var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPublishPostingInventoryToGL(ItemJournalLine: Record "Item Journal Line"; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L")
     begin
     end;
 

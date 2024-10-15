@@ -25,12 +25,20 @@ codeunit 5618 "Table Depr. Calculation"
         Percentage: Decimal;
         Year365Days: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'There are no lines defined for %1 %2 = %3.';
         Text001: Label '%1 = %2 and %3 %4 = %5 must not be different.';
+#pragma warning restore AA0470
         Text002: Label 'must be an unbroken sequence';
+#pragma warning disable AA0470
         Text003: Label 'Period must be specified in %1.';
+#pragma warning restore AA0470
         Text004: Label 'The number of days in an accounting period must not be less than 5.';
+#pragma warning disable AA0470
         Text005: Label 'cannot be %1 when %2 is %3 in %4 %5';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure GetTablePercent(DeprBookCode: Code[10]; DeprTableCode: Code[10]; FirstUserDefinedDeprDate: Date; StartingDate: Date; EndingDate: Date): Decimal
     var

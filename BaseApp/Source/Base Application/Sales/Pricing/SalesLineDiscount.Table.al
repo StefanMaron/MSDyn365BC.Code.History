@@ -8,7 +8,7 @@ using Microsoft.Sales.Customer;
 table 7004 "Sales Line Discount"
 {
     Caption = 'Sales Line Discount';
-#if not CLEAN23
+#if not CLEAN25
     LookupPageID = "Sales Line Discounts";
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';
@@ -203,9 +203,13 @@ table 7004 "Sales Line Discount"
     var
         Campaign: Record Campaign;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 cannot be after %2';
         Text001: Label '%1 must be blank.';
         Text003: Label 'You can only change the %1 and %2 from the Campaign Card when %3 = %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
 #if not CLEAN23
     [Obsolete('This table is replaced by the new implementation (V16) of price calculation: table Price List Line', '22.0')]

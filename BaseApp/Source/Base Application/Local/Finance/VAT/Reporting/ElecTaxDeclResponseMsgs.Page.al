@@ -19,7 +19,7 @@ page 11416 "Elec. Tax Decl. Response Msgs."
     PageType = List;
     SourceTable = "Elec. Tax Decl. Response Msg.";
     SourceTableView = sorting("No.")
-                      order(Ascending);
+                      order(ascending);
     UsageCategory = Tasks;
 
     layout

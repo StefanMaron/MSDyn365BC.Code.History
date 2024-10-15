@@ -10,7 +10,9 @@ using Microsoft.Warehouse.Journal;
 
 codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
 {
-    Permissions = TableData "Value Entry Relation" = ri;
+    Permissions = TableData "Item Entry Relation" = ri,
+                  TableData "Value Entry Relation" = ri,
+                  TableData "Tracking Specification" = rimd;
 
     trigger OnRun()
     begin
@@ -19,7 +21,11 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
     var
         ServiceLineReserve: Codeunit "Service Line-Reserve";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The %1 does not match the quantity defined in item tracking.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CheckTrackingSpecification(ServHeader: Record "Service Header"; var ServLine: Record "Service Line")
     var
@@ -121,6 +127,9 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
         if not ReservEntry.IsEmpty() then
             exit(true);
         ReservEntry.SetRange("Lot No.");
+        ReservEntry.SetFilter("Package No.", '<>%1', '');
+        if not ReservEntry.IsEmpty() then
+            exit(true);
 
         IsHandled := false;
         OnAfterCheckTrackingExists(ReservEntry, IsHandled);
@@ -232,7 +241,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
         if TempHandlingSpecification.Find('-') then begin
             repeat
                 ItemEntryRelation.InitFromTrackingSpec(TempHandlingSpecification);
-                ItemEntryRelation.TransferFieldsServShptLine(ServiceShptLine);
+                ServiceShptLine.TransferToItemEntryRelation(ItemEntryRelation);
                 ItemEntryRelation.Insert();
             until TempHandlingSpecification.Next() = 0;
             TempHandlingSpecification.DeleteAll();

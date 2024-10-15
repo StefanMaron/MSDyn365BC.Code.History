@@ -902,28 +902,26 @@ codeunit 137265 "SCM Package Tracking Purchase"
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
         LineNo: Integer;
     begin
-        with ItemChargeAssignmentPurch do begin
-            SetRange("Document Type", PurchLine."Document Type");
-            SetRange("Document No.", PurchLine."Document No.");
-            SetRange("Document Line No.", PurchLine."Line No.");
-            if FindLast() then
-                LineNo := "Line No."
-            else
-                LineNo := 0;
+        ItemChargeAssignmentPurch.SetRange("Document Type", PurchLine."Document Type");
+        ItemChargeAssignmentPurch.SetRange("Document No.", PurchLine."Document No.");
+        ItemChargeAssignmentPurch.SetRange("Document Line No.", PurchLine."Line No.");
+        if ItemChargeAssignmentPurch.FindLast() then
+            LineNo := ItemChargeAssignmentPurch."Line No."
+        else
+            LineNo := 0;
 
-            Init();
-            Validate("Document Type", PurchLine."Document Type");
-            Validate("Document No.", PurchLine."Document No.");
-            Validate("Document Line No.", PurchLine."Line No.");
-            Validate("Line No.", LineNo);
-            Validate("Item Charge No.", ItemChargeNo);
-            Validate("Item No.", ItemNo);
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Receipt);
-            Validate("Applies-to Doc. No.", PurchRcptLine."Document No.");
-            Validate("Applies-to Doc. Line No.", PurchRcptLine."Line No.");
-            Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
-            Insert();
-        end;
+        ItemChargeAssignmentPurch.Init();
+        ItemChargeAssignmentPurch.Validate("Document Type", PurchLine."Document Type");
+        ItemChargeAssignmentPurch.Validate("Document No.", PurchLine."Document No.");
+        ItemChargeAssignmentPurch.Validate("Document Line No.", PurchLine."Line No.");
+        ItemChargeAssignmentPurch.Validate("Line No.", LineNo);
+        ItemChargeAssignmentPurch.Validate("Item Charge No.", ItemChargeNo);
+        ItemChargeAssignmentPurch.Validate("Item No.", ItemNo);
+        ItemChargeAssignmentPurch.Validate("Applies-to Doc. Type", ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt);
+        ItemChargeAssignmentPurch.Validate("Applies-to Doc. No.", PurchRcptLine."Document No.");
+        ItemChargeAssignmentPurch.Validate("Applies-to Doc. Line No.", PurchRcptLine."Line No.");
+        ItemChargeAssignmentPurch.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        ItemChargeAssignmentPurch.Insert();
     end;
 
     [ConfirmHandler]

@@ -5,9 +5,6 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.Dimension.Correction;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Reversal;
-#if not CLEAN22
-using Microsoft.Finance.GeneralLedger.Review;
-#endif
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Navigate;
@@ -346,48 +343,6 @@ page 20 "General Ledger Entries"
                     ToolTip = 'Specifies if the general ledger entry is open.';
                     Visible = false;
                 }
-#if not CLEAN22
-                field("Closed by Entry No."; Rec."Closed by Entry No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by feature Review General Ledger Entries';
-                    ObsoleteTag = '22.0';
-                    ToolTip = 'Specifies the number of the entry that has been applied to (that has closed) the entry. ';
-                    Visible = false;
-                }
-                field("Closed at Date"; Rec."Closed at Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by feature Review General Ledger Entries';
-                    ObsoleteTag = '22.0';
-                    Editable = false;
-                    ToolTip = 'Specifies the date when the entry was applied to (closed).';
-                    Visible = false;
-                }
-                field("Closed by Amount"; Rec."Closed by Amount")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by feature Review General Ledger Entries';
-                    ObsoleteTag = '22.0';
-                    Editable = false;
-                    ToolTip = 'Specifies the amount that the entry was finally applied to (closed with).';
-                    Visible = false;
-                }
-                field("Applies-to ID"; Rec."Applies-to ID")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by feature Review General Ledger Entries';
-                    ObsoleteTag = '22.0';
-                    Editable = false;
-                    ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
-                    Visible = false;
-                }
-#endif
                 field("Dimension Set ID"; Rec."Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
@@ -601,31 +556,6 @@ page 20 "General Ledger Entries"
                         Rec.ShowValueEntries();
                     end;
                 }
-#if not CLEAN22
-                action("Applied E&ntries")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Applied E&ntries';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by feature Review General Ledger Entries';
-                    ObsoleteTag = '22.0';
-                    Image = Approve;
-                    ToolTip = 'View the ledger entries that have been applied to this entry.';
-
-                    trigger OnAction()
-                    var
-                        GLEABRec: Record "G/L Entry Application Buffer";
-                        GeneralLedgerEntriesApply: Page "General Ledger Entries Apply";
-                    begin
-                        GLEABRec.Init();
-                        GLEABRec."Entry No." := Rec."Entry No.";
-                        GeneralLedgerEntriesApply.SetAppliedEntries(Rec);
-                        if GLEABRec.Find('=><') then
-                            GeneralLedgerEntriesApply.SetRecord(GLEABRec);
-                        GeneralLedgerEntriesApply.Run();
-                    end;
-                }
-#endif
             }
         }
         area(processing)
@@ -655,29 +585,6 @@ page 20 "General Ledger Entries"
                         ReversalEntry.ReverseTransaction(Rec."Transaction No.")
                     end;
                 }
-#pragma warning disable AS0074
-#if not CLEAN22
-                action(ApplyEntries)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Apply Entries';
-                    Image = ApplyEntries;
-                    ShortCutKey = 'Shift+F11';
-                    ToolTip = 'Select one or more ledger entries that you want to apply this entry to so that the related posted documents are closed as paid or refunded.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Local feature is replaced with W1 extension Review G/L Entries';
-                    trigger OnAction()
-                    var
-                        GeneralLedgerEntriesApply: Page "General Ledger Entries Apply";
-                    begin
-                        Clear(GeneralLedgerEntriesApply);
-                        GeneralLedgerEntriesApply.SetAllEntries(Rec."G/L Account No.");
-                        GeneralLedgerEntriesApply.Run();
-                    end;
-                }
-#endif
-#pragma warning restore AS0074
                 group(IncomingDocument)
                 {
                     Caption = 'Incoming Document';

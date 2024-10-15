@@ -1317,18 +1317,16 @@ codeunit 136203 "Marketing Task Management"
         DateFormula: DateFormula;
     begin
         Evaluate(DateFormula, EndingDateFormula);
-        with Task do begin
-            Validate(Type, Type::Meeting);
-            Validate(Date, WorkDate());
-            Validate(Duration, 1440 * 60 * 1000);
-            Validate("All Day Event", true);
+        Task.Validate(Type, Task.Type::Meeting);
+        Task.Validate(Date, WorkDate());
+        Task.Validate(Duration, 1440 * 60 * 1000);
+        Task.Validate("All Day Event", true);
 
-            EndingDate := CalcDate(DateFormula, WorkDate());
-            Validate("Ending Date", EndingDate);
+        EndingDate := CalcDate(DateFormula, WorkDate());
+        Task.Validate("Ending Date", EndingDate);
 
-            TestField("Ending Date", EndingDate);
-            TestField("Ending Time", 0T);
-        end;
+        Task.TestField("Ending Date", EndingDate);
+        Task.TestField("Ending Time", 0T);
     end;
 
     local procedure CloseSalepersonsTask(CompletedBy: Code[20])
@@ -1427,13 +1425,11 @@ codeunit 136203 "Marketing Task Management"
 
     local procedure CreateMeetingTask(var Task: Record "To-do")
     begin
-        with Task do begin
-            Init();
-            Type := Type::Meeting;
-            "Start Time" := Time;
-            Date := WorkDate();
-            Insert(true);
-        end;
+        Task.Init();
+        Task.Type := Task.Type::Meeting;
+        Task."Start Time" := Time;
+        Task.Date := WorkDate();
+        Task.Insert(true);
     end;
 
     local procedure CreateSalespersonWithEmail(var SalespersonPurchaser: Record "Salesperson/Purchaser")

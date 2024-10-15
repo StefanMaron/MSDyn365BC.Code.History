@@ -12,5 +12,6 @@ permissionset 1347 "Job Queue - View"
     Permissions = tabledata "Scheduled Task" = R,
                   tabledata "Job Queue Category" = Rimd,
                   tabledata "Job Queue Entry" = Rimd,
-                  tabledata "Job Queue Log Entry" = Rimd;
+                  tabledata "Job Queue Log Entry" = Rimd,
+                  tabledata "Job Queue Role Center Cue" = Rimd;
 }

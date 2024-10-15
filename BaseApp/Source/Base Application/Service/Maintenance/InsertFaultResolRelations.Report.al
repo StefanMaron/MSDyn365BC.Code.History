@@ -85,8 +85,10 @@ report 6007 "Insert Fault/Resol. Relations"
         BasedOnServItemGr: Boolean;
         RetainManuallyInserted: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'You must fill in the From Date field.';
         Text001: Label 'You must fill in the To Date field.';
+#pragma warning restore AA0074
 
     procedure InitializeRequest(DateFrom: Date; ToDateFrom: Date; BasedOnServItemGrFrom: Boolean; RetainManuallyInsertedFrom: Boolean)
     begin

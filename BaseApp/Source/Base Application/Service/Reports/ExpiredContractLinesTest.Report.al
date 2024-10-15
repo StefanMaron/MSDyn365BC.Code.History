@@ -91,7 +91,7 @@ report 5987 "Expired Contract Lines - Test"
                     Error(Text000);
                 ServMgtSetup.Get();
                 if ServMgtSetup."Use Contract Cancel Reason" then
-                    if ReasonCode = '' then
+                    if ReasonCode2.Code = '' then
                         Error(Text001);
                 if GetFilter("Contract No.") = '' then
                     SetFilter("Contract No.", '<>%1', '');
@@ -116,25 +116,16 @@ report 5987 "Expired Contract Lines - Test"
                         Caption = 'Remove Lines to';
                         ToolTip = 'Specifies the date up to which you want to check for expired contract lines. The report includes contract lines with contract expiration dates on or before this date.';
                     }
-                    field(ReasonCode; ReasonCode)
+                    field(ReasonCode; ReasonCode2.Code)
                     {
                         ApplicationArea = Service;
                         Caption = 'Reason Code';
                         ToolTip = 'Specifies the reason code for the removal of lines from the contract. To see the existing reason codes, choose the field.';
-
-                        trigger OnLookup(var Text: Text): Boolean
-                        begin
-                            ReasonCode2.Reset();
-                            ReasonCode2.Code := ReasonCode;
-                            if PAGE.RunModal(0, ReasonCode2) = ACTION::LookupOK then begin
-                                ReasonCode2.Get(ReasonCode2.Code);
-                                ReasonCode := ReasonCode2.Code;
-                            end;
-                        end;
+                        TableRelation = "Reason Code".Code;
 
                         trigger OnValidate()
                         begin
-                            ReasonCode2.Get(ReasonCode);
+                            ReasonCode2.Get(ReasonCode2.Code);
                         end;
                     }
                     field("Reason Code"; ReasonCode2.Description)
@@ -174,24 +165,25 @@ report 5987 "Expired Contract Lines - Test"
         ReasonCode2: Record "Reason Code";
         DescriptionLine: Text[60];
         DelToDate: Date;
-        ReasonCode: Code[10];
         ServItemFilters: Text;
 
+#pragma warning disable AA0074
         Text000: Label 'You must fill in the Remove to field.';
         Text001: Label 'You must fill in the Reason Code field.';
         Text002: Label 'Would be removed';
+#pragma warning restore AA0074
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Expired_Contract_Lines___TestCaptionLbl: Label 'Expired Contract Lines - Test';
         Delete_Contract_Lines_toCaptionLbl: Label 'Delete Contract Lines to';
         Reason_CodeCaptionLbl: Label 'Reason Code';
         Service_Contract_Line__Contract_Expiration_Date_CaptionLbl: Label 'Contract Expiration Date';
 
-    procedure InitVariables(LocalDelToDate: Date; LocalReasonCode: Code[10])
+    procedure InitVariables(LocalDelToDate: Date; NewReasonCode: Code[10])
     begin
         DelToDate := LocalDelToDate;
-        ReasonCode := LocalReasonCode;
-        if ReasonCode <> '' then
-            ReasonCode2.Get(ReasonCode);
+        Clear(ReasonCode2);
+        if NewReasonCode <> '' then
+            ReasonCode2.Get(NewReasonCode);
     end;
 }
 

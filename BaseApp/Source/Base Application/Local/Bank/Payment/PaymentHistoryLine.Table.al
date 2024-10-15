@@ -504,7 +504,7 @@ table 11000002 "Payment History Line"
         Vend: Record Vendor;
         Empl: Record Employee;
     begin
-        if "Account No." <> '' then begin
+        if "Account No." <> '' then
             case "Account Type" of
                 "Account Type"::Customer:
                     begin
@@ -522,7 +522,7 @@ table 11000002 "Payment History Line"
                         exit(Empl.FullName());
                     end;
             end
-        end else
+        else
             exit('');
     end;
 
@@ -561,20 +561,17 @@ table 11000002 "Payment History Line"
             repeat
                 case DetailLine."Account Type" of
                     DetailLine."Account Type"::Vendor:
-                        if VendLedgEntry.Get(DetailLine."Serial No. (Entry)") then begin
+                        if VendLedgEntry.Get(DetailLine."Serial No. (Entry)") then
                             if not AppendUnstrRemitInfo(UnstrRemitInfo, Delimiter, VendLedgEntry."External Document No.") then
                                 exit;
-                        end;
                     DetailLine."Account Type"::Customer:
-                        if CustLedgEntry.Get(DetailLine."Serial No. (Entry)") then begin
+                        if CustLedgEntry.Get(DetailLine."Serial No. (Entry)") then
                             if not AppendUnstrRemitInfo(UnstrRemitInfo, Delimiter, CustLedgEntry."Document No.") then
                                 exit;
-                        end;
                     DetailLine."Account Type"::Employee:
-                        if EmplLedgEntry.Get(DetailLine."Serial No. (Entry)") then begin
+                        if EmplLedgEntry.Get(DetailLine."Serial No. (Entry)") then
                             if not AppendUnstrRemitInfo(UnstrRemitInfo, Delimiter, EmplLedgEntry."Document No.") then
                                 exit;
-                        end;
                 end;
             until DetailLine.Next() = 0;
 

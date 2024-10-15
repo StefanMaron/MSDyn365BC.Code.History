@@ -93,11 +93,9 @@ codeunit 144060 "SEPA CAMT Bank Statement"
           TempDebitCBGStatementLine, TempCreditCBGStatementLine.Amount + LibraryRandom.RandDec(10000, 2));
 
         InitCommonFileParameters(SEPACAMTFileParameters, TempCBGStatement, TempCreditCBGStatementLine, TempDebitCBGStatementLine);
-        with SEPACAMTFileParameters do begin
-            BankAccountNoFieldValue := BankAccount."Bank Account No.";
-            CcyFieldValue := BankAccount."Currency Code";
-            ClsBalFieldValue := Format(Abs(TempCreditCBGStatementLine.Amount - TempDebitCBGStatementLine.Amount), 0, 9);
-        end;
+        SEPACAMTFileParameters.BankAccountNoFieldValue := BankAccount."Bank Account No.";
+        SEPACAMTFileParameters.CcyFieldValue := BankAccount."Currency Code";
+        SEPACAMTFileParameters.ClsBalFieldValue := Format(Abs(TempCreditCBGStatementLine.Amount - TempDebitCBGStatementLine.Amount), 0, 9);
 
         WriteCAMTFile(SEPACAMTFileParameters);
 
@@ -222,10 +220,8 @@ codeunit 144060 "SEPA CAMT Bank Statement"
 
         InitSunshineFileParameters(
           SEPACAMTFileParameters, BankAccount, TempCBGStatement, TempCreditCBGStatementLine, TempDebitCBGStatementLine);
-        with SEPACAMTFileParameters do begin
-            AddtlNtryInfFieldValue := AddtlNtryInfFieldVal;
-            UstrdFieldValue1 := UstrdFieldVal;
-        end;
+        SEPACAMTFileParameters.AddtlNtryInfFieldValue := AddtlNtryInfFieldVal;
+        SEPACAMTFileParameters.UstrdFieldValue1 := UstrdFieldVal;
         WriteCAMTFile(SEPACAMTFileParameters);
 
         // Exercise.
@@ -272,11 +268,9 @@ codeunit 144060 "SEPA CAMT Bank Statement"
 
         InitSunshineFileParameters(
           SEPACAMTFileParameters, BankAccount, TempCBGStatement, TempCreditCBGStatementLine, TempDebitCBGStatementLine);
-        with SEPACAMTFileParameters do begin
-            UstrdFieldValue1 := UstrdFieldVal1;
-            UstrdFieldValue2 := UstrdFieldVal2;
-            UstrdFieldValue3 := UstrdFieldVal3;
-        end;
+        SEPACAMTFileParameters.UstrdFieldValue1 := UstrdFieldVal1;
+        SEPACAMTFileParameters.UstrdFieldValue2 := UstrdFieldVal2;
+        SEPACAMTFileParameters.UstrdFieldValue3 := UstrdFieldVal3;
 
         WriteCAMTFile(SEPACAMTFileParameters);
 
@@ -479,11 +473,9 @@ codeunit 144060 "SEPA CAMT Bank Statement"
 
         InitSunshineFileParameters(
           SEPACAMTFileParameters, BankAccount, TempCBGStatement, TempCreditCBGStatementLine, TempDebitCBGStatementLine);
-        with SEPACAMTFileParameters do begin
-            DbitFieldValue := 'wrongly formatted amount';
-            AddtlNtryInfFieldValue := InitAdditionalEntryInfFieldValue(1);
-            UstrdFieldValue1 := UstrdFieldVal;
-        end;
+        SEPACAMTFileParameters.DbitFieldValue := 'wrongly formatted amount';
+        SEPACAMTFileParameters.AddtlNtryInfFieldValue := InitAdditionalEntryInfFieldValue(1);
+        SEPACAMTFileParameters.UstrdFieldValue1 := UstrdFieldVal;
 
         WriteCAMTFile(SEPACAMTFileParameters);
 
@@ -625,11 +617,9 @@ codeunit 144060 "SEPA CAMT Bank Statement"
           TempDebitCBGStatementLine, LibraryRandom.RandDecInDecimalRange(1, TempCreditCBGStatementLine.Amount, 2));
 
         InitCommonFileParameters(SEPACAMTFileParameters, TempCBGStatement, TempCreditCBGStatementLine, TempDebitCBGStatementLine);
-        with SEPACAMTFileParameters do begin
-            IBANFieldValue := BankAccount.IBAN;
-            ClsBalFieldValue := Format(Abs(TempCreditCBGStatementLine.Amount - TempDebitCBGStatementLine.Amount), 0, 9);
-            CcyFieldValue := BankAccount."Currency Code";
-        end;
+        SEPACAMTFileParameters.IBANFieldValue := BankAccount.IBAN;
+        SEPACAMTFileParameters.ClsBalFieldValue := Format(Abs(TempCreditCBGStatementLine.Amount - TempDebitCBGStatementLine.Amount), 0, 9);
+        SEPACAMTFileParameters.CcyFieldValue := BankAccount."Currency Code";
 
         WriteCAMTFile(SEPACAMTFileParameters);
 
@@ -667,11 +657,9 @@ codeunit 144060 "SEPA CAMT Bank Statement"
           TempDebitCBGStatementLine, TempCreditCBGStatementLine.Amount + LibraryRandom.RandDec(10000, 2));
 
         InitCommonFileParameters(SEPACAMTFileParameters, TempCBGStatement, TempCreditCBGStatementLine, TempDebitCBGStatementLine);
-        with SEPACAMTFileParameters do begin
-            IBANFieldValue := BankAccount.IBAN;
-            ClsBalFieldValue := Format(Abs(TempCreditCBGStatementLine.Amount - TempDebitCBGStatementLine.Amount), 0, 9);
-            CcyFieldValue := BankAccount."Currency Code";
-        end;
+        SEPACAMTFileParameters.IBANFieldValue := BankAccount.IBAN;
+        SEPACAMTFileParameters.ClsBalFieldValue := Format(Abs(TempCreditCBGStatementLine.Amount - TempDebitCBGStatementLine.Amount), 0, 9);
+        SEPACAMTFileParameters.CcyFieldValue := BankAccount."Currency Code";
 
         WriteCAMTFile(SEPACAMTFileParameters);
 
@@ -1267,37 +1255,33 @@ codeunit 144060 "SEPA CAMT Bank Statement"
 
     local procedure InitCommonFileParameters(var SEPACAMTFileParameters: Record "SEPA CAMT File Parameters"; TempCBGStatement: Record "CBG Statement" temporary; TempCreditCBGStatementLine: Record "CBG Statement Line" temporary; TempDebitCBGStatementLine: Record "CBG Statement Line" temporary)
     begin
-        with SEPACAMTFileParameters do begin
-            Encoding := 'UTF-8';
-            Namespace := 'urn:iso:std:iso:20022:tech:xsd:camt.053.001.02';
-            StmtDateFieldValue := Format(TempCBGStatement.Date, 0, 9);
-            CrdtFieldValue := Format(TempCreditCBGStatementLine.Amount, 0, 9);
-            DbitFieldValue := Format(TempDebitCBGStatementLine.Amount, 0, 9);
-            CrdtDateFieldValue := Format(TempCreditCBGStatementLine.Date, 0, 9);
-            DbitDateFieldValue := Format(TempDebitCBGStatementLine.Date, 0, 9);
-            CrdtTextFieldValue := TempCreditCBGStatementLine."Document No.";
-            DbitTextFieldValue := TempDebitCBGStatementLine."Document No.";
-            NumberOfStatements := 1;
-            HasStatementDateTag := true;
-            HasClosingBalanceTag := true;
-            CdFieldValue := 'CLBD';
-            HasCdtDbtIndTagInBal := true;
-            HasCdtDbtIndTagInNtry := true;
-            if TempCreditCBGStatementLine.Amount - TempDebitCBGStatementLine.Amount > 0 then
-                BalCrdtDbtFieldValue := 'CRDT'
-            else
-                BalCrdtDbtFieldValue := 'DBIT';
-        end;
+        SEPACAMTFileParameters.Encoding := 'UTF-8';
+        SEPACAMTFileParameters.Namespace := 'urn:iso:std:iso:20022:tech:xsd:camt.053.001.02';
+        SEPACAMTFileParameters.StmtDateFieldValue := Format(TempCBGStatement.Date, 0, 9);
+        SEPACAMTFileParameters.CrdtFieldValue := Format(TempCreditCBGStatementLine.Amount, 0, 9);
+        SEPACAMTFileParameters.DbitFieldValue := Format(TempDebitCBGStatementLine.Amount, 0, 9);
+        SEPACAMTFileParameters.CrdtDateFieldValue := Format(TempCreditCBGStatementLine.Date, 0, 9);
+        SEPACAMTFileParameters.DbitDateFieldValue := Format(TempDebitCBGStatementLine.Date, 0, 9);
+        SEPACAMTFileParameters.CrdtTextFieldValue := TempCreditCBGStatementLine."Document No.";
+        SEPACAMTFileParameters.DbitTextFieldValue := TempDebitCBGStatementLine."Document No.";
+        SEPACAMTFileParameters.NumberOfStatements := 1;
+        SEPACAMTFileParameters.HasStatementDateTag := true;
+        SEPACAMTFileParameters.HasClosingBalanceTag := true;
+        SEPACAMTFileParameters.CdFieldValue := 'CLBD';
+        SEPACAMTFileParameters.HasCdtDbtIndTagInBal := true;
+        SEPACAMTFileParameters.HasCdtDbtIndTagInNtry := true;
+        if TempCreditCBGStatementLine.Amount - TempDebitCBGStatementLine.Amount > 0 then
+            SEPACAMTFileParameters.BalCrdtDbtFieldValue := 'CRDT'
+        else
+            SEPACAMTFileParameters.BalCrdtDbtFieldValue := 'DBIT';
     end;
 
     local procedure InitSunshineFileParameters(var SEPACAMTFileParameters: Record "SEPA CAMT File Parameters"; BankAccount: Record "Bank Account"; TempCBGStatement: Record "CBG Statement" temporary; TempCreditCBGStatementLine: Record "CBG Statement Line" temporary; TempDebitCBGStatementLine: Record "CBG Statement Line" temporary)
     begin
         InitCommonFileParameters(SEPACAMTFileParameters, TempCBGStatement, TempCreditCBGStatementLine, TempDebitCBGStatementLine);
-        with SEPACAMTFileParameters do begin
-            IBANFieldValue := BankAccount.IBAN;
-            CcyFieldValue := BankAccount."Currency Code";
-            ClsBalFieldValue := Format(Abs(TempCreditCBGStatementLine.Amount - TempDebitCBGStatementLine.Amount), 0, 9);
-        end;
+        SEPACAMTFileParameters.IBANFieldValue := BankAccount.IBAN;
+        SEPACAMTFileParameters.CcyFieldValue := BankAccount."Currency Code";
+        SEPACAMTFileParameters.ClsBalFieldValue := Format(Abs(TempCreditCBGStatementLine.Amount - TempDebitCBGStatementLine.Amount), 0, 9);
     end;
 
     local procedure InitUnstructuredTextFieldValue(): Text[140]
@@ -1327,16 +1311,14 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info.";
         RecRef: RecordRef;
     begin
-        with CBGStatementLineAddInfo do begin
-            Init();
-            "CBG Statement No." := CBGStatementLine."No.";
-            "CBG Statement Line No." := CBGStatementLine."Line No.";
-            RecRef.GetTable(CBGStatementLineAddInfo);
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            Description := PadStr(LibraryUtility.GenerateGUID(), MaxStrLen(Description), '0');
-            "Information Type" := InformationType;
-            Insert();
-        end;
+        CBGStatementLineAddInfo.Init();
+        CBGStatementLineAddInfo."CBG Statement No." := CBGStatementLine."No.";
+        CBGStatementLineAddInfo."CBG Statement Line No." := CBGStatementLine."Line No.";
+        RecRef.GetTable(CBGStatementLineAddInfo);
+        CBGStatementLineAddInfo."Line No." := LibraryUtility.GetNewLineNo(RecRef, CBGStatementLineAddInfo.FieldNo("Line No."));
+        CBGStatementLineAddInfo.Description := PadStr(LibraryUtility.GenerateGUID(), MaxStrLen(CBGStatementLineAddInfo.Description), '0');
+        CBGStatementLineAddInfo."Information Type" := InformationType;
+        CBGStatementLineAddInfo.Insert();
     end;
 
     local procedure RemoveDataExchColumnDef(var TempDataExchColumnDef: Record "Data Exch. Column Def" temporary; DataExchDefCode: Code[20]; Path: Text[250])
@@ -1380,14 +1362,12 @@ codeunit 144060 "SEPA CAMT Bank Statement"
 
     local procedure SetCBGStatementLineFilters(CBGStatement: Record "CBG Statement"; var ActualCBGStatementLine: Record "CBG Statement Line"; ExpectedCBGStatementLine: Record "CBG Statement Line"; Multiplier: Integer)
     begin
-        with ActualCBGStatementLine do begin
-            SetRange("Journal Template Name", CBGStatement."Journal Template Name");
-            SetRange("Statement Type", "Statement Type"::"Bank Account");
-            if CBGStatement."No." <> 0 then
-                SetRange("No.", CBGStatement."No.");
-            SetRange(Amount, Multiplier * ExpectedCBGStatementLine.Amount);
-            SetRange(Date, ExpectedCBGStatementLine.Date);
-        end;
+        ActualCBGStatementLine.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
+        ActualCBGStatementLine.SetRange("Statement Type", ActualCBGStatementLine."Statement Type"::"Bank Account");
+        if CBGStatement."No." <> 0 then
+            ActualCBGStatementLine.SetRange("No.", CBGStatement."No.");
+        ActualCBGStatementLine.SetRange(Amount, Multiplier * ExpectedCBGStatementLine.Amount);
+        ActualCBGStatementLine.SetRange(Date, ExpectedCBGStatementLine.Date);
     end;
 
     local procedure SetupFieldMapping(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; CodeunitId: Integer; EntryNoFieldId: Integer; LineNoFieldId: Integer; PreMappingCodeunitID: Integer; PostMappingCodeunitID: Integer)
@@ -1425,19 +1405,17 @@ codeunit 144060 "SEPA CAMT Bank Statement"
 
     local procedure VerifyCBGStatement(var CBGStatement: Record "CBG Statement"; GenJnlTemplate: Record "Gen. Journal Template"; ExpectedCBGStatement: Record "CBG Statement"; ExpClosingBalance: Decimal; ExpectedNumberOfOccurrences: Integer)
     begin
-        with CBGStatement do begin
-            SetRange("Journal Template Name", GenJnlTemplate.Name);
-            SetRange(Type, Type::"Bank/Giro");
-            SetRange("Account Type", "Account Type"::"Bank Account");
-            SetRange("Account No.", GenJnlTemplate."Bal. Account No.");
-            SetRange("No. Series", GenJnlTemplate."No. Series");
-            SetRange(Date, ExpectedCBGStatement.Date);
-            SetRange("Closing Balance", ExpClosingBalance);
-            SetRange(Currency, ExpectedCBGStatement.Currency);
-            Assert.AreEqual(ExpectedNumberOfOccurrences, Count, WrongNrOfCBGStatementLinesErr + GetFilters);
-            if ExpectedNumberOfOccurrences > 0 then
-                FindFirst();
-        end;
+        CBGStatement.SetRange("Journal Template Name", GenJnlTemplate.Name);
+        CBGStatement.SetRange(Type, CBGStatement.Type::"Bank/Giro");
+        CBGStatement.SetRange("Account Type", CBGStatement."Account Type"::"Bank Account");
+        CBGStatement.SetRange("Account No.", GenJnlTemplate."Bal. Account No.");
+        CBGStatement.SetRange("No. Series", GenJnlTemplate."No. Series");
+        CBGStatement.SetRange(Date, ExpectedCBGStatement.Date);
+        CBGStatement.SetRange("Closing Balance", ExpClosingBalance);
+        CBGStatement.SetRange(Currency, ExpectedCBGStatement.Currency);
+        Assert.AreEqual(ExpectedNumberOfOccurrences, CBGStatement.Count, WrongNrOfCBGStatementLinesErr + CBGStatement.GetFilters);
+        if ExpectedNumberOfOccurrences > 0 then
+            CBGStatement.FindFirst();
     end;
 
     local procedure VerifyCBGStatementLine(CBGStatement: Record "CBG Statement"; ExpectedCBGStatementLine: Record "CBG Statement Line"; Multiplier: Integer; ExpectedNumberOfOccurrences: Integer)
@@ -1453,12 +1431,10 @@ codeunit 144060 "SEPA CAMT Bank Statement"
     var
         CBGStatementLine: Record "CBG Statement Line";
     begin
-        with CBGStatementLine do begin
-            SetRange("Journal Template Name", CBGStatement."Journal Template Name");
-            SetRange("Statement Type", "Statement Type"::"Bank Account");
-            if CBGStatement."No." <> 0 then
-                SetRange("No.", CBGStatement."No.");
-        end;
+        CBGStatementLine.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
+        CBGStatementLine.SetRange("Statement Type", CBGStatementLine."Statement Type"::"Bank Account");
+        if CBGStatement."No." <> 0 then
+            CBGStatementLine.SetRange("No.", CBGStatement."No.");
 
         Assert.AreEqual(
           ExpectedNumberOfOccurrences, CBGStatementLine.Count, WrongNrOfCBGStatementLinesErr + CBGStatementLine.GetFilters);
@@ -1485,15 +1461,13 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         Assert.AreEqual(1, CBGStatementLine.Count, WrongNrOfCBGStatementLinesErr + CBGStatementLine.GetFilters);
         CBGStatementLine.FindFirst();
 
-        with CBGStatementLineAddInfo do begin
-            SetRange("Journal Template Name", CBGStatement."Journal Template Name");
-            SetRange("CBG Statement No.", CBGStatement."No.");
-            SetRange("CBG Statement Line No.", CBGStatementLine."Line No.");
-            Assert.IsTrue(Find('-'), 'Unable to find additional info for the CBG Statement Line.');
-            repeat
-                AdditionalInfoDescription += Description;
-            until Next() = 0;
-        end;
+        CBGStatementLineAddInfo.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
+        CBGStatementLineAddInfo.SetRange("CBG Statement No.", CBGStatement."No.");
+        CBGStatementLineAddInfo.SetRange("CBG Statement Line No.", CBGStatementLine."Line No.");
+        Assert.IsTrue(CBGStatementLineAddInfo.Find('-'), 'Unable to find additional info for the CBG Statement Line.');
+        repeat
+            AdditionalInfoDescription += CBGStatementLineAddInfo.Description;
+        until CBGStatementLineAddInfo.Next() = 0;
         Assert.AreEqual(ExpectedDescription, AdditionalInfoDescription, 'Unexpected description stored in CBGStatementLineAddInfo table.');
     end;
 
@@ -1519,29 +1493,25 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         if not ActualCBGStatementLine.FindFirst() then
             Assert.Fail('Cannot find CBG Statement Line with filters ' + ActualCBGStatementLine.GetFilters);
 
-        with CBGStatementLineAddInfo do begin
-            SetRange("Journal Template Name", CBGStatement."Journal Template Name");
-            SetRange("CBG Statement No.", CBGStatement."No.");
-            SetRange("CBG Statement Line No.", ActualCBGStatementLine."Line No.");
-            SetRange("Information Type", "Information Type"::"Account No. Balancing Account");
-            if not FindFirst() then
-                Assert.Fail(StrSubstNo('Unable to find additional info for the CBG Statement Line %1', ActualCBGStatementLine."No."));
-            if ExpectIBAN then
-                Assert.AreEqual(BankAccount.IBAN, Description, 'Incorrect IBAN');
-            if ExpectLocalBankAccount then
-                Assert.AreEqual(BankAccount."Bank Account No.", Description, 'Incorrect local bank account');
-        end;
+        CBGStatementLineAddInfo.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
+        CBGStatementLineAddInfo.SetRange("CBG Statement No.", CBGStatement."No.");
+        CBGStatementLineAddInfo.SetRange("CBG Statement Line No.", ActualCBGStatementLine."Line No.");
+        CBGStatementLineAddInfo.SetRange("Information Type", CBGStatementLineAddInfo."Information Type"::"Account No. Balancing Account");
+        if not CBGStatementLineAddInfo.FindFirst() then
+            Assert.Fail(StrSubstNo('Unable to find additional info for the CBG Statement Line %1', ActualCBGStatementLine."No."));
+        if ExpectIBAN then
+            Assert.AreEqual(BankAccount.IBAN, CBGStatementLineAddInfo.Description, 'Incorrect IBAN');
+        if ExpectLocalBankAccount then
+            Assert.AreEqual(BankAccount."Bank Account No.", CBGStatementLineAddInfo.Description, 'Incorrect local bank account');
     end;
 
     local procedure VerifyZeroCBGStatementLineAdditionalInfo(CBGStatement: Record "CBG Statement"; ExpectedDescription: Text[80])
     var
         CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info.";
     begin
-        with CBGStatementLineAddInfo do begin
-            SetRange("Journal Template Name", CBGStatement."Journal Template Name");
-            SetRange(Description, ExpectedDescription);
-            Assert.IsFalse(FindFirst(), 'Unexpected line found in GBM Statement Line Additional Info table for ' + GetFilters);
-        end;
+        CBGStatementLineAddInfo.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
+        CBGStatementLineAddInfo.SetRange(Description, ExpectedDescription);
+        Assert.IsFalse(CBGStatementLineAddInfo.FindFirst(), 'Unexpected line found in GBM Statement Line Additional Info table for ' + CBGStatementLineAddInfo.GetFilters);
     end;
 
     local procedure WriteLine(var OutStream: OutStream; Text: Text)
@@ -1560,20 +1530,18 @@ codeunit 144060 "SEPA CAMT Bank Statement"
     begin
         TempBlobOEM.CreateOutStream(OutStream);
 
-        with SEPACAMTFileParameters do begin
-            WriteLine(OutStream, '<?xml version="1.0" encoding="' + Encoding + '"?>');
-            WriteLine(
-              OutStream,
-              '<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="' + Namespace + '">');
-            WriteLine(OutStream, '  <BkToCstmrStmt>');
-            WriteLine(OutStream, '    <GrpHdr>');
-            WriteLine(OutStream, '      <MsgId>AAAASESS-FP-STAT001</MsgId>');
-            WriteLine(OutStream, '    </GrpHdr>');
-            for Iterator := 1 to NumberOfStatements do
-                WriteStatementToCAMTFile(SEPACAMTFileParameters, OutStream);
-            WriteLine(OutStream, '  </BkToCstmrStmt>');
-            WriteLine(OutStream, '</Document>');
-        end;
+        WriteLine(OutStream, '<?xml version="1.0" encoding="' + SEPACAMTFileParameters.Encoding + '"?>');
+        WriteLine(
+          OutStream,
+          '<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="' + SEPACAMTFileParameters.Namespace + '">');
+        WriteLine(OutStream, '  <BkToCstmrStmt>');
+        WriteLine(OutStream, '    <GrpHdr>');
+        WriteLine(OutStream, '      <MsgId>AAAASESS-FP-STAT001</MsgId>');
+        WriteLine(OutStream, '    </GrpHdr>');
+        for Iterator := 1 to SEPACAMTFileParameters.NumberOfStatements do
+            WriteStatementToCAMTFile(SEPACAMTFileParameters, OutStream);
+        WriteLine(OutStream, '  </BkToCstmrStmt>');
+        WriteLine(OutStream, '</Document>');
 
         ConvertEncoding(TempBlobOEM, TempBlobUTF8, Encoding.UTF8);
         SetupSourceBlob(TempBlobUTF8);
@@ -1581,38 +1549,36 @@ codeunit 144060 "SEPA CAMT Bank Statement"
 
     local procedure WriteStatementHeaderToCAMTFile(SEPACAMTFileParameters: Record "SEPA CAMT File Parameters"; var TestXmlFileOutStream: OutStream)
     begin
-        with SEPACAMTFileParameters do begin
-            WriteLine(TestXmlFileOutStream, '      <Id>AAAASESS-FP-STAT001</Id>');
-            if HasStatementDateTag then
-                WriteLine(TestXmlFileOutStream, '      <CreDtTm>' + StmtDateFieldValue + '</CreDtTm>');
-            if (IBANFieldValue <> '') or (BankAccountNoFieldValue <> '') then begin
-                WriteLine(TestXmlFileOutStream, '      <Acct>');
-                WriteLine(TestXmlFileOutStream, '        <Id>');
-                if IBANFieldValue <> '' then
-                    WriteLine(TestXmlFileOutStream, '          <IBAN>' + IBANFieldValue + '</IBAN>');
-                WriteLine(TestXmlFileOutStream, '          <Ccy>' + CcyFieldValue + '</Ccy>');
-                if BankAccountNoFieldValue <> '' then begin
-                    WriteLine(TestXmlFileOutStream, '          <Othr>');
-                    WriteLine(TestXmlFileOutStream, '            <Id>' + BankAccountNoFieldValue + '</Id>');
-                    WriteLine(TestXmlFileOutStream, '            <Ccy>' + CcyFieldValue + '</Ccy>');
-                    WriteLine(TestXmlFileOutStream, '          </Othr>');
-                end;
-                WriteLine(TestXmlFileOutStream, '        </Id>');
-                WriteLine(TestXmlFileOutStream, '      </Acct>');
+        WriteLine(TestXmlFileOutStream, '      <Id>AAAASESS-FP-STAT001</Id>');
+        if SEPACAMTFileParameters.HasStatementDateTag then
+            WriteLine(TestXmlFileOutStream, '      <CreDtTm>' + SEPACAMTFileParameters.StmtDateFieldValue + '</CreDtTm>');
+        if (SEPACAMTFileParameters.IBANFieldValue <> '') or (SEPACAMTFileParameters.BankAccountNoFieldValue <> '') then begin
+            WriteLine(TestXmlFileOutStream, '      <Acct>');
+            WriteLine(TestXmlFileOutStream, '        <Id>');
+            if SEPACAMTFileParameters.IBANFieldValue <> '' then
+                WriteLine(TestXmlFileOutStream, '          <IBAN>' + SEPACAMTFileParameters.IBANFieldValue + '</IBAN>');
+            WriteLine(TestXmlFileOutStream, '          <Ccy>' + SEPACAMTFileParameters.CcyFieldValue + '</Ccy>');
+            if SEPACAMTFileParameters.BankAccountNoFieldValue <> '' then begin
+                WriteLine(TestXmlFileOutStream, '          <Othr>');
+                WriteLine(TestXmlFileOutStream, '            <Id>' + SEPACAMTFileParameters.BankAccountNoFieldValue + '</Id>');
+                WriteLine(TestXmlFileOutStream, '            <Ccy>' + SEPACAMTFileParameters.CcyFieldValue + '</Ccy>');
+                WriteLine(TestXmlFileOutStream, '          </Othr>');
             end;
-            WriteLine(TestXmlFileOutStream, '      <Bal>');
-            if HasClosingBalanceTag then begin
-                WriteLine(TestXmlFileOutStream, '        <Tp>');
-                WriteLine(TestXmlFileOutStream, '          <CdOrPrtry>');
-                WriteLine(TestXmlFileOutStream, '            <Cd>' + CdFieldValue + '</Cd>');
-                WriteLine(TestXmlFileOutStream, '          </CdOrPrtry>');
-                WriteLine(TestXmlFileOutStream, '        </Tp>');
-            end;
-            WriteLine(TestXmlFileOutStream, '        <Amt Ccy="' + CcyFieldValue + '">' + ClsBalFieldValue + '</Amt>');
-            if HasCdtDbtIndTagInBal then
-                WriteLine(TestXmlFileOutStream, '        <CdtDbtInd>' + BalCrdtDbtFieldValue + '</CdtDbtInd>');
-            WriteLine(TestXmlFileOutStream, '      </Bal>');
+            WriteLine(TestXmlFileOutStream, '        </Id>');
+            WriteLine(TestXmlFileOutStream, '      </Acct>');
         end;
+        WriteLine(TestXmlFileOutStream, '      <Bal>');
+        if SEPACAMTFileParameters.HasClosingBalanceTag then begin
+            WriteLine(TestXmlFileOutStream, '        <Tp>');
+            WriteLine(TestXmlFileOutStream, '          <CdOrPrtry>');
+            WriteLine(TestXmlFileOutStream, '            <Cd>' + SEPACAMTFileParameters.CdFieldValue + '</Cd>');
+            WriteLine(TestXmlFileOutStream, '          </CdOrPrtry>');
+            WriteLine(TestXmlFileOutStream, '        </Tp>');
+        end;
+        WriteLine(TestXmlFileOutStream, '        <Amt Ccy="' + SEPACAMTFileParameters.CcyFieldValue + '">' + SEPACAMTFileParameters.ClsBalFieldValue + '</Amt>');
+        if SEPACAMTFileParameters.HasCdtDbtIndTagInBal then
+            WriteLine(TestXmlFileOutStream, '        <CdtDbtInd>' + SEPACAMTFileParameters.BalCrdtDbtFieldValue + '</CdtDbtInd>');
+        WriteLine(TestXmlFileOutStream, '      </Bal>');
     end;
 
     local procedure WriteNonXmlFile()
@@ -1632,98 +1598,96 @@ codeunit 144060 "SEPA CAMT Bank Statement"
 
     local procedure WriteStatementToCAMTFile(SEPACAMTFileParameters: Record "SEPA CAMT File Parameters"; var TestXmlFileOutStream: OutStream)
     begin
-        with SEPACAMTFileParameters do begin
-            WriteLine(TestXmlFileOutStream, '    <Stmt>');
-            WriteStatementHeaderToCAMTFile(SEPACAMTFileParameters, TestXmlFileOutStream);
-            WriteLine(TestXmlFileOutStream, '      <Ntry>');
-            WriteLine(TestXmlFileOutStream, '        <Amt Ccy="' + CcyFieldValue + '">' + CrdtFieldValue + '</Amt>');
-            if HasCdtDbtIndTagInNtry then
-                WriteLine(TestXmlFileOutStream, '        <CdtDbtInd>CRDT</CdtDbtInd>');
-            WriteLine(TestXmlFileOutStream, '        <Sts>BOOK</Sts>');
-            WriteLine(TestXmlFileOutStream, '        <BookgDt>');
-            WriteLine(TestXmlFileOutStream, '          <DtTm>' + CrdtDateFieldValue + '</DtTm>');
-            WriteLine(TestXmlFileOutStream, '        </BookgDt>');
-            WriteLine(TestXmlFileOutStream, '        <AcctSvcrRef>' + CrdtTextFieldValue + '</AcctSvcrRef>');
-            if RelatedPartyBankAccount <> '' then begin
-                WriteLine(TestXmlFileOutStream, '            <NtryDtls>');
-                WriteLine(TestXmlFileOutStream, '              <TxDtls>');
-                WriteLine(TestXmlFileOutStream, '                <RltdPties>');
-                WriteLine(TestXmlFileOutStream, '                  <CdtrAcct>');
-                WriteLine(TestXmlFileOutStream, '                    <Id>');
-                WriteLine(TestXmlFileOutStream, '                      <Othr>');
-                WriteLine(TestXmlFileOutStream, '                        <Id>' + RelatedPartyBankAccount + '</Id>');
-                WriteLine(TestXmlFileOutStream, '                      </Othr>');
-                WriteLine(TestXmlFileOutStream, '                    </Id>');
-                WriteLine(TestXmlFileOutStream, '                  </CdtrAcct>');
-                WriteLine(TestXmlFileOutStream, '                </RltdPties>');
-                WriteLine(TestXmlFileOutStream, '              </TxDtls>');
-                WriteLine(TestXmlFileOutStream, '            </NtryDtls>');
-            end;
-            WriteLine(TestXmlFileOutStream, '      </Ntry>');
-            WriteLine(TestXmlFileOutStream, '      <Ntry>');
-            WriteLine(TestXmlFileOutStream, '        <Amt Ccy="' + CcyFieldValue + '">' + DbitFieldValue + '</Amt>');
-            WriteLine(TestXmlFileOutStream, '        <CdtDbtInd>DBIT</CdtDbtInd>');
-            WriteLine(TestXmlFileOutStream, '        <Sts>BOOK</Sts>');
-            WriteLine(TestXmlFileOutStream, '        <BookgDt>');
-            WriteLine(TestXmlFileOutStream, '          <DtTm>' + DbitDateFieldValue + '</DtTm>');
-            WriteLine(TestXmlFileOutStream, '        </BookgDt>');
-            WriteLine(TestXmlFileOutStream, '        <AcctSvcrRef>' + DbitTextFieldValue + '</AcctSvcrRef>');
-            if AddtlNtryInfFieldValue <> '' then
-                WriteLine(TestXmlFileOutStream, '        <AddtlNtryInf>' + AddtlNtryInfFieldValue + '</AddtlNtryInf>');
-            if (UstrdFieldValue1 <> '') or SkipTxDtlsAmt or (RelatedPartyIBAN <> '') or (RelatedPartyName <> '') or
-              (EndToEndIdFieldValue <> '')
-            then begin
-                WriteLine(TestXmlFileOutStream, '        <NtryDtls>');
-                WriteLine(TestXmlFileOutStream, '          <TxDtls>');
-                if not SkipTxDtlsAmt then begin
-                    WriteLine(TestXmlFileOutStream, '            <AmtDtls>');
-                    WriteLine(TestXmlFileOutStream, '              <TxAmt>');
-                    WriteLine(TestXmlFileOutStream, '                <Amt Ccy="' + CcyFieldValue + '">' + DbitFieldValue + '</Amt>');
-                    WriteLine(TestXmlFileOutStream, '              </TxAmt>');
-                    WriteLine(TestXmlFileOutStream, '            </AmtDtls>');
-                end;
-                if EndToEndIdFieldValue <> '' then begin
-                    WriteLine(TestXmlFileOutStream, '            <Refs>');
-                    WriteLine(TestXmlFileOutStream, '              <EndToEndId>' + EndToEndIdFieldValue + '</EndToEndId>');
-                    WriteLine(TestXmlFileOutStream, '            </Refs>');
-                end;
-                if (RelatedPartyIBAN <> '') or (RelatedPartyName <> '') then begin
-                    WriteLine(TestXmlFileOutStream, '            <RltdPties>');
-                    if RelatedPartyName <> '' then begin
-                        WriteLine(TestXmlFileOutStream, '              <Dbtr>');
-                        WriteLine(TestXmlFileOutStream, '                <Nm>' + RelatedPartyName + '</Nm>');
-                        if (RelatedPartyAddress <> '') or (RelatedPartyCity <> '') then begin
-                            WriteLine(TestXmlFileOutStream, '              <PstlAdr>');
-                            if RelatedPartyAddress <> '' then
-                                WriteLine(TestXmlFileOutStream, '                <AdrLine>' + RelatedPartyAddress + '</AdrLine>');
-                            if RelatedPartyCity <> '' then
-                                WriteLine(TestXmlFileOutStream, '                <TwnNm>' + RelatedPartyCity + '</TwnNm>');
-                            WriteLine(TestXmlFileOutStream, '              </PstlAdr>');
-                        end;
-                        WriteLine(TestXmlFileOutStream, '              </Dbtr>');
-                    end;
-                    if RelatedPartyIBAN <> '' then begin
-                        WriteLine(TestXmlFileOutStream, '              <DbtrAcct>');
-                        WriteLine(TestXmlFileOutStream, '                <Id>');
-                        WriteLine(TestXmlFileOutStream, '                  <IBAN>' + RelatedPartyIBAN + '</IBAN>');
-                        WriteLine(TestXmlFileOutStream, '                </Id>');
-                        WriteLine(TestXmlFileOutStream, '              </DbtrAcct>');
-                    end;
-                    WriteLine(TestXmlFileOutStream, '            </RltdPties>');
-                end;
-                WriteLine(TestXmlFileOutStream, '            <RmtInf>');
-                WriteLine(TestXmlFileOutStream, '            <Ustrd>' + UstrdFieldValue1 + '</Ustrd>');
-                if UstrdFieldValue2 <> '' then
-                    WriteLine(TestXmlFileOutStream, '            <Ustrd>' + UstrdFieldValue2 + '</Ustrd>');
-                if UstrdFieldValue3 <> '' then
-                    WriteLine(TestXmlFileOutStream, '            <Ustrd>' + UstrdFieldValue3 + '</Ustrd>');
-                WriteLine(TestXmlFileOutStream, '            </RmtInf>');
-                WriteLine(TestXmlFileOutStream, '          </TxDtls>');
-                WriteLine(TestXmlFileOutStream, '        </NtryDtls>');
-            end;
-            WriteLine(TestXmlFileOutStream, '      </Ntry>');
-            WriteLine(TestXmlFileOutStream, '    </Stmt>');
+        WriteLine(TestXmlFileOutStream, '    <Stmt>');
+        WriteStatementHeaderToCAMTFile(SEPACAMTFileParameters, TestXmlFileOutStream);
+        WriteLine(TestXmlFileOutStream, '      <Ntry>');
+        WriteLine(TestXmlFileOutStream, '        <Amt Ccy="' + SEPACAMTFileParameters.CcyFieldValue + '">' + SEPACAMTFileParameters.CrdtFieldValue + '</Amt>');
+        if SEPACAMTFileParameters.HasCdtDbtIndTagInNtry then
+            WriteLine(TestXmlFileOutStream, '        <CdtDbtInd>CRDT</CdtDbtInd>');
+        WriteLine(TestXmlFileOutStream, '        <Sts>BOOK</Sts>');
+        WriteLine(TestXmlFileOutStream, '        <BookgDt>');
+        WriteLine(TestXmlFileOutStream, '          <DtTm>' + SEPACAMTFileParameters.CrdtDateFieldValue + '</DtTm>');
+        WriteLine(TestXmlFileOutStream, '        </BookgDt>');
+        WriteLine(TestXmlFileOutStream, '        <AcctSvcrRef>' + SEPACAMTFileParameters.CrdtTextFieldValue + '</AcctSvcrRef>');
+        if SEPACAMTFileParameters.RelatedPartyBankAccount <> '' then begin
+            WriteLine(TestXmlFileOutStream, '            <NtryDtls>');
+            WriteLine(TestXmlFileOutStream, '              <TxDtls>');
+            WriteLine(TestXmlFileOutStream, '                <RltdPties>');
+            WriteLine(TestXmlFileOutStream, '                  <CdtrAcct>');
+            WriteLine(TestXmlFileOutStream, '                    <Id>');
+            WriteLine(TestXmlFileOutStream, '                      <Othr>');
+            WriteLine(TestXmlFileOutStream, '                        <Id>' + SEPACAMTFileParameters.RelatedPartyBankAccount + '</Id>');
+            WriteLine(TestXmlFileOutStream, '                      </Othr>');
+            WriteLine(TestXmlFileOutStream, '                    </Id>');
+            WriteLine(TestXmlFileOutStream, '                  </CdtrAcct>');
+            WriteLine(TestXmlFileOutStream, '                </RltdPties>');
+            WriteLine(TestXmlFileOutStream, '              </TxDtls>');
+            WriteLine(TestXmlFileOutStream, '            </NtryDtls>');
         end;
+        WriteLine(TestXmlFileOutStream, '      </Ntry>');
+        WriteLine(TestXmlFileOutStream, '      <Ntry>');
+        WriteLine(TestXmlFileOutStream, '        <Amt Ccy="' + SEPACAMTFileParameters.CcyFieldValue + '">' + SEPACAMTFileParameters.DbitFieldValue + '</Amt>');
+        WriteLine(TestXmlFileOutStream, '        <CdtDbtInd>DBIT</CdtDbtInd>');
+        WriteLine(TestXmlFileOutStream, '        <Sts>BOOK</Sts>');
+        WriteLine(TestXmlFileOutStream, '        <BookgDt>');
+        WriteLine(TestXmlFileOutStream, '          <DtTm>' + SEPACAMTFileParameters.DbitDateFieldValue + '</DtTm>');
+        WriteLine(TestXmlFileOutStream, '        </BookgDt>');
+        WriteLine(TestXmlFileOutStream, '        <AcctSvcrRef>' + SEPACAMTFileParameters.DbitTextFieldValue + '</AcctSvcrRef>');
+        if SEPACAMTFileParameters.AddtlNtryInfFieldValue <> '' then
+            WriteLine(TestXmlFileOutStream, '        <AddtlNtryInf>' + SEPACAMTFileParameters.AddtlNtryInfFieldValue + '</AddtlNtryInf>');
+        if (SEPACAMTFileParameters.UstrdFieldValue1 <> '') or SEPACAMTFileParameters.SkipTxDtlsAmt or (SEPACAMTFileParameters.RelatedPartyIBAN <> '') or (SEPACAMTFileParameters.RelatedPartyName <> '') or
+          (SEPACAMTFileParameters.EndToEndIdFieldValue <> '')
+        then begin
+            WriteLine(TestXmlFileOutStream, '        <NtryDtls>');
+            WriteLine(TestXmlFileOutStream, '          <TxDtls>');
+            if not SEPACAMTFileParameters.SkipTxDtlsAmt then begin
+                WriteLine(TestXmlFileOutStream, '            <AmtDtls>');
+                WriteLine(TestXmlFileOutStream, '              <TxAmt>');
+                WriteLine(TestXmlFileOutStream, '                <Amt Ccy="' + SEPACAMTFileParameters.CcyFieldValue + '">' + SEPACAMTFileParameters.DbitFieldValue + '</Amt>');
+                WriteLine(TestXmlFileOutStream, '              </TxAmt>');
+                WriteLine(TestXmlFileOutStream, '            </AmtDtls>');
+            end;
+            if SEPACAMTFileParameters.EndToEndIdFieldValue <> '' then begin
+                WriteLine(TestXmlFileOutStream, '            <Refs>');
+                WriteLine(TestXmlFileOutStream, '              <EndToEndId>' + SEPACAMTFileParameters.EndToEndIdFieldValue + '</EndToEndId>');
+                WriteLine(TestXmlFileOutStream, '            </Refs>');
+            end;
+            if (SEPACAMTFileParameters.RelatedPartyIBAN <> '') or (SEPACAMTFileParameters.RelatedPartyName <> '') then begin
+                WriteLine(TestXmlFileOutStream, '            <RltdPties>');
+                if SEPACAMTFileParameters.RelatedPartyName <> '' then begin
+                    WriteLine(TestXmlFileOutStream, '              <Dbtr>');
+                    WriteLine(TestXmlFileOutStream, '                <Nm>' + SEPACAMTFileParameters.RelatedPartyName + '</Nm>');
+                    if (SEPACAMTFileParameters.RelatedPartyAddress <> '') or (SEPACAMTFileParameters.RelatedPartyCity <> '') then begin
+                        WriteLine(TestXmlFileOutStream, '              <PstlAdr>');
+                        if SEPACAMTFileParameters.RelatedPartyAddress <> '' then
+                            WriteLine(TestXmlFileOutStream, '                <AdrLine>' + SEPACAMTFileParameters.RelatedPartyAddress + '</AdrLine>');
+                        if SEPACAMTFileParameters.RelatedPartyCity <> '' then
+                            WriteLine(TestXmlFileOutStream, '                <TwnNm>' + SEPACAMTFileParameters.RelatedPartyCity + '</TwnNm>');
+                        WriteLine(TestXmlFileOutStream, '              </PstlAdr>');
+                    end;
+                    WriteLine(TestXmlFileOutStream, '              </Dbtr>');
+                end;
+                if SEPACAMTFileParameters.RelatedPartyIBAN <> '' then begin
+                    WriteLine(TestXmlFileOutStream, '              <DbtrAcct>');
+                    WriteLine(TestXmlFileOutStream, '                <Id>');
+                    WriteLine(TestXmlFileOutStream, '                  <IBAN>' + SEPACAMTFileParameters.RelatedPartyIBAN + '</IBAN>');
+                    WriteLine(TestXmlFileOutStream, '                </Id>');
+                    WriteLine(TestXmlFileOutStream, '              </DbtrAcct>');
+                end;
+                WriteLine(TestXmlFileOutStream, '            </RltdPties>');
+            end;
+            WriteLine(TestXmlFileOutStream, '            <RmtInf>');
+            WriteLine(TestXmlFileOutStream, '            <Ustrd>' + SEPACAMTFileParameters.UstrdFieldValue1 + '</Ustrd>');
+            if SEPACAMTFileParameters.UstrdFieldValue2 <> '' then
+                WriteLine(TestXmlFileOutStream, '            <Ustrd>' + SEPACAMTFileParameters.UstrdFieldValue2 + '</Ustrd>');
+            if SEPACAMTFileParameters.UstrdFieldValue3 <> '' then
+                WriteLine(TestXmlFileOutStream, '            <Ustrd>' + SEPACAMTFileParameters.UstrdFieldValue3 + '</Ustrd>');
+            WriteLine(TestXmlFileOutStream, '            </RmtInf>');
+            WriteLine(TestXmlFileOutStream, '          </TxDtls>');
+            WriteLine(TestXmlFileOutStream, '        </NtryDtls>');
+        end;
+        WriteLine(TestXmlFileOutStream, '      </Ntry>');
+        WriteLine(TestXmlFileOutStream, '    </Stmt>');
     end;
 
     local procedure WrongBankAccount(DummyBankAccountNo: Text[30]; DummyIBAN: Text[50])
@@ -1743,12 +1707,10 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         CreateExpectedCBGStatement(TempCreditCBGStatementLine, TempCBGStatement, BankAccount);
 
         InitCommonFileParameters(SEPACAMTFileParameters, TempCBGStatement, TempCreditCBGStatementLine, TempCreditCBGStatementLine);
-        with SEPACAMTFileParameters do begin
-            IBANFieldValue := DummyIBAN;
-            BankAccountNoFieldValue := DummyBankAccountNo;
-            ClsBalFieldValue := Format(Abs(TempCreditCBGStatementLine.Amount), 0, 9);
-            CcyFieldValue := '';
-        end;
+        SEPACAMTFileParameters.IBANFieldValue := DummyIBAN;
+        SEPACAMTFileParameters.BankAccountNoFieldValue := DummyBankAccountNo;
+        SEPACAMTFileParameters.ClsBalFieldValue := Format(Abs(TempCreditCBGStatementLine.Amount), 0, 9);
+        SEPACAMTFileParameters.CcyFieldValue := '';
 
         WriteCAMTFile(SEPACAMTFileParameters);
 
@@ -1765,24 +1727,19 @@ codeunit 144060 "SEPA CAMT Bank Statement"
     var
         CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info.";
     begin
-        with CBGStatementLineAddInfo do begin
-            // Verify description
-            VerifyCBGStatementAddInfoEntry(AccountNo, "Information Type"::"Description and Sundries",
-              CopyStr(SEPACAMTFileParameters.AddtlNtryInfFieldValue, 1, MaxStrLen(Description)),
-              CopyStr(SEPACAMTFileParameters.AddtlNtryInfFieldValue, MaxStrLen(Description) + 1));
-
-            // Verify Name
-            VerifyCBGStatementAddInfoEntry(AccountNo, "Information Type"::"Name Acct. Holder",
-              SEPACAMTFileParameters.RelatedPartyName, '');
-
-            // Verify Address
-            VerifyCBGStatementAddInfoEntry(AccountNo, "Information Type"::"Address Acct. Holder",
-              SEPACAMTFileParameters.RelatedPartyAddress, '');
-
-            // Verify City
-            VerifyCBGStatementAddInfoEntry(AccountNo, "Information Type"::"City Acct. Holder",
-              SEPACAMTFileParameters.RelatedPartyCity, '');
-        end;
+        // Verify description
+        VerifyCBGStatementAddInfoEntry(AccountNo, CBGStatementLineAddInfo."Information Type"::"Description and Sundries",
+          CopyStr(SEPACAMTFileParameters.AddtlNtryInfFieldValue, 1, MaxStrLen(CBGStatementLineAddInfo.Description)),
+          CopyStr(SEPACAMTFileParameters.AddtlNtryInfFieldValue, MaxStrLen(CBGStatementLineAddInfo.Description) + 1));
+        // Verify Name
+        VerifyCBGStatementAddInfoEntry(AccountNo, CBGStatementLineAddInfo."Information Type"::"Name Acct. Holder",
+          SEPACAMTFileParameters.RelatedPartyName, '');
+        // Verify Address
+        VerifyCBGStatementAddInfoEntry(AccountNo, CBGStatementLineAddInfo."Information Type"::"Address Acct. Holder",
+          SEPACAMTFileParameters.RelatedPartyAddress, '');
+        // Verify City
+        VerifyCBGStatementAddInfoEntry(AccountNo, CBGStatementLineAddInfo."Information Type"::"City Acct. Holder",
+          SEPACAMTFileParameters.RelatedPartyCity, '');
     end;
 
     local procedure VerifyCBGStatementAddInfoEntry(AccountNo: Code[20]; InformationType: Enum "CBG Statement Information Type"; FirstExpectedEntry: Text; SecondExpectedEntry: Text)
@@ -1792,17 +1749,15 @@ codeunit 144060 "SEPA CAMT Bank Statement"
     begin
         CBGStatement.SetRange("Account No.", AccountNo);
         CBGStatement.FindFirst();
-        with CBGStatementLineAddInfo do begin
-            SetRange("Journal Template Name", CBGStatement."Journal Template Name");
-            SetRange("CBG Statement No.", CBGStatement."No.");
-            SetRange("Information Type", InformationType);
-            FindSet();
+        CBGStatementLineAddInfo.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
+        CBGStatementLineAddInfo.SetRange("CBG Statement No.", CBGStatement."No.");
+        CBGStatementLineAddInfo.SetRange("Information Type", InformationType);
+        CBGStatementLineAddInfo.FindSet();
 
-            Assert.AreEqual(FirstExpectedEntry, Description, StrSubstNo(IncorrectValueForTypeErr, Format("Information Type")));
-            if SecondExpectedEntry <> '' then begin
-                Next();
-                Assert.AreEqual(SecondExpectedEntry, Description, StrSubstNo(IncorrectValueForTypeErr, Format("Information Type")));
-            end;
+        Assert.AreEqual(FirstExpectedEntry, CBGStatementLineAddInfo.Description, StrSubstNo(IncorrectValueForTypeErr, Format(CBGStatementLineAddInfo."Information Type")));
+        if SecondExpectedEntry <> '' then begin
+            CBGStatementLineAddInfo.Next();
+            Assert.AreEqual(SecondExpectedEntry, CBGStatementLineAddInfo.Description, StrSubstNo(IncorrectValueForTypeErr, Format(CBGStatementLineAddInfo."Information Type")));
         end;
     end;
 

@@ -39,7 +39,7 @@ table 11000007 "Import Protocol"
         }
         field(4; "Import Name"; Text[249])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = field("Import Type"),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = field("Import Type"),
                                                                            "Object ID" = field("Import ID")));
             Caption = 'Import Name';
             Editable = false;

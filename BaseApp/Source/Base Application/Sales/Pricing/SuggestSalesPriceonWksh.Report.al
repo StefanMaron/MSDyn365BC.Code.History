@@ -1,4 +1,4 @@
-﻿#if not CLEAN23
+﻿#if not CLEAN25
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -472,8 +472,12 @@ report 7052 "Suggest Sales Price on Wksh."
         ToStartDateCtrlEnable: Boolean;
         ToEndDateCtrlEnable: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Processing items  #1##########';
         Text002: Label 'Sales Code must be specified when copying from %1 to All Customers.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SalesPriceWkshLineExistsErr: Label 'There are multiple source lines for the record: %1.', Comment = '%1 = RecordId';
 
     procedure InitializeRequest(NewToSalesType: Option Customer,"Customer Price Group",Campaign,"All CUstomers"; NewToSalesCode: Code[20]; NewToStartDate: Date; NewToEndDate: Date; NewToCurrCode: Code[10]; NewToUOMCode: Code[10]; NewCreateNewPrices: Boolean)

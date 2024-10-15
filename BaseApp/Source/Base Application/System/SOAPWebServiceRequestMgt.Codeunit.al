@@ -21,15 +21,13 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         Trace: Codeunit Trace;
         GlobalRequestBodyInStream: InStream;
         HttpWebResponse: DotNet HttpWebResponse;
-        [NonDebuggable]
-        GlobalPassword: Text;
+        GlobalPassword: SecretText;
         GlobalURL: Text;
         [NonDebuggable]
         GlobalUsername: Text;
         [NonDebuggable]
         GlobalBasicUsername: Text;
-        [NonDebuggable]
-        GlobalBasicPassword: Text;
+        GlobalBasicPassword: SecretText;
         GlobalSoapAction: Text;
         GlobalStreamEncoding: TextEncoding;
         TraceLogEnabled: Boolean;
@@ -54,7 +52,6 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         InvalidTokenFormatErr: Label 'The token must be in JWS or JWE Compact Serialization Format.';
 
     [TryFunction]
-    [NonDebuggable]
     procedure SendRequestToWebService()
     var
         WebRequestHelper: Codeunit "Web Request Helper";
@@ -93,15 +90,19 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         HttpWebRequest.AutomaticDecompression := DecompressionMethods.GZip;
     end;
 
-    [NonDebuggable]
-    local procedure CreateSoapRequest(RequestOutStream: OutStream; BodyContentInStream: InStream; Username: Text; Password: Text)
+    local procedure CreateSoapRequest(RequestOutStream: OutStream; BodyContentInStream: InStream; Username: Text; Password: SecretText)
     var
+        [NonDebuggable]
         XmlDoc: DotNet XmlDocument;
         BodyXmlNode: DotNet XmlNode;
+        [NonDebuggable]
+        PasswordFromEvent: Text;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateSoapRequest(RequestOutStream, BodyContentInStream, XMLDoc, UserName, Password, TraceLogEnabled, IsHandled);
+        OnBeforeCreateSoapRequest(RequestOutStream, BodyContentInStream, XMLDoc, UserName, PasswordFromEvent, TraceLogEnabled, IsHandled);
+        if PasswordFromEvent <> '' then
+            Password := PasswordFromEvent;
         if IsHandled then
             exit;
 
@@ -111,7 +112,8 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         TraceLogXmlDocToTempFile(XmlDoc, 'FullRequest');
     end;
 
-    local procedure CreateEnvelope(var XmlDoc: DotNet XmlDocument; var BodyXmlNode: DotNet XmlNode; Username: Text; Password: Text)
+    [NonDebuggable]
+    local procedure CreateEnvelope(var XmlDoc: DotNet XmlDocument; var BodyXmlNode: DotNet XmlNode; Username: Text; Password: SecretText)
     var
         XMLDOMMgt: Codeunit "XML DOM Management";
         EnvelopeXmlNode: DotNet XmlNode;
@@ -127,7 +129,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
 
         XMLDOMMgt.AddElementWithPrefix(EnvelopeXmlNode, 'Header', '', 's', SoapNamespaceTxt, HeaderXmlNode);
 
-        if (Username <> '') or (Password <> '') then begin
+        if (Username <> '') or (not Password.IsEmpty()) then begin
             XMLDOMMgt.AddElementWithPrefix(HeaderXmlNode, 'Security', '', 'o', SecurityExtensionNamespaceTxt, SecurityXmlNode);
             XMLDOMMgt.AddAttributeWithPrefix(SecurityXmlNode, 'mustUnderstand', 's', SoapNamespaceTxt, '1');
 
@@ -135,7 +137,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
             XMLDOMMgt.AddAttributeWithPrefix(UsernameTokenXmlNode, 'Id', 'u', SecurityUtilityNamespaceTxt, CreateUUID());
 
             XMLDOMMgt.AddElementWithPrefix(UsernameTokenXmlNode, 'Username', Username, 'o', SecurityExtensionNamespaceTxt, TempXmlNode);
-            XMLDOMMgt.AddElementWithPrefix(UsernameTokenXmlNode, 'Password', Password, 'o', SecurityExtensionNamespaceTxt, PasswordXmlNode);
+            XMLDOMMgt.AddElementWithPrefix(UsernameTokenXmlNode, 'Password', Password.Unwrap(), 'o', SecurityExtensionNamespaceTxt, PasswordXmlNode);
             XMLDOMMgt.AddAttribute(PasswordXmlNode, 'Type', UsernameTokenNamepsaceTxt);
         end;
 
@@ -220,9 +222,21 @@ codeunit 1290 "SOAP Web Service Request Mgt."
 
         Error(ErrorText);
     end;
+#if not CLEAN25
 
+    [Obsolete('Replaced by SetGlobals(RequestBodyInStream: InStream; URL: Text; Username: Text; Password: SecretText)', '25.0')]
     [NonDebuggable]
     procedure SetGlobals(RequestBodyInStream: InStream; URL: Text; Username: Text; Password: Text)
+    var
+        PasswordAsSecretText: SecretText;
+    begin
+        PasswordAsSecretText := Password;
+        SetGlobals(RequestBodyInStream, URL, Username, PasswordAsSecretText);
+    end;
+#endif
+
+    [NonDebuggable]
+    procedure SetGlobals(RequestBodyInStream: InStream; URL: Text; Username: Text; Password: SecretText)
     begin
         GlobalRequestBodyInStream := RequestBodyInStream;
 
@@ -238,9 +252,21 @@ codeunit 1290 "SOAP Web Service Request Mgt."
 
         TraceLogEnabled := false;
     end;
+#if not CLEAN25
 
     [NonDebuggable]
+    [Obsolete('Replaced by SetBasicCredentials(Username: Text; Password: SecretText)', '25.0')]
     procedure SetBasicCredentials(Username: Text; Password: Text)
+    var
+        PasswordAsSecretText: SecretText;
+    begin
+        PasswordAsSecretText := Password;
+        SetBasicCredentials(Username, PasswordAsSecretText);
+    end;
+#endif
+
+    [NonDebuggable]
+    procedure SetBasicCredentials(Username: Text; Password: SecretText)
     begin
         GlobalBasicUsername := Username;
         GlobalBasicPassword := Password;
@@ -295,7 +321,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
     end;
 
     [NonDebuggable]
-    local procedure AddBasicAuthorizationHeader(Uri: Text; Username: Text; Password: Text; var DotNet_HttpWebRequest: DotNet HttpWebRequest);
+    local procedure AddBasicAuthorizationHeader(Uri: Text; Username: Text; Password: SecretText; var DotNet_HttpWebRequest: DotNet HttpWebRequest);
     var
         DotNet_Uri: DotNet Uri;
         DotNet_CredentialCache: DotNet CredentialCache;
@@ -305,7 +331,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
             exit;
 
         DotNet_Uri := DotNet_Uri.Uri(Uri);
-        DotNet_NetworkCredential := DotNet_NetworkCredential.NetworkCredential(Username, Password);
+        DotNet_NetworkCredential := DotNet_NetworkCredential.NetworkCredential(Username, Password.Unwrap());
         DotNet_CredentialCache := DotNet_CredentialCache.CredentialCache();
         DotNet_CredentialCache.Add(DotNet_Uri, 'Basic', DotNet_NetworkCredential);
 
@@ -334,13 +360,24 @@ codeunit 1290 "SOAP Web Service Request Mgt."
     begin
         GlobalProgressDialogEnabled := false;
     end;
+#if not CLEAN25
 
+    [Obsolete('Replaced by HasJWTExpired(JsonWebToken: SecretText)', '25.0')]
     [NonDebuggable]
     procedure HasJWTExpired(JsonWebToken: Text): Boolean
     var
+        JsonWebTokenAsSecretText: SecretText;
+    begin
+        JsonWebTokenAsSecretText := JsonWebToken;
+        exit(HasJWTExpired(JsonWebTokenAsSecretText));
+    end;
+#endif
+
+    procedure HasJWTExpired(JsonWebToken: SecretText): Boolean
+    var
         WebTokenAsJson: Text;
     begin
-        if JsonWebToken = '' then
+        if JsonWebToken.IsEmpty() then
             exit(true);
         if not GetTokenDetailsAsJson(JsonWebToken, WebTokenAsJson) then
             Error(InvalidTokenFormatErr);
@@ -370,10 +407,23 @@ codeunit 1290 "SOAP Web Service Request Mgt."
             exit;
         exit(TypeHelper.EvaluateUnixTimestamp(Timestamp));
     end;
+#if not CLEAN25
 
     [TryFunction]
     [NonDebuggable]
+    [Obsolete('Replaced by GetTokenDetailsAsJson(JsonWebToken: SecretText; var WebTokenAsJson: Text)', '25.0')]
     procedure GetTokenDetailsAsJson(JsonWebToken: Text; var WebTokenAsJson: Text)
+    var
+        JsonWebTokenAsSecretText: SecretText;
+    begin
+        JsonWebTokenAsSecretText := JsonWebToken;
+        GetTokenDetailsAsJson(JsonWebTokenAsSecretText, WebTokenAsJson);
+    end;
+#endif
+
+    [TryFunction]
+    [NonDebuggable]
+    procedure GetTokenDetailsAsJson(JsonWebToken: SecretText; var WebTokenAsJson: Text)
     var
         JSONManagement: Codeunit "JSON Management";
         JwtSecurityTokenHandler: DotNet JwtSecurityTokenHandler;
@@ -381,11 +431,11 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         Claim: DotNet Claim;
         JObject: DotNet JObject;
     begin
-        if JsonWebToken = '' then
+        if JsonWebToken.IsEmpty() then
             exit;
 
         JwtSecurityTokenHandler := JwtSecurityTokenHandler.JwtSecurityTokenHandler();
-        JwtSecurityToken := JwtSecurityTokenHandler.ReadToken(JsonWebToken);
+        JwtSecurityToken := JwtSecurityTokenHandler.ReadToken(JsonWebToken.Unwrap());
 
         JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JObject);
@@ -394,20 +444,33 @@ codeunit 1290 "SOAP Web Service Request Mgt."
 
         WebTokenAsJson := JObject.ToString();
     end;
+#if not CLEAN25
+
+    [TryFunction]
+    [Obsolete('Replaced by GetTokenDetailsAsNameBuffer(JsonWebToken: SecretText; var Buffer: Record "Name/Value Buffer")', '25.0')]
+    [NonDebuggable]
+    procedure GetTokenDetailsAsNameBuffer(JsonWebToken: Text; var Buffer: Record "Name/Value Buffer")
+    var
+        JsonWebTokenAsSecretText: SecretText;
+    begin
+        JsonWebTokenAsSecretText := JsonWebToken;
+        GetTokenDetailsAsNameBuffer(JsonWebTokenAsSecretText, Buffer)
+    end;
+#endif
 
     [TryFunction]
     [NonDebuggable]
-    procedure GetTokenDetailsAsNameBuffer(JsonWebToken: Text; var Buffer: Record "Name/Value Buffer")
+    procedure GetTokenDetailsAsNameBuffer(JsonWebToken: SecretText; var Buffer: Record "Name/Value Buffer")
     var
         JwtSecurityTokenHandler: DotNet JwtSecurityTokenHandler;
         JwtSecurityToken: DotNet JwtSecurityToken;
         Claim: DotNet Claim;
     begin
-        if JsonWebToken = '' then
+        if JsonWebToken.IsEmpty() then
             exit;
 
         JwtSecurityTokenHandler := JwtSecurityTokenHandler.JwtSecurityTokenHandler();
-        JwtSecurityToken := JwtSecurityTokenHandler.ReadToken(JsonWebToken);
+        JwtSecurityToken := JwtSecurityTokenHandler.ReadToken(JsonWebToken.Unwrap());
 
         foreach Claim in JwtSecurityToken.Claims do
             Buffer.AddNewEntry(Claim.Type, Claim.Value);

@@ -34,8 +34,6 @@ codeunit 134152 "ERM Intercompany II"
         ValidationErr: Label '%1 must be %2 in %3.', Comment = '%1 = field name, %2 = field value, %3 = table name';
         SameICPartnerErr: Label 'The IC Partner Code %1 has been assigned to Customer %2.', Comment = '%1 = IC partner code, %2 = customer no.';
         BlockedErr: Label 'Vendor %1 is linked to a blocked IC Partner.', Comment = '%1 = Vendor no.';
-        ICGLAccountBlockErr: Label 'Blocked must be equal to ''No''  in IC G/L Account: No.=%1. Current value is ''Yes''.', Comment = '%1 = GL account no.';
-        ICPartnerBlockErr: Label 'Blocked must be equal to ''No''  in IC Partner: Code=%1. Current value is ''Yes''.', Comment = '%1 = IC partner code';
         ICCustomerBlockedAllErr: Label 'You cannot create this type of document when Customer %1 is blocked', Comment = '%1 = Customer no.';
         DatesErr: Label '%1 of %2 must be equal to %3 of %4', Comment = '%1 = table name, %2 = date field, %3 = table name, %4 = date field';
         TableFieldErr: Label 'Wrong table field value: table "%1", field "%2".', Comment = '%1 = table name, %2 = field name';
@@ -532,6 +530,7 @@ codeunit 134152 "ERM Intercompany II"
     procedure ICJournalLinePostAfterBlockingICGLAccount()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        ICGlAccount: Record "IC G/L Account";
     begin
         // Check error while posting IC General Journal Line for Blocked IC G/L Account.
 
@@ -540,21 +539,13 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
         CreateICGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::"IC Partner", CreateICPartner(), -1);
-#if not CLEAN22
-        BlockICGLAccount(GenJournalLine."IC Partner G/L Acc. No.");
-#else
         BlockICGLAccount(GenJournalLine."IC Account No.");
-#endif
 
         // Exercise.
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify IC G/L Account Blocked error message.
-#if not CLEAN22
-        Assert.ExpectedError(StrSubstNo(ICGLAccountBlockErr, GenJournalLine."IC Partner G/L Acc. No."));
-#else
-        Assert.ExpectedError(StrSubstNo(ICGLAccountBlockErr, GenJournalLine."IC Account No."));
-#endif
+        Assert.ExpectedTestFieldError(ICGlAccount.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -582,7 +573,7 @@ codeunit 134152 "ERM Intercompany II"
             GenJournalLine."Bal. Account Type"::"G/L Account", ICGLAccount."Map-to G/L Acc. No.", ICGLAccount."No.", 1);  // Taking 1 for sign factor.
 
         // Verify: Verify IC G/L Account Blocked error message.
-        Assert.ExpectedError(StrSubstNo(ICGLAccountBlockErr, ICGLAccount."No."));
+        Assert.ExpectedTestFieldError(ICGLAccount.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -700,6 +691,7 @@ codeunit 134152 "ERM Intercompany II"
     local procedure PostSalesDocumentWithBlockedICPartner(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
+        ICPartner: Record "IC Partner";
         ICPartnerCode: Code[20];
     begin
         // Setup: Create IC Parter, create Sales Document and block IC Partner.
@@ -712,7 +704,7 @@ codeunit 134152 "ERM Intercompany II"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Verify error while post Sales Document with blocked IC Partner.
-        Assert.ExpectedError(StrSubstNo(ICPartnerBlockErr, ICPartnerCode));
+        Assert.ExpectedTestFieldError(ICPartner.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -787,11 +779,7 @@ codeunit 134152 "ERM Intercompany II"
         VerifyICOutboxJournalLine(
           GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"IC Partner", GenJournalLine."IC Partner Code",
           GenJournalLine."Document No.", GenJournalLine.Amount);
-#if not CLEAN22
-        ICAccountNo := GenJournalLine."IC Partner G/L Acc. No.";
-#else
         ICAccountNo := GenJournalLine."IC Account No.";
-#endif
         VerifyICOutboxJournalLine(
           GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"G/L Account", ICAccountNo,
           GenJournalLine."Document No.", -GenJournalLine.Amount);
@@ -977,6 +965,7 @@ codeunit 134152 "ERM Intercompany II"
     local procedure PostPurchDocumentWithBlockedICPartner(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
+        ICPartner: Record "IC Partner";
         ICPartnerCode: Code[20];
     begin
         // Setup: Create IC Parter, create Purchase Document and blocked IC Partner.
@@ -989,7 +978,7 @@ codeunit 134152 "ERM Intercompany II"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify error while post Purchase Document with blocked IC Partner.
-        Assert.ExpectedError(StrSubstNo(ICPartnerBlockErr, ICPartnerCode));
+        Assert.ExpectedTestFieldError(ICPartner.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -2773,7 +2762,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] LCY Code is 'X' in General Ledger Setup
         UpdateLCYCodeInGLSetup();
 
-        // [GIVEN] General Journal Line for IC Partner with "IC Account No." ("IC Partner G/L Acc. No." for CLEAN22 and below) as Balance Account
+        // [GIVEN] General Journal Line for IC Partner with "IC Account No." as Balance Account
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
         CreateICGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CreateICCustomer(CreateICPartner()), 1);
@@ -2789,12 +2778,8 @@ codeunit 134152 "ERM Intercompany II"
           GenJournalLine."Account No.", GenJournalLine."Document No.");
         ICOutboxJnlLine.TestField("Currency Code", '');
 
-        // [THEN] IC Outbox General Journal Line for "IC Account No." ("IC Partner G/L Acc. No." for CLEAN22 and below) has blank "Currency Code"
-#if not CLEAN22
-        ICAccountNo := GenJournalLine."IC Partner G/L Acc. No.";
-#else
+        // [THEN] IC Outbox General Journal Line for "IC Account No." has blank "Currency Code"
         ICAccountNo := GenJournalLine."IC Account No.";
-#endif
         FindICOutboxJournalLine(
           ICOutboxJnlLine, GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"G/L Account",
           ICAccountNo, GenJournalLine."Document No.");
@@ -4246,7 +4231,7 @@ codeunit 134152 "ERM Intercompany II"
         SalesLine.TestField("Amount Including VAT", Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision(), '<'));
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SalesPriceIsNotOverriddenWhenSalesLineCreatedFromInbox()
@@ -4933,9 +4918,6 @@ codeunit 134152 "ERM Intercompany II"
           AccountType, AccountNo, SignFactor * LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
-#if not CLEAN22
-        GenJournalLine.Validate("IC Partner G/L Acc. No.", ICPartnerGLAccNo);
-#endif
         GenJournalLine.Validate("IC Account Type", "IC Journal Account Type"::"G/L Account");
         GenJournalLine.Validate("IC Account No.", ICPartnerGLAccNo);
         GenJournalLine.Modify(true);
@@ -5799,11 +5781,7 @@ codeunit 134152 "ERM Intercompany II"
         VerifyICOutboxJournalLine(
           GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"IC Partner", GenJournalLine."IC Partner Code",
           GenJournalLine."Document No.", SignFactor * GenJournalLine.Amount);
-#if not CLEAN22
-        ICAccountNo := GenJournalLine."IC Partner G/L Acc. No.";
-#else
         ICAccountNo := GenJournalLine."IC Account No.";
-#endif
         VerifyICOutboxJournalLine(
           GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"G/L Account", ICAccountNo,
           GenJournalLine."Document No.", SignFactor * -GenJournalLine.Amount);
@@ -6102,11 +6080,9 @@ codeunit 134152 "ERM Intercompany II"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            Validate("Check Doc. Total Amounts", false);
-            Modify(true);
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Check Doc. Total Amounts", false);
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     local procedure SelectGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -6900,54 +6876,6 @@ codeunit 134152 "ERM Intercompany II"
         Vendor.Validate("Privacy Blocked", true);
         Vendor.Modify(true);
         exit(Vendor."No.")
-    end;
-
-    local procedure MockICInboxTransaction(var ICInboxTransaction: Record "IC Inbox Transaction"; ICPartnerCode: Code[20]; SourceType: Option; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20])
-    begin
-        with ICInboxTransaction do begin
-            Init();
-            "IC Partner Code" := ICPartnerCode;
-            "Source Type" := SourceType;
-            "Document Type" := DocumentType;
-            "Document No." := DocumentNo;
-            "Posting Date" := WorkDate();
-            "Transaction Source" := "Transaction Source"::"Created by Partner";
-            "Document Date" := WorkDate();
-            "Original Document No." := DocumentNo;
-            "Transaction No." := LibraryUtility.GetNewRecNo(ICInboxTransaction, FieldNo("Transaction No."));
-            Insert();
-        end;
-    end;
-
-    local procedure MockICInboxSalesDocument(var ICInboxSalesHeader: Record "IC Inbox Sales Header"; ICInboxTransaction: Record "IC Inbox Transaction"; CustomerNo: Code[20]; QuantityValue: Decimal; UnitPrice: Decimal)
-    var
-        ICInboxSalesLine: Record "IC Inbox Sales Line";
-    begin
-        with ICInboxSalesHeader do begin
-            Init();
-            "Document Type" := ICInboxTransaction."Document Type";
-            "Sell-to Customer No." := CustomerNo;
-            "No." := ICInboxTransaction."Document No.";
-            "Bill-to Customer No." := CustomerNo;
-            "Posting Date" := WorkDate();
-            "Document Date" := WorkDate();
-            "IC Partner Code" := ICInboxTransaction."IC Partner Code";
-            "IC Transaction No." := ICInboxTransaction."Transaction No.";
-            "Transaction Source" := ICInboxTransaction."Transaction Source";
-            Insert();
-        end;
-
-        with ICInboxSalesLine do begin
-            "Document Type" := ICInboxTransaction."Document Type";
-            "Document No." := ICInboxTransaction."Document No.";
-            Quantity := QuantityValue;
-            "Unit Price" := UnitPrice;
-            "IC Partner Code" := ICInboxTransaction."IC Partner Code";
-            "IC Transaction No." := ICInboxTransaction."Transaction No.";
-            "Transaction Source" := ICInboxTransaction."Transaction Source";
-            "Line No." := LibraryUtility.GetNewRecNo(ICInboxSalesLine, FieldNo("Line No."));
-            Insert();
-        end;
     end;
 
     local procedure CreateAndPostSalesInvoiceWithDiscount(CustomerNo: Code[20]; ItemNo: Code[20]): Code[20]

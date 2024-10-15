@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.History;
+namespace Microsoft.Sales.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -526,6 +526,21 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Company Bank Account Code';
             TableRelation = "Bank Account" where("Currency Code" = field("Currency Code"));
         }
+        field(166; "Alt. VAT Registration No."; Boolean)
+        {
+            Caption = 'Alternative VAT Registration No.';
+            Editable = false;
+        }
+        field(167; "Alt. Gen. Bus Posting Group"; Boolean)
+        {
+            Caption = 'Alternative Gen. Bus. Posting Group';
+            Editable = false;
+        }
+        field(168; "Alt. VAT Bus Posting Group"; Boolean)
+        {
+            Caption = 'Alternative VAT Bus. Posting Group';
+            Editable = false;
+        }
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
@@ -558,6 +573,11 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Work Description';
             DataClassification = CustomerContent;
+        }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -924,15 +944,19 @@ table 114 "Sales Cr.Memo Header"
         exit(FieldCaption("VAT Registration No."));
     end;
 
+#if not CLEAN25
+    [Obsolete('The procedure is not used and will be obsoleted.', '25.0')]
     procedure GetCustomerGlobalLocationNumber(): Text
     begin
         exit('');
     end;
 
+    [Obsolete('The procedure is not used and will be obsoleted.', '25.0')]
     procedure GetCustomerGlobalLocationNumberLbl(): Text
     begin
         exit('');
     end;
+#endif
 
     procedure GetLegalStatement(): Text
     var

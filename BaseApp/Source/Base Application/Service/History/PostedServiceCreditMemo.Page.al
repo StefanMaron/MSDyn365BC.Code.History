@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Service.History;
+namespace Microsoft.Service.History;
 
 using Microsoft.CRM.Contact;
 using Microsoft.EServices.EDocument;
@@ -323,16 +323,6 @@ page 5972 "Posted Service Credit Memo"
                     ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                     Visible = false;
                 }
-                field("Transaction Mode Code"; Rec."Transaction Mode Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the transaction mode code for the service credit memo header.';
-                }
-                field("Bank Account Code"; Rec."Bank Account Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the bank account code for the service credit memo header.';
-                }
             }
             group(Shipping)
             {
@@ -399,6 +389,12 @@ page 5972 "Posted Service Credit Memo"
                         Caption = 'Country/Region';
                         Editable = false;
                         ToolTip = 'Specifies the country/region in the customer''s address.';
+                    }
+                    field("Ship-to Phone"; Rec."Ship-to Phone")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
                     }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
@@ -480,10 +476,23 @@ page 5972 "Posted Service Credit Memo"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Cr.Memo Header"),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Cr.Memo Header"),
                               "No." = field("No.");
             }
@@ -519,10 +528,13 @@ page 5972 "Posted Service Credit Memo"
                     ApplicationArea = Service;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    RunObject = Page "Service Credit Memo Statistics";
-                    RunPageLink = "No." = field("No.");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.OpenStatistics();
+                    end;
                 }
                 action("Co&mments")
                 {

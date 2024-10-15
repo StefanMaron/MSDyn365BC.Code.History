@@ -123,13 +123,12 @@ table 339 "Item Application Entry"
     }
 
     var
-        TempVisitedItemApplnEntry: Record "Item Application Entry" temporary;
-        TempItemLedgEntryInChainNo: Record "Integer" temporary;
+        TempVisitedItemApplicationEntry: Record "Item Application Entry" temporary;
+        TempItemLedgerEntryInChainNo: Record "Integer" temporary;
         SearchedItemLedgerEntry: Record "Item Ledger Entry";
         TrackChain: Boolean;
         MaxValuationDate: Date;
-
-        Text001: Label 'You have to run the %1 batch job, before you can revalue %2 %3.';
+        AppliedFromEntryToAdjustErr: Label 'You have to run the %1 batch job, before you can revalue %2 %3.', Comment = '%1 = Report::"Adjust Cost - Item Entries", %2 = Item Ledger Entry table caption, %3 = Inbound Item Ledger Entry No.';
 
     procedure AppliedOutbndEntryExists(InbndItemLedgEntryNo: Integer; IsCostApplication: Boolean; FilterOnOnlyCostNotAdjusted: Boolean): Boolean
     begin
@@ -211,18 +210,18 @@ table 339 "Item Application Entry"
 
     procedure CheckAppliedFromEntryToAdjust(InbndItemLedgEntryNo: Integer)
     var
-        OutbndItemLedgEntry: Record "Item Ledger Entry";
+        OutbndItemLedgerEntry: Record "Item Ledger Entry";
         ObjTransl: Record "Object Translation";
     begin
         if AppliedFromEntryExists(InbndItemLedgEntryNo) then
             repeat
-                OutbndItemLedgEntry.SetLoadFields("Applied Entry to Adjust");
-                OutbndItemLedgEntry.Get("Outbound Item Entry No.");
-                if OutbndItemLedgEntry."Applied Entry to Adjust" then
+                OutbndItemLedgerEntry.SetLoadFields("Applied Entry to Adjust");
+                OutbndItemLedgerEntry.Get("Outbound Item Entry No.");
+                if OutbndItemLedgerEntry."Applied Entry to Adjust" then
                     Error(
-                      Text001,
-                      ObjTransl.TranslateObject(ObjTransl."Object Type"::Report, REPORT::"Adjust Cost - Item Entries"),
-                      OutbndItemLedgEntry.TableCaption(), InbndItemLedgEntryNo);
+                      AppliedFromEntryToAdjustErr,
+                      ObjTransl.TranslateObject(ObjTransl."Object Type"::Report, Report::"Adjust Cost - Item Entries"),
+                      OutbndItemLedgerEntry.TableCaption(), InbndItemLedgEntryNo);
             until Next() = 0;
     end;
 
@@ -264,19 +263,19 @@ table 339 "Item Application Entry"
 
     procedure InsertHistory(): Integer
     var
-        ItemApplnEntryHistory: Record "Item Application Entry History";
+        ItemApplicationEntryHistory: Record "Item Application Entry History";
         EntryNo: Integer;
     begin
-        ItemApplnEntryHistory.SetCurrentKey("Primary Entry No.");
-        if not ItemApplnEntryHistory.FindLast() then
+        ItemApplicationEntryHistory.SetCurrentKey("Primary Entry No.");
+        if not ItemApplicationEntryHistory.FindLast() then
             EntryNo := 1;
-        EntryNo := ItemApplnEntryHistory."Primary Entry No.";
-        ItemApplnEntryHistory.TransferFields(Rec, true);
-        ItemApplnEntryHistory."Deleted Date" := CurrentDateTime;
-        ItemApplnEntryHistory."Deleted By User" := UserId;
-        ItemApplnEntryHistory."Primary Entry No." := EntryNo + 1;
-        ItemApplnEntryHistory.Insert();
-        exit(ItemApplnEntryHistory."Primary Entry No.");
+        EntryNo := ItemApplicationEntryHistory."Primary Entry No.";
+        ItemApplicationEntryHistory.TransferFields(Rec, true);
+        ItemApplicationEntryHistory."Deleted Date" := CurrentDateTime();
+        ItemApplicationEntryHistory."Deleted By User" := CopyStr(UserId(), 1, MaxStrLen(ItemApplicationEntryHistory."Deleted By User"));
+        ItemApplicationEntryHistory."Primary Entry No." := EntryNo + 1;
+        ItemApplicationEntryHistory.Insert();
+        exit(ItemApplicationEntryHistory."Primary Entry No.");
     end;
 
     procedure CostApplication(): Boolean
@@ -288,8 +287,8 @@ table 339 "Item Application Entry"
     begin
         if CheckItemLedgEntry."Entry No." = FromItemLedgEntry."Entry No." then
             exit(true);
-        TempVisitedItemApplnEntry.DeleteAll();
-        TempItemLedgEntryInChainNo.DeleteAll();
+        TempVisitedItemApplicationEntry.DeleteAll();
+        TempItemLedgerEntryInChainNo.DeleteAll();
 
         if FromItemLedgEntry.Positive then begin
             if CheckCyclicFwdToAppliedOutbnds(CheckItemLedgEntry, FromItemLedgEntry."Entry No.") then
@@ -305,148 +304,148 @@ table 339 "Item Application Entry"
         exit(CheckCyclicFwdToAppliedInbnds(CheckItemLedgEntry, FromItemLedgEntry."Entry No."));
     end;
 
-    local procedure CheckCyclicProdCyclicalLoop(CheckItemLedgEntry: Record "Item Ledger Entry"; ItemLedgEntry: Record "Item Ledger Entry"): Boolean
+    local procedure CheckCyclicProdCyclicalLoop(CheckItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
     var
         Result: Boolean;
         IsHandled: Boolean;
     begin
         Result := false;
         IsHandled := false;
-        OnBeforeCheckCyclicProdCyclicalLoop(Rec, CheckItemLedgEntry, ItemLedgEntry, Result, IsHandled);
+        OnBeforeCheckCyclicProdCyclicalLoop(Rec, CheckItemLedgerEntry, ItemLedgerEntry, Result, IsHandled);
         if IsHandled then
             exit(Result);
 
-        if not IsItemEverOutput(ItemLedgEntry."Item No.") then
+        if not IsItemEverOutput(ItemLedgerEntry."Item No.") then
             exit(false);
 
-        if ItemLedgEntry."Order Type" <> ItemLedgEntry."Order Type"::Production then
+        if ItemLedgerEntry."Order Type" <> ItemLedgerEntry."Order Type"::Production then
             exit(false);
-        if ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Output then
+        if ItemLedgerEntry."Entry Type" = ItemLedgerEntry."Entry Type"::Output then
             exit(false);
-        if ItemLedgEntry.Positive then
+        if ItemLedgerEntry.Positive then
             exit(false);
-        if (CheckItemLedgEntry."Entry Type" = CheckItemLedgEntry."Entry Type"::Output) and
-           (ItemLedgEntry."Order Type" = CheckItemLedgEntry."Order Type") and
-           (ItemLedgEntry."Order No." = CheckItemLedgEntry."Order No.") and
-           (ItemLedgEntry."Order Line No." = CheckItemLedgEntry."Order Line No.")
+        if (CheckItemLedgerEntry."Entry Type" = CheckItemLedgerEntry."Entry Type"::Output) and
+           (ItemLedgerEntry."Order Type" = CheckItemLedgerEntry."Order Type") and
+           (ItemLedgerEntry."Order No." = CheckItemLedgerEntry."Order No.") and
+           (ItemLedgerEntry."Order Line No." = CheckItemLedgerEntry."Order Line No.")
         then
             exit(true);
 
-        ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
-        ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type");
-        ItemLedgEntry.SetRange("Order No.", ItemLedgEntry."Order No.");
-        ItemLedgEntry.SetRange("Order Line No.", ItemLedgEntry."Order Line No.");
-        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
+        ItemLedgerEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
+        ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type");
+        ItemLedgerEntry.SetRange("Order No.", ItemLedgerEntry."Order No.");
+        ItemLedgerEntry.SetRange("Order Line No.", ItemLedgerEntry."Order Line No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
         if MaxValuationDate <> 0D then
-            ItemLedgEntry.SetRange("Posting Date", 0D, MaxValuationDate);
-        ItemLedgEntry.SetLoadFields(Positive);
-        if ItemLedgEntry.FindSet() then
+            ItemLedgerEntry.SetRange("Posting Date", 0D, MaxValuationDate);
+        ItemLedgerEntry.SetLoadFields(Positive);
+        if ItemLedgerEntry.FindSet() then
             repeat
                 if TrackChain then begin
-                    TempItemLedgEntryInChainNo.Number := ItemLedgEntry."Entry No.";
-                    if TempItemLedgEntryInChainNo.Insert() then;
+                    TempItemLedgerEntryInChainNo.Number := ItemLedgerEntry."Entry No.";
+                    if TempItemLedgerEntryInChainNo.Insert() then;
 
-                    if SearchedItemLedgerEntryFound(ItemLedgEntry) then
+                    if SearchedItemLedgerEntryFound(ItemLedgerEntry) then
                         exit(true);
                 end;
 
-                if ItemLedgEntry."Entry No." = CheckItemLedgEntry."Entry No." then
+                if ItemLedgerEntry."Entry No." = CheckItemLedgerEntry."Entry No." then
                     exit(true);
 
-                if ItemLedgEntry.Positive then
-                    if CheckCyclicFwdToAppliedOutbnds(CheckItemLedgEntry, ItemLedgEntry."Entry No.") then
+                if ItemLedgerEntry.Positive then
+                    if CheckCyclicFwdToAppliedOutbnds(CheckItemLedgerEntry, ItemLedgerEntry."Entry No.") then
                         exit(true);
-            until ItemLedgEntry.Next() = 0;
+            until ItemLedgerEntry.Next() = 0;
         exit(false);
     end;
 
-    local procedure CheckCyclicAsmCyclicalLoop(CheckItemLedgEntry: Record "Item Ledger Entry"; ItemLedgEntry: Record "Item Ledger Entry"): Boolean
+    local procedure CheckCyclicAsmCyclicalLoop(CheckItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
     begin
-        if ItemLedgEntry."Order Type" <> ItemLedgEntry."Order Type"::Assembly then
+        if ItemLedgerEntry."Order Type" <> ItemLedgerEntry."Order Type"::Assembly then
             exit(false);
-        if ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::"Assembly Output" then
+        if ItemLedgerEntry."Entry Type" = ItemLedgerEntry."Entry Type"::"Assembly Output" then
             exit(false);
-        if ItemLedgEntry.Positive then
+        if ItemLedgerEntry.Positive then
             exit(false);
-        if (CheckItemLedgEntry."Entry Type" = CheckItemLedgEntry."Entry Type"::"Assembly Output") and
-           (ItemLedgEntry."Order Type" = CheckItemLedgEntry."Order Type") and
-           (ItemLedgEntry."Order No." = CheckItemLedgEntry."Order No.")
+        if (CheckItemLedgerEntry."Entry Type" = CheckItemLedgerEntry."Entry Type"::"Assembly Output") and
+           (ItemLedgerEntry."Order Type" = CheckItemLedgerEntry."Order Type") and
+           (ItemLedgerEntry."Order No." = CheckItemLedgerEntry."Order No.")
         then
             exit(true);
 
-        ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
-        ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type");
-        ItemLedgEntry.SetRange("Order No.", ItemLedgEntry."Order No.");
-        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::"Assembly Output");
+        ItemLedgerEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
+        ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type");
+        ItemLedgerEntry.SetRange("Order No.", ItemLedgerEntry."Order No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Assembly Output");
         if MaxValuationDate <> 0D then
-            ItemLedgEntry.SetRange("Posting Date", 0D, MaxValuationDate);
-        ItemLedgEntry.SetLoadFields(Positive);
-        if ItemLedgEntry.FindSet() then
+            ItemLedgerEntry.SetRange("Posting Date", 0D, MaxValuationDate);
+        ItemLedgerEntry.SetLoadFields(Positive);
+        if ItemLedgerEntry.FindSet() then
             repeat
                 if TrackChain then begin
-                    TempItemLedgEntryInChainNo.Number := ItemLedgEntry."Entry No.";
-                    if TempItemLedgEntryInChainNo.Insert() then;
+                    TempItemLedgerEntryInChainNo.Number := ItemLedgerEntry."Entry No.";
+                    if TempItemLedgerEntryInChainNo.Insert() then;
 
-                    if SearchedItemLedgerEntryFound(ItemLedgEntry) then
+                    if SearchedItemLedgerEntryFound(ItemLedgerEntry) then
                         exit(true);
                 end;
 
-                if ItemLedgEntry."Entry No." = CheckItemLedgEntry."Entry No." then
+                if ItemLedgerEntry."Entry No." = CheckItemLedgerEntry."Entry No." then
                     exit(true);
 
-                if ItemLedgEntry.Positive then
-                    if CheckCyclicFwdToAppliedOutbnds(CheckItemLedgEntry, ItemLedgEntry."Entry No.") then
+                if ItemLedgerEntry.Positive then
+                    if CheckCyclicFwdToAppliedOutbnds(CheckItemLedgerEntry, ItemLedgerEntry."Entry No.") then
                         exit(true);
-            until ItemLedgEntry.Next() = 0;
+            until ItemLedgerEntry.Next() = 0;
         exit(false);
     end;
 
-    local procedure CheckCyclicFwdToAppliedOutbnds(CheckItemLedgEntry: Record "Item Ledger Entry"; EntryNo: Integer): Boolean
+    local procedure CheckCyclicFwdToAppliedOutbnds(CheckItemLedgerEntry: Record "Item Ledger Entry"; EntryNo: Integer): Boolean
     var
-        ItemApplnEntry: Record "Item Application Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
     begin
-        if ItemApplnEntry.AppliedOutbndEntryExists(EntryNo, false, false) then
-            exit(CheckCyclicFwdToAppliedEntries(CheckItemLedgEntry, ItemApplnEntry, EntryNo, true));
+        if ItemApplicationEntry.AppliedOutbndEntryExists(EntryNo, false, false) then
+            exit(CheckCyclicFwdToAppliedEntries(CheckItemLedgerEntry, ItemApplicationEntry, EntryNo, true));
         exit(false);
     end;
 
-    local procedure CheckCyclicFwdToAppliedInbnds(CheckItemLedgEntry: Record "Item Ledger Entry"; EntryNo: Integer): Boolean
+    local procedure CheckCyclicFwdToAppliedInbnds(CheckItemLedgerEntry: Record "Item Ledger Entry"; EntryNo: Integer): Boolean
     var
-        ItemApplnEntry: Record "Item Application Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
     begin
-        if ItemApplnEntry.AppliedInbndEntryExists(EntryNo, false) then
-            exit(CheckCyclicFwdToAppliedEntries(CheckItemLedgEntry, ItemApplnEntry, EntryNo, false));
+        if ItemApplicationEntry.AppliedInbndEntryExists(EntryNo, false) then
+            exit(CheckCyclicFwdToAppliedEntries(CheckItemLedgerEntry, ItemApplicationEntry, EntryNo, false));
         exit(false);
     end;
 
-    local procedure CheckCyclicFwdToInbndTransfers(CheckItemLedgEntry: Record "Item Ledger Entry"; EntryNo: Integer): Boolean
+    local procedure CheckCyclicFwdToInbndTransfers(CheckItemLedgerEntry: Record "Item Ledger Entry"; EntryNo: Integer): Boolean
     var
-        ItemApplnEntry: Record "Item Application Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
     begin
-        if ItemApplnEntry.AppliedInbndTransEntryExists(EntryNo, false) then
-            exit(CheckCyclicFwdToAppliedEntries(CheckItemLedgEntry, ItemApplnEntry, EntryNo, false));
+        if ItemApplicationEntry.AppliedInbndTransEntryExists(EntryNo, false) then
+            exit(CheckCyclicFwdToAppliedEntries(CheckItemLedgerEntry, ItemApplicationEntry, EntryNo, false));
         exit(false);
     end;
 
-    local procedure CheckCyclicFwdToProdOutput(CheckItemLedgEntry: Record "Item Ledger Entry"; EntryNo: Integer): Boolean
+    local procedure CheckCyclicFwdToProdOutput(CheckItemLedgerEntry: Record "Item Ledger Entry"; EntryNo: Integer): Boolean
     var
-        ItemLedgEntry: Record "Item Ledger Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        if not ItemLedgEntry.Get(EntryNo) then
+        if not ItemLedgerEntry.Get(EntryNo) then
             exit(false);
-        exit(CheckCyclicProdCyclicalLoop(CheckItemLedgEntry, ItemLedgEntry));
+        exit(CheckCyclicProdCyclicalLoop(CheckItemLedgerEntry, ItemLedgerEntry));
     end;
 
-    local procedure CheckCyclicFwdToAsmOutput(CheckItemLedgEntry: Record "Item Ledger Entry"; EntryNo: Integer): Boolean
+    local procedure CheckCyclicFwdToAsmOutput(CheckItemLedgerEntry: Record "Item Ledger Entry"; EntryNo: Integer): Boolean
     var
-        ItemLedgEntry: Record "Item Ledger Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        if not ItemLedgEntry.Get(EntryNo) then
+        if not ItemLedgerEntry.Get(EntryNo) then
             exit(false);
-        exit(CheckCyclicAsmCyclicalLoop(CheckItemLedgEntry, ItemLedgEntry));
+        exit(CheckCyclicAsmCyclicalLoop(CheckItemLedgerEntry, ItemLedgerEntry));
     end;
 
-    local procedure CheckCyclicFwdToAppliedEntries(CheckItemLedgEntry: Record "Item Ledger Entry"; var ItemApplnEntry: Record "Item Application Entry"; FromEntryNo: Integer; IsPositiveToNegativeFlow: Boolean): Boolean
+    local procedure CheckCyclicFwdToAppliedEntries(CheckItemLedgerEntry: Record "Item Ledger Entry"; var ItemApplicationEntry: Record "Item Application Entry"; FromEntryNo: Integer; IsPositiveToNegativeFlow: Boolean): Boolean
     var
         ToEntryNo: Integer;
     begin
@@ -455,52 +454,52 @@ table 339 "Item Application Entry"
 
         repeat
             if IsPositiveToNegativeFlow then
-                ToEntryNo := ItemApplnEntry."Outbound Item Entry No."
+                ToEntryNo := ItemApplicationEntry."Outbound Item Entry No."
             else
-                ToEntryNo := ItemApplnEntry."Inbound Item Entry No.";
+                ToEntryNo := ItemApplicationEntry."Inbound Item Entry No.";
 
-            if CheckLatestItemLedgEntryValuationDate(ItemApplnEntry."Item Ledger Entry No.", MaxValuationDate) then begin
+            if CheckLatestItemLedgerEntryValuationDate(ItemApplicationEntry."Item Ledger Entry No.", MaxValuationDate) then begin
                 if TrackChain then begin
-                    TempItemLedgEntryInChainNo.Number := ToEntryNo;
-                    if TempItemLedgEntryInChainNo.Insert() then;
+                    TempItemLedgerEntryInChainNo.Number := ToEntryNo;
+                    if TempItemLedgerEntryInChainNo.Insert() then;
                 end;
 
-                if ToEntryNo = CheckItemLedgEntry."Entry No." then
+                if ToEntryNo = CheckItemLedgerEntry."Entry No." then
                     exit(true);
 
                 if not IsPositiveToNegativeFlow then begin
-                    if CheckCyclicFwdToAppliedOutbnds(CheckItemLedgEntry, ToEntryNo) then
+                    if CheckCyclicFwdToAppliedOutbnds(CheckItemLedgerEntry, ToEntryNo) then
                         exit(true);
                 end else begin
-                    if CheckCyclicFwdToAppliedInbnds(CheckItemLedgEntry, ToEntryNo) then
+                    if CheckCyclicFwdToAppliedInbnds(CheckItemLedgerEntry, ToEntryNo) then
                         exit(true);
-                    if CheckCyclicFwdToProdOutput(CheckItemLedgEntry, ToEntryNo) then
+                    if CheckCyclicFwdToProdOutput(CheckItemLedgerEntry, ToEntryNo) then
                         exit(true);
-                    if CheckCyclicFwdToAsmOutput(CheckItemLedgEntry, ToEntryNo) then
+                    if CheckCyclicFwdToAsmOutput(CheckItemLedgerEntry, ToEntryNo) then
                         exit(true);
                 end;
             end;
-        until ItemApplnEntry.Next() = 0;
+        until ItemApplicationEntry.Next() = 0;
 
         if IsPositiveToNegativeFlow then
-            exit(CheckCyclicFwdToInbndTransfers(CheckItemLedgEntry, FromEntryNo));
+            exit(CheckCyclicFwdToInbndTransfers(CheckItemLedgerEntry, FromEntryNo));
         exit(false);
     end;
 
     local procedure EntryIsVisited(EntryNo: Integer): Boolean
     begin
-        if TempVisitedItemApplnEntry.Get(EntryNo) then begin
+        if TempVisitedItemApplicationEntry.Get(EntryNo) then begin
             // This is to take into account quantity flows from an inbound entry to an inbound transfer
-            if TempVisitedItemApplnEntry.Quantity = 2 then
+            if TempVisitedItemApplicationEntry.Quantity = 2 then
                 exit(true);
-            TempVisitedItemApplnEntry.Quantity := TempVisitedItemApplnEntry.Quantity + 1;
-            TempVisitedItemApplnEntry.Modify();
+            TempVisitedItemApplicationEntry.Quantity := TempVisitedItemApplicationEntry.Quantity + 1;
+            TempVisitedItemApplicationEntry.Modify();
             exit(false);
         end;
-        TempVisitedItemApplnEntry.Init();
-        TempVisitedItemApplnEntry."Entry No." := EntryNo;
-        TempVisitedItemApplnEntry.Quantity := TempVisitedItemApplnEntry.Quantity + 1;
-        TempVisitedItemApplnEntry.Insert();
+        TempVisitedItemApplicationEntry.Init();
+        TempVisitedItemApplicationEntry."Entry No." := EntryNo;
+        TempVisitedItemApplicationEntry.Quantity := TempVisitedItemApplicationEntry.Quantity + 1;
+        TempVisitedItemApplicationEntry.Insert();
         exit(false);
     end;
 
@@ -513,8 +512,8 @@ table 339 "Item Application Entry"
 
     procedure GetVisitedEntries(FromItemLedgEntry: Record "Item Ledger Entry"; var ItemLedgEntryInChain: Record "Item Ledger Entry"; WithinValuationDate: Boolean)
     var
-        ToItemLedgEntry: Record "Item Ledger Entry";
-        DummyItemLedgEntry: Record "Item Ledger Entry";
+        ToItemLedgerEntry: Record "Item Ledger Entry";
+        DummyItemLedgerEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
         AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
     begin
@@ -530,77 +529,81 @@ table 339 "Item Application Entry"
         TrackChain := true;
         ItemLedgEntryInChain.Reset();
         ItemLedgEntryInChain.DeleteAll();
-        DummyItemLedgEntry.Init();
-        DummyItemLedgEntry."Entry No." := -1;
-        CheckIsCyclicalLoop(DummyItemLedgEntry, FromItemLedgEntry);
-        if TempItemLedgEntryInChainNo.FindSet() then
+        DummyItemLedgerEntry.Init();
+        DummyItemLedgerEntry."Entry No." := -1;
+        CheckIsCyclicalLoop(DummyItemLedgerEntry, FromItemLedgEntry);
+        if TempItemLedgerEntryInChainNo.FindSet() then
             repeat
-                ToItemLedgEntry.Get(TempItemLedgEntryInChainNo.Number);
-                ItemLedgEntryInChain := ToItemLedgEntry;
+                ToItemLedgerEntry.Get(TempItemLedgerEntryInChainNo.Number);
+                ItemLedgEntryInChain := ToItemLedgerEntry;
                 ItemLedgEntryInChain.Insert();
-            until TempItemLedgEntryInChainNo.Next() = 0;
+            until TempItemLedgerEntryInChainNo.Next() = 0;
     end;
 
     procedure OutboundApplied(EntryNo: Integer; SameType: Boolean): Decimal
     var
-        Applications: Record "Item Application Entry";
-        ItemEntry: Record "Item Ledger Entry";
-        OriginalEntry: Record "Item Ledger Entry";
-        Quantity: Decimal;
+        ItemApplicationEntry: Record "Item Application Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        OriginalItemLedgerEntry: Record "Item Ledger Entry";
+        CalcQuantity: Decimal;
     begin
-        OriginalEntry.SetLoadFields("Entry Type");
-        if not OriginalEntry.Get(EntryNo) then
+        OriginalItemLedgerEntry.SetLoadFields("Entry Type");
+        if not OriginalItemLedgerEntry.Get(EntryNo) then
             exit(0);
-        if OriginalEntry."Entry Type" = OriginalEntry."Entry Type"::Transfer then
+        if OriginalItemLedgerEntry."Entry Type" = OriginalItemLedgerEntry."Entry Type"::Transfer then
             exit(0);
-        Applications.SetCurrentKey("Outbound Item Entry No.");
-        Applications.SetRange("Outbound Item Entry No.", EntryNo);
-        Applications.SetRange("Item Ledger Entry No.", EntryNo);
-        Quantity := 0;
-        if Applications.FindSet() then
+
+        ItemApplicationEntry.SetCurrentKey("Outbound Item Entry No.");
+        ItemApplicationEntry.SetLoadFields("Inbound Item Entry No.", Quantity);
+        ItemApplicationEntry.SetRange("Outbound Item Entry No.", EntryNo);
+        ItemApplicationEntry.SetRange("Item Ledger Entry No.", EntryNo);
+        CalcQuantity := 0;
+        if ItemApplicationEntry.FindSet() then
             repeat
-                ItemEntry.SetLoadFields("Entry Type");
-                if ItemEntry.Get(Applications."Inbound Item Entry No.") then
+                ItemLedgerEntry.SetLoadFields("Entry Type");
+                if ItemLedgerEntry.Get(ItemApplicationEntry."Inbound Item Entry No.") then
                     if SameType then begin
-                        if ItemEntry."Entry Type" = OriginalEntry."Entry Type" then
-                            Quantity := Quantity + Applications.Quantity
+                        if ItemLedgerEntry."Entry Type" = OriginalItemLedgerEntry."Entry Type" then
+                            CalcQuantity := CalcQuantity + ItemApplicationEntry.Quantity
                     end else
-                        Quantity := Quantity + Applications.Quantity;
-            until Applications.Next() <= 0;
-        exit(Quantity);
+                        CalcQuantity := CalcQuantity + ItemApplicationEntry.Quantity;
+            until ItemApplicationEntry.Next() <= 0;
+        exit(CalcQuantity);
     end;
 
     procedure InboundApplied(EntryNo: Integer; SameType: Boolean): Decimal
     var
-        Applications: Record "Item Application Entry";
-        ItemEntry: Record "Item Ledger Entry";
-        OriginalEntry: Record "Item Ledger Entry";
-        Quantity: Decimal;
+        ItemApplicationEntry: Record "Item Application Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        OriginalItemLedgerEntry: Record "Item Ledger Entry";
+        CalcQuantity: Decimal;
     begin
-        OriginalEntry.SetLoadFields("Entry Type", Positive);
-        if not OriginalEntry.Get(EntryNo) then
+        OriginalItemLedgerEntry.SetLoadFields("Entry Type", Positive);
+        if not OriginalItemLedgerEntry.Get(EntryNo) then
             exit(0);
-        if OriginalEntry."Entry Type" = OriginalEntry."Entry Type"::Transfer then
+        if OriginalItemLedgerEntry."Entry Type" = OriginalItemLedgerEntry."Entry Type"::Transfer then
             exit(0);
-        Applications.SetCurrentKey("Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.", "Cost Application");
-        Applications.SetFilter("Outbound Item Entry No.", '<>%1', 0);
-        Applications.SetRange("Inbound Item Entry No.", EntryNo);
-        if not OriginalEntry.Positive then
-            Applications.SetRange("Item Ledger Entry No.", EntryNo);
-        Quantity := 0;
-        if Applications.FindSet() then
+
+        ItemApplicationEntry.SetCurrentKey("Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.", "Cost Application");
+        ItemApplicationEntry.SetLoadFields("Outbound Item Entry No.", Quantity);
+        ItemApplicationEntry.SetFilter("Outbound Item Entry No.", '<>%1', 0);
+        ItemApplicationEntry.SetRange("Inbound Item Entry No.", EntryNo);
+        if not OriginalItemLedgerEntry.Positive then
+            ItemApplicationEntry.SetRange("Item Ledger Entry No.", EntryNo);
+        CalcQuantity := 0;
+        if ItemApplicationEntry.FindSet() then
             repeat
-                ItemEntry.SetLoadFields("Entry Type", "Applies-to Entry");
-                if ItemEntry.Get(Applications."Outbound Item Entry No.") then
+                ItemLedgerEntry.SetLoadFields("Entry Type", "Applies-to Entry");
+                if ItemLedgerEntry.Get(ItemApplicationEntry."Outbound Item Entry No.") then
                     if SameType then begin
-                        if (ItemEntry."Entry Type" = OriginalEntry."Entry Type") or
-                           (ItemEntry."Applies-to Entry" <> 0)
+                        if (ItemLedgerEntry."Entry Type" = OriginalItemLedgerEntry."Entry Type") or
+                           (ItemLedgerEntry."Applies-to Entry" <> 0)
                         then
-                            Quantity := Quantity + Applications.Quantity
+                            CalcQuantity := CalcQuantity + ItemApplicationEntry.Quantity
                     end else
-                        Quantity := Quantity + Applications.Quantity;
-            until Applications.Next() = 0;
-        exit(Quantity);
+                        CalcQuantity := CalcQuantity + ItemApplicationEntry.Quantity;
+            until ItemApplicationEntry.Next() = 0;
+        exit(CalcQuantity);
     end;
 
     procedure Returned(EntryNo: Integer): Decimal
@@ -610,31 +613,32 @@ table 339 "Item Application Entry"
 
     procedure ExistsBetween(ILE1: Integer; ILE2: Integer): Boolean
     var
-        Applications: Record "Item Application Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
     begin
-        Applications.SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.");
-        Applications.SetRange("Inbound Item Entry No.", ILE1);
-        Applications.SetRange("Outbound Item Entry No.", ILE2);
-        if not Applications.IsEmpty() then
+        ItemApplicationEntry.SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.");
+        ItemApplicationEntry.SetRange("Inbound Item Entry No.", ILE1);
+        ItemApplicationEntry.SetRange("Outbound Item Entry No.", ILE2);
+        if not ItemApplicationEntry.IsEmpty() then
             exit(true);
-        Applications.SetRange("Inbound Item Entry No.", ILE2);
-        Applications.SetRange("Outbound Item Entry No.", ILE1);
-        exit(not Applications.IsEmpty);
+
+        ItemApplicationEntry.SetRange("Inbound Item Entry No.", ILE2);
+        ItemApplicationEntry.SetRange("Outbound Item Entry No.", ILE1);
+        exit(not ItemApplicationEntry.IsEmpty());
     end;
 
     local procedure IsItemEverOutput(ItemNo: Code[20]): Boolean
     var
-        ItemLedgEntry: Record "Item Ledger Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        ItemLedgEntry.SetCurrentKey("Item No.", "Entry Type");
-        ItemLedgEntry.SetRange("Item No.", ItemNo);
-        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
-        exit(not ItemLedgEntry.IsEmpty());
+        ItemLedgerEntry.SetCurrentKey("Item No.", "Entry Type");
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        exit(not ItemLedgerEntry.IsEmpty());
     end;
 
     procedure SetOutboundsNotUpdated(ItemLedgEntry: Record "Item Ledger Entry")
     var
-        ItemApplnEntry: Record "Item Application Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
     begin
         if not (ItemLedgEntry."Applied Entry to Adjust" or ItemLedgEntry.Open) then
             exit;
@@ -642,25 +646,24 @@ table 339 "Item Application Entry"
         if ItemLedgEntry.Quantity < 0 then
             exit;
 
-        ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.");
-        ItemApplnEntry.SetRange("Inbound Item Entry No.", ItemLedgEntry."Entry No.");
-        OnSetOutboundsNotUpdatedOnAfterSetFilters(ItemApplnEntry);
-        ItemApplnEntry.ModifyAll("Outbound Entry is Updated", false);
+        ItemApplicationEntry.SetCurrentKey("Inbound Item Entry No.");
+        ItemApplicationEntry.SetRange("Inbound Item Entry No.", ItemLedgEntry."Entry No.");
+        OnSetOutboundsNotUpdatedOnAfterSetFilters(ItemApplicationEntry);
+        ItemApplicationEntry.ModifyAll("Outbound Entry is Updated", false);
     end;
 
     procedure SetInboundToUpdated(ItemLedgEntry: Record "Item Ledger Entry")
     var
-        ItemApplnEntry: Record "Item Application Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
     begin
-
-        ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.");
-        ItemApplnEntry.SetRange("Outbound Item Entry No.", ItemLedgEntry."Entry No.");
-        OnSetInboundToUpdatedOnAfterSetFilters(ItemApplnEntry);
+        ItemApplicationEntry.SetCurrentKey("Outbound Item Entry No.");
+        ItemApplicationEntry.SetRange("Outbound Item Entry No.", ItemLedgEntry."Entry No.");
+        OnSetInboundToUpdatedOnAfterSetFilters(ItemApplicationEntry);
         if ItemLedgEntry."Completely Invoiced" then
-            if ItemApplnEntry.Count = 1 then begin
-                ItemApplnEntry.FindFirst();
-                ItemApplnEntry."Outbound Entry is Updated" := true;
-                ItemApplnEntry.Modify();
+            if ItemApplicationEntry.Count() = 1 then begin
+                ItemApplicationEntry.FindFirst();
+                ItemApplicationEntry."Outbound Entry is Updated" := true;
+                ItemApplicationEntry.Modify();
             end;
     end;
 
@@ -684,10 +687,10 @@ table 339 "Item Application Entry"
         ItemApplicationEntry.SetRange("Outbound Item Entry No.", OutboundItemLedgEntryNo);
         ItemApplicationEntry.SetRange("Item Ledger Entry No.", OutboundItemLedgEntryNo);
         ItemApplicationEntry.SetRange("Cost Application", false);
-        exit(ItemApplicationEntry.IsEmpty);
+        exit(ItemApplicationEntry.IsEmpty());
     end;
 
-    local procedure CheckLatestItemLedgEntryValuationDate(ItemLedgerEntryNo: Integer; MaxDate: Date): Boolean
+    local procedure CheckLatestItemLedgerEntryValuationDate(ItemLedgerEntryNo: Integer; MaxDate: Date): Boolean
     var
         ValueEntry: Record "Value Entry";
     begin

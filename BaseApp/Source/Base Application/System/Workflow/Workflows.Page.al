@@ -385,7 +385,9 @@ page 1500 Workflows
         IsSaaS: Boolean;
         Source: Text;
         BusinessCentralSourceTxt: Label 'Business Central';
+#pragma warning disable AA0074
         FlowSourceText: Label 'Power Automate';
+#pragma warning restore AA0074
 
     protected var
         ExportEnabled: Boolean;

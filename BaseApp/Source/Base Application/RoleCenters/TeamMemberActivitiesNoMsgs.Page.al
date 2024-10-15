@@ -29,9 +29,6 @@ page 9043 "Team Member Activities No Msgs"
                         Caption = 'Open My Current Time Sheet';
                         Image = TileBrickCalendar;
                         ToolTip = 'Open the time sheet for the current period. Current period is based on work date set in my settings.';
-#if not CLEAN22
-                        Visible = TimeSheetV2Enabled;
-#endif
                         trigger OnAction()
                         var
                             TimeSheetHeader: Record "Time Sheet Header";
@@ -121,16 +118,10 @@ page 9043 "Team Member Activities No Msgs"
             Rec.SetRange("User ID Filter", UserId);
             ShowTimeSheetsToApprove := false;
         end;
-#if not CLEAN22
-        TimeSheetV2Enabled := TimeSheetManagement.TimeSheetV2Enabled();
-#endif
     end;
 
     var
         TimeSheetManagement: Codeunit "Time Sheet Management";
-#if not CLEAN22
-        TimeSheetV2Enabled: Boolean;
-#endif
         ShowTimeSheetsToApprove: Boolean;
 }
 

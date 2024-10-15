@@ -55,13 +55,12 @@ report 11000007 "Export BTL91-ABN AMRO"
                     then begin
                         AccountingSetup.TestField("LCY Code");
                         CurrencycodePayment := Currencycode;
-                    end else begin
+                    end else
                         if "Foreign Currency" = '' then begin
                             AccountingSetup.TestField("LCY Code");
                             CurrencycodePayment := AccountingSetup."LCY Code";
                         end else
                             CurrencycodePayment := "Foreign Currency";
-                    end;
                     TotAmount := TotAmount + UseAmount;
 
                     Concerns := Format("Nature of the Payment", 0, Text1000008);

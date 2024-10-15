@@ -200,10 +200,13 @@ table 1275 "Doc. Exch. Service Setup"
             trigger OnValidate()
             var
                 CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+                DocExchServiceSetupConsentProvidedLbl: Label 'Document Exchange Service Setup - consent provided by user %1.', Locked = true;
             begin
                 if Enabled then begin
                     if not CustomerConsentMgt.ConfirmUserConsent() then
                         Enabled := false;
+                    if Enabled then
+                        Session.LogAuditMessage(StrSubstNo(DocExchServiceSetupConsentProvidedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
                     DocExchServiceMgt.VerifyPrerequisites(true);
                 end;
             end;
@@ -247,12 +250,9 @@ table 1275 "Doc. Exch. Service Setup"
     }
 
     var
-        [NonDebuggable]
-        TempClientSecret: Text;
-        [NonDebuggable]
-        TempAccessToken: Text;
-        [NonDebuggable]
-        TempRefreshToken: Text;
+        TempClientSecret: SecretText;
+        TempAccessToken: SecretText;
+        TempRefreshToken: SecretText;
 
     trigger OnDelete()
     begin
@@ -293,8 +293,7 @@ table 1275 "Doc. Exch. Service Setup"
         TelemetryCategoryTok: Label 'AL Document Exchange Service', Locked = true;
 
     [Scope('OnPrem')]
-    [NonDebuggable]
-    procedure SetClientSecret(ClientSecretText: Text)
+    procedure SetClientSecret(ClientSecretText: SecretText)
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
@@ -313,12 +312,21 @@ table 1275 "Doc. Exch. Service Setup"
 
         IsolatedStorageManagement.Set(Format("Client Secret Key"), ClientSecretText, DATASCOPE::Company);
     end;
+#if not CLEAN25
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by GetClientSecretAsSecretText', '25.0')]
     [NonDebuggable]
     procedure GetClientSecret(): Text
+    begin
+        exit(GetClientSecretAsSecretText().Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetClientSecretAsSecretText(): SecretText
     var
-        Value: Text;
+        Value: SecretText;
     begin
         if IsTemporary() then
             exit(TempClientSecret);
@@ -327,11 +335,11 @@ table 1275 "Doc. Exch. Service Setup"
             if IsolatedStorageManagement.Get(Format("Client Secret Key"), DATASCOPE::Company, Value) then
                 exit(Value);
 
-        exit('');
+        Clear(Value);
+        exit(Value);
     end;
 
     [Scope('OnPrem')]
-    [NonDebuggable]
     procedure DeleteClientSecret()
     begin
         if IsTemporary() then begin
@@ -344,10 +352,21 @@ table 1275 "Doc. Exch. Service Setup"
 
         IsolatedStorageManagement.Delete(Format("Client Secret Key"), DATASCOPE::Company);
     end;
+#if not CLEAN25
 
     [Scope('OnPrem')]
-    [NonDebuggable]
+    [Obsolete('Replaced by SetAccessToken(AccessToken: SecretText)', '25.0')]
     procedure SetAccessToken(AccessToken: Text)
+    var
+        AccessTokenAsSecretText: SecretText;
+    begin
+        AccessTokenAsSecretText := AccessToken;
+        SetAccessToken(AccessTokenAsSecretText);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure SetAccessToken(AccessToken: SecretText)
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
@@ -366,25 +385,33 @@ table 1275 "Doc. Exch. Service Setup"
 
         SetToken("Access Token Key", AccessToken);
     end;
+#if not CLEAN25
 
     [Scope('OnPrem')]
     [NonDebuggable]
+    [Obsolete('Replaced by GetAccessTokenAsSecretText', '25.0')]
     procedure GetAccessToken(): Text
+    begin
+        exit(GetAccessTokenAsSecretText().Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetAccessTokenAsSecretText(): SecretText
     var
-        Value: Text;
+        Value: SecretText;
     begin
         if IsTemporary() then
             exit(TempAccessToken);
 
         if IsNullGuid("Access Token Key") then
-            exit('');
+            exit(Value);
 
-        Value := GetToken("Access Token Key");
+        Value := GetTokenAsSecretText("Access Token Key");
         exit(Value);
     end;
 
     [Scope('OnPrem')]
-    [NonDebuggable]
     procedure DeleteAccessToken()
     begin
         if IsTemporary() then begin
@@ -397,10 +424,21 @@ table 1275 "Doc. Exch. Service Setup"
 
         DeleteToken("Access Token Key");
     end;
+#if not CLEAN25
+
+    [Obsolete('Replaced by SetRefreshToken(RefreshToken: SecretText)', '25.0')]
+    [Scope('OnPrem')]
+    procedure SetRefreshToken(RefreshToken: Text)
+    var
+        RefreshTokenAsSecretText: SecretText;
+    begin
+        RefreshTokenAsSecretText := RefreshToken;
+        SetRefreshToken(RefreshTokenAsSecretText);
+    end;
+#endif
 
     [Scope('OnPrem')]
-    [NonDebuggable]
-    procedure SetRefreshToken(RefreshToken: Text)
+    procedure SetRefreshToken(RefreshToken: SecretText)
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
@@ -419,25 +457,33 @@ table 1275 "Doc. Exch. Service Setup"
 
         SetToken("Refresh Token Key", RefreshToken);
     end;
+#if not CLEAN25
 
     [Scope('OnPrem')]
     [NonDebuggable]
+    [Obsolete('Replaced by GetRefreshTokenAsSecretText', '25.0')]
     procedure GetRefreshToken(): Text
+    begin
+        exit(GetRefreshTokenAsSecretText().Unwrap())
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetRefreshTokenAsSecretText(): SecretText
     var
-        Value: Text;
+        Value: SecretText;
     begin
         if IsTemporary() then
             exit(TempRefreshToken);
 
         if IsNullGuid("Refresh Token Key") then
-            exit('');
+            exit(Value);
 
-        Value := GetToken("Refresh Token Key");
+        Value := GetTokenAsSecretText("Refresh Token Key");
         exit(Value);
     end;
 
     [Scope('OnPrem')]
-    [NonDebuggable]
     procedure DeleteRefreshToken()
     begin
         if IsTemporary() then begin
@@ -466,19 +512,19 @@ table 1275 "Doc. Exch. Service Setup"
     end;
 
     [NonDebuggable]
-    local procedure GetToken(TokenKey: Guid): Text
+    local procedure GetTokenAsSecretText(TokenKey: Guid): SecretText
     var
         I: Integer;
         N: Integer;
         PartKey: Text;
-        TokenPart: Text;
+        TokenPart: SecretText;
         TokenValue: Text;
     begin
         N := GetMaxTokenPartCount();
         for I := 1 to N do begin
             PartKey := GetTokenPartKey(TokenKey, I);
             if IsolatedStorageManagement.Get(PartKey, DataScope::Company, TokenPart) then
-                TokenValue += TokenPart
+                TokenValue += TokenPart.Unwrap()
             else
                 break;
         end;
@@ -486,17 +532,20 @@ table 1275 "Doc. Exch. Service Setup"
     end;
 
     [NonDebuggable]
-    local procedure SetToken(TokenKey: Guid; TokenValue: Text): Boolean
+    local procedure SetToken(TokenKey: Guid; TokenValueAsSecretText: SecretText): Boolean
     var
         TokenLen: Integer;
         PartLen: Integer;
         PartCount: Integer;
         PartKey: Text;
         TokenPart: Text;
+        TokenValue: Text;
+        TokenPartAsSecretText: SecretText;
         I: Integer;
     begin
         DeleteToken(TokenKey);
 
+        TokenValue := TokenValueAsSecretText.Unwrap();
         TokenLen := StrLen(TokenValue);
         PartLen := GetMaxTokenPartLength();
         PartCount := TokenLen div PartLen;
@@ -505,14 +554,15 @@ table 1275 "Doc. Exch. Service Setup"
 
         if PartCount > GetMaxTokenPartCount() then begin
             PartKey := GetTokenPartKey(TokenKey, 1);
-            exit(IsolatedStorageManagement.Set(PartKey, TokenValue, DataScope::Company));
+            exit(IsolatedStorageManagement.Set(PartKey, TokenValueAsSecretText, DataScope::Company));
         end;
 
         for I := 1 to PartCount do begin
             PartKey := GetTokenPartKey(TokenKey, I);
             TokenPart := CopyStr(TokenValue, (PartLen * (I - 1)) + 1, PartLen);
-            if TokenPart <> '' then
-                if not IsolatedStorageManagement.Set(PartKey, TokenPart, DataScope::Company) then
+            TokenPartAsSecretText := TokenPart;
+            if not TokenPartAsSecretText.IsEmpty() then
+                if not IsolatedStorageManagement.Set(PartKey, TokenPartAsSecretText, DataScope::Company) then
                     exit(false);
         end;
         exit(true);

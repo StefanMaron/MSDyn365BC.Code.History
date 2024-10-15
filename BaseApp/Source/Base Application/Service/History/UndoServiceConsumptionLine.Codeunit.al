@@ -64,17 +64,24 @@ codeunit 5819 "Undo Service Consumption Line"
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
         WhseUndoQty: Codeunit "Whse. Undo Quantity";
         UndoPostingMgt: Codeunit "Undo Posting Management";
+        ServUndoPostingMgt: Codeunit "Serv. Undo Posting Mgt.";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+#pragma warning disable AA0074
         Text000: Label 'Do you want to undo consumption of the selected shipment line(s)?';
         Text001: Label 'Undo quantity consumed posting...';
         Text002: Label 'There is not enough space to insert correction lines.';
+#pragma warning restore AA0074
         TrackingSpecificationExists: Boolean;
         HideDialog: Boolean;
+#pragma warning disable AA0074
         Text003: Label 'Checking lines...';
         Text004: Label 'You cannot undo consumption on the line because it has been already posted to Projects.';
+#pragma warning disable AA0470
         Text005: Label 'You cannot undo consumption because the original service order %1 is already closed.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NextLineNo: Integer;
 
     procedure SetHideDialog(NewHideDialog: Boolean)
@@ -169,7 +176,7 @@ codeunit 5819 "Undo Service Consumption Line"
 
         if not ServLine.Get(ServLine."Document Type"::Order, ServShptLine."Order No.", ServShptLine."Order Line No.") then
             Error(Text005, ServShptLine."Order No.");
-        UndoPostingMgt.TestServShptLine(ServShptLine);
+        ServUndoPostingMgt.TestServShptLine(ServShptLine);
         if ServShptLine.Type = ServShptLine.Type::Item then begin
             UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Service Shipment Line",
               ServShptLine."Document No.", ServShptLine."Line No.", ServShptLine."Quantity (Base)", ServShptLine."Item Shpt. Entry No.");
@@ -205,8 +212,8 @@ codeunit 5819 "Undo Service Consumption Line"
 
         ItemJnlLine.CopyDocumentFields(ItemJnlLine."Document Type"::"Service Shipment", ServShptHeader."No.", '', SourceCodeSetup."Service Management", '');
 
-        ItemJnlLine.CopyFromServShptHeader(ServShptHeader);
-        ItemJnlLine.CopyFromServShptLineUndo(ServShptLine);
+        ServShptHeader.CopyToItemJnlLine(ItemJnlLine);
+        ServShptLine.CopyToItemJnlLineUndo(ItemJnlLine);
 
         ItemJnlLine.Quantity := QtyToShip;
         ItemJnlLine."Quantity (Base)" := QtyToShipBase;
@@ -261,8 +268,8 @@ codeunit 5819 "Undo Service Consumption Line"
         ResJournalLine.Init();
         ResJournalLine.CopyDocumentFields(ServiceShipmentLine."Document No.", '', SourceCodeSetup."Service Management", ServShptHeader."No. Series");
 
-        ResJournalLine.CopyFromServShptHeader(ServShptHeader);
-        ResJournalLine.CopyFromServShptLine(ServiceShipmentLine);
+        ServShptHeader.CopyToResJournalLine(ResJournalLine);
+        ServiceShipmentLine.CopyToResJournalLine(ResJournalLine);
         ResJournalLine."Source Type" := ResJournalLine."Source Type"::Customer;
         ResJournalLine."Source No." := ServShptHeader."Customer No.";
 
@@ -289,8 +296,8 @@ codeunit 5819 "Undo Service Consumption Line"
         ItemJnlLine.CopyDocumentFields(
           ItemJnlLine."Document Type"::"Service Shipment", ServShptLine."Document No.", '', SourceCodeSetup."Service Management", '');
 
-        ItemJnlLine.CopyFromServShptHeader(ServShptHeader);
-        ItemJnlLine.CopyFromServShptLineUndo(ServShptLine);
+        ServShptHeader.CopyToItemJnlLine(ItemJnlLine);
+        ServShptLine.CopyToItemJnlLineUndo(ItemJnlLine);
 
         ItemJnlLine."Source Type" := ItemJnlLine."Source Type"::Customer;
         ItemJnlLine."Source No." := ServShptHeader."Customer No.";
@@ -482,7 +489,7 @@ codeunit 5819 "Undo Service Consumption Line"
         ServLine: Record "Service Line";
     begin
         ServLine.Get(ServLine."Document Type"::Order, ServShptLine."Order No.", ServShptLine."Order Line No.");
-        UndoPostingMgt.UpdateServLineCnsm(ServLine, ServShptLine."Quantity Consumed", ServShptLine."Qty. Consumed (Base)", TempGlobalItemLedgEntry);
+        ServUndoPostingMgt.UpdateServLineCnsm(ServLine, ServShptLine."Quantity Consumed", ServShptLine."Qty. Consumed (Base)", TempGlobalItemLedgEntry);
         OnAfterUpdateOrderLine(ServLine, ServShptLine);
     end;
 
@@ -503,7 +510,7 @@ codeunit 5819 "Undo Service Consumption Line"
         if TempItemEntryRelation.Find('-') then
             repeat
                 ItemEntryRelation := TempItemEntryRelation;
-                ItemEntryRelation.TransferFieldsServShptLine(NewServShptLine);
+                NewServShptLine.TransferToItemEntryRelation(ItemEntryRelation);
                 ItemEntryRelation.Insert();
             until TempItemEntryRelation.Next() = 0;
         TempItemEntryRelation.DeleteAll();

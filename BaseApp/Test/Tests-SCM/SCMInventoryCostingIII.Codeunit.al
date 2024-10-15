@@ -22,7 +22,6 @@ codeunit 137288 "SCM Inventory Costing III"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
-        AppliedQuantityUndoError: Label 'Remaining Quantity must be equal to ''1''  in Item Ledger Entry: Entry No.=%1. Current value is ''0''.';
         AvailabilityWarning: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         DeletionError: Label 'Order must be deleted.';
         ItemFilter: Label '%1|%2', Locked = true;
@@ -123,7 +122,7 @@ codeunit 137288 "SCM Inventory Costing III"
         asserterror UndoPurchaseReceipt(PurchaseLine);
 
         // Verify: Verify error after undo Receipt with applied Quantity.
-        Assert.ExpectedError(StrSubstNo(AppliedQuantityUndoError, ItemLedgerEntry."Entry No."));
+        Assert.ExpectedTestFieldError(ItemLedgerEntry.FieldCaption("Remaining Quantity"), Format(1));
     end;
 
     [Test]
@@ -1092,7 +1091,7 @@ codeunit 137288 "SCM Inventory Costing III"
         asserterror UndoReturnReceipt(SalesLine);
 
         // Verify: Verify error after undo Receipt with applied Quantity.
-        Assert.ExpectedError(StrSubstNo(AppliedQuantityUndoError, ItemLedgerEntry."Entry No."));
+        Assert.ExpectedTestFieldError(ItemLedgerEntry.FieldCaption("Remaining Quantity"), Format(1));
     end;
 
     [Test]

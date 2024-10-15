@@ -377,6 +377,10 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         CreateWarehouseLocation.UseRequestPage(false);
         Commit();
         asserterror CreateWarehouseLocation.RunModal();
+
+        if ExpectedErrorMessage = ErrBinDoesNotExist then
+            Assert.ExpectedErrorCannotFind(Database::Bin);
+
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
         ClearLastError();

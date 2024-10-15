@@ -237,13 +237,6 @@ table 11000004 "Transaction Mode"
         end;
     end;
 
-    [Obsolete('Replaced by CheckTransactionModePartnerType() with enum parameter PartnerType.', '17.0')]
-    [Scope('OnPrem')]
-    procedure CheckTransModePartnerType(AccountType: Option Customer,Vendor,Employee; TransactionModeCode: Code[20]; PartnerType: Option " ",Company,Person): Boolean
-    begin
-        exit(CheckTransactionModePartnerType(AccountType, TransactionModeCode, Enum::"Partner Type".FromInteger(PartnerType)));
-    end;
-
     procedure CheckTransactionModePartnerType(AccountType: Option Customer,Vendor,Employee; TransactionModeCode: Code[20]; PartnerType: Enum "Partner Type"): Boolean
     begin
         if TransactionModeCode <> '' then begin

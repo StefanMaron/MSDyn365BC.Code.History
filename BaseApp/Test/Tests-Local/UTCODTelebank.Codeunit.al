@@ -224,22 +224,19 @@ codeunit 144057 "UT COD Telebank"
     begin
         MockPaymentHistory(PaymentHistory);
 
-        with PaymentHistoryLine do begin
-            MockPaymentHistoryLine(PaymentHistoryLine, PaymentHistory);
+        MockPaymentHistoryLine(PaymentHistoryLine, PaymentHistory);
+        // second line
+        PaymentHistoryLine."Line No." += 1;
+        PaymentHistoryLine."Account Type" := PaymentHistoryLine."Account Type"::Vendor;
+        PaymentHistoryLine.Insert();
 
-            // second line
-            "Line No." += 1;
-            "Account Type" := "Account Type"::Vendor;
-            Insert();
+        VendLedgEntry.SetFilter("External Document No.", '<>%1', '');
+        VendLedgEntry.FindFirst();
+        AppliesToDocNo := VendLedgEntry."External Document No.";
+        MockDetailLine(DetailLine, PaymentHistoryLine, VendLedgEntry."Entry No.");
 
-            VendLedgEntry.SetFilter("External Document No.", '<>%1', '');
-            VendLedgEntry.FindFirst();
-            AppliesToDocNo := VendLedgEntry."External Document No.";
-            MockDetailLine(DetailLine, PaymentHistoryLine, VendLedgEntry."Entry No.");
-
-            SetRange("Our Bank", PaymentHistory."Our Bank");
-            SetRange("Run No.", PaymentHistory."Run No.");
-        end;
+        PaymentHistoryLine.SetRange("Our Bank", PaymentHistory."Our Bank");
+        PaymentHistoryLine.SetRange("Run No.", PaymentHistory."Run No.");
     end;
 
     local procedure CreateTransactionMode(AccountType: Option): Code[20]
@@ -305,79 +302,71 @@ codeunit 144057 "UT COD Telebank"
 
     local procedure MockPaymentHistory(var PaymentHistory: Record "Payment History")
     begin
-        with PaymentHistory do begin
-            Init();
-            "Our Bank" := LibraryUTUtility.GetNewCode();
-            "Run No." := LibraryUTUtility.GetNewCode();
-            Insert();
-        end;
+        PaymentHistory.Init();
+        PaymentHistory."Our Bank" := LibraryUTUtility.GetNewCode();
+        PaymentHistory."Run No." := LibraryUTUtility.GetNewCode();
+        PaymentHistory.Insert();
     end;
 
     local procedure MockPaymentHistoryLine(var PaymentHistoryLine: Record "Payment History Line"; PaymentHistory: Record "Payment History")
     begin
-        with PaymentHistoryLine do begin
-            Init();
-            "Our Bank" := PaymentHistory."Our Bank";
-            "Run No." := PaymentHistory."Run No.";
-            "Line No." := 1;
-            "Account Type" := "Account Type"::Customer;
-            "Account No." := LibraryUTUtility.GetNewCode();
-            Date := WorkDate();
-            Amount := 1;
-            Bank := LibraryUTUtility.GetNewCode10();
-            "Currency Code" := LibraryUTUtility.GetNewCode10();
-            "Description 1" := LibraryUTUtility.GetNewCode();
-            Insert();
-        end;
+        PaymentHistoryLine.Init();
+        PaymentHistoryLine."Our Bank" := PaymentHistory."Our Bank";
+        PaymentHistoryLine."Run No." := PaymentHistory."Run No.";
+        PaymentHistoryLine."Line No." := 1;
+        PaymentHistoryLine."Account Type" := PaymentHistoryLine."Account Type"::Customer;
+        PaymentHistoryLine."Account No." := LibraryUTUtility.GetNewCode();
+        PaymentHistoryLine.Date := WorkDate();
+        PaymentHistoryLine.Amount := 1;
+        PaymentHistoryLine.Bank := LibraryUTUtility.GetNewCode10();
+        PaymentHistoryLine."Currency Code" := LibraryUTUtility.GetNewCode10();
+        PaymentHistoryLine."Description 1" := LibraryUTUtility.GetNewCode();
+        PaymentHistoryLine.Insert();
     end;
 
     local procedure MockDetailLine(var DetailLine: Record "Detail Line"; PaymentHistoryLine: Record "Payment History Line"; SerialNoEntry: Integer)
     begin
-        with DetailLine do begin
-            Init();
-            "Transaction No." := LibraryUtility.GetNewRecNo(DetailLine, FieldNo("Transaction No."));
-            "Our Bank" := PaymentHistoryLine."Our Bank";
-            Status := Status::"In process";
-            "Connect Batches" := PaymentHistoryLine."Run No.";
-            "Connect Lines" := PaymentHistoryLine."Line No.";
-            "Account Type" := "Account Type"::Vendor;
-            "Serial No. (Entry)" := SerialNoEntry;
-            Insert();
-        end;
+        DetailLine.Init();
+        DetailLine."Transaction No." := LibraryUtility.GetNewRecNo(DetailLine, DetailLine.FieldNo("Transaction No."));
+        DetailLine."Our Bank" := PaymentHistoryLine."Our Bank";
+        DetailLine.Status := DetailLine.Status::"In process";
+        DetailLine."Connect Batches" := PaymentHistoryLine."Run No.";
+        DetailLine."Connect Lines" := PaymentHistoryLine."Line No.";
+        DetailLine."Account Type" := DetailLine."Account Type"::Vendor;
+        DetailLine."Serial No. (Entry)" := SerialNoEntry;
+        DetailLine.Insert();
     end;
 
     local procedure VerifyTempJnlLineVsPmtHistoryLine(var TempGenJnlLine: Record "Gen. Journal Line" temporary; var PaymentHistoryLine: Record "Payment History Line"; AppliesToDocNo: Code[20])
     var
         DocumentType: Enum "Gen. Journal Document Type";
     begin
-        with TempGenJnlLine do begin
-            Assert.AreEqual(PaymentHistoryLine.Count, Count, 'Wrong count');
-            PaymentHistoryLine.FindSet();
-            FindSet();
-            repeat
-                Assert.AreEqual('', "Journal Template Name", FieldName("Journal Template Name"));
-                Assert.AreEqual('', "Journal Batch Name", FieldName("Journal Batch Name"));
-                Assert.AreEqual("Bal. Account Type"::"Bank Account", "Bal. Account Type", FieldName("Bal. Account Type"));
-                Assert.AreEqual(PaymentHistoryLine."Our Bank", "Bal. Account No.", FieldName("Bal. Account No."));
-                Assert.AreEqual(PaymentHistoryLine."Run No.", "Document No.", FieldName("Document No."));
-                Assert.AreEqual(PaymentHistoryLine."Line No.", "Line No.", FieldName("Line No."));
-                Assert.AreEqual(PaymentHistoryLine."Account Type" + 1, "Account Type", FieldName("Account Type"));
-                if "Account Type" = "Account Type"::Customer then
-                    DocumentType := "Document Type"::Refund
-                else
-                    DocumentType := "Document Type"::Payment;
-                Assert.AreEqual(DocumentType, "Document Type", FieldName("Document Type"));
-                Assert.AreEqual(PaymentHistoryLine."Account No.", "Account No.", FieldName("Account No."));
-                Assert.AreEqual(PaymentHistoryLine.Date, "Posting Date", FieldName("Posting Date"));
-                Assert.AreEqual(PaymentHistoryLine.Amount, Amount, FieldName(Amount));
-                Assert.AreEqual(PaymentHistoryLine."Currency Code", "Currency Code", FieldName("Currency Code"));
-                Assert.AreEqual(PaymentHistoryLine.Bank, "Recipient Bank Account", FieldName("Recipient Bank Account"));
-                if "Account Type" = "Account Type"::Vendor then
-                    PaymentHistoryLine."Description 1" := AppliesToDocNo;
-                Assert.AreEqual(PaymentHistoryLine."Description 1", Description, FieldName(Description));
-                PaymentHistoryLine.Next();
-            until Next() = 0;
-        end;
+        Assert.AreEqual(PaymentHistoryLine.Count, TempGenJnlLine.Count, 'Wrong count');
+        PaymentHistoryLine.FindSet();
+        TempGenJnlLine.FindSet();
+        repeat
+            Assert.AreEqual('', TempGenJnlLine."Journal Template Name", TempGenJnlLine.FieldName("Journal Template Name"));
+            Assert.AreEqual('', TempGenJnlLine."Journal Batch Name", TempGenJnlLine.FieldName("Journal Batch Name"));
+            Assert.AreEqual(TempGenJnlLine."Bal. Account Type"::"Bank Account", TempGenJnlLine."Bal. Account Type", TempGenJnlLine.FieldName("Bal. Account Type"));
+            Assert.AreEqual(PaymentHistoryLine."Our Bank", TempGenJnlLine."Bal. Account No.", TempGenJnlLine.FieldName("Bal. Account No."));
+            Assert.AreEqual(PaymentHistoryLine."Run No.", TempGenJnlLine."Document No.", TempGenJnlLine.FieldName("Document No."));
+            Assert.AreEqual(PaymentHistoryLine."Line No.", TempGenJnlLine."Line No.", TempGenJnlLine.FieldName("Line No."));
+            Assert.AreEqual(PaymentHistoryLine."Account Type" + 1, TempGenJnlLine."Account Type", TempGenJnlLine.FieldName("Account Type"));
+            if TempGenJnlLine."Account Type" = TempGenJnlLine."Account Type"::Customer then
+                DocumentType := TempGenJnlLine."Document Type"::Refund
+            else
+                DocumentType := TempGenJnlLine."Document Type"::Payment;
+            Assert.AreEqual(DocumentType, TempGenJnlLine."Document Type", TempGenJnlLine.FieldName("Document Type"));
+            Assert.AreEqual(PaymentHistoryLine."Account No.", TempGenJnlLine."Account No.", TempGenJnlLine.FieldName("Account No."));
+            Assert.AreEqual(PaymentHistoryLine.Date, TempGenJnlLine."Posting Date", TempGenJnlLine.FieldName("Posting Date"));
+            Assert.AreEqual(PaymentHistoryLine.Amount, TempGenJnlLine.Amount, TempGenJnlLine.FieldName(Amount));
+            Assert.AreEqual(PaymentHistoryLine."Currency Code", TempGenJnlLine."Currency Code", TempGenJnlLine.FieldName("Currency Code"));
+            Assert.AreEqual(PaymentHistoryLine.Bank, TempGenJnlLine."Recipient Bank Account", TempGenJnlLine.FieldName("Recipient Bank Account"));
+            if TempGenJnlLine."Account Type" = TempGenJnlLine."Account Type"::Vendor then
+                PaymentHistoryLine."Description 1" := AppliesToDocNo;
+            Assert.AreEqual(PaymentHistoryLine."Description 1", TempGenJnlLine.Description, TempGenJnlLine.FieldName(Description));
+            PaymentHistoryLine.Next();
+        until TempGenJnlLine.Next() = 0;
     end;
 }
 

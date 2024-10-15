@@ -6,7 +6,7 @@ namespace Microsoft.Bank.Payment;
 
 using System.Security.Encryption;
 
-Codeunit 11000012 "Report Checksum"
+codeunit 11000012 "Report Checksum"
 {
     trigger OnRun()
     begin
@@ -25,7 +25,7 @@ Codeunit 11000012 "Report Checksum"
             exit;
         ExportProtocol.Get(ExportProtocolCode);
 
-        If not ExportProtocol."Generate Checksum" then
+        if not ExportProtocol."Generate Checksum" then
             exit;
         ServerTempFile.Open(ServerTempFileName);
         ServerTempFile.CreateInStream(InStreamFile);

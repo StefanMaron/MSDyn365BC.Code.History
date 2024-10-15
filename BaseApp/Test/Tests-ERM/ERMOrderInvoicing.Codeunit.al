@@ -753,7 +753,7 @@ codeunit 134372 "ERM Order Invoicing"
         PostedServiceShipmentLines.OpenEdit();
         PostedServiceShipmentLines.Filter.SetFilter("Document No.", ServiceHeader."Last Shipping No.");
         PostedServiceShipmentLines.Filter.SetFilter("No.", GLAccountNo);
-        Assert.IsTrue(PostedServiceShipmentLines."No.".Visible(), PostedServiceShipmentLineErr);
+        Assert.IsTrue(PostedServiceShipmentLines."No.".Visible(),PostedServiceShipmentLineErr);
     end;
 
     local procedure Initialize()

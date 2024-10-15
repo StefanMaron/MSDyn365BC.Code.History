@@ -19,6 +19,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                   TableData "Warehouse Entry" = rimd,
                   TableData "Warehouse Register" = rimd;
     TableNo = "Warehouse Journal Line";
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -33,7 +34,6 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         WhseJnlLine: Record "Warehouse Journal Line";
         WhseJnlLine2: Record "Warehouse Journal Line";
         WhseJnlLine3: Record "Warehouse Journal Line";
-        WhseReg: Record "Warehouse Register";
         TempBinContentBuffer: Record "Bin Content Buffer" temporary;
         NoSeriesBatch: Codeunit "No. Series - Batch";
         WMSMgt: Codeunit "WMS Management";
@@ -51,12 +51,18 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         SuppressCommit: Boolean;
         PhysInvtCount: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Journal Batch Name    #1##########\\';
         Text002: Label 'Checking lines        #2######\';
         Text003: Label 'Registering lines     #3###### @4@@@@@@@@@@@@@';
+#pragma warning restore AA0470
         Text005: Label 'Item tracking lines defined for the source line must account for the same quantity as you have entered.';
         Text006: Label 'Item tracking lines do not match the bin content.';
+#pragma warning disable AA0470
         Text007: Label 'One or more reservation entries exist for the item with %1 = %2, %3 = %4, %5 = %6 which may be disrupted if you post this negative adjustment. Do you want to continue?', Comment = 'One or more reservation entries exist for the item with Item No. = 1000, Location Code = BLUE, Variant Code = NEW which may be disrupted if you post this negative adjustment. Do you want to continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var
@@ -73,7 +79,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         if IsHandled then
             exit;
 
-        WhseJnlLine.LockTable();
+        WhseJnlLine.ReadIsolation(IsolationLevel::UpdLock);
         WhseJnlLine.SetRange("Journal Template Name", WhseJnlLine."Journal Template Name");
         WhseJnlLine.SetRange("Journal Batch Name", WhseJnlLine."Journal Batch Name");
         WhseJnlLine.SetRange("Location Code", WhseJnlLine."Location Code");
@@ -98,8 +104,6 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         CheckItemAvailability(WhseJnlLine);
 
         CheckLines(TempHandlingSpecification, HideDialog);
-        // Find next register no.
-        WhseRegNo := FindWhseRegNo();
 
         PhysInvtCount := false;
         // Register lines
@@ -107,8 +111,11 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         LastDocNo := '';
         LastDocNo2 := '';
         LastRegisteredDocNo := '';
-        WhseJnlLine.Find('-');
+        WhseJnlLine.SetCurrentKey("Item No.", "Location Code", "Bin Code", "Line No.");  // to avoid deadlocks
+        WhseJnlLine.FindSet();
         OnBeforeRegisterLines(WhseJnlLine, TempHandlingSpecification);
+
+        BindSubscription(this);  // so we know if a warehouse register is created
 
         repeat
             if not WhseJnlLine.EmptyLine() and
@@ -157,13 +164,11 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                 PhysInvtCountMgt.AddToTempItemSKUList(WhseJnlLine."Item No.", WhseJnlLine."Location Code", WhseJnlLine."Variant Code", WhseJnlLine."Phys Invt Counting Period Type");
             end;
         until WhseJnlLine.Next() = 0;
-        // Copy register no. and current journal batch name to Whse journal
-        if not WhseReg.FindLast() or (WhseReg."No." <> WhseRegNo) then
-            WhseRegNo := 0;
+
+        UnBindSubscription(this);
 
         WhseJnlLine.Init();
         WhseJnlLine."Line No." := WhseRegNo;
-        // Update/delete lines
         UpdateDeleteLines();
 
         NoSeriesBatch.SaveState();
@@ -420,16 +425,6 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             until TempBinContentBuffer.Next() = 0;
     end;
 
-    local procedure FindWhseRegNo(): Integer
-    var
-        WhseEntry: Record "Warehouse Entry";
-    begin
-        WhseEntry.LockTable();
-        if WhseEntry.FindLast() then;
-        WhseReg.LockTable();
-        exit(WhseReg.GetLastEntryNo() + 1);
-    end;
-
     procedure GetWhseRegNo(): Integer
     begin
         exit(WhseRegNo);
@@ -485,23 +480,23 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         exit(QtyToHandleBase <> 0);
     end;
 
-    local procedure CopyFieldsFromWhseJnlLineToItemJnlLine(WarehouseJournalLine: Record "Warehouse Journal Line"; var ItemJnlLine: Record "Item Journal Line"; QtyToHandleBase: Decimal)
+    procedure CopyFieldsFromWhseJnlLineToItemJnlLine(WarehouseJournalLine: Record "Warehouse Journal Line"; var ItemJournalLine: Record "Item Journal Line"; QtyToHandleBase: Decimal)
     begin
-        OnBeforeCopyFieldsFromWhseJnlLineToItemJnlLine(ItemJnlLine, WarehouseJournalLine, WhseJnlTemplate);
-        ItemJnlLine."Document No." := WarehouseJournalLine."Whse. Document No.";
-        ItemJnlLine.Validate("Posting Date", WarehouseJournalLine."Registering Date");
-        ItemJnlLine.Validate("Item No.", WarehouseJournalLine."Item No.");
-        ItemJnlLine.Validate("Variant Code", WarehouseJournalLine."Variant Code");
-        ItemJnlLine.Validate("Location Code", WarehouseJournalLine."Location Code");
-        ItemJnlLine.Validate("Unit of Measure Code", WarehouseJournalLine."Unit of Measure Code");
-        ItemJnlLine.Validate(Quantity, Round(QtyToHandleBase / WarehouseJournalLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
-        ItemJnlLine.Description := WarehouseJournalLine.Description;
-        ItemJnlLine."Source Type" := ItemJnlLine."Source Type"::Item;
-        ItemJnlLine."Source No." := WarehouseJournalLine."Item No.";
-        ItemJnlLine."Source Code" := WarehouseJournalLine."Source Code";
-        ItemJnlLine."Reason Code" := WarehouseJournalLine."Reason Code";
-        ItemJnlLine."Warehouse Adjustment" := true;
-        ItemJnlLine."Line No." := WarehouseJournalLine."Line No.";
+        OnBeforeCopyFieldsFromWhseJnlLineToItemJnlLine(ItemJournalLine, WarehouseJournalLine, WhseJnlTemplate);
+        ItemJournalLine."Document No." := WarehouseJournalLine."Whse. Document No.";
+        ItemJournalLine.Validate("Posting Date", WarehouseJournalLine."Registering Date");
+        ItemJournalLine.Validate("Item No.", WarehouseJournalLine."Item No.");
+        ItemJournalLine.Validate("Variant Code", WarehouseJournalLine."Variant Code");
+        ItemJournalLine.Validate("Location Code", WarehouseJournalLine."Location Code");
+        ItemJournalLine.Validate("Unit of Measure Code", WarehouseJournalLine."Unit of Measure Code");
+        ItemJournalLine.Validate(Quantity, Round(QtyToHandleBase / WarehouseJournalLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
+        ItemJournalLine.Description := WarehouseJournalLine.Description;
+        ItemJournalLine."Source Type" := ItemJournalLine."Source Type"::Item;
+        ItemJournalLine."Source No." := WarehouseJournalLine."Item No.";
+        ItemJournalLine."Source Code" := WarehouseJournalLine."Source Code";
+        ItemJournalLine."Reason Code" := WarehouseJournalLine."Reason Code";
+        ItemJournalLine."Warehouse Adjustment" := true;
+        ItemJournalLine."Line No." := WarehouseJournalLine."Line No.";
     end;
 
     local procedure IsPhysInvtCount(WhseJnlTemplate2: Record "Warehouse Journal Template"; PhysInvtCountingPeriodCode: Code[10]; PhysInvtCountingPeriodType: Option " ",Item,SKU): Boolean
@@ -594,6 +589,13 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         WhseJnlLine2.SetRange("Variant Code", TempSKU."Variant Code");
         WhseJnlLine2.CalcSums("Qty. (Base)");
         exit(WhseJnlLine2."Qty. (Base)");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Jnl.-Register Line", 'OnAfterInsertWhseEntry', '', false, false)]
+    local procedure OnAfterInsertWhseEntry(var WarehouseEntry: Record "Warehouse Entry"; var WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+        if WarehouseEntry."Warehouse Register No." > WhseRegNo then
+            WhseRegNo := WarehouseEntry."Warehouse Register No.";
     end;
 
     [IntegrationEvent(false, false)]

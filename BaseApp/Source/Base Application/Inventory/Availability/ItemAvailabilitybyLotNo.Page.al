@@ -139,7 +139,7 @@ page 520 "Item Availability by Lot No."
 
                         trigger OnAction()
                         begin
-                            ItemAvailabilityFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailabilityFormsMgt.ByEvent());
+                            ItemAvailabilityFormsMgt.ShowItemAvailabilityFromItem(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -179,7 +179,7 @@ page 520 "Item Availability by Lot No."
 
                         trigger OnAction()
                         begin
-                            ItemAvailabilityFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailabilityFormsMgt.ByBOM());
+                            ItemAvailabilityFormsMgt.ShowItemAvailabilityFromItem(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                     action(Location)

@@ -268,8 +268,12 @@ table 82 "Item Journal Template"
         SourceCodeSetup: Record "Source Code Setup";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Only the %1 field can be filled in on recurring journals.';
         Text001: Label 'must not be %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateType(ItemJournalTemplate: Record "Item Journal Template"; SourceCodeSetup: Record "Source Code Setup")

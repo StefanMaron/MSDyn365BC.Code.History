@@ -7,6 +7,7 @@ namespace System.Environment;
 using System.Environment.Configuration;
 using System.Azure.Identity;
 using Microsoft.Manufacturing.Document;
+using Microsoft.Service.Archive;
 using Microsoft.Service.Document;
 using Microsoft.Service.Setup;
 using Microsoft.Service.Item;
@@ -400,6 +401,36 @@ codeunit 257 "Experience Tier"
 
     [EventSubscriber(ObjectType::Table, Database::"Service Line Price Adjmt.", 'OnBeforeInsertEvent', '', false, false)]
     local procedure BlockInsertServiceLinePriceAdjmt(RunTrigger: Boolean; var Rec: Record "Service Line Price Adjmt.")
+    begin
+        Error(CannotInsertErr, Rec.TableCaption());
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Service Header Archive", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure BlockInsertServiceHeaderArchive(RunTrigger: Boolean; var Rec: Record "Service Header Archive")
+    begin
+        Error(CannotInsertErr, Rec.TableCaption());
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Service Line Archive", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure BlockInsertServiceLineArchive(RunTrigger: Boolean; var Rec: Record "Service Line Archive")
+    begin
+        Error(CannotInsertErr, Rec.TableCaption());
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Service Comment Line Archive", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure BlockInsertServiceCommentLineArchive(RunTrigger: Boolean; var Rec: Record "Service Comment Line Archive")
+    begin
+        Error(CannotInsertErr, Rec.TableCaption());
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Service Item Line Archive", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure BlockInsertServiceItemLineArchive(RunTrigger: Boolean; var Rec: Record "Service Item Line Archive")
+    begin
+        Error(CannotInsertErr, Rec.TableCaption());
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Service Order Allocat. Archive", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure BlockInsertServiceOrderAllocArchive(RunTrigger: Boolean; var Rec: Record "Service Order Allocat. Archive")
     begin
         Error(CannotInsertErr, Rec.TableCaption());
     end;

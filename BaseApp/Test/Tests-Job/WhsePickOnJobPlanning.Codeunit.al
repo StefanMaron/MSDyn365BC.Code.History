@@ -14,12 +14,14 @@ codeunit 136318 "Whse. Pick On Job Planning"
         SourceBin: Record Bin;
         DestinationBin: Record Bin;
         LocationWithWhsePick: Record Location;
+        LocationWithDirectedPutawayAndPick: Record Location;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJob: Codeunit "Library - Job";
         LibraryERM: Codeunit "Library - ERM";
         LibraryResource: Codeunit "Library - Resource";
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
@@ -30,11 +32,11 @@ codeunit 136318 "Whse. Pick On Job Planning"
         QtyRemainsToBePickedErr: Label 'quantity of %1 remains to be picked', Comment = '%1 = 100';
         WhseCompletelyPickedErr: Label 'All of the items on the project planning lines are completely picked.';
         WhseNoItemsToPickErr: Label 'There are no items to pick on the project planning lines.';
-        FieldMustNotBeChangedErr: Label 'must not be changed when a %1 for this %2 exists: ';
-        DeletionNotPossibleErr: Label 'The %1 cannot be deleted when a related %2 exists.';
+        FieldMustNotBeChangedErr: Label 'must not be changed when a %1 for this %2 exists: ', Comment = '%1 = Table 1 caption, %2 = Table 2 caption';
+        DeletionNotPossibleErr: Label 'The %1 cannot be deleted when a related %2 exists.', Comment = '%1 = Table 1 caption, %2 = Table 2 caption';
         OneWhsePickHeaderCreatedErr: Label 'Only one warehouse activity header created.';
         WarehousePickActionTypeTotalErr: Label 'Total number of %1 %2 for warehouse pick lines should be equal to %3', Comment = '%1 = Warehouse Activity Type, %2 = Pick, %3 = 100';
-        WarehouseEntryTotalErr: Label 'Warehouse Entry for the warehouse pick should have %1 entries for %2', Comment = '%1 = 10, %2 = Bine Code';
+        WarehouseEntryTotalErr: Label 'Warehouse Entry for the warehouse pick should have %1 entries for %2', Comment = '%1 = 10, %2 = Bin Code';
         IsInitialized: Boolean;
 
     [Test]
@@ -205,7 +207,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         asserterror OpenJobAndCreateWarehousePick(Job);
 
         // [THEN] Error is thrown validating the Job.Status
-        Assert.ExpectedError(StrSubstNo('Status must be equal to ''%1''', Job.Status::Open));
+        Assert.ExpectedTestFieldError(Job.FieldCaption(Status), Format(Job.Status::Open));
     end;
 
     [Test]
@@ -425,48 +427,48 @@ codeunit 136318 "Whse. Pick On Job Planning"
         JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."); //Refresh the job planning lines to have the latest information.
         ExpectedErrorMessage := StrSubstNo(FieldMustNotBeChangedErr, WarehouseActivityLinePick.TableCaption(), JobPlanningLine.TableCaption());
 
-        // [WHEN] Location
+        // [WHEN] Create new Location with Bin Mandatory = Yes and Require Pick = Yes and update Location Code
         LibraryWarehouse.CreateLocationWMS(NewLocation, true, false, true, false, false);
         asserterror JobPlanningLine.Validate("Location Code", NewLocation.Code);
-        // [THEN] Modification is not possible.
+        // [THEN] Modification is not possible
         Assert.ExpectedError(ExpectedErrorMessage);
 
-        // [WHEN] Quantity
+        // [WHEN] Update Quantity
         asserterror JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(10) + JobPlanningLine.Quantity);
-        // [THEN] Modification is not possible.
+        // [THEN] Modification is not possible
         Assert.ExpectedError(ExpectedErrorMessage);
 
-        // [WHEN] Bin Code.
+        // [WHEN] Update Bin Code
         LibraryWarehouse.CreateBin(NewBin, LocationWithWhsePick.Code, LibraryUtility.GenerateRandomCode(NewBin.FieldNo(Code), Database::Bin), '', '');
         asserterror JobPlanningLine.Validate("Bin Code", NewBin.Code);
-        // [THEN] Modification is not possible.
+        // [THEN] Modification is not possible
         Assert.ExpectedError(StrSubstNo(FieldMustNotBeChangedErr, WarehouseActivityLinePick.TableCaption(), JobPlanningLine.TableCaption()));
 
-        // [WHEN] Status.
+        // [WHEN] Update Status
         asserterror JobPlanningLine.Validate(Status, JobPlanningLine.Status::Completed);
-        // [THEN] Modification is not possible.
+        // [THEN] Modification is not possible
         Assert.ExpectedError(ExpectedErrorMessage);
 
-        // [WHEN] Variant Code.
+        // [WHEN] Update Variant Code
         asserterror JobPlanningLine.Validate("Variant Code", NewItemVariant.Code);
-        // [THEN] Modification is not possible.
+        // [THEN] Modification is not possible
         Assert.ExpectedError(ExpectedErrorMessage);
 
-        // [WHEN] No.
+        // [WHEN] Update No.
         LibraryInventory.CreateItem(Item2);
         asserterror JobPlanningLine.Validate("No.", Item2."No.");
-        // [THEN] Modification is not possible.
+        // [THEN] Modification is not possible
         Assert.ExpectedError(ExpectedErrorMessage);
 
-        // [WHEN] Unit of Measure Code.
+        // [WHEN] Update Unit of Measure Code
         LibraryInventory.CreateItemUnitOfMeasureCode(NewItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(10, 100));
         asserterror JobPlanningLine.Validate("Unit of Measure Code", NewItemUnitOfMeasure.Code);
-        // [THEN] Modification is not possible.
+        // [THEN] Modification is not possible
         Assert.ExpectedError(ExpectedErrorMessage);
 
-        // [WHEN] Planning Due Date.
+        // [WHEN] Update Planning Due Date
         asserterror JobPlanningLine.Validate("Planning Due Date", JobPlanningLine."Planning Due Date" + LibraryRandom.RandInt(10));
-        // [THEN] Modification is not possible.
+        // [THEN] Modification is not possible
         Assert.ExpectedError(ExpectedErrorMessage);
 
         // [WHEN] Deleting job planning line
@@ -525,12 +527,12 @@ codeunit 136318 "Whse. Pick On Job Planning"
     [Scope('OnPrem')]
     procedure CreateWhsePickForMultipleJobTasks()
     var
-        ResourceNo: Code[20];
         Item: Record Item;
         JobPlanningLine: Record "Job Planning Line";
         Job: Record Job;
         JobTask: Record "Job Task";
         WarehouseActivityLinePick: Record "Warehouse Activity Line";
+        ResourceNo: Code[20];
         QtyInventory: Integer;
     begin
         // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
@@ -598,9 +600,8 @@ codeunit 136318 "Whse. Pick On Job Planning"
         Assert.RecordCount(JobPlanningLine, 4);
         JobPlanningLine.FindSet();
         repeat
-            if (JobPlanningLine.Type = JobPlanningLine.Type::Item) and ((JobPlanningLine."Line Type" = JobPlanningLine."Line Type"::Budget) or (JobPlanningLine."Line Type" = JobPlanningLine."Line Type"::"Both Budget and Billable")) then begin
+            if (JobPlanningLine.Type = JobPlanningLine.Type::Item) and ((JobPlanningLine."Line Type" = JobPlanningLine."Line Type"::Budget) or (JobPlanningLine."Line Type" = JobPlanningLine."Line Type"::"Both Budget and Billable")) then
                 VerifyJobPlanningLineQuantities(JobPlanningLine, 0, 0, JobPlanningLine.Quantity, JobPlanningLine.Quantity, 0, true)
-            end
             else begin
                 JobPlanningLine.TestField("Qty. Picked", 0);
                 JobPlanningLine.TestField("Qty. Picked (Base)", 0);
@@ -2263,33 +2264,34 @@ codeunit 136318 "Whse. Pick On Job Planning"
     procedure LocationCardJobToBinUI()
     var
         Location: Record Location;
-        Bin1: Record Bin;
+        Bin: array[2] of Record Bin;
+        Zone: Record Zone;
         LocationCard: TestPage "Location Card";
     begin
         // [FEATURE] 430026 Location -> To-Job Bin Code
-        // [SCENARIO] Location Card UI To-Job Bin Code is enabled for Bin Mandatory and NOT Directed put-away and Pick.
+        // [SCENARIO] Location Card UI To-Job Bin Code is enabled for Bin Mandatory and also for Directed put-away and Pick.
         // [GIVEN] Location with Bin Mandatory = False.
         Initialize();
         LibraryWarehouse.CreateLocation(Location);
 
         // [GIVEN] Bin1 is setup for to the location.
-        LibraryWarehouse.CreateBin(Bin1, Location.Code, LibraryUtility.GenerateRandomCode(Bin1.FieldNo(Code), Database::Bin), '', '');
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateRandomCode(Bin[1].FieldNo(Code), Database::Bin), '', '');
         Commit(); //Needed to execute statements after the expected errors.
 
         // [WHEN] To-Job Bin code on Location is set to Bin1.
-        asserterror Location.Validate("To-Job Bin Code", Bin1.Code);
+        asserterror Location.Validate("To-Job Bin Code", Bin[1].Code);
 
-        // [THEN] Error: Bin Mandatory must be true
+        // [THEN] Error: Bin Mandatory must be true.
         Assert.ExpectedError(Location.FieldCaption(Location."Bin Mandatory"));
 
-        // [WHEN] Open Location Card
+        // [WHEN] Open Location Card.
         LocationCard.OpenEdit();
         LocationCard.GoToRecord(Location);
 
         // [THEN] To-Job Bin Code must be disabled.
         Assert.IsFalse(LocationCard."To-Job Bin Code".Enabled(), 'To-Job Bin Code must not be enabled as Bin Mandatory is false');
 
-        // [WHEN] Bin Mandatory is set to true
+        // [WHEN] Bin Mandatory is set to true.
         Location.Validate("Bin Mandatory", true);
         Location.Modify(true);
 
@@ -2297,25 +2299,29 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LocationCard.GoToRecord(Location);
         Assert.IsTrue(LocationCard."To-Job Bin Code".Enabled(), 'To-Job Bin Code must be enabled as Bin Mandatory is true');
 
-        // [THEN] Bin1 can be set as To-Job Bin Code.
-        LocationCard."To-Job Bin Code".SetValue(Bin1.Code);
+        // [THEN] Bin[1] can be set as To-Job Bin Code.
+        LocationCard."To-Job Bin Code".SetValue(Bin[1].Code);
 
-        // [WHEN] Directed Put-Away and Pick is set to true
+        // [WHEN] Directed Put-Away and Pick is set to true.
         LocationCard."Directed Put-away and Pick".SetValue(true);
 
-        // [THEN] To-Job Bin Code must be disabled.
-        Assert.IsFalse(LocationCard."To-Job Bin Code".Enabled(), 'To-Job Bin Code must not be enabled as Directed Put-away and Pick is false');
+        // [THEN] To-Job Bin Code must be enabled for Directed Put-Away and Pick location.
+        Assert.IsTrue(LocationCard."To-Job Bin Code".Enabled(), 'To-Job Bin Code must be enabled as Directed Put-away and Pick is enabled');
 
-        // [THEN] To-Job Bin Code value is deleted.
-        Assert.AreEqual('', LocationCard."To-Job Bin Code".Value(), 'To-Job Bin Code must not have any value as Directed Put-away and Pick is false');
+        // [THEN] To-Job Bin Code value is retained.
+        Assert.AreEqual(Bin[1].Code, LocationCard."To-Job Bin Code".Value(), 'To-Job Bin Code must retain value as Directed Put-away and Pick is enabled');
         LocationCard.Close();
 
-        // [WHEN] Setting To-Job Bin Code
-        Location.Get(Location.Code);
-        asserterror Location.Validate("To-Job Bin Code", Bin1.Code);
+        // [WHEN] Setting Bin[2] as To-Job Bin Code.
+        LibraryWarehouse.CreateZone(Zone, 'ZONE', Location.Code, LibraryWarehouse.SelectBinType(false, false, false, false), '', '', 0, false);
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateRandomCode(Bin[2].FieldNo(Code), Database::Bin), Zone.Code, Zone."Bin Type Code");
 
-        // [THEN] Error: Jobs does not support Directed Put-Away and Pick. Directed Put-away and pick must be set to False.
-        Assert.ExpectedError(Location.FieldCaption(Location."Directed Put-away and Pick"));
+        Location.Get(Location.Code);
+        Location.Validate("To-Job Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        // [THEN] To-Job Bin Code value is updated.
+        Assert.AreEqual(Bin[2].Code, Location."To-Job Bin Code", 'To-Job Bin Code must update value as Directed Put-away and Pick is enabled');
     end;
 
     [Test]
@@ -2356,6 +2362,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location.Code, Bin1.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Create Job Planning Line Type: Item
+        Clear(JobPlanningLine);
         CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", Location.Code, '', LibraryRandom.RandInt(100));
 
         // [THEN] Based on availability, Bin1 is selected as the Bin Code for the Job Planning Line.
@@ -2369,6 +2376,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         Location.Modify(true);
 
         // [WHEN] Create Job Planning Line Type: Item
+        Clear(JobPlanningLine);
         CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", Location.Code, '', LibraryRandom.RandInt(100));
 
         // [THEN] Bin code on Job Planning Line = ToJobBin
@@ -2442,7 +2450,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
 
     [Test]
     [Scope('OnPrem')]
-    procedure DirectedPutAwayAndPickIsNotSupported()
+    procedure DirectedPutAwayAndPickIsSupported()
     var
         Item: Record Item;
         Location: Record Location;
@@ -2450,7 +2458,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         JobTask: Record "Job Task";
         LocationCard: TestPage "Location Card";
     begin
-        // [SCENARIO] Location with Directed Put-away and Pick is not supported for Job.
+        // [SCENARIO] Location with Directed Put-away and Pick is supported for Job.
         // [GIVEN] Location with Directed Put-away and Pick
         // [GIVEN] A Job.
         Initialize();
@@ -2468,10 +2476,10 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryJob.CreateJobPlanningLine("Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
 
         // [WHEN] Add location with Directed Put-away and Pick
-        asserterror JobPlanningLine.Validate("Location Code", Location.Code);
+        JobPlanningLine.Validate("Location Code", Location.Code);
 
-        // [THEN] Error: Location with Directed Put-away and Pick is not supported.
-        Assert.ExpectedError(Location.FieldCaption(Location."Directed Put-away and Pick"));
+        // [THEN] Location is updated
+        Assert.AreEqual(JobPlanningLine."Location Code", Location.Code, 'Location with Directed Put-away and Pick must be supported for Job Planning Line');
     end;
 
     [Test]
@@ -2522,6 +2530,1363 @@ codeunit 136318 "Whse. Pick On Job Planning"
         JobPlanningLine.TestField("Qty. Picked", JobPlanningLine.Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,WhseSrcCreateDocReqHandler,ConfirmHandlerTrue,AutoFillAndRegisterPickModalPageHandler')]
+    procedure WarehousePicksCanBeRegisteredForAJob_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WarehouseActivityLinesPage: TestPage "Warehouse Activity Lines";
+        QtyInventory: Integer;
+        QtyToUse: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Register warehouse picks that are created for a Job. Cannot change Bin Code.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] A job with a task
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Create a job planning line that require the item from a created location
+        QtyToUse := LibraryRandom.RandIntInRange(2, 10);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', QtyToUse);
+
+        // [THEN] Pick Qty / Pick Qty (Base) = 0; Qty Picked / Qty Picked (Base) = 0 and Completely Picked = No
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."); //Refresh the job planning lines to have the latest information.
+        VerifyJobPlanningLineQuantities(JobPlanningLine, 0, 0, 0, 0, JobPlanningLine.Quantity, false);
+
+        // [WHEN] 'Create Warehouse Pick' action is invoked from the job card
+        Job.Get(JobPlanningLine."Job No.");
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] Warehouse pick lines are created
+        VerifyWarehousePickActivityLine(JobPlanningLine);
+
+        // [THEN] Pick Qty / Pick Qty (Base), Qty Picked / Qty Picked (Base) and Completely Picked are filled.
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."); //Refresh the job planning lines to have the latest information.
+        VerifyJobPlanningLineQuantities(JobPlanningLine, JobPlanningLine.Quantity, JobPlanningLine.Quantity, 0, 0, JobPlanningLine.Quantity, false);
+
+        // [WHEN] Open Related Warehouse Pick Lines
+        WarehouseActivityLinesPage.Trap();
+        OpenRelatedWarehousePicksForJob(Job);
+
+        // [WHEN] Open related Warehouse Pick Card, Autofill quantity and Register pick.
+        WarehouseActivityLinesPage.Card.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
+        WarehouseActivityLinesPage.Close();
+
+        // [THEN] Pick Qty / Pick Qty (Base), Qty Picked / Qty Picked (Base) and Completely Picked are filled.
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."); //Refresh the job planning lines to have the latest information.
+        VerifyJobPlanningLineQuantities(JobPlanningLine, 0, 0, QtyToUse, QtyToUse, JobPlanningLine.Quantity, true);
+
+        // [THEN] Warehouse entry is created
+        VerifyWhseEntriesAfterRegisterPick(Job, JobTask, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,WhseSrcCreateDocReqHandler,ConfirmHandlerTrue,JobTransferFromJobPlanLineHandler')]
+    procedure PostJobAfterRegisteringWarehousePicks_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        QtyInventory: Integer;
+        QtyToUse: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Post the registered warehouse picks created for a Job.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] A job with a task
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Create a job planning line that require the item from a created location
+        QtyToUse := LibraryRandom.RandIntInRange(2, 10);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', QtyToUse);
+
+        // [WHEN] 'Create Warehouse Pick' action is invoked from the job card
+        Job.Get(JobPlanningLine."Job No.");
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [WHEN] Autofill quantity and Register related warehouse pick.
+        AutoFillAndRegisterWhsePickFromPage(JobPlanningLine);
+
+        // [THEN] Pick Qty / Pick Qty (Base), Qty Picked / Qty Picked (Base) and Completely Picked are filled.
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."); //Refresh the job planning lines to have the latest information.
+        VerifyJobPlanningLineQuantities(JobPlanningLine, 0, 0, QtyToUse, QtyToUse, JobPlanningLine.Quantity, true);
+
+        // [THEN] Warehouse entry is created
+        VerifyWhseEntriesAfterRegisterPick(Job, JobTask, false);
+
+        // [WHEN] Transfer to planning lines to job journal and post
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+        OpenRelatedJournalAndPost(JobPlanningLine);
+
+        // [THEN] New Warehouse Entry is created with negative adjustment
+        VerifyWarehouseEntry(WarehouseEntry."Source Document"::"Job Jnl.", WarehouseEntry."Entry Type"::"Negative Adjmt.", JobPlanningLine."No.", JobPlanningLine."Location Code", JobPlanningLine."Bin Code", JobPlanningLine."Unit of Measure Code", -JobPlanningLine."Qty. to Transfer to Journal")
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,WhseSrcCreateDocReqHandler,ConfirmHandlerTrue')]
+    procedure JobJnlQuantityNotGreaterThanQtyPickedWithBins_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        JobJournalLine: Record "Job Journal Line";
+        BinContent: Record "Bin Content";
+        QtyInventory: Integer;
+        QtyToUse: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Job journal line cannot have quantity more than picked quantity linked to the job planning line irrespective of the bin code.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        BinContent.SetRange("Location Code", LocationWithDirectedPutawayAndPick.Code);
+        BinContent.SetRange("Item No.", Item."No.");
+        BinContent.FindFirst();
+
+        // [GIVEN] A job with planning line with item, location and a different bin code
+        QtyToUse := LibraryRandom.RandIntInRange(2, 10);
+        CreateJobWithJobTask(JobTask);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', QtyToUse);
+
+        // [WHEN] 'Create Warehouse Pick' action is invoked from the job card
+        Job.Get(JobPlanningLine."Job No.");
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [WHEN] Autofill quantity and Register related warehouse pick.
+        AutoFillAndRegisterWhsePickFromPage(JobPlanningLine);
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."); //Refresh the job planning lines to have the latest information.
+
+        // [WHEN] Create job journal line in job journal line for the given job task with the Link to planning line.
+        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, "Job Line Type"::Budget, 1, JobJournalLine);
+        JobJournalLine.Validate("Job Planning Line No.", JobPlanningLine."Line No."); //Link to job planning line
+        JobJournalLine.Validate("Location Code", JobPlanningLine."Location Code");
+        Commit();
+
+        // [WHEN] SourceBin is assigned to the job journal line
+        JobJournalLine.Validate("Bin Code", BinContent."Bin Code");
+        JobJournalLine.Modify(true);
+
+        // [WHEN] Update quantity on job journal line to more than picked quantity.
+        QtyToUse += LibraryRandom.RandInt(100);
+        asserterror JobJournalLine.Validate(Quantity, QtyToUse);
+
+        // [THEN] Error: Qty X remains to be picked.
+        Assert.ExpectedError(StrSubstNo(QtyRemainsToBePickedErr, QtyToUse - JobPlanningLine."Qty. Picked"));
+
+        // [WHEN] DestinationBin is assigned to the job journal line from the job planning line.
+        JobJournalLine."Bin Code" := JobPlanningLine."Bin Code";
+        JobJournalLine.Modify(true);
+
+        // [WHEN] Update quantity on job journal line to more than picked quantity.
+        QtyToUse += LibraryRandom.RandInt(100);
+        asserterror JobJournalLine.Validate(Quantity, QtyToUse);
+
+        // [THEN] Error: Qty X remains to be picked.
+        Assert.ExpectedError(StrSubstNo(QtyRemainsToBePickedErr, QtyToUse - JobPlanningLine."Qty. Picked"));
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,MessageHandler')]
+    procedure ModifyNotAllowedJobPlanningLineWithWarehousePick_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WarehouseActivityLinePick: Record "Warehouse Activity Line";
+        NewLocation: Record Location;
+        NewBin: Record Bin;
+        NewItemVariant: Record "Item Variant";
+        NewItemUnitOfMeasure: Record "Item Unit of Measure";
+        Zone: Record Zone;
+        QtyInventory: Integer;
+        ExpectedErrorMessage: Text;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Some fields are not allowed to be modified on Job Planning Lines when there is a linked warehouse pick line.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(NewItemVariant, Item."No.");
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] A Job
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create 1 Job task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Job Planning Line
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(100));
+
+        // [WHEN] Create Warehouse Pick for the Job
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [WHEN] Updating fields on Job Planning Lines
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."); //Refresh the job planning lines to have the latest information.
+        ExpectedErrorMessage := StrSubstNo(FieldMustNotBeChangedErr, WarehouseActivityLinePick.TableCaption(), JobPlanningLine.TableCaption());
+
+        // [WHEN] Create new Location with Bin Mandatory = Yes and Require Pick = Yes
+        LibraryWarehouse.CreateLocationWMS(NewLocation, true, false, true, false, false);
+        asserterror JobPlanningLine.Validate("Location Code", NewLocation.Code);
+        // [THEN] Modification is not possible
+        Assert.ExpectedError(ExpectedErrorMessage);
+
+        // [WHEN] Create new Location with Bin Mandatory = Yes and Require Pick = Yes and update Location Code
+        asserterror JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(10) + JobPlanningLine.Quantity);
+        // [THEN] Modification is not possible
+        Assert.ExpectedError(ExpectedErrorMessage);
+
+        // [WHEN] Update Bin Code
+        LibraryWarehouse.CreateZone(Zone, 'ZONE', LocationWithDirectedPutawayAndPick.Code, LibraryWarehouse.SelectBinType(false, false, false, false), '', '', 0, false);
+        LibraryWarehouse.CreateBin(NewBin, LocationWithDirectedPutawayAndPick.Code, LibraryUtility.GenerateRandomCode(NewBin.FieldNo(Code), Database::Bin), Zone.Code, Zone."Bin Type Code");
+        asserterror JobPlanningLine.Validate("Bin Code", NewBin.Code);
+        // [THEN] Modification is not possible
+        Assert.ExpectedError(StrSubstNo(FieldMustNotBeChangedErr, WarehouseActivityLinePick.TableCaption(), JobPlanningLine.TableCaption()));
+
+        // [WHEN] Update Status
+        asserterror JobPlanningLine.Validate(Status, JobPlanningLine.Status::Completed);
+        // [THEN] Modification is not possible
+        Assert.ExpectedError(ExpectedErrorMessage);
+
+        // [WHEN] Update Variant Code
+        asserterror JobPlanningLine.Validate("Variant Code", NewItemVariant.Code);
+        // [THEN] Modification is not possible
+        Assert.ExpectedError(ExpectedErrorMessage);
+
+        // [WHEN] Update No.
+        LibraryInventory.CreateItem(Item2);
+        asserterror JobPlanningLine.Validate("No.", Item2."No.");
+        // [THEN] Modification is not possible
+        Assert.ExpectedError(ExpectedErrorMessage);
+
+        // [WHEN] Update Unit of Measure Code
+        LibraryInventory.CreateItemUnitOfMeasureCode(NewItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(10, 100));
+        asserterror JobPlanningLine.Validate("Unit of Measure Code", NewItemUnitOfMeasure.Code);
+        // [THEN] Modification is not possible
+        Assert.ExpectedError(ExpectedErrorMessage);
+
+        // [WHEN] Update Planning Due Date
+        asserterror JobPlanningLine.Validate("Planning Due Date", JobPlanningLine."Planning Due Date" + LibraryRandom.RandInt(10));
+        // [THEN] Modification is not possible
+        Assert.ExpectedError(ExpectedErrorMessage);
+
+        // [WHEN] Deleting job planning line
+        asserterror JobPlanningLine.Delete(true);
+        // [THEN] Deletion is not possible
+        Assert.ExpectedError(StrSubstNo(DeletionNotPossibleErr, JobPlanningLine.TableCaption(), WarehouseActivityLinePick.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,WhseSrcCreateDocReqHandler')]
+    procedure PicksCreatedIrrespectiveOfJobPlanningStatus_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        QtyInventory: Integer;
+        QtyToUse: Integer;
+        RandomStatus: Enum "Job Planning Line Status";
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Job planning line status is not respected when Creating warehouse pick for a Job.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] A job with a task
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Create a job planning line that require the item from a created location
+        QtyToUse := LibraryRandom.RandIntInRange(2, 10);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', QtyToUse);
+
+        // [WHEN] Job planning line status is set randomly
+        RandomStatus := Enum::"Job Planning Line Status".FromInteger(RandomStatus.Ordinals.Get(LibraryRandom.RandInt(JobPlanningLine.Status.Ordinals.Count())));
+        JobPlanningLine.Validate(Status, RandomStatus);
+        JobPlanningLine.Modify(true);
+        Commit(); //Needed as Report "Whse.-Source - Create Document" is later executed modally.
+
+        // [WHEN] 'Create Warehouse Pick' action is invoked from the job card
+        Job.Get(JobPlanningLine."Job No.");
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] Warehouse pick lines are created
+        VerifyWarehousePickActivityLine(JobPlanningLine);
+    end;
+
+    // Partial and the increase quantity on planning line after posting pick.
+
+    [Test]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,JobTransferFromJobPlanLineHandler,MessageHandler,ConfirmHandlerTrue')]
+    procedure CreateWhsePickForMultipleJobTasks_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WarehouseActivityLinePick: Record "Warehouse Activity Line";
+        ResourceNo: Code[20];
+        QtyInventory: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Create Warehouse pick for multiple job tasks with different type of job planning lines and then verify the records created.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] Resource R
+        ResourceNo := LibraryResource.CreateResourceNo();
+
+        // [GIVEN] A Job
+        CreateJobWithJobTask(JobTask);
+        Job.Get(JobTask."Job No.");
+
+        // [GIVEN] Create Multiple job tasks and a Job Planning Line for every job task with the common location and Bin Code 
+        // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Both Budget and Billable
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(10));
+
+        // [GIVEN] Job Planning Line for Job Task T2: Type = Resource, Line Type = Both Budget and Billable
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Resource, ResourceNo, LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(10));
+
+        // [GIVEN] Job Planning Line for Job Task T3: Type = Item, Line Type = Billable
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Billable, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(10));
+
+        // [GIVEN] Job Planning Line for Job Task T4: Type = Item, Line Type = Budget
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(10));
+
+        // [WHEN] Create Warehouse Pick for the Job
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] Number of warehouse pick activities created for the job is 2 * 2 = 4. These include "Action Type" Take and Place for task T1 and task T4.
+        WarehouseActivityLinePick.SetRange("Source No.", JobPlanningLine."Job No.");
+        Assert.RecordCount(WarehouseActivityLinePick, 4);
+
+        // [THEN] Pick Qty is updated
+        // [THEN] Verify data in warehouse activity lines
+        JobPlanningLine.Reset();
+        JobPlanningLine.SetRange("Job No.", Job."No.");
+        JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Item);
+        JobPlanningLine.SetFilter("Line Type", '%1|%2', JobPlanningLine."Line Type"::Budget, JobPlanningLine."Line Type"::"Both Budget and Billable");
+        Assert.RecordCount(JobPlanningLine, 2);
+        if JobPlanningLine.FindSet() then
+            repeat
+                VerifyJobPlanningLineQuantities(JobPlanningLine, JobPlanningLine.Quantity, JobPlanningLine.Quantity, 0, 0, JobPlanningLine.Quantity, false);
+                VerifyWarehousePickActivityLine(JobPlanningLine);
+            until JobPlanningLine.Next() = 0;
+
+        // [WHEN] Auto fill Qty to handle on Warehouse Pick
+        AutoFillAndRegisterWhsePickFromPage(JobPlanningLine);
+
+        // [WHEN] Transfer lines to job journal for the T1 and T4 job planning lines and post
+        JobPlanningLine.FindSet();
+        repeat
+            TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+            OpenRelatedJournalAndPost(JobPlanningLine);
+        until JobPlanningLine.Next() = 0;
+
+        // [THEN] Verify Job Planning Lines
+        JobPlanningLine.Reset();
+        JobPlanningLine.SetRange("Job No.", Job."No.");
+        Assert.RecordCount(JobPlanningLine, 4);
+        JobPlanningLine.FindSet();
+        repeat
+            if (JobPlanningLine.Type = JobPlanningLine.Type::Item) and ((JobPlanningLine."Line Type" = JobPlanningLine."Line Type"::Budget) or (JobPlanningLine."Line Type" = JobPlanningLine."Line Type"::"Both Budget and Billable")) then
+                VerifyJobPlanningLineQuantities(JobPlanningLine, 0, 0, JobPlanningLine.Quantity, JobPlanningLine.Quantity, 0, true)
+            else begin
+                JobPlanningLine.TestField("Qty. Picked", 0);
+                JobPlanningLine.TestField("Qty. Picked (Base)", 0);
+                JobPlanningLine.TestField("Completely Picked", false);
+                JobPlanningLine.TestField("Qty. Posted", 0);
+            end;
+        until JobPlanningLine.Next() = 0;
+
+        // [THEN] Verify Warehouse Entries
+        JobTask.Reset();
+        JobTask.SetRange("Job No.", Job."No.");
+        Assert.RecordCount(JobTask, 4);
+        if JobTask.FindSet() then
+            repeat
+                VerifyWhseEntriesAfterRegisterPick(Job, JobTask, false);
+            until JobTask.Next() = 0;
+    end;
+
+    [Test]
+    [HandlerFunctions('JobTransferFromJobPlanLineHandler,WhseSrcCreateDocReqHandler,MessageHandler,RegisterPickForOneModalPageHandler,ConfirmHandlerTrue')]
+    procedure CreateAnotherPickForPartialJobJournalLine_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WarehouseActivityLinesPage: TestPage "Warehouse Activity Lines";
+        QtyInventory: Integer;
+        QtyToUse: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] It is possible to Create warehouse pick for job with an existing entry in job journal line for partially picked items.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] A Job
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Both Budget and Billable
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandIntInRange(11, 100));
+
+        // [GIVEN] Warehouse Picks Are Created
+        OpenJobAndCreateWarehousePick(Job);
+        WarehouseActivityLinesPage.Trap();
+        OpenRelatedWarehousePicksForJob(Job);
+
+        // [WHEN] Open related Warehouse Pick Card, Fill partial quantity and Register pick.
+        QtyToUse := LibraryRandom.RandInt(10);
+        LibraryVariableStorage.Enqueue(QtyToUse);
+        WarehouseActivityLinesPage.Card.Invoke(); //Handled in RegisterPickForOneModalPageHandler
+        WarehouseActivityLinesPage.Close();
+
+        // [THEN] Job planning lines picked quantity is updated correctly
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."); //Refresh the job planning lines to have the latest information.
+        VerifyJobPlanningLineQuantities(JobPlanningLine, JobPlanningLine.Quantity - QtyToUse, JobPlanningLine.Quantity - QtyToUse, QtyToUse, QtyToUse, JobPlanningLine.Quantity, false);
+
+        // [WHEN] Create Job Journal Lines from Job Planning Line for the partially picked quantity.
+        JobPlanningLine.Validate("Qty. to Transfer to Journal", QtyToUse);
+        JobPlanningLine.Modify(true);
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+
+        // [WHEN] Auto fill and try to post the remaining Warehouse Picks for the Job
+        AutoFillAndRegisterWhsePickFromPage(JobPlanningLine);
+
+        // [THEN] No error is thrown
+        // [THEN] Job planning lines picked quantity is updated correctly
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."); //Refresh the job planning lines to have the latest information.
+        VerifyJobPlanningLineQuantities(JobPlanningLine, 0, 0, JobPlanningLine.Quantity, JobPlanningLine.Quantity, JobPlanningLine.Quantity, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,MessageHandler,ConfirmHandlerTrue')]
+    procedure CreatePickAgainAfterPostingFirstPick_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        QtyInventory: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Show Nothing to create message if Warehouse pick is created again after posting the initial pick.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] A Job
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create Warehouse Pick for the Job
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [WHEN] Auto fill Qty to handle on Warehouse Pick and Register Pick, but do not post job journal line
+        AutoFillAndRegisterWhsePickFromPage(JobPlanningLine);
+
+        // [WHEN] Create Warehouse Pick for the Job again.
+        asserterror OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] Nothing to handle error message is shown as the item was completely picked.
+        Assert.ExpectedError(WhseCompletelyPickedErr);
+    end;
+
+    [Test]
+    procedure CreatePickErrWhenThereIsNoQtyToPick_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        QtyInventory: Integer;
+        ResourceNo: Code[20];
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Show nothing to create message if Warehouse pick is created job planning lines with 0 quantity along with a job planning line of type resource with some quantity.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] Resource R
+        ResourceNo := LibraryResource.CreateResourceNo();
+
+        // [GIVEN] A Job
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create job tasks and a Job Planning Line with 0 quantity.
+        // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', 0);
+        // [GIVEN] Job Planning Line for Job Task T1: Type = Resource, Line Type = Budget and some quantity
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Resource, ResourceNo, LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(10));
+
+        // [WHEN] Create Warehouse Pick for the Job
+        asserterror OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] Nothing to handle error message is shown as there are no items to be picked.
+        Assert.ExpectedError(WhseNoItemsToPickErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,MessageHandler')]
+    procedure CreatePickAgainAfterAddingAnotherJobTask_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WarehouseActivityHeader: array[2] of Record "Warehouse Activity Header";
+        WarehouseActivityLinePick: array[2] of Record "Warehouse Activity Line";
+        QtyInventory: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Create Warehouse Pick again after adding another Job Task to same Job.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] A Job
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(10));
+
+        // [WHEN] Create Warehouse Pick for the Job
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] 1st Warehouse Pick created
+        VerifyWarehousePickActivityLine(JobPlanningLine);
+        WarehouseActivityLinePick[1].SetRange("Source Line No.", JobPlanningLine."Job Contract Entry No.");
+        WarehouseActivityLinePick[1].FindFirst();
+
+        WarehouseActivityHeader[1].Get(WarehouseActivityHeader[1].Type::Pick, WarehouseActivityLinePick[1]."No.");
+
+        // [WHEN] Create a new Job Planning Line for a new Job Task T2: Type = Item, Line Type = Budget
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(10));
+
+        // [WHEN] Create Warehouse Pick for the Job
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] 2nd Warehouse pick with created.
+        VerifyWarehousePickActivityLine(JobPlanningLine);
+        WarehouseActivityLinePick[2].SetRange("Source Line No.", JobPlanningLine."Job Contract Entry No.");
+        WarehouseActivityLinePick[2].FindFirst();
+
+        WarehouseActivityHeader[2].Get(WarehouseActivityHeader[2].Type::Pick, WarehouseActivityLinePick[2]."No.");
+
+        //[THEN] Two separate warehouse activity headers are created
+        Assert.AreNotEqual(WarehouseActivityHeader[1]."No.", WarehouseActivityHeader[2]."No.", OneWhsePickHeaderCreatedErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,MessageHandler,ConfirmHandlerTrue')]
+    procedure CreatePickForMultipleJobPlanningLines_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: array[3] of Record "Job Planning Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLinePick: Record "Warehouse Activity Line";
+        QtyInventory: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Create and register warehouse picks for a job with 1 job task and multiple job planning lines.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] A Job
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create 1 Job task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] 3 Job Planning Lines
+        CreateJobPlanningLineWithData(JobPlanningLine[1], JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine[1].Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(100));
+        CreateJobPlanningLineWithData(JobPlanningLine[2], JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine[2].Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(100));
+        CreateJobPlanningLineWithData(JobPlanningLine[3], JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine[3].Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(100));
+
+        // [WHEN] Create Warehouse Pick for the Job
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] Number of warehouse pick activity header created for the job is 1
+        WarehouseActivityLinePick.SetRange("Source Line No.", JobPlanningLine[1]."Job Contract Entry No.");
+        WarehouseActivityLinePick.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLinePick."No.");
+        WarehouseActivityHeader.TestField("Location Code", LocationWithDirectedPutawayAndPick.Code);
+
+        // [THEN] Warehouse pick activities should be created.
+        Clear(WarehouseActivityLinePick);
+        WarehouseActivityLinePick.SetRange("No.", WarehouseActivityHeader."No.");
+        Assert.RecordCount(WarehouseActivityLinePick, 3 * 2); //2 for each job planning line
+        VerifyWarehousePickActivityLine(JobPlanningLine[1]);
+        VerifyWarehousePickActivityLine(JobPlanningLine[2]);
+        VerifyWarehousePickActivityLine(JobPlanningLine[3]);
+
+        // [WHEN] Auto fill Qty to handle on Warehouse Pick and Post it along with Job Journal
+        AutoFillAndRegisterWhsePickFromPage(JobPlanningLine[1]);
+
+        // [THEN] Verify Warehouse Entries
+        VerifyWhseEntriesAfterRegisterPick(Job, JobTask, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,CreatePickReqHandler,ConfirmHandlerTrue,AutoFillAndRegisterPickModalPageHandler,PickSelectionModalPageHandler')]
+    procedure CreateAndRegisterWhsePicksUsingPickWorksheet_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityLinesPage: TestPage "Warehouse Activity Lines";
+        PickWorksheetPage: TestPage "Pick Worksheet";
+        QtyInventory: Integer;
+        QtyToUse: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Register warehouse picks that are created for a Job using pick worksheet.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] A job with a task
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Create a job planning line that require the item from a created location
+        QtyToUse := LibraryRandom.RandIntInRange(2, 10);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', QtyToUse);
+        JobPlanningLine.AutoReserve();
+
+        // [THEN] Pick Qty / Pick Qty (Base) = 0; Qty Picked / Qty Picked (Base) = 0 and Completely Picked = No
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."); //Refresh the job planning lines to have the latest information.
+        VerifyJobPlanningLineQuantities(JobPlanningLine, 0, 0, 0, 0, JobPlanningLine.Quantity, false);
+
+        // [WHEN] Pick Worksheet is used to get the source documents
+        PickWorksheetPage.OpenEdit();
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Job No.");
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Location Code");
+        PickWorksheetPage."Get Warehouse Documents".Invoke(); //Handled in PickSelectionModalPageHandler
+        Commit(); //Needed as CreatePick report is executed modally.
+
+        // [THEN] Warehouse Worksheet lines are created.
+        WhseWorksheetLine.SetRange("Whse. Document Type", WhseWorksheetLine."Whse. Document Type"::Job);
+        WhseWorksheetLine.SetRange("Whse. Document No.", JobTask."Job No.");
+        WhseWorksheetLine.SetRange("Whse. Document Line No.", JobPlanningLine."Job Contract Entry No.");
+        Assert.RecordCount(WhseWorksheetLine, 1);
+
+        // [WHEN] Pick Worksheet is used to create the pick documents
+        PickWorksheetPage.CreatePick.Invoke();
+        PickWorksheetPage.Close();
+
+        // [THEN] Warehouse pick lines are created
+        VerifyWarehousePickActivityLine(JobPlanningLine);
+
+        // [THEN] Pick Qty / Pick Qty (Base), Qty Picked / Qty Picked (Base) and Completely Picked are filled.
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."); //Refresh the job planning lines to have the latest information.
+        VerifyJobPlanningLineQuantities(JobPlanningLine, JobPlanningLine.Quantity, JobPlanningLine.Quantity, 0, 0, JobPlanningLine.Quantity, false);
+
+        // [WHEN] Open Related Warehouse Pick Lines
+        Job.Get(JobPlanningLine."Job No.");
+        WarehouseActivityLinesPage.Trap();
+        OpenRelatedWarehousePicksForJob(Job);
+
+        // [WHEN] Open related Warehouse Pick Card, Autofill quantity and Register pick.
+        WarehouseActivityLinesPage.Card.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
+        WarehouseActivityLinesPage.Close();
+
+        // [THEN] Pick Qty / Pick Qty (Base), Qty Picked / Qty Picked (Base) and Completely Picked are filled.
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."); //Refresh the job planning lines to have the latest information.
+        VerifyJobPlanningLineQuantities(JobPlanningLine, 0, 0, QtyToUse, QtyToUse, JobPlanningLine.Quantity, true);
+
+        // [THEN] Warehouse entry is created
+        VerifyWhseEntriesAfterRegisterPick(Job, JobTask, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSelectionModalPageHandler')]
+    procedure CannotCreatePicksUsingPickWorksheetForNonInventoryItems_DirectedPutAwayAndPick()
+    var
+        NonInventoryItem: Record Item;
+        ServiceItem: Record Item;
+        JobTask: Record "Job Task";
+        JobPlanningLine: array[4] of Record "Job Planning Line";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        PickWorksheetPage: TestPage "Pick Worksheet";
+        ResourceNo: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Cannot create warehouse picks for job planning lines with non-inventory items, Resource and GL Account without having to create picks.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Non-Inventory type of item
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] Service type of item
+        LibraryInventory.CreateServiceTypeItem(ServiceItem);
+
+        // [GIVEN] Resource
+        ResourceNo := LibraryResource.CreateResourceNo();
+
+        // [GIVEN] G/L account
+        GLAccountNo := CreateGLAccount();
+
+        // [GIVEN] A job with a task
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Create a job planning line for the non-inventory, service item, resource, GL account and item with whs tracking enabled.
+        CreateJobPlanningLineWithData(JobPlanningLine[1], JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine[1].Type::Item, NonInventoryItem."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(10));
+
+        CreateJobPlanningLineWithData(JobPlanningLine[2], JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine[2].Type::Item, ServiceItem."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(10));
+
+        CreateJobPlanningLineWithData(JobPlanningLine[3], JobTask, "Job Planning Line Line Type"::"Both Budget and Billable", JobPlanningLine[3].Type::Resource, ResourceNo, LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(10));
+
+        CreateJobPlanningLineWithData(JobPlanningLine[4], JobTask, "Job Planning Line Line Type"::"Both Budget and Billable", JobPlanningLine[4].Type::"G/L Account", GLAccountNo, LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(10));
+
+        // [WHEN] Pick Worksheet is used to get the source documents
+        PickWorksheetPage.OpenEdit();
+        LibraryVariableStorage.Enqueue(JobPlanningLine[1]."Job No.");
+        LibraryVariableStorage.Enqueue(LocationWithDirectedPutawayAndPick.Code);
+        asserterror PickWorksheetPage."Get Warehouse Documents".Invoke(); //Handled in PickSelectionModalPageHandler 
+
+        // [THEN] No warehouse worksheet lines are created.
+        Assert.ExpectedError('no Warehouse Worksheet Lines created');
+        WhseWorksheetLine.SetRange("Whse. Document Type", WhseWorksheetLine."Whse. Document Type"::Job);
+        WhseWorksheetLine.SetRange("Whse. Document No.", JobTask."Job No.");
+        Assert.RecordIsEmpty(WhseWorksheetLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure WhsePickRequestIsDeletedOnJobCompletion_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WhsePickRequest: Record "Whse. Pick Request";
+        QtyInventory: Integer;
+        QtyToUse: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Related Warehouse Pick Request should be deleted on completion of the job.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] A job with a task
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Add multiple job planning line that require the item from a created location
+        QtyToUse := LibraryRandom.RandIntInRange(2, 10);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', QtyToUse);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', QtyToUse);
+
+        // [THEN] Warehouse Pick Request is created for the job
+        WhsePickRequest.SetRange("Document No.", JobPlanningLine."Job No.");
+        WhsePickRequest.SetRange("Document Subtype", 0);
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Job);
+        Assert.RecordCount(WhsePickRequest, 1);
+
+        // [WHEN] Job status is changed to complete
+        Job.Get(JobPlanningLine."Job No.");
+        Job.Validate(Status, Job.Status::Completed);
+
+        // [THEN] Related Warehouse Pick Request is deleted
+        Assert.RecordIsEmpty(WhsePickRequest);
+    end;
+
+    [Test]
+    procedure WhsePickRequestIsDeletedOnJobDeletion_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WhsePickRequest: Record "Whse. Pick Request";
+        QtyInventory: Integer;
+        QtyToUse: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Related Warehouse Pick Request should be deleted on deleting the job.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] A job with a task
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Add multiple job planning line that require the item from a created location
+        QtyToUse := LibraryRandom.RandIntInRange(2, 10);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', QtyToUse);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', QtyToUse);
+
+        // [THEN] Warehouse Pick Request is created for the job
+        WhsePickRequest.SetRange("Document No.", JobPlanningLine."Job No.");
+        WhsePickRequest.SetRange("Document Subtype", 0);
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Job);
+        Assert.RecordCount(WhsePickRequest, 1);
+
+        // [WHEN] Job is deleted
+        Job.Get(JobPlanningLine."Job No.");
+        Job.Delete(true);
+
+        // [THEN] Related Warehouse Pick Request is deleted
+        Assert.RecordIsEmpty(WhsePickRequest);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
+    procedure WarehouseRequestRestoredWhenReopeningJob_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WhsePickRequest: Record "Whse. Pick Request";
+        QtyInventory: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Warehouse requests should be restored when changing job status from complete, otherwise we cannot create a pick.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] A job with a job task
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [WHEN] Adding a job planning line
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(100));
+
+        // [THEN] A warehouse request is created.
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Job);
+        WhsePickRequest.SetRange("Document No.", Job."No.");
+        Assert.AreEqual(1, WhsePickRequest.Count(), 'Expected warehouse pick request to exist.');
+
+        // [WHEN] Marking job as complete.
+        Job.Validate(Status, Job.Status::Completed);
+
+        // [THEN] The warehouse request is deleted.
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Job);
+        WhsePickRequest.SetRange("Document No.", Job."No.");
+        Assert.AreEqual(0, WhsePickRequest.Count(), 'Expected warehouse pick request to be deleted.');
+
+        // [WHEN] Marking job as open.
+        Job.Validate(Status, Job.Status::Open);
+
+        // [THEN] A warehouse request is created.
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Job);
+        WhsePickRequest.SetRange("Document No.", Job."No.");
+        Assert.AreEqual(1, WhsePickRequest.Count(), 'Expected warehouse pick request to exist.');
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,MessageHandler')]
+    procedure CannotDeleteOrCompleteJobWithWhseActivityLines_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WarehouseActivityLinePick: Record "Warehouse Activity Line";
+        QtyInventory: Integer;
+        ExpectedErrorMessage: Text;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Try to delete or complete the job for which outstanding warehouse picks exists.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] A Job
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create 1 Job task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] 1 Job Planning Lines
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(100));
+
+        // [WHEN] Create Warehouse Pick for the Job
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [WHEN] Job status is changed to complete
+        Job.Get(JobPlanningLine."Job No.");
+
+        asserterror Job.Validate(Status, Job.Status::Completed);
+
+        // [THEN] Status cannot be changed to completed because outstanding warehouse pick exists for the job
+        ExpectedErrorMessage := StrSubstNo(FieldMustNotBeChangedErr, WarehouseActivityLinePick.TableCaption(), JobPlanningLine.TableCaption());
+        Assert.ExpectedError(ExpectedErrorMessage);
+
+        // [WHEN] Job is deleted
+        asserterror Job.Delete(true);
+
+        // [THEN] Job cannot be deleted because outstanding warehouse pick exists for the job 
+        ExpectedErrorMessage := StrSubstNo(
+            DeletionNotPossibleErr, JobPlanningLine.TableCaption(), WarehouseActivityLinePick.TableCaption());
+        Assert.ExpectedError(ExpectedErrorMessage);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,PickSelectionModalPageHandler')]
+    procedure CannotChangeStatusOrDeleteJobWhenWhseWorksheetLinesExist_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        PickWorksheetPage: TestPage "Pick Worksheet";
+        QtyInventory: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Create pick from warehouse worksheet should fail if job is deleted or completed.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := LibraryRandom.RandIntInRange(800, 1000);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] A Job
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create 1 Job task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] 1 Job Planning Lines
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(100));
+
+        // [WHEN] Pick Worksheet is used to get the source documents
+        PickWorksheetPage.OpenEdit();
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Job No.");
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Location Code");
+        PickWorksheetPage."Get Warehouse Documents".Invoke(); //Handled in PickSelectionModalPageHandler
+        PickWorksheetPage.Close();
+
+        // [WHEN] Job status is changed to complete.
+        Job.Get(JobPlanningLine."Job No.");
+        asserterror Job.Validate(Status, Job.Status::Completed);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError('Status must not be changed when a Whse. Worksheet');
+
+        // [WHEN] Pick Worksheet is used to get the source documents
+        PickWorksheetPage.OpenEdit();
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Job No.");
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Location Code");
+        PickWorksheetPage."Get Warehouse Documents".Invoke(); //Handled in PickSelectionModalPageHandler
+        PickWorksheetPage.Close();
+
+        // [WHEN] Job is deleted.
+        asserterror Job.Delete(true);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError('The Project Planning Line cannot be deleted when a related Whse. Worksheet');
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,MessageHandler')]
+    procedure CreateAndRegisterPickForReservedJobPlanningLine_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [FEATURE] [WMS] [Reservation] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Create pick from reserved job planning line.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with enough inventory on location with "Directed Put-away and Pick"
+        LibraryInventory.CreateItem(Item);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", LibraryRandom.RandIntInRange(20, 40), LocationWithDirectedPutawayAndPick.Code, false);
+
+        // [GIVEN] Create job, job task, and job planning line.
+        // [GIVEN] Auto reserve the job planning line from the inventory.
+        CreateJobWithJobTask(JobTask);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', LibraryRandom.RandInt(10));
+        JobPlanningLine.AutoReserve();
+
+        // [WHEN] Create warehouse pick.
+        Job.Get(JobPlanningLine."Job No.");
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] The pick has been created.
+        JobPlanningLine.Find();
+        JobPlanningLine.CalcFields("Pick Qty.");
+        JobPlanningLine.TestField("Pick Qty.", JobPlanningLine.Quantity);
+
+        // [THEN] The pick can be successfully registered.
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        JobPlanningLine.Find();
+        JobPlanningLine.TestField("Qty. Picked", JobPlanningLine.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,CreatePickReqHandler,PickSelectionModalPageHandler,ItemTrackingLinesModalPageHandler,AssignSerialNoEnterQtyPageHandler')]
+    procedure CreateAndRegisterWhsePicksWithItemTrackingUsingPickWorksheet_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        PickWorksheetPage: TestPage "Pick Worksheet";
+        SerialNos: List of [Code[50]];
+        SerialNo: Code[50];
+        Qty: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Create and register warehouse picks using pick worksheet for job planning line with item tracking.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with SN tracking and enough inventory on location with "Directed Put-away and Pick"
+        CreateSerialTrackedItem(Item, true);
+        Qty := 2;
+
+        // [GIVEN] Post 2 serial nos. "S1" and "S2" to inventory.
+        LibraryVariableStorage.Enqueue(0);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", Qty, LocationWithDirectedPutawayAndPick.Code, true);
+        GetListOfPostedSerialNos(SerialNos, Item."No.");
+
+        // [GIVEN] Job, job task, and job planning line for 2 pcs.
+        // [GIVEN] Select serial nos. "S1" and "S2" on the job planning line.
+        CreateJobWithJobTask(JobTask);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', Qty);
+        LibraryVariableStorage.Enqueue(2);
+        foreach SerialNo in SerialNos do
+            LibraryVariableStorage.Enqueue(SerialNo);
+        JobPlanningLine.OpenItemTrackingLines();
+
+        // [GIVEN] Open pick worksheet and pull the job planning line using "Get Warehouse Documents".
+        PickWorksheetPage.OpenEdit();
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Job No.");
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Location Code");
+        PickWorksheetPage."Get Warehouse Documents".Invoke();
+
+        // [WHEN] Create pick from pick worksheet.
+        Commit();
+        PickWorksheetPage.CreatePick.Invoke();
+        PickWorksheetPage.Close();
+
+        // [THEN] Warehouse pick is created.
+        // [THEN] Serial numbers "S1" and "S2" are selected on the pick lines.
+        WarehouseActivityLine.SetRange("Source Line No.", JobPlanningLine."Job Contract Entry No.");
+        foreach SerialNo in SerialNos do begin
+            WarehouseActivityLine.SetRange("Serial No.", SerialNo);
+            WarehouseActivityLine.FindFirst();
+            WarehouseActivityLine.TestField(Quantity, 1);
+        end;
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,ItemTrackingLinesAssignPageHandler,AssignSerialNoEnterQtyPageHandler,MessageHandler')]
+    procedure WhsePicksCreatedForJobWithItemTrackingWithBin_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        QtyInventory: Integer;
+        QtyToUse: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Warehouse picks can be created for items with SN tracking with bin.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with SN tracking and enough inventory on location with "Directed Put-away and Pick"
+        CreateSerialTrackedItem(Item, true);
+        QtyInventory := LibraryRandom.RandIntInRange(40, 50);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, true);
+
+        // [GIVEN] A job with a task
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Create a job planning line with the SN tracked item
+        QtyToUse := LibraryRandom.RandIntInRange(2, 10);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', QtyToUse);
+
+        // [WHEN] 'Create Warehouse Pick' action is invoked from the job card
+        Job.Get(JobPlanningLine."Job No.");
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] Warehouse pick lines are created and there is nothing to handle error is not thrown.
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,WhseSrcCreateDocReqHandler,ConfirmHandlerTrue,AutoFillAndRegisterPickModalPageHandler,ItemTrackingLinesAssignPageHandler,AssignSerialNoEnterQtyPageHandler')]
+    procedure WhsePicksCanBeRegisteredForJobWithItemTrackingWithBin_DirectedPutAwayAndPick()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WarehouseActivityLinesPage: TestPage "Warehouse Activity Lines";
+        QtyInventory: Integer;
+        QtyToUse: Integer;
+    begin
+        // [FEATURE] [WMS] Support directed put-away and pick warehouses with projects.
+        // [SCENARIO 485770] Warehouse picks can be created for items with SN tracking with bin.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location with "Directed Put-away and Pick"
+        CreateDefaultWarehouseEmployee(LocationWithDirectedPutawayAndPick);
+
+        // [GIVEN] Ensure empty Bin in Pick zone
+        CreateEmptyPickBin();
+
+        // [GIVEN] An item with SN tracking and enough inventory on location with "Directed Put-away and Pick"
+        CreateSerialTrackedItem(Item, true);
+        QtyInventory := LibraryRandom.RandIntInRange(4, 7);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", QtyInventory, LocationWithDirectedPutawayAndPick.Code, true);
+
+        // [GIVEN] A job with a task
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Create a job planning line with the SN tracked item
+        QtyToUse := QtyInventory;
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithDirectedPutawayAndPick.Code, '', QtyToUse);
+
+        // [WHEN] 'Create Warehouse Pick' action is invoked from the job card
+        Job.Get(JobPlanningLine."Job No.");
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] Warehouse pick lines are created
+        VerifyWarehousePickActivityLineWithSN(JobPlanningLine);
+
+        // [WHEN] Assign Serial Numbers on Warehouse Pick Lines
+        AssignSNWhsePickLines(JobPlanningLine);
+
+        // [WHEN] Open Related Warehouse Pick Lines
+        WarehouseActivityLinesPage.Trap();
+        OpenRelatedWarehousePicksForJob(Job);
+
+        // [WHEN] Open related Warehouse Pick Card, Autofill quantity and Register pick.
+        WarehouseActivityLinesPage.Card.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
+        WarehouseActivityLinesPage.Close();
+
+        // [THEN] Warehouse entry is created
+        VerifyWhseEntriesAfterRegisterPick(Job, JobTask, true);
+
+        // [THEN] Reservation Entries are created.
+        VerifyWhsePickReservationEntry(JobPlanningLine);
+    end;
+
     procedure AssignSNWhsePickLines(JobPlanningLine: Record "Job Planning Line")
     var
         WarehouseActivityLinePick: Record "Warehouse Activity Line";
@@ -2536,7 +3901,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
             Counter += 1;
             WarehouseActivityLinePick.Validate("Serial No.", ItemTrackingEntries."Serial No.");
             WarehouseActivityLinePick.Modify(true);
-            if (JobPlanningLine."Bin Code" = '') or (Counter MOD 2 = 0) then
+            if (JobPlanningLine."Bin Code" = '') or (Counter mod 2 = 0) then
                 ItemTrackingEntries.Next(); //Use the same serial number of take and place activity type or use new serial number when BinCode = ''.
         until (WarehouseActivityLinePick.Next() = 0);
     end;
@@ -2612,13 +3977,19 @@ codeunit 136318 "Whse. Pick On Job Planning"
 
     local procedure CountWarehouseActivityTypeSpaceAndBins(var WarehouseActivityPickLine: Record "Warehouse Activity Line"; var JobPlanningLine: Record "Job Planning Line"; var CountSourceBin: Integer; var CountDestinationBin: Integer; var CountActivityTypeSpace: Integer)
     var
+        Location: Record Location;
         BinContent: Record "Bin Content";
     begin
-        FindDefaultBinContent(BinContent, JobPlanningLine."No.", JobPlanningLine."Location Code");
         case WarehouseActivityPickLine."Action Type" of
             WarehouseActivityPickLine."Action Type"::Take:
                 begin
-                    WarehouseActivityPickLine.TestField("Bin Code", BinContent."Bin Code"); //Take from Default Bin
+                    Location.SetLoadFields("Directed Put-away and Pick");
+                    Location.Get(JobPlanningLine."Location Code");
+                    if not Location."Directed Put-away and Pick" then begin
+                        FindDefaultBinContent(BinContent, JobPlanningLine."No.", JobPlanningLine."Location Code");
+                        WarehouseActivityPickLine.TestField("Bin Code", BinContent."Bin Code"); //Take from Default Bin
+                    end else
+                        WarehouseActivityPickLine.TestField("Bin Code");
                     CountSourceBin += 1
                 end;
 
@@ -2819,23 +4190,36 @@ codeunit 136318 "Whse. Pick On Job Planning"
 
     local procedure VerifyWhseEntryForRegisteredPick(JobPlanningLine: Record "Job Planning Line")
     var
+        Location: Record Location;
         WarehouseEntry: Record "Warehouse Entry";
         CountSourceBin: Integer;
         CountDestinationBin: Integer;
+        DestinationBinCode, SourceBinCode : Code[20];
     begin
         FindWarehouseEntriesForJob(WarehouseEntry, JobPlanningLine);
         Assert.RecordCount(WarehouseEntry, 2); //2 lines per planning line is created in warehouse entry
+
+        Location.SetLoadFields("Directed Put-away and Pick");
+        Location.Get(JobPlanningLine."Location Code");
+        if not Location."Directed Put-away and Pick" then begin
+            SourceBinCode := SourceBin.Code;
+            DestinationBinCode := DestinationBin.Code;
+        end else begin
+            SourceBinCode := '';
+            DestinationBinCode := JobPlanningLine."Bin Code";
+        end;
+
         WarehouseEntry.FindSet();
         repeat
             // take from source bin and place it in destination bin.
             case WarehouseEntry."Bin Code" of
-                DestinationBin.Code:
+                DestinationBinCode:
                     begin
                         WarehouseEntry.TestField("Bin Code", JobPlanningLine."Bin Code");
                         WarehouseEntry.TestField(Quantity, JobPlanningLine."Qty. Picked (Base)");
                         CountDestinationBin += 1;
                     end;
-                SourceBin.Code:
+                SourceBinCode:
                     begin
                         WarehouseEntry.TestField(Quantity, -JobPlanningLine."Qty. Picked (Base)");
                         CountSourceBin += 1;
@@ -2844,29 +4228,44 @@ codeunit 136318 "Whse. Pick On Job Planning"
         until WarehouseEntry.Next() = 0;
 
         // 2 lines are created for each job planning line
-        Assert.AreEqual(1, CountSourceBin, StrSubstNo(WarehouseEntryTotalErr, 1, SourceBin.Code));
-        Assert.AreEqual(1, CountDestinationBin, StrSubstNo(WarehouseEntryTotalErr, 1, DestinationBin.Code));
+        if SourceBinCode <> '' then
+            Assert.AreEqual(1, CountSourceBin, StrSubstNo(WarehouseEntryTotalErr, 1, SourceBinCode));
+        if DestinationBinCode <> '' then
+            Assert.AreEqual(1, CountDestinationBin, StrSubstNo(WarehouseEntryTotalErr, 1, DestinationBinCode));
     end;
 
     local procedure VerifyWhseEntryForRegisteredPickWithSN(JobPlanningLine: Record "Job Planning Line")
     var
+        Location: Record Location;
         WarehouseEntry: Record "Warehouse Entry";
         CountSourceBin: Integer;
         CountDestinationBin: Integer;
+        DestinationBinCode, SourceBinCode : Code[20];
     begin
         FindWarehouseEntriesForJob(WarehouseEntry, JobPlanningLine);
         Assert.RecordCount(WarehouseEntry, 2 * JobPlanningLine.Quantity); //2 * quantity on the job planning line
+
+        Location.SetLoadFields("Directed Put-away and Pick");
+        Location.Get(JobPlanningLine."Location Code");
+        if not Location."Directed Put-away and Pick" then begin
+            SourceBinCode := SourceBin.Code;
+            DestinationBinCode := DestinationBin.Code;
+        end else begin
+            SourceBinCode := '';
+            DestinationBinCode := JobPlanningLine."Bin Code";
+        end;
+
         WarehouseEntry.FindSet();
         repeat
             // take from source bin and place it in destination bin.
             case WarehouseEntry."Bin Code" of
-                DestinationBin.Code:
+                DestinationBinCode:
                     begin
                         WarehouseEntry.TestField("Bin Code", JobPlanningLine."Bin Code");
                         WarehouseEntry.TestField(Quantity, 1);
                         CountDestinationBin += 1;
                     end;
-                SourceBin.Code:
+                SourceBinCode:
                     begin
                         WarehouseEntry.TestField(Quantity, -1);
                         CountSourceBin += 1;
@@ -2875,8 +4274,10 @@ codeunit 136318 "Whse. Pick On Job Planning"
         until WarehouseEntry.Next() = 0;
 
         // 2 lines are created for each quantity per job planning line.
-        Assert.AreEqual(JobPlanningLine.Quantity, CountSourceBin, StrSubstNo(WarehouseEntryTotalErr, JobPlanningLine.Quantity, SourceBin.Code));
-        Assert.AreEqual(JobPlanningLine.Quantity, CountDestinationBin, StrSubstNo(WarehouseEntryTotalErr, JobPlanningLine.Quantity, DestinationBin.Code));
+        if SourceBinCode <> '' then
+            Assert.AreEqual(JobPlanningLine.Quantity, CountSourceBin, StrSubstNo(WarehouseEntryTotalErr, JobPlanningLine.Quantity, SourceBinCode));
+        if DestinationBinCode <> '' then
+            Assert.AreEqual(JobPlanningLine.Quantity, CountDestinationBin, StrSubstNo(WarehouseEntryTotalErr, JobPlanningLine.Quantity, DestinationBinCode));
     end;
 
     local procedure VerifyWarehouseEntry(SourceDocument: Enum "Warehouse Journal Source Document"; EntryType: Option; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; UnitOfMeasureCode: Code[10]; Quantity: Decimal)
@@ -2903,8 +4304,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
                 WarehouseEmployee.Delete(true);
                 LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, NewDefaultLocation.Code, true);
             end;
-        end
-        else
+        end else
             LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, NewDefaultLocation.Code, true);
     end;
 
@@ -2923,6 +4323,10 @@ codeunit 136318 "Whse. Pick On Job Planning"
             LibraryWarehouse.CreateLocationWMS(LocationWithWhsePick, true, false, true, false, true);
             LibraryWarehouse.CreateBin(SourceBin, LocationWithWhsePick.Code, LibraryUtility.GenerateRandomCode(SourceBin.FieldNo(Code), Database::Bin), '', '');
             LibraryWarehouse.CreateBin(DestinationBin, LocationWithWhsePick.Code, LibraryUtility.GenerateRandomCode(DestinationBin.FieldNo(Code), Database::Bin), '', '');
+
+            LibraryWarehouse.CreateFullWMSLocation(LocationWithDirectedPutawayAndPick, 1);
+            LocationWithDirectedPutawayAndPick.Validate("To-Job Bin Code", LocationWithDirectedPutawayAndPick."To-Production Bin Code");
+            LocationWithDirectedPutawayAndPick.Modify(true);
         end;
 
         CreateDefaultWarehouseEmployee(LocationWithWhsePick);
@@ -3024,6 +4428,89 @@ codeunit 136318 "Whse. Pick On Job Planning"
         Commit();
     end;
 
+    local procedure CreateEmptyPickBin()
+    var
+        Zone: Record Zone;
+        NewPickBin: Record Bin;
+    begin
+        LibraryWarehouse.FindZone(Zone, LocationWithDirectedPutawayAndPick.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.CreateBin(NewPickBin, LocationWithDirectedPutawayAndPick.Code, LibraryUtility.GenerateRandomCode(NewPickBin.FieldNo(Code), Database::Bin), Zone.Code, Zone."Bin Type Code");
+    end;
+
+    local procedure CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; UseItemTracking: Boolean)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseHeader, ItemNo, Quantity, LocationCode, UseItemTracking);
+        RegisterWarehouseActivity(
+          WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Put-away");
+    end;
+
+    local procedure CreateAndPostWarehouseReceiptFromPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; UseItemTracking: Boolean)
+    var
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", ItemNo, Quantity, LocationCode, UseItemTracking);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        PostWarehouseReceipt(PurchaseHeader."No.", ItemNo);
+    end;
+
+    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ItemTracking: Boolean)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, ItemNo, Quantity, LocationCode, ItemTracking);
+    end;
+
+    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; UseTracking: Boolean)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Modify(true);
+        if UseTracking then
+            PurchaseLine.OpenItemTrackingLines();
+    end;
+
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    begin
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindSet();
+    end;
+
+    local procedure PostWarehouseReceipt(SourceNo: Code[20]; ItemNo: Code[20])
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        FindWarehouseReceiptLine(WarehouseReceiptLine, SourceNo, ItemNo);
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+    end;
+
+    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20]; ItemNo: Code[20])
+    begin
+        WarehouseReceiptLine.SetRange("Source Document", WarehouseReceiptLine."Source Document"::"Purchase Order");
+        WarehouseReceiptLine.SetRange("Source No.", SourceNo);
+        WarehouseReceiptLine.SetRange("Item No.", ItemNo);
+        WarehouseReceiptLine.FindFirst();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
@@ -3104,8 +4591,8 @@ codeunit 136318 "Whse. Pick On Job Planning"
         JobNo: Code[20];
         LocationCode: Code[10];
     begin
-        JobNo := LibraryVariableStorage.DequeueText();
-        LocationCode := LibraryVariableStorage.DequeueText();
+        JobNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(JobNo));
+        LocationCode := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(LocationCode));
         PickSelection.GoToKey("Warehouse Pick Request Document Type"::Job, 0, JobNo, LocationCode);
         PickSelection.OK().Invoke();
     end;
@@ -3126,6 +4613,14 @@ codeunit 136318 "Whse. Pick On Job Planning"
                 ItemTrackingLines."Assign &Serial No.".Invoke();
             1:
                 ItemTrackingLines."Select Entries".Invoke();
+            2:
+                begin
+                    ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(1);
+                    ItemTrackingLines.Next();
+                    ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(1);
+                end;
         end;
         ItemTrackingLines.OK().Invoke();
     end;

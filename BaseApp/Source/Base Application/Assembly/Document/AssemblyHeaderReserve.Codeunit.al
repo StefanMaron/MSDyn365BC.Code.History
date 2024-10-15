@@ -5,6 +5,7 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Foundation.Navigate;
 
 codeunit 925 "Assembly Header-Reserve"
 {
@@ -21,11 +22,16 @@ codeunit 925 "Assembly Header-Reserve"
         ReservationEngineMgt: Codeunit "Reservation Engine Mgt.";
         DeleteItemTracking: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Reserved quantity cannot be greater than %1.';
+#pragma warning restore AA0470
         Text001: Label 'Codeunit is not initialized correctly.';
         Text002: Label 'must be filled in when a quantity is reserved', Comment = 'starts with "Due Date"';
         Text003: Label 'must not be changed when a quantity is reserved', Comment = 'starts with some field name';
-        AssemblyTxt: Label 'Assembly';
+#pragma warning restore AA0074
+        SummaryTypeTxt: Label '%1, %2', Locked = true;
+        SourceDoc3Txt: Label '%1 %2 %3', Locked = true;
 
     procedure CreateReservation(var AssemblyHeader: Record "Assembly Header"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
     var
@@ -245,7 +251,7 @@ codeunit 925 "Assembly Header-Reserve"
         IsHandled := false;
         OnBeforeCallItemTracking(AssemblyHeader, IsHandled);
         if not IsHandled then begin
-            TrackingSpecification.InitFromAsmHeader(AssemblyHeader);
+            InitFromAsmHeader(TrackingSpecification, AssemblyHeader);
             ItemTrackingLines.SetSourceSpec(TrackingSpecification, AssemblyHeader."Due Date");
             ItemTrackingLines.SetInbound(AssemblyHeader.IsInbound());
             OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(AssemblyHeader, ItemTrackingLines);
@@ -365,14 +371,14 @@ codeunit 925 "Assembly Header-Reserve"
     end;
 
     [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnSetReservSource', '', false, false)]
-    local procedure OnSetReservSource(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var CaptionText: Text)
+    local procedure ReservationOnSetReservSource(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var CaptionText: Text)
     begin
         if MatchThisTable(SourceRecRef.Number) then
             SetReservSourceFor(SourceRecRef, ReservEntry, CaptionText);
     end;
 
     [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnDrillDownTotalQuantity', '', false, false)]
-    local procedure OnDrillDownTotalQuantity(SourceRecRef: RecordRef; ReservEntry: Record "Reservation Entry"; EntrySummary: Record "Entry Summary"; Location: Record Location; MaxQtyToReserve: Decimal)
+    local procedure ReservationOnDrillDownTotalQuantity(SourceRecRef: RecordRef; ReservEntry: Record "Reservation Entry"; EntrySummary: Record "Entry Summary"; Location: Record Location; MaxQtyToReserve: Decimal)
     var
         AvailableAssemblyHeaders: page "Available - Assembly Headers";
     begin
@@ -385,7 +391,7 @@ codeunit 925 "Assembly Header-Reserve"
     end;
 
     [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnFilterReservEntry', '', false, false)]
-    local procedure OnFilterReservEntry(var FilterReservEntry: Record "Reservation Entry"; ReservEntrySummary: Record "Entry Summary")
+    local procedure ReservationOnFilterReservEntry(var FilterReservEntry: Record "Reservation Entry"; ReservEntrySummary: Record "Entry Summary")
     begin
         if MatchThisEntry(ReservEntrySummary."Entry No.") then begin
             FilterReservEntry.SetRange("Source Type", Database::"Assembly Header");
@@ -394,12 +400,21 @@ codeunit 925 "Assembly Header-Reserve"
     end;
 
     [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnAfterRelatesToSummEntry', '', false, false)]
-    local procedure OnRelatesToEntrySummary(var FilterReservEntry: Record "Reservation Entry"; FromEntrySummary: Record "Entry Summary"; var IsHandled: Boolean)
+    local procedure ReservationOnRelatesToEntrySummary(var FilterReservEntry: Record "Reservation Entry"; FromEntrySummary: Record "Entry Summary"; var IsHandled: Boolean)
     begin
         if MatchThisEntry(FromEntrySummary."Entry No.") then
             IsHandled :=
                 (FilterReservEntry."Source Type" = Database::"Assembly Header") and
                 (FilterReservEntry."Source Subtype" = FromEntrySummary."Entry No." - EntryStartNo());
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Ledger Entry-Reserve", 'OnDrillDownTotalQuantity', '', false, false)]
+    local procedure ItemLedgerEntryOnDrillDownTotalQuantity(SourceRecRef: RecordRef; EntrySummary: Record "Entry Summary" temporary; ReservEntry: Record "Reservation Entry"; Location: Record Location; MaxQtyToReserve: Decimal; var IsHandled: Boolean; sender: Codeunit "Item Ledger Entry-Reserve")
+    begin
+        if MatchThisTable(ReservEntry."Source Type") then begin
+            sender.DrillDownTotalQuantity(SourceRecRef, EntrySummary, ReservEntry, MaxQtyToReserve);
+            IsHandled := true;
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnCreateReservation', '', false, false)]
@@ -514,7 +529,8 @@ codeunit 925 "Assembly Header-Reserve"
         if (TotalQuantity > 0) = Positive then begin
             TempEntrySummary."Table ID" := Database::"Assembly Header";
             TempEntrySummary."Summary Type" :=
-                CopyStr(StrSubstNo('%1 %2', AssemblyTxt, AssemblyHeader."Document Type"), 1, MaxStrLen(TempEntrySummary."Summary Type"));
+                CopyStr(StrSubstNo(SummaryTypeTxt, AssemblyHeader.TableCaption(), AssemblyHeader."Document Type"),
+                1, MaxStrLen(TempEntrySummary."Summary Type"));
             TempEntrySummary."Total Quantity" := TotalQuantity;
             TempEntrySummary."Total Available Quantity" := TempEntrySummary."Total Quantity" - TempEntrySummary."Total Reserved Quantity";
             if not TempEntrySummary.Insert() then
@@ -546,6 +562,64 @@ codeunit 925 "Assembly Header-Reserve"
         PAGE.RunModal(Page::"Assembly List", AssemblyHeader);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnAfterAutoReserveOneLine', '', false, false)]
+    local procedure OnAfterAutoReserveOneLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; Search: Text[1]; NextStep: Integer; CalcReservEntry: Record "Reservation Entry"; CalcReservEntry2: Record "Reservation Entry"; Positive: Boolean; var sender: Codeunit "Reservation Management")
+    begin
+        if MatchThisEntry(ReservSummEntryNo) then
+            AutoReserveAssemblyHeader(
+                CalcReservEntry, sender, ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase,
+                Description, AvailabilityDate, Search, NextStep, Positive);
+    end;
+
+    local procedure AutoReserveAssemblyHeader(var CalcReservEntry: Record "Reservation Entry"; var sender: Codeunit "Reservation Management"; ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; Search: Text[1]; NextStep: Integer; Positive: Boolean)
+    var
+        CallTrackingSpecification: Record "Tracking Specification";
+        AssemblyHeader: Record "Assembly Header";
+        QtyThisLine: Decimal;
+        QtyThisLineBase: Decimal;
+        ReservQty: Decimal;
+        IsReserved: Boolean;
+    begin
+#if not CLEAN25
+        IsReserved := false;
+        sender.RunOnBeforeAutoReserveAssemblyHeader(
+          ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserve, Description, AvailabilityDate, IsReserved, Search, NextStep, CalcReservEntry);
+        if IsReserved then
+            exit;
+#endif
+        IsReserved := false;
+        OnBeforeAutoReserveAssemblyHeader(
+          ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserve, Description, AvailabilityDate, IsReserved, Search, NextStep, CalcReservEntry);
+        if IsReserved then
+            exit;
+
+        AssemblyHeader.FilterLinesForReservation(
+            CalcReservEntry, ReservSummEntryNo - Enum::"Reservation Summary Type"::"Assembly Quote Header".AsInteger(),
+            sender.GetAvailabilityFilter(AvailabilityDate), Positive);
+        if AssemblyHeader.Find(Search) then
+            repeat
+                AssemblyHeader.CalcFields("Reserved Qty. (Base)");
+                QtyThisLine := AssemblyHeader."Remaining Quantity";
+                QtyThisLineBase := AssemblyHeader."Remaining Quantity (Base)";
+                ReservQty := AssemblyHeader."Reserved Qty. (Base)";
+                if Positive = (QtyThisLineBase < 0) then begin
+                    QtyThisLine := 0;
+                    QtyThisLineBase := 0;
+                end;
+
+                sender.SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, AssemblyHeader.RowID1(), QtyThisLine, QtyThisLineBase);
+
+                CallTrackingSpecification.InitTrackingSpecification(
+                  Database::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", '', 0, 0,
+                  AssemblyHeader."Variant Code", AssemblyHeader."Location Code", AssemblyHeader."Qty. per Unit of Measure");
+                CallTrackingSpecification.CopyTrackingFromReservEntry(CalcReservEntry);
+
+                sender.InsertReservationEntries(
+                    RemainingQtyToReserve, RemainingQtyToReserveBase, ReservQty,
+                    Description, AssemblyHeader."Due Date", QtyThisLine, QtyThisLineBase, CallTrackingSpecification);
+            until (AssemblyHeader.Next(NextStep) = 0) or (RemainingQtyToReserveBase = 0);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewAssemblyHeader: Record "Assembly Header"; OldAssemblyHeader: Record "Assembly Header"; var HasError: Boolean; var ShowError: Boolean)
     begin
@@ -572,7 +646,138 @@ codeunit 925 "Assembly Header-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAutoReserveAssemblyHeader(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; var IsReserved: Boolean; Search: Text[1]; NextStep: Integer; CalcReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateReservationOnBeforeCreateReservEntry(var AssemblyHeader: Record "Assembly Header"; var Quantity: Decimal; var QuantityBase: Decimal; var ReservationEntry: Record "Reservation Entry"; var FromTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; ExpectedReceiptDate: Date; Description: Text[100]; ShipmentDate: Date)
     begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    [Obsolete('Replaced by same event in codeunit AssemblyLineReserve', '25.0')]
+    local procedure OnSetAssemblyHeaderOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; AssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnAutoReserveOnBeforeStopReservation', '', false, false)]
+    local procedure OnAutoReserveOnBeforeStopReservation(var CalcReservEntry: Record "Reservation Entry"; var StopReservation: Boolean; SourceRecRef: RecordRef);
+    begin
+        if MatchThisTable(CalcReservEntry."Source Type") then
+            StopReservation := not (CalcReservEntry."Source Subtype" = 1); // Only Assembly Order
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnIssueActionMessageOnSetSourceTypeFromSKU', '', false, false)]
+    local procedure OnIssueActionMessageOnSetSourceTypeFromSKU(var ActionMessageEntry: Record "Action Message Entry"; SKU: Record "Stockkeeping Unit")
+    begin
+        if SKU."Replenishment System" = SKU."Replenishment System"::Assembly then
+            ActionMessageEntry."Source Type" := Database::"Assembly Header";
+    end;
+
+    // codeunit Create Reserv. Entry
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Create Reserv. Entry", 'OnCheckSourceTypeSubtype', '', false, false)]
+    local procedure CheckSourceTypeSubtype(var ReservationEntry: Record "Reservation Entry"; var IsError: Boolean)
+    begin
+        if MatchThisTable(ReservationEntry."Source Type") then
+            IsError := not (ReservationEntry."Source Subtype" = 1); // Only Assembly Order supported
+    end;
+
+    // codeunit Reservation Engine Mgt. subscribers
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnGetActivePointerFieldsOnBeforeAssignArrayValues', '', false, false)]
+    local procedure OnGetActivePointerFieldsOnBeforeAssignArrayValues(TableID: Integer; var PointerFieldIsActive: array[6] of Boolean; var IsHandled: Boolean)
+    begin
+        if TableID = Database::"Assembly Header" then begin
+            PointerFieldIsActive[1] := true;  // Type
+            PointerFieldIsActive[2] := true;  // SubType
+            PointerFieldIsActive[3] := true;  // ID
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnCreateText', '', false, false)]
+    local procedure OnAfterCreateText(ReservationEntry: Record "Reservation Entry"; var Description: Text[80])
+    var
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        if ReservationEntry."Source Type" = Database::"Assembly Header" then
+            Description :=
+                StrSubstNo(
+                    SourceDoc3Txt, AssemblyHeader.TableCaption(),
+                    Enum::"Assembly Document Type".FromInteger(ReservationEntry."Source Subtype"), ReservationEntry."Source ID");
+    end;
+
+    procedure InitFromAsmHeader(var TrackingSpecification: Record "Tracking Specification"; var AsmHeader: Record "Assembly Header")
+    begin
+        TrackingSpecification.Init();
+        TrackingSpecification.SetItemData(
+            AsmHeader."Item No.", AsmHeader.Description, AsmHeader."Location Code", AsmHeader."Variant Code", AsmHeader."Bin Code",
+            AsmHeader."Qty. per Unit of Measure", AsmHeader."Qty. Rounding Precision (Base)");
+        TrackingSpecification.SetSource(
+            Database::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", 0, '', 0);
+        TrackingSpecification.SetQuantities(
+            AsmHeader."Quantity (Base)", AsmHeader."Quantity to Assemble", AsmHeader."Quantity to Assemble (Base)",
+            AsmHeader."Quantity to Assemble", AsmHeader."Quantity to Assemble (Base)",
+            AsmHeader."Assembled Quantity (Base)", AsmHeader."Assembled Quantity (Base)");
+
+        OnAfterInitFromAsmHeader(TrackingSpecification, AsmHeader);
+#if not CLEAN25
+        TrackingSpecification.RunOnAfterInitFromAsmHeader(TrackingSpecification, AsmHeader);
+#endif
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromAsmHeader(var TrackingSpecification: Record "Tracking Specification"; AssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Reservation Entry", 'OnAfterSummEntryNo', '', false, false)]
+    local procedure OnBeforeSummEntryNo(ReservationEntry: Record "Reservation Entry"; var ReturnValue: Integer)
+    begin
+        if MatchThisTable(ReservationEntry."Source Type") then
+            ReturnValue := Enum::"Reservation Summary Type"::"Assembly Quote Header".AsInteger() + ReservationEntry."Source Subtype";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::OrderTrackingManagement, 'OnSetSourceRecord', '', false, false)]
+    local procedure OrderTrackingManagementOnSetSourceRrcord(var SourceRecordVar: Variant; var ReservationEntry: Record "Reservation Entry"; var CaptionText: Text; var ItemLedgerEntry2: Record "Item Ledger Entry")
+    var
+        AssemblyHeader: Record "Assembly Header";
+        SourceRecRef: RecordRef;
+    begin
+        SourceRecRef.GetTable(SourceRecordVar);
+        if MatchThisTable(SourceRecRef.Number) then begin
+            AssemblyHeader := SourceRecordVar;
+            SetAssemblyHeader(AssemblyHeader, ReservationEntry, ItemLedgerEntry2);
+        end;
+    end;
+
+    local procedure SetAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; var ReservEntry: Record "Reservation Entry"; var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        AssemblyHeader.SetReservationFilters(ReservEntry);
+
+        if AssemblyHeader."Assembled Quantity (Base)" <> 0 then begin
+            ItemLedgerEntry.SetCurrentKey("Order Type", "Order No.");
+            ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Assembly);
+            ItemLedgerEntry.SetRange("Order No.", AssemblyHeader."No.");
+            ItemLedgerEntry.SetRange("Order Line No.", 0);
+            if ItemLedgerEntry.Find('-') then
+                repeat
+                    ItemLedgerEntry.Mark(true);
+                until ItemLedgerEntry.Next() = 0;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::OrderTrackingManagement, 'OnInsertOrderTrackingEntry', '', false, false)]
+    local procedure OnInsertOrderTrackingEntry(var OrderTrackingEntry: Record "Order Tracking Entry")
+    var
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        if OrderTrackingEntry."For Type" = DATABASE::"Assembly Header" then
+            if AssemblyHeader.Get(OrderTrackingEntry."For Subtype", OrderTrackingEntry."For ID") then begin
+                OrderTrackingEntry."Starting Date" := AssemblyHeader."Due Date";
+                OrderTrackingEntry."Ending Date" := AssemblyHeader."Due Date";
+            end;
     end;
 }

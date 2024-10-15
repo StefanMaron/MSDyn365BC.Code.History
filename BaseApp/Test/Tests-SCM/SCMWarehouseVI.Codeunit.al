@@ -566,12 +566,11 @@ codeunit 137408 "SCM Warehouse VI"
         asserterror ProdOrderComponent.Validate("Item No.", Item."No.");
 
         // Verify : Verify error message.
-        with ProdOrderComponent do
-            Assert.AreEqual(
+        Assert.AreEqual(
               StrSubstNo(
-                RelatedWarehouseActivityLineExistError2, FieldCaption("Item No."), WarehouseActivityLine.TableCaption(), TableCaption(),
-                FieldCaption(Status), Status::Released, FieldCaption("Prod. Order No."), "Prod. Order No.",
-                FieldCaption("Prod. Order Line No."), "Prod. Order Line No.", FieldCaption("Line No.")), GetLastErrorText, UnknownFailure);
+                RelatedWarehouseActivityLineExistError2, ProdOrderComponent.FieldCaption("Item No."), WarehouseActivityLine.TableCaption(), ProdOrderComponent.TableCaption(),
+                ProdOrderComponent.FieldCaption(Status), ProdOrderComponent.Status::Released, ProdOrderComponent.FieldCaption("Prod. Order No."), ProdOrderComponent."Prod. Order No.",
+                ProdOrderComponent.FieldCaption("Prod. Order Line No."), ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent.FieldCaption("Line No.")), GetLastErrorText, UnknownFailure);
     end;
 
     [Test]
@@ -4742,16 +4741,14 @@ codeunit 137408 "SCM Warehouse VI"
     local procedure CreateItemTrackingCodeWithExpirDateSetup(var ItemTrackingCode: Record "Item Tracking Code"; Serial: Boolean; Lot: Boolean; ManExpirDateEntryReqd: Boolean; StrictExpirationPosting: Boolean)
     begin
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, Serial, Lot);
-        with ItemTrackingCode do begin
-            Validate("SN Specific Tracking", Serial);
-            Validate("SN Warehouse Tracking", Serial);
-            Validate("Lot Specific Tracking", Lot);
-            Validate("Lot Warehouse Tracking", Lot);
-            Validate("Use Expiration Dates", StrictExpirationPosting or ManExpirDateEntryReqd);
-            Validate("Man. Expir. Date Entry Reqd.", ManExpirDateEntryReqd);
-            Validate("Strict Expiration Posting", StrictExpirationPosting);
-            Modify(true);
-        end;
+        ItemTrackingCode.Validate("SN Specific Tracking", Serial);
+        ItemTrackingCode.Validate("SN Warehouse Tracking", Serial);
+        ItemTrackingCode.Validate("Lot Specific Tracking", Lot);
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", Lot);
+        ItemTrackingCode.Validate("Use Expiration Dates", StrictExpirationPosting or ManExpirDateEntryReqd);
+        ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", ManExpirDateEntryReqd);
+        ItemTrackingCode.Validate("Strict Expiration Posting", StrictExpirationPosting);
+        ItemTrackingCode.Modify(true);
     end;
 
     local procedure CreateItemWithItemTrackingCodeWithExpirateDate(var Item: Record Item)
@@ -4843,19 +4840,15 @@ codeunit 137408 "SCM Warehouse VI"
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         CreateItemTrackingCode(ItemTrackingCode);
-        with ItemTrackingCode do begin
-            Validate("SN Transfer Tracking", true);
-            Validate("SN Purchase Inbound Tracking", true);
-            Modify(true);
-        end;
+        ItemTrackingCode.Validate("SN Transfer Tracking", true);
+        ItemTrackingCode.Validate("SN Purchase Inbound Tracking", true);
+        ItemTrackingCode.Modify(true);
 
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Item Tracking Code", ItemTrackingCode.Code);
-            Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Modify(true);
-        end;
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Modify(true);
     end;
 
     local procedure CreateLocationInTransit(var Location: Record Location)
@@ -4899,13 +4892,11 @@ codeunit 137408 "SCM Warehouse VI"
         // Validation of Qty. to Handle depends on CurrFieldNo so we have to do this via UI
         MovementWorksheetPage.OpenEdit();
         MovementWorksheetPage.GotoRecord(WhseWorksheetLine);
-        with MovementWorksheetPage do begin
-            "Item No.".SetValue(ItemNo);
-            "Unit of Measure Code".SetValue(UnitOfMeasureCode);
-            "To Bin Code".SetValue(ToBinCode);
-            Quantity.SetValue(Qty);
-            "Qty. to Handle".SetValue(Qty);
-        end;
+        MovementWorksheetPage."Item No.".SetValue(ItemNo);
+        MovementWorksheetPage."Unit of Measure Code".SetValue(UnitOfMeasureCode);
+        MovementWorksheetPage."To Bin Code".SetValue(ToBinCode);
+        MovementWorksheetPage.Quantity.SetValue(Qty);
+        MovementWorksheetPage."Qty. to Handle".SetValue(Qty);
         MovementWorksheetPage.Close();
     end;
 
@@ -5009,16 +5000,15 @@ codeunit 137408 "SCM Warehouse VI"
 
     local procedure PrepareReceiveShipPickLocation(var Location: Record Location)
     begin
-        CreateAndUpdateLocationForBinContent(Location); // From Location
-        with Location do begin
-            Validate("Require Receive", true);
-            Validate("Require Shipment", true);
-            Validate("Require Pick", true);
-            Validate("Receipt Bin Code", AddBin(Code));
-            Validate("Shipment Bin Code", AddBin(Code));
-            Modify(true);
-            CreateWarehouseEmployee(Code);
-        end;
+        CreateAndUpdateLocationForBinContent(Location);
+        // From Location
+        Location.Validate("Require Receive", true);
+        Location.Validate("Require Shipment", true);
+        Location.Validate("Require Pick", true);
+        Location.Validate("Receipt Bin Code", AddBin(Location.Code));
+        Location.Validate("Shipment Bin Code", AddBin(Location.Code));
+        Location.Modify(true);
+        CreateWarehouseEmployee(Location.Code);
     end;
 
     local procedure CreateSalesOrderWithPick(ItemNo: Code[20]; LocationCode: Code[10]; ZoneCode: Code[10]; BinCode: Code[20]; Quantity: Decimal; LotNo: Code[50])
@@ -5172,13 +5162,11 @@ codeunit 137408 "SCM Warehouse VI"
 
     local procedure FindBinContentWithBinCode(var BinContent: Record "Bin Content"; Bin: Record Bin; ItemNo: Code[20])
     begin
-        with BinContent do begin
-            SetRange("Location Code", Bin."Location Code");
-            SetRange("Zone Code", Bin."Zone Code");
-            SetRange("Bin Code", Bin.Code);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-        end;
+        BinContent.SetRange("Location Code", Bin."Location Code");
+        BinContent.SetRange("Zone Code", Bin."Zone Code");
+        BinContent.SetRange("Bin Code", Bin.Code);
+        BinContent.SetRange("Item No.", ItemNo);
+        BinContent.FindFirst();
     end;
 
     local procedure FindBinType(): Code[10]
@@ -5275,12 +5263,10 @@ codeunit 137408 "SCM Warehouse VI"
 
     local procedure FindWarehouseActivityLine2(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20])
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Activity Type", ActivityType);
-            SetRange("Action Type", ActionType);
-            FindFirst();
-        end;
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseEntry(var WarehouseEntry: Record "Warehouse Entry"; EntryType: Option; BinCode: Code[20]; ItemNo: Code[20]): Code[50]
@@ -5432,15 +5418,13 @@ codeunit 137408 "SCM Warehouse VI"
 
     local procedure MockBinContent(var BinContent: Record "Bin Content")
     begin
-        with BinContent do begin
-            Init();
-            "Location Code" := LibraryUtility.GenerateGUID();
-            "Bin Code" := LibraryUtility.GenerateGUID();
-            "Item No." := LibraryUtility.GenerateGUID();
-            "Variant Code" := LibraryUtility.GenerateGUID();
-            "Unit of Measure Code" := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        BinContent.Init();
+        BinContent."Location Code" := LibraryUtility.GenerateGUID();
+        BinContent."Bin Code" := LibraryUtility.GenerateGUID();
+        BinContent."Item No." := LibraryUtility.GenerateGUID();
+        BinContent."Variant Code" := LibraryUtility.GenerateGUID();
+        BinContent."Unit of Measure Code" := LibraryUtility.GenerateGUID();
+        BinContent.Insert();
     end;
 
     local procedure CopyBinContent(var BinContentTo: Record "Bin Content"; BinContentFrom: Record "Bin Content")
@@ -5452,20 +5436,18 @@ codeunit 137408 "SCM Warehouse VI"
 
     local procedure MockWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; BinContentFrom: Record "Bin Content"; BinContentTo: Record "Bin Content"; EntryType: Option)
     begin
-        with WarehouseJournalLine do begin
-            Init();
-            "Line No." := LibraryUtility.GetNewRecNo(WarehouseJournalLine, FieldNo("Line No."));
-            "Entry Type" := EntryType;
-            "Location Code" := BinContentFrom."Location Code";
-            "From Bin Code" := BinContentFrom."Bin Code";
-            "To Bin Code" := BinContentTo."Bin Code";
-            "Item No." := BinContentFrom."Item No.";
-            "Variant Code" := BinContentFrom."Variant Code";
-            "Unit of Measure Code" := BinContentFrom."Unit of Measure Code";
-            "Qty. (Absolute)" := LibraryRandom.RandDec(10, 2);
-            "Qty. (Absolute, Base)" := "Qty. (Absolute)" * LibraryRandom.RandInt(10);
-            Insert();
-        end;
+        WarehouseJournalLine.Init();
+        WarehouseJournalLine."Line No." := LibraryUtility.GetNewRecNo(WarehouseJournalLine, WarehouseJournalLine.FieldNo("Line No."));
+        WarehouseJournalLine."Entry Type" := EntryType;
+        WarehouseJournalLine."Location Code" := BinContentFrom."Location Code";
+        WarehouseJournalLine."From Bin Code" := BinContentFrom."Bin Code";
+        WarehouseJournalLine."To Bin Code" := BinContentTo."Bin Code";
+        WarehouseJournalLine."Item No." := BinContentFrom."Item No.";
+        WarehouseJournalLine."Variant Code" := BinContentFrom."Variant Code";
+        WarehouseJournalLine."Unit of Measure Code" := BinContentFrom."Unit of Measure Code";
+        WarehouseJournalLine."Qty. (Absolute)" := LibraryRandom.RandDec(10, 2);
+        WarehouseJournalLine."Qty. (Absolute, Base)" := WarehouseJournalLine."Qty. (Absolute)" * LibraryRandom.RandInt(10);
+        WarehouseJournalLine.Insert();
     end;
 
     local procedure PostWarehouseReceipt(SourceNo: Code[20])
@@ -5842,13 +5824,11 @@ codeunit 137408 "SCM Warehouse VI"
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        with RequisitionLine do begin
-            SetRange(Type, LineType);
-            SetRange("No.", No);
-            FindFirst();
-            Validate(Reserve, true);
-            Modify(true);
-        end;
+        RequisitionLine.SetRange(Type, LineType);
+        RequisitionLine.SetRange("No.", No);
+        RequisitionLine.FindFirst();
+        RequisitionLine.Validate(Reserve, true);
+        RequisitionLine.Modify(true);
     end;
 
     local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
@@ -5878,15 +5858,13 @@ codeunit 137408 "SCM Warehouse VI"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Activity Type", WarehouseActivityHeader.Type);
-            SetRange("No.", WarehouseActivityHeader."No.");
-            SetRange("Action Type", ActionType);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            Validate("Lot No.", LotNo);
-            Modify(true);
-        end;
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Lot No.", LotNo);
+        WarehouseActivityLine.Modify(true);
     end;
 
     local procedure SetWarehouseActivityLineSerialNo(WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; SerialNo: Code[50])
@@ -6088,14 +6066,12 @@ codeunit 137408 "SCM Warehouse VI"
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        with WarehouseShipmentLine do begin
-            SetRange("Source Document", SourceDocument);
-            SetRange("Source No.", SourceNo);
-            FindFirst();
-            TestField("Item No.", ItemNo);
-            TestField("Qty. Picked", QtyPicked);
-            TestField("Qty. Shipped", QtyShipped);
-        end;
+        WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
+        WarehouseShipmentLine.SetRange("Source No.", SourceNo);
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentLine.TestField("Item No.", ItemNo);
+        WarehouseShipmentLine.TestField("Qty. Picked", QtyPicked);
+        WarehouseShipmentLine.TestField("Qty. Shipped", QtyShipped);
     end;
 
     local procedure VerifyItemLastCountingPeriodUpdate(Item: Record Item; ExpDate: Date)

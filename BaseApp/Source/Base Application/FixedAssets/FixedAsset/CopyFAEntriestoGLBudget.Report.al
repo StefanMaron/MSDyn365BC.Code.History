@@ -192,9 +192,13 @@ report 5684 "Copy FA Entries to G/L Budget"
         EndingDate: Date;
         EndingDate2: Date;
 
+#pragma warning disable AA0074
         Text000: Label 'You must specify an Ending Date that is later than the Starting Date.';
+#pragma warning disable AA0470
         Text001: Label 'Copying fixed asset    #1##########';
         Text002: Label 'You should not set a filter on %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure GetTransferType(var FALedgEntry: Record "FA Ledger Entry"): Boolean
     begin

@@ -364,7 +364,7 @@ codeunit 1302 "Customer Mgt."
     end;
 
 #if not CLEAN24
-    [Obsolete('Replaced by procedure CalculateShipToBillToEnums()', '24.0')]
+    [Obsolete('Replaced by procedure CalculateShipBillToOptions()', '24.0')]
     procedure CalculateShipToBillToOptions(var ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address"; var BillToOptions: Option "Default (Customer)","Another Customer","Custom Address"; var SalesHeader: Record "Sales Header")
     var
         ShipToOptionsEnum: Enum "Sales Ship-to Options";
@@ -379,6 +379,44 @@ codeunit 1302 "Customer Mgt."
         OnAfterCalculateShipToBillToOptions(ShipToOptions, BillToOptions, SalesHeader);
     end;
 #endif
+
+    procedure SearchForExternalDocNo(var OriginalSalesHeader: Record "Sales Header"): Boolean
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        IsHandled: Boolean;
+        ResultFound: Boolean;
+    begin
+        OnBeforeSearchForExternalDocNo(OriginalSalesHeader, ResultFound, IsHandled);
+        if IsHandled then
+            exit(ResultFound);
+
+        SalesHeader.SetLoadFields("Document Type", "No.", "Sell-to Customer No.", "External Document No.");
+        SalesHeader.SetRange("Document Type", OriginalSalesHeader."Document Type");
+        SalesHeader.SetFilter("No.", '<>%1', OriginalSalesHeader."No.");
+        SalesHeader.SetRange("Sell-to Customer No.", OriginalSalesHeader."Sell-to Customer No.");
+        SalesHeader.SetRange("External Document No.", OriginalSalesHeader."External Document No.");
+        if not SalesHeader.IsEmpty() then
+            exit(true);
+
+        case OriginalSalesHeader."Document Type" of
+            OriginalSalesHeader."Document Type"::Invoice, OriginalSalesHeader."Document Type"::Order:
+                begin
+                    SalesInvoiceHeader.SetLoadFields("Sell-to Customer No.", "External Document No.");
+                    SalesInvoiceHeader.SetRange("Sell-to Customer No.", OriginalSalesHeader."Sell-to Customer No.");
+                    SalesInvoiceHeader.SetRange("External Document No.", OriginalSalesHeader."External Document No.");
+                    exit(not SalesInvoiceHeader.IsEmpty());
+                end;
+            OriginalSalesHeader."Document Type"::"Credit Memo":
+                begin
+                    SalesCrMemoHeader.SetLoadFields("Sell-to Customer No.", "External Document No.");
+                    SalesCrMemoHeader.SetRange("Sell-to Customer No.", OriginalSalesHeader."Sell-to Customer No.");
+                    SalesCrMemoHeader.SetRange("External Document No.", OriginalSalesHeader."External Document No.");
+                    exit(not SalesCrMemoHeader.IsEmpty());
+                end;
+        end;
+    end;
 
     procedure CalculateShipBillToOptions(var ShipToOptions: Enum "Sales Ship-to Options"; var BillToOptions: Enum "Sales Bill-to Options"; var SalesHeader: Record "Sales Header")
     var
@@ -433,8 +471,13 @@ codeunit 1302 "Customer Mgt."
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSearchForExternalDocNo(var OriginalSalesHeader: Record "Sales Header"; var ResultFound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
 #if not CLEAN24
-    [Obsolete('Replaced by event OnAfterCalculateShipToBillToEnums()', '24.0')]
+    [Obsolete('Replaced by event OnAfterCalculateShipBillToOptions()', '24.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateShipToBillToOptions(var ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address"; var BillToOptions: Option "Default (Customer)","Another Customer","Custom Address"; SalesHeader: Record "Sales Header")
     begin

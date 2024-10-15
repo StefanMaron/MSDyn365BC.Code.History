@@ -247,7 +247,7 @@ table 287 "Customer Bank Account"
         field(11000002; "Account Holder Post Code"; Code[20])
         {
             Caption = 'Account Holder Post Code';
-            TableRelation = if ("Acc. Hold. Country/Region Code" = CONST('')) "Post Code"
+            TableRelation = if ("Acc. Hold. Country/Region Code" = const('')) "Post Code"
             else
             if ("Acc. Hold. Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Acc. Hold. Country/Region Code"));
             ValidateTableRelation = false;
@@ -260,7 +260,7 @@ table 287 "Customer Bank Account"
         field(11000003; "Account Holder City"; Text[30])
         {
             Caption = 'Account Holder City';
-            TableRelation = if ("Acc. Hold. Country/Region Code" = CONST('')) "Post Code".City
+            TableRelation = if ("Acc. Hold. Country/Region Code" = const('')) "Post Code".City
             else
             if ("Acc. Hold. Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Acc. Hold. Country/Region Code"));
             ValidateTableRelation = false;

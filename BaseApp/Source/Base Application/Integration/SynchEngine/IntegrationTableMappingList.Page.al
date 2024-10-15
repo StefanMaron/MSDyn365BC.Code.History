@@ -138,15 +138,59 @@ page 5335 "Integration Table Mapping List"
                     Editable = false;
                     ToolTip = 'Specifies the type of the field in the integration table to map to the Business Central table.';
                 }
+#if not CLEAN25            
                 field("Table Config Template Code"; Rec."Table Config Template Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a configuration template to use when creating new records in the Business Central table (specified by the Table ID field) during synchronization.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with Table Config Templates field';
+                    ObsoleteTag = '25.0';
                 }
                 field("Int. Tbl. Config Template Code"; Rec."Int. Tbl. Config Template Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a configuration template to use for creating new records in the integration table.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with Table Config Templates field';
+                    ObsoleteTag = '25.0';
+                }
+#endif
+                field("Table Config Templates"; TableConfigTemplates)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Table Config Templates';
+                    ToolTip = 'Specifies configuration templates to use when creating new records in the Business Central table (specified by the Table ID field) during synchronization.';
+                    Editable = false;
+
+                    trigger OnAssistEdit()
+                    var
+                        TableConfigTemplate: Record "Table Config Template";
+                        TableConfigTemplates: Page "Table Config Templates";
+                    begin
+                        TableConfigTemplate.SetRange("Integration Table Mapping Name", Rec.Name);
+                        TableConfigTemplates.SetTableView(TableConfigTemplate);
+                        TableConfigTemplates.RunModal();
+                    end;
+                }
+                field("Int. Table Config Templates"; IntTableConfigTemplates)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Integration Table Config Templates';
+                    ToolTip = 'Specifies configuration templates to use for creating new records in the integration table.';
+                    Editable = false;
+
+                    trigger OnAssistEdit()
+                    var
+                        IntTableConfigTemplate: Record "Int. Table Config Template";
+                        IntTableConfigTemplates: Page "Int. Table Config Templates";
+                    begin
+                        IntTableConfigTemplate.SetRange("Integration Table Mapping Name", Rec.Name);
+                        IntTableConfigTemplates.SetTableView(IntTableConfigTemplate);
+                        IntTableConfigTemplates.RunModal();
+                    end;
                 }
                 field("Int. Tbl. Caption Prefix"; Rec."Int. Tbl. Caption Prefix")
                 {
@@ -472,10 +516,10 @@ page 5335 "Integration Table Mapping List"
             action(ManualIntTableMapping)
             {
                 ApplicationArea = Suite;
-                Caption = 'Manuel Integration Table Mappings';
+                Caption = 'Manual Integration Table Mappings';
                 Image = Navigate;
                 RunObject = Page "Man. Int. Table Mapping List";
-                ToolTip = 'Manual integration mappings.';
+                ToolTip = 'See created manual integration mappings.';
             }
         }
         area(Promoted)
@@ -551,6 +595,9 @@ page 5335 "Integration Table Mapping List"
         IntegrationTableFilter := Rec.GetIntegrationTableFilter();
 
         HasRecords := not Rec.IsEmpty();
+
+        TableConfigTemplates := Rec.GetTableConfigTemplates(Rec.Name);
+        IntTableConfigTemplates := Rec.GetIntTableConfigTemplates(Rec.Name);
     end;
 
     trigger OnInit()
@@ -592,6 +639,8 @@ page 5335 "Integration Table Mapping List"
         BidirectionalSalesOrderTableFilterErr: Label 'Bidirectional Sales Order Integration can only synchronize released Business Central sales orders.';
         BidirectionalSalesOrderIntegrationTableFilterErr: Label 'Bidirectional Sales Order Integration can only synchronize submitted Dynamics 365 Sales sales orders.';
         BidirectionalSalesOrderIntegrationEnabled: Boolean;
+        TableConfigTemplates: Text;
+        IntTableConfigTemplates: Text;
 
     local procedure GetFieldCaption(): Text
     var

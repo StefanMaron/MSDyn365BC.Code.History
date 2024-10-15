@@ -579,13 +579,11 @@ codeunit 137160 "SCM Prepayment Orders"
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        with PurchInvHeader do begin
-            SetRange("Buy-from Vendor No.", VendorNo);
-            SetRange("Order No.", OrderNo);
-            SetRange("Vendor Invoice No.", VendorInvoiceNo);
-            FindFirst();
-            exit("No.");
-        end;
+        PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchInvHeader.SetRange("Order No.", OrderNo);
+        PurchInvHeader.SetRange("Vendor Invoice No.", VendorInvoiceNo);
+        PurchInvHeader.FindFirst();
+        exit(PurchInvHeader."No.");
     end;
 
     local procedure FindPickBin(var Bin: Record Bin; LocationCode: Code[10])

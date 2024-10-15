@@ -372,27 +372,39 @@ report 37 "Balance Comp. - Prev. Year"
         PreviousStartingDate: Date;
         PreviousEndingDate: Date;
         FYStartingDate: Date;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Period: %1..%2';
         Text002: Label 'Fiscal Year Starting Date: %1';
+#pragma warning restore AA0470
         Text004: Label 'Enter the starting date for the first period.';
         Text005: Label 'Enter the ending date for the first period.';
         Text006: Label '<-1Y>', Locked = true;
         Text011: Label 'Amounts are rounded to 1';
         Text012: Label 'Amounts are in whole 1000s.';
         Text013: Label 'Amounts are in whole 1000000s.';
+#pragma warning disable AA0470
         Text014: Label '%1 and %2 do not belong to the same fiscal year.';
         Text015: Label 'Indentation Level %1 is not used in the Chart of Accounts. This Chart of Accounts uses max. %2 levels.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         IndentTxt: Label 'None,0,1,2,3,4,5';
         Indent: Option "None","0","1","2","3","4","5";
         MaxIndent: Text[5];
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         IndentationLevelCap: Label 'Indentation Level : %1';
+#pragma warning restore AA0470
         LastPageCap: Label '/ Last Page';
         ContinuedCap: Label '/ Continued';
         PageCap: Label 'Page {0} {1}';
+#pragma warning restore AA0074
         Balance_Comparison___Previous_YearCaptionLbl: Label 'Balance Comparison - Previous Year';
+#pragma warning disable AA0074
         NameCap: Label 'Name';
+#pragma warning restore AA0074
         DebitCaptionLbl: Label 'Debit';
         CreditCaptionLbl: Label 'Credit';
         This_periodCaptionLbl: Label 'This period';

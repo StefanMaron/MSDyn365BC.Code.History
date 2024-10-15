@@ -9,8 +9,8 @@ using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Tracking;
-using System.Telemetry;
 using System.Globalization;
+using System.Telemetry;
 
 table 7302 "Bin Content"
 {
@@ -513,16 +513,22 @@ table 7302 "Bin Content"
         WMSManagement: Codeunit "WMS Management";
         StockProposal: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot delete this %1, because the %1 contains items.';
         Text001: Label 'You cannot delete this %1, because warehouse document lines have items allocated to this %1.';
         Text002: Label 'The total cubage %1 of the %2 for the %5 exceeds the %3 %4 of the %5.\Do you still want enter this %2?';
         Text003: Label 'The total weight %1 of the %2 for the %5 exceeds the %3 %4 of the %5.\Do you still want enter this %2?';
+#pragma warning restore AA0470
         Text004: Label 'Cancelled.';
+#pragma warning disable AA0470
         Text005: Label 'The %1 %2 must not be less than the %3 %4.';
         Text006: Label 'available must not be less than %1';
         Text007: Label 'You cannot modify the %1, because the %2 contains items.';
         Text008: Label 'You cannot modify the %1, because warehouse document lines have items allocated to this %2.';
         Text010: Label 'There is already a default bin content for location code %1, item no. %2 and variant code %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetUpNewLine()
     begin
@@ -569,6 +575,9 @@ table 7302 "Bin Content"
         if IsHandled then
             exit(QtyAvailToTake);
 
+        if Rec.ReadIsolation() <> IsolationLevel::UpdLock then
+            Rec.ReadIsolation(IsolationLevel::ReadCommitted);
+
         SetFilterOnUnitOfMeasure();
         CalcFields("Quantity (Base)", "Negative Adjmt. Qty. (Base)", "Pick Quantity (Base)", "ATO Components Pick Qty (Base)");
         exit(
@@ -578,6 +587,9 @@ table 7302 "Bin Content"
 
     procedure CalcQtyAvailToTakeUOM() Result: Decimal
     begin
+        if Rec.ReadIsolation() <> IsolationLevel::UpdLock then
+            Rec.ReadIsolation(IsolationLevel::ReadCommitted);
+
         GetItem("Item No.");
         if Item."No." <> '' then
             Result := Round(CalcQtyAvailToTake(0) / UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"), UOMMgt.QtyRndPrecision());
@@ -616,12 +628,18 @@ table 7302 "Bin Content"
         if IsHandled then
             exit;
 
+        if Rec.ReadIsolation() <> IsolationLevel::UpdLock then
+            Rec.ReadIsolation(IsolationLevel::ReadCommitted);
+
         if (not Dedicated) and (not ("Block Movement" in ["Block Movement"::Outbound, "Block Movement"::All])) then
             exit(CalcQtyAvailToTake(ExcludeQtyBase) - CalcQtyWithBlockedItemTracking());
     end;
 
     procedure CalcQtyAvailToPickIncludingDedicated(ExcludeQtyBase: Decimal) Result: Decimal
     begin
+        if Rec.ReadIsolation() <> IsolationLevel::UpdLock then
+            Rec.ReadIsolation(IsolationLevel::ReadCommitted);
+
         if not ("Block Movement" in ["Block Movement"::Outbound, "Block Movement"::All]) then
             Result := CalcQtyAvailToTake(ExcludeQtyBase) - CalcQtyWithBlockedItemTracking();
         OnAfterCalcQtyAvailToPickIncludingDedicated(Rec, ExcludeQtyBase, Result);
@@ -664,6 +682,9 @@ table 7302 "Bin Content"
 
         XBinContent.Copy(Rec);
         ClearTrackingFilters();
+
+        if Rec.ReadIsolation() <> IsolationLevel::UpdLock then
+            Rec.ReadIsolation(IsolationLevel::ReadCommitted);
 
         NoITGiven := not SNGiven and not LNGiven;
         if SNGiven or NoITGiven then
@@ -709,6 +730,9 @@ table 7302 "Bin Content"
         if IsHandled then
             exit(Result);
 
+        if Rec.ReadIsolation() <> IsolationLevel::UpdLock then
+            Rec.ReadIsolation(IsolationLevel::ReadCommitted);
+
         CalcFields("Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)");
         exit(
           Round("Max. Qty." * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()) -
@@ -723,6 +747,9 @@ table 7302 "Bin Content"
         OnBeforeNeedToReplenish(Rec, ExcludeQtyBase, Result, IsHandled);
         if IsHandled then
             exit(Result);
+
+        if Rec.ReadIsolation() <> IsolationLevel::UpdLock then
+            Rec.ReadIsolation(IsolationLevel::ReadCommitted);
 
         CalcFields("Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)");
         exit(
@@ -739,6 +766,9 @@ table 7302 "Bin Content"
         OnBeforeCalcQtyToReplenish(Rec, ExcludeQtyBase, Result, IsHandled);
         if IsHandled then
             exit(Result);
+
+        if Rec.ReadIsolation() <> IsolationLevel::UpdLock then
+            Rec.ReadIsolation(IsolationLevel::ReadCommitted);
 
         CalcFields("Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)");
         exit(
@@ -819,10 +849,10 @@ table 7302 "Bin Content"
         if "Bin Code" = Location."Adjustment Bin Code" then
             exit;
 
-        WhseActivLine.SetCurrentKey(
-          "Item No.", "Bin Code", "Location Code", "Action Type",
-          "Variant Code", "Unit of Measure Code", "Breakbulk No.",
-          "Activity Type", "Lot No.", "Serial No.", "Original Breakbulk");
+        if Rec.ReadIsolation() <> IsolationLevel::UpdLock then
+            Rec.ReadIsolation(IsolationLevel::ReadCommitted);
+
+        WhseActivLine.ReadIsolation(IsolationLevel::ReadUnCommitted);
         WhseActivLine.SetRange("Item No.", "Item No.");
         WhseActivLine.SetRange("Bin Code", "Bin Code");
         WhseActivLine.SetRange("Location Code", "Location Code");
@@ -1073,10 +1103,7 @@ table 7302 "Bin Content"
         WhseActivLine: Record "Warehouse Activity Line";
         WhseJnlLine: Record "Warehouse Journal Line";
     begin
-        WhseActivLine.SetCurrentKey(
-          "Item No.", "Bin Code", "Location Code",
-          "Action Type", "Variant Code", "Unit of Measure Code",
-          "Breakbulk No.", "Activity Type", "Lot No.", "Serial No.");
+        WhseActivLine.ReadIsolation(IsolationLevel::ReadUnCommitted);
         WhseActivLine.SetRange("Item No.", "Item No.");
         WhseActivLine.SetRange("Bin Code", "Bin Code");
         WhseActivLine.SetRange("Location Code", "Location Code");
@@ -1086,9 +1113,7 @@ table 7302 "Bin Content"
         OnCalcQtyBaseOnAfterSetFiltersForWhseActivLine(WhseActivLine, Rec);
         WhseActivLine.CalcSums("Qty. Outstanding (Base)");
 
-        WhseJnlLine.SetCurrentKey(
-          "Item No.", "From Bin Code", "Location Code", "Entry Type", "Variant Code",
-          "Unit of Measure Code", "Lot No.", "Serial No.");
+        WhseJnlLine.ReadIsolation(IsolationLevel::ReadUnCommitted);
         WhseJnlLine.SetRange("Item No.", "Item No.");
         WhseJnlLine.SetRange("From Bin Code", "Bin Code");
         WhseJnlLine.SetRange("Location Code", "Location Code");
@@ -1097,6 +1122,9 @@ table 7302 "Bin Content"
         WhseJnlLine.SetTrackingFilterFromBinContent(Rec);
         OnCalcQtyBaseOnAfterSetFiltersForWhseJnlLine(WhseJnlLine, Rec);
         WhseJnlLine.CalcSums("Qty. (Absolute, Base)");
+
+        if Rec.ReadIsolation() <> IsolationLevel::UpdLock then
+            Rec.ReadIsolation(IsolationLevel::ReadCommitted);
 
         CalcFields("Quantity (Base)");
         exit(
@@ -1113,6 +1141,9 @@ table 7302 "Bin Content"
         OnBeforeCalcQtyUOM(Rec, Result, IsHandled);
         if IsHandled then
             exit(Result);
+
+        if Rec.ReadIsolation() <> IsolationLevel::UpdLock then
+            Rec.ReadIsolation(IsolationLevel::ReadCommitted);
 
         GetItem("Item No.");
         CalcFields("Quantity (Base)");
@@ -1192,10 +1223,11 @@ table 7302 "Bin Content"
             SetRange("Unit of Measure Filter");
     end;
 
-    local procedure CalcTotalQtyBase(): Decimal
+    procedure CalcTotalQtyBase(): Decimal
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
+        WarehouseEntry.ReadIsolation(IsolationLevel::UpdLock);  // to prevent overcommitment
         WarehouseEntry.SetRange("Location Code", "Location Code");
         WarehouseEntry.SetRange("Bin Code", "Bin Code");
         WarehouseEntry.SetRange("Item No.", "Item No.");
@@ -1214,6 +1246,8 @@ table 7302 "Bin Content"
     begin
         IsHandled := false;
         OnBeforeCalcTotalNegativeAdjmtQtyBase(Rec, TotalNegativeAdjmtQtyBase, IsHandled);
+        WarehouseJournalLine.ReadIsolation(IsolationLevel::ReadUnCommitted);
+        WhseItemTrackingLine.ReadIsolation(IsolationLevel::ReadUnCommitted);
         if not IsHandled then begin
             WarehouseJournalLine.SetRange("Location Code", "Location Code");
             WarehouseJournalLine.SetRange("From Bin Code", "Bin Code");
@@ -1247,6 +1281,7 @@ table 7302 "Bin Content"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         GetLocation("Location Code");
+        WarehouseActivityLine.ReadIsolation(IsolationLevel::ReadUncommitted);
         WarehouseActivityLine.SetRange("Location Code", "Location Code");
         WarehouseActivityLine.SetRange("Bin Code", "Bin Code");
         WarehouseActivityLine.SetRange("Item No.", "Item No.");

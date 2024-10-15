@@ -218,7 +218,7 @@ page 7251 "Bank Acc. Rec. AI Proposal Sub"
         TempInitialBankAccRecAIProposal: Record "Bank Acc. Rec. AI Proposal" temporary;
         MapTextToAccountVisible: Boolean;
         MapTextToAccountTxt: label 'Save...';
-        ApplyToMultipleLedgerEntriesTxt: label 'Apply to multiple entries. Drill down to see more.';
+        ApplyToMultipleLedgerEntriesTxt: label 'Match with multiple entries. Drill down to see more.';
         TelemetryUserSavingProposalTxt: label 'User saving Copilot proposal in Text-toAccount Mapping table', Locked = true;
         TelemetryUserChangedProposalTxt: label 'User changed Copilot proposal for transfering to G/L Account', Locked = true;
 

@@ -13,7 +13,11 @@ codeunit 5613 "Calculate Acq. Cost Depr."
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 field must not have a check mark because %2 is zero or negative for %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure DeprCalc(var DeprAmount: Decimal; var Custom1Amount: Decimal; FANo: Code[20]; DeprBookCode: Code[10]; LocalDeprBasis: Decimal; Custom1LocalDeprBasis: Decimal)
     var

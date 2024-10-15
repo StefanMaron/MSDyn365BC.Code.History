@@ -788,7 +788,7 @@ report 11400 "CBG Posting - Test"
                         UseDocumentNo := "Document No.";
                     if ApplyInformation then begin
                         Print := ("CBG Statement Line".Identification <> '') or ("CBG Statement Line"."Applies-to Doc. No." <> '');
-                        if not Print then begin
+                        if not Print then
                             case "CBG Statement Line"."Account Type" of
                                 "CBG Statement Line"."Account Type"::Customer:
                                     begin
@@ -830,7 +830,6 @@ report 11400 "CBG Posting - Test"
                                         Print := EmployeeLedgerEntry.FindFirst();
                                     end;
                             end;
-                        end;
                     end else
                         Print := false;
                     HeaderPrinted := Print;

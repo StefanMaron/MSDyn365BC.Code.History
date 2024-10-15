@@ -33,7 +33,6 @@ codeunit 137095 "SCM Kitting - Reservations"
         isInitialized: Boolean;
         GlobalSupplyType: Option "Purchase Order","Assembly Order","Released Production Order","Firm Planned Production Order";
         ErrorChangeLine: Label '%1 must not be changed when a quantity is reserved in Assembly Line Document Type';
-        ErrorResQty: Label 'Reserved Quantity must be equal to ''0''';
         ErrorInventory: Label 'is not on inventory.';
         ErrorResAlways: Label 'Automatic reservation is not possible.';
         GlobalILESupply: Decimal;
@@ -1071,7 +1070,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     begin
         asserterror
           TestChangeLine(AssemblyLine.FieldNo("Variant Code"), false, 0, 0, 1);
-        Assert.IsTrue(StrPos(GetLastErrorText, ErrorResQty) > 0, 'Actual:' + GetLastErrorText);
+        Assert.ExpectedTestFieldError(AssemblyLine.FieldCaption("Reserved Quantity"), Format(0));
         ClearLastError();
     end;
 

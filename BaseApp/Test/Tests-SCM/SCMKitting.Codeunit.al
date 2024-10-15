@@ -33,14 +33,10 @@ codeunit 137101 "SCM Kitting"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryDimension: Codeunit "Library - Dimension";
         isInitialized: Boolean;
-        TypeMustBeError: Label 'Type must be equal to ''%1''  in BOM Component: Parent Item No.=%2, Line No.=%3. Current value is ''%4''.', Comment = '%1 = Expected Type, %2 = Parent Item No., %3 =  Line No., %4 = Actual Type';
         ItemNotBOMError: Label 'Item %1 is not a BOM.';
-        TypeMustBeEqualToItemError: Label 'Type must be equal to ''Item''  in Assembly Line: Document Type=Order,';
         ItemNotOnInventoryError: Label 'You have insufficient quantity of Item %1 on inventory.';
-        AssemblyOrderNosError: Label 'Assembly Order Nos. must have a value in Assembly Setup: Primary Key=. It cannot be zero or empty.';
         OrderCanNotCreatedError: Label 'Order %1 cannot be created, because it already exists or has been posted.';
         ResetAssemblyLines: Label 'This assembly order may have customized lines. Are you sure that you want to reset the lines according to the assembly BOM?';
-        AssemblyHeaderDoesNotExistError: Label 'The Assembly Header does not exist.';
         PostJournalLinesConfirm: Label 'Do you want to post the journal lines?';
         JournalLinesSuccessfullyPosted: Label 'The journal lines were successfully posted.';
         AutomaticCostPostingMessage: Label 'The field Automatic Cost Posting should not be set to Yes if field Use Legacy G/L Entry Locking in General Ledger Setup table is set to No because of possibility of deadlocks.';
@@ -92,11 +88,10 @@ codeunit 137101 "SCM Kitting"
         asserterror UpdateFixedResourceUsageTypeOnAssemblyBOM(BOMComponent, Item."No.", Type);
 
         // Verify.
-        Assert.ExpectedError(
-          StrSubstNo(TypeMustBeError, BOMComponent.Type::Resource, BOMComponent."Parent Item No.", BOMComponent."Line No.", BOMComponent.Type));
+        Assert.ExpectedTestFieldError(BOMComponent.FieldCaption(Type), Format(BOMComponent.Type::Resource));
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure CalculateStandardCostAfterCopyAssemblyBOM()
@@ -198,8 +193,7 @@ codeunit 137101 "SCM Kitting"
         if Type = BOMComponent.Type::Item then
             Assert.ExpectedError(StrSubstNo(ItemNotBOMError, BOMComponent."No."))
         else
-            Assert.ExpectedError(
-              StrSubstNo(TypeMustBeError, BOMComponent.Type::Item, BOMComponent."Parent Item No.", BOMComponent."Line No.", BOMComponent.Type));
+            Assert.ExpectedTestFieldError(BOMComponent.FieldCaption(Type), Format(BOMComponent.Type::Item));
     end;
 
     [Test]
@@ -227,7 +221,7 @@ codeunit 137101 "SCM Kitting"
         VerifyBOMComponentAfterExplodeBOM(Item."No.", Item2."No.", QuantityPer);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure CalculateStandardCostWithResourcePrice()
@@ -342,7 +336,7 @@ codeunit 137101 "SCM Kitting"
             asserterror AssemblyLine.ShowAssemblyList();
 
             // Verify.
-            Assert.ExpectedError(TypeMustBeEqualToItemError);
+            Assert.ExpectedTestFieldError(AssemblyLine.FieldCaption(Type), Format(AssemblyLine.Type::Item));
         end;
     end;
 
@@ -350,6 +344,7 @@ codeunit 137101 "SCM Kitting"
     [Scope('OnPrem')]
     procedure ErrorOnCreatingAssemblyOrderWithBlankNoSeries()
     var
+        AssemblySetup: Record "Assembly Setup";
         AssemblyOrder: TestPage "Assembly Order";
     begin
         // Setup: Update blank Assembly Order Nos. on Assembly Setup. Create Assembly Order by page.
@@ -361,7 +356,7 @@ codeunit 137101 "SCM Kitting"
         asserterror AssemblyOrder."No.".AssistEdit();
 
         // Verify.
-        Assert.ExpectedError(AssemblyOrderNosError);
+        Assert.ExpectedTestFieldError(AssemblySetup.FieldCaption("Assembly Order Nos."), '');
     end;
 
     [Test]
@@ -638,7 +633,7 @@ codeunit 137101 "SCM Kitting"
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, StrSubstNo(DocumentErrorsMgt.GetNothingToPostErrorMsg()));
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure CalculateStandardCostWithSalesDiscount()
@@ -945,7 +940,7 @@ codeunit 137101 "SCM Kitting"
             asserterror AssemblyLine.Validate("Variant Code", ItemVariant.Code);
 
             // Verify.
-            Assert.ExpectedError(TypeMustBeEqualToItemError);
+            Assert.ExpectedTestFieldError(AssemblyLine.FieldCaption(Type), Format(AssemblyLine.Type::Item));
         end;
     end;
 
@@ -1081,7 +1076,7 @@ codeunit 137101 "SCM Kitting"
             asserterror AssemblyHeader.Find();
 
             // Verify.
-            Assert.ExpectedError(AssemblyHeaderDoesNotExistError);
+            Assert.ExpectedErrorCannotFind(Database::"Assembly Header");
         end;
     end;
 
@@ -2721,7 +2716,7 @@ codeunit 137101 "SCM Kitting"
           BOMComponent.Type::Item, AssemblyComponentItem."No.", AssemblyItemNo, '', BOMComponent."Resource Usage Type", Quantity, true);  // Use Base Unit of Measure as True.
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure AddItemToAssemblyBOM(Item: Record Item; WithSalesPrice: Boolean)
     var
         BOMComponent: Record "BOM Component";
@@ -2772,12 +2767,10 @@ codeunit 137101 "SCM Kitting"
         PostedAssemblyHeader: Record "Posted Assembly Header";
         ActualCosts: array[5] of Decimal;
     begin
-        with PostedAssemblyHeader do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
+        PostedAssemblyHeader.SetRange("Item No.", ItemNo);
+        PostedAssemblyHeader.FindFirst();
 
-            CalcActualCosts(ActualCosts);
-        end;
+        PostedAssemblyHeader.CalcActualCosts(ActualCosts);
         exit(ActualCosts[1] + ActualCosts[2] + ActualCosts[3] + ActualCosts[4] + ActualCosts[5]);
     end;
 
@@ -3041,7 +3034,7 @@ codeunit 137101 "SCM Kitting"
         LibraryAssembly.AddEntityDimensions(AssemblyLine.Type::Item, Item."No.");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateItemWithSalesLineDiscount(var Item2: Record Item; Item: Record Item)
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -3132,12 +3125,10 @@ codeunit 137101 "SCM Kitting"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
 
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, Type::Item, ItemNo, Qty);
-            Validate("Direct Unit Cost", DirectUnitCost);
-            Modify();
-        end;
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Qty);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify();
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
@@ -3201,12 +3192,10 @@ codeunit 137101 "SCM Kitting"
     var
         BOMComponent: Record "BOM Component";
     begin
-        with LibraryAssembly do begin
-            CreateItem(ParentItem, ParentItem."Costing Method"::Average, ParentItem."Replenishment System"::Assembly, '', '');
-            CreateItem(ComponentItem, ComponentItem."Costing Method"::Average, ComponentItem."Replenishment System"::Purchase, '', '');
-            CreateAssemblyListComponent(
-              BOMComponent.Type::Item, ComponentItem."No.", ParentItem."No.", '', BOMComponent."Resource Usage Type", QuantityPerParent, true);
-        end;
+        LibraryAssembly.CreateItem(ParentItem, ParentItem."Costing Method"::Average, ParentItem."Replenishment System"::Assembly, '', '');
+        LibraryAssembly.CreateItem(ComponentItem, ComponentItem."Costing Method"::Average, ComponentItem."Replenishment System"::Purchase, '', '');
+        LibraryAssembly.CreateAssemblyListComponent(
+          BOMComponent.Type::Item, ComponentItem."No.", ParentItem."No.", '', BOMComponent."Resource Usage Type", QuantityPerParent, true);
     end;
 
     local procedure CreateAssemblyItemWithAssemblyItemAsComponent(var Item: Record Item; var Item2: Record Item; UseBaseUnitOfMeasure: Boolean)
@@ -3223,12 +3212,10 @@ codeunit 137101 "SCM Kitting"
     local procedure CreateAndUpdateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; CostingMethod: Enum "Costing Method"; StandardCost: Decimal)
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Replenishment System", ReplenishmentSystem);
-            Validate("Costing Method", CostingMethod);
-            Validate("Standard Cost", StandardCost);
-            Modify(true);
-        end;
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Costing Method", CostingMethod);
+        Item.Validate("Standard Cost", StandardCost);
+        Item.Modify(true);
     end;
 
     local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; BaseUnitofMeasure: Code[10]; ProductionBOMLineType: Enum "Production BOM Line Type"; CompItemNo: Code[20]; QuantityPer: Decimal)
@@ -3963,17 +3950,15 @@ codeunit 137101 "SCM Kitting"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindSet();
-            repeat
-                CalcFields("Cost Amount (Actual)");
-                if Positive then
-                    Assert.AreNearlyEqual(AdjustedQuantity, "Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), CostAmountErr)
-                else
-                    Assert.AreNearlyEqual(-AdjustedQuantity, "Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), CostAmountErr)
-            until Next() = 0;
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindSet();
+        repeat
+            ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+            if ItemLedgerEntry.Positive then
+                Assert.AreNearlyEqual(AdjustedQuantity, ItemLedgerEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), CostAmountErr)
+            else
+                Assert.AreNearlyEqual(-AdjustedQuantity, ItemLedgerEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), CostAmountErr)
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyNoOfRecordsAfterNavigate(Navigate: TestPage Navigate; TableName: Text[50])
@@ -4100,16 +4085,14 @@ codeunit 137101 "SCM Kitting"
 
     local procedure VerifyQuantityAndCostAmountOnAssemblyLine(AssemblyLine: Record "Assembly Line"; QuantityPer: Decimal; AssemblyHeaderQuantity: Decimal)
     begin
-        with AssemblyLine do begin
-            TestField("Quantity per", QuantityPer);
-            TestField(Quantity, "Quantity per" * AssemblyHeaderQuantity);
-            TestField("Remaining Quantity", Quantity);
-            TestField("Quantity to Consume", Quantity);
-            TestField("Quantity (Base)", Quantity * "Qty. per Unit of Measure");
-            TestField("Remaining Quantity (Base)", "Remaining Quantity" * "Qty. per Unit of Measure");
-            TestField("Quantity to Consume (Base)", "Quantity to Consume" * "Qty. per Unit of Measure");
-            TestField("Cost Amount", Quantity * "Unit Cost");
-        end;
+        AssemblyLine.TestField("Quantity per", QuantityPer);
+        AssemblyLine.TestField(Quantity, AssemblyLine."Quantity per" * AssemblyHeaderQuantity);
+        AssemblyLine.TestField("Remaining Quantity", AssemblyLine.Quantity);
+        AssemblyLine.TestField("Quantity to Consume", AssemblyLine.Quantity);
+        AssemblyLine.TestField("Quantity (Base)", AssemblyLine.Quantity * AssemblyLine."Qty. per Unit of Measure");
+        AssemblyLine.TestField("Remaining Quantity (Base)", AssemblyLine."Remaining Quantity" * AssemblyLine."Qty. per Unit of Measure");
+        AssemblyLine.TestField("Quantity to Consume (Base)", AssemblyLine."Quantity to Consume" * AssemblyLine."Qty. per Unit of Measure");
+        AssemblyLine.TestField("Cost Amount", AssemblyLine.Quantity * AssemblyLine."Unit Cost");
     end;
 
     local procedure VerifyStandardCostOnAssemblyItem(ItemNo: Code[20]; StandardCost: Decimal)
@@ -4124,14 +4107,12 @@ codeunit 137101 "SCM Kitting"
     var
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
-        with SalesShipmentLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("No.", ItemNo);
-            FindSet();
-            TestField(Quantity, Qty);
-            Next();
-            TestField(Quantity, -Qty);
-        end;
+        SalesShipmentLine.SetRange("Document No.", DocumentNo);
+        SalesShipmentLine.SetRange("No.", ItemNo);
+        SalesShipmentLine.FindSet();
+        SalesShipmentLine.TestField(Quantity, Qty);
+        SalesShipmentLine.Next();
+        SalesShipmentLine.TestField(Quantity, -Qty);
     end;
 
     local procedure VerifyPostingDateOnItemLedgerEntry(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; PostingDate: Date)
@@ -4213,16 +4194,14 @@ codeunit 137101 "SCM Kitting"
         BomComponent: Record "BOM Component";
         RecRef: RecordRef;
     begin
-        with BomComponent do begin
-            Init();
-            Validate("Parent Item No.", ParentItemNo);
-            RecRef.GetTable(BomComponent);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Validate(Type, Type::Item);
-            Validate("No.", ComponentItem."No.");
-            Validate("Quantity per", Quantity);
-            Insert(true);
-        end;
+        BomComponent.Init();
+        BomComponent.Validate("Parent Item No.", ParentItemNo);
+        RecRef.GetTable(BomComponent);
+        BomComponent.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, BomComponent.FieldNo("Line No.")));
+        BomComponent.Validate(Type, BomComponent.Type::Item);
+        BomComponent.Validate("No.", ComponentItem."No.");
+        BomComponent.Validate("Quantity per", Quantity);
+        BomComponent.Insert(true);
     end;
 
     local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; ReorderingPolicy: Enum "Reordering Policy"; StandardCostAmt: Decimal; ReorderPoint: Decimal; ReorderQuantity: Decimal)

@@ -136,14 +136,12 @@ codeunit 144542 "Sales Document"
     var
         ProposalLine: Record "Proposal Line";
     begin
-        with ProposalLine do begin
-            SetRange(Bank, SalesHeader."Bank Account Code");
-            SetRange("Account Type", "Account Type"::Customer);
-            SetRange("Account No.", SalesHeader."Sell-to Customer No.");
-            FindFirst();
-            TestField("Foreign Currency", SalesHeader."Currency Code");
-            TestField("Foreign Amount", ForeignAmount);
-        end;
+        ProposalLine.SetRange(Bank, SalesHeader."Bank Account Code");
+        ProposalLine.SetRange("Account Type", ProposalLine."Account Type"::Customer);
+        ProposalLine.SetRange("Account No.", SalesHeader."Sell-to Customer No.");
+        ProposalLine.FindFirst();
+        ProposalLine.TestField("Foreign Currency", SalesHeader."Currency Code");
+        ProposalLine.TestField("Foreign Amount", ForeignAmount);
     end;
 
     [RequestPageHandler]

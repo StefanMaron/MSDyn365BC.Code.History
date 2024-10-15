@@ -5,6 +5,105 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 430644948 - NamedType 3543218414" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot make this change because it leads to a different VAT Registration No., Gen. Bus. Posting Group or VAT Bus. Posting Group than in the sales document. Since you have posted a partial shipment, such a change will cause an inconsistency in the ledger entries.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Alt. Cust VAT Reg. Check Tests - NamedType CannotChangeVATDataWhenPartiallyPostedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 430644948 - NamedType 927970709" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot make this change because it leads to a different VAT Registration No., Gen. Bus. Posting Group or VAT Bus. Posting Group than in the sales document. Since you have posted a prepayment invoice, such a change will cause an inconsistency in the ledger entries.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Alt. Cust VAT Reg. Check Tests - NamedType CannotChangeVATDataWhenPrepmtErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2902886899 - NamedType 3346890324" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There is an alternative customer VAT registration with the same country/region code that is not allowed. Do you want to change the country/region code in the customer card and remove the alternative customer VAT registration?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Alt. Cust VAT Reg. Setup Tests - NamedType ChangeCountryOfCustQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2902886899 - NamedType 1642199395" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot have the same VAT Country/Region Code as the Customer Country/Region Code]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Alt. Cust VAT Reg. Setup Tests - NamedType CountryCodeMatchesCustomerErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2902886899 - NamedType 3127560007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Not possible to have Alternative Customer VAT Registration with the same Customer No. and VAT Country/Region Code]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Alt. Cust VAT Reg. Setup Tests - NamedType InconsistentSetupErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2880022714 - NamedType 3551190662" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The VAT country is different than the customer's. Do you want to add an alternative VAT registration for this VAT country?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Alt. Cust. VAT. Doc. Tests - NamedType AddAlternativeCustVATRegQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2880022714 - NamedType 2332186252" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to change %1?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = change what]D;]A;(LookupHint=Codeunit Alt. Cust. VAT. Doc. Tests - NamedType ChangeQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2880022714 - NamedType 1997732574" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[the existing sales lines will be deleted and new sales lines based on the new information on the header will be created]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Alt. Cust. VAT. Doc. Tests - NamedType LinesWillBeDeletedAndCreatedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2880022714 - NamedType 3104469869" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The country for the address is different than the customer's. Do you want to add an alternative VAT registration for the customer?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Alt. Cust. VAT. Doc. Tests - NamedType ShipToAddAlternativeCustVATRegQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2880022714 - NamedType 134436963" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The following fields have been updated from the customer card: VAT Registration No., Gen. Bus. Posting Group, VAT Bus. Posting Group]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = list of the fields]D;]A;(LookupHint=Codeunit Alt. Cust. VAT. Doc. Tests - NamedType VATDataTakenFromCustomerExceptVATCountryMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2880022714 - NamedType 2944215959" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The following fields have been updated from the customer card: VAT Country/Region Code, VAT Registration No., Gen. Bus. Posting Group, VAT Bus. Posting Group]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = list of the fields]D;]A;(LookupHint=Codeunit Alt. Cust. VAT. Doc. Tests - NamedType VATDataTakenFromCustomerMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1358217985 - NamedType 666113579" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to fill the G/L Account No. field in VAT entries that are linked to G/L Entries?]]></Val>
@@ -68,15 +167,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Inv Disc VAT Sale/Purch II - NamedType AmountError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 937738175 - NamedType 3275310848" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must have a value in %2: %3=%4, %5=%6, %7=%8, %9=%10, %11=%12]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1: FieldCaption1;%2:TableCaption;%3:FieldCaption2;%4:FieldValue;%5:FieldCaption3;%6:FieldValue2;%7:FieldCaption4;%8:FieldValue3;%9:FieldCaption5;%10:FieldValue4;%11:FieldCaption6;%12:FieldValue5]D;]A;(LookupHint=Codeunit ERM Inv Disc VAT Sale/Purch II - NamedType InvBaseDiscErrorErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 937738175 - NamedType 1608165387" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The maximum %1 that you can apply is %2.]]></Val>
@@ -102,15 +192,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Inv Disc VAT Sale/Purchase - NamedType ErrorAmount)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 936479918 - NamedType 3613467931" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must have a value in %2: %3=%4, %5=%6, %7=%8, %9=%10, %11=%12]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1: FieldCaption1;%2:TableCaption;%3:FieldCaption2;%4:FieldValue;%5:FieldCaption3;%6:FieldValue2;%7:FieldCaption4;%8:FieldValue3;%9:FieldCaption5;%10:FieldValue4;%11:FieldCaption6;%12:FieldValue5]D;]A;(LookupHint=Codeunit ERM Inv Disc VAT Sale/Purchase - NamedType InvBaseDiscError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 936479918 - NamedType 1608165387" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -329,24 +410,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT On Gen Journal Line - NamedType VATEntryFieldErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4157053900 - NamedType 2014044782" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be equal to '%2'  in %3: %4=%5. Current value is '%6'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT on Jnl - NamedType AllowVATError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4157053900 - NamedType 3554530960" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be equal to '%2'  in %3: %4=%5, %6=%7. Current value is '%8'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT on Jnl - NamedType AllowVATJnlLineError)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4157053900 - NamedType 3420941840" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>
@@ -363,15 +426,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT on Jnl - NamedType BalVATAmountError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4157053900 - NamedType 2555513416" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT on Jnl - NamedType BalVATError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4157053900 - NamedType 3779038158" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -426,15 +480,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Reg. No Validity Check - NamedType CannotInsertMultipleSettingsErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 319318622 - NamedType 3646834122" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The %1 does not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Table caption.]D;]A;(LookupHint=Codeunit ERM VAT Reg. No Validity Check - NamedType CountryRegionDoesNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 319318622 - NamedType 2250785885" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -572,49 +617,40 @@
       <Cmt Name="Dev"><![CDATA[%1=Table Caption;]D;]A;(LookupHint=Codeunit ERM VAT Report Line Relation - NamedType InsertError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2108111719 - NamedType 2655800061" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2108111719 - NamedType 4090211762" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This is not allowed because of the setup in the %1 window.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Report Reopen Release - NamedType MissingSetupError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - page name]D;]A;(LookupHint=Codeunit ERM VAT Report Reopen Release - NamedType MissingSetupErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2108111719 - NamedType 1812227971" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Status should be Released]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Report Reopen Release - NamedType ReleaseError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2108111719 - NamedType 1048555469" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2108111719 - NamedType 1472591623" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Status should be Open]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Report Reopen Release - NamedType ReopenError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Report Reopen Release - NamedType StatusOpenErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2108111719 - NamedType 2063873432" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2108111719 - NamedType 979248368" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Status should be Released]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Report Reopen Release - NamedType StatusReleasedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2108111719 - NamedType 3440471116" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Status should be sumbitted]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Report Reopen Release - NamedType SubmitError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2108111719 - NamedType 1134788898" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Status must be equal to 'Released'  in %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Table Caption;]D;]A;(LookupHint=Codeunit ERM VAT Report Reopen Release - NamedType SubmitError2)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Report Reopen Release - NamedType StatusSubmittedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 70057887 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1038,6 +1074,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT Reports - NamedType ConfirmAdjustQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 729097190 - NamedType 3551190662" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The country for the address is different than the customer's. Do you want to add an alternative VAT registration for the customer?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Ship Alt. Cust. VAT Reg. Tests - NamedType AddAlternativeCustVATRegQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3874077929 - NamedType 3826689261" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

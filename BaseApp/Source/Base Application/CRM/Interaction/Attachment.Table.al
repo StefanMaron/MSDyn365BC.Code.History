@@ -4,7 +4,6 @@ using Microsoft.CRM.Segment;
 using Microsoft.CRM.Setup;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Reporting;
-using System;
 using System.Environment;
 using System.IO;
 using System.Utilities;
@@ -122,20 +121,22 @@ table 5062 Attachment
         AttachmentManagement: Codeunit AttachmentManagement;
         ClientTypeManagement: Codeunit "Client Type Management";
 
+#pragma warning disable AA0074
         Text002: Label 'The attachment is empty.';
         Text005: Label 'Export Attachment';
         Text006: Label 'Import Attachment';
         Text007: Label 'All Files (*.*)|*.*';
+#pragma warning disable AA0470
         Text008: Label 'Error during copying file: %1.';
         Text009: Label 'Do you want to remove %1?';
+#pragma warning restore AA0470
         Text010: Label 'External file could not be removed.';
+#pragma warning restore AA0074
 #if not CLEAN23
+#pragma warning disable AA0074
         Text014: Label 'You can only fax Microsoft Word documents.';
+#pragma warning restore AA0074
 #endif
-        Text015: Label 'The email cannot be displayed or has been deleted.';
-        Text020: Label 'An Outlook dialog box is open. Close it and try again.';
-        CouldNotActivateOutlookErr: Label 'Cannot connect to Microsoft Outlook. If Microsoft Outlook is already running, make sure that you are not running either %1 or Microsoft Outlook as administrator. Close all instances of Microsoft Outlook and try again.', Comment = '%1 - product name';
-        UnspecifiedOutlookErr: Label ' Microsoft Outlook cannot display the message. Make sure that Microsoft Outlook is configured with access to the message that you are trying to open.';
         AttachmentImportQst: Label 'Do you want to import attachment?';
         AttachmentExportQst: Label 'Do you want to export attachment to view or edit it externaly?';
 
@@ -533,35 +534,6 @@ table 5062 Attachment
         SetEntryID(EntryID);
 
         Modify(RunTrigger);
-    end;
-
-    [Scope('OnPrem')]
-    procedure DisplayInOutlook()
-    var
-        [RunOnClient]
-        OutlookHelper: DotNet OutlookHelper;
-        [RunOnClient]
-        Status: DotNet OutlookStatusCode;
-    begin
-        Status := OutlookHelper.DisplayMailFromPublicFolder(GetEntryID());
-
-        if Status.Equals(Status.CouldNotActivateOutlook) then
-            Error(CouldNotActivateOutlookErr, PRODUCTNAME.Full());
-
-        if Status.Equals(Status.ModalDialogOpened) then
-            Error(Text020);
-
-        if Status.Equals(Status.ItemNotFound) then
-            Error(Text015);
-
-        // If the Exchange Entry Id requires patching to be used in Outlook
-        // then we update the entry id.
-        if Status.Equals(Status.OkAfterExchange2013Patch) then begin
-            SetMessageID(OutlookHelper.PatchExchange2013WebServicesPublicFolderItemEntryId(GetEntryID()));
-            Modify(true);
-        end else
-            if not Status.Equals(Status.Ok) then
-                Error(UnspecifiedOutlookErr);
     end;
 
     procedure Checksum(MessageID: Text) ChecksumValue: Integer

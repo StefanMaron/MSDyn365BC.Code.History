@@ -806,11 +806,17 @@ table 5612 "FA Depreciation Book"
         FADateCalculation: Codeunit "FA Date Calculation";
         DepreciationCalculation: Codeunit "Depreciation Calculation";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
         Text001: Label 'must not be 100';
+#pragma warning disable AA0470
         Text002: Label '%1 is later than %2.';
         Text003: Label 'must not be %1';
+#pragma warning restore AA0470
         Text004: Label 'untitled';
+#pragma warning restore AA0074
         OnlyOneDefaultDeprBookErr: Label 'Only one fixed asset depreciation book can be marked as the default book';
         FiscalYear365Err: Label 'An ending date for depreciation cannot be calculated automatically when the Fiscal Year 365 Days option is chosen. You must manually enter the ending date.';
 

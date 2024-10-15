@@ -338,10 +338,14 @@ page 5110 "Profile Questionnaire Setup"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Details only available for questions.';
+#pragma warning restore AA0074
         ProfileQuestnHeader: Record "Profile Questionnaire Header";
         ProfileManagement: Codeunit ProfileManagement;
+#pragma warning disable AA0074
         Text001: Label 'Where-Used only available for answers.';
+#pragma warning restore AA0074
         CaptionExpr: Text[100];
         ProfileQuestionnaireCodeNameVi: Boolean;
         DescriptionIndent: Integer;

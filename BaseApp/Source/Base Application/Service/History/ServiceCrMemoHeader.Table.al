@@ -786,29 +786,6 @@ table 5994 "Service Cr.Memo Header"
         field(9001; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
-        }	
-        field(11000000; "Transaction Mode Code"; Code[20])
-        {
-            Caption = 'Transaction Mode Code';
-            TableRelation = "Transaction Mode".Code where("Account Type" = const(Customer));
-
-            trigger OnValidate()
-            var
-                TrMode: Record "Transaction Mode";
-            begin
-                if "Transaction Mode Code" <> '' then begin
-                    TrMode.Get(TrMode."Account Type"::Customer, "Transaction Mode Code");
-                    if TrMode."Payment Method Code" <> '' then
-                        Validate("Payment Method Code", TrMode."Payment Method Code");
-                    if TrMode."Payment Terms Code" <> '' then
-                        Validate("Payment Terms Code", TrMode."Payment Terms Code");
-                end;
-            end;
-        }
-        field(11000001; "Bank Account Code"; Code[20])
-        {
-            Caption = 'Bank Account Code';
-            TableRelation = "Customer Bank Account".Code where("Customer No." = field("Bill-to Customer No."));
         }
     }
 
@@ -957,6 +934,15 @@ table 5994 "Service Cr.Memo Header"
         end;
     end;
 
+    procedure OpenStatistics()
+    var
+        StatPageID: Integer;
+    begin
+        StatPageID := Page::"Service Credit Memo Statistics";
+        OnOpenStatisticsOnAfterSetStatPageID(Rec, StatPageID);
+        Page.RunModal(StatPageID, Rec);
+    end;
+
     procedure GetDocExchStatusStyle(): Text
     begin
         case "Document Exchange Status" of
@@ -1016,6 +1002,11 @@ table 5994 "Service Cr.Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendRecords(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenStatisticsOnAfterSetStatPageID(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var StatPageID: Integer);
     begin
     end;
 }

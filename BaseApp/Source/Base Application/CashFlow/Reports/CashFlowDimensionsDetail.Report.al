@@ -614,14 +614,18 @@ report 852 "Cash Flow Dimensions - Detail"
         DimFilterText: Text[250];
         CFFilter: Text[250];
 
+#pragma warning disable AA0074
         Text000: Label 'Enter an analysis view code.';
         Text001: Label 'Enter a date filter.';
         Text002: Label 'Include Dimensions';
         Text003: Label '(no dimension value)';
         Text004: Label 'Not updated';
+#pragma warning disable AA0470
         Text005: Label 'All amounts are in %1.';
+#pragma warning restore AA0470
         Text006: Label '(no business unit)';
         Text007: Label 'Cash Flow Forecast Filter';
+#pragma warning restore AA0074
         PeriodCaptionLbl: Label 'Period';
         AnalysisViewCaptionLbl: Label 'Analysis View';
         LastUpdatedCaptionLbl: Label 'Last Date Updated';

@@ -10,7 +10,6 @@ using Microsoft.Inventory.Transfer;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Document;
 using System.Environment.Configuration;
 
 codeunit 311 "Item-Check Avail."
@@ -46,7 +45,9 @@ codeunit 311 "Item-Check Avail."
         OldItemShipmentDate: Date;
         ContextInfo: Dictionary of [Text, Text];
 
+#pragma warning disable AA0074
         Text000: Label 'The update has been interrupted to respect the warning.';
+#pragma warning restore AA0074
         NotificationMsg: Label 'The available inventory for item %1 is lower than the entered quantity at this location.', Comment = '%1=Item No.';
         DetailsTxt: Label 'Show details';
         ItemAvailabilityNotificationTxt: Label 'Item availability is low.';
@@ -99,20 +100,15 @@ codeunit 311 "Item-Check Avail."
             Rollback := ShowAndHandleAvailabilityPage(TransLine.RecordId);
     end;
 
-    procedure ServiceInvLineCheck(ServInvLine: Record "Service Line") Rollback: Boolean
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServItemChackAvail', '25.0')]
+    procedure ServiceInvLineCheck(ServInvLine: Record Microsoft.Service.Document."Service Line") Rollback: Boolean
     var
-        IsHandled: Boolean;
+        ServItemCheckAvail: Codeunit "Serv. Item Check Avail.";
     begin
-        IsHandled := false;
-        OnBeforeServiceInvLineCheck(ServInvLine, Rollback, IsHandled);
-        if IsHandled then
-            exit(Rollback);
-
-        NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
-          ServInvLine.RecordId, GetItemAvailabilityNotificationId(), true);
-        if ServiceInvLineShowWarning(ServInvLine) then
-            Rollback := ShowAndHandleAvailabilityPage(ServInvLine.RecordId);
+        exit(ServItemCheckAvail.ServiceInvLineCheck(ServInvLine));
     end;
+#endif
 
     procedure JobPlanningLineCheck(JobPlanningLine: Record "Job Planning Line") Rollback: Boolean
     begin
@@ -196,6 +192,7 @@ codeunit 311 "Item-Check Avail."
         OldItemNetChange := 0;
         OldSalesLine := SalesLine;
         if OldSalesLine.Find() then begin // Find previous quantity within Check-Avail. Period
+            CompanyInfo.SetLoadFields("Check-Avail. Period Calc.", "Check-Avail. Time Bucket");
             CompanyInfo.Get();
             LookAheadDate :=
               AvailableToPromise.GetForwardPeriodEndDate(
@@ -414,52 +411,15 @@ codeunit 311 "Item-Check Avail."
             OldTransLine."Shipment Date"));
     end;
 
-    procedure ServiceInvLineShowWarning(ServLine: Record "Service Line") IsWarning: Boolean
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServItemChackAvail', '25.0')]
+    procedure ServiceInvLineShowWarning(ServLine: Record Microsoft.Service.Document."Service Line") IsWarning: Boolean
     var
-        OldServLine: Record "Service Line";
-        IsHandled: Boolean;
+        ServItemCheckAvail: Codeunit "Serv. Item Check Avail.";
     begin
-        if not ShowWarningForThisItem(ServLine."No.") then
-            exit(false);
-
-        OldItemNetChange := 0;
-
-        OldServLine := ServLine;
-
-        if OldServLine.Find() then // Find previous quantity
-            if (OldServLine."Document Type" = OldServLine."Document Type"::Order) and
-               (OldServLine."No." = ServLine."No.") and
-               (OldServLine."Variant Code" = ServLine."Variant Code") and
-               (OldServLine."Location Code" = ServLine."Location Code") and
-               (OldServLine."Bin Code" = ServLine."Bin Code")
-            then begin
-                IsHandled := false;
-                OnServiceInvLineShowWarningOnAfterFindingPrevServiceLineQtyWithinPeriod(ServLine, OldServLine, IsHandled);
-                if not IsHandled then begin
-                    OldItemNetChange := -OldServLine."Outstanding Qty. (Base)";
-                    OldServLine.CalcFields("Reserved Qty. (Base)");
-                    OldItemNetResChange := -OldServLine."Reserved Qty. (Base)";
-                end;
-            end;
-
-        UseOrderPromise := true;
-        IsHandled := false;
-        OnServiceInvLineShowWarningOnBeforeShowWarning(ServLine, ContextInfo, OldServLine, OldItemNetChange, IsWarning, IsHandled);
-        if IsHandled then
-            exit(IsWarning);
-
-        exit(
-          ShowWarning(
-            ServLine."No.",
-            ServLine."Variant Code",
-            ServLine."Location Code",
-            ServLine."Unit of Measure Code",
-            ServLine."Qty. per Unit of Measure",
-            -ServLine."Outstanding Quantity",
-            OldItemNetChange,
-            ServLine."Needed by Date",
-            OldServLine."Needed by Date"));
+        exit(ServItemCheckAvail.ServiceInvLineShowWarning(ServLine));
     end;
+#endif
 
     procedure JobPlanningLineShowWarning(JobPlanningLine: Record "Job Planning Line") IsWarning: Boolean
     var
@@ -705,6 +665,7 @@ codeunit 311 "Item-Check Avail."
         if IsHandled then
             exit(ShowWarning);
 
+        Item.SetLoadFields(Type, "Stockout Warning");
         if not Item.Get(ItemNo) then
             exit(false);
 
@@ -872,10 +833,18 @@ codeunit 311 "Item-Check Avail."
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceInvLineCheck(ServInvLine: Record Microsoft.Service.Document."Service Line"; var Rollback: Boolean; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceInvLineCheck(ServInvLine, Rollback, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit ServItemAvailMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceInvLineCheck(ServInvLine: Record "Service Line"; var Rollback: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeServiceInvLineCheck(ServInvLine: Record Microsoft.Service.Document."Service Line"; var Rollback: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAsmOrderLineShowWarningOnBeforeShowWarning(AssemblyLine: Record "Assembly Line"; var ContextInfo: Dictionary of [Text, Text]; OldAssemblyLine: Record "Assembly Line"; var OldItemNetChange: Decimal; var IsWarning: Boolean; var IsHandled: Boolean)
@@ -897,10 +866,18 @@ codeunit 311 "Item-Check Avail."
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnServiceInvLineShowWarningOnBeforeShowWarning(ServLine: Record Microsoft.Service.Document."Service Line"; var ContextInfo: Dictionary of [Text, Text]; OldServLine: Record Microsoft.Service.Document."Service Line"; var OldItemNetChange: Decimal; var IsWarning: Boolean; var IsHandled: Boolean)
+    begin
+        OnServiceInvLineShowWarningOnBeforeShowWarning(ServLine, ContextInfo, OldServLine, OldItemNetChange, IsWarning, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit ServItemAvailMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnServiceInvLineShowWarningOnBeforeShowWarning(ServLine: Record "Service Line"; var ContextInfo: Dictionary of [Text, Text]; OldServLine: Record "Service Line"; var OldItemNetChange: Decimal; var IsWarning: Boolean; var IsHandled: Boolean)
+    local procedure OnServiceInvLineShowWarningOnBeforeShowWarning(ServLine: Record Microsoft.Service.Document."Service Line"; var ContextInfo: Dictionary of [Text, Text]; OldServLine: Record Microsoft.Service.Document."Service Line"; var OldItemNetChange: Decimal; var IsWarning: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferLineShowWarningOnBeforeShowWarning(TransLine: Record "Transfer Line"; var ContextInfo: Dictionary of [Text, Text]; OldTransLine: Record "Transfer Line"; var OldItemNetChange: Decimal; var IsWarning: Boolean; var IsHandled: Boolean)
@@ -933,10 +910,18 @@ codeunit 311 "Item-Check Avail."
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnServiceInvLineShowWarningOnAfterFindingPrevServiceLineQtyWithinPeriod(ServiceLine: Record Microsoft.Service.Document."Service Line"; OldServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
+    begin
+        OnServiceInvLineShowWarningOnAfterFindingPrevServiceLineQtyWithinPeriod(ServiceLine, OldServiceLine, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit ServItemAvailMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnServiceInvLineShowWarningOnAfterFindingPrevServiceLineQtyWithinPeriod(ServiceLine: Record "Service Line"; OldServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    local procedure OnServiceInvLineShowWarningOnAfterFindingPrevServiceLineQtyWithinPeriod(ServiceLine: Record Microsoft.Service.Document."Service Line"; OldServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnSalesLineShowWarningOnAfterFindingPrevSalesLineQtyWithinPeriod(SalesLine: Record "Sales Line"; OldSalesLine: Record "Sales Line"; var IsHandled: Boolean)

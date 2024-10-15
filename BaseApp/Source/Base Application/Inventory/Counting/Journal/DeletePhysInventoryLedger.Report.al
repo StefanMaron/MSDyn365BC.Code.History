@@ -133,10 +133,16 @@ report 789 "Delete Phys. Inventory Ledger"
         LastNoOfDeleted: Integer;
 
         DeleteEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 must be specified.';
+#pragma warning restore AA0470
         Text004: Label 'Deleting phys. inventory ledger entries...\\';
+#pragma warning disable AA0470
         Text005: Label 'Item No.             #1##########\';
         Text006: Label 'Date                 #2######\\';
         Text007: Label 'No. of entries del.  #3######';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

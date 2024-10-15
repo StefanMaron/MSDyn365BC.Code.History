@@ -1574,12 +1574,10 @@ codeunit 144049 "UT REP EVAT"
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate("Fiscal Entity No.", '777777770B77');
-            Modify(true);
-            exit("Fiscal Entity No.");
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Fiscal Entity No.", '777777770B77');
+        CompanyInformation.Modify(true);
+        exit(CompanyInformation."Fiscal Entity No.");
     end;
 
     local procedure UpdateElectronicTaxDeclarationSetup(VATContactType: Option; AgentContactID: Code[17]; AgentContactName: Text; AgentContactAddress: Text; AgentContactPostCode: Code[20]; AgentContactCity: Text; AgentContactPhoneNo: Text; TaxPayerContactName: Text; TaxPayerContactPhoneNo: Text)

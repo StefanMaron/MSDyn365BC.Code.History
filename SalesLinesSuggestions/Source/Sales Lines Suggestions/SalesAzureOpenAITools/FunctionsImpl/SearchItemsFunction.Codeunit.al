@@ -23,7 +23,7 @@ codeunit 7285 "Search Items Function" implements "AOAI Function"
         Prompt: Codeunit "SLS Prompts";
         PromptJson: JsonObject;
     begin
-        PromptJson.ReadFrom(Prompt.GetSLSSearchItemPrompt());
+        PromptJson.ReadFrom(Prompt.GetSLSSearchItemPrompt().Unwrap());
         exit(PromptJson);
     end;
 
@@ -41,7 +41,7 @@ codeunit 7285 "Search Items Function" implements "AOAI Function"
     begin
         if Arguments.Get('results', ItemsResults) then begin
             ItemResultsArray := ItemsResults.AsArray();
-            if SearchUtility.SearchMultiple(ItemResultsArray, SearchStyle, SearchIntentLbl, SearchQuery, 1, 25, false, true, TempSalesLineAiSuggestion) then begin
+            if SearchUtility.SearchMultiple(ItemResultsArray, SearchStyle, SearchIntentLbl, SearchQuery, 1, 25, false, true, TempSalesLineAiSuggestion, '') then begin
                 FeatureTelemetry.LogUsage('0000ME2', SalesLineAISuggestionImpl.GetFeatureName(), SearchItemsLbl);
                 if TempSalesLineAiSuggestion.Count = 0 then
                     NotificationManager.SendNotification(SalesLineAISuggestionImpl.GetNoSalesLinesSuggestionsMsg());

@@ -163,6 +163,7 @@ page 810 "Web Services"
 
     trigger OnOpenPage()
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         WebService: Record "Web Service";
         MyNotification: Record "My Notifications";
         WebserviceNotificationMgt: Codeunit "Webservice Notification Mgt.";

@@ -295,7 +295,7 @@ page 7352 "Put-away Worksheet"
                     Image = ItemTrackingLines;
                     Scope = Repeater;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -459,9 +459,9 @@ page 7352 "Put-away Worksheet"
                         EditinExcelFilters: Codeunit "Edit in Excel Filters";
                         ODataUtility: Codeunit "ODataUtility";
                     begin
-                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec.Name)), Enum::"Edit in Excel Filter Type"::Equal, CurrentWkshName, Enum::"Edit in Excel Edm Type"::"Edm.String");
-                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Worksheet Template Name")), Enum::"Edit in Excel Filter Type"::Equal, CurrentWkshTemplateName, Enum::"Edit in Excel Edm Type"::"Edm.String");
-                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Location Code")), Enum::"Edit in Excel Filter Type"::Equal, CurrentLocationCode, Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(Rec.FieldName(Rec.Name)), Enum::"Edit in Excel Filter Type"::Equal, CurrentWkshName, Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Worksheet Template Name")), Enum::"Edit in Excel Filter Type"::Equal, CurrentWkshTemplateName, Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Location Code")), Enum::"Edit in Excel Filter Type"::Equal, CurrentLocationCode, Enum::"Edit in Excel Edm Type"::"Edm.String");
                         EditinExcel.EditPageInExcel(Text.CopyStr(CurrPage.Caption, 1, 240), Page::"Put-away Worksheet", EditInExcelFilters, StrSubstNo(ExcelFileNameTxt, CurrentWkshName, CurrentWkshTemplateName));
                     end;
                 }
@@ -520,15 +520,6 @@ page 7352 "Put-away Worksheet"
                 actionref("Warehouse Entries_Promoted"; "Warehouse Entries")
                 {
                 }
-#if not CLEAN22
-                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
             group(Category_Report)
             {
@@ -579,7 +570,9 @@ page 7352 "Put-away Worksheet"
     var
         WMSMgt: Codeunit "WMS Management";
         ItemDescription: Text[100];
+#pragma warning disable AA0074
         Text001: Label 'There is nothing to handle.';
+#pragma warning restore AA0074
         ExcelFileNameTxt: Label 'Put-away Worksheet - WorksheetName %1 - WorksheetTemplateName %2', Comment = '%1 = Worksheet Name; %2 = Worksheet Template Name';
         OpenedFromBatch: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;

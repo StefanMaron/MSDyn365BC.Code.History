@@ -19,7 +19,7 @@ report 11406 "Process Response Messages"
     {
         dataitem("Elec. Tax Decl. Response Msg."; "Elec. Tax Decl. Response Msg.")
         {
-            DataItemTableView = sorting("No.") ORDER(Ascending) where(Status = const(Received));
+            DataItemTableView = sorting("No.") order(ascending) where(Status = const(Received));
 
             trigger OnAfterGetRecord()
             var

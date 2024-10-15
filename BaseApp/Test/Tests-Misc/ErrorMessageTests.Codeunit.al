@@ -199,7 +199,7 @@ codeunit 135000 "Error Message Tests"
         asserterror TempErrorMessage.AddMessageDetails(1, AdditionalInformationTxt, SupportUrlTxt);
 
         // [THEN] The exception is "The Error Message does not exist."
-        Assert.ExpectedError('The Error Message does not exist.');
+        Assert.ExpectedErrorCannotFind(Database::"Error Message");
     end;
 
     [Test]
@@ -855,21 +855,16 @@ codeunit 135000 "Error Message Tests"
     begin
         // [SCENARIO] All Error Messages are cleared when using ClearLog function, regardless of the current filter
         Initialize();
-
-        with TempErrorMessage do begin
-            // [GIVEN] A record in the error message table
-            LogSimpleMessage("Message Type"::Error, GenericErrorDescriptionTxt);
-            Assert.AreEqual(1, Count, ErrorLoggedForValidDataErr);
-            // [GIVEN] The error message table has a filter
-            SetRange("Message Type", "Message Type"::Warning);
-
-            // [WHEN] ClearLog is called
-            ClearLog();
-
-            // [THEN] No entries exists in the error message table
-            Reset();
-            Assert.AreEqual(0, Count, ErrorLoggedForValidDataErr);
-        end;
+        // [GIVEN] A record in the error message table
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, GenericErrorDescriptionTxt);
+        Assert.AreEqual(1, TempErrorMessage.Count, ErrorLoggedForValidDataErr);
+        // [GIVEN] The error message table has a filter
+        TempErrorMessage.SetRange("Message Type", TempErrorMessage."Message Type"::Warning);
+        // [WHEN] ClearLog is called
+        TempErrorMessage.ClearLog();
+        // [THEN] No entries exists in the error message table
+        TempErrorMessage.Reset();
+        Assert.AreEqual(0, TempErrorMessage.Count, ErrorLoggedForValidDataErr);
     end;
 
     [Test]
@@ -952,17 +947,13 @@ codeunit 135000 "Error Message Tests"
     begin
         // [SCENARIO] The ErrorMessageCount function returns the number of messages that have been logged with the provided Lowest Severity Message Type
         Initialize();
-
-        with TempErrorMessage do begin
-            // [GIVEN] An error has been logged for each message type, error, warning and message
-            LogSimpleMessage("Message Type"::Error, GenericErrorDescriptionTxt);
-            LogSimpleMessage("Message Type"::Warning, GenericErrorDescriptionTxt);
-            LogSimpleMessage("Message Type"::Information, GenericErrorDescriptionTxt);
-
-            // [WHEN] ErrorMessageCount is called for Warning Level
-            // [THEN] HasErrorMessagesRelatedTo reports that 2 entries exists
-            Assert.AreEqual(2, ErrorMessageCount("Message Type"::Warning), ErrorLoggedForValidDataErr);
-        end;
+        // [GIVEN] An error has been logged for each message type, error, warning and message
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, GenericErrorDescriptionTxt);
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Warning, GenericErrorDescriptionTxt);
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Information, GenericErrorDescriptionTxt);
+        // [WHEN] ErrorMessageCount is called for Warning Level
+        // [THEN] HasErrorMessagesRelatedTo reports that 2 entries exists
+        Assert.AreEqual(2, TempErrorMessage.ErrorMessageCount(TempErrorMessage."Message Type"::Warning), ErrorLoggedForValidDataErr);
     end;
 
     [Test]
@@ -973,23 +964,19 @@ codeunit 135000 "Error Message Tests"
     begin
         // [SCENARIO] The ErrorMessageCount function returns the number of messages that have been logged with the provided Lowest Severity Message Type
         Initialize();
-
-        with TempErrorMessage do begin
-            // [GIVEN] An error has been logged for each message type, error, warning and message
-            SetContext(GLBCustomerContext);
-            LogSimpleMessage("Message Type"::Error, GenericErrorDescriptionTxt);
-            LogSimpleMessage("Message Type"::Warning, GenericErrorDescriptionTxt);
-            LogSimpleMessage("Message Type"::Information, GenericErrorDescriptionTxt);
-            SetContext(GLBVendorContext);
-            LogSimpleMessage("Message Type"::Error, GenericErrorDescriptionTxt);
-
-            // [WHEN] ErrorMessageCount is called for Warning Level
-            // [THEN] HasErrorMessagesRelatedTo reports that 2 entries exists for one context and 1 for the second context
-            SetContext(GLBCustomerContext);
-            Assert.AreEqual(2, ErrorMessageCount("Message Type"::Warning), ErrorLoggedForValidDataErr);
-            SetContext(GLBVendorContext);
-            Assert.AreEqual(1, ErrorMessageCount("Message Type"::Warning), ErrorLoggedForValidDataErr);
-        end;
+        // [GIVEN] An error has been logged for each message type, error, warning and message
+        TempErrorMessage.SetContext(GLBCustomerContext);
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, GenericErrorDescriptionTxt);
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Warning, GenericErrorDescriptionTxt);
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Information, GenericErrorDescriptionTxt);
+        TempErrorMessage.SetContext(GLBVendorContext);
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, GenericErrorDescriptionTxt);
+        // [WHEN] ErrorMessageCount is called for Warning Level
+        // [THEN] HasErrorMessagesRelatedTo reports that 2 entries exists for one context and 1 for the second context
+        TempErrorMessage.SetContext(GLBCustomerContext);
+        Assert.AreEqual(2, TempErrorMessage.ErrorMessageCount(TempErrorMessage."Message Type"::Warning), ErrorLoggedForValidDataErr);
+        TempErrorMessage.SetContext(GLBVendorContext);
+        Assert.AreEqual(1, TempErrorMessage.ErrorMessageCount(TempErrorMessage."Message Type"::Warning), ErrorLoggedForValidDataErr);
     end;
 
     [Test]
@@ -1001,17 +988,13 @@ codeunit 135000 "Error Message Tests"
     begin
         // [SCENARIO] The HasErrors function reports returns TRUE and shows a message if an error has been logged and ShowMessage = TRUE
         Initialize();
-
-        with TempErrorMessage do begin
-            // [GIVEN] An error and a warning message type has been logged
-            LogSimpleMessage("Message Type"::Error, GenericErrorDescriptionTxt);
-            LogSimpleMessage("Message Type"::Warning, GenericErrorDescriptionTxt);
-
-            // [WHEN] HasErrors is called and set to display error message
-            // [THEN] HasErrors returns TRUE
-            // [THEN] A message is shown
-            Assert.IsTrue(HasErrors(true), ErrorLoggedForValidDataErr);
-        end;
+        // [GIVEN] An error and a warning message type has been logged
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, GenericErrorDescriptionTxt);
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Warning, GenericErrorDescriptionTxt);
+        // [WHEN] HasErrors is called and set to display error message
+        // [THEN] HasErrors returns TRUE
+        // [THEN] A message is shown
+        Assert.IsTrue(TempErrorMessage.HasErrors(true), ErrorLoggedForValidDataErr);
     end;
 
     [Test]
@@ -1022,17 +1005,13 @@ codeunit 135000 "Error Message Tests"
     begin
         // [SCENARIO] The HasErrors function reports returns TRUE and does not show a message if an error has been logged and ShowMessage = FALSE
         Initialize();
-
-        with TempErrorMessage do begin
-            // [GIVEN] An error and a warning message type has been logged
-            LogSimpleMessage("Message Type"::Error, GenericErrorDescriptionTxt);
-            LogSimpleMessage("Message Type"::Warning, GenericErrorDescriptionTxt);
-
-            // [WHEN] HasErrors is called and set to NOT display error message
-            // [THEN] HasErrors returns TRUE
-            // [THEN] No messages are shown
-            Assert.IsTrue(HasErrors(false), ErrorLoggedForValidDataErr);
-        end;
+        // [GIVEN] An error and a warning message type has been logged
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, GenericErrorDescriptionTxt);
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Warning, GenericErrorDescriptionTxt);
+        // [WHEN] HasErrors is called and set to NOT display error message
+        // [THEN] HasErrors returns TRUE
+        // [THEN] No messages are shown
+        Assert.IsTrue(TempErrorMessage.HasErrors(false), ErrorLoggedForValidDataErr);
     end;
 
     [Test]
@@ -1043,17 +1022,13 @@ codeunit 135000 "Error Message Tests"
     begin
         // [SCENARIO] The HasErrors function reports returns FALSE and does not show a message if no error has been logged and ShowMessage = TRUE
         Initialize();
-
-        with TempErrorMessage do begin
-            // [GIVEN] A Message and a warning message type has been logged
-            LogSimpleMessage("Message Type"::Information, GenericErrorDescriptionTxt);
-            LogSimpleMessage("Message Type"::Warning, GenericErrorDescriptionTxt);
-
-            // [WHEN] HasErrors is called and set to display error message
-            // [THEN] HasErrors returns FALSE
-            // [THEN] No messages are shown
-            Assert.IsFalse(HasErrors(true), ErrorLoggedForValidDataErr);
-        end;
+        // [GIVEN] A Message and a warning message type has been logged
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Information, GenericErrorDescriptionTxt);
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Warning, GenericErrorDescriptionTxt);
+        // [WHEN] HasErrors is called and set to display error message
+        // [THEN] HasErrors returns FALSE
+        // [THEN] No messages are shown
+        Assert.IsFalse(TempErrorMessage.HasErrors(true), ErrorLoggedForValidDataErr);
     end;
 
     [Test]
@@ -1065,18 +1040,13 @@ codeunit 135000 "Error Message Tests"
     begin
         // [SCENARIO] The ToString function returns a Text representation of the current errors, with Message Type and Description
         Initialize();
-
-        with TempErrorMessage do begin
-            // [GIVEN] An error and a warning message type has been logged
-            LogSimpleMessage("Message Type"::Warning, GenericErrorDescriptionTxt);
-            LogSimpleMessage("Message Type"::Error, GenericErrorDescriptionTxt);
-
-            // [WHEN] ToString is called
-            ErrorMessage := ToString();
-
-            // [THEN] A string is returned that contains information about the two logged messages
-            Assert.AreEqual(StrSubstNo('Error: %1\Warning: %1', GenericErrorDescriptionTxt), ErrorMessage, ErrorLoggedForValidDataErr);
-        end;
+        // [GIVEN] An error and a warning message type has been logged
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Warning, GenericErrorDescriptionTxt);
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, GenericErrorDescriptionTxt);
+        // [WHEN] ToString is called
+        ErrorMessage := TempErrorMessage.ToString();
+        // [THEN] A string is returned that contains information about the two logged messages
+        Assert.AreEqual(StrSubstNo('Error: %1\Warning: %1', GenericErrorDescriptionTxt), ErrorMessage, ErrorLoggedForValidDataErr);
     end;
 
     [Test]
@@ -1087,18 +1057,13 @@ codeunit 135000 "Error Message Tests"
     begin
         // [SCENARIO] The function ThrowError will throw an error if a message has been logged with "Message Type" = Error
         Initialize();
-
-        with TempErrorMessage do begin
-            // [GIVEN] An error message has been logged
-            LogSimpleMessage("Message Type"::Error, GenericErrorDescriptionTxt);
-
-            // [WHEN] ThrowError is called
-            // [THEN] An error is thrown
-            asserterror ThrowError();
-
-            // [THEN] The thrown error contains the logged error message
-            Assert.ExpectedError(StrSubstNo('Error: %1', GenericErrorDescriptionTxt));
-        end;
+        // [GIVEN] An error message has been logged
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, GenericErrorDescriptionTxt);
+        // [WHEN] ThrowError is called
+        // [THEN] An error is thrown
+        asserterror TempErrorMessage.ThrowError();
+        // [THEN] The thrown error contains the logged error message
+        Assert.ExpectedError(StrSubstNo('Error: %1', GenericErrorDescriptionTxt));
     end;
 
     [Test]
@@ -1109,15 +1074,11 @@ codeunit 135000 "Error Message Tests"
     begin
         // [SCENARIO] The function ThrowError will not throw an error if no messages has been logged with "Message Type" = Error
         Initialize();
-
-        with TempErrorMessage do begin
-            // [GIVEN] Only a warning message has been logged
-            LogSimpleMessage("Message Type"::Warning, GenericErrorDescriptionTxt);
-
-            // [WHEN] ThrowError is called
-            // [THEN] Nothing happens
-            ThrowError();
-        end;
+        // [GIVEN] Only a warning message has been logged
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Warning, GenericErrorDescriptionTxt);
+        // [WHEN] ThrowError is called
+        // [THEN] Nothing happens
+        TempErrorMessage.ThrowError();
     end;
 
     [Test]
@@ -1130,25 +1091,20 @@ codeunit 135000 "Error Message Tests"
     begin
         // [SCENARIO] The function ThrowError will not throw an error if no messages has been logged with "Message Type" = Error
         Initialize();
-
-        with ErrorMessage do begin
-            // [GIVEN] Only a warning message has been logged
-            SetContext(GLBCustomerContext);
-            LogSimpleMessage("Message Type"::Warning, GenericErrorDescriptionTxt);
-            SetContext(GLBVendorContext);
-            LogSimpleMessage("Message Type"::Warning, GenericErrorDescriptionTxt);
-            TempErrorMessage.LogSimpleMessage("Message Type"::Warning, GenericErrorDescriptionTxt);
-
-            // Exercise
-            ErrorMessages.Trap();
-            SetContext(GLBCustomerContext);
-            ShowErrorMessages(false);
-
-            // Verify - only persistent message corresponding to one context will be displayed
-            ErrorMessages.First();
-            Assert.AreEqual(ErrorMessages.Description.Value, Format(GenericErrorDescriptionTxt), '');
-            Assert.IsFalse(ErrorMessages.Next(), 'Records are not filtered to proper context.');
-        end;
+        // [GIVEN] Only a warning message has been logged
+        ErrorMessage.SetContext(GLBCustomerContext);
+        ErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Warning, GenericErrorDescriptionTxt);
+        ErrorMessage.SetContext(GLBVendorContext);
+        ErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Warning, GenericErrorDescriptionTxt);
+        TempErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Warning, GenericErrorDescriptionTxt);
+        // Exercise
+        ErrorMessages.Trap();
+        ErrorMessage.SetContext(GLBCustomerContext);
+        ErrorMessage.ShowErrorMessages(false);
+        // Verify - only persistent message corresponding to one context will be displayed
+        ErrorMessages.First();
+        Assert.AreEqual(ErrorMessages.Description.Value, Format(GenericErrorDescriptionTxt), '');
+        Assert.IsFalse(ErrorMessages.Next(), 'Records are not filtered to proper context.');
     end;
 
     [Test]
@@ -1477,70 +1433,6 @@ codeunit 135000 "Error Message Tests"
         TempErrorMessageActual.TestField("Field Number", TableWithFieldCaption.FieldNo(MyField));
     end;
 
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestSyncingOfErrorMessageDescriptionAndMessage()
-    var
-        ErrorMessage: Record "Error Message";
-        TextLbl: Label 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.';
-    begin
-        // [SCENARIO] Test the syncing of Error Message fields, Description and Message
-        ErrorMessage.DeleteAll();
-
-        // [GIVEN] Error Message with Description
-        ErrorMessage.Description := CopyStr(TextLbl, 1, MaxStrLen(ErrorMessage.Description));
-
-        // [WHEN] Insert error
-        ErrorMessage.Insert();
-
-        // [THEN] Message field should be populated with the same text
-        Assert.AreEqual(ErrorMessage.Description, ErrorMessage.Message, 'The text was not copied properly');
-
-        ErrorMessage.DeleteAll();
-
-        // [GIVEN] Error Message with Description
-        ErrorMessage.Message := CopyStr(TextLbl, 1, MaxStrLen(ErrorMessage.Message));
-
-        // [WHEN] Insert error
-        ErrorMessage.Insert();
-
-        // [THEN] Message field should be populated with the same text
-        Assert.AreEqual(CopyStr(ErrorMessage.Message, 1, MaxStrLen(ErrorMessage.Description)), ErrorMessage.Description, 'The text was not copied properly');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestSyncingOfErrorMessageRegisterDescriptionAndMessage()
-    var
-        ErrorMessageRegister: Record "Error Message Register";
-        TextLbl: Label 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.';
-    begin
-        // [SCENARIO] Test the syncing of Error Message Register fields, Description and Message
-        ErrorMessageRegister.DeleteAll();
-
-        // [GIVEN] Error Message Register with Description
-        ErrorMessageRegister.Description := CopyStr(TextLbl, 1, MaxStrLen(ErrorMessageRegister.Description));
-
-        // [WHEN] Insert error
-        ErrorMessageRegister.Insert();
-
-        // [THEN] Message field should be populated with the same text
-        Assert.AreEqual(ErrorMessageRegister.Description, ErrorMessageRegister.Message, 'The text was not copied properly');
-
-        ErrorMessageRegister.DeleteAll();
-
-        // [GIVEN] Error Message Register with Description
-        ErrorMessageRegister.Message := CopyStr(TextLbl, 1, MaxStrLen(ErrorMessageRegister.Message));
-
-        // [WHEN] Insert error
-        ErrorMessageRegister.Insert();
-
-        // [THEN] Message field should be populated with the same text
-        Assert.AreEqual(CopyStr(ErrorMessageRegister.Message, 1, MaxStrLen(ErrorMessageRegister.Description)), ErrorMessageRegister.Description, 'The text was not copied properly');
-    end;
-#endif
-
     local procedure Initialize()
     var
         DataTypeBuffer: Record "Data Type Buffer";
@@ -1586,28 +1478,26 @@ codeunit 135000 "Error Message Tests"
     begin
         CurrencyRecordRef.Open(DATABASE::Currency);
         CurrencyRecordRef.FindFirst();
-        with DataTypeBuffer do begin
-            Init();
-            ID := LibraryRandom.RandIntInRange(1, 100);
-            BLOB.CreateOutStream(OutStream);
-            OutStream.WriteText(LibraryUtility.GenerateRandomText(100));
-            BigInteger := LibraryRandom.RandIntInRange(1, 10000000);
-            Boolean := true;
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Data Type Buffer");
-            Date := LibraryUtility.GenerateRandomDate(DMY2Date(1, 1, 2001), DMY2Date(31, 12, 2020));
-            Evaluate(DateFormula, '<1W>');
-            DateTime := CurrentDateTime;
-            Decimal := LibraryRandom.RandDecInRange(1, 1000, 2);
-            Duration :=
-              LibraryUtility.GenerateRandomDate(DMY2Date(1, 1, 2005), DMY2Date(31, 12, 2020)) -
-              LibraryUtility.GenerateRandomDate(DMY2Date(1, 1, 2001), DMY2Date(31, 12, 2004));
-            GUID := CreateGuid();
-            Option := LibraryRandom.RandIntInRange(1, 2);
-            RecordID := CurrencyRecordRef.RecordId;
-            Text := CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(Text));
-            Time := 070000T;
-            Insert(true);
-        end;
+        DataTypeBuffer.Init();
+        DataTypeBuffer.ID := LibraryRandom.RandIntInRange(1, 100);
+        DataTypeBuffer.BLOB.CreateOutStream(OutStream);
+        OutStream.WriteText(LibraryUtility.GenerateRandomText(100));
+        DataTypeBuffer.BigInteger := LibraryRandom.RandIntInRange(1, 10000000);
+        DataTypeBuffer.Boolean := true;
+        DataTypeBuffer.Code := LibraryUtility.GenerateRandomCode(DataTypeBuffer.FieldNo(Code), DATABASE::"Data Type Buffer");
+        DataTypeBuffer.Date := LibraryUtility.GenerateRandomDate(DMY2Date(1, 1, 2001), DMY2Date(31, 12, 2020));
+        Evaluate(DataTypeBuffer.DateFormula, '<1W>');
+        DataTypeBuffer.DateTime := CurrentDateTime;
+        DataTypeBuffer.Decimal := LibraryRandom.RandDecInRange(1, 1000, 2);
+        DataTypeBuffer.Duration :=
+          LibraryUtility.GenerateRandomDate(DMY2Date(1, 1, 2005), DMY2Date(31, 12, 2020)) -
+          LibraryUtility.GenerateRandomDate(DMY2Date(1, 1, 2001), DMY2Date(31, 12, 2004));
+        DataTypeBuffer.GUID := CreateGuid();
+        DataTypeBuffer.Option := LibraryRandom.RandIntInRange(1, 2);
+        DataTypeBuffer.RecordID := CurrencyRecordRef.RecordId;
+        DataTypeBuffer.Text := CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(DataTypeBuffer.Text));
+        DataTypeBuffer.Time := 070000T;
+        DataTypeBuffer.Insert(true);
     end;
 
     [MessageHandler]

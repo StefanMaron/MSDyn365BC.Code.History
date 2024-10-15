@@ -47,8 +47,8 @@ codeunit 6722 "Booking Manager Handler"
         EntityEndpoint: Text;
         Resource: Text;
         ConnectionName: Text;
-        ConnectionString: Text;
-        Token: Text;
+        ConnectionString: SecretText;
+        Token: SecretText;
     begin
         if not CanHandle() then
             exit;
@@ -62,15 +62,15 @@ codeunit 6722 "Booking Manager Handler"
         end;
 
         Resource := 'https://bookings.office.net/';
-        Token := AzureADMgt.GetAccessToken(Resource, 'Bookings', false);
+        Token := AzureADMgt.GetAccessTokenAsSecretText(Resource, 'Bookings', false);
 
         BookingSync.Get();
         EntityEndpoint := 'https://bookings.office.net/api/v1.0/bookingBusinesses(''%1'')/appointments';
-        ConnectionString := StrSubstNo('{ENTITYLISTENDPOINT}=%1;{ENTITYENDPOINT}=%1;{EXORESOURCEURI}=%2;{PASSWORD}=%3;',
+        ConnectionString := SecretStrSubstNo('{ENTITYLISTENDPOINT}=%1;{ENTITYENDPOINT}=%1;{EXORESOURCEURI}=%2;{PASSWORD}=%3;',
             EntityEndpoint, Resource, Token);
-        ConnectionString := StrSubstNo(ConnectionString, BookingSync."Booking Mailbox Address");
+        ConnectionString := SecretStrSubstNo(ConnectionString.Unwrap(), BookingSync."Booking Mailbox Address");
 
-        RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionName, ConnectionString);
+        RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionName, ConnectionString.Unwrap());
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionName);
     end;
 

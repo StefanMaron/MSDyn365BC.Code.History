@@ -19,12 +19,12 @@ codeunit 5971 "Service Header Apply"
         if ServHeader."Applies-to ID" = '' then
             Error(Text000, ServHeader.FieldCaption("No."), ServHeader.FieldCaption("Applies-to ID"));
 
-        ApplyCustEntries.SetService(ServHeader, CustLedgEntry, ServHeader.FieldNo("Applies-to ID"));
-        ApplyCustEntries.SetRecord(CustLedgEntry);
-        ApplyCustEntries.SetTableView(CustLedgEntry);
-        ApplyCustEntries.LookupMode(true);
-        OK := ApplyCustEntries.RunModal() = ACTION::LookupOK;
-        Clear(ApplyCustEntries);
+        ServApplyCustEntries.SetService(ServHeader, CustLedgEntry, ServHeader.FieldNo("Applies-to ID"));
+        ServApplyCustEntries.SetRecord(CustLedgEntry);
+        ServApplyCustEntries.SetTableView(CustLedgEntry);
+        ServApplyCustEntries.LookupMode(true);
+        OK := ServApplyCustEntries.RunModal() = ACTION::LookupOK;
+        Clear(ServApplyCustEntries);
         if not OK then
             exit;
         CustLedgEntry.Reset();
@@ -44,11 +44,15 @@ codeunit 5971 "Service Header Apply"
     var
         ServHeader: Record "Service Header";
         CustLedgEntry: Record "Cust. Ledger Entry";
-        ApplyCustEntries: Page "Apply Customer Entries";
+        ServApplyCustEntries: Page "Serv. Apply Customer Entries";
         BilToCustNo: Code[20];
         OK: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You must specify %1 or %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterSetCustLedgEntryFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; ServiceHeader: Record "Service Header")

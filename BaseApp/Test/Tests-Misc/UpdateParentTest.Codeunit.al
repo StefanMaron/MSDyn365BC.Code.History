@@ -46,36 +46,30 @@ codeunit 139142 UpdateParentTest
         UpdateParentLine: Record "Update Parent Line";
         UpdateParentFactLine: Record "Update Parent Fact Line";
     begin
-        with UpdateParentHeader do begin
-            Init();
-            Id := 'UpdateP';
-            Description := 'Test';
-            Insert();
-        end;
+        UpdateParentHeader.Init();
+        UpdateParentHeader.Id := 'UpdateP';
+        UpdateParentHeader.Description := 'Test';
+        UpdateParentHeader.Insert();
 
-        with UpdateParentLine do begin
-            Init();
-            "Header Id" := UpdateParentHeader.Id;
-            "Line Id" := 1;
-            Amount := 0.5;
-            Quantity := 2;
-            Insert();
+        UpdateParentLine.Init();
+        UpdateParentLine."Header Id" := UpdateParentHeader.Id;
+        UpdateParentLine."Line Id" := 1;
+        UpdateParentLine.Amount := 0.5;
+        UpdateParentLine.Quantity := 2;
+        UpdateParentLine.Insert();
 
-            Init();
-            "Header Id" := UpdateParentHeader.Id;
-            "Line Id" := 2;
-            Amount := 1.5;
-            Quantity := 4;
-            Insert();
-        end;
+        UpdateParentLine.Init();
+        UpdateParentLine."Header Id" := UpdateParentHeader.Id;
+        UpdateParentLine."Line Id" := 2;
+        UpdateParentLine.Amount := 1.5;
+        UpdateParentLine.Quantity := 4;
+        UpdateParentLine.Insert();
 
-        with UpdateParentFactLine do begin
-            Init();
-            "Header Id" := UpdateParentHeader.Id;
-            "Line Id" := 1;
-            Name := 'The facts';
-            Insert();
-        end
+        UpdateParentFactLine.Init();
+        UpdateParentFactLine."Header Id" := UpdateParentHeader.Id;
+        UpdateParentFactLine."Line Id" := 1;
+        UpdateParentFactLine.Name := 'The facts';
+        UpdateParentFactLine.Insert();
     end;
 
     [Test]
@@ -115,26 +109,22 @@ codeunit 139142 UpdateParentTest
 
         UpdateParentRegisterMgt.EnumeratorReset();
         Assert.AreEqual(10, UpdateParentRegisterMgt.EnumeratorCount(), 'The wrong list of registrated lines');
-
         // On validate trigger (for Amount) CurrPage.Update(TRUE) is called in between PreUpdate/PostUpdate, and this trigger the Modify
-        with UpdateParentRegisterMgt do begin
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::Modify, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
-            // The client updates the curr record as requested by CurrPage.Update
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            // The client updates the sibling sub page since they are pointing to the same record
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-
-            // On validate trigger (for Quantity) CurrPage.Update(TRUE) is called in between PreUpdate/PostUpdate, and this trigger the Modify
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::Modify, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
-            // The client updates the curr record as requested by CurrPage.Update
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            // The client updates the sibling sub page since they are pointing to the same record that the client notes that it is changed
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-        end;
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::Modify, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
+        // The client updates the curr record as requested by CurrPage.Update
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        // The client updates the sibling sub page since they are pointing to the same record
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        // On validate trigger (for Quantity) CurrPage.Update(TRUE) is called in between PreUpdate/PostUpdate, and this trigger the Modify
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::Modify, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
+        // The client updates the curr record as requested by CurrPage.Update
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        // The client updates the sibling sub page since they are pointing to the same record that the client notes that it is changed
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
 
         Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone(), 'Too many rows');
     end;
@@ -176,19 +166,16 @@ codeunit 139142 UpdateParentTest
         UpdateParentHeaderPage.Close();
         UpdateParentRegisterMgt.EnumeratorReset();
         Assert.AreEqual(6, UpdateParentRegisterMgt.EnumeratorCount(), 'The wrong list of registrated lines');
-        with UpdateParentRegisterMgt do begin
-            // On validate trigger (for Amount) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers NOT the Modify
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
-            // The client updates the curr record as requested by CurrPage.Update -> since not changed the sibling is not updated
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-
-            // On validate trigger (for Qty) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers NOT the Modify
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
-            // The client updates the curr record as requested by CurrPage.Update -> since not changed the sibling is not updated
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-        end;
+        // On validate trigger (for Amount) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers NOT the Modify
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
+        // The client updates the curr record as requested by CurrPage.Update -> since not changed the sibling is not updated
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        // On validate trigger (for Qty) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers NOT the Modify
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
+        // The client updates the curr record as requested by CurrPage.Update -> since not changed the sibling is not updated
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
 
         Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone(), 'Too many rows');
     end;
@@ -230,32 +217,28 @@ codeunit 139142 UpdateParentTest
         // Validate the sequence of updates and visits.
         UpdateParentRegisterMgt.EnumeratorReset();
         Assert.AreEqual(16, UpdateParentRegisterMgt.EnumeratorCount(), 'The wrong list of registrated lines');
-
-        with UpdateParentRegisterMgt do begin
-            // On validate trigger (for Amount) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers the Modify
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Modify, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
-            // The client propagates the update from LineUpdateParentId to its parent HeaderId
-            ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            // The header now updates the three subpages
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-
-            // On validate trigger (for QTY) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers the Modify
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Modify, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
-            // The client propagates the update from LineUpdateParentId to its parent HeaderId
-            ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            // The header now updates the three subpages
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-        end;
+        // On validate trigger (for Amount) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers the Modify
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Modify, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
+        // The client propagates the update from LineUpdateParentId to its parent HeaderId
+        UpdateParentRegisterMgt.ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        // The header now updates the three subpages
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        // On validate trigger (for QTY) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers the Modify
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Modify, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
+        // The client propagates the update from LineUpdateParentId to its parent HeaderId
+        UpdateParentRegisterMgt.ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        // The header now updates the three subpages
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
 
         Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone(), 'Too many rows');
     end;
@@ -299,30 +282,26 @@ codeunit 139142 UpdateParentTest
         // Validate the sequence of updates and visits.
         UpdateParentRegisterMgt.EnumeratorReset();
         Assert.AreEqual(14, UpdateParentRegisterMgt.EnumeratorCount(), 'The wrong list of registrated lines');
-
-        with UpdateParentRegisterMgt do begin
-            // On validate trigger (for Amount) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers NOT the Modify
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
-            // The client propagates the update from LineUpdateParentId to its parent HeaderId - data disgarded
-            ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            // The header now updates the three subpages
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-
-            // On validate trigger (for Qty) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers the NOT Modify
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
-            // The client propagates the update from LineUpdateParentId to its parent HeaderId
-            ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            // The header now updates the three subpages
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-        end;
+        // On validate trigger (for Amount) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers NOT the Modify
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
+        // The client propagates the update from LineUpdateParentId to its parent HeaderId - data disgarded
+        UpdateParentRegisterMgt.ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        // The header now updates the three subpages
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        // On validate trigger (for Qty) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers the NOT Modify
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
+        // The client propagates the update from LineUpdateParentId to its parent HeaderId
+        UpdateParentRegisterMgt.ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        // The header now updates the three subpages
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
 
         Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone(), 'Too many rows');
     end;
@@ -346,21 +325,16 @@ codeunit 139142 UpdateParentTest
         // Validate the sequence of updates and visits.
         UpdateParentRegisterMgt.EnumeratorReset();
         Assert.AreEqual(7, UpdateParentRegisterMgt.EnumeratorCount(), 'The wrong list of registrated lines');
-
-        with UpdateParentRegisterMgt do begin
-            // On validate trigger (for Amount) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers NOT the Modify
-            ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
-            ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
-
-            // Parent reads its data
-            ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-
-            // The subpages and fact boxes are updated.
-            ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-            ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
-        end;
+        // On validate trigger (for Amount) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers NOT the Modify
+        UpdateParentRegisterMgt.ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
+        UpdateParentRegisterMgt.ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PostUpdate);
+        // Parent reads its data
+        UpdateParentRegisterMgt.ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(HeaderId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        // The subpages and fact boxes are updated.
+        UpdateParentRegisterMgt.ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
+        UpdateParentRegisterMgt.ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
 
         Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone(), 'Too many rows');
     end;

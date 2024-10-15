@@ -119,13 +119,13 @@ page 11410 "Elec. Tax Declaration Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the certificate, which was set when you requested the certificate.';
-                    Visible = NOT IsSoftwareAsAService;
+                    Visible = not IsSoftwareAsAService;
                 }
                 field("Digipoort Service Cert. Name"; Rec."Digipoort Service Cert. Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the service with which you are communicating.';
-                    Visible = NOT IsSoftwareAsAService;
+                    Visible = not IsSoftwareAsAService;
                 }
                 field("Digipoort Delivery URL"; Rec."Digipoort Delivery URL")
                 {

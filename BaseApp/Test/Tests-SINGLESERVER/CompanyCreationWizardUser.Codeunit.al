@@ -18,9 +18,6 @@ codeunit 139318 "Company Creation Wizard - User"
     [Scope('OnPrem')]
     procedure CreateCompanyWithoutUsersTest()
     var
-#if not CLEAN22
-        UserGroupMember: Record "User Group Member";
-#endif
         Company: Record Company;
         User: Record User;
         CompanyCreationWizard: TestPage "Company Creation Wizard";
@@ -50,10 +47,6 @@ codeunit 139318 "Company Creation Wizard - User"
 
         // [THEN] Company is created without any users
         Assert.RecordIsEmpty(User);
-#if not CLEAN22
-        UserGroupMember.SetRange("Company Name", NewCompanyName);
-        Assert.RecordIsEmpty(UserGroupMember);
-#endif
     end;
 
     [Test]
@@ -63,12 +56,6 @@ codeunit 139318 "Company Creation Wizard - User"
     var
         User1: Record User;
         User2: Record User;
-#if not CLEAN22
-        UserGroup1: Record "User Group";
-        UserGroup2: Record "User Group";
-        UserGroup3: Record "User Group";
-        UserGroupMember: Record "User Group Member";
-#endif
         AccessControl: Record "Access Control";
         Company: Record Company;
         AzureADPlan: Codeunit "Azure AD Plan";
@@ -97,13 +84,6 @@ codeunit 139318 "Company Creation Wizard - User"
         PlanAID := AzureADPlanTestLibrary.CreatePlan('PlanA');
         Assert.AreEqual(true, AzureADPlan.DoesPlanExist(PlanAID), 'test requirement not passed');
 
-#if not CLEAN22
-        // Add UG1 and UG2 -> to PlanA
-        LibraryPermissions.CreateUserGroup(UserGroup1, '');
-        LibraryPermissions.CreateUserGroup(UserGroup2, '');
-        LibraryPermissions.AddUserGroupToPlan(UserGroup1.Code, PlanAID);
-        LibraryPermissions.AddUserGroupToPlan(UserGroup2.Code, PlanAID);
-#endif
         // Add PS1 and PS2 to PlanA
         LibraryPermissions.CreatePermissionSetInPlan('PS1', PlanAID);
         LibraryPermissions.CreatePermissionSetInPlan('PS2', PlanAID);
@@ -112,11 +92,6 @@ codeunit 139318 "Company Creation Wizard - User"
         PlanBID := AzureADPlanTestLibrary.CreatePlan('PlanB');
         Assert.AreEqual(true, AzureADPlan.DoesPlanExist(PlanBID), 'test requirement not passed');
 
-#if not CLEAN22
-        // Add UG3 -> to PlanB
-        LibraryPermissions.CreateUserGroup(UserGroup3, '');
-        LibraryPermissions.AddUserGroupToPlan(UserGroup3.Code, PlanBID);
-#endif
         // Add PS3 to PlanB
         LibraryPermissions.CreatePermissionSetInPlan('PS3', PlanBID);
 
@@ -149,22 +124,6 @@ codeunit 139318 "Company Creation Wizard - User"
         CompanyCreationWizard.ActionNext.Invoke(); // That's it page
         CompanyCreationWizard.ActionFinish.Invoke();
 
-#if not CLEAN22
-        // [THEN] Users are added to the newly added company
-        UserGroupMember.SetRange("User Security ID", User1."User Security ID");
-        UserGroupMember.SetRange("Company Name", NewCompanyName);
-        UserGroupMember.SetRange("User Group Code", UserGroup1.Code);
-        Assert.RecordCount(UserGroupMember, 1);
-
-        UserGroupMember.SetRange("User Security ID", User1."User Security ID");
-        UserGroupMember.SetRange("Company Name", NewCompanyName);
-        UserGroupMember.SetRange("User Group Code", UserGroup2.Code);
-        Assert.RecordCount(UserGroupMember, 1);
-
-        UserGroupMember.SetRange("User Security ID", User2."User Security ID");
-        UserGroupMember.SetRange("Company Name", NewCompanyName);
-        Assert.RecordIsEmpty(UserGroupMember);
-#endif
         // [THEN] Users have the expected permissions associated with their plans
         AccessControl.SetRange("Company Name", NewCompanyName);
 

@@ -120,6 +120,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         DimensionValueErr: Label 'Invalid Dimension Value';
         VATDateOutOfVATDatesErr: Label 'The VAT Date is not within the range of allowed VAT dates.';
         AppliesToIdErr: Label 'Applies to ID must not be same after 10000 lines.';
+        NoSeriesErr: Label 'No. Series should be increased only once.';
 
     [Test]
     [Scope('OnPrem')]
@@ -4123,6 +4124,48 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Assert.AreEqual(DocumentNo, CBGStatementLine."Document No.", 'Document No. was not set manually');
     end;
 
+    [Test]
+    procedure NoSeriesShouldNotIncreaseUnexpectedlyFromBankGiroJournalPage()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+        NoSeriesCode: Text;
+    begin
+        // [SCENARIO: 542496] Document No. does not stores Next No. Series value which will not cause gaps in No. Series.
+        Initialize();
+
+        // [GIVEN] Create No. Series.
+        LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
+
+        // [GIVEN] Create No. Series Line for No. Series.
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+
+        // [GIVEN] Create Journal Template.
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+
+        // [GIVEN] Validate Type, Bal. Account Type, Bal. Account No. and No. Series.
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Bank);
+        GenJournalTemplate.Validate("Bal. Account Type", GenJournalTemplate."Bal. Account Type"::"Bank Account");
+        GenJournalTemplate.Validate("Bal. Account No.", CreateBankAccount());
+        GenJournalTemplate.Validate("No. Series", NoSeries.Code);
+        GenJournalTemplate.Modify(true);
+
+        // [GIVEN] Open Bank Giro Journal twice.
+        OpenAndCloseBankGiroJournal();
+        OpenAndCloseBankGiroJournal();
+
+        // [WHEN] Open Bank Giro Journal and set Document Date and Close.
+        BankGiroJournal.OpenNew();
+        BankGiroJournal."Document Date".SetValue(Today());
+        NoSeriesCode := BankGiroJournal."Document No.".Value();
+        BankGiroJournal.Close();
+
+        // [THEN] No. Series should not have gaps.
+        Assert.AreEqual(NoSeriesLine."Starting No.", NoSeriesCode, NoSeriesErr);
+    end;
+
     local procedure Initialize()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -4398,16 +4441,14 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
     local procedure AddCBGStatementLineAddInfo(CBGStatementLine: Record "CBG Statement Line"; var CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info."; Comment: Text; Type: Enum "CBG Statement Information Type")
     begin
-        with CBGStatementLineAddInfo do begin
-            "Journal Template Name" := CBGStatementLine."Journal Template Name";
-            "CBG Statement No." := CBGStatementLine."No.";
-            "CBG Statement Line No." := CBGStatementLine."Line No.";
-            "Line No." := "Line No." + 10000;
-            Init();
-            Description := Comment;
-            "Information Type" := Type;
-            Insert(true);
-        end;
+        CBGStatementLineAddInfo."Journal Template Name" := CBGStatementLine."Journal Template Name";
+        CBGStatementLineAddInfo."CBG Statement No." := CBGStatementLine."No.";
+        CBGStatementLineAddInfo."CBG Statement Line No." := CBGStatementLine."Line No.";
+        CBGStatementLineAddInfo."Line No." := CBGStatementLineAddInfo."Line No." + 10000;
+        CBGStatementLineAddInfo.Init();
+        CBGStatementLineAddInfo.Description := Comment;
+        CBGStatementLineAddInfo."Information Type" := Type;
+        CBGStatementLineAddInfo.Insert(true);
 
         CBGStatementLine.Description := CopyStr(Comment, 1, MaxStrLen(CBGStatementLine.Description));
         CBGStatementLine.Modify(true);
@@ -4418,19 +4459,17 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         RecRef: RecordRef;
     begin
         // This function is used to simulate Import Statement of RABO MUT.ASC protocol file
-        with CBGStatementLine do begin
-            Init();
-            Validate("Journal Template Name", JournalTemplateName);
-            Validate("No.", No);
-            RecRef.GetTable(CBGStatementLine);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Insert(true);
-            Validate("Statement Type", StatementType);
-            Validate("Statement No.", StatementNo);
-            Validate(Date, WorkDate());
-            Validate(Amount, CBGDebit - CBGCredit);
-            Modify(true);
-        end;
+        CBGStatementLine.Init();
+        CBGStatementLine.Validate("Journal Template Name", JournalTemplateName);
+        CBGStatementLine.Validate("No.", No);
+        RecRef.GetTable(CBGStatementLine);
+        CBGStatementLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, CBGStatementLine.FieldNo("Line No.")));
+        CBGStatementLine.Insert(true);
+        CBGStatementLine.Validate("Statement Type", StatementType);
+        CBGStatementLine.Validate("Statement No.", StatementNo);
+        CBGStatementLine.Validate(Date, WorkDate());
+        CBGStatementLine.Validate(Amount, CBGDebit - CBGCredit);
+        CBGStatementLine.Modify(true);
     end;
 
     local procedure AddCBGStatementLineAndCBGStatementLineAddInfo(var CBGStatement: Record "CBG Statement"; var CBGStatementLine: Record "CBG Statement Line"; CBGDebit: Decimal; CBGCredit: Decimal; Comment: Text)
@@ -4486,13 +4525,12 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         LibraryNLLocalization.CreateCBGStatementLine(
           CBGStatementLine, CBGStatement."Journal Template Name", CBGStatement."No.",
-          CBGStatement."Account Type", CBGStatement."Account No.", AccountType, AccountNo, 0, 0);  // O for Debit and Credit Amount.
-        with CBGStatementLine do begin
-            Validate("Applies-to Doc. Type", DocumentType);
-            Validate("Applies-to Doc. No.", AppliesToDocNo);
-            Validate(Credit, AmountIncludingVAT);
-            Modify(true);
-        end;
+          CBGStatement."Account Type", CBGStatement."Account No.", AccountType, AccountNo, 0, 0);
+        // O for Debit and Credit Amount.
+        CBGStatementLine.Validate("Applies-to Doc. Type", DocumentType);
+        CBGStatementLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
+        CBGStatementLine.Validate(Credit, AmountIncludingVAT);
+        CBGStatementLine.Modify(true);
     end;
 
     local procedure CreateCBGStatementLineAddInfo(var CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info."; GenJournalTemplateName: Code[10]; CBGStatementNo: Integer; CBGStatementLineNo: Integer; InformationType: Enum "CBG Statement Information Type"; Description: Text[80]);
@@ -4511,22 +4549,20 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CBGStatementLine: Record "CBG Statement Line";
         RecRef: RecordRef;
     begin
-        with CBGStatementLine do begin
-            Init();
-            "Journal Template Name" := CBGStatement."Journal Template Name";
-            "No." := CBGStatement."No.";
-            RecRef.GetTable(CBGStatementLine);
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            Date := WorkDate();
-            "Account Type" := AccountType;
-            "Account No." := AccountNo;
-            Description := "Account No.";
-            "Applies-to Doc. Type" := ApplyToDocType;
-            "Applies-to Doc. No." := ApplyToDocNo;
-            Validate(Amount, PayAmount);
-            Insert();
-            exit("Line No.");
-        end;
+        CBGStatementLine.Init();
+        CBGStatementLine."Journal Template Name" := CBGStatement."Journal Template Name";
+        CBGStatementLine."No." := CBGStatement."No.";
+        RecRef.GetTable(CBGStatementLine);
+        CBGStatementLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, CBGStatementLine.FieldNo("Line No."));
+        CBGStatementLine.Date := WorkDate();
+        CBGStatementLine."Account Type" := AccountType;
+        CBGStatementLine."Account No." := AccountNo;
+        CBGStatementLine.Description := CBGStatementLine."Account No.";
+        CBGStatementLine."Applies-to Doc. Type" := ApplyToDocType;
+        CBGStatementLine."Applies-to Doc. No." := ApplyToDocNo;
+        CBGStatementLine.Validate(Amount, PayAmount);
+        CBGStatementLine.Insert();
+        exit(CBGStatementLine."Line No.");
     end;
 
     local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20];
@@ -5036,12 +5072,10 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     local procedure CreateAndUpdateCBGStatementLine(var CBGStatementLine: Record "CBG Statement Line"; SalesLine: Record "Sales Line"; AppliesToDocNo: Code[20])
     begin
         CreateBankJournalLine(CBGStatementLine, CBGStatementLine."Account Type"::Customer, SalesLine."Sell-to Customer No.");
-        with CBGStatementLine do begin
-            Validate("Applies-to Doc. Type", SalesLine."Document Type");
-            Validate("Applies-to Doc. No.", AppliesToDocNo);
-            Validate(Credit, SalesLine.Amount);
-            Modify(true);
-        end;
+        CBGStatementLine.Validate("Applies-to Doc. Type", SalesLine."Document Type");
+        CBGStatementLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
+        CBGStatementLine.Validate(Credit, SalesLine.Amount);
+        CBGStatementLine.Modify(true);
     end;
 
     local procedure CreateBalanceSheetAccount(): Code[20]
@@ -5188,12 +5222,10 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     var
         AnalysisView: Record "Analysis View";
     begin
-        with AnalysisView do begin
-            SetRange("Account Source", "Account Source"::"G/L Account");
-            FindFirst();
-            "Update on Posting" := true;
-            Modify();
-        end;
+        AnalysisView.SetRange("Account Source", AnalysisView."Account Source"::"G/L Account");
+        AnalysisView.FindFirst();
+        AnalysisView."Update on Posting" := true;
+        AnalysisView.Modify();
     end;
 
     local procedure FillValuesOnCashJournalLine(var CashJournal: TestPage "Cash Journal"; AccountNo: Code[20])
@@ -5695,11 +5727,9 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            Validate("Max. Payment Tolerance Amount", NewMaxPaymentToleranceAmt);
-            Modify(true);
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", NewMaxPaymentToleranceAmt);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure CBGStatementReconciliation(CBGStatement: Record "CBG Statement")
@@ -5858,40 +5888,34 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            SetRange("Customer No.", CustNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocNo);
-            FindFirst();
-            CalcFields("Remaining Amt. (LCY)");
-            Assert.AreEqual(ExpAmt, "Remaining Amt. (LCY)", '');
-        end;
+        CustLedgEntry.SetRange("Customer No.", CustNo);
+        CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
+        CustLedgEntry.SetRange("Document No.", DocNo);
+        CustLedgEntry.FindFirst();
+        CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
+        Assert.AreEqual(ExpAmt, CustLedgEntry."Remaining Amt. (LCY)", '');
     end;
 
     local procedure VerifyVLEPaymentDisc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; VendLedgerEntryIsOpen: Boolean;
                                                                                                            RemPaymentDiscPossible: Decimal;
                                                                                                            RemainingAmount: Decimal)
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document Type", DocType);
-            FindFirst();
-            Assert.AreEqual(VendLedgerEntryIsOpen, Open, FieldCaption(Open));
-            Assert.AreEqual(
-                RemPaymentDiscPossible, "Remaining Pmt. Disc. Possible",
-                FieldCaption("Remaining Pmt. Disc. Possible"));
-            CalcFields("Remaining Amount");
-            Assert.AreEqual(RemainingAmount, "Remaining Amount", FieldCaption("Remaining Amount"));
-        end;
+        VendorLedgerEntry.SetRange("Document Type", DocType);
+        VendorLedgerEntry.FindFirst();
+        Assert.AreEqual(VendLedgerEntryIsOpen, VendorLedgerEntry.Open, VendorLedgerEntry.FieldCaption(Open));
+        Assert.AreEqual(
+            RemPaymentDiscPossible, VendorLedgerEntry."Remaining Pmt. Disc. Possible",
+            VendorLedgerEntry.FieldCaption("Remaining Pmt. Disc. Possible"));
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        Assert.AreEqual(RemainingAmount, VendorLedgerEntry."Remaining Amount", VendorLedgerEntry.FieldCaption("Remaining Amount"));
     end;
 
     local procedure VerifyCLEPaymentDisc(var CustLedgerEntry: Record "Cust. Ledger Entry"; IsOpen: Boolean; RemPaymentDiscPossible: Decimal; RemainingAmount: Decimal)
     begin
-        with CustLedgerEntry do begin
-            TestField(Open, IsOpen);
-            TestField("Remaining Pmt. Disc. Possible", RemPaymentDiscPossible);
-            CalcFields("Remaining Amount");
-            TestField("Remaining Amount", RemainingAmount);
-        end;
+        CustLedgerEntry.TestField(Open, IsOpen);
+        CustLedgerEntry.TestField("Remaining Pmt. Disc. Possible", RemPaymentDiscPossible);
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        CustLedgerEntry.TestField("Remaining Amount", RemainingAmount);
     end;
 
     local procedure VerifyDimSetIDOnCBGStatementLine(AccountType: Option; AccountNo: Code[20]; DimSetID: Integer)
@@ -5931,34 +5955,30 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Customer No.", CustomerNo);
-            FindLast();
+        CustLedgerEntry.SetRange("Document Type", DocumentType);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindLast();
 
-            CalcFields(Amount, "Remaining Amount");
+        CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
 
-            TestField(Amount, ExpectedAmount);
-            TestField("Remaining Amount", ExpectedRemaningAmount);
-            TestField(Open, ExpectedOpen);
-        end;
+        CustLedgerEntry.TestField(Amount, ExpectedAmount);
+        CustLedgerEntry.TestField("Remaining Amount", ExpectedRemaningAmount);
+        CustLedgerEntry.TestField(Open, ExpectedOpen);
     end;
 
     local procedure VerifyVendorLedgerEntryAmountRemainingAmountOpen(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; ExpectedAmount: Decimal; ExpectedRemaningAmount: Decimal; ExpectedOpen: Boolean)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Vendor No.", VendorNo);
-            FindLast();
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindLast();
 
-            CalcFields(Amount, "Remaining Amount");
+        VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
 
-            TestField(Amount, ExpectedAmount);
-            TestField("Remaining Amount", ExpectedRemaningAmount);
-            TestField(Open, ExpectedOpen);
-        end;
+        VendorLedgerEntry.TestField(Amount, ExpectedAmount);
+        VendorLedgerEntry.TestField("Remaining Amount", ExpectedRemaningAmount);
+        VendorLedgerEntry.TestField(Open, ExpectedOpen);
     end;
 
     local procedure VerifyCBGStatementLine(CBGStatement: Record "CBG Statement"; Identification: Code[80]; ExpectedAmount: Decimal)
@@ -6014,11 +6034,9 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         LibraryDimension.CreateDimension(Dimension);
 
-        with DimensionValue do begin
-            LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
-            StandardDimValueCode := Code;
-            CreateTotalDimensionValue(Dimension.Code, TotalDimValueCode);
-        end;
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+        StandardDimValueCode := DimensionValue.Code;
+        CreateTotalDimensionValue(Dimension.Code, TotalDimValueCode);
     end;
 
     local procedure CreateTotalDimensionValue(DimensionCode: Code[20]; var TotalDimValueCode: Code[20])
@@ -6027,21 +6045,19 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         FirstDimValueCode: Code[20];
         LastDimValueCode: Code[20];
     begin
-        with DimensionValue do begin
-            LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
-            TotalDimValueCode := Code;
+        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
+        TotalDimValueCode := DimensionValue.Code;
 
-            SetRange("Dimension Code", DimensionCode);
-            FindFirst();
-            FirstDimValueCode := Code;
-            FindLast();
-            LastDimValueCode := Code;
+        DimensionValue.SetRange("Dimension Code", DimensionCode);
+        DimensionValue.FindFirst();
+        FirstDimValueCode := DimensionValue.Code;
+        DimensionValue.FindLast();
+        LastDimValueCode := DimensionValue.Code;
 
-            Get("Dimension Code", TotalDimValueCode);
-            Validate("Dimension Value Type", "Dimension Value Type"::Total);
-            Validate(Totaling, StrSubstNo('%1..%2', FirstDimValueCode, LastDimValueCode));
-            Modify(true);
-        end;
+        DimensionValue.Get(DimensionValue."Dimension Code", TotalDimValueCode);
+        DimensionValue.Validate("Dimension Value Type", DimensionValue."Dimension Value Type"::Total);
+        DimensionValue.Validate(Totaling, StrSubstNo('%1..%2', FirstDimValueCode, LastDimValueCode));
+        DimensionValue.Modify(true);
     end;
 
     local procedure CreateSalespersonWithDefaultDim(var SalespersonPurchaser: Record "Salesperson/Purchaser"; DimensionCode: Code[20]; DimensionValueCode: Code[20])
@@ -6065,6 +6081,14 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GLAccount.Modify(true);
         exit(GLAccount."No.");
+    end;
+
+    local procedure OpenAndCloseBankGiroJournal()
+    var
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+    begin
+        BankGiroJournal.OpenNew();
+        BankGiroJournal.Close();
     end;
 
     [ModalPageHandler]

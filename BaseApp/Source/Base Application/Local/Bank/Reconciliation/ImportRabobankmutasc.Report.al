@@ -211,10 +211,9 @@ report 11000021 "Import Rabobank mut.asc"
             GLSetup.Get();
             if GLSetup."LCY Code" <> ImpCurrencyCode then
                 Error(Text1000009, GLSetup."LCY Code", CBGStatement."Journal Template Name", ImpCurrencyCode);
-        end else begin
+        end else
             if CBGStatement.Currency <> ImpCurrencyCode then
                 Error(Text1000009, CBGStatement.Currency, CBGStatement."Journal Template Name", ImpCurrencyCode);
-        end;
 
         CBGStatementLine."Journal Template Name" := CBGStatement."Journal Template Name";
         CBGStatementLine."No." := CBGStatement."No.";

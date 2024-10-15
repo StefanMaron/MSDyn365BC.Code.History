@@ -47,7 +47,7 @@
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-#if not CLEAN23
+#if not CLEAN25
         PurchasePrice: Record "Purchase Price";
         SalesPrice: Record "Sales Price";
 #endif
@@ -61,7 +61,7 @@
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Job Consumption Basic");
 
-#if not CLEAN23
+#if not CLEAN25
         // Removing special prices
         PurchasePrice.DeleteAll(true);
         SalesPrice.DeleteAll(true);
@@ -671,17 +671,15 @@
 
     local procedure CreateJobGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JobTask: Record "Job Task"; JobLineType: Enum "Job Line Type"; GLAccountNo: Code[20]; GenJournalBatch: Record "Gen. Journal Batch")
     begin
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Document Type",
-              "Account Type"::"G/L Account", GLAccountNo, LibraryRandom.RandDec(100, 2));
-            Validate("Job Line Type", JobLineType);
-            Validate("Job No.", JobTask."Job No.");
-            Validate("Job Task No.", JobTask."Job Task No.");
-            Validate("Job Quantity", LibraryRandom.RandInt(10));
-            Validate("Job Line Type", JobLineType);
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type",
+          GenJournalLine."Account Type"::"G/L Account", GLAccountNo, LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("Job Line Type", JobLineType);
+        GenJournalLine.Validate("Job No.", JobTask."Job No.");
+        GenJournalLine.Validate("Job Task No.", JobTask."Job Task No.");
+        GenJournalLine.Validate("Job Quantity", LibraryRandom.RandInt(10));
+        GenJournalLine.Validate("Job Line Type", JobLineType);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroupCode: Code[20])
@@ -777,17 +775,16 @@
     begin
         if ConsumableType <> PurchLine.Type::Item then
             LibraryJob.Attach2PurchaseLine(ConsumableType, PurchLine)
-        else
-            with PurchLine do begin
-                CreateVATPostingSetup(VATPostingSetup, "VAT Bus. Posting Group");
-                Validate(Type, ConsumableType);
-                LibraryInventory.CreateItem(Item);
-                Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-                Item.Modify(true);
-                Validate("No.", Item."No.");
-                Validate(Quantity, LibraryRandom.RandInt(100));
-                Modify(true)
-            end;
+        else begin
+            CreateVATPostingSetup(VATPostingSetup, PurchLine."VAT Bus. Posting Group");
+            PurchLine.Validate(Type, ConsumableType);
+            LibraryInventory.CreateItem(Item);
+            Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+            Item.Modify(true);
+            PurchLine.Validate("No.", Item."No.");
+            PurchLine.Validate(Quantity, LibraryRandom.RandInt(100));
+            PurchLine.Modify(true)
+        end;
     end;
 
     local procedure SelectJobGLJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -801,18 +798,15 @@
         TempJobJournalLine: Record "Job Journal Line" temporary;
     begin
         // Use a job journal line to verify a posted general journal line.
-
-        with TempJobJournalLine do begin
-            "Job No." := GenJournalLine."Job No.";
-            "Job Task No." := GenJournalLine."Job Task No.";
-            "Document No." := GenJournalLine."Document No.";
-            Description := GenJournalLine.Description;
-            "Line Type" := GenJournalLine."Job Line Type";
-            Quantity := GenJournalLine."Job Quantity";
-            "Unit Cost (LCY)" := GenJournalLine."Job Unit Cost (LCY)";
-            "Unit Price (LCY)" := GenJournalLine."Job Unit Price (LCY)";
-            Insert();
-        end;
+        TempJobJournalLine."Job No." := GenJournalLine."Job No.";
+        TempJobJournalLine."Job Task No." := GenJournalLine."Job Task No.";
+        TempJobJournalLine."Document No." := GenJournalLine."Document No.";
+        TempJobJournalLine.Description := GenJournalLine.Description;
+        TempJobJournalLine."Line Type" := GenJournalLine."Job Line Type";
+        TempJobJournalLine.Quantity := GenJournalLine."Job Quantity";
+        TempJobJournalLine."Unit Cost (LCY)" := GenJournalLine."Job Unit Cost (LCY)";
+        TempJobJournalLine."Unit Price (LCY)" := GenJournalLine."Job Unit Price (LCY)";
+        TempJobJournalLine.Insert();
 
         LibraryJob.VerifyJobJournalPosting(false, TempJobJournalLine)
     end;
@@ -825,45 +819,41 @@
         UnitCost: Decimal;
         UnitPrice: Decimal;
     begin
-        with JobJournalLine do begin
-            case Type of
-                Type::Resource:
-                    begin
-                        Resource.Get("No.");
-                        UnitCost := Resource."Unit Cost";
-                        UnitPrice := Resource."Unit Price"
-                    end;
-                Type::Item:
-                    begin
-                        Item.Get("No.");
-                        UnitCost := Item."Unit Cost";
-                        UnitPrice := Item."Unit Price"
-                    end;
-                Type::"G/L Account":
-                    begin
-                        UnitCost := "Unit Cost (LCY)";
-                        UnitPrice := "Unit Price (LCY)"
-                    end;
-                else
-                    Assert.Fail(StrSubstNo('Job journal line account type %1 not supported.', Format(Type)))
-            end;
-            GeneralLedgerSetup.Get();
-            Assert.AreNearlyEqual(UnitCost, "Unit Cost (LCY)",
-              GeneralLedgerSetup."Unit-Amount Rounding Precision", StrSubstNo('JobJournalLine."Unit Cost (LCY)", %1', "No."));
-            Assert.AreNearlyEqual(UnitPrice, "Unit Price (LCY)",
-              GeneralLedgerSetup."Unit-Amount Rounding Precision", StrSubstNo('JobJournalLine."Unit Price (LCY)", %1', "No."))
-        end
+        case JobJournalLine.Type of
+            JobJournalLine.Type::Resource:
+                begin
+                    Resource.Get(JobJournalLine."No.");
+                    UnitCost := Resource."Unit Cost";
+                    UnitPrice := Resource."Unit Price"
+                end;
+            JobJournalLine.Type::Item:
+                begin
+                    Item.Get(JobJournalLine."No.");
+                    UnitCost := Item."Unit Cost";
+                    UnitPrice := Item."Unit Price"
+                end;
+            JobJournalLine.Type::"G/L Account":
+                begin
+                    UnitCost := JobJournalLine."Unit Cost (LCY)";
+                    UnitPrice := JobJournalLine."Unit Price (LCY)"
+                end;
+            else
+                Assert.Fail(StrSubstNo('Job journal line account type %1 not supported.', Format(JobJournalLine.Type)))
+        end;
+        GeneralLedgerSetup.Get();
+        Assert.AreNearlyEqual(UnitCost, JobJournalLine."Unit Cost (LCY)",
+          GeneralLedgerSetup."Unit-Amount Rounding Precision", StrSubstNo('JobJournalLine."Unit Cost (LCY)", %1', JobJournalLine."No."));
+        Assert.AreNearlyEqual(UnitPrice, JobJournalLine."Unit Price (LCY)",
+          GeneralLedgerSetup."Unit-Amount Rounding Precision", StrSubstNo('JobJournalLine."Unit Price (LCY)", %1', JobJournalLine."No."))
     end;
 
     local procedure UpdateGeneralLedgerSetupMaxVATDiff(MaxVATDiffAmt: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            Validate("Max. VAT Difference Allowed", MaxVATDiffAmt);
-            Modify(true);
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Max. VAT Difference Allowed", MaxVATDiffAmt);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure SetupJobJournalVATDifference(var GenJournalBatch: Record "Gen. Journal Batch") MaxVATDiff: Decimal

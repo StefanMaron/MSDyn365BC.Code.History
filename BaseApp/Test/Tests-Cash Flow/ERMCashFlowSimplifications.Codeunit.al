@@ -203,15 +203,13 @@ codeunit 134550 "ERM Cash Flow Simplifications"
     var
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
-        with GLBudgetEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(GLBudgetEntry, FieldNo("Entry No."));
-            "Budget Name" := BudgetName;
-            "G/L Account No." := GLAccNo;
-            Date := EntryDate;
-            Amount := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        GLBudgetEntry.Init();
+        GLBudgetEntry."Entry No." := LibraryUtility.GetNewRecNo(GLBudgetEntry, GLBudgetEntry.FieldNo("Entry No."));
+        GLBudgetEntry."Budget Name" := BudgetName;
+        GLBudgetEntry."G/L Account No." := GLAccNo;
+        GLBudgetEntry.Date := EntryDate;
+        GLBudgetEntry.Amount := LibraryRandom.RandDec(100, 2);
+        GLBudgetEntry.Insert();
     end;
 
     local procedure VerifyGLBudgetNameInCFForecastEntry(CFNo: Code[20]; GLBudgetName: Code[10])

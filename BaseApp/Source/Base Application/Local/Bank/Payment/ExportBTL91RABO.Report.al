@@ -55,13 +55,12 @@ report 11000010 "Export BTL91-RABO"
                     then begin
                         AccountingSetup.TestField("LCY Code");
                         CurrencycodePayment := Currencycode;
-                    end else begin
+                    end else
                         if "Foreign Currency" = '' then begin
                             AccountingSetup.TestField("LCY Code");
                             CurrencycodePayment := AccountingSetup."LCY Code";
                         end else
                             CurrencycodePayment := "Foreign Currency";
-                    end;
                     TotAmount := TotAmount + UseAmount;
 
                     Concerns := Format("Nature of the Payment", 0, Text1000008);
@@ -71,12 +70,11 @@ report 11000010 "Export BTL91-RABO"
                             CostForeign := 1
                         else
                             CostForeign := 3;
-                    end else begin
+                    end else
                         if "Transfer Cost Foreign" = "Transfer Cost Foreign"::Principal then
                             CostForeign := 3
                         else
                             CostForeign := 4;
-                    end;
                     Paymentrecord1Info(TextFilter("Payment History"."Account No.", '0123456789'),
                       UseAmount, Paymenthistorylinecounter, Currencycode, Date,
                       CostDomestic,

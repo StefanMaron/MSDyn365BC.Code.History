@@ -497,30 +497,26 @@ codeunit 137097 "SCM Kitting - Undo"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseRequest: Record "Warehouse Request";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Activity Type", WarehouseActivityHeader.Type::Pick);
-            SetRange("Source No.", AssemblyHeader."No.");
-            SetRange("Source Document", WarehouseRequest."Source Document"::"Assembly Consumption");
-            SetRange("Source Type", DATABASE::"Assembly Line");
-            SetRange("Source Subtype", AssemblyHeader."Document Type");
-            FindFirst();
-        end;
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type::Pick);
+        WarehouseActivityLine.SetRange("Source No.", AssemblyHeader."No.");
+        WarehouseActivityLine.SetRange("Source Document", WarehouseRequest."Source Document"::"Assembly Consumption");
+        WarehouseActivityLine.SetRange("Source Type", DATABASE::"Assembly Line");
+        WarehouseActivityLine.SetRange("Source Subtype", AssemblyHeader."Document Type");
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure MockWhseEntry(Item: Record Item; Qty: Decimal)
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        with WarehouseEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, FieldNo("Entry No."));
-            "Location Code" := LocationWhite.Code;
-            "Item No." := Item."No.";
-            "Qty. (Base)" := Qty;
-            "Unit of Measure Code" := Item."Base Unit of Measure";
-            "Bin Code" := LocationWhite."From-Assembly Bin Code";
-            Insert();
-        end;
+        WarehouseEntry.Init();
+        WarehouseEntry."Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, WarehouseEntry.FieldNo("Entry No."));
+        WarehouseEntry."Location Code" := LocationWhite.Code;
+        WarehouseEntry."Item No." := Item."No.";
+        WarehouseEntry."Qty. (Base)" := Qty;
+        WarehouseEntry."Unit of Measure Code" := Item."Base Unit of Measure";
+        WarehouseEntry."Bin Code" := LocationWhite."From-Assembly Bin Code";
+        WarehouseEntry.Insert();
     end;
 
     local procedure AssertMergedAOAfterUndo(var TempAssemblyHeader: Record "Assembly Header" temporary; var TempAssemblyLine: Record "Assembly Line" temporary; var TempPostedAssemblyHeader: Record "Posted Assembly Header" temporary; var TempPostedAssemblyLine: Record "Posted Assembly Line" temporary)
@@ -659,11 +655,10 @@ codeunit 137097 "SCM Kitting - Undo"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         FindWhseActivityLine(WarehouseActivityLine, AssemblyHeader);
-        with WarehouseActivityLine do
-            repeat
-                Validate("Qty. to Handle", Qty);
-                Modify(true);
-            until Next() = 0;
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", Qty);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
 
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
@@ -1222,7 +1217,7 @@ codeunit 137097 "SCM Kitting - Undo"
                 LibrarySales.PostSalesDocument(SalesHeader, true, false)
             else
                 PostAssemblyOrderQty(AssemblyHeader, OrderQty)
-        end else begin
+        end else
             if IsATO then begin
                 SalesLine.Find();
                 SalesLine.Validate("Qty. to Ship", Round(SalesLine."Qty. to Ship" / 2, 0.00001));
@@ -1231,7 +1226,6 @@ codeunit 137097 "SCM Kitting - Undo"
                 AssemblyHeader.Find();
             end else
                 PostAssemblyOrderQty(AssemblyHeader, OrderQty / 2);
-        end;
 
         // Copy docs to temp
         FindPostedAssemblyHeaderNotReversed(PostedAssemblyHeader, AssemblyHeader."No.");

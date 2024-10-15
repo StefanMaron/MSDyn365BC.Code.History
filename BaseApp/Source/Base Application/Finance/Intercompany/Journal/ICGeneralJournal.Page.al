@@ -266,17 +266,6 @@ page 610 "IC General Journal"
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the general product posting group code associated with the balancing account that will be used when you post the entry.';
                 }
-#if not CLEAN22
-                field("IC Partner G/L Acc. No."; Rec."IC Partner G/L Acc. No.")
-                {
-                    ApplicationArea = Intercompany;
-                    ToolTip = 'Specifies the account in your IC partner''s company that corresponds to the G/L account on the line.';
-                    Visible = false;
-                    ObsoleteReason = 'This field will be replaced by IC Account No.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field("Bal. VAT Prod. Posting Group"; Rec."Bal. VAT Prod. Posting Group")
                 {
                     ApplicationArea = Intercompany;

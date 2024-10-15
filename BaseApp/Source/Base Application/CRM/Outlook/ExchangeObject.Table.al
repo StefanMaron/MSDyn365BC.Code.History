@@ -1,8 +1,5 @@
 namespace Microsoft.CRM.Outlook;
 
-#if not CLEAN22
-#pragma warning disable AS0109
-#endif
 table 1602 "Exchange Object"
 {
     Caption = 'Exchange Object';

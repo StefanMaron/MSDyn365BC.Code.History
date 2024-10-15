@@ -79,18 +79,6 @@ page 364 "Select Sending Options"
                                 end;
                             }
                         }
-#if not CLEAN22
-                        field("Combine Email Documents"; Rec."Combine Email Documents")
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Combine PDF Documents';
-                            ToolTip = 'Combine email documents into one document when sending/printing.';
-                            Visible = false;
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'Moved into group to control field visibility.';
-                            ObsoleteTag = '22.0';
-                        }
-#endif
                         group(Control19)
                         {
                             ShowCaption = false;

@@ -162,7 +162,11 @@ page 9182 "Generic Charts"
     var
         GenericChartMgt: Codeunit "Generic Chart Mgt";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Do you want to replace the existing definition for %1 %2?', Comment = 'Do you want to replace the existing definition for Chart 36-06?';
         Text002: Label 'Are you sure that you want to delete the definition for %1 %2?', Comment = 'Are you sure that you want to delete the definition for Chart 36-06?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

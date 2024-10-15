@@ -622,22 +622,18 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            Validate("Check Doc. Total Amounts", true);
-            Modify(true);
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Check Doc. Total Amounts", true);
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     local procedure DisableCheckDocTotalAmounts()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            Validate("Check Doc. Total Amounts", false);
-            Modify(true);
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Check Doc. Total Amounts", false);
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroupCode: Code[20]; VATPercent: Decimal)

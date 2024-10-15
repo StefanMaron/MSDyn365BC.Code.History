@@ -58,11 +58,17 @@ report 6010 "Delete Service Item Log"
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'There is nothing to delete.';
+#pragma warning disable AA0470
         Text001: Label '%1 %2 records will be deleted.\\Do you want to continue?', Comment = '10 Service Item Log  record(s) will be deleted.\\Do you want to continue?';
+#pragma warning restore AA0470
         Text003: Label 'No records were deleted.';
+#pragma warning disable AA0470
         Text004: Label '%1 records were deleted.';
         Text005: Label '%1 record was deleted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CounterTotal: Integer;
 }
 

@@ -933,12 +933,10 @@ codeunit 144037 "ERM Telebank"
         VendorLedgerEntry.SetRange("Vendor No.", AccountNo);
         VendorLedgerEntry.ModifyAll("External Document No.", ExDocNoMaxLength);
         // Check GetUnstrRemitInfo processes "External Document No" of maximum length
-        with PaymentHistoryLine do begin
-            SetRange("Account Type", "Account Type"::Vendor);
-            SetRange("Account No.", AccountNo);
-            FindFirst();
-            Assert.AreEqual(ExDocNoMaxLength, GetUnstrRemitInfo(), WrongValueReturnedErr);
-        end;
+        PaymentHistoryLine.SetRange("Account Type", PaymentHistoryLine."Account Type"::Vendor);
+        PaymentHistoryLine.SetRange("Account No.", AccountNo);
+        PaymentHistoryLine.FindFirst();
+        Assert.AreEqual(ExDocNoMaxLength, PaymentHistoryLine.GetUnstrRemitInfo(), WrongValueReturnedErr);
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
@@ -1486,13 +1484,11 @@ codeunit 144037 "ERM Telebank"
         SourceCode: Record "Source Code";
     begin
         LibraryERM.CreateSourceCode(SourceCode);
-        with TransactionMode do begin
-            Get(AccountType, TransactionModeCode);
-            Validate("Acc. No. Pmt./Rcpt. in Process", CreateBalanceSheetGLAccount());
-            Validate("Posting No. Series", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Source Code", SourceCode.Code);
-            Modify(true);
-        end;
+        TransactionMode.Get(AccountType, TransactionModeCode);
+        TransactionMode.Validate("Acc. No. Pmt./Rcpt. in Process", CreateBalanceSheetGLAccount());
+        TransactionMode.Validate("Posting No. Series", LibraryUtility.GetGlobalNoSeriesCode());
+        TransactionMode.Validate("Source Code", SourceCode.Code);
+        TransactionMode.Modify(true);
     end;
 
     local procedure CreateBankAccount(): Code[20]
@@ -1587,15 +1583,13 @@ codeunit 144037 "ERM Telebank"
     local procedure CreateCustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account"; CustomerNo: Code[20]; BankAccountNo: Code[20]; IBANCode: Code[50]; SWIFTCode: Code[20]; CountryRegionCode: Code[10]; AccHoldCountryRegionCode: Code[10]; AccountHolderCity: Text[30])
     begin
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CustomerNo);
-        with CustomerBankAccount do begin
-            Validate("Country/Region Code", CountryRegionCode);
-            Validate("Account Holder City", AccountHolderCity);
-            Validate("Acc. Hold. Country/Region Code", AccHoldCountryRegionCode);
-            Validate("Bank Account No.", BankAccountNo);
-            Validate(IBAN, IBANCode);
-            Validate("SWIFT Code", SWIFTCode);
-            Modify(true);
-        end;
+        CustomerBankAccount.Validate("Country/Region Code", CountryRegionCode);
+        CustomerBankAccount.Validate("Account Holder City", AccountHolderCity);
+        CustomerBankAccount.Validate("Acc. Hold. Country/Region Code", AccHoldCountryRegionCode);
+        CustomerBankAccount.Validate("Bank Account No.", BankAccountNo);
+        CustomerBankAccount.Validate(IBAN, IBANCode);
+        CustomerBankAccount.Validate("SWIFT Code", SWIFTCode);
+        CustomerBankAccount.Modify(true);
     end;
 
     local procedure CreateVendorBankAccountAndUpdateVendor(var VendorBankAccount: Record "Vendor Bank Account"; IBAN: Code[50]; SWIFTCode: Code[20]; CountryRegionCode: Code[10]; AccHoldCountryRegionCode: Code[10]; AccountHolderCity: Text[30]; CheckID: Integer; "Order": Option)
@@ -1792,11 +1786,10 @@ codeunit 144037 "ERM Telebank"
     var
         FreelyTransferableMaximum: Record "Freely Transferable Maximum";
     begin
-        with FreelyTransferableMaximum do begin
-            Get(CountryRegionCode, CurrencyCode);
-            Validate(Amount, LibraryRandom.RandDecInRange(10000, 20000, 1)); // Using Random for Amount, value need to greater than amount of all Ledger Entries in every Payment.
-            Modify(true);
-        end;
+        FreelyTransferableMaximum.Get(CountryRegionCode, CurrencyCode);
+        FreelyTransferableMaximum.Validate(Amount, LibraryRandom.RandDecInRange(10000, 20000, 1));
+        // Using Random for Amount, value need to greater than amount of all Ledger Entries in every Payment.
+        FreelyTransferableMaximum.Modify(true);
     end;
 
     local procedure SetupForProposalLineWithAccountType(AccountTypeOption: Option; CompanyInformation: Record "Company Information"; CurrencyCode: Code[10]; var BankAccountNo: Code[20]; var AccountNo: Code[20])
@@ -1997,11 +1990,9 @@ codeunit 144037 "ERM Telebank"
 
     local procedure CreateProposalLineVendor(var ProposalLine: Record "Proposal Line"; VendorNo: Code[20]; BankAccountNo: Code[20])
     begin
-        with ProposalLine do begin
-            Validate("Our Bank No.", BankAccountNo);
-            Validate("Account Type", "Account Type"::Vendor);
-            Validate("Account No.", VendorNo);
-        end;
+        ProposalLine.Validate("Our Bank No.", BankAccountNo);
+        ProposalLine.Validate("Account Type", ProposalLine."Account Type"::Vendor);
+        ProposalLine.Validate("Account No.", VendorNo);
     end;
 
     local procedure CreateVendorAndBankAccountWithDefaultDimension(var Vendor: Record Vendor; var BankAccountNo: Code[20]; var VendorBankAccountCode: Code[20]; var DefaultDimension1Code: Code[20]; var DefaultDimension2Code: Code[20])
@@ -2040,23 +2031,19 @@ codeunit 144037 "ERM Telebank"
 
     local procedure CreateProposalLineCustomer(var ProposalLine: Record "Proposal Line"; CustomerNo: Code[20]; BankAccountNo: Code[20])
     begin
-        with ProposalLine do begin
-            Validate("Our Bank No.", BankAccountNo);
-            Validate("Account Type", "Account Type"::Customer);
-            Validate("Account No.", CustomerNo);
-        end;
+        ProposalLine.Validate("Our Bank No.", BankAccountNo);
+        ProposalLine.Validate("Account Type", ProposalLine."Account Type"::Customer);
+        ProposalLine.Validate("Account No.", CustomerNo);
     end;
 
     local procedure CreateProposalLineCustomerBankAccount(var ProposalLine: Record "Proposal Line"; CustomerBankAccount: Record "Customer Bank Account"; BankAccountNo: Code[20])
     begin
-        with ProposalLine do begin
-            Init();
-            Validate("Our Bank No.", BankAccountNo);
-            Validate("Account Type", "Account Type"::Customer);
-            Validate("Account No.", CustomerBankAccount."Customer No.");
-            Validate(Bank, CustomerBankAccount.Code);
-            Insert();
-        end;
+        ProposalLine.Init();
+        ProposalLine.Validate("Our Bank No.", BankAccountNo);
+        ProposalLine.Validate("Account Type", ProposalLine."Account Type"::Customer);
+        ProposalLine.Validate("Account No.", CustomerBankAccount."Customer No.");
+        ProposalLine.Validate(Bank, CustomerBankAccount.Code);
+        ProposalLine.Insert();
     end;
 
     local procedure CreateCustomerAndBankAccountWithDefaultDimension(var Customer: Record Customer; var BankAccountNo: Code[20]; var CustomerBankAccountCode: Code[20]; var DefaultDimension1Code: Code[20]; var DefaultDimension2Code: Code[20])
@@ -2110,23 +2097,19 @@ codeunit 144037 "ERM Telebank"
     var
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
     begin
-        with SEPADirectDebitMandate do begin
-            Init();
-            ID := LibraryUtility.GenerateGUID();
-            "Customer No." := CustomerBankAccount."Customer No.";
-            "Customer Bank Account Code" := CustomerBankAccount.Code;
-            Insert();
-            exit(ID);
-        end;
+        SEPADirectDebitMandate.Init();
+        SEPADirectDebitMandate.ID := LibraryUtility.GenerateGUID();
+        SEPADirectDebitMandate."Customer No." := CustomerBankAccount."Customer No.";
+        SEPADirectDebitMandate."Customer Bank Account Code" := CustomerBankAccount.Code;
+        SEPADirectDebitMandate.Insert();
+        exit(SEPADirectDebitMandate.ID);
     end;
 
     local procedure CreateProposalLineEmployee(var ProposalLine: Record "Proposal Line"; EmployeeNo: Code[20]; BankAccountNo: Code[20])
     begin
-        with ProposalLine do begin
-            Validate("Our Bank No.", BankAccountNo);
-            Validate("Account Type", "Account Type"::Employee);
-            Validate("Account No.", EmployeeNo);
-        end;
+        ProposalLine.Validate("Our Bank No.", BankAccountNo);
+        ProposalLine.Validate("Account Type", ProposalLine."Account Type"::Employee);
+        ProposalLine.Validate("Account No.", EmployeeNo);
     end;
 
     local procedure CreateEmployeeAndBankAccountWithDefaultDimension(var Employee: Record Employee; var BankAccountNo: Code[20]; var DefaultDimension1Code: Code[20]; var DefaultDimension2Code: Code[20])
@@ -2371,16 +2354,14 @@ codeunit 144037 "ERM Telebank"
     begin
         AccHoldCountryRegionFactor := LibraryRandom.RandIntInRange(3, 10);
         BankCountryRegionFactor := 1 / AccHoldCountryRegionFactor;
-        with ProposalLine do begin
-            IBAN := Format(LibraryRandom.RandInt(100));
-            "SWIFT Code" :=
-              LibraryUtility.GenerateRandomCode(FieldNo("SWIFT Code"), DATABASE::"Proposal Line");
-            Amount := LibraryRandom.RandDec(100, 2);
-            "Acc. Hold. Country/Region Code" := CreateSEPACountryRegionWithLimit(Round(Amount * AccHoldCountryRegionFactor));
-            "Bank Country/Region Code" := CreateSEPACountryRegionWithLimit(Round(Amount * BankCountryRegionFactor));
-            "Our Bank No." := CreateBankAccountWithCountryRegionCode(ProposalLine);
-            "Nature of the Payment" := "Nature of the Payment"::" ";
-        end;
+        ProposalLine.IBAN := Format(LibraryRandom.RandInt(100));
+        ProposalLine."SWIFT Code" :=
+          LibraryUtility.GenerateRandomCode(ProposalLine.FieldNo("SWIFT Code"), DATABASE::"Proposal Line");
+        ProposalLine.Amount := LibraryRandom.RandDec(100, 2);
+        ProposalLine."Acc. Hold. Country/Region Code" := CreateSEPACountryRegionWithLimit(Round(ProposalLine.Amount * AccHoldCountryRegionFactor));
+        ProposalLine."Bank Country/Region Code" := CreateSEPACountryRegionWithLimit(Round(ProposalLine.Amount * BankCountryRegionFactor));
+        ProposalLine."Our Bank No." := CreateBankAccountWithCountryRegionCode(ProposalLine);
+        ProposalLine."Nature of the Payment" := ProposalLine."Nature of the Payment"::" ";
     end;
 
     local procedure CreateBankAccountWithCountryRegionCode(ProposalLine: Record "Proposal Line"): Code[20]
@@ -2388,23 +2369,19 @@ codeunit 144037 "ERM Telebank"
         BankAccount: Record "Bank Account";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            "Country/Region Code" := ProposalLine."Bank Country/Region Code";
-            IBAN := ProposalLine.IBAN;
-            "SWIFT Code" := ProposalLine."SWIFT Code";
-            Modify(true);
-            exit("No.");
-        end;
+        BankAccount."Country/Region Code" := ProposalLine."Bank Country/Region Code";
+        BankAccount.IBAN := ProposalLine.IBAN;
+        BankAccount."SWIFT Code" := ProposalLine."SWIFT Code";
+        BankAccount.Modify(true);
+        exit(BankAccount."No.");
     end;
 
     [Normal]
     local procedure SetGLSetupEmptyLocalCurrency()
     begin
-        with GLSetup do begin
-            Get();
-            Validate("Local Currency", 0);
-            Modify(true);
-        end;
+        GLSetup.Get();
+        GLSetup.Validate("Local Currency", 0);
+        GLSetup.Modify(true);
     end;
 
     local procedure CreateSEPACountryRegionWithLimit(MaximumAmount: Decimal): Code[10]
@@ -2435,14 +2412,12 @@ codeunit 144037 "ERM Telebank"
     begin
         GLSetup.Get();
         LibraryDimension.FindDefaultDimension(DefaultDimension, TableID, SourceNo);
-        with ProposalLine do begin
-            DefaultDimension.SetRange("Dimension Code", GLSetup."Shortcut Dimension 1 Code");
-            DefaultDimension.FindFirst();
-            Assert.AreEqual(DefaultDimension."Dimension Value Code", "Shortcut Dimension 1 Code", WrongShortcutDimensionErr);
-            DefaultDimension.SetRange("Dimension Code", GLSetup."Shortcut Dimension 2 Code");
-            DefaultDimension.FindFirst();
-            Assert.AreEqual(DefaultDimension."Dimension Value Code", "Shortcut Dimension 2 Code", WrongShortcutDimensionErr);
-        end;
+        DefaultDimension.SetRange("Dimension Code", GLSetup."Shortcut Dimension 1 Code");
+        DefaultDimension.FindFirst();
+        Assert.AreEqual(DefaultDimension."Dimension Value Code", ProposalLine."Shortcut Dimension 1 Code", WrongShortcutDimensionErr);
+        DefaultDimension.SetRange("Dimension Code", GLSetup."Shortcut Dimension 2 Code");
+        DefaultDimension.FindFirst();
+        Assert.AreEqual(DefaultDimension."Dimension Value Code", ProposalLine."Shortcut Dimension 2 Code", WrongShortcutDimensionErr);
     end;
 
     [RequestPageHandler]

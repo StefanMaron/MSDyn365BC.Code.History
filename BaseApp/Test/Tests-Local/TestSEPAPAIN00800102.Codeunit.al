@@ -930,9 +930,12 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
 
         // [THEN] Verify the Address, Postcode and City at CompanyInformation will be shown in xml at Dbtor side
         XMLReadHelper.Initialize(ExportFileName, NameSpace);
-        XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:Dbtr/ns:PstlAdr/ns:StrtNm', StreetName);
-        XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:Dbtr/ns:PstlAdr/ns:PstCd', PostalCode);
-        XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:Dbtr/ns:PstlAdr/ns:TwnNm', TownName);
+        if StreetName <> '' then
+            XMLReadHelper.VerifyNodeValue('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:Dbtr/ns:PstlAdr/ns:StrtNm', StreetName);
+        if PostalCode <> '' then
+            XMLReadHelper.VerifyNodeValue('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:Dbtr/ns:PstlAdr/ns:PstCd', PostalCode);
+        if TownName <> '' then
+            XMLReadHelper.VerifyNodeValue('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:Dbtr/ns:PstlAdr/ns:TwnNm', TownName);
     end;
 
     local procedure Initialize()
@@ -995,18 +998,16 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
 
     local procedure CreateMandate(var DirectDebitMandate: Record "SEPA Direct Debit Mandate"; CustomerNo: Code[20]; BankAccountCode: Code[10]; ValidFromDate: Date; ValidToDate: Date)
     begin
-        with DirectDebitMandate do begin
-            Init();
-            ID := LibraryUtility.GenerateRandomCode(FieldNo(ID), DATABASE::"SEPA Direct Debit Mandate");
-            Validate("Customer No.", CustomerNo);
-            Validate("Customer Bank Account Code", BankAccountCode);
-            Validate("Valid From", ValidFromDate);
-            Validate("Valid To", ValidToDate);
-            Validate("Date of Signature", WorkDate());
-            Validate("Type of Payment", "Type of Payment"::Recurrent);
-            Validate("Expected Number of Debits", LibraryRandom.RandInt(10) + 5);
-            Insert(true);
-        end;
+        DirectDebitMandate.Init();
+        DirectDebitMandate.ID := LibraryUtility.GenerateRandomCode(DirectDebitMandate.FieldNo(ID), DATABASE::"SEPA Direct Debit Mandate");
+        DirectDebitMandate.Validate("Customer No.", CustomerNo);
+        DirectDebitMandate.Validate("Customer Bank Account Code", BankAccountCode);
+        DirectDebitMandate.Validate("Valid From", ValidFromDate);
+        DirectDebitMandate.Validate("Valid To", ValidToDate);
+        DirectDebitMandate.Validate("Date of Signature", WorkDate());
+        DirectDebitMandate.Validate("Type of Payment", DirectDebitMandate."Type of Payment"::Recurrent);
+        DirectDebitMandate.Validate("Expected Number of Debits", LibraryRandom.RandInt(10) + 5);
+        DirectDebitMandate.Insert(true);
     end;
 
     local procedure CreateAndPostSalesInvoice(CustomerNo: Code[20]; RoundedTotal: Boolean): Code[20]
@@ -1114,41 +1115,41 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         VendorBankAccount: Record "Vendor Bank Account";
         PostCode: Record "Post Code";
     begin
-        with VendorBankAccount do begin
-            LibraryPurchase.CreateVendor(Vendor);
-            Init();
-            Validate(Code, BankAccount.Name);
-            Validate("Vendor No.", Vendor."No.");
-            Insert(true);
+        LibraryPurchase.CreateVendor(Vendor);
+        VendorBankAccount.Init();
+        VendorBankAccount.Validate(Code, BankAccount.Name);
+        VendorBankAccount.Validate("Vendor No.", Vendor."No.");
+        VendorBankAccount.Insert(true);
 
-            BankAccount."Min. Balance" := -LibraryRandom.RandDecInRange(100000, 1000000, 2);
-            if CurrencyCode <> '' then begin
-                BankAccount.Validate(Balance, 0); // we need reset balance before currency is set
-                BankAccount.Validate("Currency Code", CurrencyCode);
-                Vendor.Validate("Currency Code", CurrencyCode);
-            end;
-            BankAccount.Modify(true);
-
-            Vendor.Validate("Transaction Mode Code", TransactionModeCode);
-            Vendor.Validate("Partner Type", PartnerType);
-            Vendor.Validate("Preferred Bank Account Code", Code);
-            Vendor.Modify(true);
-
-            Validate(Name, BankAccount.Name);
-            Validate("Bank Account No.", BankAccount.Name);
-            Validate("Country/Region Code", BankAccount."Country/Region Code");
-            Validate("Account Holder Address",
-              LibraryUtility.GenerateRandomCode(FieldNo("Account Holder Address"), DATABASE::"Vendor Bank Account"));
-
-            PostCode.FindFirst();
-            "Account Holder Post Code" := PostCode.Code;
-            "Account Holder City" := PostCode.City;
-            Validate(IBAN, 'GB 12 CPBK 08929965044991'); // hard coded due to IBAN validation
-            Validate("SWIFT Code",
-              LibraryUtility.GenerateRandomCode(FieldNo("SWIFT Code"), DATABASE::"Vendor Bank Account"));
-            Validate("Acc. Hold. Country/Region Code", BankAccount."Country/Region Code");
-            Modify(true);
+        BankAccount."Min. Balance" := -LibraryRandom.RandDecInRange(100000, 1000000, 2);
+        if CurrencyCode <> '' then begin
+            BankAccount.Validate(Balance, 0);
+            // we need reset balance before currency is set
+            BankAccount.Validate("Currency Code", CurrencyCode);
+            Vendor.Validate("Currency Code", CurrencyCode);
         end;
+        BankAccount.Modify(true);
+
+        Vendor.Validate("Transaction Mode Code", TransactionModeCode);
+        Vendor.Validate("Partner Type", PartnerType);
+        Vendor.Validate("Preferred Bank Account Code", VendorBankAccount.Code);
+        Vendor.Modify(true);
+
+        VendorBankAccount.Validate(Name, BankAccount.Name);
+        VendorBankAccount.Validate("Bank Account No.", BankAccount.Name);
+        VendorBankAccount.Validate("Country/Region Code", BankAccount."Country/Region Code");
+        VendorBankAccount.Validate("Account Holder Address",
+          LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("Account Holder Address"), DATABASE::"Vendor Bank Account"));
+
+        PostCode.FindFirst();
+        VendorBankAccount."Account Holder Post Code" := PostCode.Code;
+        VendorBankAccount."Account Holder City" := PostCode.City;
+        VendorBankAccount.Validate(IBAN, 'GB 12 CPBK 08929965044991');
+        // hard coded due to IBAN validation
+        VendorBankAccount.Validate("SWIFT Code",
+          LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo("SWIFT Code"), DATABASE::"Vendor Bank Account"));
+        VendorBankAccount.Validate("Acc. Hold. Country/Region Code", BankAccount."Country/Region Code");
+        VendorBankAccount.Modify(true);
     end;
 
     local procedure ExportMultilinePayment(var BankAccountNo: Code[20]; NumberOfPayments: Integer; NewMandatePerLine: Boolean; NewDateForLastLine: Boolean)
@@ -1289,13 +1290,11 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         DirectDebitMandate."Expected Number of Debits" := NoOfDebits;
         DirectDebitMandate.Insert();
 
-        with PaymentHistoryLine do begin
-            "Run No." := LibraryUtility.GenerateGUID();
-            "Line No." := 1;
-            "Direct Debit Mandate ID" := DirectDebitMandate.ID;
-            "Sequence Type" := "Sequence Type"::" ";
-            Insert();
-        end;
+        PaymentHistoryLine."Run No." := LibraryUtility.GenerateGUID();
+        PaymentHistoryLine."Line No." := 1;
+        PaymentHistoryLine."Direct Debit Mandate ID" := DirectDebitMandate.ID;
+        PaymentHistoryLine."Sequence Type" := PaymentHistoryLine."Sequence Type"::" ";
+        PaymentHistoryLine.Insert();
     end;
 
     local procedure MultiplyPaymentLines(BankAccountNo: Code[20]; NumberOfPayments: Integer; NewMandatePerPayment: Boolean; NewDateForLastPayment: Boolean)
@@ -1305,20 +1304,18 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         NoSeries: Codeunit "No. Series";
         LineNo: Integer;
     begin
-        with ProposalLine do begin
-            SetRange("Our Bank No.", BankAccountNo);
-            FindFirst();
-            for LineNo := 1 to NumberOfPayments - 1 do begin
-                "Line No." += 1;
-                Identification := NoSeries.GetNextNo("Identification No. Series", "Transaction Date");
-                if NewMandatePerPayment then begin
-                    CreateMandate(DirectDebitMandate, "Account No.", Bank, 0D, 0D);
-                    "Direct Debit Mandate ID" := DirectDebitMandate.ID;
-                end;
-                if (LineNo = NumberOfPayments - 1) and NewDateForLastPayment then
-                    "Transaction Date" += 1;
-                Insert();
+        ProposalLine.SetRange("Our Bank No.", BankAccountNo);
+        ProposalLine.FindFirst();
+        for LineNo := 1 to NumberOfPayments - 1 do begin
+            ProposalLine."Line No." += 1;
+            ProposalLine.Identification := NoSeries.GetNextNo(ProposalLine."Identification No. Series", ProposalLine."Transaction Date");
+            if NewMandatePerPayment then begin
+                CreateMandate(DirectDebitMandate, ProposalLine."Account No.", ProposalLine.Bank, 0D, 0D);
+                ProposalLine."Direct Debit Mandate ID" := DirectDebitMandate.ID;
             end;
+            if (LineNo = NumberOfPayments - 1) and NewDateForLastPayment then
+                ProposalLine."Transaction Date" += 1;
+            ProposalLine.Insert();
         end;
     end;
 
@@ -1726,15 +1723,13 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         ProposalLine: Record "Proposal Line";
         UnexpectedError: Text;
     begin
-        with ProposalLine do begin
-            SetRange("Our Bank No.", BankAccountNo);
-            if FindFirst() then begin
-                UnexpectedError :=
-                  StrSubstNo(
-                    ForeignCurrencyErrorTok, FieldCaption("Foreign Currency"), FieldCaption("Foreign Amount"));
+        ProposalLine.SetRange("Our Bank No.", BankAccountNo);
+        if ProposalLine.FindFirst() then begin
+            UnexpectedError :=
+              StrSubstNo(
+                ForeignCurrencyErrorTok, ProposalLine.FieldCaption("Foreign Currency"), ProposalLine.FieldCaption("Foreign Amount"));
 
-                Assert.AreNotEqual(UnexpectedError, "Error Message", UnexpectedErrorMsg);
-            end;
+            Assert.AreNotEqual(UnexpectedError, ProposalLine."Error Message", UnexpectedErrorMsg);
         end;
     end;
 

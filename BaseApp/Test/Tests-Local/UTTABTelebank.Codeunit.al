@@ -186,19 +186,17 @@ codeunit 144055 "UT TAB Telebank"
         GenJnlLine."Document No." := PaymentHistoryLine."Run No.";
         GenJnlLine."Line No." := PaymentHistoryLine."Line No.";
 
-        with PaymentExportBuffer do begin
-            Init();
-            // Exercise.
-            CollectDataFromLocalSource(GenJnlLine);
-            // Verify.
-            Assert.AreEqual(PaymentHistoryLine."Account Holder Name", "Recipient Name", FieldName("Recipient Name"));
-            Assert.AreEqual(PaymentHistoryLine."Account Holder Address", "Recipient Address", FieldName("Recipient Address"));
-            Assert.AreEqual(PaymentHistoryLine."Account Holder City", "Recipient City", FieldName("Recipient City"));
-            Assert.AreEqual(PaymentHistoryLine."Account Holder Post Code", "Recipient Post Code", FieldName("Recipient Post Code"));
-            Assert.AreEqual(
-              PaymentHistoryLine."Acc. Hold. Country/Region Code", "Recipient Country/Region Code",
-              FieldName("Recipient Country/Region Code"));
-        end;
+        PaymentExportBuffer.Init();
+        // Exercise.
+        PaymentExportBuffer.CollectDataFromLocalSource(GenJnlLine);
+        // Verify.
+        Assert.AreEqual(PaymentHistoryLine."Account Holder Name", PaymentExportBuffer."Recipient Name", PaymentExportBuffer.FieldName("Recipient Name"));
+        Assert.AreEqual(PaymentHistoryLine."Account Holder Address", PaymentExportBuffer."Recipient Address", PaymentExportBuffer.FieldName("Recipient Address"));
+        Assert.AreEqual(PaymentHistoryLine."Account Holder City", PaymentExportBuffer."Recipient City", PaymentExportBuffer.FieldName("Recipient City"));
+        Assert.AreEqual(PaymentHistoryLine."Account Holder Post Code", PaymentExportBuffer."Recipient Post Code", PaymentExportBuffer.FieldName("Recipient Post Code"));
+        Assert.AreEqual(
+          PaymentHistoryLine."Acc. Hold. Country/Region Code", PaymentExportBuffer."Recipient Country/Region Code",
+          PaymentExportBuffer.FieldName("Recipient Country/Region Code"));
     end;
 
     [Test]
@@ -220,21 +218,19 @@ codeunit 144055 "UT TAB Telebank"
         GenJnlLine."Document No." := PaymentHistoryLine."Run No.";
         GenJnlLine."Line No." := PaymentHistoryLine."Line No.";
 
-        with PaymentExportBuffer do begin
-            PaymentHistoryLine.Urgent := false;
-            PaymentHistoryLine.Insert();
+        PaymentHistoryLine.Urgent := false;
+        PaymentHistoryLine.Insert();
 
-            Init();
-            CollectDataFromLocalSource(GenJnlLine);
-            Assert.AreEqual('NORM', "SEPA Instruction Priority Text", FieldName("SEPA Instruction Priority Text"));
+        PaymentExportBuffer.Init();
+        PaymentExportBuffer.CollectDataFromLocalSource(GenJnlLine);
+        Assert.AreEqual('NORM', PaymentExportBuffer."SEPA Instruction Priority Text", PaymentExportBuffer.FieldName("SEPA Instruction Priority Text"));
 
-            PaymentHistoryLine.Urgent := true;
-            PaymentHistoryLine.Modify();
+        PaymentHistoryLine.Urgent := true;
+        PaymentHistoryLine.Modify();
 
-            Init();
-            CollectDataFromLocalSource(GenJnlLine);
-            Assert.AreEqual('HIGH', "SEPA Instruction Priority Text", FieldName("SEPA Instruction Priority Text"));
-        end;
+        PaymentExportBuffer.Init();
+        PaymentExportBuffer.CollectDataFromLocalSource(GenJnlLine);
+        Assert.AreEqual('HIGH', PaymentExportBuffer."SEPA Instruction Priority Text", PaymentExportBuffer.FieldName("SEPA Instruction Priority Text"));
     end;
 
     [Test]
@@ -944,12 +940,10 @@ codeunit 144055 "UT TAB Telebank"
 
     local procedure MockExportProtocol(var ExportProtocol: Record "Export Protocol"; DefaultFileNames: Text[250])
     begin
-        with ExportProtocol do begin
-            Init();
-            Code := LibraryUTUtility.GetNewCode();
-            "Default File Names" := DefaultFileNames;
-            Insert();
-        end;
+        ExportProtocol.Init();
+        ExportProtocol.Code := LibraryUTUtility.GetNewCode();
+        ExportProtocol."Default File Names" := DefaultFileNames;
+        ExportProtocol.Insert();
     end;
 
     local procedure GetExportFileName(DaySerial: Integer): Text
@@ -976,28 +970,28 @@ codeunit 144055 "UT TAB Telebank"
         GLAccount: Record "G/L Account";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
     begin
-        with GenJournalLine do begin
-            Init();
-            Validate("Posting Date", Today);
-            Validate("Document Type", DocumentType);
-            Validate("Account Type", AccountType);
-            Validate("Account No.", AccountNo);
-            Validate(Amount, -LineAmount);
-            Validate(
-              "Document No.", LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
-            Validate("External Document No.", LibraryUtility.GenerateRandomText(MaxStrLen("External Document No.")));  // Unused but required for vendor posting.
-            Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode());  // Unused but required for AU, NZ builds
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            if "Account Type" = "Account Type"::Customer then
-                GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale)
-            else
-                GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Purchase);
-            LibraryERM.FindGLAccount(GLAccount);
-            Validate("Bal. Account No.", GLAccount."No.");
+        GenJournalLine.Init();
+        GenJournalLine.Validate("Posting Date", Today);
+        GenJournalLine.Validate("Document Type", DocumentType);
+        GenJournalLine.Validate("Account Type", AccountType);
+        GenJournalLine.Validate("Account No.", AccountNo);
+        GenJournalLine.Validate(Amount, -LineAmount);
+        GenJournalLine.Validate(
+          "Document No.", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
+        GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateRandomText(MaxStrLen(GenJournalLine."External Document No.")));
+        // Unused but required for vendor posting.
+        GenJournalLine.Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode());
+        // Unused but required for AU, NZ builds
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer then
+            GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale)
+        else
+            GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Purchase);
+        LibraryERM.FindGLAccount(GLAccount);
+        GenJournalLine.Validate("Bal. Account No.", GLAccount."No.");
 
-            GenJnlPostLine.RunWithCheck(GenJournalLine);
-            exit("Document No.");
-        end;
+        GenJnlPostLine.RunWithCheck(GenJournalLine);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure PostPurchaseInvoice(var VendLedgEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; Amount: Decimal)

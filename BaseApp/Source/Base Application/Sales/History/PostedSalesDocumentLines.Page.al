@@ -180,9 +180,13 @@ page 5850 "Posted Sales Document Lines"
         OldMenuType: Integer;
         LinesNotCopied: Integer;
         MissingExCostRevLink: Boolean;
+#pragma warning disable AA0074
         Text000: Label 'The document lines that have a G/L account that does not allow direct posting have not been copied to the new document.';
+#pragma warning restore AA0074
         OriginalQuantity: Boolean;
+#pragma warning disable AA0074
         Text002: Label 'Document Type Filter';
+#pragma warning restore AA0074
         CurrentMenuTypeOpt: Option x0,x1,x2,x3;
 
     protected var

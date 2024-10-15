@@ -1,13 +1,9 @@
 ﻿namespace Microsoft.Inventory.Requisition;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Planning;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 report 99001020 "Carry Out Action Msg. - Plan."
 {
@@ -112,15 +108,12 @@ report 99001020 "Carry Out Action Msg. - Plan."
                     group("Production Order")
                     {
                         Caption = 'Production Order';
-#pragma warning disable AL0600
                         field(ProductionOrder; ProdOrderChoice)
                         {
                             ApplicationArea = Manufacturing;
                             Caption = 'Production Order';
-                            OptionCaption = ' ,Planned,Firm Planned,Firm Planned & Print';
                             ToolTip = 'Specifies that you want to create production orders for item with the Prod. Order replenishment system. You can select to create either planned or firm planned production order, and you can have the new order documents printed.';
                         }
-#pragma warning restore AL0600
                     }
                     group("Assembly Order")
                     {
@@ -325,14 +318,18 @@ report 99001020 "Carry Out Action Msg. - Plan."
         PurchOrderCopyToReqWksh: Boolean;
         TransOrderCopyToReqWksh: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'There are no planning lines to make orders for.';
         Text007: Label 'This template and worksheet are currently active. ';
         Text008: Label 'You must select a different template name or worksheet name to copy to.';
         Text009: Label 'You must select a worksheet to copy to';
         Text010: Label 'Components were not reserved for orders with status Planned.';
+#pragma warning disable AA0470
         Text011: Label 'You must make order for both line %1 and %2 because they are associated.';
         Text012: Label 'Carrying Out Actions  #1########## @2@@@@@@@@@@@@@';
         Text013: Label 'Not all Requisition Lines were carried out.\A total of %1 lines were not carried out because of errors encountered.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         ProdOrderChoice: Enum "Planning Create Prod. Order";
@@ -495,11 +492,6 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
     local procedure CheckLine()
     var
-        SalesLine: Record "Sales Line";
-        ProdOrderComp: Record "Prod. Order Component";
-        ServLine: Record "Service Line";
-        JobPlanningLine: Record "Job Planning Line";
-        AsmLine: Record "Assembly Line";
         ReqLine2: Record "Requisition Line";
         IsHandled: Boolean;
     begin
@@ -518,87 +510,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
         CheckSupplyFrom();
 
-        case "Requisition Line"."Demand Type" of
-            Database::"Sales Line":
-                begin
-                    SalesLine.Get("Requisition Line"."Demand Subtype", "Requisition Line"."Demand Order No.", "Requisition Line"."Demand Line No.");
-                    SalesLine.TestField(Type, SalesLine.Type::Item);
-                    if not (("Requisition Line"."Demand Date" = WorkDate()) and (SalesLine."Shipment Date" in [0D, WorkDate()])) then
-                        "Requisition Line".TestField("Demand Date", SalesLine."Shipment Date");
-                    "Requisition Line".TestField("No.", SalesLine."No.");
-                    "Requisition Line".TestField("Qty. per UOM (Demand)", SalesLine."Qty. per Unit of Measure");
-                    "Requisition Line".TestField("Variant Code", SalesLine."Variant Code");
-                    "Requisition Line".TestField("Location Code", SalesLine."Location Code");
-                    SalesLine.CalcFields("Reserved Qty. (Base)");
-                    "Requisition Line".TestField(
-                      "Requisition Line"."Demand Quantity (Base)",
-                      -SalesLine.SignedXX(SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)"))
-                end;
-            Database::"Prod. Order Component":
-                begin
-                    ProdOrderComp.Get("Requisition Line"."Demand Subtype", "Requisition Line"."Demand Order No.", "Requisition Line"."Demand Line No.", "Requisition Line"."Demand Ref. No.");
-                    "Requisition Line".TestField("No.", ProdOrderComp."Item No.");
-                    if not (("Requisition Line"."Demand Date" = WorkDate()) and (ProdOrderComp."Due Date" in [0D, WorkDate()])) then
-                        "Requisition Line".TestField("Demand Date", ProdOrderComp."Due Date");
-                    "Requisition Line".TestField("Qty. per UOM (Demand)", ProdOrderComp."Qty. per Unit of Measure");
-                    "Requisition Line".TestField("Variant Code", ProdOrderComp."Variant Code");
-                    "Requisition Line".TestField("Location Code", ProdOrderComp."Location Code");
-                    ProdOrderComp.CalcFields("Reserved Qty. (Base)");
-                    "Requisition Line".TestField(
-                      "Requisition Line"."Demand Quantity (Base)",
-                      ProdOrderComp."Remaining Qty. (Base)" - ProdOrderComp."Reserved Qty. (Base)");
-                    if (ProdOrderChoice = ProdOrderChoice::Planned) and "Requisition Line".Reserve then
-                        ReserveforPlannedProd := true;
-                end;
-            Database::"Service Line":
-                begin
-                    ServLine.Get("Requisition Line"."Demand Subtype", "Requisition Line"."Demand Order No.", "Requisition Line"."Demand Line No.");
-                    ServLine.TestField(Type, ServLine.Type::Item);
-                    if not (("Requisition Line"."Demand Date" = WorkDate()) and (ServLine."Needed by Date" in [0D, WorkDate()])) then
-                        "Requisition Line".TestField("Demand Date", ServLine."Needed by Date");
-                    "Requisition Line".TestField("No.", ServLine."No.");
-                    "Requisition Line".TestField("Qty. per UOM (Demand)", ServLine."Qty. per Unit of Measure");
-                    "Requisition Line".TestField("Variant Code", ServLine."Variant Code");
-                    "Requisition Line".TestField("Location Code", ServLine."Location Code");
-                    ServLine.CalcFields("Reserved Qty. (Base)");
-                    "Requisition Line".TestField(
-                      "Requisition Line"."Demand Quantity (Base)",
-                      -ServLine.SignedXX(ServLine."Outstanding Qty. (Base)" - ServLine."Reserved Qty. (Base)"))
-                end;
-            Database::"Job Planning Line":
-                begin
-                    JobPlanningLine.SetRange("Job Contract Entry No.", "Requisition Line"."Demand Line No.");
-                    JobPlanningLine.FindFirst();
-                    JobPlanningLine.TestField(Type, JobPlanningLine.Type::Item);
-                    JobPlanningLine.TestField("Job No.");
-                    JobPlanningLine.TestField(Status, JobPlanningLine.Status::Order);
-                    if not (("Requisition Line"."Demand Date" = WorkDate()) and (JobPlanningLine."Planning Date" in [0D, WorkDate()])) then
-                        "Requisition Line".TestField("Demand Date", JobPlanningLine."Planning Date");
-                    "Requisition Line".TestField("No.", JobPlanningLine."No.");
-                    "Requisition Line".TestField("Qty. per UOM (Demand)", JobPlanningLine."Qty. per Unit of Measure");
-                    "Requisition Line".TestField("Variant Code", JobPlanningLine."Variant Code");
-                    "Requisition Line".TestField("Location Code", JobPlanningLine."Location Code");
-                    JobPlanningLine.CalcFields("Reserved Qty. (Base)");
-                    "Requisition Line".TestField(
-                      "Requisition Line"."Demand Quantity (Base)",
-                      JobPlanningLine."Remaining Qty. (Base)" - JobPlanningLine."Reserved Qty. (Base)")
-                end;
-            Database::"Assembly Line":
-                begin
-                    AsmLine.Get("Requisition Line"."Demand Subtype", "Requisition Line"."Demand Order No.", "Requisition Line"."Demand Line No.");
-                    AsmLine.TestField(Type, AsmLine.Type::Item);
-                    if not (("Requisition Line"."Demand Date" = WorkDate()) and (AsmLine."Due Date" in [0D, WorkDate()])) then
-                        "Requisition Line".TestField("Demand Date", AsmLine."Due Date");
-                    "Requisition Line".TestField("No.", AsmLine."No.");
-                    "Requisition Line".TestField("Qty. per UOM (Demand)", AsmLine."Qty. per Unit of Measure");
-                    "Requisition Line".TestField("Variant Code", AsmLine."Variant Code");
-                    "Requisition Line".TestField("Location Code", AsmLine."Location Code");
-                    AsmLine.CalcFields("Reserved Qty. (Base)");
-                    "Requisition Line".TestField(
-                      "Requisition Line"."Demand Quantity (Base)",
-                      -AsmLine.SignedXX(AsmLine."Remaining Quantity (Base)" - AsmLine."Reserved Qty. (Base)"))
-                end;
-        end;
+        CheckDemandType();
 
         ReqLine2.ReadIsolation := ReqLine2.ReadIsolation::ReadUncommitted;
         ReqLine2.SetFilter("User ID", '<>%1', UserId);
@@ -609,6 +521,11 @@ report 99001020 "Carry Out Action Msg. - Plan."
         ReqLine2.SetRange("Demand Ref. No.", "Requisition Line"."Demand Ref. No.");
         if not ReqLine2.IsEmpty then
             ReqLine2.DeleteAll(true);
+    end;
+
+    local procedure CheckDemandType()
+    begin
+        OnCheckDemandType("Requisition Line");
     end;
 
     local procedure CheckAssociations(var ReqLine: Record "Requisition Line")
@@ -738,6 +655,11 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
     [IntegrationEvent(false, false)]
     local procedure OnCarryOutActionsOnAfterUpdateCounterFailed(var RequisitionLine: Record "Requisition Line"; WkshTempl: Code[10]; WkshName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckDemandType(RequisitionLine: Record "Requisition Line");
     begin
     end;
 }

@@ -468,7 +468,7 @@ codeunit 131900 "Library - Marketing"
         SalesHeader.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CampaignNo: Code[20]; ItemNo: Code[20])
     begin
         SalesLineDiscount.Init();

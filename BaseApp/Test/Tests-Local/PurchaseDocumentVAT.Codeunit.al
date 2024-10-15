@@ -529,13 +529,11 @@ codeunit 144541 "Purchase Document - VAT"
     var
         TransactionMode: Record "Transaction Mode";
     begin
-        with TransactionMode do begin
-            LibraryNLLocalization.CreateTransactionMode(TransactionMode, "Account Type"::Vendor);
-            Validate("Our Bank", CreateOurBank(CurencyCode));
-            Validate("Identification No. Series", LibraryERM.CreateNoSeriesCode());
-            Modify(true);
-            exit(Code);
-        end;
+        LibraryNLLocalization.CreateTransactionMode(TransactionMode, TransactionMode."Account Type"::Vendor);
+        TransactionMode.Validate("Our Bank", CreateOurBank(CurencyCode));
+        TransactionMode.Validate("Identification No. Series", LibraryERM.CreateNoSeriesCode());
+        TransactionMode.Modify(true);
+        exit(TransactionMode.Code);
     end;
 
     local procedure CreatePostPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; CurrencyCode: Code[10]): Decimal
@@ -603,16 +601,14 @@ codeunit 144541 "Purchase Document - VAT"
     var
         ProposalLine: Record "Proposal Line";
     begin
-        with ProposalLine do begin
-            SetRange(Bank, PurchaseHeader."Bank Account Code");
-            SetRange("Account Type", "Account Type"::Vendor);
-            SetRange("Account No.", PurchaseHeader."Buy-from Vendor No.");
-            SetRange("Foreign Currency", ForeignCurrency);
-            FindFirst();
-            TestField("Currency Code", CurrencyCode);
-            TestField(Amount, AmountInCurrency);
-            TestField("Foreign Amount", ForeignAmount);
-        end;
+        ProposalLine.SetRange(Bank, PurchaseHeader."Bank Account Code");
+        ProposalLine.SetRange("Account Type", ProposalLine."Account Type"::Vendor);
+        ProposalLine.SetRange("Account No.", PurchaseHeader."Buy-from Vendor No.");
+        ProposalLine.SetRange("Foreign Currency", ForeignCurrency);
+        ProposalLine.FindFirst();
+        ProposalLine.TestField("Currency Code", CurrencyCode);
+        ProposalLine.TestField(Amount, AmountInCurrency);
+        ProposalLine.TestField("Foreign Amount", ForeignAmount);
     end;
 
     local procedure VerifyForeignCurrencyAndAmountOnProposalLine(OurBankAccountCode: Code[20]; VendorNo: Code[20]; CurrencyCode: Code[20]; AmountInCurrency: Decimal; ForeignCurrency: Code[20]; ForeignAmount: Decimal)

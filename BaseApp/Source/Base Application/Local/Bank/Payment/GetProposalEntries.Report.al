@@ -37,7 +37,7 @@ report 11000000 "Get Proposal Entries"
                     NumeratorPostings := NumeratorPostings + 1;
                     BatchStatus.Update(1, Round(NumeratorPostings / NumberOfEntries * 10000, 1));
 
-                    if "Due Date" > "Value Date" then begin
+                    if "Due Date" > "Value Date" then
                         if TransactionmodeTable."Pmt. Disc. Possible" and
                            ("Original Pmt. Disc. Possible" <> 0) and
                            ("Pmt. Discount Date" >= "Value Date")
@@ -46,7 +46,6 @@ report 11000000 "Get Proposal Entries"
                                 CurrReport.Skip();
                         end else // No Payment Discount possible
                             CurrReport.Skip();
-                    end;
 
                     Clear(DetailLine);
                     DetailLine."Account Type" := DetailLine."Account Type"::Customer;
@@ -85,7 +84,7 @@ report 11000000 "Get Proposal Entries"
                     NumeratorPostings := NumeratorPostings + 1;
                     BatchStatus.Update(1, Round(NumeratorPostings / NumberOfEntries * 10000, 1));
 
-                    if "Due Date" > "Value Date" then begin
+                    if "Due Date" > "Value Date" then
                         if TransactionmodeTable."Pmt. Disc. Possible" and
                            ("Original Pmt. Disc. Possible" <> 0) and
                            ("Pmt. Discount Date" >= "Value Date")
@@ -94,7 +93,6 @@ report 11000000 "Get Proposal Entries"
                                 CurrReport.Skip();
                         end else // No Payment Discount possible
                             CurrReport.Skip();
-                    end;
                     Vend.Get("Vendor No.");
                     if Vend."Privacy Blocked" then
                         CurrReport.Skip();
@@ -237,10 +235,9 @@ report 11000000 "Get Proposal Entries"
                 if not ProcessProposalLines.CheckAProposalLine(ProposalLine) then begin
                     if ProposalLine."Error Message" = '' then
                         NoOfErrors := NoOfErrors + 1;
-                end else begin
+                end else
                     if ProposalLine."Error Message" <> '' then
                         NoOfErrors := NoOfErrors - 1;
-                end;
                 ProposalLine."Error Message" := ProcessProposalLines.FinalError();
                 if ProposalLine.Warning = '' then begin
                     ProposalLine.Warning := ProcessProposalLines.FinalWarning();
