@@ -25,11 +25,15 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
     procedure PostPrepmtInvoiceYN(var SalesHeader2: Record "Sales Header"; Print: Boolean)
     var
         SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
         SalesHeader.Copy(SalesHeader2);
         with SalesHeader do begin
-            if not ConfirmForDocument(SalesHeader, Text000) then
-                exit;
+            IsHandled := false;
+            OnPostPrepmtInvoiceYNOnBeforeConfirm(SalesHeader, IsHandled);
+            if not IsHandled then
+                if not ConfirmForDocument(SalesHeader, Text000) then
+                    exit;
 
             PostPrepmtDocument(SalesHeader, "Document Type"::Invoice);
 
@@ -84,6 +88,7 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
         ErrorMessageHandler: Codeunit "Error Message Handler";
         ErrorMessageMgt: Codeunit "Error Message Management";
         ErrorContextElement: Codeunit "Error Context Element";
+        SuppressCommit: Boolean;
     begin
         OnBeforePostPrepmtDocument(SalesHeader, PrepmtDocumentType.AsInteger());
 
@@ -91,6 +96,9 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
         ErrorMessageMgt.PushContext(ErrorContextElement, SalesHeader.RecordId, 0, '');
         SalesPostPrepayments.SetDocumentType(PrepmtDocumentType.AsInteger());
         Commit();
+
+        OnPostPrepmtDocumentOnBeforeRunSalesPostPrepayments(SalesHeader, SuppressCommit);
+        SalesPostPrepayments.SetSuppressCommit(SuppressCommit);
         if not SalesPostPrepayments.Run(SalesHeader) then
             ErrorMessageHandler.ShowErrors();
     end;
@@ -179,6 +187,16 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostPrepmtDocument(var SalesHeader: Record "Sales Header"; PrepmtDocumentType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPrepmtInvoiceYNOnBeforeConfirm(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPrepmtDocumentOnBeforeRunSalesPostPrepayments(var SalesHeader: Record "Sales Header"; var SuppressCommit: Boolean);
     begin
     end;
 }

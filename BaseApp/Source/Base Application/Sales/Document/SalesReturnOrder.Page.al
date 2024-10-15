@@ -1672,7 +1672,15 @@ page 6630 "Sales Return Order"
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnQueryClosePage(Rec, CloseAction, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not DocumentIsPosted then
             exit(Rec.ConfirmCloseUnposted());
     end;
@@ -1871,6 +1879,11 @@ page 6630 "Sales Return Order"
 
     [IntegrationEvent(true, false)]
     local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; DocumentIsPosted: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnQueryClosePage(var SalesHeader: Record "Sales Header"; CloseAction: Action; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

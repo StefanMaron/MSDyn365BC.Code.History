@@ -208,8 +208,6 @@ codeunit 139199 "CDS Match Based Coupling"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         SelectedCustomer: Record Customer;
         SelectedRecordRef: RecordRef;
-        IntegrationTableMappingList: TestPage "Integration Table Mapping List";
-        IntegrationSynchJobList: TestPage "Integration Synch. Job List";
         i: Integer;
         SelectedIds: Dictionary of [Guid, Boolean];
     begin
@@ -293,8 +291,6 @@ codeunit 139199 "CDS Match Based Coupling"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         SelectedCustomer: Record Customer;
         SelectedRecordRef: RecordRef;
-        IntegrationTableMappingList: TestPage "Integration Table Mapping List";
-        IntegrationSynchJobList: TestPage "Integration Synch. Job List";
         i: Integer;
         SelectedIds: Dictionary of [Guid, Boolean];
     begin
@@ -378,8 +374,6 @@ codeunit 139199 "CDS Match Based Coupling"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         SelectedCustomer: Record Customer;
         SelectedRecordRef: RecordRef;
-        IntegrationTableMappingList: TestPage "Integration Table Mapping List";
-        IntegrationSynchJobList: TestPage "Integration Synch. Job List";
         i: Integer;
         SelectedIds: Dictionary of [Guid, Boolean];
     begin
@@ -473,8 +467,6 @@ codeunit 139199 "CDS Match Based Coupling"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         SelectedCustomer: Record Customer;
         SelectedRecordRef: RecordRef;
-        IntegrationTableMappingList: TestPage "Integration Table Mapping List";
-        IntegrationSynchJobList: TestPage "Integration Synch. Job List";
         i: Integer;
         SelectedIds: Dictionary of [Guid, Boolean];
     begin
@@ -548,7 +540,6 @@ codeunit 139199 "CDS Match Based Coupling"
     procedure MasterDataListNoCouplingRunsIfUserCancels()
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
-        IntegrationSynchJob: Record "Integration Synch. Job";
         CoupledCustomer: array[3] of Record Customer;
         CoupledCRMAccount: array[3] of Record "CRM Account";
         UncoupledCustomer: array[5] of Record Customer;
@@ -556,8 +547,6 @@ codeunit 139199 "CDS Match Based Coupling"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         SelectedCustomer: Record Customer;
         SelectedRecordRef: RecordRef;
-        IntegrationTableMappingList: TestPage "Integration Table Mapping List";
-        IntegrationSynchJobList: TestPage "Integration Synch. Job List";
         i: Integer;
         SelectedIds: Dictionary of [Guid, Boolean];
     begin
@@ -627,7 +616,6 @@ codeunit 139199 "CDS Match Based Coupling"
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationTableMapping: Record "Integration Table Mapping";
-        IntegrationSynchJob: Record "Integration Synch. Job";
         CoupledCustomer: array[3] of Record Customer;
         CoupledCRMAccount: array[3] of Record "CRM Account";
         UncoupledCustomer: array[5] of Record Customer;
@@ -635,8 +623,6 @@ codeunit 139199 "CDS Match Based Coupling"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         SelectedCustomer: Record Customer;
         SelectedRecordRef: RecordRef;
-        IntegrationTableMappingList: TestPage "Integration Table Mapping List";
-        IntegrationSynchJobList: TestPage "Integration Synch. Job List";
         i: Integer;
         SelectedIds: Dictionary of [Guid, Boolean];
     begin

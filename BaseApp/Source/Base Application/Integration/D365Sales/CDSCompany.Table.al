@@ -11,6 +11,8 @@ table 5393 "CDS Company"
     Caption = 'Company';
     Description = 'A legal entity formed to carry on a business.';
     ExternalName = 'bcbi_company';
+    LookupPageId = "CDS Companies";
+    DrillDownPageId = "CDS Companies";
     TableType = CRM;
 
     fields
@@ -286,7 +288,7 @@ table 5393 "CDS Company"
 
     fieldgroups
     {
-        fieldgroup(DropDown; ExternalId)
+        fieldgroup(DropDown; CompanyId, Name, ExternalId)
         {
         }
     }

@@ -23,6 +23,7 @@ report 404 "Purchase - Quote"
     RDLCLayout = './Purchases/Document/PurchaseQuote.rdlc';
     Caption = 'Purchase - Quote';
     PreviewMode = PrintLayout;
+    WordMergeDataItem = "Purchase Header";
 
     dataset
     {
@@ -685,7 +686,6 @@ report 404 "Purchase - Quote"
         OldDimText: Text[75];
         Continue: Boolean;
         OutputNo: Integer;
-        ArchiveDocumentEnable: Boolean;
         LogInteractionEnable: Boolean;
         PhoneNoCaptionLbl: Label 'Phone No.';
         FaxNoCaptionLbl: Label 'Fax No.';
@@ -716,6 +716,7 @@ report 404 "Purchase - Quote"
 
     protected var
         ArchiveDocument: Boolean;
+        ArchiveDocumentEnable: Boolean;
         LogInteraction: Boolean;
         NoOfCopies: Integer;
         ShowInternalInfo: Boolean;

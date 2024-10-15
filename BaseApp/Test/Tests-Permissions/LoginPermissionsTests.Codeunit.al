@@ -64,7 +64,7 @@ codeunit 132913 "Login Permissions Tests"
         // Make sure we have actually been testing with lower permissions.
         // Testing this at the end since the error will revert all transactions.
         asserterror Page.RunModal(Page::"Customer Card");
-        Assert.ExpectedError('Sorry, the current permissions prevented the action. (Page Customer Card Execute: Tests-Permissions)'); // Important that the error is missing execute permission, not missing tabledata permissions.
+        Assert.ExpectedError('Sorry, the current permissions prevented the action. (Page 21 Customer Card Execute: Tests-Permissions)'); // Important that the error is missing execute permission, not missing tabledata permissions.
 
     end;
 

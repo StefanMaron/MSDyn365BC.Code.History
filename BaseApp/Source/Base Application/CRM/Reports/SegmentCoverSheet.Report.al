@@ -12,6 +12,7 @@ report 5064 "Segment - Cover Sheet"
     DefaultLayout = RDLC;
     RDLCLayout = './CRM/Reports/SegmentCoverSheet.rdlc';
     Caption = 'Segment - Cover Sheet';
+    WordMergeDataItem = "Segment Header";
 
     dataset
     {

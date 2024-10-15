@@ -32,7 +32,9 @@ codeunit 136306 "Job Invoicing"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryCosting: Codeunit "Library - Costing";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryJournals: Codeunit "Library - Journals";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         Initialized: Boolean;
         JobLedgerEntryFieldErr: Label 'Field %1 in Job Ledger Entry has invalid value';
         WrongDimSetIDInSalesLineErr: Label 'Wrong dimension set ID in sales line of document %1.';
@@ -3431,6 +3433,70 @@ codeunit 136306 "Job Invoicing"
         JobLedgerEntry.TestField("Amt. to Post to G/L", -JobTask."Recognized Sales Amount");
     end;
 
+    [Test]
+    [HandlerFunctions('TransferToInvoiceHandler,MessageHandler,CreateSalesNotificationHandler')]
+    procedure VerifyReversedJobPlanningLineForCorrectiveCreditMemoCreatedFromPostedSalesInvoice()
+    var
+        Item: Record Item;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        ReversedJobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [SCENARIO 484285] Verify Reversed Job Planning Line for Corrective Credit Memo created from Posted Sales Invoice
+        Initialize();
+
+        // [GIVEN] Create Item with Standard Cost      
+        CreateItemWithStandardCost(Item);
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobAndJobTask(JobTask);
+
+        // [GIVEN] Create Job Planning Line
+        CreateJobPlanningLineWithItem(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::"Both Budget and Billable", Item."No.", 1);
+
+        // [GIVEN] Create new Sales Invoice from Job Planning Line                
+        TransferJobPlanningLine(JobPlanningLine, JobPlanningLine.Quantity, false, SalesHeader);
+
+        // [GIVEN] Post Sales Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields("Amount Including VAT");
+
+        // [GIVEN] Post Payment and apply to Posted Sales Invoice
+        CreateGenJnlLineWithBalAccount(
+         GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, SalesInvoiceHeader."Sell-to Customer No.",
+         GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), -SalesInvoiceHeader."Amount Including VAT");
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", SalesInvoiceHeader."No.");
+        GenJournalLine.Modify();
+
+        // [GIVEN] Post Payment
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Open "Posted Sales Invoice" page for original Invoice
+        PostedSalesInvoice.OpenView();
+        PostedSalesInvoice.Filter.SetFilter("No.", SalesInvoiceHeader."No.");
+
+        // [WHEN] Run "Create Corrective Credit Memo" action
+        SalesCreditMemo.Trap();
+        PostedSalesInvoice.CreateCreditMemo.Invoke();
+
+        // [THEN] Verify additional Job Planning Line is created
+        FindReversedJobPlanningLine(JobPlanningLine, ReversedJobPlanningLine);
+        ReversedJobPlanningLine.TestField(Quantity, -JobPlanningLine.Quantity);
+        ReversedJobPlanningLine.TestField("Unit Cost (LCY)", JobPlanningLine."Unit Cost (LCY)");
+        ReversedJobPlanningLine.TestField("Unit Cost", JobPlanningLine."Unit Cost");
+        ReversedJobPlanningLine.TestField("Line Amount", -JobPlanningLine."Line Amount");
+        ReversedJobPlanningLine.TestField("Line Amount (LCY)", -JobPlanningLine."Line Amount (LCY)");
+
+        // Clean-up notifications
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure RunJobCalculateWIP(Job: Record Job)
     var
         JobCalculateWIP: Report "Job Calculate WIP";
@@ -4200,6 +4266,18 @@ codeunit 136306 "Job Invoicing"
         else
             ReversedJobPlanningLine.SetFilter(Quantity, '>0');
         exit(ReversedJobPlanningLine.FindFirst())
+    end;
+
+    local procedure CreateGenJnlLineWithBalAccount(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocType, AccountType, AccountNo, Amount);
+        GenJournalLine.Validate("Bal. Account Type", BalAccountType);
+        GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure GetILEAmountSign(ItemLedgerEntry: Record "Item Ledger Entry"): Integer
@@ -5090,6 +5168,14 @@ codeunit 136306 "Job Invoicing"
         JobCreateSalesInvoice.PostingDate.SetValue(WorkDate() + 10);
         Assert.AreNotEqual(JobCreateSalesInvoice.PostingDate.AsDate(), JobCreateSalesInvoice."Document Date".AsDate(), 'Wrong Document Date');
         JobCreateSalesInvoice.Cancel().Invoke();
+    end;
+
+    [SendNotificationHandler]
+    procedure CreateSalesNotificationHandler(var Notification: Notification): Boolean
+    var
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        CorrectPostedSalesInvoice.CreateCorrectiveCreditMemo(Notification); // simulate 'Create credit memo anyway' action
     end;
 }
 

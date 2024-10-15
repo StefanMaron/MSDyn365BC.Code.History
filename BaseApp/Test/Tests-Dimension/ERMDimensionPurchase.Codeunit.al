@@ -37,6 +37,7 @@ codeunit 134476 "ERM Dimension Purchase"
         NotEqualDimensionsErr: Label 'Dimensions are equal.';
         LocationChangesMsg: Label 'You have changed Location Code on the purchase header, but it has not been changed on the existing purchase lines.\You must update the existing purchase lines manually.';
         LocationChangeErr: Label 'Location Change message expected';
+        MissingDimensionErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for G/L Account %2.', Comment = '%1 - Dimension Code, %2 - G/L Account No.';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
@@ -1972,6 +1973,53 @@ codeunit 134476 "ERM Dimension Purchase"
         VerifyDimensionsInDimensionSet(PurchaseHeader, DimensionValue);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,ApplyVendorEntriesModalPageHandler,PostApplicationModalPageHandler')]
+    procedure VerifyErrorMsgForRequiredDimensionOnGainLossAccountsOnApplyEntriesFotExchangeRateDifference()
+    var
+        Currency: Record Currency;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        PurchaseLine: Record "Purchase Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        FirstStartingDate, SecondStartingDate : Date;
+        VendorNo, PurchaseInvoiceDocumentNo, PaymentDocNo : Code[20];
+    begin
+        // [SCENARIO 485652] Verify error message for required dimension on Gain/Loss Accounts on Apply Entries for Exchange Rate Difference 
+        Initialize();
+
+        // [GIVEN] Create Currency with Gain/Loss Accounts
+        CreateCurrencyWithMultipleExchangeRate(Currency, FirstStartingDate, SecondStartingDate);
+
+        // [GIVEN] Created Dimension with Value
+        CreateDimensionWithValue(DimensionValue);
+
+        // [GIVEN] New mandatory Default Dimension for the Gain/Loss Accounts
+        CreateDefaultDimensionCodeMandatory(DefaultDimension, Database::"G/L Account", Currency."Realized Gains Acc.", DimensionValue."Dimension Code");
+
+        // [GIVEN] Create Vendor with Currency
+        VendorNo := CreateVendorWithCurrency(Currency.Code);
+
+        // [GIVEN] Create and Post Purchase Invoice
+        PurchaseInvoiceDocumentNo := CreateAndPostPurchaseInvoiceWithCurrencyCode(PurchaseLine, VendorNo, FirstStartingDate);
+
+        // [GIVEN] Create and Post Payment
+        PaymentDocNo := CreateAndPostPaymentLine(GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Document Type"::Payment,
+          PurchaseLine."Amount Including VAT", SecondStartingDate);
+        LibraryVariableStorage.Enqueue(PaymentDocNo);
+
+        // [WHEN] Call Apply Entries action on Vendor Ledger Entries from Posted Invoice
+        VendorLedgerEntries.OpenEdit();
+        VendorLedgerEntries.Filter.SetFilter("Vendor No.", VendorNo);
+        VendorLedgerEntries.Filter.SetFilter("Document No.", PurchaseInvoiceDocumentNo);
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
+        VendorLedgerEntries.Close();
+
+        // [THEN] Verify results
+        Assert.ExpectedError(StrSubstNo(MissingDimensionErr, DimensionValue."Dimension Code", Currency."Realized Gains Acc."));
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";
@@ -2920,6 +2968,97 @@ codeunit 134476 "ERM Dimension Purchase"
         until DimensionSetEntry.Next() = 0;
     end;
 
+    local procedure CreateAndPostPaymentLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; PostingDate: Date) PaymentDocNo: Code[20]
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CreateGeneralJournalLine(GenJournalLine, AccountType, AccountNo, DocumentType, Amount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify(true);
+        PaymentDocNo := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
+    end;
+
+    local procedure CreateVendorWithCurrency(CurrencyCode: Code[10]): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
+    end;
+
+    local procedure CreateAndPostPurchaseInvoiceWithCurrencyCode(var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; PostingDate: Date): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, VendorNo, PostingDate);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Modify(true);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; PostingDate: Date)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Validate("Document Date", PostingDate);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
+    end;
+
+    local procedure CreateDimensionWithValue(var DimensionValue: Record "Dimension Value")
+    var
+        Dimension: Record Dimension;
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+    end;
+
+    local procedure CreateDefaultDimensionCodeMandatory(var DefaultDimension: Record "Default Dimension"; TableId: Integer; No: Code[20]; DimensionCode: Code[20])
+    begin
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, TableId, No, DimensionCode, '');
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify();
+    end;
+
+    local procedure CreateCurrencyWithMultipleExchangeRate(var Currency: Record Currency; var FirstStartingDate: Date; var SecondStartingDate: Date)
+    begin
+        // Create Currency with different starting date and Exchange Rate. Taken Random value to calculate Date.
+        FirstStartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());
+        SecondStartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', FirstStartingDate);
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+        CreateExchangeRate(Currency.Code, WorkDate());
+        CreateExchangeRate(Currency.Code, FirstStartingDate);
+        CreateExchangeRate(Currency.Code, SecondStartingDate);
+    end;
+
+    local procedure CreateExchangeRate(CurrencyCode: Code[10]; StartingDate: Date)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        // Take Random Value for Exchange Rate Fields.
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
+        CurrencyExchangeRate.Validate(
+          "Relational Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount" + LibraryRandom.RandDec(100, 2));
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
+        CurrencyExchangeRate.Validate(
+          "Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount" + LibraryRandom.RandDec(100, 2));
+        CurrencyExchangeRate.Modify(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
@@ -2985,6 +3124,20 @@ codeunit 134476 "ERM Dimension Purchase"
     begin
         SalesList.FILTER.SetFilter("Sell-to Customer No.", LibraryVariableStorage.DequeueText());
         SalesList.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    begin
+        ApplyVendorEntries.Filter.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        asserterror ApplyVendorEntries.ActionPostApplication.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PostApplicationModalPageHandler(var PostApplication: TestPage "Post Application")
+    begin
+        PostApplication.OK().Invoke();
     end;
 }
 

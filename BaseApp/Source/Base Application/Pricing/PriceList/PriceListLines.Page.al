@@ -337,7 +337,7 @@ page 7001 "Price List Lines"
         UpdateSourceType();
     end;
 
-    local procedure GetHeader(): Boolean
+    protected procedure GetHeader(): Boolean
     begin
         if Rec."Price List Code" = '' then
             exit(false);

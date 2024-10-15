@@ -185,6 +185,8 @@ page 343 "Check Credit Limit"
                  SalesHeader."Document Type"::"Return Order"])
         then
             NewOrderAmountLCY := NewOrderAmountLCY + SalesLineAmount(SalesHeader."Document Type", SalesHeader."No.");
+        OnSalesHeaderShowWarningOnAfterAssingNewOrderAmountLCY(SalesHeader, NewOrderAmountLCY);
+
         OldSalesHeader := SalesHeader;
         if OldSalesHeader.Find() then
             // If "Bill-To Customer" is the same and Sales Header exists then do not consider amount in credit limit calculation since it's already included in "Outstanding Amount"
@@ -720,6 +722,11 @@ page 343 "Check Credit Limit"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterCalcCreditLimitLCYProcedure(var Customer: Record Customer; var CustCreditAmountLCY: Decimal; var ExtensionAmountsDic: Dictionary of [Guid, Decimal])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesHeaderShowWarningOnAfterAssingNewOrderAmountLCY(var SalesHeader: Record "Sales Header"; var NewOrderAmountLCY: Decimal);
     begin
     end;
 }

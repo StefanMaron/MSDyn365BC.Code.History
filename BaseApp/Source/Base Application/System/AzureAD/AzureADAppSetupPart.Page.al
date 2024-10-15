@@ -15,20 +15,20 @@ page 6301 "Azure AD App Setup Part"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Home page URL';
                 Editable = false;
-                ToolTip = 'Specifies the home page URL to enter when registering an Azure application.';
+                ToolTip = 'Specifies the home page URL to enter when registering a Microsoft Entra application.';
             }
             field(RedirectUrl; RedirectUrl)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Reply URL';
-                ToolTip = 'Specifies the reply URL to enter when registering an Azure application.';
+                ToolTip = 'Specifies the reply URL to enter when registering a Microsoft Entra application.';
             }
             field(AppId; AppId)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Application ID';
                 ShowMandatory = true;
-                ToolTip = 'Specifies the ID that is assigned to the application when it is registered in Microsoft Entra ID.  The ID is used for authenticating with Microsoft Entra ID. This is also referred to as the client ID.';
+                ToolTip = 'Specifies the ID that is assigned to the application when it is registered in Microsoft Entra ID. The ID is used for authenticating with Microsoft Entra ID. This is also referred to as the client ID.';
             }
             field(SecretKey; SecretKey)
             {

@@ -18,6 +18,7 @@ codeunit 1798 "Data Migration Mgt."
         DataMigrationError: Record "Data Migration Error";
         DataMigrationStatus: Record "Data Migration Status";
         Retry: Boolean;
+        DataCreationFailed: Boolean;
     begin
         EnableDataMigrationNotificationForAllUsers();
         DataMigrationStatus.Get(Rec."Record ID to Process");
@@ -59,6 +60,9 @@ codeunit 1798 "Data Migration Mgt."
 
         // migrate any other tables if any
         CheckAbortAndMigrateRemainingEntities(DataMigrationStatus, Retry);
+        OnCreatePostMigrationData(DataMigrationStatus, DataCreationFailed);
+        if DataCreationFailed then
+            exit;
 
         OnAfterMigrationFinished(DataMigrationStatus, false, StartTime, Retry);
     end;
@@ -292,6 +296,11 @@ codeunit 1798 "Data Migration Mgt."
     [IntegrationEvent(TRUE, false)]
     [Scope('OnPrem')]
     procedure OnBeforeMigrationStarted(var DataMigrationStatus: Record "Data Migration Status"; Retry: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnCreatePostMigrationData(var DataMigrationStatus: Record "Data Migration Status"; var DataCreationFailed: Boolean)
     begin
     end;
 

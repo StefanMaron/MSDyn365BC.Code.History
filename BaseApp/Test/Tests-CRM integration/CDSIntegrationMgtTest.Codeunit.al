@@ -18,10 +18,6 @@ codeunit 139195 "CDS Integration Mgt Test"
         IsInitialized: Boolean;
         BaseSolutionUniqueNameTxt: Label 'bcbi_CdsBaseIntegration', Locked = true;
         ConnectionRequiredFieldsErr: Label 'A URL is required.';
-        AdminUserPasswordWrongErr: Label 'Enter valid administrator credentials.';
-        EmptyUserNameErr: Label 'Enter user name.';
-        EmptyPasswordErr: Label 'Enter password.';
-        UserNotFoundErr: Label 'There is no user with ID %1 in Dataverse.', Comment = '%1 = system user ID';
         TestServerAddressTok: Label '@@test@@', Locked = true;
 
     [Test]

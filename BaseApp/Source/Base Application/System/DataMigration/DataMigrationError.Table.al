@@ -56,6 +56,11 @@ table 1797 "Data Migration Error"
             DataClassification = CustomerContent;
             Caption = 'Last record under processing';
         }
+        field(15; "Records Under Processing Log"; Blob)
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Log of Last record under processing';
+        }
     }
 
     keys
@@ -98,9 +103,13 @@ table 1797 "Data Migration Error"
     var
         DataMigrationErrorLogging: Codeunit "Data Migration Error Logging";
     begin
+        if DataMigrationErrorLogging.GetLastRecordUnderProcessing() = '' then
+            exit;
+
         DataMigrationError."Last Record Under Processing" := CopyStr(DataMigrationErrorLogging.GetLastRecordUnderProcessing(), 1, MaxStrLen(DataMigrationError."Last Record Under Processing"));
         DataMigrationError.SetExceptionCallStack(GetLastErrorCallStack());
         DataMigrationError.SetFullExceptionMessage(GetLastErrorText());
+        DataMigrationError.SetLastRecordUnderProcessingLog(DataMigrationErrorLogging.GetFullListOfLastRecordsUnderProcessingAsText());
     end;
 
     procedure CreateEntry(MigrationType: Text[250]; DestinationTableId: Integer; SourceStagingTableRecordId: RecordID)
@@ -190,7 +199,7 @@ table 1797 "Data Migration Error"
             exit('');
 
         Rec."Exception Message".CreateInStream(ExceptionMessageInStream, GetDefaultTextEncoding());
-        ExceptionMessageInStream.ReadText(ExceptionMessage);
+        ExceptionMessageInStream.Read(ExceptionMessage);
         exit(ExceptionMessage);
     end;
 
@@ -199,7 +208,7 @@ table 1797 "Data Migration Error"
         ExceptionMessageOutStream: OutStream;
     begin
         Rec."Exception Message".CreateOutStream(ExceptionMessageOutStream, GetDefaultTextEncoding());
-        ExceptionMessageOutStream.WriteText(ExceptionMessage);
+        ExceptionMessageOutStream.Write(ExceptionMessage);
         Rec.Modify(true);
     end;
 
@@ -213,7 +222,7 @@ table 1797 "Data Migration Error"
             exit('');
 
         Rec."Exception Call Stack".CreateInStream(ExceptionCallStackInStream, GetDefaultTextEncoding());
-        ExceptionCallStackInStream.ReadText(ExceptionCallStack);
+        ExceptionCallStackInStream.Read(ExceptionCallStack);
         exit(ExceptionCallStack);
     end;
 
@@ -238,8 +247,31 @@ table 1797 "Data Migration Error"
         ExceptionCallStackOutStream: OutStream;
     begin
         Rec."Exception Call Stack".CreateOutStream(ExceptionCallStackOutStream, GetDefaultTextEncoding());
-        ExceptionCallStackOutStream.WriteText(ExceptionCallStack);
+        ExceptionCallStackOutStream.Write(ExceptionCallStack);
         Rec.Modify(true);
+    end;
+
+    procedure SetLastRecordUnderProcessingLog(RecordsUnderProcessingLog: Text)
+    var
+        RecordsUnderProcessingOutStreamLog: OutStream;
+    begin
+        Rec."Records Under Processing Log".CreateOutStream(RecordsUnderProcessingOutStreamLog, GetDefaultTextEncoding());
+        RecordsUnderProcessingOutStreamLog.Write(RecordsUnderProcessingLog);
+        Rec.Modify(true);
+    end;
+
+    procedure GetLastRecordsUnderProcessingLog(): Text
+    var
+        RecordsUnderProcessingLogInStream: InStream;
+        RecordsUnderProcessingLog: Text;
+    begin
+        Rec.CalcFields("Records Under Processing Log");
+        if not Rec."Records Under Processing Log".HasValue() then
+            exit('');
+
+        Rec."Records Under Processing Log".CreateInStream(RecordsUnderProcessingLogInStream, GetDefaultTextEncoding());
+        RecordsUnderProcessingLogInStream.Read(RecordsUnderProcessingLog);
+        exit(RecordsUnderProcessingLog);
     end;
 
     local procedure GetDefaultTextEncoding(): TextEncoding
