@@ -328,6 +328,16 @@ page 134 "Posted Sales Credit Memo"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the relation of the CFDI document. ';
                 }
+                field("CFDI Cancellation Reason Code"; "CFDI Cancellation Reason Code")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the reason for the cancellation as a code.';
+                }
+                field("Substitution Document No."; "Substitution Document No.")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the document number that replaces the canceled one. It is required when the cancellation reason is 01.';
+                }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;

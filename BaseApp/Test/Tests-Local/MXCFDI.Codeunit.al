@@ -517,6 +517,7 @@ codeunit 144001 "MX CFDI"
     [Scope('OnPrem')]
     procedure SalesInvoiceCancel()
     begin
+        // [SCENARIO 422335] Cancel Sales Invoice
         CancelTest(DATABASE::"Sales Invoice Header", ResponseOption::Success);
     end;
 
@@ -525,6 +526,7 @@ codeunit 144001 "MX CFDI"
     [Scope('OnPrem')]
     procedure SalesCrMemoCancel()
     begin
+        // [SCENARIO 422335] Cancel Sales Credit Memo
         CancelTest(DATABASE::"Sales Cr.Memo Header", ResponseOption::Success);
     end;
 
@@ -533,6 +535,7 @@ codeunit 144001 "MX CFDI"
     [Scope('OnPrem')]
     procedure ServiceInvoiceCancel()
     begin
+        // [SCENARIO 422335] Cancel Service Invoice
         CancelTest(DATABASE::"Service Invoice Header", ResponseOption::Success);
     end;
 
@@ -541,7 +544,51 @@ codeunit 144001 "MX CFDI"
     [Scope('OnPrem')]
     procedure ServiceCrMemoCancel()
     begin
+        // [SCENARIO 422335] Cancel Service Credit Memo
         CancelTest(DATABASE::"Service Cr.Memo Header", ResponseOption::Success);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SalesShipmentCancel()
+    begin
+        // [SCENARIO 422335] Cancel Sales Shipment
+        CancelTest(DATABASE::"Sales Shipment Header", ResponseOption::Success);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TransferShipmentCancel()
+    begin
+        // [SCENARIO 422335] Cancel Transfer Shipment
+        CancelTest(DATABASE::"Transfer Shipment Header", ResponseOption::Success);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CustomerPaymentCancel()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        PaymentNo: Code[20];
+    begin
+        // [SCENARIO 422335] Cancel customer payment
+        Initialize;
+
+        // [GIVEN] Payment with 'Stamp Received' status
+        PaymentNo := CreatePostPayment(CreateCustomer, '', -LibraryRandom.RandIntInRange(1000, 2000), '');
+        UpdateDocumentFieldValue(
+          DATABASE::"Cust. Ledger Entry", CustLedgerEntry.FieldNo("Document No."), PaymentNo,
+          CustLedgerEntry.FieldNo("Electronic Document Status"), CustLedgerEntry."Electronic Document Status"::"Stamp Received");
+
+        // [WHEN] Cancel customer payment
+        LibraryVariableStorage.Enqueue(true);
+        Cancel(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success);
+
+        // [THEN] Payment has been canceled with MotivoCancelacion
+        Verify(DATABASE::"Cust. Ledger Entry", PaymentNo, StatusOption::Canceled, 0);
     end;
 
     [Test]
@@ -4169,6 +4216,8 @@ codeunit 144001 "MX CFDI"
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        TransferShipmentHeader: Record "Transfer Shipment Header";
         TempBlob: Codeunit "Temp Blob";
         RecordRef: RecordRef;
     begin
@@ -4180,6 +4229,7 @@ codeunit 144001 "MX CFDI"
                     RecordRef.GetTable(SalesInvoiceHeader);
                     TempBlob.ToRecordRef(RecordRef, SalesInvoiceHeader.FieldNo("Signed Document XML"));
                     RecordRef.SetTable(SalesInvoiceHeader);
+                    SalesInvoiceHeader."CFDI Cancellation Reason Code" := FindCancellationReasonCode(false);
                     SalesInvoiceHeader.Modify(true);
                     SalesInvoiceHeader.CancelEDocument;
                 end;
@@ -4189,6 +4239,7 @@ codeunit 144001 "MX CFDI"
                     RecordRef.GetTable(SalesCrMemoHeader);
                     TempBlob.ToRecordRef(RecordRef, SalesCrMemoHeader.FieldNo("Signed Document XML"));
                     RecordRef.SetTable(SalesCrMemoHeader);
+                    SalesCrMemoHeader."CFDI Cancellation Reason Code" := FindCancellationReasonCode(false);
                     SalesCrMemoHeader.Modify(true);
                     SalesCrMemoHeader.CancelEDocument;
                 end;
@@ -4198,6 +4249,7 @@ codeunit 144001 "MX CFDI"
                     RecordRef.GetTable(ServiceInvoiceHeader);
                     TempBlob.ToRecordRef(RecordRef, ServiceInvoiceHeader.FieldNo("Signed Document XML"));
                     RecordRef.SetTable(ServiceInvoiceHeader);
+                    ServiceInvoiceHeader."CFDI Cancellation Reason Code" := FindCancellationReasonCode(false);
                     ServiceInvoiceHeader.Modify(true);
                     ServiceInvoiceHeader.CancelEDocument;
                 end;
@@ -4207,6 +4259,7 @@ codeunit 144001 "MX CFDI"
                     RecordRef.GetTable(ServiceCrMemoHeader);
                     TempBlob.ToRecordRef(RecordRef, ServiceCrMemoHeader.FieldNo("Signed Document XML"));
                     RecordRef.SetTable(ServiceCrMemoHeader);
+                    ServiceCrMemoHeader."CFDI Cancellation Reason Code" := FindCancellationReasonCode(false);
                     ServiceCrMemoHeader.Modify(true);
                     ServiceCrMemoHeader.CancelEDocument;
                 end;
@@ -4216,8 +4269,29 @@ codeunit 144001 "MX CFDI"
                     RecordRef.GetTable(CustLedgerEntry);
                     TempBlob.ToRecordRef(RecordRef, CustLedgerEntry.FieldNo("Signed Document XML"));
                     RecordRef.SetTable(CustLedgerEntry);
+                    CustLedgerEntry."CFDI Cancellation Reason Code" := FindCancellationReasonCode(false);
                     CustLedgerEntry.Modify(true);
                     CustLedgerEntry.CancelEDocument;
+                end;
+            DATABASE::"Sales Shipment Header":
+                begin
+                    SalesShipmentHeader.Get(PostedDocumentNo);
+                    RecordRef.GetTable(SalesShipmentHeader);
+                    TempBlob.ToRecordRef(RecordRef, SalesShipmentHeader.FieldNo("Signed Document XML"));
+                    RecordRef.SetTable(SalesShipmentHeader);
+                    SalesShipmentHeader."CFDI Cancellation Reason Code" := FindCancellationReasonCode(false);
+                    SalesShipmentHeader.Modify(true);
+                    SalesShipmentHeader.CancelEDocument;
+                end;
+            DATABASE::"Transfer Shipment Header":
+                begin
+                    TransferShipmentHeader.Get(PostedDocumentNo);
+                    RecordRef.GetTable(TransferShipmentHeader);
+                    TempBlob.ToRecordRef(RecordRef, TransferShipmentHeader.FieldNo("Signed Document XML"));
+                    RecordRef.SetTable(TransferShipmentHeader);
+                    TransferShipmentHeader."CFDI Cancellation Reason Code" := FindCancellationReasonCode(false);
+                    TransferShipmentHeader.Modify(true);
+                    TransferShipmentHeader.CancelEDocument;
                 end;
         end;
     end;
@@ -4243,6 +4317,12 @@ codeunit 144001 "MX CFDI"
     var
         SalesHeader: Record "Sales Header";
         ServiceHeader: Record "Service Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        Item: Record Item;
     begin
         case TableNo of
             DATABASE::"Sales Invoice Header":
@@ -4253,6 +4333,25 @@ codeunit 144001 "MX CFDI"
                 PostedDocumentNo := CreateAndPostServiceDoc(ServiceHeader."Document Type"::Invoice, PaymentMethodCode);
             DATABASE::"Service Cr.Memo Header":
                 PostedDocumentNo := CreateAndPostServiceDoc(ServiceHeader."Document Type"::"Credit Memo", PaymentMethodCode);
+            DATABASE::"Sales Shipment Header":
+                begin
+                    PostedDocumentNo := CreateAndPostSalesDoc(SalesHeader."Document Type"::Invoice, PaymentMethodCode);
+                    CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer, CreatePaymentMethodForSAT);
+                    CreateSalesLineItem(
+                      SalesLine, SalesHeader, CreateItem, LibraryRandom.RandIntInRange(100, 200), 0, 0, false, false);
+                    LibrarySales.PostSalesDocument(SalesHeader, true, true);
+                    SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+                    SalesShipmentHeader.FindFirst;
+                    UpdateSalesShipmentForCartaPorte(SalesShipmentHeader);
+                    PostedDocumentNo := SalesShipmentHeader."No.";
+                end;
+            DATABASE::"Transfer Shipment Header":
+                begin
+                    CreateTransferItem(LocationFrom, LocationTo, Item);
+                    CreateTransferShipment(TransferShipmentHeader, LocationFrom, LocationTo, Item."No.");
+                    UpdateTransferShipmentForCartaPorte(TransferShipmentHeader);
+                    PostedDocumentNo := TransferShipmentHeader."No.";
+                end;
         end;
     end;
 
@@ -5094,6 +5193,9 @@ codeunit 144001 "MX CFDI"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
         GLSetup: Record "General Ledger Setup";
         DummyTempBlob: Codeunit "Temp Blob";
         ExpectedNoOfEmailsSent: Integer;
@@ -5158,6 +5260,12 @@ codeunit 144001 "MX CFDI"
                     CalcFields("Digital Stamp PAC");
                     DummyTempBlob.FromRecord(SalesInvoiceHeader, FieldNo("Digital Stamp PAC"));
                     VerifyDigitalStamp(DummyTempBlob, ExpectedDigitalStamp);
+                    Clear(DummyTempBlob);
+                    CalcFields("Original Document XML");
+                    DummyTempBlob.FromRecord(SalesInvoiceHeader, FieldNo("Original Document XML"));
+                    VerifyCancelXML(
+                      DummyTempBlob, "Electronic Document Status" = "Electronic Document Status"::Canceled,
+                      "CFDI Cancellation Reason Code", '');
                 end;
             DATABASE::"Sales Cr.Memo Header":
                 with SalesCrMemoHeader do begin
@@ -5176,6 +5284,12 @@ codeunit 144001 "MX CFDI"
                     CalcFields("Digital Stamp PAC");
                     DummyTempBlob.FromRecord(SalesCrMemoHeader, FieldNo("Digital Stamp PAC"));
                     VerifyDigitalStamp(DummyTempBlob, ExpectedDigitalStamp);
+                    Clear(DummyTempBlob);
+                    CalcFields("Original Document XML");
+                    DummyTempBlob.FromRecord(SalesCrMemoHeader, FieldNo("Original Document XML"));
+                    VerifyCancelXML(
+                      DummyTempBlob, "Electronic Document Status" = "Electronic Document Status"::Canceled,
+                      "CFDI Cancellation Reason Code", '');
                 end;
             DATABASE::"Service Invoice Header":
                 with ServiceInvoiceHeader do begin
@@ -5194,6 +5308,12 @@ codeunit 144001 "MX CFDI"
                     CalcFields("Digital Stamp PAC");
                     DummyTempBlob.FromRecord(ServiceInvoiceHeader, FieldNo("Digital Stamp PAC"));
                     VerifyDigitalStamp(DummyTempBlob, ExpectedDigitalStamp);
+                    Clear(DummyTempBlob);
+                    CalcFields("Original Document XML");
+                    DummyTempBlob.FromRecord(ServiceInvoiceHeader, FieldNo("Original Document XML"));
+                    VerifyCancelXML(
+                      DummyTempBlob, "Electronic Document Status" = "Electronic Document Status"::Canceled,
+                      "CFDI Cancellation Reason Code", '');
                 end;
             DATABASE::"Service Cr.Memo Header":
                 with ServiceCrMemoHeader do begin
@@ -5212,6 +5332,42 @@ codeunit 144001 "MX CFDI"
                     CalcFields("Digital Stamp PAC");
                     DummyTempBlob.FromRecord(ServiceCrMemoHeader, FieldNo("Digital Stamp PAC"));
                     VerifyDigitalStamp(DummyTempBlob, ExpectedDigitalStamp);
+                    Clear(DummyTempBlob);
+                    CalcFields("Original Document XML");
+                    DummyTempBlob.FromRecord(ServiceCrMemoHeader, FieldNo("Original Document XML"));
+                    VerifyCancelXML(
+                      DummyTempBlob, "Electronic Document Status" = "Electronic Document Status"::Canceled,
+                      "CFDI Cancellation Reason Code", '');
+                end;
+            DATABASE::"Sales Shipment Header":
+                begin
+                    SalesShipmentHeader.Get(PostedDocumentNo);
+                    SalesShipmentHeader.CalcFields("Original Document XML");
+                    DummyTempBlob.FromRecord(SalesShipmentHeader, SalesShipmentHeader.FieldNo("Original Document XML"));
+                    VerifyCancelXML(
+                      DummyTempBlob,
+                      SalesShipmentHeader."Electronic Document Status" = SalesShipmentHeader."Electronic Document Status"::Canceled,
+                      SalesShipmentHeader."CFDI Cancellation Reason Code", '');
+                end;
+            DATABASE::"Transfer Shipment Header":
+                begin
+                    TransferShipmentHeader.Get(PostedDocumentNo);
+                    TransferShipmentHeader.CalcFields("Original Document XML");
+                    DummyTempBlob.FromRecord(TransferShipmentHeader, TransferShipmentHeader.FieldNo("Original Document XML"));
+                    VerifyCancelXML(
+                      DummyTempBlob,
+                      TransferShipmentHeader."Electronic Document Status" = TransferShipmentHeader."Electronic Document Status"::Canceled,
+                      TransferShipmentHeader."CFDI Cancellation Reason Code", '');
+                end;
+            DATABASE::"Cust. Ledger Entry":
+                begin
+                    LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PostedDocumentNo);
+                    CustLedgerEntry.CalcFields("Original Document XML");
+                    DummyTempBlob.FromRecord(CustLedgerEntry, CustLedgerEntry.FieldNo("Original Document XML"));
+                    VerifyCancelXML(
+                      DummyTempBlob,
+                      CustLedgerEntry."Electronic Document Status" = CustLedgerEntry."Electronic Document Status"::Canceled,
+                      CustLedgerEntry."CFDI Cancellation Reason Code", '');
                 end;
         end;
     end;
@@ -5435,6 +5591,15 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(CustLedgerEntry, CustLedgerEntry.FieldNo("Original Document XML"));
         FileName := FileManagement.ServerTempFileName('.xml');
         FileManagement.BLOBExportToServerFile(TempBlob, FileName);
+    end;
+
+    local procedure FindCancellationReasonCode(SubstitutionRequired: Boolean): Code[10]
+    var
+        CFDICancellationReason: Record "CFDI Cancellation Reason";
+    begin
+        CFDICancellationReason.SetRange("Substitution Number Required", SubstitutionRequired);
+        CFDICancellationReason.FindFirst();
+        exit(CFDICancellationReason.Code);
     end;
 
     local procedure FindPostedHeader(var PostedHeaderRecRef: RecordRef; TableNo: Integer; FieldNo: Integer; DocumentNo: Code[20])
@@ -6142,6 +6307,17 @@ codeunit 144001 "MX CFDI"
         LibraryReportDataset.MoveToRow(3);
         LibraryReportDataset.GetElementValueInCurrentRow('QRCode', RowValue);
         Assert.AreNotEqual('', RowValue, StrSubstNo(IfEmptyErr, 'QRCode', DocumentNo));
+    end;
+
+    local procedure VerifyCancelXML(var TempBlob: Codeunit "Temp Blob"; IsCancelled: Boolean; MotivoCancelacion: Text; FolioSustitucion: Text)
+    begin
+        if not IsCancelled then
+            exit;
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.VerifyAttributeValue('Cancelacion/Folios/Folio', 'MotivoCancelacion', MotivoCancelacion);
+        if FolioSustitucion <> '' then
+            LibraryXPathXMLReader.VerifyAttributeValue('Cancelacion/Folios/Folio', 'FolioSustitucion', FolioSustitucion);
     end;
 
     local procedure CreateBasicSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])

@@ -1008,6 +1008,250 @@ codeunit 142055 "UT REP Vendor 1099"
         FILE.Erase(FileName);
     end;
 
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaMiscCRecLinePayeeName()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        FileName: Text;
+        i: Integer;
+        ExpectedResult: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 423875] Vendor 1099 Magnetic Media's C record line with code "MISC" has totals H and J on position 304
+        Initialize();
+
+        // [GIVEN] Vendor ledger entry with "IRS 1099 Code" = "MISC"
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc, LibraryRandom.RandIntInRange(100, 1000));
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report
+        RunVendor1099MagneticMediaReport(FileName);
+
+        // [THEN] C line has 36 zeroes (18 for H and 18 for J) on position 304
+        for i := 1 to 36 do
+            ExpectedResult += '0';
+        Assert.AreEqual(
+          ExpectedResult,
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 4, 304, StrLen(ExpectedResult)), '');
+
+        FILE.Erase(FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaMiscBRecLinePayeeName()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Vendor: Record Vendor;
+        FileName: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 423875] Vendor 1099 Magnetic Media's B record line with code "MISC" has "Payee Name" element on position 288
+
+        Initialize();
+
+        // [GIVEN] Vendor ledger entry with vendor Name = "X" and "IRS 1099 Code" = "MISC"
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc, LibraryRandom.RandIntInRange(100, 1000));
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report
+        RunVendor1099MagneticMediaReport(FileName);
+
+        // [THEN] B line has "X" on position 288
+        Vendor.Get(VendorLedgerEntry."Vendor No.");
+        Assert.AreEqual(
+          Vendor.Name,
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 288, StrLen(Vendor.Name)), '');
+
+        FILE.Erase(FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaDivCRecLinePayeeName()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        FileName: Text;
+        i: Integer;
+        ExpectedResult: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 423875] Vendor 1099 Magnetic Media's C record line with code "DIV" has totals H and J on position 304
+        Initialize();
+
+        // [GIVEN] Vendor ledger entry with "IRS 1099 Code" = "DIV"
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeDiv, LibraryRandom.RandIntInRange(100, 1000));
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report
+        RunVendor1099MagneticMediaReport(FileName);
+
+        // [THEN] C line has 36 zeroes (18 for H and 18 for J) on position 304
+        for i := 1 to 36 do
+            ExpectedResult += '0';
+        Assert.AreEqual(
+          ExpectedResult,
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 4, 304, StrLen(ExpectedResult)), '');
+
+        FILE.Erase(FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaDivBRecLinePayeeName()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Vendor: Record Vendor;
+        FileName: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 423875] Vendor 1099 Magnetic Media's B record line with code "DIV" has "Payee Name" element on position 288
+
+        Initialize();
+
+        // [GIVEN] Vendor ledger entry with vendor Name = "X" and "IRS 1099 Code" = "DIV"
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeDiv, LibraryRandom.RandIntInRange(100, 1000));
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report
+        RunVendor1099MagneticMediaReport(FileName);
+
+        // [THEN] B line has "X" on position 288
+        Vendor.Get(VendorLedgerEntry."Vendor No.");
+        Assert.AreEqual(
+          Vendor.Name,
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 288, StrLen(Vendor.Name)), '');
+
+        FILE.Erase(FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaIntCRecLinePayeeName()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        FileName: Text;
+        i: Integer;
+        ExpectedResult: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 423875] Vendor 1099 Magnetic Media's C record line with code "INT" has totals H and J on position 304
+        Initialize();
+
+        // [GIVEN] Vendor ledger entry with "IRS 1099 Code" = "INT"
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeInt, LibraryRandom.RandIntInRange(100, 1000));
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report
+        RunVendor1099MagneticMediaReport(FileName);
+
+        // [THEN] C line has 36 zeroes (18 for H and 18 for J) on position 304
+        for i := 1 to 36 do
+            ExpectedResult += '0';
+        Assert.AreEqual(
+          ExpectedResult,
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 4, 304, StrLen(ExpectedResult)), '');
+
+        FILE.Erase(FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaIntBRecLinePayeeName()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Vendor: Record Vendor;
+        FileName: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 423875] Vendor 1099 Magnetic Media's B record line with code "INT" has "Payee Name" element on position 288
+
+        Initialize();
+
+        // [GIVEN] Vendor ledger entry with vendor Name = "X" and "IRS 1099 Code" = "INT"
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeInt, LibraryRandom.RandIntInRange(100, 1000));
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report
+        RunVendor1099MagneticMediaReport(FileName);
+
+        // [THEN] B line has "X" on position 288
+        Vendor.Get(VendorLedgerEntry."Vendor No.");
+        Assert.AreEqual(
+          Vendor.Name,
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 288, StrLen(Vendor.Name)), '');
+
+        FILE.Erase(FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaNecCRecLinePayeeName()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        FileName: Text;
+        i: Integer;
+        ExpectedResult: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 423875] Vendor 1099 Magnetic Media's C record line with code "NEC" has totals H and J on position 304
+        Initialize();
+
+        // [GIVEN] Vendor ledger entry with "IRS 1099 Code" = "NEC"
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeNec01Tok, LibraryRandom.RandIntInRange(1000, 10000));
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report
+        RunVendor1099MagneticMediaReport(FileName);
+
+        // [THEN] C line has 36 zeroes (18 for H and 18 for J) on position 304
+        for i := 1 to 36 do
+            ExpectedResult += '0';
+        Assert.AreEqual(
+          ExpectedResult,
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 4, 304, StrLen(ExpectedResult)), '');
+
+        FILE.Erase(FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099MagneticMediaRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099MagneticMediaNecBRecLinePayeeName()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Vendor: Record Vendor;
+        FileName: Text;
+    begin
+        // [FEATURE] [Vendor 1099 Magnetic Media]
+        // [SCENARIO 423875] Vendor 1099 Magnetic Media's B record line with code "NEC" has "Payee Name" element on position 288
+
+        Initialize();
+
+        // [GIVEN] Vendor ledger entry with vendor Name = "X" and "IRS 1099 Code" = "NEC"
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeNec01Tok, LibraryRandom.RandIntInRange(1000, 10000));
+
+        // [WHEN] Run Vendor 1099 Magnetic Media report
+        RunVendor1099MagneticMediaReport(FileName);
+
+        // [THEN] B line has "X" on position 288
+        Vendor.Get(VendorLedgerEntry."Vendor No.");
+        Assert.AreEqual(
+          Vendor.Name,
+          LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 288, StrLen(Vendor.Name)), '');
+
+        FILE.Erase(FileName);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1055,6 +1299,7 @@ codeunit 142055 "UT REP Vendor 1099"
     begin
         Vendor."No." := LibraryUTUtility.GetNewCode;
         Vendor."Federal ID No." := LibraryUTUtility.GetNewCode10;
+        Vendor.Name := LibraryUtility.GenerateGUID();
         Vendor.Address := LibraryUTUtility.GetNewCode10;
         Vendor."Address 2" := LibraryUTUtility.GetNewCode10;
         Vendor.Insert();
