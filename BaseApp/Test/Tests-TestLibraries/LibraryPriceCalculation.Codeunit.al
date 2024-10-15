@@ -196,6 +196,18 @@ codeunit 130510 "Library - Price Calculation"
         end;
     end;
 
+    procedure SetUseCustomLookup(NewValue: Boolean) OldValue: Boolean;
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        OldValue := SalesReceivablesSetup."Use Customized Lookup";
+        if OldValue = NewValue then
+            exit;
+        SalesReceivablesSetup."Use Customized Lookup" := NewValue;
+        SalesReceivablesSetup.Modify();
+    end;
+
     procedure SetMethodInSalesSetup()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
