@@ -13,6 +13,8 @@ codeunit 134157 "ERM Posting Rounding"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
 
@@ -169,22 +171,117 @@ codeunit 134157 "ERM Posting Rounding"
         VerifyInvoicePostBufferAmounts(TempInvoicePostBuffer, 2, 1, 2, 1, 2, 1);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceFCYGLSetupAmountRoundingReverseChargeVAT()
+    var
+        Currency: Record Currency;
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        ExchangeRate: Decimal;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [FCY] [Roundin] [Posting] [Reverse Charge VAT]
+        // [SCENARIO 424526] System applies G/L Setup's "Amount Rounding Precision" on LCY VAT amounts when it calculates Reverse Charge VAT on FCY purchase invoices.
+        Initialize();
+
+        LibraryERM.SetAmountRoundingPrecision(1);
+
+        ExchangeRate := 369;
+
+        CreateCurrencyWithExchangeRate(Currency, WorkDate(), ExchangeRate, ExchangeRate);
+
+        PrepareSetup_424526(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 20, Vendor, GLAccount, Currency.Code);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", 109);
+        PurchaseLine.Modify(true);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        VerifyVATEntryAmounts(VATEntry.Type::Purchase, VATEntry."Document Type"::Invoice, DocumentNo, 40221, 8044.2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceFCYGLSetupAmountRoundingNormalVAT()
+    var
+        Currency: Record Currency;
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        ExchangeRate: Decimal;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [FCY] [Roundin] [Posting] [Reverse Charge VAT]
+        // [SCENARIO 424526] System applies G/L Setup's "Amount Rounding Precision" on LCY VAT amounts when it calculates Reverse Charge VAT on FCY purchase invoices.
+        Initialize();
+
+        LibraryERM.SetAmountRoundingPrecision(1);
+
+        ExchangeRate := 369;
+
+        CreateCurrencyWithExchangeRate(Currency, WorkDate(), ExchangeRate, ExchangeRate);
+
+        PrepareSetup_424526(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 20, Vendor, GLAccount, Currency.Code);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", 109);
+        PurchaseLine.Modify(true);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        VerifyVATEntryAmounts(VATEntry.Type::Purchase, VATEntry."Document Type"::Invoice, DocumentNo, 40221, 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibrarySetupStorage.Restore();
+
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Posting Rounding");
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Posting Rounding");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         IsInitialized := true;
         Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Posting Rounding");
+    end;
+
+    local procedure PrepareSetup_424526(var VATPostingSetup: Record "VAT Posting Setup"; TaxCalculationType: Enum "Tax Calculation Type"; VATPercent: Decimal; var Vendor: Record Vendor; var GLAccount: Record "G/L Account"; CurrencyCode: Code[10])
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, TaxCalculationType, VATPercent);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+
+        Commit();
     end;
 
     local procedure PrepareAmounts_TFS268735(var Amounts: array[9] of Decimal; var CurrencyExchRate: Decimal)
@@ -311,6 +408,25 @@ codeunit 134157 "ERM Posting Rounding"
         CreateSalesLine(SalesHeader, GLAccountNo[4], Amounts[9]);
     end;
 
+    local procedure CreateCurrencyWithExchangeRate(var Currency: Record Currency; StartingDate: Date; ExchangeRateAmount: Decimal; AdjustmentExchangeRateAmount: Decimal)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+
+        CurrencyExchangeRate.Init();
+        CurrencyExchangeRate.Validate("Currency Code", Currency.Code);
+        CurrencyExchangeRate.Validate("Starting Date", StartingDate);
+        CurrencyExchangeRate.Insert(true);
+
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", ExchangeRateAmount);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", AdjustmentExchangeRateAmount);
+        CurrencyExchangeRate.Modify(true);
+    end;
+
+
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATRate: Decimal)
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATRate);
@@ -401,5 +517,18 @@ codeunit 134157 "ERM Posting Rounding"
             TestField("VAT Base Amount (ACY)", ExpVATBaseAmountACY);
         end;
     end;
+
+    local procedure VerifyVATEntryAmounts(VATEntryType: Enum "General Posting Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedBase: Decimal; ExpectedAmount: Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange(Type, VATEntryType);
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+        VATEntry.TestField(Base, ExpectedBase);
+        VATEntry.TestField(Amount, ExpectedAmount);
+    end;
+
 }
 

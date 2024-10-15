@@ -438,6 +438,10 @@ page 5978 "Posted Service Invoice"
             group("Electronic Invoice")
             {
                 Caption = 'Electronic Invoice';
+                field("CFDI Export Code"; "CFDI Export Code")
+                {
+                    ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
+                }
                 field("Electronic Document Status"; "Electronic Document Status")
                 {
                     ToolTip = 'Specifies the status of the document.';

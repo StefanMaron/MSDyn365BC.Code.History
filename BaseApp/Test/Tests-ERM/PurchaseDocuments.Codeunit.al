@@ -1069,6 +1069,8 @@ codeunit 134099 "Purchase Documents"
         // [GIVEN] Purchase invoice for vendor "X"
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeaderInvoice, PurchaseHeaderOrder."Document Type"::Invoice, PurchaseHeaderOrder."Buy-from Vendor No.");
+        PurchaseHeaderInvoice.Validate("VAT Bus. Posting Group", '');
+        PurchaseHeaderInvoice.Modify();
 
         // [WHEN] Call "Get Receipt Lines" with reversed order
         GetReceiptLinesWithOrder(PurchaseHeaderOrder, PurchaseHeaderInvoice, true);
@@ -1109,6 +1111,8 @@ codeunit 134099 "Purchase Documents"
         // [GIVEN] Purchase invoice for vendor "X"
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeaderInvoice, PurchaseHeaderOrder."Document Type"::Invoice, PurchaseHeaderOrder."Buy-from Vendor No.");
+        PurchaseHeaderInvoice.Validate("VAT Bus. Posting Group", '');
+        PurchaseHeaderInvoice.Modify();
 
         // [WHEN] Call "Get Receipt Lines" with reversed order
         GetReceiptLinesWithOrder(PurchaseHeaderOrder, PurchaseHeaderInvoice, false);
@@ -1149,6 +1153,8 @@ codeunit 134099 "Purchase Documents"
         // [GIVEN] Purchase invoice for vendor "X"
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeaderInvoice, PurchaseHeaderOrder."Document Type"::Invoice, PurchaseHeaderOrder."Buy-from Vendor No.");
+        PurchaseHeaderInvoice.Validate("VAT Bus. Posting Group", '');
+        PurchaseHeaderInvoice.Modify();
 
         // [WHEN] Call "Get Receipt Lines" with reversed order
         GetReceiptLinesWithOrder(PurchaseHeaderOrder, PurchaseHeaderInvoice, true);
@@ -1189,6 +1195,8 @@ codeunit 134099 "Purchase Documents"
         // [GIVEN] Purchase invoice for vendor "X"
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeaderInvoice, PurchaseHeaderOrder."Document Type"::Invoice, PurchaseHeaderOrder."Buy-from Vendor No.");
+        PurchaseHeaderInvoice.Validate("VAT Bus. Posting Group", '');
+        PurchaseHeaderInvoice.Modify();
 
         // [WHEN] Call "Get Receipt Lines" with reversed order
         GetReceiptLinesWithOrder(PurchaseHeaderOrder, PurchaseHeaderInvoice, false);
@@ -1270,6 +1278,8 @@ codeunit 134099 "Purchase Documents"
 
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeaderInvoice, PurchaseHeaderOrder."Document Type"::Invoice, PurchaseHeaderOrder."Buy-from Vendor No.");
+        PurchaseHeaderInvoice.Validate("VAT Bus. Posting Group", '');
+        PurchaseHeaderInvoice.Modify();
 
         GetReceiptLinesWithOrder(PurchaseHeaderOrder, PurchaseHeaderInvoice, false);
 
