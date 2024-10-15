@@ -41,12 +41,22 @@ codeunit 1482 "Edit in Excel Impl."
 
     procedure GenerateExcelWorkBook(TenantWebService: Record "Tenant Web Service"; SearchFilter: Text)
     var
+        TenantWebServiceOData: Record "Tenant Web Service OData";
         TenantWebServiceColumns: Record "Tenant Web Service Columns";
+        WebServiceManagement: Codeunit "Web Service Management";
+        FilterClause: Text;
     begin
         if not TenantWebService.Find() then
             exit;
 
-        GenerateExcelWorkBookWithColumns(TenantWebService, TenantWebServiceColumns, SearchFilter, '')
+        TenantWebServiceOData.Init();
+        TenantWebServiceOData.SetRange(TenantWebServiceID, TenantWebService.RecordId);
+        if TenantWebServiceOData.FindFirst() then begin
+            FilterClause := WebServiceManagement.GetODataV4FilterClause(TenantWebServiceOData);
+            GenerateExcelWorkBookWithColumns(TenantWebService, TenantWebServiceColumns, SearchFilter, FilterClause)
+        end
+        else
+            GenerateExcelWorkBookWithColumns(TenantWebService, TenantWebServiceColumns, SearchFilter, '');
     end;
 
     local procedure GenerateExcelWorkBookWithColumns(TenantWebService: Record "Tenant Web Service"; var TenantWebServiceColumns: Record "Tenant Web Service Columns" temporary; SearchFilter: Text; FilterClause: Text)
