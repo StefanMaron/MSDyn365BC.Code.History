@@ -923,6 +923,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType AppliesToIdErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2488707860 - NamedType 119600690" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applies-to ID is not removed on Vendor Ledger Entry]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType AppliesToIDNotRemovedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2488707860 - NamedType 562356530" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applies-to ID is not set on Vendor Ledger Entry]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType AppliesToIDNotSetErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2488707860 - NamedType 3905048205" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Document No. is not equal.]]></Val>
