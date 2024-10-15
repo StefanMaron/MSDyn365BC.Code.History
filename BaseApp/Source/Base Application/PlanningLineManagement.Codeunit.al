@@ -149,7 +149,6 @@ codeunit 99000809 "Planning Line Management"
                           ProdBOMLine[Level].Quantity *
                           (1 + ProdBOMLine[Level]."Scrap %" / 100) *
                           (1 + PlanningRtngLine2."Scrap Factor % (Accumulated)") *
-                          (1 + ReqLine."Scrap %" / 100) *
                           LineQtyPerUOM /
                           ItemQtyPerUOM +
                           PlanningRtngLine2."Fixed Scrap Qty. (Accum.)";
@@ -157,7 +156,6 @@ codeunit 99000809 "Planning Line Management"
                         ReqQty :=
                           ProdBOMLine[Level].Quantity *
                           (1 + ProdBOMLine[Level]."Scrap %" / 100) *
-                          (1 + ReqLine."Scrap %" / 100) *
                           LineQtyPerUOM /
                           ItemQtyPerUOM;
                     case ProdBOMLine[Level].Type of
