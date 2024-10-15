@@ -22,32 +22,7 @@ page 554 "Analysis by Dimensions"
                     Caption = 'Analysis View Code';
                     TableRelation = "Analysis View";
                     ToolTip = 'Specifies the code for the analysis view that the filter belongs to.';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    var
-                        AnalysisViewList: Page "Analysis View List";
-                    begin
-                        AnalysisViewList.LookupMode := true;
-                        AnalysisView.SetRange("Account Source", AnalysisView."Account Source");
-                        AnalysisViewList.SetTableView(AnalysisView);
-                        AnalysisViewList.SetRecord(AnalysisView);
-                        if AnalysisViewList.RunModal() = ACTION::LookupOK then begin
-                            AnalysisViewList.GetRecord(AnalysisView);
-                            "Analysis View Code" := AnalysisView.Code;
-                            Text := AnalysisView.Code;
-                            ValidateAnalysisViewCode();
-                            ValidateColumnDimCode();
-                            ValidateLineDimCode();
-                            exit(true);
-                        end;
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        ValidateAnalysisViewCode();
-                        ValidateColumnDimCode();
-                        ValidateLineDimCode();
-                    end;
+                    Editable = false;
                 }
                 field(LineDimCode; LineDimCode)
                 {
@@ -486,11 +461,6 @@ page 554 "Analysis by Dimensions"
         Dim1FilterEnable := true;
     end;
 
-    trigger OnNextRecord(Steps: Integer): Integer
-    begin
-        exit(NextRecord("Line Dim Option", TempDimensionCodeBuffer, Steps));
-    end;
-
     trigger OnOpenPage()
     var
         GLAcc: Record "G/L Account";
@@ -676,8 +646,12 @@ page 554 "Analysis by Dimensions"
                     if "Date Filter" <> '' then
                         Period.SetFilter("Period Start", "Date Filter")
                     else
-                        if InternalDateFilter <> '' then
-                            Period.SetFilter("Period Start", InternalDateFilter);
+                        if Period."Period Start" <> 0D then
+                            Period.SetFilter("Period Start", '%1..%2', Period."Period Start", ClosingDate(Period."Period Start"))
+                        else
+                            if InternalDateFilter <> '' then
+                                Period.SetFilter("Period Start", InternalDateFilter);
+
                     Found := PeriodPageMgt.FindDate(Which, Period, "Period Type");
                     if Found then
                         CopyPeriodToBuf(Period, DimCodeBuf);

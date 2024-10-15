@@ -469,8 +469,6 @@ page 30101 "Shpfy Shop Card"
                         Rec.RequestAccessToken();
                     end;
                 }
-
-
             }
             group(Sync)
             {
@@ -659,6 +657,20 @@ page 30101 "Shpfy Shop Card"
                         Rec.SetLastSyncTime("Shpfy Synchronization Type"::Orders, GetResetSyncTo(Rec.GetLastSyncTime("Shpfy Synchronization Type"::Orders)));
                     end;
                 }
+            }
+            action(CreateFulfillmentService)
+            {
+                ApplicationArea = All;
+                Caption = 'Create Shopify Fulfillment Service';
+                Image = CreateInventoryPickup;
+                ToolTip = 'Create Shopify Fulfillment Service';
+                
+                trigger OnAction()
+                var
+                    FullfillmentOrdersAPI: Codeunit "Shpfy Fulfillment Orders API";
+                begin
+                    FullfillmentOrdersAPI.RegisterFulfillmentService(Rec);
+                end;
             }
         }
     }

@@ -411,6 +411,7 @@ report 408 "Purchase - Receipt"
             trigger OnAfterGetRecord()
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Purch. Rcpt. Header");
                 FormatDocumentFields("Purch. Rcpt. Header");
