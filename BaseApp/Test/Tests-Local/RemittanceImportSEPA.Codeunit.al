@@ -1375,6 +1375,7 @@ codeunit 144136 "Remittance - Import SEPA"
         EnqueueConfirmImport(FilePath, Approved, Rejected, Settled, ConfirmTheImport);
 
         // ImportPaymentOrder action
+        Commit();
         PaymentJournal.ImportReturnData.Invoke();
     end;
 

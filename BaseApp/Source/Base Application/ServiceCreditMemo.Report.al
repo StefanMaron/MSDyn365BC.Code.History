@@ -256,7 +256,7 @@ report 5912 "Service - Credit Memo"
                         }
                         column(LineAmt_ServCrMemoLine; "Line Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Desc_ServCrMemoLine; Description)
@@ -273,7 +273,7 @@ report 5912 "Service - Credit Memo"
                         }
                         column(UnitPrice_ServCrMemoLine; "Unit Price")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDisc_ServCrMemoLine; "Line Discount %")
@@ -287,22 +287,22 @@ report 5912 "Service - Credit Memo"
                         }
                         column(Amt_ServCrMemoLine; Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(InvDiscountAmount; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtInclVAT_ServCrMemoLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtInclVATAmt; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(LineAmtInvDiscAmtInclVAT; -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT"))
@@ -405,7 +405,7 @@ report 5912 "Service - Credit Memo"
                             TotalAmountInclVAT += "Amount Including VAT";
                             TotalInvDiscAmount += "Inv. Discount Amount";
                             TotalLineAmount += "Line Amount";
-                            TypeInt := Type;
+                            TypeInt := Type.AsInteger();
                         end;
 
                         trigger OnPreDataItem()

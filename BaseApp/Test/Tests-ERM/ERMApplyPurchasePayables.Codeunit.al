@@ -822,7 +822,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Purchase/Payables");
     end;
 
-    local procedure ApplyVendorEntry(var ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure ApplyVendorEntry(var ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -844,7 +844,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
     end;
 
-    local procedure ApplyAndPostVendorEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure ApplyAndPostVendorEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -950,7 +950,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
             ValidateVendLedgEntrClosed(InvVendorLedgerEntry[i])
     end;
 
-    local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
+    local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     begin
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>''''');
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>''''');
@@ -1069,7 +1069,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1132,7 +1132,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         exit(Item."No.");
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; DirectUnitCost: Decimal; Quantity: Decimal): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; DirectUnitCost: Decimal; Quantity: Decimal): Code[20]
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
@@ -1155,7 +1155,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
@@ -1343,7 +1343,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         Remainder := Remainder - PmtLCYAmount;
     end;
 
-    local procedure CreateGenJnlLineWithAppliesToID(var GenJnlLine: Record "Gen. Journal Line"; AccType: Option; AccNo: Code[20]; AppliesToID: Code[50])
+    local procedure CreateGenJnlLineWithAppliesToID(var GenJnlLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; AppliesToID: Code[50])
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
@@ -1356,7 +1356,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         end;
     end;
 
-    local procedure CreateGenJnlLineWithAppliesToDocNo(var GenJnlLine: Record "Gen. Journal Line"; AccType: Option; AccNo: Code[20]; AppliesToDocNo: Code[20])
+    local procedure CreateGenJnlLineWithAppliesToDocNo(var GenJnlLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; AppliesToDocNo: Code[20])
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
@@ -1510,7 +1510,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
     end;
 
-    local procedure TestRemainingAmountOnVendorLedgerEntry(DocumentType: Option; SignForGLEntry: Integer; SignForVendorLedgerEntry: Integer)
+    local procedure TestRemainingAmountOnVendorLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; SignForGLEntry: Integer; SignForVendorLedgerEntry: Integer)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1553,7 +1553,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         VendorLedgerEntry.TestField("Remaining Pmt. Disc. Possible", VendorLedgerEntry."Original Pmt. Disc. Possible");
     end;
 
-    local procedure VerifyGLEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal)
+    local procedure VerifyGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin

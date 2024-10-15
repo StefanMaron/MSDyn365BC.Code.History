@@ -329,7 +329,7 @@ report 81 "Import Budget from Excel"
                 RecNo := RecNo + 1;
                 Window.Update(1, Round(RecNo / TotalRecNo * 10000, 1));
                 TempDim.SetRange(
-                  "Code Caption", UpperCase(CopyStr(FormatData(ExcelBuf."Cell Value as Text"), 1, MaxStrLen(TempDim."Code Caption"))));
+                  "Code Caption", UpperCase(CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(TempDim."Code Caption"))));
                 case true of
                     ExcelBuf."Cell Value as Text" = GLBudgetEntry.FieldCaption("G/L Account No."):
                         begin
@@ -547,24 +547,6 @@ report 81 "Import Budget from Excel"
         if not GLAccount.Get(AccNo) then
             exit(false);
         exit(GLAccount."Account Type" in [GLAccount."Account Type"::Posting, GLAccount."Account Type"::"Begin-Total"]);
-    end;
-
-    local procedure FormatData(TextToFormat: Text[250]): Text[250]
-    var
-        FormatInteger: Integer;
-        FormatDecimal: Decimal;
-        FormatDate: Date;
-    begin
-        case true of
-            Evaluate(FormatInteger, TextToFormat):
-                exit(Format(FormatInteger));
-            Evaluate(FormatDecimal, TextToFormat):
-                exit(Format(FormatDecimal));
-            Evaluate(FormatDate, TextToFormat):
-                exit(Format(FormatDate));
-            else
-                exit(TextToFormat);
-        end;
     end;
 
     procedure SetParameters(NewToGLBudgetName: Code[10]; NewImportOption: Option)

@@ -4,12 +4,10 @@ table 438 "Handled IC Inbox Sales Header"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "IC Sales Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = ' ,Order,Invoice,Credit Memo,,Return Order';
-            OptionMembers = " ","Order",Invoice,"Credit Memo",,"Return Order";
         }
         field(2; "Sell-to Customer No."; Code[20])
         {

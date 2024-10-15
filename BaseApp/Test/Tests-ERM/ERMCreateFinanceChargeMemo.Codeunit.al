@@ -258,14 +258,37 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     [Test]
     [HandlerFunctions('IssueFinanceChargeMemosHandler,EMailDialogPageHandler')]
     [Scope('OnPrem')]
+    procedure TestIssueFinChargeMemoEmailSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        IssueFinChargeMemoEmail();
+    end;
+
+    // [Test]
+    [HandlerFunctions('IssueFinanceChargeMemosHandler,EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
+    procedure TestIssueFinChargeMemoEmail()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        IssueFinChargeMemoEmail();
+    end;
+
     procedure IssueFinChargeMemoEmail()
     var
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         Customer: Record Customer;
+        EmailFeature: Codeunit "Email Feature";
+        LibraryWorkflow: Codeunit "Library - Workflow";
     begin
         // [FEATURE] [EMail]
         // [SCENARIO 376445] Issue Finance Charge Memo with Print = E-Mail and Hide Email-Dialog = No should show 'E-Mail Dialog' page
         Initialize;
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount();
 
         // [GIVEN] Customer "A" with Finance Charge Memo
         Customer.Get(CreateCustomerWithFinanceChargeTerms(CreateFinanceChargeTerms(1)));
@@ -586,6 +609,19 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     procedure EMailDialogPageHandler(var EMailDialog: TestPage "Email Dialog")
     begin
         EMailDialog.Cancel.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EmailEditorHandler(var EmailEditor: TestPage "Email Editor")
+    begin
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CloseEmailEditorHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 1;
     end;
 
     local procedure BindActiveDirectoryMockEvents()

@@ -158,6 +158,11 @@ table 441 "Handled IC Inbox Purch. Line"
             OptionCaption = 'Returned by Partner,Created by Partner';
             OptionMembers = "Returned by Partner","Created by Partner";
         }
+        field(138; "IC Item Reference No."; Code[50])
+        {
+            AccessByPermission = TableData "Item Reference" = R;
+            Caption = 'IC Item Reference No.';
+        }
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';

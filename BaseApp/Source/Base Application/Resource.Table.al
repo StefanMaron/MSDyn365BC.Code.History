@@ -607,6 +607,9 @@ table 156 Resource
         key(Key7; "Resource Group No.")
         {
         }
+        key(Key8; SystemModifiedAt)
+        {
+        }
     }
 
     fieldgroups
@@ -750,6 +753,22 @@ table 156 Resource
                 exit(true);
             end;
         end;
+    end;
+
+    local procedure AsPriceAsset(var PriceAsset: Record "Price Asset")
+    begin
+        PriceAsset.Init();
+        PriceAsset."Asset Type" := PriceAsset."Asset Type"::Resource;
+        PriceAsset."Asset No." := "No.";
+    end;
+
+    procedure ShowPriceListLines(PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
+    var
+        PriceAsset: Record "Price Asset";
+        PriceUXManagement: Codeunit "Price UX Management";
+    begin
+        AsPriceAsset(PriceAsset);
+        PriceUXManagement.ShowPriceListLines(PriceAsset, PriceType, AmountType);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])

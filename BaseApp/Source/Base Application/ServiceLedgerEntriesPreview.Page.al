@@ -277,7 +277,7 @@ page 168 "Service Ledger Entries Preview"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(SetDimensionFilter)

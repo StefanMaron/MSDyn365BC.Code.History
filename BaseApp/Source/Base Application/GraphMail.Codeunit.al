@@ -6,7 +6,7 @@ codeunit 405 "Graph Mail"
     var
         GraphMailSetup: Record "Graph Mail Setup";
     begin
-        SendTraceTag('00001QJ', GraphMailCategoryTxt, VERBOSITY::Normal, RefreshRefreshTokenMsg, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001QJ', RefreshRefreshTokenMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphMailCategoryTxt);
         GraphMailSetup.Get();
         GraphMailSetup.RenewRefreshToken;
         GraphMailSetup.Modify(true);
@@ -142,7 +142,7 @@ codeunit 405 "Graph Mail"
         TokenCacheState: Text;
     begin
         if RetryCount > 2 then begin
-            SendTraceTag('00001TY', GraphMailCategoryTxt, VERBOSITY::Error, RetryExceededMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00001TY', RetryExceededMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphMailCategoryTxt);
             exit;
         end;
 
@@ -150,9 +150,7 @@ codeunit 405 "Graph Mail"
 
         if not MailSent then begin
             LastErrorMsg := GetLastErrorText;
-            SendTraceTag(
-              '00001QK', GraphMailCategoryTxt, VERBOSITY::Error, StrSubstNo(GraphMailFailedSendErr, RetryCount, LastErrorMsg),
-              DATACLASSIFICATION::CustomerContent);
+            Session.LogMessage('00001QK', StrSubstNo(GraphMailFailedSendErr, RetryCount, LastErrorMsg), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', GraphMailCategoryTxt);
 
             if HandleError(LastErrorMsg) then
                 SendMailWithRetry(TempEmailItem, RetryCount + 1);

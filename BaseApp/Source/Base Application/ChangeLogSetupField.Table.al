@@ -17,7 +17,7 @@ table 404 "Change Log Setup (Field)"
         }
         field(3; "Field Caption"; Text[100])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Field No.")));
             Caption = 'Field Caption';
             FieldClass = FlowField;
@@ -34,6 +34,21 @@ table 404 "Change Log Setup (Field)"
         {
             Caption = 'Log Deletion';
         }
+        field(7; "Monitor Sensitive Field"; Boolean)
+        {
+            DataClassification = SystemMetadata;
+        }
+        field(8; Notify; Boolean)
+        {
+            DataClassification = SystemMetadata;
+        }
+        field(9; "Table Caption"; Text[250])
+        {
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
+                                                                           "Object ID" = FIELD("Table No.")));
+            Caption = 'Table Caption';
+            FieldClass = FlowField;
+        }
     }
 
     keys
@@ -47,5 +62,23 @@ table 404 "Change Log Setup (Field)"
     fieldgroups
     {
     }
+
+    trigger OnDelete()
+    begin
+        if "Monitor Sensitive Field" then
+            MonitorSensitiveField.DeleteChangeLogSetupTable("Table No.", "Field No.");
+    end;
+
+    trigger OnRename()
+    begin
+        if "Monitor Sensitive Field" then begin
+            MonitorSensitiveField.DeleteChangeLogSetupTable(xRec."Table No.", xRec."Field No.");
+            MonitorSensitiveField.InsertChangeLogSetupTable(Rec."Table No.");
+        end;
+    end;
+
+    var
+        MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
+
 }
 

@@ -42,7 +42,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         CreateSalesPriceSetup(SalesReceivablesSetup, Item, Customer);
         MinimumQty := LibraryRandom.RandDec(5, 2) + 10;  // Random values not important.
         NewUnitPrice := Item."Unit Price" - LibraryRandom.RandInt(5);
-        CreateSalesPrice(Item, SalesPrice."Sales Type"::Customer, Customer."No.", NewUnitPrice, MinimumQty);
+        CreateSalesPrice(Item, "Sales Price Type"::Customer, Customer."No.", NewUnitPrice, MinimumQty);
         CreateSalesLineDiscount(Item, Customer."No.", MinimumQty);
 
         // Exercise: Create Sales Order.
@@ -64,7 +64,6 @@ codeunit 137201 "SCM Sales Price Wksht"
         SalesPrice: Record "Sales Price";
         NewUnitPrice: Decimal;
         MinimumQty: Decimal;
-        SalesType: Option Customer,"Customer Price Group","All Customers",Campaign;
     begin
         // Setup: Create Sales Price Setup with Line Discount and suggest new Sales Price.
         Initialize;
@@ -72,9 +71,9 @@ codeunit 137201 "SCM Sales Price Wksht"
         CreateSalesPriceSetup(SalesReceivablesSetup, Item, Customer);
         MinimumQty := LibraryRandom.RandDec(5, 2) + 10;  // Random values not important.
         CreateSalesPrice(
-          Item, SalesPrice."Sales Type"::Customer, Customer."No.", Item."Unit Price" - LibraryRandom.RandInt(5), MinimumQty);
+          Item, "Sales Price Type"::Customer, Customer."No.", Item."Unit Price" - LibraryRandom.RandInt(5), MinimumQty);
         CreateSalesLineDiscount(Item, Customer."No.", MinimumQty);
-        LibraryCosting.SuggestSalesPriceWorksheet(Item, Customer."No.", SalesType::Customer, 0, 1);  // Values important for test.
+        LibraryCosting.SuggestSalesPriceWorksheet(Item, Customer."No.", "Sales Price Type"::Customer, 0, 1);  // Values important for test.
         NewUnitPrice := ImplementNewSalesPrice;
 
         // Exercise: Create Sales Order.
@@ -96,7 +95,6 @@ codeunit 137201 "SCM Sales Price Wksht"
         SalesPriceWorksheet: Record "Sales Price Worksheet";
         NewUnitPrice: Decimal;
         MinimumQty: Decimal;
-        SalesType: Option Customer,"Customer Price Group","All Customers",Campaign;
     begin
         // Setup: Create Sales Price Setup. Suggest Item Price and implement new price.
         Initialize;
@@ -104,8 +102,8 @@ codeunit 137201 "SCM Sales Price Wksht"
         CreateSalesPriceSetup(SalesReceivablesSetup, Item, Customer);
         MinimumQty := LibraryRandom.RandDec(5, 2) + 10;  // Random values not important.
         CreateSalesPrice(
-          Item, SalesPrice."Sales Type"::Customer, Customer."No.", Item."Unit Price" - LibraryRandom.RandInt(5), MinimumQty);
-        LibraryCosting.SuggestItemPriceWorksheet(Item, Customer."No.", SalesType::Customer, 0, 1);  // Values important for test.
+          Item, "Sales Price Type"::Customer, Customer."No.", Item."Unit Price" - LibraryRandom.RandInt(5), MinimumQty);
+        LibraryCosting.SuggestItemPriceWorksheet(Item, Customer."No.", "Sales Price Type"::Customer, 0, 1);  // Values important for test.
         NewUnitPrice := ImplementNewSalesPrice;
 
         // Exercise: Create Sales Order.
@@ -132,7 +130,6 @@ codeunit 137201 "SCM Sales Price Wksht"
         Quantity: array[3] of Decimal;
         MinimumQty: Decimal;
         NoOfSalesLines: Integer;
-        SalesType: Option Customer,"Customer Price Group","All Customers",Campaign;
         "Count": Integer;
     begin
         // Setup: Create Sales Price Setup.
@@ -143,16 +140,16 @@ codeunit 137201 "SCM Sales Price Wksht"
         CreateSalesPriceSetup(SalesReceivablesSetup, Item, Customer);
         MinimumQty := LibraryRandom.RandDec(5, 2) + 10;  // Random values not important.
         CreateSalesPrice(
-          Item, SalesPrice."Sales Type"::Customer, Customer."No.", Item."Unit Price" - LibraryRandom.RandInt(5), MinimumQty);
+          Item, "Sales Price Type"::Customer, Customer."No.", Item."Unit Price" - LibraryRandom.RandInt(5), MinimumQty);
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
         UpdateCustomer(Customer, CustomerPriceGroup.Code);
         CreateSalesPrice(
-          Item, SalesPrice."Sales Type"::"Customer Price Group", CustomerPriceGroup.Code,
+          Item, "Sales Price Type"::"Customer Price Group", CustomerPriceGroup.Code,
           Item."Unit Price" - LibraryRandom.RandInt(5), MinimumQty + 10);
         CreateSalesPrice(
-          Item, SalesPrice."Sales Type"::"All Customers", '',
+          Item, "Sales Price Type"::"All Customers", '',
           Item."Unit Price" - LibraryRandom.RandInt(5), MinimumQty + 100);
-        LibraryCosting.SuggestSalesPriceWorksheet(Item, Customer."No.", SalesType::Customer, 0, 1);  // Values important for test.
+        LibraryCosting.SuggestSalesPriceWorksheet(Item, Customer."No.", "Sales Price Type"::Customer, 0, 1);  // Values important for test.
         NoOfSalesLines := UpdateSalesPriceWorksheet(SalesPriceWorksheet, NewUnitPrice, Quantity);
         LibraryCosting.ImplementPriceChange(SalesPriceWorksheet);
 
@@ -183,7 +180,6 @@ codeunit 137201 "SCM Sales Price Wksht"
         LibraryMarketing: Codeunit "Library - Marketing";
         NewUnitPrice: Decimal;
         MinimumQty: Decimal;
-        SalesType: Option Customer,"Customer Price Group","All Customers",Campaign;
     begin
         // Setup: Create Sales Price Setup for Campaign.
         Initialize;
@@ -196,9 +192,9 @@ codeunit 137201 "SCM Sales Price Wksht"
         LibrarySales.CreateCustomer(Customer);
         LibraryMarketing.CreateCampaign(Campaign);
         CreateSalesPrice(
-          Item, SalesPrice."Sales Type"::Campaign, Campaign."No.",
+          Item, "Sales Price Type"::Campaign, Campaign."No.",
           Item."Unit Price" - LibraryRandom.RandInt(5), MinimumQty);  // Random values not important.
-        LibraryCosting.SuggestItemPriceWorksheet(Item, Campaign."No.", SalesType::Campaign, 0, 1);  // Values important for test.
+        LibraryCosting.SuggestItemPriceWorksheet(Item, Campaign."No.", "Sales Price Type"::Campaign, 0, 1);  // Values important for test.
         UpdateCampaignSalesPrices(Item, Campaign."No.", SalesPrice."Minimum Quantity");
 
         // Exercise: Implement Price Changes.
@@ -289,7 +285,7 @@ codeunit 137201 "SCM Sales Price Wksht"
 
         // Create Sales Prices for Customer Price Group.
         CreateSalesPrice(
-          Item, SalesPrice."Sales Type"::"Customer Price Group", CustomerPriceGroup.Code,
+          Item, "Sales Price Type"::"Customer Price Group", CustomerPriceGroup.Code,
           LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandIntInRange(5, 10));
 
         // Verify: Verify Customer Discount Group Code and Type on Sales Price Page.
@@ -314,11 +310,11 @@ codeunit 137201 "SCM Sales Price Wksht"
 
         // [GIVEN] All customers' sales price "Y" for Item.
         ActualSalesPrice := LibraryRandom.RandDecInRange(11, 20, 2);
-        CreateSalesPrice(Item, SalesPrice."Sales Type"::"All Customers", '', ActualSalesPrice, 0);
+        CreateSalesPrice(Item, "Sales Price Type"::"All Customers", '', ActualSalesPrice, 0);
 
         // [WHEN] Run "Suggest Item Price" on sales price worksheet.
         LibraryCosting.SuggestItemPriceWorksheet(
-          Item, '', SalesPrice."Sales Type"::"All Customers", 0, LibraryRandom.RandIntInRange(2, 5));
+          Item, '', "Sales Price Type"::"All Customers", 0, LibraryRandom.RandIntInRange(2, 5));
 
         // [THEN] "Current Unit Price" on sales price worksheet line = "Y".
         VerifySalesPriceWorksheet(Item."No.", ActualSalesPrice);
@@ -341,7 +337,7 @@ codeunit 137201 "SCM Sales Price Wksht"
 
         // [WHEN] Run "Suggest Item Price" on sales price worksheet.
         LibraryCosting.SuggestItemPriceWorksheet(
-          Item, '', SalesPrice."Sales Type"::"All Customers", 0, LibraryRandom.RandIntInRange(2, 5));
+          Item, '', "Sales Price Type"::"All Customers", 0, LibraryRandom.RandIntInRange(2, 5));
 
         // [THEN] "Current Unit Price" on sales price worksheet line = "X".
         VerifySalesPriceWorksheet(Item."No.", ItemUnitPrice);
@@ -366,7 +362,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         // [GIVEN] Created Customer Price Groups "RETAIL","WHOLESALE" with Sales Prices for "ITEM"
         for I := 1 to 2 do begin
             LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
-            CreateSalesPrice(Item, SalesPrice."Sales Type"::"Customer Price Group", CustomerPriceGroup.Code, LibraryRandom.RandDec(100, 2), 0);
+            CreateSalesPrice(Item, "Sales Price Type"::"Customer Price Group", CustomerPriceGroup.Code, LibraryRandom.RandDec(100, 2), 0);
         end;
 
         // [WHEN] Suggest Sales Price Worksheet where "Item No." = "ITEM" with Copy to Sales Price Worksheet for Customer Price Group "WHOLESALE"
@@ -391,7 +387,7 @@ codeunit 137201 "SCM Sales Price Wksht"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Sales Price Wksht");
 
-        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
@@ -428,7 +424,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         LibrarySales.CreateCustomer(Customer);
     end;
 
-    local procedure CreateSalesPrice(Item: Record Item; SalesType: Option; SalesCode: Code[20]; UnitPrice: Decimal; Quantity: Decimal)
+    local procedure CreateSalesPrice(Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; UnitPrice: Decimal; Quantity: Decimal)
     var
         SalesPrice: Record "Sales Price";
         PriceListLine: Record "Price List Line";
@@ -536,13 +532,12 @@ codeunit 137201 "SCM Sales Price Wksht"
     var
         SalesPrice: Record "Sales Price";
         SalesPriceWorksheet: Record "Sales Price Worksheet";
-        SalesType: Option Customer,"Customer Price Group","All Customers",Campaign;
     begin
         SalesPrice.SetRange("Item No.", Item."No.");
         SalesPrice.FindFirst;
         SalesPriceWorksheet.FindFirst;
         SalesPriceWorksheet.Rename(
-          WorkDate, WorkDate, SalesType::Campaign, CampaignNo, '', Item."No.", '', Item."Base Unit of Measure", MinimumQuantity);
+          WorkDate, WorkDate, "Sales Price Type"::Campaign, CampaignNo, '', Item."No.", '', Item."Base Unit of Measure", MinimumQuantity);
     end;
 
     local procedure UpdateItemVendor(var ItemVendor: Record "Item Vendor")

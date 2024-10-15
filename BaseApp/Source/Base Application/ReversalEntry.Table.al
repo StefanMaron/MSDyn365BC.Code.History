@@ -9,11 +9,9 @@ table 179 "Reversal Entry"
         {
             Caption = 'Line No.';
         }
-        field(2; "Entry Type"; Option)
+        field(2; "Entry Type"; Enum "Reversal Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = ' ,G/L Account,Customer,Vendor,Bank Account,Fixed Asset,Maintenance,VAT,Employee';
-            OptionMembers = " ","G/L Account",Customer,Vendor,"Bank Account","Fixed Asset",Maintenance,VAT,Employee;
         }
         field(3; "Entry No."; Integer)
         {
@@ -30,7 +28,9 @@ table 179 "Reversal Entry"
             ELSE
             IF ("Entry Type" = CONST(Maintenance)) "Maintenance Ledger Entry"
             ELSE
-            IF ("Entry Type" = CONST(VAT)) "VAT Entry";
+            IF ("Entry Type" = CONST(VAT)) "VAT Entry"
+            ELSE
+            IF ("Entry Type" = CONST(Employee)) "Employee Ledger Entry";
         }
         field(4; "G/L Register No."; Integer)
         {
@@ -1176,7 +1176,7 @@ table 179 "Reversal Entry"
         "Entry No." := FALedgEntry."Entry No.";
         "Posting Date" := FALedgEntry."Posting Date";
         "FA Posting Category" := FALedgEntry."FA Posting Category";
-        "FA Posting Type" := FALedgEntry."FA Posting Type" + 1;
+        "FA Posting Type" := "Reversal Entry FA Posting Type".FromInteger(FALedgEntry."FA Posting Type".AsInteger() + 1);
         "Source Code" := FALedgEntry."Source Code";
         "Journal Batch Name" := FALedgEntry."Journal Batch Name";
         "Transaction No." := FALedgEntry."Transaction No.";

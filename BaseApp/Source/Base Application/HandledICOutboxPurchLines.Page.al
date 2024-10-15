@@ -105,7 +105,7 @@ page 643 "Handled IC Outbox Purch. Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

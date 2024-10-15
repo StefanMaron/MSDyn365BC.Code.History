@@ -97,7 +97,7 @@ page 7336 "Whse. Shipment Subform"
 
                     trigger OnValidate()
                     begin
-                        QuantityOnAfterValidate;
+                        QuantityOnAfterValidate();
                     end;
                 }
                 field("Qty. (Base)"; "Qty. (Base)")
@@ -274,7 +274,7 @@ page 7336 "Whse. Shipment Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action("Assemble to Order")
@@ -385,15 +385,15 @@ page 7336 "Whse. Shipment Subform"
 
     local procedure OpenItemTrackingLines()
     begin
-        OpenItemTrackingLines;
+        OpenItemTrackingLines();
     end;
 
-    local procedure BinCodeOnAfterValidate()
+    protected procedure BinCodeOnAfterValidate()
     begin
         CurrPage.Update;
     end;
 
-    local procedure QuantityOnAfterValidate()
+    protected procedure QuantityOnAfterValidate()
     begin
         CurrPage.Update;
     end;

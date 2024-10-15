@@ -251,7 +251,7 @@ report 715 "Price List"
                     TempPriceListLine: Record "Price List Line" temporary;
                     SalesLine: Record "Sales Line";
                     CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-                    SalesLinePrice: Codeunit "Sales Line - Price";
+                    LineWithPrice: Interface "Line With Price";
                     PriceCalculation: Interface "Price Calculation";
                     PriceType: Enum "Price Type";
                 begin
@@ -264,9 +264,10 @@ report 715 "Price List"
                     SalesLine."Variant Code" := Code;
                     SalesLine."Currency Code" := Currency.Code;
                     SalesLine."Posting Date" := DateReq;
-                    SalesLinePrice.SetLine(PriceType::Sale, SalesLine);
-                    SalesLinePrice.SetSources(PriceSourceList);
-                    PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
+                    SalesLine.GetLineWithPrice(LineWithPrice);
+                    LineWithPrice.SetLine(PriceType::Sale, SalesLine);
+                    LineWithPrice.SetSources(PriceSourceList);
+                    PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
                     PriceCalculation.FindPrice(TempPriceListLine, false);
                     CopyFromToPriceListLine.CopyTo(SalesPrice, TempPriceListLine);
                     PriceCalculation.FindDiscount(TempPriceListLine, false);
@@ -279,7 +280,7 @@ report 715 "Price List"
                 TempPriceListLine: Record "Price List Line" temporary;
                 SalesLine: Record "Sales Line";
                 CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-                SalesLinePrice: Codeunit "Sales Line - Price";
+                LineWithPrice: Interface "Line With Price";
                 PriceCalculation: Interface "Price Calculation";
                 PriceType: Enum "Price Type";
             begin
@@ -291,9 +292,10 @@ report 715 "Price List"
                 SalesLine."No." := Item."No.";
                 SalesLine."Currency Code" := Currency.Code;
                 SalesLine."Posting Date" := DateReq;
-                SalesLinePrice.SetLine(PriceType::Sale, SalesLine);
-                SalesLinePrice.SetSources(PriceSourceList);
-                PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
+                SalesLine.GetLineWithPrice(LineWithPrice);
+                LineWithPrice.SetLine(PriceType::Sale, SalesLine);
+                LineWithPrice.SetSources(PriceSourceList);
+                PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
                 PriceCalculation.FindPrice(TempPriceListLine, false);
                 CopyFromToPriceListLine.CopyTo(SalesPrice, TempPriceListLine);
                 PriceCalculation.FindDiscount(TempPriceListLine, false);

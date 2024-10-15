@@ -18,4 +18,8 @@ enum 5057 "Contact Business Relation Link To Table"
     {
         Caption = 'Bank Account';
     }
+    value(4; Employee)
+    {
+        Caption = 'Employee';
+    }
 }

@@ -974,7 +974,7 @@ codeunit 134203 "Document Approval - Documents"
         Assert.AssertRecordNotFound;
     end;
 
-    local procedure CreatePurchDocument(var PurchHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchDocument(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchLine: Record "Purchase Line";
         Item: Record Item;
@@ -986,7 +986,7 @@ codeunit 134203 "Document Approval - Documents"
         LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreatePurchDocumentWithPurchaserCode(var PurchHeader: Record "Purchase Header"; DocumentType: Option; PurchaserCode: Code[20])
+    local procedure CreatePurchDocumentWithPurchaserCode(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; PurchaserCode: Code[20])
     begin
         CreatePurchDocument(PurchHeader, DocumentType);
         PurchHeader.Validate("Purchaser Code", PurchaserCode);
@@ -1000,7 +1000,7 @@ codeunit 134203 "Document Approval - Documents"
         Vendor: Record Vendor;
         VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
     begin
-        LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, VATCalculationType::"Normal VAT");
+        LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Gen. Bus. Posting Group", LineGLAccount."Gen. Bus. Posting Group");
         Vendor.Validate("VAT Bus. Posting Group", LineGLAccount."VAT Bus. Posting Group");
@@ -1017,20 +1017,19 @@ codeunit 134203 "Document Approval - Documents"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocWithTwoApprovalEntries(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseDocWithTwoApprovalEntries(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         UserSetup: Record "User Setup";
-        ApprovalStatus: Option Created,Open,Canceled,Rejected,Approved;
     begin
         SetupDocumentApprovals(UserSetup, '');
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
         MockApprovalEntry(
-          DocumentType, PurchaseHeader."No.", PurchaseHeader.RecordId, ApprovalStatus::Open, UserSetup."User ID", '');
+          DocumentType, PurchaseHeader."No.", PurchaseHeader.RecordId, "Approval Status"::Open, UserSetup."User ID", '');
         MockApprovalEntry(
-          DocumentType, PurchaseHeader."No.", PurchaseHeader.RecordId, ApprovalStatus::Rejected, UserSetup."User ID", '');
+          DocumentType, PurchaseHeader."No.", PurchaseHeader.RecordId, "Approval Status"::Rejected, UserSetup."User ID", '');
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -1042,7 +1041,7 @@ codeunit 134203 "Document Approval - Documents"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreateSalesDocumentWithSalespersonCode(var SalesHeader: Record "Sales Header"; DocumentType: Option; SalespersonCode: Code[20])
+    local procedure CreateSalesDocumentWithSalespersonCode(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; SalespersonCode: Code[20])
     begin
         CreateSalesDocument(SalesHeader, DocumentType);
         SalesHeader.Validate("Salesperson Code", SalespersonCode);
@@ -1056,7 +1055,7 @@ codeunit 134203 "Document Approval - Documents"
         SalesLine: Record "Sales Line";
         VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
     begin
-        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, VATCalculationType::"Normal VAT");
+        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Gen. Bus. Posting Group", LineGLAccount."Gen. Bus. Posting Group");
         Customer.Validate("VAT Bus. Posting Group", LineGLAccount."VAT Bus. Posting Group");
@@ -1073,17 +1072,16 @@ codeunit 134203 "Document Approval - Documents"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocWithTwoApprovalEntries(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocWithTwoApprovalEntries(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         UserSetup: Record "User Setup";
-        ApprovalStatus: Option Created,Open,Canceled,Rejected,Approved;
     begin
         SetupDocumentApprovals(UserSetup, '');
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
         MockApprovalEntry(
-          DocumentType, SalesHeader."No.", SalesHeader.RecordId, ApprovalStatus::Open, UserSetup."User ID", '');
+          DocumentType, SalesHeader."No.", SalesHeader.RecordId, "Approval Status"::Open, UserSetup."User ID", '');
         MockApprovalEntry(
-          DocumentType, SalesHeader."No.", SalesHeader.RecordId, ApprovalStatus::Rejected, UserSetup."User ID", '');
+          DocumentType, SalesHeader."No.", SalesHeader.RecordId, "Approval Status"::Rejected, UserSetup."User ID", '');
     end;
 
     local procedure DeleteSalesVATSetup(DocumentNo: Code[20])
@@ -1119,7 +1117,7 @@ codeunit 134203 "Document Approval - Documents"
         until User.IsEmpty;
     end;
 
-    local procedure GetApprovalEntries(var ApprovalEntry: Record "Approval Entry"; TableID: Integer; DocumentType: Option; DocumentNo: Code[20])
+    local procedure GetApprovalEntries(var ApprovalEntry: Record "Approval Entry"; TableID: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
     begin
         ApprovalEntry.SetRange("Table ID", TableID);
         ApprovalEntry.SetRange("Document Type", DocumentType);
@@ -1161,7 +1159,7 @@ codeunit 134203 "Document Approval - Documents"
         end;
     end;
 
-    local procedure SetupPurchApproval(var ApprovalEntry: Record "Approval Entry"; var PurchHeader: Record "Purchase Header"; var UserSetup: Record "User Setup"; DocumentType: Option)
+    local procedure SetupPurchApproval(var ApprovalEntry: Record "Approval Entry"; var PurchHeader: Record "Purchase Header"; var UserSetup: Record "User Setup"; DocumentType: Enum "Purchase Document Type")
     begin
         Initialize;
 
@@ -1176,7 +1174,7 @@ codeunit 134203 "Document Approval - Documents"
         GetApproval(ApprovalEntry, DATABASE::"Purchase Header", DocumentType, PurchHeader."No.");
     end;
 
-    local procedure SetupSalesApproval(var ApprovalEntry: Record "Approval Entry"; var SalesHeader: Record "Sales Header"; var UserSetup: Record "User Setup"; DocumentType: Option)
+    local procedure SetupSalesApproval(var ApprovalEntry: Record "Approval Entry"; var SalesHeader: Record "Sales Header"; var UserSetup: Record "User Setup"; DocumentType: Enum "Sales Document Type")
     begin
         Initialize;
 
@@ -1191,7 +1189,7 @@ codeunit 134203 "Document Approval - Documents"
         GetApproval(ApprovalEntry, DATABASE::"Sales Header", DocumentType, SalesHeader."No.");
     end;
 
-    local procedure UpdateApprovalEntryWithTempUser(UserSetup: Record "User Setup"; TableID: Integer; DocumentType: Option; DocumentNo: Code[20])
+    local procedure UpdateApprovalEntryWithTempUser(UserSetup: Record "User Setup"; TableID: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
     var
         ApprovalEntry: Record "Approval Entry";
     begin
@@ -1206,7 +1204,7 @@ codeunit 134203 "Document Approval - Documents"
         UserSetup.Modify(true);
     end;
 
-    local procedure GetApproval(var ApprovalEntry: Record "Approval Entry"; TableID: Integer; DocumentType: Option; DocumentNo: Code[20])
+    local procedure GetApproval(var ApprovalEntry: Record "Approval Entry"; TableID: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
     begin
         ApprovalEntry.SetRange("Table ID", TableID);
         ApprovalEntry.SetRange("Document Type", DocumentType);
@@ -1214,7 +1212,7 @@ codeunit 134203 "Document Approval - Documents"
         ApprovalEntry.FindFirst;
     end;
 
-    local procedure MockApprovalEntry(SrcDocType: Option; SrcDocNo: Code[20]; SourceRecordID: RecordID; DestinationStatus: Option; SenderID: Code[50]; ApproverID: Code[50])
+    local procedure MockApprovalEntry(SrcDocType: Enum "Approval Document Type"; SrcDocNo: Code[20]; SourceRecordID: RecordID; DestinationStatus: Enum "Approval Status"; SenderID: Code[50]; ApproverID: Code[50])
     var
         ApprovalEntry: Record "Approval Entry";
     begin
@@ -1249,7 +1247,7 @@ codeunit 134203 "Document Approval - Documents"
     begin
         ApprovalCommentLine.Init();
         ApprovalCommentLine."Table ID" := ApprovalEntry."Table ID";
-        ApprovalCommentLine."Document Type" := ApprovalEntry."Document Type";
+        ApprovalCommentLine."Document Type" := ApprovalEntry."Document Type".AsInteger();
         ApprovalCommentLine."Document No." := ApprovalEntry."Document No.";
         ApprovalCommentLine."Record ID to Approve" := SourceRecordID;
         ApprovalCommentLine."Workflow Step Instance ID" := ApprovalEntry."Workflow Step Instance ID";

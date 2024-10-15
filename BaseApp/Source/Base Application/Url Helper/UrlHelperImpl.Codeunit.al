@@ -158,21 +158,21 @@ codeunit 3704 "Url Helper Impl."
     end;
 
     [Scope('OnPrem')]
-    procedure GetAccountantHubUrl(): Text
-    begin
-        if IsPPE then
-            exit('https://accountants.dynamics-tie.com');
-
-        exit('https://accountants.dynamics.com');
-    end;
-
-    [Scope('OnPrem')]
     procedure GetOfficePortalUrl(): Text
     begin
         if IsPPE then
             exit('https://go.microsoft.com/fwlink/?linkid=844935');
 
         exit('https://go.microsoft.com/fwlink/?linkid=844936');
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetPowerAppsUrl(): Text
+    begin
+        if IsPPE() or IsTIE() then
+            exit('https://apps.preview.powerapps.com');
+
+        exit('https://apps.powerapps.com');
     end;
 }
 

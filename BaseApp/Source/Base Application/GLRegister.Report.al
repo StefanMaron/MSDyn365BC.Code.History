@@ -5,6 +5,7 @@ report 3 "G/L Register"
     ApplicationArea = Basic, Suite;
     Caption = 'G/L Register';
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

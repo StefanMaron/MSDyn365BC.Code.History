@@ -105,7 +105,7 @@ page 645 "IC Inbox Sales Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

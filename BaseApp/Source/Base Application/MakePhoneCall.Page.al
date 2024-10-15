@@ -77,7 +77,7 @@ page 5147 "Make Phone Call"
                     Caption = 'Time of Interaction';
                     Importance = Promoted;
                     ToolTip = 'Specifies the time when the call to the contact started.';
-                }                                
+                }
             }
             group("Phone Call Result")
             {
@@ -295,8 +295,8 @@ page 5147 "Make Phone Call"
 
     local procedure LogCall()
     begin
-        CheckPhoneCallStatus;
-        LogPhoneCall;
+        CheckPhoneCallStatus();
+        LogSegLinePhoneCall();
     end;
 }
 

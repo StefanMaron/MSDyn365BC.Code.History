@@ -38,15 +38,15 @@ page 411 "Graph Mail Setup"
 
                     trigger OnDrillDown()
                     var
-                        SMTPUserSpecifiedAddress: Page "SMTP User-Specified Address";
+                        UserSpecifiedAddress: Page "Email User-Specified Address";
                         Recipient: Text;
                     begin
                         CurrPage.SaveRecord;
                         Commit();
 
-                        SMTPUserSpecifiedAddress.SetEmailAddress("Sender Email");
-                        if SMTPUserSpecifiedAddress.RunModal = ACTION::OK then begin
-                            Recipient := SMTPUserSpecifiedAddress.GetEmailAddress;
+                        UserSpecifiedAddress.SetEmailAddress("Sender Email");
+                        if UserSpecifiedAddress.RunModal = ACTION::OK then begin
+                            Recipient := UserSpecifiedAddress.GetEmailAddress();
                             SendTestMail(Recipient);
                             Message(StrSubstNo(TestSuccessMsg, Recipient));
                         end;
@@ -75,6 +75,9 @@ page 411 "Graph Mail Setup"
                     ApplicationArea = All;
                     Editable = false;
                     ShowCaption = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Email accounts are now configured via "Email Accounts" page from "System Application".';
+                    ObsoleteTag = '17.0';
 
                     trigger OnDrillDown()
                     var

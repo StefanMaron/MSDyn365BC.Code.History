@@ -35,8 +35,8 @@ table 15000004 "Waiting Journal"
             trigger OnValidate()
             begin
                 CreateDim(
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                   DATABASE::Job, "Job No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                   DATABASE::Campaign, "Campaign No.");
@@ -85,8 +85,8 @@ table 15000004 "Waiting Journal"
             trigger OnValidate()
             begin
                 CreateDim(
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
                   DATABASE::Job, "Job No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                   DATABASE::Campaign, "Campaign No.");
@@ -202,8 +202,8 @@ table 15000004 "Waiting Journal"
             begin
                 CreateDim(
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                   DATABASE::Job, "Job No.",
                   DATABASE::Campaign, "Campaign No.");
             end;
@@ -258,8 +258,8 @@ table 15000004 "Waiting Journal"
             begin
                 CreateDim(
                   DATABASE::Job, "Job No.",
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                   DATABASE::Campaign, "Campaign No.");
             end;
@@ -324,7 +324,7 @@ table 15000004 "Waiting Journal"
         field(56; "Allocated Amt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Gen. Jnl. Allocation".Amount WHERE("Journal Template Name" = FIELD("Journal Template Name"),
+            CalcFormula = Sum("Gen. Jnl. Allocation".Amount WHERE("Journal Template Name" = FIELD("Journal Template Name"),
                                                                    "Journal Batch Name" = FIELD("Journal Batch Name"),
                                                                    "Journal Line No." = FIELD("Line No.")));
             Caption = 'Allocated Amt. (LCY)';
@@ -627,7 +627,7 @@ table 15000004 "Waiting Journal"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -644,8 +644,8 @@ table 15000004 "Waiting Journal"
             begin
                 CreateDim(
                   DATABASE::Campaign, "Campaign No.",
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                   DATABASE::Job, "Job No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
             end;

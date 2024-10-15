@@ -90,7 +90,7 @@ report 15000001 "Suggest Remittance Payments"
                 MessageText := '';
 
                 if BankPmtType = BankPmtType::"Manual Check" then
-                    Error(Text017, SelectStr(BankPmtType + 1, Text023));
+                    Error(Text017, SelectStr(BankPmtType.AsInteger() + 1, Text023));
 
                 if ReplacePostingDateWithDueDate then
                     PostingDate := 0D;
@@ -245,8 +245,8 @@ report 15000001 "Suggest Remittance Payments"
         LastLineNo: Integer;
         NextEntryNo: Integer;
         StopPayments: Boolean;
-        BankPmtType: Option " ","Computer Check","Manual Check";
-        BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account";
+        BankPmtType: Enum "Bank Payment Type";
+        BalAccType: Enum "Gen. Journal Account Type";
         BalAccNo: Code[20];
         MessageText: Text[250];
         GenJnlLineInserted: Boolean;
@@ -513,7 +513,7 @@ report 15000001 "Suggest Remittance Payments"
             until TempPaymentBuffer.Next = 0;
     end;
 
-    local procedure SetBankAccCurrencyFilter(BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account"; BalAccNo: Code[20]; var TmpPayableVendLedgEntry: Record "Payable Vendor Ledger Entry")
+    local procedure SetBankAccCurrencyFilter(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; var TmpPayableVendLedgEntry: Record "Payable Vendor Ledger Entry")
     var
         BankAcc: Record "Bank Account";
     begin
@@ -531,7 +531,7 @@ report 15000001 "Suggest Remittance Payments"
             Message(Text);
     end;
 
-    local procedure CheckCurrencies(BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account"; BalAccNo: Code[20]; var TmpPayableVendLedgEntry: Record "Payable Vendor Ledger Entry")
+    local procedure CheckCurrencies(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; var TmpPayableVendLedgEntry: Record "Payable Vendor Ledger Entry")
     var
         BankAcc: Record "Bank Account";
         TmpPayableVendLedgEntry2: Record "Payable Vendor Ledger Entry" temporary;
@@ -600,8 +600,8 @@ report 15000001 "Suggest Remittance Payments"
         with GenJnlLine do begin
             DimSetID := "Dimension Set ID";
             CreateDim(
-              DimMgt.TypeToTableID1("Account Type"), "Account No.",
-              DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+              DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+              DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
               DATABASE::Job, "Job No.",
               DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
               DATABASE::Campaign, "Campaign No.");

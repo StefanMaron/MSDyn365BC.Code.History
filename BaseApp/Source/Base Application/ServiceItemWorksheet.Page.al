@@ -55,7 +55,6 @@ page 5906 "Service Item Worksheet"
                     ApplicationArea = Service;
                     Caption = 'Document Type';
                     Editable = false;
-                    OptionCaption = 'Quote,Order';
                     ToolTip = 'Specifies whether the service document is a service order or service quote.';
                 }
                 field("Loaner No."; "Loaner No.")
@@ -606,7 +605,7 @@ page 5906 "Service Item Worksheet"
                   ServSetup.FieldCaption("Fault Reporting Level"), ServSetup."Fault Reporting Level", ServSetup.TableCaption);
         end;
         Clear(FaultResolutionRelation);
-        FaultResolutionRelation.SetDocument(DATABASE::"Service Item Line", "Document Type", "Document No.", "Line No.");
+        FaultResolutionRelation.SetDocument(DATABASE::"Service Item Line", "Document Type".AsInteger(), "Document No.", "Line No.");
         FaultResolutionRelation.SetFilters("Symptom Code", "Fault Code", "Fault Area Code", "Service Item Group Code");
         FaultResolutionRelation.RunModal;
         CurrPage.Update(false);

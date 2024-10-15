@@ -171,7 +171,7 @@ page 39 "General Journal"
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         SetUserInteractions;
                         EnableApplyEntriesAction;
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("Account No."; "Account No.")
@@ -190,7 +190,7 @@ page 39 "General Journal"
                         // function. So, we need to validate current curency code again.
                         if IsSimplePage then
                             Validate("Currency Code", CurrentCurrencyCode);
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field(AccountName; AccName)
@@ -406,9 +406,9 @@ page 39 "General Journal"
 
                     trigger OnAssistEdit()
                     begin
-                        CurrPage.SaveRecord;
-                        Commit;
-                        ShowDeferralSchedule();
+                        CurrPage.SaveRecord();
+                        Commit();
+                        Rec.ShowDeferralSchedule();
                     end;
                 }
                 field("Job Queue Status"; "Job Queue Status")
@@ -667,6 +667,7 @@ page 39 "General Journal"
                     group("Account Name")
                     {
                         Caption = 'Account Name';
+                        Visible = false;
                         field(AccName; AccName)
                         {
                             ApplicationArea = Basic, Suite;
@@ -678,7 +679,7 @@ page 39 "General Journal"
                     group("Bal. Account Name")
                     {
                         Caption = 'Bal. Account Name';
-                        Visible = NOT IsSimplePage;
+                        Visible = false;
                         field(BalAccName; BalAccName)
                         {
                             ApplicationArea = Basic, Suite;
@@ -742,6 +743,23 @@ page 39 "General Journal"
         }
         area(factboxes)
         {
+            part(JournalErrorsFactBox; "Journal Errors FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+                Visible = BackgroundErrorCheck;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
+            part(JournalLineDetails; "Journal Line Details FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = not IsSimplePage;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
             part(Control1900919607; "Dimension Set Entries FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -804,7 +822,7 @@ page 39 "General Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -1050,7 +1068,7 @@ page 39 "General Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDeferralSchedule;
+                        Rec.ShowDeferralSchedule();
                     end;
                 }
                 group(IncomingDocument)
@@ -1350,7 +1368,7 @@ page 39 "General Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create a Flow';
                     Image = Flow;
-                    ToolTip = 'Create a new Flow from a list of relevant Flow templates.';
+                    ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                     Visible = IsSaaS;
 
                     trigger OnAction()
@@ -1369,7 +1387,7 @@ page 39 "General Journal"
                     Caption = 'See my Flows';
                     Image = Flow;
                     RunObject = Page "Flow Selector";
-                    ToolTip = 'View and configure Flows that you created.';
+                    ToolTip = 'View and configure Power Automate flows that you created.';
                 }
             }
             group(Approval)
@@ -1656,6 +1674,44 @@ page 39 "General Journal"
                         NewDocumentNo();
                     end;
                 }
+                group(Errors)
+                {
+                    Caption = 'Issues';
+                    Image = ErrorLog;
+                    Visible = BackgroundErrorCheck;
+                    action(ShowLinesWithErrors)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show Lines with Issues';
+                        Image = Error;
+                        Promoted = true;
+                        PromotedCategory = Category8;
+                        Visible = BackgroundErrorCheck;
+                        Enabled = not ShowAllLinesEnabled;
+                        ToolTip = 'View a list of journal lines that have issues before you post the journal.';
+
+                        trigger OnAction()
+                        begin
+                            SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        end;
+                    }
+                    action(ShowAllLines)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show All Lines';
+                        Image = ExpandAll;
+                        Promoted = true;
+                        PromotedCategory = Category8;
+                        Visible = BackgroundErrorCheck;
+                        Enabled = ShowAllLinesEnabled;
+                        ToolTip = 'View all journal lines, including lines with and without issues.';
+
+                        trigger OnAction()
+                        begin
+                            SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        end;
+                    }
+                }
             }
         }
     }
@@ -1752,7 +1808,7 @@ page 39 "General Journal"
             SetDataForSimpleModeOnOpen;
             exit;
         end;
-        GenJnlManagement.TemplateSelection(PAGE::"General Journal", 0, false, Rec, JnlSelected);
+        GenJnlManagement.TemplateSelection(PAGE::"General Journal", "Gen. Journal Template Type"::General, false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
 
@@ -1776,6 +1832,7 @@ page 39 "General Journal"
         PayrollManagement: Codeunit "Payroll Management";
         ClientTypeManagement: Codeunit "Client Type Management";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -1786,7 +1843,6 @@ page 39 "General Journal"
         NumberOfRecords: Integer;
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
-        ShortcutDimCode: array[8] of Code[20];
         Text000: Label 'General Journal lines have been successfully inserted from Standard General Journal %1.';
         Text001: Label 'Standard General Journal %1 has been successfully created.';
         HasIncomingDocument: Boolean;
@@ -1818,11 +1874,18 @@ page 39 "General Journal"
         IsSimplePage: Boolean;
         JobQueuesUsed: Boolean;
         JobQueueVisible: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
         CurrentDocNo: Code[20];
         CurrentPostingDate: Date;
         CurrentCurrencyCode: Code[10];
         IsChangingDocNo: Boolean;
         MissingExchangeRatesQst: Label 'There are no exchange rates for currency %1 and date %2. Do you want to add them now? Otherwise, the last change you made will be reverted.', Comment = '%1 - currency code, %2 - posting date';
+        PostedFromSimplePage: Boolean;
+        DocumentNumberMsg: Label 'Document No. must have a value in Gen. Journal Line.';
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -1831,8 +1894,6 @@ page 39 "General Journal"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
-        PostedFromSimplePage: Boolean;
-        DocumentNumberMsg: Label 'Document No. must have a value in Gen. Journal Line.';
 
     local procedure UpdateBalance()
     begin
@@ -1871,9 +1932,9 @@ page 39 "General Journal"
 
     local procedure GetPostingDate(): Date
     begin
-      if IsSimplePage then
-        exit(CurrentPostingDate);
-      exit(Workdate());
+        if IsSimplePage then
+            exit(CurrentPostingDate);
+        exit(Workdate());
     end;
 
     local procedure SetControlAppearance()
@@ -1966,11 +2027,8 @@ page 39 "General Journal"
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
         CanRequestFlowApprovalForAllLines: Boolean;
     begin
-        if ("Journal Template Name" <> '') and ("Journal Batch Name" <> '') then
-            GenJournalBatch.Get("Journal Template Name", "Journal Batch Name")
-        else
-            if not GenJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
-                exit;
+        if not GenJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
+            exit;
 
         ShowWorkflowStatusOnBatch := CurrPage.WorkflowStatusBatch.PAGE.SetFilterOnWorkflowRecord(GenJournalBatch.RecordId);
         OpenApprovalEntriesExistForCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(GenJournalBatch.RecordId);
@@ -1985,6 +2043,11 @@ page 39 "General Journal"
         WorkflowWebhookManagement.GetCanRequestAndCanCancelJournalBatch(
           GenJournalBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, CanRequestFlowApprovalForAllLines);
         CanRequestFlowApprovalForBatchAndAllLines := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForAllLines;
+
+        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        ShowAllLinesEnabled := true;
+        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+        JournalErrorsMgt.SetFullBatchCheck(true);
     end;
 
     local procedure SetControlVisibility()

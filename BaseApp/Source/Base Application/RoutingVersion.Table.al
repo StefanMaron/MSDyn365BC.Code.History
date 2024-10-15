@@ -24,11 +24,9 @@ table 99000786 "Routing Version"
         {
             Caption = 'Starting Date';
         }
-        field(20; Status; Option)
+        field(20; Status; Enum "Routing Status")
         {
             Caption = 'Status';
-            OptionCaption = 'New,Certified,Under Development,Closed';
-            OptionMembers = New,Certified,"Under Development",Closed;
 
             trigger OnValidate()
             var

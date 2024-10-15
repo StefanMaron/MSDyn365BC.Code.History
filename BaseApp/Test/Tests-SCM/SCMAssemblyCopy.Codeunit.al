@@ -36,7 +36,6 @@ codeunit 137927 "SCM Assembly Copy"
         OldCreditWarning: Integer;
         ThisObj: Code[9];
         StockoutWarningSet: Boolean;
-        HeaderType: Option Quote,"Order",BlanketOrder;
         BasicDataInitialized: Boolean;
         SetupDataInitialized: Boolean;
         Initialized: Boolean;
@@ -47,7 +46,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         Initialize;
         // Test 1
-        CheckCopyingBtwNonPostedSalesDocs(HeaderType::Quote, HeaderType::Quote);
+        CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::Quote, "Assembly Document Type"::Quote);
     end;
 
     [Test]
@@ -56,7 +55,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         Initialize;
         // Test 2
-        CheckCopyingBtwNonPostedSalesDocs(HeaderType::Quote, HeaderType::Order);
+        CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::Quote, "Assembly Document Type"::Order);
     end;
 
     [Test]
@@ -65,7 +64,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         Initialize;
         // Test 3
-        CheckCopyingBtwNonPostedSalesDocs(HeaderType::Quote, HeaderType::BlanketOrder);
+        CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::Quote, "Assembly Document Type"::"Blanket Order");
     end;
 
     [Test]
@@ -74,7 +73,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         Initialize;
         // Test 4
-        CheckCopyingBtwNonPostedSalesDocs(HeaderType::Order, HeaderType::Quote);
+        CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::Order, "Assembly Document Type"::Quote);
     end;
 
     [Test]
@@ -83,7 +82,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         Initialize;
         // Test 5
-        CheckCopyingBtwNonPostedSalesDocs(HeaderType::Order, HeaderType::Order);
+        CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::Order, "Assembly Document Type"::Order);
     end;
 
     [Test]
@@ -92,7 +91,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         Initialize;
         // Test 6
-        CheckCopyingBtwNonPostedSalesDocs(HeaderType::Order, HeaderType::BlanketOrder);
+        CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::Order, "Assembly Document Type"::"Blanket Order");
     end;
 
     [Test]
@@ -101,7 +100,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         Initialize;
         // Test 7
-        CheckCopyingBtwNonPostedSalesDocs(HeaderType::BlanketOrder, HeaderType::Quote);
+        CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::"Blanket Order", "Assembly Document Type"::Quote);
     end;
 
     [Test]
@@ -110,7 +109,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         Initialize;
         // Test 8
-        CheckCopyingBtwNonPostedSalesDocs(HeaderType::BlanketOrder, HeaderType::Order);
+        CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::"Blanket Order", "Assembly Document Type"::Order);
     end;
 
     [Test]
@@ -119,7 +118,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         Initialize;
         // Test 9
-        CheckCopyingBtwNonPostedSalesDocs(HeaderType::BlanketOrder, HeaderType::BlanketOrder);
+        CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::"Blanket Order", "Assembly Document Type"::"Blanket Order");
     end;
 
     [Test]
@@ -134,12 +133,12 @@ codeunit 137927 "SCM Assembly Copy"
         Initialize;
         // Test 10
         CheckInit;
-        FromDocNo := CreateAssemblySalesDocument(4, HeaderType::Order, true);
+        FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
         PostOrderAsShip(FromDocNo, 4);
-        ToDocNo := CreateAssemblySalesDocument(0, HeaderType::Quote, true);
+        ToDocNo := CreateAssemblySalesDocument(0, "Assembly Document Type"::Quote, true);
         ToSalesHeader.Get(ToSalesHeader."Document Type"::Quote, ToDocNo);
-        CopyDocumentMgt.CopySalesDoc(6, SalesShipmentNo, ToSalesHeader); // 6 = from Sales Shipment
-        CompareAsmLines(HeaderType::Quote, ToDocNo, true, HeaderType::Quote, SalesShipmentNo);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::"Posted Shipment", SalesShipmentNo, ToSalesHeader); // 6 = from Sales Shipment
+        CompareAsmLines("Assembly Document Type"::Quote, ToDocNo, true, "Assembly Document Type"::Quote, SalesShipmentNo);
         CleanSetupData;
     end;
 
@@ -152,10 +151,10 @@ codeunit 137927 "SCM Assembly Copy"
         Initialize;
         // Test 11
         CheckInit;
-        PostOrderAsShip(CreateAssemblySalesDocument(4, HeaderType::Order, true), 4);
-        ToDocNo := CreateAssemblySalesDocument(0, HeaderType::Order, true);
+        PostOrderAsShip(CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true), 4);
+        ToDocNo := CreateAssemblySalesDocument(0, "Assembly Document Type"::Order, true);
         CopyShipmentLinesToSalesOrder(ToDocNo);
-        CompareAsmLines(HeaderType::Order, ToDocNo, true, HeaderType::Order, SalesShipmentNo);
+        CompareAsmLines("Assembly Document Type"::Order, ToDocNo, true, "Assembly Document Type"::Order, SalesShipmentNo);
         CleanSetupData;
     end;
 
@@ -171,12 +170,13 @@ codeunit 137927 "SCM Assembly Copy"
         Initialize;
         // Test 12
         CheckInit;
-        FromDocNo := CreateAssemblySalesDocument(4, HeaderType::Order, true);
+        FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
         PostOrderAsShip(FromDocNo, 4);
-        EmptyBlanketOrderNo := CreateAssemblySalesDocument(0, HeaderType::BlanketOrder, true);
+        EmptyBlanketOrderNo := CreateAssemblySalesDocument(0, "Assembly Document Type"::"Blanket Order", true);
         ToSalesHeader.Get(ToSalesHeader."Document Type"::"Blanket Order", EmptyBlanketOrderNo);
-        CopyDocumentMgt.CopySalesDoc(6, SalesShipmentNo, ToSalesHeader); // 6 = from Sales Shipment
-        CompareAsmLines(HeaderType::BlanketOrder, EmptyBlanketOrderNo, true, HeaderType::Quote, SalesShipmentNo);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::"Posted Shipment", SalesShipmentNo, ToSalesHeader); // 6 = from Sales Shipment
+        CompareAsmLines(
+            "Assembly Document Type"::"Blanket Order", EmptyBlanketOrderNo, true, "Assembly Document Type"::Quote, SalesShipmentNo);
         CleanSetupData;
     end;
 
@@ -192,13 +192,13 @@ codeunit 137927 "SCM Assembly Copy"
         Initialize;
         // Test 13
         CheckInit;
-        FromDocNo := CreateAssemblySalesDocument(4, HeaderType::Order, true);
+        FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
         PostOrderAsShip(FromDocNo, 4);
         PostOrderAsInvoice(FromDocNo);
-        EmptyQuoteNo := CreateAssemblySalesDocument(4, HeaderType::Quote, true);
+        EmptyQuoteNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Quote, true);
         ToSalesHeader.Get(ToSalesHeader."Document Type"::Quote, EmptyQuoteNo);
-        CopyDocumentMgt.CopySalesDoc(7, SalesInvoiceNo, ToSalesHeader); // 7 -> From Posted Invoice
-        CompareAsmLines(HeaderType::Quote, EmptyQuoteNo, true, HeaderType::Quote, SalesShipmentNo);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::"Posted Invoice", SalesInvoiceNo, ToSalesHeader); // 7 -> From Posted Invoice
+        CompareAsmLines("Assembly Document Type"::Quote, EmptyQuoteNo, true, "Assembly Document Type"::Quote, SalesShipmentNo);
         CleanSetupData;
     end;
 
@@ -212,11 +212,11 @@ codeunit 137927 "SCM Assembly Copy"
         Initialize;
         // Test 14
         CheckInit;
-        FromDocNo := CreateAssemblySalesDocument(4, HeaderType::Order, true);
+        FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
         PostOrderAsShip(FromDocNo, 3);
         PostOrderAsShip(FromDocNo, 1);
         PostOrderAsInvoice(FromDocNo);
-        ToDocNo := CreateAssemblySalesDocument(0, HeaderType::Quote, true);
+        ToDocNo := CreateAssemblySalesDocument(0, "Assembly Document Type"::Quote, true);
         asserterror CopyInvoiceLinesToSalesQuote(ToDocNo);  // Error expected
         CleanSetupData;
     end;
@@ -231,12 +231,12 @@ codeunit 137927 "SCM Assembly Copy"
         Initialize;
         // Test 15
         CheckInit;
-        FromDocNo := CreateAssemblySalesDocument(4, HeaderType::Order, true);
+        FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
         PostOrderAsShip(FromDocNo, 4);
         PostOrderAsInvoice(FromDocNo);
-        ToDocNo := CreateAssemblySalesDocument(0, HeaderType::Order, true);
+        ToDocNo := CreateAssemblySalesDocument(0, "Assembly Document Type"::Order, true);
         CopyInvoiceLinesToSalesOrder(ToDocNo);
-        CompareAsmLines(HeaderType::Order, ToDocNo, true, HeaderType::Order, SalesShipmentNo); // Lines are taken from shipment, not invoice
+        CompareAsmLines("Assembly Document Type"::Order, ToDocNo, true, "Assembly Document Type"::Order, SalesShipmentNo); // Lines are taken from shipment, not invoice
         CleanSetupData;
     end;
 
@@ -250,11 +250,11 @@ codeunit 137927 "SCM Assembly Copy"
         Initialize;
         // Test 16
         CheckInit;
-        FromDocNo := CreateAssemblySalesDocument(4, HeaderType::Order, true);
+        FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
         PostOrderAsShip(FromDocNo, 3);
         PostOrderAsShip(FromDocNo, 1);
         PostOrderAsInvoice(FromDocNo);
-        ToDocNo := CreateAssemblySalesDocument(0, HeaderType::Order, true);
+        ToDocNo := CreateAssemblySalesDocument(0, "Assembly Document Type"::Order, true);
         asserterror CopyInvoiceLinesToSalesOrder(ToDocNo);  // Error expected
         CleanSetupData;
     end;
@@ -271,13 +271,13 @@ codeunit 137927 "SCM Assembly Copy"
         Initialize;
         // Test 17
         CheckInit;
-        FromDocNo := CreateAssemblySalesDocument(4, HeaderType::Order, true);
+        FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
         PostOrderAsShip(FromDocNo, 4);
         PostOrderAsInvoice(FromDocNo);
-        EmptyBlanketOrderNo := CreateAssemblySalesDocument(4, HeaderType::BlanketOrder, true);
+        EmptyBlanketOrderNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::"Blanket Order", true);
         ToSalesHeader.Get(ToSalesHeader."Document Type"::"Blanket Order", EmptyBlanketOrderNo);
-        CopyDocumentMgt.CopySalesDoc(7, SalesInvoiceNo, ToSalesHeader); // 7 -> From Posted Invoice
-        CompareAsmLines(HeaderType::BlanketOrder, EmptyBlanketOrderNo, true, HeaderType::Quote, SalesShipmentNo);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::"Posted Invoice", SalesInvoiceNo, ToSalesHeader); // 7 -> From Posted Invoice
+        CompareAsmLines("Assembly Document Type"::"Blanket Order", EmptyBlanketOrderNo, true, "Assembly Document Type"::Quote, SalesShipmentNo);
         CleanSetupData;
     end;
 
@@ -291,11 +291,11 @@ codeunit 137927 "SCM Assembly Copy"
         Initialize;
         // Test 18
         CheckInit;
-        FromDocNo := CreateAssemblySalesDocument(4, HeaderType::Order, true);
+        FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
         PostOrderAsShip(FromDocNo, 3);
         PostOrderAsShip(FromDocNo, 1);
         PostOrderAsInvoice(FromDocNo);
-        ToDocNo := CreateAssemblySalesDocument(0, HeaderType::BlanketOrder, true);
+        ToDocNo := CreateAssemblySalesDocument(0, "Assembly Document Type"::"Blanket Order", true);
         asserterror CopyInvoiceLinesToSalesBlOrder(ToDocNo);  // Error expected
         CleanSetupData;
     end;
@@ -311,8 +311,8 @@ codeunit 137927 "SCM Assembly Copy"
         Initialize;
         // Test 19
         CheckInit;
-        SalesOrderNo := CreateAssemblySalesDocument(4, HeaderType::Order, true);
-        CollectAsmLinesFromNonPosted(HeaderType::Order, SalesOrderNo, FullAssemblyOrderNo);
+        SalesOrderNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
+        CollectAsmLinesFromNonPosted("Assembly Document Type"::Order, SalesOrderNo, FullAssemblyOrderNo);
         CreateAssemblyOrderHeader(EmptyAssemblyOrderNo);
         CopyAsmOrderToAsmOrder(FullAssemblyOrderNo, EmptyAssemblyOrderNo, true);
         CompareAsmOrderHeaders(EmptyAssemblyOrderNo);
@@ -372,7 +372,7 @@ codeunit 137927 "SCM Assembly Copy"
         Initialize;
         // Test 20
         CheckInit;
-        FromDocNo := CreateAssemblySalesDocument(4, HeaderType::Order, true);
+        FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
         PostOrderAsShip(FromDocNo, 4);
         CreateAssemblyOrderHeader(EmptyAssemblyOrderNo);
         CopyShipmentLinesToAsmHeader(EmptyAssemblyOrderNo);
@@ -839,13 +839,13 @@ codeunit 137927 "SCM Assembly Copy"
         Item: Record Item;
         i: Integer;
     begin
-        LibraryAssembly.CreateItem(Item, 0, 3, '', '');
+        LibraryAssembly.CreateItem(Item, "Costing Method"::FIFO, "Replenishment System"::Assembly, '', '');
         Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
         Item.Modify();
         AssemblyItemNo[1] := Item."No.";
         CreateVariant(1);
         for i := 2 to 4 do begin
-            LibraryAssembly.CreateItem(Item, 0, 0, '', '');
+            LibraryAssembly.CreateItem(Item, "Costing Method"::FIFO, "Replenishment System"::" ", '', '');
             AssemblyItemNo[i] := Item."No.";
             CreateVariant(i);
             CreateAssemblyComponent(AssemblyItemNo[1], AssemblyItemNo[i], i, i, 1);
@@ -1039,7 +1039,8 @@ codeunit 137927 "SCM Assembly Copy"
         AssemblyBatch := ItemJournalBatch.Name;
         ItemJournalBatch.Insert(true);
         for i := 2 to 4 do begin
-            LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, AssemblyBatch, 0, AssemblyItemNo[i], 1000);
+            LibraryInventory.CreateItemJournalLine(
+                ItemJournalLine, ItemJournalTemplate.Name, AssemblyBatch, "Item Ledger Document Type"::" ", AssemblyItemNo[i], 1000);
             ItemJournalLine.Validate("Location Code", UsedLocationCode);
             ItemJournalLine.Validate("Variant Code", UsedVariantCode[i]);
             ItemJournalLine.Modify();
@@ -1064,7 +1065,7 @@ codeunit 137927 "SCM Assembly Copy"
                 FromSalesShipmentLine.FieldCaption("Document No."), FromSalesShipmentLine.FieldCaption("Line No.")));
         until FromSalesShipmentLine.Next = 0;
         ToSalesHeader.Get(ToSalesHeader."Document Type"::Order, EmptySalesOrderNo);
-        CopyDocumentMgt.CopySalesDoc(6, SalesShipmentNo, ToSalesHeader); // 6 = from Sales Shipment
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::"Posted Shipment", SalesShipmentNo, ToSalesHeader); // 6 = from Sales Shipment
     end;
 
     local procedure CopyShipmentLinesToAsmHeader(AssemblyHeaderNo: Code[20])
@@ -1093,7 +1094,7 @@ codeunit 137927 "SCM Assembly Copy"
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
     begin
         ToSalesHeader.Get(ToSalesHeader."Document Type"::Order, ToDocNo);
-        CopyDocumentMgt.CopySalesDoc(7, SalesInvoiceNo, ToSalesHeader); // 7 -> From Posted Invoice
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::"Posted Invoice", SalesInvoiceNo, ToSalesHeader); // 7 -> From Posted Invoice
     end;
 
     local procedure CopyInvoiceLinesToSalesQuote(ToDocNo: Code[20])
@@ -1102,7 +1103,7 @@ codeunit 137927 "SCM Assembly Copy"
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
     begin
         ToSalesHeader.Get(ToSalesHeader."Document Type"::Quote, ToDocNo);
-        CopyDocumentMgt.CopySalesDoc(7, SalesInvoiceNo, ToSalesHeader); // 7 -> From Posted Invoice
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::"Posted Invoice", SalesInvoiceNo, ToSalesHeader); // 7 -> From Posted Invoice
     end;
 
     local procedure CopyInvoiceLinesToSalesBlOrder(ToDocNo: Code[20])
@@ -1111,7 +1112,7 @@ codeunit 137927 "SCM Assembly Copy"
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
     begin
         ToSalesHeader.Get(ToSalesHeader."Document Type"::"Blanket Order", ToDocNo);
-        CopyDocumentMgt.CopySalesDoc(7, SalesInvoiceNo, ToSalesHeader); // 7 -> From Posted Invoice
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::"Posted Invoice", SalesInvoiceNo, ToSalesHeader); // 7 -> From Posted Invoice
     end;
 
     local procedure CopyAsmOrderToAsmOrder(From: Code[20]; To_: Code[20]; IncludeHeader: Boolean)
@@ -1130,16 +1131,16 @@ codeunit 137927 "SCM Assembly Copy"
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
     begin
         CopyDocumentMgt.SetProperties(false, RecalculateLines, false, false, false, false, false);
-        CopyDocumentMgt.CopySalesDoc(2, FromDocNo, ToSalesHeader);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::Order, FromDocNo, ToSalesHeader);
     end;
 
-    local procedure CompareAsmOrderHeaders(To_: Code[20])
+    local procedure CompareAsmOrderHeaders(ToDocumentNo: Code[20])
     var
         ToAsmLine: Record "Assembly Line";
         Assert: Codeunit Assert;
     begin
         ToAsmLine.SetRange("Document Type", ToAsmLine."Document Type"::Order);
-        ToAsmLine.SetRange("Document No.", To_);
+        ToAsmLine.SetRange("Document No.", ToDocumentNo);
         Assert.AreEqual(TempAsmLine.Count, ToAsmLine.Count, 'No. of Asm lines when copying from one Asm header to another');
         TempAsmLine.FindSet;
         ToAsmLine.FindSet;
@@ -1161,18 +1162,18 @@ codeunit 137927 "SCM Assembly Copy"
         AssemblyHeaderNo := AssemblyHeader."No.";
     end;
 
-    local procedure CreateAssemblySalesDocument(AssemblyItemQuantity: Decimal; HeaderType: Option Quote,"Order",BlanketOrder; CustomizeOrder: Boolean): Code[20]
+    local procedure CreateAssemblySalesDocument(AssemblyItemQuantity: Decimal; DocumentType: Enum "Assembly Document Type"; CustomizeOrder: Boolean): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        case HeaderType of
-            HeaderType::Quote:
+        case DocumentType of
+            DocumentType::Quote:
                 LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, SellToCustomerNo);
-            HeaderType::Order:
+            DocumentType::Order:
                 LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SellToCustomerNo);
-            HeaderType::BlanketOrder:
+            DocumentType::"Blanket Order":
                 LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", SellToCustomerNo);
         end;
         ManufacturingSetup.Get();
@@ -1181,18 +1182,18 @@ codeunit 137927 "SCM Assembly Copy"
         SalesHeader.Validate("Location Code", UsedLocationCode);
         SalesHeader.Modify();
         if AssemblyItemQuantity > 0 then begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, 2, AssemblyItemNo[1], AssemblyItemQuantity); // 2 -> Item
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::Item, AssemblyItemNo[1], AssemblyItemQuantity); // 2 -> Item
             SalesLine.Validate("Location Code", UsedLocationCode);
             SalesLine.Validate("Variant Code", UsedVariantCode[1]);
             SalesLine.Modify(true);
             if CustomizeOrder then
                 CustomizeAssemblyOrder(SalesLine);
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, 3, ResourceNo, 1);                           // 3 -> Resource
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::Resource, ResourceNo, 1);                           // 3 -> Resource
         end;
         exit(SalesHeader."No.");
     end;
 
-    local procedure CreateSalesDocWithAsmItem(var SalesHeader: Record "Sales Header"; DocType: Integer; CustNo: Code[20]; ItemNo: Code[20])
+    local procedure CreateSalesDocWithAsmItem(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustNo: Code[20]; ItemNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1229,19 +1230,19 @@ codeunit 137927 "SCM Assembly Copy"
         end;
     end;
 
-    local procedure CollectAsmLinesFromNonPosted(HeaderType: Option Quote,"Order",BlanketOrder; SalesOrderNo: Code[20]; var FullAssemblyOrderHeaderNo: Code[20])
+    local procedure CollectAsmLinesFromNonPosted(DocumentType: Enum "Assembly Document Type"; SalesOrderNo: Code[20]; var FullAssemblyOrderHeaderNo: Code[20])
     var
         AssembleToOrderLink: Record "Assemble-to-Order Link";
         AsmLine: Record "Assembly Line";
     begin
         FullAssemblyOrderHeaderNo := '';
         TempAsmLine.DeleteAll();
-        case HeaderType of
-            HeaderType::Quote:
+        case DocumentType of
+            "Assembly Document Type"::Quote:
                 AssembleToOrderLink.SetRange("Document Type", AssembleToOrderLink."Document Type"::Quote);
-            HeaderType::Order:
+            "Assembly Document Type"::Order:
                 AssembleToOrderLink.SetRange("Document Type", AssembleToOrderLink."Document Type"::Order);
-            HeaderType::BlanketOrder:
+            "Assembly Document Type"::"Blanket Order":
                 AssembleToOrderLink.SetRange("Document Type", AssembleToOrderLink."Document Type"::"Blanket Order");
         end;
 
@@ -1285,7 +1286,7 @@ codeunit 137927 "SCM Assembly Copy"
         until PostedAssembleToOrderLink.Next = 0;
     end;
 
-    local procedure CompareAsmLines(NewDocType: Option Quote,"Order",BlanketOrder; NewSalesHeaderNo: Code[20]; Posted: Boolean; OriginalDocType: Option Quote,"Order",BlanketOrder; OriginalDocNo: Code[20])
+    local procedure CompareAsmLines(NewDocType: Enum "Assembly Document Type"; NewSalesHeaderNo: Code[20]; Posted: Boolean; OriginalDocType: Enum "Assembly Document Type"; OriginalDocNo: Code[20])
     var
         ToAsmLine: Record "Assembly Line";
         AssembleToOrderLink: Record "Assemble-to-Order Link";
@@ -1302,7 +1303,7 @@ codeunit 137927 "SCM Assembly Copy"
                 AssembleToOrderLink.SetRange("Document Type", AssembleToOrderLink."Document Type"::Quote);
             NewDocType::Order:
                 AssembleToOrderLink.SetRange("Document Type", AssembleToOrderLink."Document Type"::Order);
-            NewDocType::BlanketOrder:
+            NewDocType::"Blanket Order":
                 AssembleToOrderLink.SetRange("Document Type", AssembleToOrderLink."Document Type"::"Blanket Order");
         end;
         AssembleToOrderLink.SetRange("Document No.", NewSalesHeaderNo);
@@ -1312,7 +1313,7 @@ codeunit 137927 "SCM Assembly Copy"
                 ToAsmLine.SetRange("Document Type", ToAsmLine."Document Type"::Quote);
             NewDocType::Order:
                 ToAsmLine.SetRange("Document Type", ToAsmLine."Document Type"::Order);
-            NewDocType::BlanketOrder:
+            NewDocType::"Blanket Order":
                 ToAsmLine.SetRange("Document Type", ToAsmLine."Document Type"::"Blanket Order");
         end;
         ToAsmLine.SetRange("Document No.", AssembleToOrderLink."Assembly Document No.");
@@ -1426,13 +1427,13 @@ codeunit 137927 "SCM Assembly Copy"
         end;
     end;
 
-    local procedure CheckCopyingBtwNonPostedSalesDocs(FromDocType: Option Quote,"Order",BlanketOrder; ToDocType: Option Quote,"Order",BlanketOrder)
+    local procedure CheckCopyingBtwNonPostedSalesDocs(FromDocType: Enum "Assembly Document Type"; ToDocType: Enum "Assembly Document Type")
     var
         ToSalesHeader: Record "Sales Header";
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
         FromDocNo: Code[20];
         ToDocNo: Code[20];
-        FromDocEnum: Integer;
+        FromDocEnum: Enum "Sales Document Type From";
     begin
         CheckInit;
         FromDocNo := CreateAssemblySalesDocument(4, FromDocType, true);
@@ -1442,16 +1443,16 @@ codeunit 137927 "SCM Assembly Copy"
                 ToSalesHeader.Get(ToSalesHeader."Document Type"::Quote, ToDocNo);
             ToDocType::Order:
                 ToSalesHeader.Get(ToSalesHeader."Document Type"::Order, ToDocNo);
-            ToDocType::BlanketOrder:
+            ToDocType::"Blanket Order":
                 ToSalesHeader.Get(ToSalesHeader."Document Type"::"Blanket Order", ToDocNo);
         end;
         case FromDocType of
             FromDocType::Quote:
-                FromDocEnum := 0;
+                FromDocEnum := FromDocEnum::Quote;
             FromDocType::Order:
-                FromDocEnum := 2;
-            FromDocType::BlanketOrder:
-                FromDocEnum := 1;
+                FromDocEnum := FromDocEnum::Order;
+            FromDocType::"Blanket Order":
+                FromDocEnum := FromDocEnum::"Blanket Order";
         end;
         CopyDocumentMgt.CopySalesDoc(FromDocEnum, FromDocNo, ToSalesHeader);
         CompareAsmLines(ToDocType, ToDocNo, false, FromDocType, FromDocNo);

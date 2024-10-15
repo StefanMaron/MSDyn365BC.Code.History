@@ -122,7 +122,7 @@ codeunit 15000300 "Repeating Order to Order"
                 ResetQuantityFields(SalesOrderLine);
                 SalesOrderLine."Document Type" := SalesOrderHeader."Document Type";
                 SalesOrderLine."Document No." := SalesOrderHeader."No.";
-                if (SalesOrderLine."No." <> '') and (SalesOrderLine.Type <> 0) then begin
+                if (SalesOrderLine."No." <> '') and (SalesOrderLine.Type <> "Sales Line Type"::" ") then begin
                     SalesOrderLine.Amount := 0;
                     SalesOrderLine."Amount Including VAT" := 0;
                     SalesOrderLine.Validate(Quantity, BlanketOrderSalesLine."Qty. to Ship");
@@ -173,7 +173,7 @@ codeunit 15000300 "Repeating Order to Order"
             if SalesCommentLine.Find('-') then
                 repeat
                     SalesCommentLine2 := SalesCommentLine;
-                    SalesCommentLine2."Document Type" := SalesOrderHeader."Document Type".AsInteger();
+                    SalesCommentLine2."Document Type" := SalesOrderHeader."Document Type";
                     SalesCommentLine2."No." := SalesOrderHeader."No.";
                     SalesCommentLine2.Insert();
                 until SalesCommentLine.Next = 0;
@@ -267,7 +267,7 @@ codeunit 15000300 "Repeating Order to Order"
                     PriceCalcMgt.FindSalesLinePrice(SalesHeader, SalesOrderLine, CalledByFieldNo);
                 end;
             SalesOrderLine.Type::"Charge (Item)":
-                SalesOrderLine.UpdateItemChargeAssgnt;
+                SalesOrderLine.UpdateItemChargeAssgnt();
         end;
         SalesOrderLine.Validate("Unit Price");
         // Note <<

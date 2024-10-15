@@ -65,7 +65,7 @@ codeunit 137305 "SCM Warehouse Reports"
         // Exercise: Generate the Picking List. Value used is important for test.
         Commit();
         WarehouseActivityHeader.SetRange("Location Code", Location.Code);
-        ReportSelectionWarehouse.PrintWhseActivHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::Pick, false);
+        ReportSelectionWarehouse.PrintWhseActivityHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::Pick, false);
 
         // Verify: Source No shown in Picking List Report is equal to the Source No shown in Warehouse Activity Line Table.
         FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
@@ -140,7 +140,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Commit();
         WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::"Put-away");
         WarehouseActivityHeader.SetRange("Location Code", Location.Code);
-        ReportSelectionWarehouse.PrintWhseActivHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::"Put-away", false);
+        ReportSelectionWarehouse.PrintWhseActivityHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::"Put-away", false);
 
         // Verify.
         FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
@@ -434,12 +434,12 @@ codeunit 137305 "SCM Warehouse Reports"
 
         // Create Movement Worksheet with Movement.
         CreateMovementWorksheetLine(WhseWorksheetLine, Location.Code, Item."No.");
-        LibraryWarehouse.WhseSourceCreateDocument(WhseWorksheetLine, 0, false, false, false);
+        LibraryWarehouse.WhseSourceCreateDocument(WhseWorksheetLine, "Whse. Activity Sorting Method"::None, false, false, false);
 
         // Exercise: Run Movement List Report.
         WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::Movement);
         WarehouseActivityHeader.SetRange("Location Code", Location.Code);
-        ReportSelectionWarehouse.PrintWhseActivHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::Movement, false);
+        ReportSelectionWarehouse.PrintWhseActivityHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::Movement, false);
 
         // Verify: Check Bin Code with Generated report.
         LibraryReportDataset.LoadDataSetFile;
@@ -1062,7 +1062,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Commit();
         WarehouseActivityHeader.SetRange(Type, WarehouseActivityLine."Activity Type");
         WarehouseActivityHeader.SetRange("No.", WarehouseActivityLine."No.");
-        ReportSelectionWarehouse.PrintWhseActivHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::Pick, false);
+        ReportSelectionWarehouse.PrintWhseActivityHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::Pick, false);
 
         // Verify.
         LibraryReportDataset.LoadDataSetFile;
@@ -1112,7 +1112,7 @@ codeunit 137305 "SCM Warehouse Reports"
     begin
         // Setup: Create Item with Sales Price.
         Initialize;
-        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
         CreateItemWithSalesPrice(SalesPrice);
 
         // Exercise.
@@ -1173,7 +1173,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::"Put-away");
         WarehouseActivityHeader.SetRange("Source Document", WarehouseActivityHeader."Source Document"::"Purchase Order");
         WarehouseActivityHeader.SetRange("Source No.", PurchaseHeaderNo);
-        ReportSelectionWarehouse.PrintWhseActivHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::"Put-away", false);
+        ReportSelectionWarehouse.PrintWhseActivityHeader(WarehouseActivityHeader, ReportSelectionWarehouse.Usage::"Put-away", false);
 
         // Verify: verify that Bin code is presented on report Put-away List
         LibraryReportDataset.LoadDataSetFile;
@@ -1577,7 +1577,8 @@ codeunit 137305 "SCM Warehouse Reports"
 
         // [GIVEN] Open pick worksheet and pull the warehouse shipment to generate a worksheet line.
         WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
         CreateWhsePickWorksheetLine(WhseWorksheetLine, Location.Code);
 
@@ -1585,7 +1586,7 @@ codeunit 137305 "SCM Warehouse Reports"
         BindSubscription(LibraryReportSelection);
         LibraryWarehouse.CreatePickFromPickWorksheet(
           WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name,
-          Location.Code, '', 0, 0, 0, false, false, false, false, false, false, true);
+          Location.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, true);
 
         // [THEN] The printing is maintained by "Warehouse Document-Print" codeunit that takes a report set up in Report Selection for Usage = Pick.
         Assert.AreEqual('HandleOnBeforePrintPickHeader', LibraryReportSelection.GetEventHandledName(), '');
@@ -1632,7 +1633,7 @@ codeunit 137305 "SCM Warehouse Reports"
         BindSubscription(LibraryReportSelection);
         WhseSourceCreateDocument.SetWhseInternalPickLine(WhseInternalPickLine, '');
         WhseSourceCreateDocument.SetHideValidationDialog(true);
-        WhseSourceCreateDocument.Initialize('', 0, true, false, false);
+        WhseSourceCreateDocument.Initialize('', "Whse. Activity Sorting Method"::None, true, false, false);
         WhseSourceCreateDocument.UseRequestPage(false);
         WhseSourceCreateDocument.Run();
 
@@ -1678,7 +1679,7 @@ codeunit 137305 "SCM Warehouse Reports"
         BindSubscription(LibraryReportSelection);
         WhseSourceCreateDocument.SetWhseInternalPutAway(WhseInternalPutAwayHeader);
         WhseSourceCreateDocument.SetHideValidationDialog(true);
-        WhseSourceCreateDocument.Initialize('', 0, true, false, false);
+        WhseSourceCreateDocument.Initialize('', "Whse. Activity Sorting Method"::None, true, false, false);
         WhseSourceCreateDocument.UseRequestPage(false);
         WhseSourceCreateDocument.Run();
 
@@ -1719,7 +1720,7 @@ codeunit 137305 "SCM Warehouse Reports"
 
         // [WHEN] Create movement from movement worksheet with "Print document" = TRUE.
         BindSubscription(LibraryReportSelection);
-        LibraryWarehouse.WhseSourceCreateDocument(WhseWorksheetLine, 0, true, false, false);
+        LibraryWarehouse.WhseSourceCreateDocument(WhseWorksheetLine, "Whse. Activity Sorting Method"::None, true, false, false);
 
         // [THEN] The printing is maintained by "Warehouse Document-Print" codeunit that takes a report set up in Report Selection for Usage = Movement.
         Assert.AreEqual('HandleOnBeforePrintMovementHeader', LibraryReportSelection.GetEventHandledName(), '');
@@ -1995,7 +1996,7 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
         LibraryWarehouse.FindWhseActivityBySourceDoc(
-            WarehouseActivityHeader, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+            WarehouseActivityHeader, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
         LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
 
@@ -2023,6 +2024,135 @@ codeunit 137305 "SCM Warehouse Reports"
             LibraryReportDataset.GetNextRow();
         end;
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintInvtPickViaCreateInvtDocsReport()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        WarehouseRequest: Record "Warehouse Request";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        CreateInvtPutAwayPickMvmt: Report "Create Invt Put-away/Pick/Mvmt";
+    begin
+        // [FEATURE] [Inventory Pick]
+        // [SCENARIO 370791] Printing inventory pick using "Create Invt Put-away/Pick/Mvmt" shows request page of the report.
+        Initialize();
+
+        // [GIVEN] Location "L" with required pick.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Post inventory on location "L".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Location.Code, '', LibraryRandom.RandIntInRange(50, 100));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create and release sales order on location "L".
+        CreateSalesOrder(SalesHeader, Location.Code, Item."No.", '', LibraryRandom.RandInt(10));
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Create and print inventory pick from the sales order.
+        WarehouseRequest.SetRange("Source Document", WarehouseRequest."Source Document"::"Sales Order");
+        WarehouseRequest.SetRange("Source No.", SalesHeader."No.");
+        CreateInvtPutAwayPickMvmt.SetTableView(WarehouseRequest);
+        CreateInvtPutAwayPickMvmt.InitializeRequest(false, true, false, true, false);
+        CreateInvtPutAwayPickMvmt.UseRequestPage(false);
+        asserterror CreateInvtPutAwayPickMvmt.RunModal();
+
+        // [THEN] Request page of the inventory pick report is shown.
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Invt. Pick");
+        ReportSelectionWarehouse.FindFirst();
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintInvtPutAwayViaCreateInvtDocsReport()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseRequest: Record "Warehouse Request";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        CreateInvtPutAwayPickMvmt: Report "Create Invt Put-away/Pick/Mvmt";
+    begin
+        // [FEATURE] [Inventory Put-away] [UT]
+        // [SCENARIO 370791] Printing inventory put-away using "Create Invt Put-away/Pick/Mvmt" shows request page of the report.
+        Initialize();
+
+        // [GIVEN] Location "L" with required put-away.
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and release purchase order on location "L".
+        CreatePurchaseOrder(PurchaseHeader, Location.Code, Item."No.", LibraryRandom.RandInt(10), 0);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Create and print inventory put-away from the purchase order.
+        WarehouseRequest.SetRange("Source Document", WarehouseRequest."Source Document"::"Purchase Order");
+        WarehouseRequest.SetRange("Source No.", PurchaseHeader."No.");
+        CreateInvtPutAwayPickMvmt.SetTableView(WarehouseRequest);
+        CreateInvtPutAwayPickMvmt.InitializeRequest(true, false, false, true, false);
+        CreateInvtPutAwayPickMvmt.UseRequestPage(false);
+        asserterror CreateInvtPutAwayPickMvmt.RunModal();
+
+        // [THEN] Request page of the inventory put-away report is shown.
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Invt. Put-away");
+        ReportSelectionWarehouse.FindFirst();
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintInvtMvmtViaCreateInvtDocsReport()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        WarehouseRequest: Record "Warehouse Request";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        CreateInvtPutAwayPickMvmt: Report "Create Invt Put-away/Pick/Mvmt";
+    begin
+        // [FEATURE] [Inventory Movement] [UT]
+        // [SCENARIO 370791] Printing inventory movement using "Create Invt Put-away/Pick/Mvmt" shows request page of the report.
+        Initialize();
+
+        // [GIVEN] Location "L" with required pick.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Post inventory on location "L".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Location.Code, '', LibraryRandom.RandIntInRange(50, 100));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create and release sales order on location "L".
+        CreateSalesOrder(SalesHeader, Location.Code, Item."No.", '', LibraryRandom.RandInt(10));
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Create and print inventory movement from the sales order.
+        WarehouseRequest.SetRange("Source Document", WarehouseRequest."Source Document"::"Sales Order");
+        WarehouseRequest.SetRange("Source No.", SalesHeader."No.");
+        CreateInvtPutAwayPickMvmt.SetTableView(WarehouseRequest);
+        CreateInvtPutAwayPickMvmt.InitializeRequest(false, false, true, true, false);
+        CreateInvtPutAwayPickMvmt.UseRequestPage(false);
+        asserterror CreateInvtPutAwayPickMvmt.RunModal();
+
+        // [THEN] Request page of the inventory movement report is shown.
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Invt. Movement");
+        ReportSelectionWarehouse.FindFirst();
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
     end;
 
     local procedure Initialize()
@@ -2340,7 +2470,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        LibraryCosting.CreateSalesPrice(SalesPrice, SalesPrice."Sales Type"::"All Customers", '',
+        LibraryCosting.CreateSalesPrice(SalesPrice, "Sales Price Type"::"All Customers", '',
           Item."No.", WorkDate, '', '', '', LibraryRandom.RandDec(100, 2));
         SalesPrice.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesPrice.Modify(true);
@@ -2392,7 +2522,8 @@ codeunit 137305 "SCM Warehouse Reports"
     begin
         WarehouseShipmentLine.SetRange(
           "No.",
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         WarehouseShipmentLine.FindFirst();
         WhseShptLine.Copy(WarehouseShipmentLine);
         WhseShptHeader.Get(WhseShptLine."No.");
@@ -2409,7 +2540,11 @@ codeunit 137305 "SCM Warehouse Reports"
         EntryNo := ItemLedgerEntry."Entry No.";
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(
+        var WarehouseActivityLine: Record "Warehouse Activity Line";
+        SourceDocument: Enum "Warehouse Activity Source Document";
+                            SourceNo: Code[20];
+                            ActivityType: Option)
     begin
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -2721,7 +2856,7 @@ codeunit 137305 "SCM Warehouse Reports"
         SalesCommentLine.Modify(true);
     end;
 
-    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Option)
+    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin

@@ -23,7 +23,7 @@ codeunit 144001 "VAT Tools Test"
         NorwegianVATTools: Codeunit "Norwegian VAT Tools";
         SettledAndClosedVATPeriodErr: Label 'is in a settled and closed VAT period (%1 period %2)';
         IsInitialized: Boolean;
-        OpenClosedSelection: Option Open,Closed,"Open and Closed";
+        OpenClosedSelection: Enum "VAT Statement Report Selection";
 
     [Test]
     [HandlerFunctions('CalcAndPostVATSettlementHandler,ConfirmHandler')]
@@ -904,7 +904,7 @@ codeunit 144001 "VAT Tools Test"
         Reply := true;
     end;
 
-    local procedure ExecuteTradeSettlementReport(DocumentNoFiltering: Text; SelectionOption: Option Open,Closed,"Open and Closed")
+    local procedure ExecuteTradeSettlementReport(DocumentNoFiltering: Text; SelectionOption: Enum "VAT Statement Report Selection")
     begin
         LibraryVariableStorage.Enqueue(DocumentNoFiltering);
         LibraryVariableStorage.Enqueue(SelectionOption);
@@ -916,14 +916,12 @@ codeunit 144001 "VAT Tools Test"
     procedure TradeSettementReportHandler(var TradeSettlement: TestRequestPage "Trade Settlement")
     var
         VATPeriod: Record "VAT Period";
-        DocumentNoFiltering: Variant;
-        SelectionOptionVariant: Variant;
+        DocumentNoFiltering: Text;
         ExpectedYear: Integer;
-        SelectionOption: Option Open,Closed,"Open and Closed";
+        SelectionOption: Enum "VAT Statement Report Selection";
     begin
-        LibraryVariableStorage.Dequeue(DocumentNoFiltering);
-        LibraryVariableStorage.Dequeue(SelectionOptionVariant);
-        SelectionOption := SelectionOptionVariant;
+        DocumentNoFiltering := LibraryVariableStorage.DequeueText();
+        SelectionOption := LibraryVariableStorage.DequeueInteger();
         // SettlementPeriod
         VATPeriod.Reset();
         VATPeriod.FindFirst;

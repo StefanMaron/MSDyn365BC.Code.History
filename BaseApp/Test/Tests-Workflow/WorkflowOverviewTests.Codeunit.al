@@ -106,7 +106,7 @@ codeunit 134209 "Workflow Overview Tests"
     end;
 
     [Scope('OnPrem')]
-    procedure TestSalesDocWorkflowsFactbox(WorkflowCode: Code[17]; DocType: Option)
+    procedure TestSalesDocWorkflowsFactbox(WorkflowCode: Code[17]; DocType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         Workflow: Record Workflow;
@@ -199,7 +199,7 @@ codeunit 134209 "Workflow Overview Tests"
     end;
 
     [Scope('OnPrem')]
-    procedure TestPurchDocWorkflowsFactbox(WorkflowCode: Code[17]; DocType: Option)
+    procedure TestPurchDocWorkflowsFactbox(WorkflowCode: Code[17]; DocType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         Workflow: Record Workflow;
@@ -325,7 +325,7 @@ codeunit 134209 "Workflow Overview Tests"
         LibraryWorkflow.EnableWorkflow(Workflow);
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Option)
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -334,7 +334,7 @@ codeunit 134209 "Workflow Overview Tests"
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
     end;
 
-    local procedure CreatePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; DocType: Option)
+    local procedure CreatePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin

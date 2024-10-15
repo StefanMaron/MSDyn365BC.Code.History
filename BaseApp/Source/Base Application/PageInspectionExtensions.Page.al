@@ -43,9 +43,9 @@ page 9633 "Page Inspection Extensions"
                 field(TypeOfExtension; TypeOfExtension)
                 {
                     ApplicationArea = All;
-                    Caption = 'Type of extension.';
+                    Caption = 'Extension execution info and type.';
                     ShowCaption = false;
-                    ToolTip = 'Specifies extension type.';
+                    ToolTip = 'Specifies extension execution information and extension type.';
                 }
             }
         }
@@ -58,11 +58,16 @@ page 9633 "Page Inspection Extensions"
     trigger OnAfterGetRecord()
     var
         ApplicationObjectMetadata: Record "Application Object Metadata";
+        ExtensionExecutionInfo: Record "Extension Execution Info";
+        ExtensionType: Text;
+        ExtensionInfo: Text;
+        SeparatorText: Text;
     begin
         Version := StrSubstNo('%1.%2.%3', "Version Major", "Version Minor", "Version Build");
         PublishedBy := StrSubstNo('by %1', Publisher);
 
-        TypeOfExtension := '';
+        ExtensionType := '';
+        ExtensionInfo := '';
 
         if ApplicationObjectMetadata.ReadPermission then begin
             ApplicationObjectMetadata.Reset();
@@ -72,13 +77,13 @@ page 9633 "Page Inspection Extensions"
             ApplicationObjectMetadata.SetFilter("Object ID", '%1', CurrentPageId);
             ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::Page);
             if ApplicationObjectMetadata.FindFirst then
-                TypeOfExtension := TypeOfExtension + ', ' + NewPageLbl;
+                ExtensionType := ExtensionType + ', ' + NewPageLbl;
 
             // table added by extension
             ApplicationObjectMetadata.SetFilter("Object ID", '%1', CurrentTableId);
             ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::Table);
             if ApplicationObjectMetadata.FindFirst then
-                TypeOfExtension := TypeOfExtension + ', ' + NewTableLbl;
+                ExtensionType := ExtensionType + ', ' + NewTableLbl;
 
             ApplicationObjectMetadata.Reset();
             ApplicationObjectMetadata.SetFilter("Package ID", '%1', "Package ID");
@@ -87,16 +92,43 @@ page 9633 "Page Inspection Extensions"
             ApplicationObjectMetadata.SetFilter("Object Subtype", '%1', StrSubstNo('%1', CurrentPageId));
             ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::PageExtension);
             if ApplicationObjectMetadata.FindFirst then
-                TypeOfExtension := TypeOfExtension + ', ' + ExtPageLbl;
+                ExtensionType := ExtensionType + ', ' + ExtPageLbl;
 
             // table extended by extension
             ApplicationObjectMetadata.SetFilter("Object Subtype", '%1', StrSubstNo('%1', CurrentTableId));
             ApplicationObjectMetadata.SetFilter("Object Type", '%1', ApplicationObjectMetadata."Object Type"::TableExtension);
             if ApplicationObjectMetadata.FindFirst then
-                TypeOfExtension := TypeOfExtension + ', ' + ExtTableLbl;
+                ExtensionType := ExtensionType + ', ' + ExtTableLbl;
 
-            TypeOfExtension := DelChr(TypeOfExtension, '<', ',');
+            ExtensionType := DelChr(ExtensionType, '<', ',');
         end;
+
+        if ApplicationObjectMetadata.ReadPermission then begin
+            ApplicationObjectMetadata.Reset();
+            ApplicationObjectMetadata.SetFilter("Package ID", '%1', Rec."Package ID");
+
+            if ApplicationObjectMetadata.FindFirst() then begin
+                ExtensionExecutionInfo.Reset();
+                ExtensionExecutionInfo.SetFilter("Form ID", '%1', CurrentFormId);
+                ExtensionExecutionInfo.SetFilter("Runtime Package ID", '%1', ApplicationObjectMetadata."Runtime Package ID");
+
+                if ExtensionExecutionInfo.FindFirst() then
+                    ExtensionInfo := StrSubstNo(
+                        MillisecondsAndSubscribersLbl,
+                        Format(ExtensionExecutionInfo."Execution Time"),
+                        Format(ExtensionExecutionInfo."Subscriber Execution Count"))
+                else
+                    ExtensionInfo := NoExtensionInfoLbl;
+            end;
+        end;
+
+
+        if (StrLen(ExtensionType) > 0) and (StrLen(ExtensionInfo) > 0) then
+            SeparatorText := '; '
+        else
+            SeparatorText := '';
+
+        TypeOfExtension := StrSubstNo(TypeOfExtensionFmtLbl, ExtensionInfo, SeparatorText, ExtensionType);
     end;
 
     var
@@ -104,6 +136,7 @@ page 9633 "Page Inspection Extensions"
         PublishedBy: Text;
         IsExtensionListVisible: Boolean;
         TypeOfExtension: Text;
+        CurrentFormId: Guid;
         CurrentPageId: Integer;
         CurrentTableId: Integer;
         FilterConditions: Text;
@@ -111,11 +144,15 @@ page 9633 "Page Inspection Extensions"
         NewTableLbl: Label 'Adds table';
         ExtPageLbl: Label 'Extends page';
         ExtTableLbl: Label 'Extends table';
-
+        MillisecondsAndSubscribersLbl: Label '%1ms, %2 subs.', Comment = '%1 is millisceonds, %2 is subscribers. "subs." is an abbreviation of "subscribers"';
+        NoExtensionInfoLbl: Label 'No extension info';
+        TypeOfExtensionFmtLbl: Label '%1%2%3', Locked = true;
+        OrFilterFmtLbl: Label '%1|', Locked = true;
     [Scope('OnPrem')]
-    procedure FilterForExtAffectingPage(PageId: Integer; TableId: Integer)
+    procedure FilterForExtAffectingPage(PageId: Integer; TableId: Integer; FormId: Guid)
     var
         ApplicationObjectMetadata: Record "Application Object Metadata";
+        ExtensionExecutionInfo: Record "Extension Execution Info";
         TempGuid: Guid;
     begin
         if (PageId = CurrentPageId) and (TableId = CurrentTableId) then
@@ -124,6 +161,8 @@ page 9633 "Page Inspection Extensions"
         CurrentPageId := PageId;
         CurrentTableId := TableId;
         FilterConditions := '';
+
+        CurrentFormId := FormId;
 
         if ApplicationObjectMetadata.ReadPermission then begin
             // check if this page was added by extension
@@ -163,7 +202,19 @@ page 9633 "Page Inspection Extensions"
                 until ApplicationObjectMetadata.Next = 0;
         end;
 
-        Reset;
+        // Add filters for arbitrary code which has executed on the form
+        if ExtensionExecutionInfo.ReadPermission then begin
+            ExtensionExecutionInfo.SetFilter("Form ID", '%1', CurrentFormId);
+            if ExtensionExecutionInfo.Find('-') then
+                repeat
+                    ApplicationObjectMetadata.Reset();
+                    ApplicationObjectMetadata.SetFilter("Runtime Package ID", '%1', ExtensionExecutionInfo."Runtime Package ID");
+                    if ApplicationObjectMetadata.FindFirst() then
+                        FilterConditions := FilterConditions + StrSubstNo(OrFilterFmtLbl, ApplicationObjectMetadata."Package ID");
+                until ExtensionExecutionInfo.Next() = 0;
+        end;
+
+        Reset();
         if FilterConditions <> '' then begin
             FilterConditions := DelChr(FilterConditions, '>', '|');
             SetFilter("Package ID", FilterConditions);
@@ -176,9 +227,8 @@ page 9633 "Page Inspection Extensions"
     end;
 
     [Scope('OnPrem')]
-    procedure SetExtensionListVisbility(NewVisibilityValue: Boolean)
+    procedure SetExtensionListVisibility(NewVisibilityValue: Boolean)
     begin
         IsExtensionListVisible := NewVisibilityValue;
     end;
 }
-

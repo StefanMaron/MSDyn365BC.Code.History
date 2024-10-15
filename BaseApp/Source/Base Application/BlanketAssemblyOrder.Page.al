@@ -207,7 +207,7 @@ page 940 "Blanket Assembly Order"
 
                 trigger OnAction()
                 begin
-                    ShowDimensions;
+                    ShowDimensions();
                 end;
             }
             action("Assembly BOM")
@@ -278,6 +278,17 @@ page 940 "Blanket Assembly Order"
                         ShowAvailability;
                     end;
                 }
+                action("Refresh availability warnings")
+                {
+                    ApplicationArea = Assembly;
+                    Caption = 'Refresh Availability';
+                    Image = RefreshLines;
+                    ToolTip = 'Check items availability and refresh warnings';
+                    trigger OnAction()
+                    begin
+                        UpdateWarningOnLines()
+                    end;
+                }
             }
         }
     }
@@ -296,7 +307,7 @@ page 940 "Blanket Assembly Order"
         UpdateWarningOnLines;
     end;
 
-    var
+    protected var
         [InDataSet]
         IsUnitCostEditable: Boolean;
         [InDataSet]

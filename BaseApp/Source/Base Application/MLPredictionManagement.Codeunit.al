@@ -31,6 +31,7 @@ codeunit 2003 "ML Prediction Management"
         AzureMachineLearningLimitReachedErr: Label 'The Microsoft Azure Machine Learning limit has been reached. Please contact your system administrator.';
         DownloadModelPlotLbl: Label 'Download model visualization in pdf format.';
         MachineLearningSecretNameTxt: Label 'machinelearning', Locked = true;
+        NoCredentialsInKeyVaultErr: Label 'There were no machine learning credentials in the key vault or the credentials were corrupted.';
 
     procedure DefaultInitialize()
     begin
@@ -53,13 +54,16 @@ codeunit 2003 "ML Prediction Management"
     [NonDebuggable]
     procedure InitializeWithKeyVaultCredentials(TimeOutSeconds: Integer)
     var
-        AzureAIUsage: Record "Azure AI Usage";
+        AzureAIUsage: Codeunit "Azure AI Usage";
+        AzureAIService: Enum "Azure AI Service";
         LimitType: Option;
         LimitValue: Decimal;
     begin
-        if AzureAIUsage.GetSingleInstance(AzureAIUsage.Service::"Machine Learning") then
-            if AzureAIUsage."Total Resource Usage" > AzureAIUsage."Original Resource Limit" then
-                Error(AzureMachineLearningLimitReachedErr);
+        AzureAIService := AzureAIService::"Machine Learning";
+
+        if AzureAIUsage.GetTotalProcessingTime(AzureAIService) > AzureAIUsage.GetResourceLimit(AzureAIService) then
+            Error(AzureMachineLearningLimitReachedErr);
+
         GetMachineLearningCredentials(ApiUri, ApiKey, LimitType, LimitValue);
         ApiTimeout := TimeOutSeconds;
         UsingKeyvaultCredentials := true;
@@ -507,6 +511,9 @@ codeunit 2003 "ML Prediction Management"
         MachineLearningKeyVaultMgmt: Codeunit "Machine Learning KeyVaultMgmt.";
     begin
         MachineLearningKeyVaultMgmt.GetMachineLearningCredentials(MachineLearningSecretNameTxt, ApiUri, ApiKey, LimitType, Limit);
+
+        if ApiUri = '' then
+            Error(NoCredentialsInKeyVaultErr);
     end;
 
     [IntegrationEvent(false, false)]

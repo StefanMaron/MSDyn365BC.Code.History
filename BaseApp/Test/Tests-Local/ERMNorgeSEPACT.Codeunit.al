@@ -162,7 +162,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         CreateGenJnlLine(
           GenJournalLine,
           CreateBankAccountWithExportSetup(CreateNorgeBankExportImportSetup(Amount * 2)),
-          Amount,1);
+          Amount, 1);
 
         // [WHEN] Fill Export Buffer
         SEPACTFillExportBuffer.FillExportBuffer(GenJournalLine, TempPaymentExportData);
@@ -188,7 +188,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         CreateGenJnlLine(
           GenJournalLine,
           CreateBankAccountWithExportSetup(CreateNorgeBankExportImportSetup(Amount)),
-          Amount * 2,1);
+          Amount * 2, 1);
 
         // [WHEN] Fill Export Buffer
         SEPACTFillExportBuffer.FillExportBuffer(GenJournalLine, TempPaymentExportData);
@@ -213,7 +213,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         CreateGenJnlLine(
           GenJournalLine,
           CreateBankAccountWithExportSetup(CreateNorgeBankExportImportSetup(LibraryRandom.RandDec(100, 2))),
-          LibraryRandom.RandDec(100,2),1);
+          LibraryRandom.RandDec(100, 2), 1);
         for i := 1 to LibraryRandom.RandIntInRange(15, 20) do
             CreateGenJnlLineRegRepCode(GenJournalLine);
 
@@ -248,7 +248,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         CreateGenJnlLine(
           GenJournalLine,
           CreateBankAccountWithExportSetup(CreateNorgeBankExportImportSetup(Amount * 2)),
-          Amount,1);
+          Amount, 1);
         CreateGenJnlLineRegRepCode(GenJournalLine);
 
         TempBlob.CreateOutStream(OutStr);
@@ -272,7 +272,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         TempBlob: Codeunit "Temp Blob";
         NodeList: DotNet XmlNodeList;
         OutStr: OutStream;
-        EndToEndId: array [2] of Text;
+        EndToEndId: array[2] of Text;
         Amount: Decimal;
     begin
         // [FEATURE] [Regulatory Reporting Threshold]
@@ -284,7 +284,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         CreateGenJnlLine(
           GenJournalLine,
           CreateBankAccountWithExportSetup(CreateNorgeBankExportImportSetup(Amount)),
-          Amount * 2,2);
+          Amount * 2, 2);
         CreateGenJnlLineRegRepCode(GenJournalLine);
         CreateGenJnlLineRegRepCode(GenJournalLine);
 
@@ -310,10 +310,10 @@ codeunit 144137 "ERM Norge SEPA CT"
         LibraryXPathXMLReader.VerifyNodeValueIsGuid('//InstrId');
 
         // [THEN] <EndToEndId> tag value isn't repeated for "G1" and "G2" (TFS 306878)
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('//EndToEndId',2);
-        EndToEndId[1] := LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//EndToEndId',0);
-        EndToEndId[2] := LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//EndToEndId',1);
-        Assert.AreNotEqual(EndToEndId[1],EndToEndId[2],
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//EndToEndId', 2);
+        EndToEndId[1] := LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//EndToEndId', 0);
+        EndToEndId[2] := LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//EndToEndId', 1);
+        Assert.AreNotEqual(EndToEndId[1], EndToEndId[2],
           'Unexpectedly repeating value in xml file for element ''EndToEndId''.');
     end;
 
@@ -501,14 +501,14 @@ codeunit 144137 "ERM Norge SEPA CT"
         // [SCENARIO 309201] In SEPA CT pain.001.001.03 port 'RmtInf' goes after 'RgltryRptg' tag
 
         // [GIVEN] Gen. Journal Line "G1" with Reg. Rep. Code and KID
-        Amount := LibraryRandom.RandDec(100,2);
+        Amount := LibraryRandom.RandDec(100, 2);
         KundeID := '12345678911';
         CreateGenJnlLine(
           GenJournalLine,
           CreateBankAccountWithExportSetup(CreateNorgeBankExportImportSetup(Amount)),
-          Amount * 2,1);
+          Amount * 2, 1);
         CreateGenJnlLineRegRepCode(GenJournalLine);
-        GenJournalLine.Validate(KID,KundeID);
+        GenJournalLine.Validate(KID, KundeID);
         GenJournalLine.Modify(true);
 
         TempBlob.CreateOutStream(OutStr);
@@ -516,19 +516,19 @@ codeunit 144137 "ERM Norge SEPA CT"
         BankAccount.Get(GenJournalLine."Bal. Account No.");
 
         // [WHEN] Export Gen. Journal Line with SEPA CT pain.001.001.03 port
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID,OutStr,GenJournalLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJournalLine);
 
         // [THEN] Xml file contains 'RgltryRptg' and 'RmtInf' tags
-        LibraryXPathXMLReader.InitializeWithBlob(TempBlob,NamespaceTxt);
-        LibraryXPathXMLReader.GetNodeList('//RgltryRptg',NodeList);
-        Assert.AreEqual(1,NodeList.Count,'Should be 1 nodes');
-        LibraryXPathXMLReader.GetNodeList('//RmtInf',NodeList);
-        Assert.AreEqual(1,NodeList.Count,'Should be 1 nodes');
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
+        LibraryXPathXMLReader.GetNodeList('//RgltryRptg', NodeList);
+        Assert.AreEqual(1, NodeList.Count, 'Should be 1 nodes');
+        LibraryXPathXMLReader.GetNodeList('//RmtInf', NodeList);
+        Assert.AreEqual(1, NodeList.Count, 'Should be 1 nodes');
 
         // [THEN] 'RmtInf' goes after 'RgltryRptg' tag
-        RmtInfIndex := LibraryXPathXMLReader.GetNodeIndexInSubtree('//CdtTrfTxInf','RmtInf');
-        RgltryRptgIndex := LibraryXPathXMLReader.GetNodeIndexInSubtree('//CdtTrfTxInf','RgltryRptg');
-        Assert.IsTrue(RgltryRptgIndex < RmtInfIndex,'RmtInf should go after RgltryRptg tag');
+        RmtInfIndex := LibraryXPathXMLReader.GetNodeIndexInSubtree('//CdtTrfTxInf', 'RmtInf');
+        RgltryRptgIndex := LibraryXPathXMLReader.GetNodeIndexInSubtree('//CdtTrfTxInf', 'RgltryRptg');
+        Assert.IsTrue(RgltryRptgIndex < RmtInfIndex, 'RmtInf should go after RgltryRptg tag');
     end;
 
     [Test]
@@ -537,7 +537,7 @@ codeunit 144137 "ERM Norge SEPA CT"
     var
         GenJournalLine: Record "Gen. Journal Line";
         BankAccount: Record "Bank Account";
-	TempBlob: Codeunit "Temp Blob";
+        TempBlob: Codeunit "Temp Blob";
         NodeList: DotNet XmlNodeList;
         OutStr: OutStream;
         PaymentInfId: array[2] of Text;
@@ -720,7 +720,7 @@ codeunit 144137 "ERM Norge SEPA CT"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line";BankAccCode: Code[20];Amount: Decimal;NumberOfLines: Integer)
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; BankAccCode: Code[20]; Amount: Decimal; NumberOfLines: Integer)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         VendorNo: Code[20];
@@ -732,12 +732,12 @@ codeunit 144137 "ERM Norge SEPA CT"
         GenJournalBatch.Modify(true);
         VendorNo := CreateVendorWithBankAcc;
         for i := 1 to NumberOfLines do begin
-          LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine,GenJournalBatch."Journal Template Name",GenJournalBatch.Name,GenJournalLine."Document Type"::Payment,
-              GenJournalLine."Account Type"::Vendor, VendorNo, Amount);
-        GenJournalLine.Validate("Amount (LCY)",Amount);
-        GenJournalLine.Validate("External Document No.",LibraryUtility.GenerateGUID);
-          GenJournalLine.Modify(true);
+            LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+                GenJournalLine."Account Type"::Vendor, VendorNo, Amount);
+            GenJournalLine.Validate("Amount (LCY)", Amount);
+            GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateGUID);
+            GenJournalLine.Modify(true);
         end;
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");

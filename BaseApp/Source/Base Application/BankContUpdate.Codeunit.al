@@ -36,7 +36,7 @@ codeunit 5058 "BankCont-Update"
                 exit;
             if not Cont.Get("Contact No.") then begin
                 Delete();
-                SendTraceTag('0000B38', BankContactUpdateCategoryTxt, Verbosity::Normal, StrSubstNo(BankContactUpdateTelemetryMsg, "Contact No.", "Business Relation Code"), DataClassification::EndUserIdentifiableInformation);
+                Session.LogMessage('0000B38', StrSubstNo(BankContactUpdateTelemetryMsg, "Contact No.", "Business Relation Code"), Verbosity::Normal, DataClassification::EndUserIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', BankContactUpdateCategoryTxt);
                 exit;
             end;
             OldCont := Cont;

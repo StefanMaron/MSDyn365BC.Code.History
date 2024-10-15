@@ -54,7 +54,7 @@ page 6067 "Contract Gain/Loss (Customers)"
                             Clear(Cust);
                         ShipToCodeFilter := '';
                         MATRIX_GenerateColumnCaptions(SetWanted::Initial);
-                        CustomerNoOnAfterValidate;
+                        CustomerNoOnAfterValidate();
                     end;
                 }
                 field(ShipToCodeFilter; ShipToCodeFilter)

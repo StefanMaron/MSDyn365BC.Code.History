@@ -39,8 +39,6 @@ codeunit 137055 "SCM Warehouse Pick"
         NoAllowedLocationsErr: Label 'Internal movement is not possible at any locations where you are a warehouse employee.';
         UnexpectedLocationCodeErr: Label 'Unexpected location code. Actual -  %1, Expected - %2', Comment = '%1 : Actual location code; %2 : expected location code.';
         LocationCodeMustNotOccurErr: Label 'Location code %1 must not occur.  Expected value - %2', Comment = '%1 : occured location code, %2 : expected location code.';
-        SourceDocument: Option ,"Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order","Inbound Transfer","Outbound Transfer","Prod. Consumption","Prod. Output","Service Order",,,,,,,"Assembly Consumption","Assembly Order";
-        ItemLedgEntryDocType: Option " ","Sales Shipment","Sales Invoice","Sales Return Receipt","Sales Credit Memo","Purchase Receipt","Purchase Invoice","Purchase Return Shipment","Purchase Credit Memo","Transfer Shipment","Transfer Receipt","Service Shipment","Service Invoice","Service Credit Memo","Posted Assembly";
         ReservationAction: Option AutoReserve,GetQuantities;
 
     [Test]
@@ -621,14 +619,14 @@ codeunit 137055 "SCM Warehouse Pick"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] Created Inventory Pick with Qty. to Handle = 0.33333
-        CreateInvtPutPickFromSalesDoc(WarehouseActivityHeader, SalesHeader, SourceDocument::"Sales Order");
+        CreateInvtPutPickFromSalesDoc(WarehouseActivityHeader, SalesHeader, "Warehouse Request Source Document"::"Sales Order");
         UpdateQtyToHandleInWhseActivityLine(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", QtyToHandle);
 
         // [WHEN] Post Inventory Pick
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
         // [THEN] Item Ledger Entry has Quantity = -0.99999
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Sales Shipment", LocationCode, -QtyPerBaseUoM * QtyToHandle);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Sales Shipment", LocationCode, -QtyPerBaseUoM * QtyToHandle);
 
         // [THEN] Posted Sales Shipment Line has Quantity (Base) = Qty. Invoiced (Base) = 0.99999
         VerifySalesShipmentBaseQty(SalesHeader."Sell-to Customer No.", QtyPerBaseUoM * QtyToHandle);
@@ -667,14 +665,14 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // [GIVEN] Created Inventory Put-Away with Qty. to Handle = 0.33333
-        CreateInvtPutPickFromPurchDoc(WarehouseActivityHeader, PurchaseHeader, SourceDocument::"Purchase Order");
+        CreateInvtPutPickFromPurchDoc(WarehouseActivityHeader, PurchaseHeader, "Warehouse Request Source Document"::"Purchase Order");
         UpdateQtyToHandleInWhseActivityLine(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", QtyToHandle);
 
         // [WHEN] Post Inventory Put-Away
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
         // [THEN] Item Ledger Entry has Quantity = 0.99999
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Purchase Receipt", LocationCode, QtyPerBaseUoM * QtyToHandle);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Purchase Receipt", LocationCode, QtyPerBaseUoM * QtyToHandle);
 
         // [THEN] Posted Purchase Receipt Line has Quantity (Base) = Qty. Invoiced (Base) = 0.99999
         VerifyPurchRcptLineBaseQty(PurchaseHeader."Buy-from Vendor No.", QtyPerBaseUoM * QtyToHandle);
@@ -713,14 +711,14 @@ codeunit 137055 "SCM Warehouse Pick"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] Created Inventory Put-Away with Qty. to Handle = 0.33333
-        CreateInvtPutPickFromSalesDoc(WarehouseActivityHeader, SalesHeader, SourceDocument::"Sales Return Order");
+        CreateInvtPutPickFromSalesDoc(WarehouseActivityHeader, SalesHeader, "Warehouse Request Source Document"::"Sales Return Order");
         UpdateQtyToHandleInWhseActivityLine(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", QtyToHandle);
 
         // [WHEN] Post Inventory Put-Away
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
         // [THEN] Item Ledger Entry has Quantity = 0.99999
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Sales Return Receipt", LocationCode, QtyPerBaseUoM * QtyToHandle);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Sales Return Receipt", LocationCode, QtyPerBaseUoM * QtyToHandle);
 
         // [THEN] Return Receipt Line has Quantity (Base) = Qty. Invoiced (Base) = 0.99999
         VerifyReturnReceiptLineBaseQty(SalesHeader."Sell-to Customer No.", QtyPerBaseUoM * QtyToHandle);
@@ -764,14 +762,14 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // [GIVEN] Created Inventory Pick with Qty. to Handle = 0.33333
-        CreateInvtPutPickFromPurchDoc(WarehouseActivityHeader, PurchaseHeader, SourceDocument::"Purchase Return Order");
+        CreateInvtPutPickFromPurchDoc(WarehouseActivityHeader, PurchaseHeader, "Warehouse Request Source Document"::"Purchase Return Order");
         UpdateQtyToHandleInWhseActivityLine(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", QtyToHandle);
 
         // [WHEN] Post Inventory Pick
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
         // [THEN] Item Ledger Entry has Quantity = -0.99999
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Purchase Return Shipment", LocationCode, -QtyPerBaseUoM * QtyToHandle);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Purchase Return Shipment", LocationCode, -QtyPerBaseUoM * QtyToHandle);
 
         // [THEN] Return Shipment Line has Quantity (Base) = Qty. Invoiced (Base) = 0.99999
         VerifyReturnShipmentLineBaseQty(PurchaseHeader."Buy-from Vendor No.", QtyPerBaseUoM * QtyToHandle);
@@ -817,17 +815,17 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
 
         // [GIVEN] Created Inventory Pick with Qty. to Handle = 0.33333
-        CreateInvtPutPickFromTrasferOrder(WarehouseActivityHeader, TransferHeader."No.", SourceDocument::"Outbound Transfer", false, true);
+        CreateInvtPutPickFromTrasferOrder(WarehouseActivityHeader, TransferHeader."No.", "Warehouse Request Source Document"::"Outbound Transfer", false, true);
         UpdateQtyToHandleInWhseActivityLine(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", QtyToHandle);
 
         // [WHEN] Post Inventory Pick
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
         // [THEN] Transfer Shipment Item Ledger Entry for Location SILVER has Quantity = -0.99999
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Transfer Shipment", FromLocationCode, -QtyPerBaseUoM * QtyToHandle);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Transfer Shipment", FromLocationCode, -QtyPerBaseUoM * QtyToHandle);
 
         // [THEN] Transfer Shipment Item Ledger Entry for Location RED has Quantity = 0.99999
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Transfer Shipment", InTransitLocationCode, QtyPerBaseUoM * QtyToHandle);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Transfer Shipment", InTransitLocationCode, QtyPerBaseUoM * QtyToHandle);
 
         // [THEN] Posted Transfer Shipment Line has Quantity (Base) = 0.99999
         VerifyTransferShipmentLineBaseQty(FromLocationCode, ToLocationCode, QtyPerBaseUoM * QtyToHandle);
@@ -877,17 +875,17 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
 
         // [GIVEN] Created Inventory Put-Away with Qty. to Handle = 0.33333
-        CreateInvtPutPickFromTrasferOrder(WarehouseActivityHeader, TransferHeader."No.", SourceDocument::"Inbound Transfer", true, false);
+        CreateInvtPutPickFromTrasferOrder(WarehouseActivityHeader, TransferHeader."No.", "Warehouse Request Source Document"::"Inbound Transfer", true, false);
         UpdateQtyToHandleInWhseActivityLine(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", QtyToHandle);
 
         // [WHEN] Post Inventory Put-Away
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
         // [THEN] Transfer Receipt Item Ledger Entry for Location SILVER has Quantity = 0.99999
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Transfer Receipt", ToLocationCode, QtyPerBaseUoM * QtyToHandle);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Transfer Receipt", ToLocationCode, QtyPerBaseUoM * QtyToHandle);
 
         // [THEN] Transfer Receipt Item Ledger Entry for Location XXX has Quantity = -0.99999
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Transfer Receipt", InTransitLocationCode, -QtyPerBaseUoM * QtyToHandle);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Transfer Receipt", InTransitLocationCode, -QtyPerBaseUoM * QtyToHandle);
 
         // [THEN] Posted Transfer Receipt Line has Quantity (Base) = 0.99999
         VerifyTransferReceiptLineBaseQty(FromLocationCode, ToLocationCode, QtyPerBaseUoM * QtyToHandle);
@@ -928,14 +926,14 @@ codeunit 137055 "SCM Warehouse Pick"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] Created Inventory Pick with Qty. to Handle (Base) = 1
-        CreateInvtPutPickFromSalesDoc(WarehouseActivityHeader, SalesHeader, SourceDocument::"Sales Order");
+        CreateInvtPutPickFromSalesDoc(WarehouseActivityHeader, SalesHeader, "Warehouse Request Source Document"::"Sales Order");
         UpdateQtyToHandleBaseInWhseActivityLine(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", Quantity);
 
         // [WHEN] Post Inventory Pick
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
         // [THEN] Item Ledger Entry has Quantity = -1
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Sales Shipment", LocationCode, -Quantity);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Sales Shipment", LocationCode, -Quantity);
 
         // [THEN] Posted Sales Shipment Line has Quantity (Base) = Qty. Invoiced (Base) = 1
         VerifySalesShipmentBaseQty(SalesHeader."Sell-to Customer No.", Quantity);
@@ -972,14 +970,14 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // [GIVEN] Created Inventory Put-Away with Qty. to Handle (Base) = 1
-        CreateInvtPutPickFromPurchDoc(WarehouseActivityHeader, PurchaseHeader, SourceDocument::"Purchase Order");
+        CreateInvtPutPickFromPurchDoc(WarehouseActivityHeader, PurchaseHeader, "Warehouse Request Source Document"::"Purchase Order");
         UpdateQtyToHandleBaseInWhseActivityLine(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", Quantity);
 
         // [WHEN] Post Inventory Put-Away
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
         // [THEN] Item Ledger Entry has Quantity = 1
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Purchase Receipt", LocationCode, Quantity);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Purchase Receipt", LocationCode, Quantity);
 
         // [THEN] Posted Purchase Receipt Line has Quantity (Base) = Qty. Invoiced (Base) = 1
         VerifyPurchRcptLineBaseQty(PurchaseHeader."Buy-from Vendor No.", Quantity);
@@ -1016,14 +1014,14 @@ codeunit 137055 "SCM Warehouse Pick"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] Created Inventory Put-Away with Qty. to Handle (Base) = 1
-        CreateInvtPutPickFromSalesDoc(WarehouseActivityHeader, SalesHeader, SourceDocument::"Sales Return Order");
+        CreateInvtPutPickFromSalesDoc(WarehouseActivityHeader, SalesHeader, "Warehouse Request Source Document"::"Sales Return Order");
         UpdateQtyToHandleBaseInWhseActivityLine(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", Quantity);
 
         // [WHEN] Post Inventory Put-Away
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
         // [THEN] Item Ledger Entry has Quantity = 1
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Sales Return Receipt", LocationCode, Quantity);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Sales Return Receipt", LocationCode, Quantity);
 
         // [THEN] Return Receipt Line has Quantity (Base) = Qty. Invoiced (Base) = 1
         VerifyReturnReceiptLineBaseQty(SalesHeader."Sell-to Customer No.", Quantity);
@@ -1065,14 +1063,14 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // [GIVEN] Created Inventory Pick with Qty. to Handle (Base) = 1
-        CreateInvtPutPickFromPurchDoc(WarehouseActivityHeader, PurchaseHeader, SourceDocument::"Purchase Return Order");
+        CreateInvtPutPickFromPurchDoc(WarehouseActivityHeader, PurchaseHeader, "Warehouse Request Source Document"::"Purchase Return Order");
         UpdateQtyToHandleBaseInWhseActivityLine(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", Quantity);
 
         // [WHEN] Post Inventory Pick
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
         // [THEN] Item Ledger Entry has Quantity = -1
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Purchase Return Shipment", LocationCode, -Quantity);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Purchase Return Shipment", LocationCode, -Quantity);
 
         // [THEN] Return Shipment Line has Quantity (Base) = Qty. Invoiced (Base) = 1
         VerifyReturnShipmentLineBaseQty(PurchaseHeader."Buy-from Vendor No.", Quantity);
@@ -1116,17 +1114,17 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
 
         // [GIVEN] Created Inventory Pick with Qty. to Handle (Base) = 1
-        CreateInvtPutPickFromTrasferOrder(WarehouseActivityHeader, TransferHeader."No.", SourceDocument::"Outbound Transfer", false, true);
+        CreateInvtPutPickFromTrasferOrder(WarehouseActivityHeader, TransferHeader."No.", "Warehouse Request Source Document"::"Outbound Transfer", false, true);
         UpdateQtyToHandleBaseInWhseActivityLine(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", Quantity);
 
         // [WHEN] Post Inventory Pick
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
         // [THEN] Item Ledger Entry for Location SILVER has Quantity = -1
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Transfer Shipment", FromLocationCode, -Quantity);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Transfer Shipment", FromLocationCode, -Quantity);
 
         // [THEN] Item Ledger Entry for Location RED has Quantity = 1
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Transfer Shipment", InTransitLocationCode, Quantity);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Transfer Shipment", InTransitLocationCode, Quantity);
 
         // [THEN] Posted Transfer Shipment Line has Quantity (Base) = 1
         VerifyTransferShipmentLineBaseQty(FromLocationCode, ToLocationCode, Quantity);
@@ -1176,17 +1174,17 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
 
         // [GIVEN] Created Inventory Put-Away with Qty. to Handle (Base) = 1
-        CreateInvtPutPickFromTrasferOrder(WarehouseActivityHeader, TransferHeader."No.", SourceDocument::"Inbound Transfer", true, false);
+        CreateInvtPutPickFromTrasferOrder(WarehouseActivityHeader, TransferHeader."No.", "Warehouse Request Source Document"::"Inbound Transfer", true, false);
         UpdateQtyToHandleBaseInWhseActivityLine(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", Quantity);
 
         // [WHEN] Post Inventory Put-Away
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
         // [THEN] Transfer Receipt Item Ledger Entry for Location SILVER has Quantity = 1
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Transfer Receipt", ToLocationCode, Quantity);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Transfer Receipt", ToLocationCode, Quantity);
 
         // [THEN] Transfer Receipt Item Ledger Entry for Location XXX has Quantity = -1
-        VerifyItemLedgerEntryQty(ItemNo, ItemLedgEntryDocType::"Transfer Receipt", InTransitLocationCode, -Quantity);
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Transfer Receipt", InTransitLocationCode, -Quantity);
 
         // [THEN] Posted Transfer Receipt Line has Quantity (Base) = 1
         VerifyTransferReceiptLineBaseQty(FromLocationCode, ToLocationCode, Quantity);
@@ -1337,7 +1335,7 @@ codeunit 137055 "SCM Warehouse Pick"
         QuantityPer: Decimal;
     begin
         // [FEATURE] [Assemble-to-Order] [Reservation]
-        // [SCENARIO 349923] Picked and reserved assembly component is excluded correctly from the quantity available for reservation when "To-Production Bin Code" = "To-Assembly Bin Code" on Location
+        // [SCENARIO 349923] Picked and reserved assembly component is excluded correctly from the quantity available for reservation when "Open Shop Floor Bin Code" = "To-Assembly Bin Code" on Location
         Initialize;
 
         // [GIVEN] "To-Production Bin Code" = "To-Assembly Bin Code" on Location "L" set up for directed put-away and pick
@@ -1417,19 +1415,19 @@ codeunit 137055 "SCM Warehouse Pick"
         ItemJournalLine.Modify(true);
     end;
 
-    local procedure CreateInvtPutPickFromSalesDoc(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SalesHeader: Record "Sales Header"; SourceDocument: Integer)
+    local procedure CreateInvtPutPickFromSalesDoc(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SalesHeader: Record "Sales Header"; SourceDocument: Enum "Warehouse Request Source Document")
     begin
         LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
         FindWhseActivityHeaderBySourceDocAndNo(WarehouseActivityHeader, SourceDocument, SalesHeader."No.");
     end;
 
-    local procedure CreateInvtPutPickFromPurchDoc(var WarehouseActivityHeader: Record "Warehouse Activity Header"; PurchaseHeader: Record "Purchase Header"; SourceDocument: Integer)
+    local procedure CreateInvtPutPickFromPurchDoc(var WarehouseActivityHeader: Record "Warehouse Activity Header"; PurchaseHeader: Record "Purchase Header"; SourceDocument: Enum "Warehouse Request Source Document")
     begin
         LibraryWarehouse.CreateInvtPutPickPurchaseOrder(PurchaseHeader);
         FindWhseActivityHeaderBySourceDocAndNo(WarehouseActivityHeader, SourceDocument, PurchaseHeader."No.");
     end;
 
-    local procedure CreateInvtPutPickFromTrasferOrder(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Integer; PutAway: Boolean; Pick: Boolean)
+    local procedure CreateInvtPutPickFromTrasferOrder(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Request Source Document"; PutAway: Boolean; Pick: Boolean)
     begin
         LibraryWarehouse.CreateInvtPutPickMovement(SourceDocument, SourceNo, PutAway, Pick, false);
         FindWhseActivityHeaderBySourceDocAndNo(WarehouseActivityHeader, SourceDocument, SourceNo);
@@ -1471,7 +1469,7 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, ItemNo, UoM, QtyPerBaseUoM);
     end;
 
-    local procedure CreateSalesDocWithItemLocationQtyAndUoM(var SalesHeader: Record "Sales Header"; DocType: Integer; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; UoM: Code[10])
+    local procedure CreateSalesDocWithItemLocationQtyAndUoM(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; UoM: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1484,7 +1482,7 @@ codeunit 137055 "SCM Warehouse Pick"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocWithItemLocationQtyAndUoM(var PurchaseHeader: Record "Purchase Header"; DocType: Integer; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; UoM: Code[10])
+    local procedure CreatePurchaseDocWithItemLocationQtyAndUoM(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; UoM: Code[10])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1748,13 +1746,13 @@ codeunit 137055 "SCM Warehouse Pick"
         CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, ParentItem."No.", Location.Code, Quantity);
     end;
 
-    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; SourceType: Option; SourceNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     begin
         CreateProdOrder(ProductionOrder, ProductionOrder.Status::Released, SourceType, SourceNo, LocationCode, Quantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
-    local procedure CreateProdOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceType: Option; SourceNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    local procedure CreateProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, SourceType, SourceNo, Quantity);
         ProductionOrder.Validate("Location Code", LocationCode);
@@ -1768,7 +1766,7 @@ codeunit 137055 "SCM Warehouse Pick"
         exit(UnitOfMeasureManagement.QtyRndPrecision);
     end;
 
-    local procedure FindWhseActivityHeaderBySourceDocAndNo(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceDoc: Integer; SourceNo: Code[20])
+    local procedure FindWhseActivityHeaderBySourceDocAndNo(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceDoc: Enum "Warehouse Request Source Document"; SourceNo: Code[20])
     begin
         WarehouseActivityHeader.SetRange("Source Document", SourceDoc);
         WarehouseActivityHeader.SetRange("Source No.", SourceNo);
@@ -1852,7 +1850,7 @@ codeunit 137055 "SCM Warehouse Pick"
         WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
     end;
 
-    local procedure PostWarehouseReceipt(SourceDocument: Option; SourceNo: Code[20])
+    local procedure PostWarehouseReceipt(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
@@ -1870,7 +1868,7 @@ codeunit 137055 "SCM Warehouse Pick"
         exit(WarehouseActivityLine."No.");
     end;
 
-    local procedure FindWarehouseReceiptNo(SourceDocument: Option; SourceNo: Code[20]): Code[20]
+    local procedure FindWarehouseReceiptNo(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]): Code[20]
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
@@ -2024,7 +2022,7 @@ codeunit 137055 "SCM Warehouse Pick"
         Location.Modify(true);
     end;
 
-    local procedure VerifyItemLedgerEntryQty(ItemNo: Code[20]; DocType: Integer; LocationCode: Code[10]; Quantity: Decimal)
+    local procedure VerifyItemLedgerEntryQty(ItemNo: Code[20]; DocType: Enum "Item Ledger Document Type"; LocationCode: Code[10]; Quantity: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

@@ -5,6 +5,7 @@ page 9169 "Profile Extension List"
     SourceTable = "Tenant Profile Extension";
     InsertAllowed = false;
     ModifyAllowed = false;
+    DeleteAllowed = false;
 
     layout
     {
@@ -38,12 +39,4 @@ page 9169 "Profile Extension List"
 
     var
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
-        CanOnlyDeleteOwnedProfilesErr: Label 'You can only delete Profile Extensions that are user-created.';
-
-    trigger OnDeleteRecord(): Boolean
-    begin
-        if not IsNullGuid("App ID") then
-            Error(CanOnlyDeleteOwnedProfilesErr);
-    end;
-
 }

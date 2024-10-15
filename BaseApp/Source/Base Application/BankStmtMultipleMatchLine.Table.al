@@ -44,10 +44,10 @@ table 1249 "Bank Stmt Multiple Match Line"
     {
     }
 
-    procedure InsertLine(TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; LineNo: Integer; AccountType: Option)
+    procedure InsertLine(TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; LineNo: Integer; AccountType: Enum "Gen. Journal Account Type")
     begin
         "Line No." := LineNo;
-        "Account Type" := AccountType;
+        "Account Type" := AccountType.AsInteger();
         "Account No." := TempLedgerEntryMatchingBuffer."Account No.";
         "Entry No." := TempLedgerEntryMatchingBuffer."Entry No.";
         "Due Date" := TempLedgerEntryMatchingBuffer."Due Date";

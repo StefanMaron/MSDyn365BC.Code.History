@@ -594,6 +594,20 @@ codeunit 134141 "ERM Bank Reconciliation"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('VerifyNotificationIsSend')]
+    procedure BankAccReconciliationNotificationShownOnNew()
+    var
+        BankAccReconciliation: TestPage "Bank Acc. Reconciliation";
+    begin
+        // [FEATURE] [UI]
+        // [GIVEN] Open new Bank Account Reconciliation page 
+        // [WHEN] On Open New
+        // [THEN] A notification should be send to import bank data
+        BankAccReconciliation.OpenNew;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure BankAccReconciliationStatementNoIsNotEditable()
     var
         BankAccReconciliation: TestPage "Bank Acc. Reconciliation";
@@ -1678,7 +1692,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     local procedure PostPaymentJournalLineWithDateAndSource(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; AccountNo: Code[20]; BankAccountNo: Code[20])
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
-          GenJournalLine, 0, GenJournalLine."Account Type"::Vendor, AccountNo,
+          GenJournalLine, "Gen. Journal Document Type"::" ", GenJournalLine."Account Type"::Vendor, AccountNo,
           -LibraryRandom.RandIntInRange(1000, 2000));
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
@@ -1900,7 +1914,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliationLine.Modify(true);
     end;
 
-    local procedure CreateApplyBankAccReconcilationLine(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Option; AccountNo: Code[20]; StatementAmount: Decimal; BankAccountNo: Code[20])
+    local procedure CreateApplyBankAccReconcilationLine(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; StatementAmount: Decimal; BankAccountNo: Code[20])
     begin
         LibraryERM.CreateBankAccReconciliation(
           BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Payment Application");
@@ -1957,7 +1971,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliationLine.Find;
     end;
 
-    local procedure MockBankAccReconLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Option)
+    local procedure MockBankAccReconLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Enum "Gen. Journal Account Type")
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
     begin
@@ -2003,7 +2017,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         exit(LibraryDimension.CreateDimSet(DimSetID, Dimension.Code, DimensionValue.Code));
     end;
 
-    local procedure ApplyBankAccReconcilationLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; LedgerEntryNo: Integer; AccountType: Option; Description: Text[50]): Integer
+    local procedure ApplyBankAccReconcilationLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; LedgerEntryNo: Integer; AccountType: Enum "Gen. Journal Account Type"; Description: Text[50]): Integer
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
     begin
@@ -2155,7 +2169,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccount.Modify();
     end;
 
-    local procedure SetupGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; BalAccountType: Option; BankAccountNo: Code[20])
+    local procedure SetupGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; BalAccountType: Enum "Gen. Journal Account Type"; BankAccountNo: Code[20])
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -2259,7 +2273,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         GLEntry.TestField("Dimension Set ID", ExpectedDimSetID);
     end;
 
-    local procedure VerifyGenJournalLine(GenJournalTemplateNo: Code[50]; GenJournalBatchNo: Code[50]; ExpectedAmount: Decimal; BalAccountType: Option; BAlAccountNo: Code[20])
+    local procedure VerifyGenJournalLine(GenJournalTemplateNo: Code[50]; GenJournalBatchNo: Code[50]; ExpectedAmount: Decimal; BalAccountType: Enum "Gen. Journal Account Type"; BAlAccountNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2371,6 +2385,15 @@ codeunit 134141 "ERM Bank Reconciliation"
         PaymentApplication.FILTER.SetFilter("Account No.", LibraryVariableStorage.DequeueText);
         PaymentApplication.AppliedAmount.SetValue(LibraryVariableStorage.DequeueDecimal);
         PaymentApplication.Accept.Invoke;
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure VerifyNotificationIsSend(var Notification: Notification): Boolean;
+    begin
+        Assert.AreEqual('No bank statement lines exist. Choose the Import Bank Statement action to fill in the lines from a file, or enter lines manually.',
+          Notification.Message,
+          'A notification should have been shown with the expected text');
     end;
 
 }

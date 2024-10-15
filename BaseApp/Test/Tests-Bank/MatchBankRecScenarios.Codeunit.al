@@ -717,7 +717,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         end;
     end;
 
-    local procedure FindBankAccountLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindBankAccountLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         with BankAccountLedgerEntry do begin
             SetRange("Bank Account No.", BankAccountNo);
@@ -829,7 +829,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         asserterror BankAccReconciliation.Find;
     end;
 
-    local procedure VerifyGLEntryDocType(GLAccountNo: Code[20]; DocumentNo: Code[20]; ExpectedDocType: Option)
+    local procedure VerifyGLEntryDocType(GLAccountNo: Code[20]; DocumentNo: Code[20]; ExpectedDocType: Enum "Gen. Journal Document Type")
     var
         DummyGLEntry: Record "G/L Entry";
     begin

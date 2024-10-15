@@ -102,7 +102,7 @@ page 1288 "Payment-to-Entry Match"
         StatementTypeFieldRef: FieldRef;
         MatchConfidenceFieldRef: FieldRef;
         AppliesToEntryNo: Integer;
-        AccountType: Option;
+        AccountType: Enum "Gen. Journal Account Type";
         StatementType: Option;
         BankAccountNo: Text;
         StatementNo: Text;
@@ -113,7 +113,9 @@ page 1288 "Payment-to-Entry Match"
         Evaluate(AppliesToEntryNo, GetFilter("Applies-to Entry No."));
         RecRef.GetTable(Rec);
         AccountTypeFieldRef := RecRef.Field(FieldNo("Account Type"));
-        AccountType := TypeHelper.GetOptionNo(GetFilter("Account Type"), AccountTypeFieldRef.OptionCaption);
+        AccountType :=
+            "Gen. Journal Account Type".FromInteger(
+                TypeHelper.GetOptionNo(GetFilter("Account Type"), AccountTypeFieldRef.OptionCaption));
         StatementTypeFieldRef := RecRef.Field(FieldNo("Statement Type"));
         StatementType := TypeHelper.GetOptionNo(GetFilter("Statement Type"), StatementTypeFieldRef.OptionCaption);
 
@@ -159,7 +161,7 @@ page 1288 "Payment-to-Entry Match"
         AmountMatchText := Format(BankPmtApplRule."Amount Incl. Tolerance Matched");
     end;
 
-    local procedure GetBankAccReconciliationLine(StatementType: Option; BankAccountNo: Text; StatementNo: Text; StatementLineNo: Integer; AccountType: Option)
+    local procedure GetBankAccReconciliationLine(StatementType: Option; BankAccountNo: Text; StatementNo: Text; StatementLineNo: Integer; AccountType: Enum "Gen. Journal Account Type")
     begin
         BankAccReconciliationLine.Get(StatementType, BankAccountNo, StatementNo, StatementLineNo);
         BankAccReconciliationLine."Account Type" := AccountType;

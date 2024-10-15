@@ -110,7 +110,7 @@ codeunit 10675 "SAF-T Export Mgt."
 
     procedure SendTraceTagOfExport(Category: Text; TraceTagMessage: Text)
     begin
-        SendTraceTag('0000A4J', Category, Verbosity::Normal, TraceTagMessage, DataClassification::SystemMetadata);
+        Session.LogMessage('0000A4J', TraceTagMessage, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', Category);
     end;
 
     procedure UpdateExportStatus(var SAFTExportHeader: Record "SAF-T Export Header")
@@ -202,11 +202,11 @@ codeunit 10675 "SAF-T Export Mgt."
                 exit;
             CalcFields("Detailed Info");
             if not "Detailed Info".HasValue() then
-                error(NoErrorMessageErr);
+                LogInternalError(NoErrorMessageErr, DataClassification::SystemMetadata, Verbosity::Error);
             "Detailed Info".CreateInStream(Stream);
             Stream.ReadText(ErrorMessage);
             if ErrorMessage = '' then
-                error(NoErrorMessageErr);
+                LogInternalError(NoErrorMessageErr, DataClassification::SystemMetadata, Verbosity::Error);
             Message(ErrorMessage);
         end;
     end;
@@ -495,7 +495,7 @@ codeunit 10675 "SAF-T Export Mgt."
     begin
         SAFTExportFile.SetRange("Export ID", SAFTExportHeader.ID);
         if not SAFTExportFile.FindSet() then
-            error(NoZipFileGeneratedErr);
+            LogInternalError(NoZipFileGeneratedErr, DataClassification::SystemMetadata, Verbosity::Error);
         repeat
             SAFTExportFile.CalcFields("SAF-T File");
             SAFTExportFile."SAF-T File".CreateInStream(ZipFileInStream);

@@ -16,15 +16,11 @@ codeunit 104040 "Upgrade Profiles V2"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDef.GetUpdateProfileReferencesForCompanyTag(), CompanyName) then
             exit;
 
-        SendTraceTag('0000A31', TelemetryCategory, Verbosity::Normal,
-            StrSubstNo('Per-company upgrade of profile references started. System Profiles: %1. Tenant Profiles: %2.', AppProfile.Count(), TenantProfile.Count()),
-            DataClassification::SystemMetadata);
+        Session.LogMessage('0000A31', StrSubstNo('Per-company upgrade of profile references started. System Profiles: %1. Tenant Profiles: %2.', AppProfile.Count(), TenantProfile.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategory);
 
         UpdateConfigSetup();
 
-        SendTraceTag('0000A32', TelemetryCategory, Verbosity::Normal,
-            StrSubstNo('Per-company upgrade of profile references finished. System Profiles: %1. Tenant Profiles: %2.', AppProfile.Count(), TenantProfile.Count()),
-            DataClassification::SystemMetadata);
+        Session.LogMessage('0000A32', StrSubstNo('Per-company upgrade of profile references finished. System Profiles: %1. Tenant Profiles: %2.', AppProfile.Count(), TenantProfile.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategory);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDef.GetUpdateProfileReferencesForCompanyTag());
     end;
@@ -45,17 +41,13 @@ codeunit 104040 "Upgrade Profiles V2"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDef.GetUpdateProfileReferencesForDatabaseTag()) then
             exit;
 
-        SendTraceTag('0000A33', TelemetryCategory, Verbosity::Normal,
-            StrSubstNo('Per-database upgrade of profile references started. System Profiles: %1. Tenant Profiles: %2.', AppProfile.Count(), TenantProfile.Count()),
-            DataClassification::SystemMetadata);
+        Session.LogMessage('0000A33', StrSubstNo('Per-database upgrade of profile references started. System Profiles: %1. Tenant Profiles: %2.', AppProfile.Count(), TenantProfile.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategory);
 
         UpdateApplicationAreaSetup();
         UpdateUserGroup();
         UpdateUserPersonalizations();
 
-        SendTraceTag('0000A34', TelemetryCategory, Verbosity::Normal,
-            StrSubstNo('Per-database upgrade of profile references finished. System Profiles: %1. Tenant Profiles: %2.', AppProfile.Count(), TenantProfile.Count()),
-            DataClassification::SystemMetadata);
+        Session.LogMessage('0000A34', StrSubstNo('Per-database upgrade of profile references finished. System Profiles: %1. Tenant Profiles: %2.', AppProfile.Count(), TenantProfile.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategory);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDef.GetUpdateProfileReferencesForDatabaseTag());
     end;
@@ -218,9 +210,7 @@ codeunit 104040 "Upgrade Profiles V2"
         end;
 
         // We could neither match a profile nor create one. Raise a telemetry error, as we might have a broken reference, but do not fail upgrade.
-        SendTraceTag('0000A35', TelemetryCategory, Verbosity::Error,
-            StrSubstNo('Could not handle a system profile reference. ProfileID: %1', SystemProfileId),
-            DataClassification::CustomerContent);
+        Session.LogMessage('0000A35', StrSubstNo('Could not handle a system profile reference. ProfileID: %1', SystemProfileId), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategory);
 
         exit(false);
     end;
@@ -305,14 +295,12 @@ codeunit 104040 "Upgrade Profiles V2"
         BaseAppGuid := '437DBF0E-84FF-417A-965D-ED2BB9650972';
 
         if NewProfileId = '' then begin
-            SendTraceTag('0000A36', TelemetryCategory, Verbosity::Normal, 'Could not match a profile id.', DataClassification::SystemMetadata);
+            Session.LogMessage('0000A36', 'Could not match a profile id.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategory);
             exit(false);
         end;
 
         if not TenantProfile.Get(BaseAppGuid, NewProfileId) then begin
-            SendTraceTag('0000A37', TelemetryCategory, Verbosity::Error,
-                StrSubstNo('One hardcoded tenant profile is not present: %1.', NewProfileId),
-                DataClassification::SystemMetadata);
+            Session.LogMessage('0000A37', StrSubstNo('One hardcoded tenant profile is not present: %1.', NewProfileId), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategory);
             exit(false);
         end;
 
@@ -325,7 +313,7 @@ codeunit 104040 "Upgrade Profiles V2"
     begin
         GetSuccessful := TenantProfile.Get(EmptyGuid, AppProfileId);
         if GetSuccessful then
-            SendTraceTag('0000A38', TelemetryCategory, Verbosity::Normal, 'Found a tenant profile with the same Id of an app profile.', DataClassification::SystemMetadata);
+            Session.LogMessage('0000A38', 'Found a tenant profile with the same Id of an app profile.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategory);
 
         exit(GetSuccessful);
     end;
@@ -346,9 +334,7 @@ codeunit 104040 "Upgrade Profiles V2"
         TenantProfile."Disable Personalization" := SystemProfile."Disable Personalization";
         InsertSuccessful := TenantProfile.Insert();
 
-        SendTraceTag('0000A39', TelemetryCategory, Verbosity::Normal,
-            StrSubstNo('Attempted to insert a new tenant profile copied from a system profile. Result: %1.', Format(InsertSuccessful)),
-            DataClassification::SystemMetadata);
+        Session.LogMessage('0000A39', StrSubstNo('Attempted to insert a new tenant profile copied from a system profile. Result: %1.', Format(InsertSuccessful)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategory);
 
         exit(InsertSuccessful);
     end;
@@ -357,17 +343,13 @@ codeunit 104040 "Upgrade Profiles V2"
 
     local procedure SendProfileReferenceUpdatedTag(SuccessfulModifications: Integer; FailedModifications: Integer; TableName: Text)
     begin
-        SendTraceTag('0000A3A', TelemetryCategory, Verbosity::Normal,
-            StrSubstNo('Attempted to modify %1 references in table "%2". Successful: %3; Failed: %4.', SuccessfulModifications + FailedModifications, TableName, SuccessfulModifications, FailedModifications),
-            DataClassification::SystemMetadata);
+        Session.LogMessage('0000A3A', StrSubstNo('Attempted to modify %1 references in table "%2". Successful: %3; Failed: %4.', SuccessfulModifications + FailedModifications, TableName, SuccessfulModifications, FailedModifications), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategory);
     end;
 
     local procedure SendFailedToUpdateProfileReferenceTag(SourceTableName: Text; PreviousProfileId: Code[30]; TenantProfile: Record "Tenant Profile")
     begin
-        SendTraceTag('0000A3O', TelemetryCategory, Verbosity::Error,
-            StrSubstNo('Failed to modify Profile reference in table %1. Previous profile ID: %2. New profile key: %3, %4.',
-                SourceTableName, PreviousProfileId, TenantProfile."Profile ID", TenantProfile."App ID"),
-            DataClassification::CustomerContent);
+        Session.LogMessage('0000A3O', StrSubstNo('Failed to modify Profile reference in table %1. Previous profile ID: %2. New profile key: %3, %4.',
+                SourceTableName, PreviousProfileId, TenantProfile."Profile ID", TenantProfile."App ID"), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategory);
     end;
 
     local procedure ShouldUpdateProfileIdForApplicationAreaSetup(ProfileId: Code[30]): Boolean

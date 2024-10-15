@@ -23,17 +23,17 @@ table 5950 "Service Order Allocation"
                     Status::Canceled:
                         begin
                             Clear(ServLogMgt);
-                            ServLogMgt.ServHeaderCancelAllocation("Resource No.", "Document Type", "Document No.", "Service Item Line No.");
+                            ServLogMgt.ServHeaderCancelAllocation("Resource No.", "Document Type".AsInteger(), "Document No.", "Service Item Line No.");
                         end;
                     Status::Active:
                         begin
                             Clear(ServLogMgt);
-                            ServLogMgt.ServHeaderAllocation("Resource No.", "Document Type", "Document No.", "Service Item Line No.");
+                            ServLogMgt.ServHeaderAllocation("Resource No.", "Document Type".AsInteger(), "Document No.", "Service Item Line No.");
                         end;
                     Status::"Reallocation Needed":
                         begin
                             Clear(ServLogMgt);
-                            ServLogMgt.ServHeaderReallocationNeeded("Resource No.", "Document Type", "Document No.", "Service Item Line No.");
+                            ServLogMgt.ServHeaderReallocationNeeded("Resource No.", "Document Type".AsInteger(), "Document No.", "Service Item Line No.");
                         end;
                 end;
             end;
@@ -49,7 +49,7 @@ table 5950 "Service Order Allocation"
             begin
                 ServOrderNo := "Document No.";
                 Clear(ServOrderMgt);
-                ServOrderMgt.ServHeaderLookup("Document Type", ServOrderNo);
+                ServOrderMgt.ServHeaderLookup("Document Type".AsInteger(), ServOrderNo);
             end;
         }
         field(4; "Allocation Date"; Date)
@@ -271,12 +271,10 @@ table 5950 "Service Order Allocation"
         {
             Caption = 'Service Started';
         }
-        field(19; "Document Type"; Option)
+        field(19; "Document Type"; Enum "Service Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = 'Quote,Order';
-            OptionMembers = Quote,"Order";
         }
     }
 

@@ -67,7 +67,7 @@ table 5993 "Service Invoice Line"
         }
         field(22; "Unit Price"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 2;
             CaptionClass = GetCaptionClass(FieldNo("Unit Price"));
             Caption = 'Unit Price';
@@ -93,21 +93,21 @@ table 5993 "Service Invoice Line"
         }
         field(28; "Line Discount Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Line Discount Amount';
             Editable = false;
         }
         field(29; Amount; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount';
             Editable = false;
         }
         field(30; "Amount Including VAT"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount Including VAT';
             Editable = false;
@@ -183,7 +183,7 @@ table 5993 "Service Invoice Line"
         }
         field(69; "Inv. Discount Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Inv. Discount Amount';
         }
@@ -264,7 +264,7 @@ table 5993 "Service Invoice Line"
         }
         field(99; "VAT Base Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Base Amount';
         }
@@ -275,14 +275,14 @@ table 5993 "Service Invoice Line"
         }
         field(103; "Line Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             CaptionClass = GetCaptionClass(FieldNo("Line Amount"));
             Caption = 'Line Amount';
         }
         field(104; "VAT Difference"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Difference';
             Editable = false;
@@ -294,7 +294,7 @@ table 5993 "Service Invoice Line"
         }
         field(145; "Pmt. Discount Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Pmt. Discount Amount';
         }
@@ -306,7 +306,7 @@ table 5993 "Service Invoice Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5402; "Variant Code"; Code[10])

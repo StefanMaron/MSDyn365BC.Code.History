@@ -262,7 +262,7 @@ report 15000100 "OCR Journal - Test"
                                             if ("Gen. Bus. Posting Group" <> '') or ("Gen. Prod. Posting Group" <> '') or
                                                ("VAT Bus. Posting Group" <> '') or ("VAT Prod. Posting Group" <> '')
                                             then begin
-                                                if "Gen. Posting Type" = 0 then
+                                                if "Gen. Posting Type" = "Gen. Posting Type"::" " then
                                                     AddError(StrSubstNo(Text002, FieldCaption("Gen. Posting Type")));
                                             end;
                                             if ("Gen. Posting Type" <> "Gen. Posting Type"::" ") and
@@ -277,7 +277,7 @@ report 15000100 "OCR Journal - Test"
                                         end;
                                     "Account Type"::Customer, "Account Type"::Vendor:
                                         begin
-                                            if "Gen. Posting Type" <> 0 then
+                                            if "Gen. Posting Type" <> "Gen. Posting Type"::" " then
                                                 AddError(
                                                   StrSubstNo(
                                                     Text004,
@@ -287,7 +287,7 @@ report 15000100 "OCR Journal - Test"
                                             then
                                                 AddError(StrSubstNo(AccountsNotCompletedMsg, "Account Type"));
 
-                                            if "Document Type" <> 0 then begin
+                                            if "Document Type" <> "Document Type"::" " then begin
                                                 if "Account Type" = "Account Type"::Customer then
                                                     case "Document Type" of
                                                         "Document Type"::"Credit Memo":
@@ -328,7 +328,7 @@ report 15000100 "OCR Journal - Test"
                                         end;
                                     "Account Type"::"Bank Account":
                                         begin
-                                            if "Gen. Posting Type" <> 0 then
+                                            if "Gen. Posting Type" <> "Gen. Posting Type"::" " then
                                                 AddError(
                                                   StrSubstNo(
                                                     Text004,
@@ -355,7 +355,7 @@ report 15000100 "OCR Journal - Test"
                                             if ("Bal. Gen. Bus. Posting Group" <> '') or ("Bal. Gen. Prod. Posting Group" <> '') or
                                                ("Bal. VAT Bus. Posting Group" <> '') or ("Bal. VAT Prod. Posting Group" <> '')
                                             then begin
-                                                if "Bal. Gen. Posting Type" = 0 then
+                                                if "Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::" " then
                                                     AddError(StrSubstNo(Text002, FieldCaption("Bal. Gen. Posting Type")));
                                             end;
                                             if ("Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" ") and
@@ -370,7 +370,7 @@ report 15000100 "OCR Journal - Test"
                                         end;
                                     "Bal. Account Type"::Customer, "Bal. Account Type"::Vendor:
                                         begin
-                                            if "Bal. Gen. Posting Type" <> 0 then
+                                            if "Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" " then
                                                 AddError(
                                                   StrSubstNo(
                                                     Text004,
@@ -380,7 +380,7 @@ report 15000100 "OCR Journal - Test"
                                             then
                                                 AddError(StrSubstNo(BalAccountsNotCompletedMsg, "Bal. Account Type"));
 
-                                            if "Document Type" <> 0 then begin
+                                            if "Document Type" <> "Document Type"::" " then begin
                                                 if ("Bal. Account Type" = "Bal. Account Type"::Customer) =
                                                    ("Document Type" in ["Document Type"::Payment, "Document Type"::"Credit Memo"])
                                                 then
@@ -398,7 +398,7 @@ report 15000100 "OCR Journal - Test"
                                         end;
                                     "Bal. Account Type"::"Bank Account":
                                         begin
-                                            if "Bal. Gen. Posting Type" <> 0 then
+                                            if "Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" " then
                                                 AddError(
                                                   StrSubstNo(
                                                     Text004,
@@ -527,7 +527,7 @@ report 15000100 "OCR Journal - Test"
                             if ("Account Type" <> "Account Type"::"Bank Account") and
                                ("Bal. Account Type" <> "Bal. Account Type"::"Bank Account")
                             then
-                                if GenJnlLine2."Bank Payment Type" > 0 then
+                                if GenJnlLine2."Bank Payment Type" <> "Bank Payment Type"::" " then
                                     AddError(StrSubstNo(Text009, FieldCaption("Bank Payment Type")));
 
                             if "Account No." <> '' then
@@ -563,9 +563,9 @@ report 15000100 "OCR Journal - Test"
                             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                                 AddError(DimMgt.GetDimCombErr);
 
-                            TableID[1] := DimMgt.TypeToTableID1("Account Type");
+                            TableID[1] := DimMgt.TypeToTableID1("Account Type".AsInteger());
                             No[1] := "Account No.";
-                            TableID[2] := DimMgt.TypeToTableID1("Bal. Account Type");
+                            TableID[2] := DimMgt.TypeToTableID1("Bal. Account Type".AsInteger());
                             No[2] := "Bal. Account No.";
                             TableID[3] := DATABASE::Job;
                             No[3] := "Job No.";
@@ -800,7 +800,7 @@ report 15000100 "OCR Journal - Test"
         AllowFAPostingFrom: Date;
         AllowFAPostingTo: Date;
         LastDate: Date;
-        LastDocType: Option Document,Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder;
+        LastDocType: Enum "Gen. Journal Document Type";
         LastDocNo: Code[20];
         LastEntrdDocNo: Code[20];
         LastEntrdDate: Date;
@@ -856,7 +856,7 @@ report 15000100 "OCR Journal - Test"
     begin
         with GenJnlLine2 do
             if GenJnlTemplate.Recurring then begin
-                if "Recurring Method" = 0 then
+                if "Recurring Method" = "Recurring Method"::" " then
                     AddError(StrSubstNo(Text002, FieldCaption("Recurring Method")));
                 if Format("Recurring Frequency") = '' then
                     AddError(StrSubstNo(Text002, FieldCaption("Recurring Frequency")));
@@ -872,7 +872,7 @@ report 15000100 "OCR Journal - Test"
                     "Recurring Method"::"B  Balance", "Recurring Method"::"RB Reversing Balance":
                         WarningIfNonZeroAmt("Gen. Journal Line");
                 end;
-                if "Recurring Method" > "Recurring Method"::"V  Variable" then begin
+                if "Recurring Method".AsInteger() > "Recurring Method"::"V  Variable".AsInteger() then begin
                     if "Account Type" = "Account Type"::"Fixed Asset" then
                         AddError(
                           StrSubstNo(WrongRecurringMethodForAccountTypeMsg, "Recurring Method", "Account Type"));
@@ -881,7 +881,7 @@ report 15000100 "OCR Journal - Test"
                           StrSubstNo(WrongRecurringMethodForBalAccountTypeMsg, "Recurring Method", "Bal. Account Type"));
                 end;
             end else begin
-                if "Recurring Method" <> 0 then
+                if "Recurring Method" <> "Recurring Method"::" " then
                     AddError(StrSubstNo(Text009, FieldCaption("Recurring Method")));
                 if Format("Recurring Frequency") <> '' then
                     AddError(StrSubstNo(Text009, FieldCaption("Recurring Frequency")));
@@ -925,7 +925,7 @@ report 15000100 "OCR Journal - Test"
     local procedure MakeRecurringTexts(var GenJnlLine2: Record "Gen. Journal Line")
     begin
         with GenJnlLine2 do
-            if ("Posting Date" <> 0D) and ("Account No." <> '') and ("Recurring Method" <> 0) then begin
+            if ("Posting Date" <> 0D) and ("Account No." <> '') and ("Recurring Method" <> "Recurring Method"::" ") then begin
                 Day := Date2DMY("Posting Date", 1);
                 Week := Date2DWY("Posting Date", 2);
                 Month := Date2DMY("Posting Date", 2);
@@ -964,7 +964,7 @@ report 15000100 "OCR Journal - Test"
                 DocBalance := DocBalance + "Balance (LCY)";
                 DateBalance := DateBalance + "Balance (LCY)";
                 TotalBalance := TotalBalance + "Balance (LCY)";
-                if "Recurring Method" >= "Recurring Method"::"RF Reversing Fixed" then begin
+                if "Recurring Method".AsInteger() >= "Recurring Method"::"RF Reversing Fixed".AsInteger() then begin
                     DocBalanceReverse := DocBalanceReverse + "Balance (LCY)";
                     DateBalanceReverse := DateBalanceReverse + "Balance (LCY)";
                     TotalBalanceReverse := TotalBalanceReverse + "Balance (LCY)";
@@ -1010,12 +1010,12 @@ report 15000100 "OCR Journal - Test"
                         AddError(
                           StrSubstNo(
                             Text025,
-                            SelectStr(LastDocType + 1, Text063), LastDocNo, DocBalance));
+                            SelectStr(LastDocType.AsInteger() + 1, Text063), LastDocNo, DocBalance));
                     DocBalanceReverse <> 0:
                         AddError(
                           StrSubstNo(
                             Text026,
-                            SelectStr(LastDocType + 1, Text063), LastDocNo, DocBalanceReverse));
+                            SelectStr(LastDocType.AsInteger() + 1, Text063), LastDocNo, DocBalanceReverse));
                 end;
                 DocBalance := 0;
                 DocBalanceReverse := 0;
@@ -1070,7 +1070,7 @@ report 15000100 "OCR Journal - Test"
                 TotalBalance := 0;
                 TotalBalanceReverse := 0;
                 LastDate := 0D;
-                LastDocType := 0;
+                LastDocType := LastDocType::" ";
                 LastDocNo := '';
             end;
         end;
@@ -1132,7 +1132,7 @@ report 15000100 "OCR Journal - Test"
                                 Text032,
                                 GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption, "Account No."));
 
-                if "Gen. Posting Type" > 0 then begin
+                if "Gen. Posting Type" <> "Gen. Posting Type"::" " then begin
                     case "Gen. Posting Type" of
                         "Gen. Posting Type"::Sale:
                             SalesPostingType := true;
@@ -1190,7 +1190,7 @@ report 15000100 "OCR Journal - Test"
                 CustPosting := true;
                 TestPostingType;
 
-                if "Recurring Method" = 0 then
+                if "Recurring Method" = "Recurring Method"::" " then
                     if "Document Type" in
                        ["Document Type"::Invoice, "Document Type"::"Credit Memo",
                         "Document Type"::"Finance Charge Memo"]
@@ -1239,7 +1239,7 @@ report 15000100 "OCR Journal - Test"
                 VendPosting := true;
                 TestPostingType;
 
-                if "Recurring Method" = 0 then
+                if "Recurring Method" = "Recurring Method"::" " then
                     if "Document Type" in
                        ["Document Type"::Invoice, "Document Type"::"Credit Memo",
                         "Document Type"::"Finance Charge Memo"]
@@ -1306,7 +1306,7 @@ report 15000100 "OCR Journal - Test"
                             Text038,
                             "Currency Code"));
 
-                if "Bank Payment Type" <> 0 then
+                if "Bank Payment Type" <> "Bank Payment Type"::" " then
                     if ("Bank Payment Type" = "Bank Payment Type"::"Computer Check") and (Amount < 0) then
                         if BankAcc."Currency Code" <> "Currency Code" then
                             AddError(
@@ -1518,7 +1518,7 @@ report 15000100 "OCR Journal - Test"
                     AddError(StrSubstNo(TempErrorText, FieldCaption("Insurance No.")));
                 if "Budgeted FA No." <> '' then
                     AddError(StrSubstNo(TempErrorText, FieldCaption("Budgeted FA No.")));
-                if "Recurring Method" > 0 then
+                if "Recurring Method" <> "Recurring Method"::" " then
                     AddError(StrSubstNo(TempErrorText, FieldCaption("Recurring Method")));
                 if "FA Posting Type" = "FA Posting Type"::Maintenance then
                     AddError(StrSubstNo(TempErrorText, "FA Posting Type"));

@@ -155,7 +155,7 @@ table 5745 "Transfer Shipment Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5704; "Item Category Code"; Code[20])

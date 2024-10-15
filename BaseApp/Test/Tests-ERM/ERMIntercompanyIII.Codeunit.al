@@ -675,7 +675,7 @@ codeunit 134154 "ERM Intercompany III"
         LibraryDimension.CreateDimWithDimValue(DimensionValue[5]);
     end;
 
-    local procedure CreateICGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; ICPartnerGLAccNo: Code[20]; Amount: Decimal; DocNo: Code[20])
+    local procedure CreateICGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; ICPartnerGLAccNo: Code[20]; Amount: Decimal; DocNo: Code[20])
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
@@ -798,7 +798,7 @@ codeunit 134154 "ERM Intercompany III"
         DimensionValue.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithGLAccount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesDocumentWithGLAccount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         DummyGLAccount: Record "G/L Account";
@@ -818,7 +818,7 @@ codeunit 134154 "ERM Intercompany III"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocumentWithGLAccount(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    local procedure CreatePurchaseDocumentWithGLAccount(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         DummyGLAccount: Record "G/L Account";
@@ -1139,7 +1139,7 @@ codeunit 134154 "ERM Intercompany III"
         end;
     end;
 
-    local procedure VerifyGLEntryDescriptionICPartner(DocumentNo: Code[20]; DocumentType: Option; ICPartnerCode: Code[20]; DescrpitionTxt: Text[100])
+    local procedure VerifyGLEntryDescriptionICPartner(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; ICPartnerCode: Code[20]; DescrpitionTxt: Text[100])
     var
         GLEntry: Record "G/L Entry";
     begin

@@ -9,7 +9,7 @@ codeunit 5522 "Order Planning Mgt."
         ProdOrderComp: Record "Prod. Order Component";
         CompanyInfo: Record "Company Information";
         UOMMgt: Codeunit "Unit of Measure Management";
-        DemandType: Option " ",Production,Sales,Service,Jobs,Assembly;
+        DemandType: Enum "Unplanned Demand Type";
         HasGotCompanyInfo: Boolean;
         Text000: Label 'Generating Lines to Plan @1@@@@@@@';
         Text001: Label 'Item Substitution is not possible for the active line.';
@@ -289,7 +289,7 @@ codeunit 5522 "Order Planning Mgt."
 
     procedure SetJobOrder()
     begin
-        DemandType := DemandType::Jobs;
+        DemandType := DemandType::Job;
     end;
 
     procedure SetAsmOrder()
@@ -331,7 +331,7 @@ codeunit 5522 "Order Planning Mgt."
             ItemSubstMgt.UpdateComponent(
               ProdOrderComp, TempItemSub."Substitute No.", TempItemSub."Substitute Variant Code");
             ProdOrderComp.Modify(true);
-            ProdOrderComp.AutoReserve;
+            ProdOrderComp.AutoReserve();
 
             if TempItemSub."Quantity Avail. on Shpt. Date" >= ReqLine."Needed Quantity (Base)" then begin
                 ReqLine.Delete(true);

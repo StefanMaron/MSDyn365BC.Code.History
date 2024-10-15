@@ -181,7 +181,7 @@ page 99000861 "Planning Component List"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }

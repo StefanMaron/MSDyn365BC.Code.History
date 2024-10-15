@@ -61,11 +61,11 @@ page 6023 "Skilled Resource List"
     var
         ServOrderAllocMgt: Codeunit ServAllocationManagement;
         Qualified: Boolean;
-        ResourceSkillType: Option Resource,"Service Item Group",Item,"Service Item";
+        ResourceSkillType: Enum "Resource Skill Type";
         ResourceSkillNo: Code[20];
         Description: Text[100];
 
-    procedure Initialize(Type2: Option Resource,"Service Item Group",Item,"Service Item"; No2: Code[20]; Description2: Text[100])
+    procedure Initialize(Type2: Enum "Resource Skill Type"; No2: Code[20]; Description2: Text[100])
     begin
         ResourceSkillType := Type2;
         ResourceSkillNo := No2;

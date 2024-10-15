@@ -613,11 +613,12 @@ codeunit 10 "Type Helper"
         exit(i3);
     end;
 
+    [Obsolete('Format() now supports formatting guids into different standards, see https://docs.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-format-property', '17.0')]
     procedure GetGuidAsString(GuidValue: Guid): Text[36]
     begin
         // Converts guid to string
         // Example: Converts {21EC2020-3AEA-4069-A2DD-08002B30309D} to 21ec2020-3aea-4069-a2dd-08002b30309d
-        exit(LowerCase(CopyStr(Format(GuidValue), 2, 36)));
+        exit(LowerCase(Format(GuidValue, 0, 4)));
     end;
 
     procedure GetMaxNumberOfParametersInSQLQuery(): Integer

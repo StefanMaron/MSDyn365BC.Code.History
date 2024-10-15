@@ -223,7 +223,7 @@ table 271 "Bank Account Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

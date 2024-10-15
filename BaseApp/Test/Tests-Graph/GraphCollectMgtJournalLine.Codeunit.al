@@ -270,7 +270,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GLAccount.Reset();
         GLAccount.SetFilter("No.", AccountNo);
         GLAccount.FindFirst();
-        AccountGUID := GLAccount.Id;
+        AccountGUID := GLAccount.SystemId;
         Assert.AreNotEqual(BlankGUID, AccountGUID, 'The AccountGUID should not be blank');
         LineNo[1] := LibraryGraphJournalLines.CreateJournalLine(JournalName, AccountNo, BlankGUID, 0, '');
         LineNo[2] := LibraryGraphJournalLines.CreateJournalLine(JournalName, '', AccountGUID, 0, '');
@@ -326,7 +326,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GLAccount.Reset();
         GLAccount.SetFilter("No.", AccountNo);
         GLAccount.FindFirst();
-        AccountGUID := GLAccount.Id;
+        AccountGUID := GLAccount.SystemId;
         GLAccount.Delete();
         Commit();
 
@@ -363,7 +363,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GLAccount.Reset();
         GLAccount.SetFilter("No.", AccountNo);
         GLAccount.FindFirst();
-        AccountGUID := GLAccount.Id;
+        AccountGUID := GLAccount.SystemId;
         LineNo := LibraryGraphJournalLines.CreateJournalLine(JournalName, AccountNo, BlankGUID, 0, '');
         GenJournalLine.Reset();
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
@@ -410,7 +410,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         Customer.Reset();
         Customer.SetFilter("No.", CustomerNo);
         Customer.FindFirst();
-        CustomerGUID := Customer.Id;
+        CustomerGUID := Customer.SystemId;
         Assert.AreNotEqual(BlankGUID, CustomerGUID, 'The CustomerGUID should not be blank');
         LineNo[1] := LibraryGraphJournalLines.CreateCustomerPayment(JournalName, CustomerNo, BlankGUID, '', BlankGUID, 0, '');
         LineNo[2] := LibraryGraphJournalLines.CreateCustomerPayment(JournalName, '', CustomerGUID, '', BlankGUID, 0, '');
@@ -465,7 +465,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         Customer.Reset();
         Customer.SetFilter("No.", CustomerNo);
         Customer.FindFirst();
-        CustomerGUID := Customer.Id;
+        CustomerGUID := Customer.SystemId;
         Customer.Delete();
         Commit();
 
@@ -502,7 +502,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         Customer.Reset();
         Customer.SetFilter("No.", CustomerNo);
         Customer.FindFirst();
-        CustomerGUID := Customer.Id;
+        CustomerGUID := Customer.SystemId;
         LineNo := LibraryGraphJournalLines.CreateCustomerPayment(JournalName, CustomerNo, BlankGUID, '', BlankGUID, 0, '');
         GenJournalLine.Reset();
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
@@ -526,6 +526,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     var
         GenJournalLine: Record "Gen. Journal Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         JournalName: Code[10];
         CustomerNo: Code[20];
         InvoiceNo: Code[20];
@@ -551,7 +552,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         SalesInvoiceHeader.Reset();
         SalesInvoiceHeader.SetFilter("No.", InvoiceNo);
         SalesInvoiceHeader.FindFirst();
-        InvoiceGUID := SalesInvoiceHeader.Id;
+        InvoiceGUID := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
         Assert.AreNotEqual(BlankGUID, InvoiceGUID, 'The InvoiceGUID should not be blank');
         LineNo[1] := LibraryGraphJournalLines.CreateCustomerPayment(JournalName, CustomerNo, BlankGUID, InvoiceNo, BlankGUID, 0, '');
         LineNo[2] := LibraryGraphJournalLines.CreateCustomerPayment(JournalName, CustomerNo, BlankGUID, '', InvoiceGUID, 0, '');
@@ -584,6 +585,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     procedure TestAppliesToDocIDErrorSync()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         JournalName: Code[10];
         CustomerNo: Code[20];
         InvoiceNo: Code[20];
@@ -608,7 +610,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         SalesInvoiceHeader.Reset();
         SalesInvoiceHeader.SetFilter("No.", InvoiceNo);
         SalesInvoiceHeader.FindFirst();
-        InvoiceGUID := SalesInvoiceHeader.Id;
+        InvoiceGUID := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
         SalesInvoiceHeader.Delete();
         Commit();
 
@@ -622,6 +624,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         GenJournalLine: Record "Gen. Journal Line";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         JournalName: Code[10];
         CustomerNo: Code[20];
         InvoiceNo: Code[20];
@@ -647,7 +650,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         SalesInvoiceHeader.Reset();
         SalesInvoiceHeader.SetFilter("No.", InvoiceNo);
         SalesInvoiceHeader.FindFirst();
-        InvoiceGUID := SalesInvoiceHeader.Id;
+        InvoiceGUID := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
         SalesInvoiceHeader.Delete();
         Commit();
 
@@ -668,6 +671,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         GenJournalLine: Record "Gen. Journal Line";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         JournalName: Code[10];
         CustomerNo: Code[20];
         InvoiceNo: Code[20];
@@ -693,7 +697,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         SalesInvoiceHeader.Reset();
         SalesInvoiceHeader.SetFilter("No.", InvoiceNo);
         SalesInvoiceHeader.FindFirst();
-        InvoiceGUID := SalesInvoiceHeader.Id;
+        InvoiceGUID := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
         LineNo := LibraryGraphJournalLines.CreateCustomerPayment(JournalName, CustomerNo, BlankGUID, InvoiceNo, BlankGUID, 0, '');
         GenJournalLine.Reset();
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);

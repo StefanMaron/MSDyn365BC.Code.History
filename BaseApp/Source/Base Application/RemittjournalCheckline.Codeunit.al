@@ -50,7 +50,7 @@ codeunit 15000001 "Remitt. journal - Check line"
             AddError(StrSubstNo(VendorRemittedMsg, GenJnlline.FieldCaption("Account Type"), GenJnlline."Account Type"),
               true, ErrorCounter, ErrorText, ErrorFatal);
 
-        if (GenJnlline.Amount < 0) and (GenJnlline."Document Type" <> 0) then
+        if (GenJnlline.Amount < 0) and (GenJnlline."Document Type" <> "Gen. Journal Document Type"::" ") then
             AddError(StrSubstNo(DocumentTypeMsg, GenJnlline.FieldCaption("Document Type")), true, ErrorCounter, ErrorText, ErrorFatal);
 
         CheckDatesError := CheckDates(GenJnlline);

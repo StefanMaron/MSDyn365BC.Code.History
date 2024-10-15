@@ -17,6 +17,18 @@ page 9024 "Security Admin Role Center"
             {
                 ApplicationArea = Basic, Suite;
             }
+            part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(ApprovalsActivities; "Approvals Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(Control15; "Team Member Activities")
+            {
+                ApplicationArea = Suite;
+            }
             part(Control12; "Users in User Groups Chart")
             {
                 ApplicationArea = Basic, Suite;
@@ -38,13 +50,23 @@ page 9024 "Security Admin Role Center"
                 Caption = 'Plan Permission Set';
                 Editable = false;
             }
-            part(Control15; "Team Member Activities")
+            part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
             {
-                ApplicationArea = Suite;
+                AccessByPermission = TableData "Power BI User Configuration" = I;
+                ApplicationArea = Basic, Suite;
+            }
+            part("My Job Queue"; "My Job Queue")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
             }
             part(Control37; "Report Inbox Part")
             {
                 AccessByPermission = TableData "Report Inbox" = R;
+                ApplicationArea = Basic, Suite;
+            }
+            systempart(MyNotes; MyNotes)
+            {
                 ApplicationArea = Basic, Suite;
             }
         }
@@ -141,6 +163,19 @@ page 9024 "Security Admin Role Center"
                     RunObject = Page "Activity Log";
                     RunPageView = WHERE("Table No Filter" = FILTER(9062));
                     ToolTip = 'View a log of users'' activities in the database.';
+                }
+            }
+            group("App Management")
+            {
+                Caption = 'App Management';
+                action("Apps")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Apps';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "AAD Application List";
+                    ToolTip = 'View or edit apps.';
                 }
             }
             group("Data Privacy")
@@ -245,14 +280,14 @@ page 9024 "Security Admin Role Center"
         {
             group(Flow)
             {
-                Caption = 'Flow';
+                Caption = 'Microsoft Power Automate';
                 action("Manage Flows")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Manage Flows';
                     Image = Flow;
                     RunObject = Page "Flow Selector";
-                    ToolTip = 'View or edit automated workflows created with Microsoft Flow.';
+                    ToolTip = 'View or edit automated flows created with Power Automate.';
                 }
             }
         }

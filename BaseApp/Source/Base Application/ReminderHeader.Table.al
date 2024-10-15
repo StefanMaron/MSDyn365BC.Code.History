@@ -316,7 +316,7 @@ table 295 "Reminder Header"
         }
         field(30; Comment; Boolean)
         {
-            CalcFormula = Exist ("Reminder Comment Line" WHERE(Type = CONST(Reminder),
+            CalcFormula = Exist("Reminder Comment Line" WHERE(Type = CONST(Reminder),
                                                                "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -326,7 +326,7 @@ table 295 "Reminder Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Reminder Line"."Remaining Amount" WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Reminder Line"."Remaining Amount" WHERE("Reminder No." = FIELD("No."),
                                                                         "Detailed Interest Rates Entry" = CONST(false),
                                                                         "Line Type" = FILTER(<> "Not Due")));
             Caption = 'Remaining Amount';
@@ -338,7 +338,7 @@ table 295 "Reminder Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
                                                             Type = CONST("Customer Ledger Entry"),
                                                             "Detailed Interest Rates Entry" = CONST(false),
                                                             "Line Type" = FILTER(<> "Not Due")));
@@ -350,7 +350,7 @@ table 295 "Reminder Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
                                                             Type = CONST("G/L Account"),
                                                             "Line Type" = FILTER(<> "Not Due")));
             Caption = 'Additional Fee';
@@ -361,7 +361,7 @@ table 295 "Reminder Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Reminder Line"."VAT Amount" WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Reminder Line"."VAT Amount" WHERE("Reminder No." = FIELD("No."),
                                                                   "Detailed Interest Rates Entry" = CONST(false),
                                                                   "Line Type" = FILTER(<> "Not Due")));
             Caption = 'VAT Amount';
@@ -424,7 +424,7 @@ table 295 "Reminder Header"
         field(45; "Add. Fee per Line"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
-            CalcFormula = Sum ("Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
                                                             Type = CONST("Line Fee"),
                                                             "Line Type" = FILTER(<> "Not Due")));
             Caption = 'Add. Fee per Line';
@@ -884,7 +884,7 @@ table 295 "Reminder Header"
         end;
     end;
 
-    local procedure InsertBlankLine(LineType: Integer)
+    local procedure InsertBlankLine(LineType: Enum "Reminder Line Type")
     begin
         NextLineNo := NextLineNo + LineSpacing;
         ReminderLine.Init();
@@ -903,7 +903,7 @@ table 295 "Reminder Header"
             Copy(Rec);
             FindFirst;
             SetRecFilter;
-            ReportSelection.Print(ReportSelection.Usage::"Rem.Test", ReminderHeader, FieldNo("Customer No."));
+            ReportSelection.PrintForCust(ReportSelection.Usage::"Rem.Test", ReminderHeader, FieldNo("Customer No."));
         end;
     end;
 

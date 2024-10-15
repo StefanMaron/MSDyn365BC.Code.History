@@ -34,18 +34,23 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         Window: Dialog;
         i: Integer;
     begin
+        // Exit quickly to avoid lock
+        if AccSchedKPIWebSrvSetup.Get() then
+            if AccSchedKPIWebSrvSetup."Data Time To Live (hours)" >= 1 then
+                if not AccSchedKPIBuffer.IsEmpty then
+                    if AccSchedKPIWebSrvSetup."Data Last Updated" >
+                       CurrentDateTime - AccSchedKPIWebSrvSetup."Data Time To Live (hours)" * 3600000
+                    then
+                        exit;
+
         AccSchedKPIWebSrvSetup.LockTable();
         if not AccSchedKPIWebSrvSetup.Get then begin
             AccSchedKPIWebSrvSetup.Init();
             AccSchedKPIWebSrvSetup.Insert();
         end;
+
         if AccSchedKPIWebSrvSetup."Data Time To Live (hours)" < 1 then
             AccSchedKPIWebSrvSetup."Data Time To Live (hours)" := 24;
-        if not AccSchedKPIBuffer.IsEmpty then
-            if AccSchedKPIWebSrvSetup."Data Last Updated" >
-               CurrentDateTime - AccSchedKPIWebSrvSetup."Data Time To Live (hours)" * 3600000
-            then
-                exit;
 
         if AccSchedKPIWebSrvSetup."Last G/L Entry Included" > 0 then begin
             GLEntry.SetFilter("Entry No.", '>%1', AccSchedKPIWebSrvSetup."Last G/L Entry Included");

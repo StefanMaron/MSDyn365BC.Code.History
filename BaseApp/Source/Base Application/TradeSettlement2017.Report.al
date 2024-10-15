@@ -559,7 +559,6 @@ report 10618 "Trade Settlement 2017"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
-                        OptionCaption = 'Open,Closed,Open and Closed';
                         ToolTip = 'Specifies if the VAT settlement includes open, closed, or both open and closed VAT entries.';
                     }
                     group(XML)
@@ -628,7 +627,7 @@ report 10618 "Trade Settlement 2017"
         SettlementYear: Integer;
         StartDate: Date;
         EndDate: Date;
-        Selection: Option Open,Closed,"Open and Closed";
+        Selection: Enum "VAT Statement Report Selection";
         VATDateFilter: Text;
         TotalTurnoverBase: Decimal;
         DomesticHighBase: Decimal;

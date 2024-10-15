@@ -131,7 +131,7 @@ table 7320 "Warehouse Shipment Header"
                             "Zone Code" := Bin."Zone Code";
                         end;
                     end;
-                    MessageIfShptLinesExist(FieldCaption("Bin Code"));
+                    MessageIfShipmentLinesExist(FieldCaption("Bin Code"));
                 end;
             end;
         }
@@ -149,7 +149,7 @@ table 7320 "Warehouse Shipment Header"
                         Location.TestField("Directed Put-away and Pick");
                     end;
                     "Bin Code" := '';
-                    MessageIfShptLinesExist(FieldCaption("Zone Code"));
+                    MessageIfShipmentLinesExist(FieldCaption("Zone Code"));
                 end;
             end;
         }
@@ -337,11 +337,13 @@ table 7320 "Warehouse Shipment Header"
         WmsManagement: Codeunit "WMS Management";
         Text003: Label 'You are not allowed to use location code %1.';
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        HideValidationDialog: Boolean;
         Text006: Label 'You have changed %1 on the %2, but it has not been changed on the existing Warehouse Shipment Lines.\';
         Text007: Label 'You must update the existing Warehouse Shipment Lines manually.';
         Text008: Label 'You have modified the %1.\\Do you want to update the lines?';
         Text009: Label 'The items have been picked. If you delete the warehouse shipment, then the items will remain in the shipping area until you put them away.\Related item tracking information that is defined during the pick will be deleted.\Are you sure that you want to delete the warehouse shipment?';
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure AssistEdit(OldWhseShptHeader: Record "Warehouse Shipment Header"): Boolean
     var
@@ -437,7 +439,7 @@ table 7320 "Warehouse Shipment Header"
         exit(WhseShptLine.Status);
     end;
 
-    local procedure MessageIfShptLinesExist(ChangedFieldName: Text[80])
+    procedure MessageIfShipmentLinesExist(ChangedFieldName: Text[80])
     var
         WhseShptLine: Record "Warehouse Shipment Line";
     begin

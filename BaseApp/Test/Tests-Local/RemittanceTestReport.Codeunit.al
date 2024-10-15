@@ -586,7 +586,7 @@ codeunit 144130 "Remittance - Test Report"
     var
         PaymentJournal: TestPage "Payment Journal";
     begin
-        // Cannot run report if there are transactions pending
+        // Cannot run report if there are transactions pending        
         Commit();
 
         PaymentJournal.OpenEdit;

@@ -53,7 +53,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         VerifyPEPPOLBISIdentifiers('Invoice');
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:CompanyID', GetCustomerVATRegNo(Customer));
         LibraryXMLRead.VerifyNodeValueInSubtree('Invoice', 'cac:OrderReference', SalesInvoiceHeader."External Document No.");
-        LibraryXMLRead.VerifyNodeValueInSubtree('Invoice', 'cbc:DueDate',Format(SalesInvoiceHeader."Due Date", 0, 9));
+        LibraryXMLRead.VerifyNodeValueInSubtree('Invoice', 'cbc:DueDate', Format(SalesInvoiceHeader."Due Date", 0, 9));
         // [THEN] One node 'InvoiceLine' created
         Assert.AreEqual(LibraryXMLRead.GetNodesCount('cac:InvoiceLine'), 1, '');
         // [THEN] <EndpointID> exported as 'BE1234567890' with VAT schema ID (TFS 340767)
@@ -878,7 +878,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', Customer.GLN);
         LibraryXMLRead.VerifyAttributeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', 'schemeID', GetGLNSchemeID);
         LibraryXMLRead.VerifyNodeAbsence('cac:OrderReference');
-        LibraryXMLRead.VerifyNodeValueInSubtree('Invoice', 'cbc:DueDate',Format(ServiceInvoiceHeader."Due Date", 0, 9));
+        LibraryXMLRead.VerifyNodeValueInSubtree('Invoice', 'cbc:DueDate', Format(ServiceInvoiceHeader."Due Date", 0, 9));
         // [THEN] <EndpointID> exported as '1234567890123' with GLN schema ID (TFS 340767)
         VerifyCustomerEndpoint(Customer.GLN, GetGLNSchemeID);
         // [THEN] <PartyTaxScheme> has <CompanyID> = 'Foretaksregisteret' with <TaxScheme> ID = 'TAX'
@@ -1084,7 +1084,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         end;
     end;
 
-    local procedure CreatePostSalesDoc(CustomerNo: Code[20]; DocumentType: Option): Code[20]
+    local procedure CreatePostSalesDoc(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1093,7 +1093,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type")
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Your Reference",
@@ -1106,7 +1106,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePostSalesDocWithTaxCategory(CustomerNo: Code[20]; DocumentType: Option; TaxCategory: Code[10]; VATPct: Decimal): Code[20]
+    local procedure CreatePostSalesDocWithTaxCategory(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; TaxCategory: Code[10]; VATPct: Decimal): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1118,7 +1118,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreatePostSalesDocWithTaxCategoryReverseVAT(CustomerNo: Code[20]; DocumentType: Option; TaxCategory: Code[10]; VATPct: Decimal): Code[20]
+    local procedure CreatePostSalesDocWithTaxCategoryReverseVAT(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; TaxCategory: Code[10]; VATPct: Decimal): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1147,7 +1147,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         ServiceCrMemoHeader.FindFirst;
     end;
 
-    local procedure CreatePostServiceDoc(DocumentType: Option): Code[20]
+    local procedure CreatePostServiceDoc(DocumentType: Enum "Service Document Type"): Code[20]
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -1203,7 +1203,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 
-    local procedure CreateVATPostingSetupWithTATCalcType(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostGr: Code[20]; TaxCategory: Code[10]; VATPct: Decimal; VATCalcType: Option): Code[20]
+    local procedure CreateVATPostingSetupWithTATCalcType(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostGr: Code[20]; TaxCategory: Code[10]; VATPct: Decimal; VATCalcType: Enum "Tax Calculation Type"): Code[20]
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin

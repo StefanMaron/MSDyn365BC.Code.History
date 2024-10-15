@@ -252,7 +252,7 @@ report 394 "Suggest Employee Payments"
                             trigger OnValidate()
                             begin
                                 if (GenJnlLine2."Bal. Account Type" <> GenJnlLine2."Bal. Account Type"::"Bank Account") and
-                                   (GenJnlLine2."Bank Payment Type" > 0)
+                                   (GenJnlLine2."Bank Payment Type".AsInteger() > 0)
                                 then
                                     Error(BankPaymentTypeErr);
                             end;
@@ -340,8 +340,8 @@ report 394 "Suggest Employee Payments"
         NextEntryNo: Integer;
         StopPayments: Boolean;
         DocNoPerLine: Boolean;
-        BankPmtType: Option;
-        BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee;
+        BankPmtType: Enum "Bank Payment Type";
+        BalAccType: Enum "Gen. Journal Account Type";
         BalAccNo: Code[20];
         MessageText: Text;
         GenJnlLineInserted: Boolean;
@@ -371,7 +371,7 @@ report 394 "Suggest Employee Payments"
         end;
     end;
 
-    procedure InitializeRequest(NewAvailableAmount: Decimal; NewSkipExportedPayments: Boolean; NewPostingDate: Date; NewStartDocNo: Code[20]; NewSummarizePerEmpl: Boolean; BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee; BalAccNo: Code[20]; BankPmtType: Option)
+    procedure InitializeRequest(NewAvailableAmount: Decimal; NewSkipExportedPayments: Boolean; NewPostingDate: Date; NewStartDocNo: Code[20]; NewSummarizePerEmpl: Boolean; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; BankPmtType: Enum "Bank Payment Type")
     begin
         AmountAvailable := NewAvailableAmount;
         SkipExportedPayments := NewSkipExportedPayments;
@@ -416,7 +416,7 @@ report 394 "Suggest Employee Payments"
             "Salespers./Purch. Code" := Empl2."Salespers./Purch. Code";
             Validate("Bill-to/Pay-to No.", "Account No.");
             Validate("Sell-to/Buy-from No.", "Account No.");
-            "Gen. Posting Type" := 0;
+            "Gen. Posting Type" := "Gen. Posting Type"::" ";
             "Gen. Prod. Posting Group" := '';
             "Gen. Bus. Posting Group" := '';
             "VAT Bus. Posting Group" := '';
@@ -654,8 +654,8 @@ report 394 "Suggest Employee Payments"
                 "Dimension Set ID" := NewDimensionID;
             end;
             CreateDim(
-              DimMgt.TypeToTableID1("Account Type"), "Account No.",
-              DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+              DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+              DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
               DATABASE::Job, "Job No.",
               DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
               DATABASE::Campaign, "Campaign No.");
@@ -686,7 +686,7 @@ report 394 "Suggest Employee Payments"
         end;
     end;
 
-    local procedure CheckCurrencies(BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee; BalAccNo: Code[20])
+    local procedure CheckCurrencies(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20])
     var
         BankAcc: Record "Bank Account";
     begin

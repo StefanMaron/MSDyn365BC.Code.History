@@ -191,7 +191,7 @@ codeunit 1540 "Workflow Webhook Setup"
         WorkflowStepArgument.Type := WorkflowStepArgument.Type::"Event";
 
         if EventConditions <> '' then begin
-            WorkflowStepArgument."Event Conditions".CreateOutStream(OutStream);
+            WorkflowStepArgument."Event Conditions".CreateOutStream(OutStream, TextEncoding::UTF8);
             OutStream.WriteText(EventConditions);
         end;
 

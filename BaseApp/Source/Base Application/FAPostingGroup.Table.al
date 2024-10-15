@@ -303,7 +303,7 @@ table 5606 "FA Posting Group"
         }
         field(31; "Allocated Acquisition Cost %"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
                                                                     "Allocation Type" = CONST(Acquisition)));
             Caption = 'Allocated Acquisition Cost %';
             DecimalPlaces = 1 : 1;
@@ -312,7 +312,7 @@ table 5606 "FA Posting Group"
         }
         field(32; "Allocated Depreciation %"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
                                                                     "Allocation Type" = CONST(Depreciation)));
             Caption = 'Allocated Depreciation %';
             DecimalPlaces = 1 : 1;
@@ -321,7 +321,7 @@ table 5606 "FA Posting Group"
         }
         field(33; "Allocated Write-Down %"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
                                                                     "Allocation Type" = CONST("Write-Down")));
             Caption = 'Allocated Write-Down %';
             DecimalPlaces = 1 : 1;
@@ -330,7 +330,7 @@ table 5606 "FA Posting Group"
         }
         field(34; "Allocated Appreciation %"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
                                                                     "Allocation Type" = CONST(Appreciation)));
             Caption = 'Allocated Appreciation %';
             DecimalPlaces = 1 : 1;
@@ -339,7 +339,7 @@ table 5606 "FA Posting Group"
         }
         field(35; "Allocated Custom 1 %"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
                                                                     "Allocation Type" = CONST("Custom 1")));
             Caption = 'Allocated Custom 1 %';
             DecimalPlaces = 1 : 1;
@@ -348,7 +348,7 @@ table 5606 "FA Posting Group"
         }
         field(36; "Allocated Custom 2 %"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
                                                                     "Allocation Type" = CONST("Custom 2")));
             Caption = 'Allocated Custom 2 %';
             DecimalPlaces = 1 : 1;
@@ -357,7 +357,7 @@ table 5606 "FA Posting Group"
         }
         field(37; "Allocated Sales Price %"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
                                                                     "Allocation Type" = CONST(Disposal)));
             Caption = 'Allocated Sales Price %';
             DecimalPlaces = 1 : 1;
@@ -366,7 +366,7 @@ table 5606 "FA Posting Group"
         }
         field(38; "Allocated Maintenance %"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
                                                                     "Allocation Type" = CONST(Maintenance)));
             Caption = 'Allocated Maintenance %';
             DecimalPlaces = 1 : 1;
@@ -375,7 +375,7 @@ table 5606 "FA Posting Group"
         }
         field(39; "Allocated Gain %"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
                                                                     "Allocation Type" = CONST(Gain)));
             Caption = 'Allocated Gain %';
             DecimalPlaces = 1 : 1;
@@ -384,7 +384,7 @@ table 5606 "FA Posting Group"
         }
         field(40; "Allocated Loss %"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
                                                                     "Allocation Type" = CONST(Loss)));
             Caption = 'Allocated Loss %';
             DecimalPlaces = 1 : 1;
@@ -393,7 +393,7 @@ table 5606 "FA Posting Group"
         }
         field(41; "Allocated Book Value % (Gain)"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
                                                                     "Allocation Type" = CONST("Book Value (Gain)")));
             Caption = 'Allocated Book Value % (Gain)';
             DecimalPlaces = 1 : 1;
@@ -402,7 +402,7 @@ table 5606 "FA Posting Group"
         }
         field(42; "Allocated Book Value % (Loss)"; Decimal)
         {
-            CalcFormula = Sum ("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
+            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD(Code),
                                                                     "Allocation Type" = CONST("Book Value (Loss)")));
             Caption = 'Allocated Book Value % (Loss)';
             DecimalPlaces = 1 : 1;
@@ -655,6 +655,18 @@ table 5606 "FA Posting Group"
     begin
         TestField("Write-Down Expense Acc.");
         exit("Write-Down Expense Acc.");
+    end;
+
+    procedure GetPostingGroup(PostingGroupCode: Code[20]; DepreciationBookCode: Code[10]) Result: Boolean
+    begin
+        Result := Get(PostingGroupCode);
+
+        OnAfterGetPostingGroup(Rec, DepreciationBookCode, Result);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPostingGroup(var FAPostingGroup: Record "FA Posting Group"; DepreciationBookCode: Code[10]; var Result: Boolean)
+    begin
     end;
 }
 

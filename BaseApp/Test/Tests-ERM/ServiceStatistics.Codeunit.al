@@ -34,7 +34,7 @@ codeunit 136130 "Service Statistics"
         ResourceNo: Code[20];
         CostCode: Code[20];
         DocumentNo2: Code[20];
-        DocumentType2: Option;
+        DocumentType2: Enum "Service Document Type";
         CreditLimitLCY: Decimal;
         UpdateDiscountAmount: Boolean;
         UpdateTotalVAT: Boolean;
@@ -356,7 +356,7 @@ codeunit 136130 "Service Statistics"
         // 2. Exercise: Create Customer, G/L Account, Service Credit Memo with G/L Account and open Statistics Page.
         CreateServiceCreditMemoHeader(ServiceCreditMemo, CreateCustomer);
         DocumentNo2 := ServiceCreditMemo."No.".Value;  // Assign global variable for page handler.
-        DocumentType2 := ServiceLine."Document Type"::"Credit Memo";  // Assign global variable for page handler.
+        DocumentType2 := "Service Document Type"::"Credit Memo";  // Assign global variable for page handler.
         CreateServiceCreditMemoLine(ServiceCreditMemo, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
         ServiceCreditMemo.Statistics.Invoke;
 
@@ -1776,7 +1776,7 @@ codeunit 136130 "Service Statistics"
         ServiceCreditMemo."Customer No.".SetValue(CustomerNo);
     end;
 
-    local procedure CreateServiceCreditMemoLine(var ServiceCreditMemo: TestPage "Service Credit Memo"; Type: Option; No: Code[20])
+    local procedure CreateServiceCreditMemoLine(var ServiceCreditMemo: TestPage "Service Credit Memo"; Type: Enum "Service Line Type"; No: Code[20])
     begin
         ServiceCreditMemo.ServLines.Type.SetValue(Type);
         ServiceCreditMemo.ServLines."No.".SetValue(No);
@@ -1816,7 +1816,7 @@ codeunit 136130 "Service Statistics"
         ServiceInvoice."Customer No.".SetValue(CustomerNo);
     end;
 
-    local procedure CreateServiceInvoiceLine(var ServiceInvoice: TestPage "Service Invoice"; Type: Option; No: Code[20])
+    local procedure CreateServiceInvoiceLine(var ServiceInvoice: TestPage "Service Invoice"; Type: Enum "Service Line Type"; No: Code[20])
     begin
         ServiceInvoice.ServLines.Type.SetValue(Type);
         ServiceInvoice.ServLines."No.".SetValue(No);
@@ -1901,14 +1901,14 @@ codeunit 136130 "Service Statistics"
         ServiceOrder.Post.Invoke;
     end;
 
-    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20])
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("Document No.", DocumentNo);
         ServiceLine.FindSet;
     end;
 
-    local procedure FilterServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FilterServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20])
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("Document No.", DocumentNo);
@@ -1964,7 +1964,7 @@ codeunit 136130 "Service Statistics"
         UpdateTotalVAT := false;
     end;
 
-    local procedure LineWithoutAllowInvoiceDisc(DocumentType: Option; DocumentNo: Code[20])
+    local procedure LineWithoutAllowInvoiceDisc(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20])
     var
         ServiceLine: Record "Service Line";
     begin
@@ -2361,7 +2361,7 @@ codeunit 136130 "Service Statistics"
           StrSubstNo(AmountError, AmountIncludingVAT2, AmountIncludingVAT3));
     end;
 
-    local procedure VerifyServiceLineItems(ServiceStatistics: TestPage "Service Statistics"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyServiceLineItems(ServiceStatistics: TestPage "Service Statistics"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20])
     var
         ServiceLine: Record "Service Line";
         AmountItems: Decimal;
@@ -2399,7 +2399,7 @@ codeunit 136130 "Service Statistics"
           StrSubstNo(InvoiceDiscountAmountError, InvDiscountAmountItems, ServiceLine."Inv. Discount Amount"));
     end;
 
-    local procedure VerifyServiceLineResources(ServiceStatistics: TestPage "Service Statistics"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyServiceLineResources(ServiceStatistics: TestPage "Service Statistics"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20])
     var
         ServiceLine: Record "Service Line";
         AmountResources: Decimal;
@@ -2437,7 +2437,7 @@ codeunit 136130 "Service Statistics"
           StrSubstNo(InvoiceDiscountAmountError, InvDiscountAmountResources, ServiceLine."Inv. Discount Amount"));
     end;
 
-    local procedure VerifyServiceLineCostGLAccount(ServiceStatistics: TestPage "Service Statistics"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyServiceLineCostGLAccount(ServiceStatistics: TestPage "Service Statistics"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20])
     var
         ServiceLine: Record "Service Line";
         AmountIncludingVAT: Decimal;

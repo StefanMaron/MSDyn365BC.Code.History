@@ -1,4 +1,4 @@
-﻿codeunit 5982 "Service-Post+Print"
+codeunit 5982 "Service-Post+Print"
 {
 
     trigger OnRun()

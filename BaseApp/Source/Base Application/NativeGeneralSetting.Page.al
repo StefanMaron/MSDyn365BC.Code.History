@@ -8,6 +8,9 @@ page 2840 "Native - General Setting"
     SaveValues = true;
     SourceTable = "Native - Gen. Settings Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -263,12 +266,12 @@ page 2840 "Native - General Setting"
         NativeEDMTypes: Codeunit "Native - EDM Types";
     begin
         if NativeEDMTypes.GetTaxGroupFromTaxable(true, TaxableTaxGroup) then
-            TaxableGroupId := TaxableTaxGroup.Id
+            TaxableGroupId := TaxableTaxGroup.SystemId
         else
             Clear(TaxableGroupId);
 
         if NativeEDMTypes.GetTaxGroupFromTaxable(false, NonTaxableTaxGroup) then
-            NonTaxableGroupId := NonTaxableTaxGroup.Id
+            NonTaxableGroupId := NonTaxableTaxGroup.SystemId
         else
             Clear(NonTaxableGroupId);
     end;

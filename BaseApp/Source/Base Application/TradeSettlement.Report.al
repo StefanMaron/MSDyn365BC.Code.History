@@ -448,7 +448,6 @@ report 10602 "Trade Settlement"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
-                        OptionCaption = 'Open,Closed,Open and Closed';
                         ToolTip = 'Specifies which type of VAT entries you want to include in the trade settlement. Open: To settle a VAT period that has not been settled previously. Closed: To print information about VAT entries that you have settled previously. Open and Closed: To check all entries in a period.';
                     }
                 }
@@ -492,7 +491,7 @@ report 10602 "Trade Settlement"
         SettlementYear: Integer;
         StartDate: Date;
         EndDate: Date;
-        Selection: Option Open,Closed,"Open and Closed";
+        Selection: Enum "VAT Statement Report Selection";
         VATDateFilter: Text[30];
         TotalSale: Decimal;
         SaleWithTaxHigh: Decimal;

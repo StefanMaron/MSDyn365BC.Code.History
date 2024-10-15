@@ -279,7 +279,7 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         LibraryVariableStorage.AssertEmpty();
     end;
 
-    local procedure CreateGeneralJournalBatch(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplateType: Option)
+    local procedure CreateGeneralJournalBatch(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplateType: Enum "Gen. Journal Template Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin

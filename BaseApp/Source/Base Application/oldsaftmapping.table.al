@@ -13,7 +13,6 @@ table 10622 "SAFT Mapping"
         }
         field(2; "Category No."; Code[20])
         {
-            TableRelation = "SAFT Mapping Category"."No." WHERE ("Mapping Type" = FIELD ("Mapping Type"));
         }
         field(3; "No."; Code[20])
         {

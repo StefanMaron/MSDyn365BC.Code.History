@@ -11,6 +11,22 @@ page 9026 "Sales & Relationship Mgr. RC"
             {
                 ApplicationArea = RelationshipMgmt;
             }
+            part(Control1; "Sales & Relationship Mgr. Act.")
+            {
+                ApplicationArea = RelationshipMgmt;
+            }
+            part(Control56; "User Tasks Activities")
+            {
+                ApplicationArea = RelationshipMgmt;
+            }
+            part(ApprovalsActivities; "Approvals Activities")
+            {
+                ApplicationArea = RelationshipMgmt;
+            }
+            part(Control16; "Team Member Activities")
+            {
+                ApplicationArea = RelationshipMgmt;
+            }
             part(Control6; "Sales Pipeline Chart")
             {
                 ApplicationArea = RelationshipMgmt;
@@ -19,25 +35,26 @@ page 9026 "Sales & Relationship Mgr. RC"
             {
                 ApplicationArea = RelationshipMgmt;
             }
-            part(Control1; "Sales & Relationship Mgr. Act.")
-            {
-                ApplicationArea = RelationshipMgmt;
-            }
             part(Control11; "Relationship Performance")
-            {
-                ApplicationArea = RelationshipMgmt;
-            }
-            part(Control16; "Team Member Activities")
-            {
-                ApplicationArea = RelationshipMgmt;
-            }
-            part(Control56; "User Tasks Activities")
             {
                 ApplicationArea = RelationshipMgmt;
             }
             part(Control2; "Power BI Report Spinner Part")
             {
                 ApplicationArea = RelationshipMgmt;
+            }
+            part("My Job Queue"; "My Job Queue")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+            }
+            part("Report Inbox Part"; "Report Inbox Part")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            systempart(MyNotes; MyNotes)
+            {
+                ApplicationArea = Basic, Suite;
             }
         }
     }
@@ -179,6 +196,15 @@ page 9026 "Sales & Relationship Mgr. RC"
                 RunObject = Page "CRM Case List";
                 ToolTip = 'View the list of cases that you manage with Microsoft Dynamics 365 Customer Service.';
             }
+            action("Sales Orders - Microsoft Dynamics 365 Sales")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Sales Orders - Microsoft Dynamics 365 Sales';
+                RunObject = Page "CRM Sales Order List";
+                RunPageView = WHERE(StateCode = FILTER(Submitted),
+                                    LastBackofficeSubmit = FILTER(0D));
+                ToolTip = 'View sales orders in Dynamics 365 Sales that are coupled with sales orders in Business Central.';
+            }
             action(Salespersons)
             {
                 ApplicationArea = Suite, RelationshipMgmt;
@@ -241,6 +267,33 @@ page 9026 "Sales & Relationship Mgr. RC"
                     RunObject = Page "Blanket Sales Orders";
                     ToolTip = 'Use blanket sales orders as a framework for a long-term agreement between you and your customers to sell large quantities that are to be delivered in several smaller shipments over a certain period of time. Blanket orders often cover only one item with predetermined delivery dates. The main reason for using a blanket order rather than a sales order is that quantities entered on a blanket order do not affect item availability and thus can be used as a worksheet for monitoring, forecasting, and planning purposes..';
                 }
+                action("Sales Invoices")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Invoices';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Sales Invoice List";
+                    ToolTip = 'Register your sales to customers and invite them to pay according to the delivery and payment terms by sending them a sales invoice document. Posting a sales invoice registers shipment and records an open receivable entry on the customer''s account, which will be closed when payment is received. To manage the shipment process, use sales orders, in which sales invoicing is integrated.';
+                }
+                action("Sales Return Orders")
+                {
+                    ApplicationArea = SalesReturnOrder;
+                    Caption = 'Sales Return Orders';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Sales Return Order List";
+                    ToolTip = 'Compensate your customers for incorrect or damaged items that you sent to them and received payment for. Sales return orders enable you to receive items from multiple sales documents with one sales return, automatically create related sales credit memos or other return-related documents, such as a replacement sales order, and support warehouse documents for the item handling. Note: If an erroneous sale has not been paid yet, you can simply cancel the posted sales invoice to automatically revert the financial transaction.';
+                }
+                action("Sales Credit Memos")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Credit Memos';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Sales Credit Memos";
+                    ToolTip = 'Revert the financial transactions involved when your customers want to cancel a purchase or return incorrect or damaged items that you sent to them and received payment for. To include the correct information, you can create the sales credit memo from the related posted sales invoice or you can create a new sales credit memo with copied invoice information. If you need more control of the sales return process, such as warehouse documents for the physical handling, use sales return orders, in which sales credit memos are integrated. Note: If an erroneous sale has not been paid yet, you can simply cancel the posted sales invoice to automatically revert the financial transaction.';
+                }
                 action(Action63)
                 {
                     ApplicationArea = RelationshipMgmt;
@@ -260,6 +313,22 @@ page 9026 "Sales & Relationship Mgr. RC"
                     PromotedCategory = Process;
                     RunObject = Page "Item List";
                     ToolTip = 'View or edit detailed information for the products that you trade in. The item card can be of type Inventory or Service to specify if the item is a physical unit or a labor time unit. Here you also define if items in inventory or on incoming orders are automatically reserved for outbound documents and whether order tracking links are created between demand and supply to reflect planning actions.';
+                }
+                action("Item Charges")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Item Charges';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Item Charges";
+                    ToolTip = 'View or edit the codes for item charges that you can assign to purchase and sales transactions to include any added costs, such as freight, physical handling, and insurance that you incur when purchasing or selling items. This is important to ensure correct inventory valuation. For purchases, the landed cost of a purchased item consists of the vendor''s purchase price and all additional direct item charges that can be assigned to individual receipts or return shipments. For sales, knowing the cost of shipping sold items can be as vital to your company as knowing the landed cost of purchased items.';
+                }
+                action("Item Attributes")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Item Attributes';
+                    RunObject = Page "Item Attributes";
+                    ToolTip = 'Assign item attribute values to your items to enable rich searching and sorting options. When customers inquire about an item, either in correspondence or in an integrated web shop, they can then ask or search according to characteristics, such as height and model year. You can also assign item attributes to item categories, which then apply to the items that use the item categories in question.';
                 }
                 action(Segments)
                 {
@@ -288,6 +357,82 @@ page 9026 "Sales & Relationship Mgr. RC"
                     PromotedCategory = Process;
                     RunObject = Page "Salespersons/Purchasers";
                     ToolTip = 'View or edit information about the sales people that work for you and which customers they are assigned to.';
+                }
+            }
+            group("Posted Documents")
+            {
+                Caption = 'Posted Documents';
+                Image = FiledPosted;
+                ToolTip = 'View the posting history for sales, shipments, and inventory.';
+                action(Action32)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Posted Sales Invoices';
+                    Image = PostedOrder;
+                    RunObject = Page "Posted Sales Invoices";
+                    ToolTip = 'Open the list of posted sales invoices.';
+                }
+                action(Action34)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Posted Sales Credit Memos';
+                    Image = PostedOrder;
+                    RunObject = Page "Posted Sales Credit Memos";
+                    ToolTip = 'Open the list of posted sales credit memos.';
+                }
+                action("Posted Return Receipts")
+                {
+                    ApplicationArea = SalesReturnOrder;
+                    Caption = 'Posted Return Receipts';
+                    Image = PostedReturnReceipt;
+                    RunObject = Page "Posted Return Receipts";
+                    ToolTip = 'Open the list of posted return receipts.';
+                }
+                action(Action40)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Posted Sales Shipments';
+                    Image = PostedShipment;
+                    RunObject = Page "Posted Sales Shipments";
+                    ToolTip = 'Open the list of posted sales shipments.';
+                }
+                action("Sales Quote Archive")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Quote Archives';
+                    RunObject = page "Sales Quote Archives";
+                }
+                action("Sales Order Archive")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Order Archives';
+                    RunObject = page "Sales Order Archives";
+                }
+                action("Sales Return Order Archives")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Return Order Archives';
+                    RunObject = page "Sales Return List Archive";
+                }
+                action("Blanket Sales Order Archives")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Blanket Sales Order Archives';
+                    RunObject = page "Blanket Sales Order Archives";
+                }
+                action("Issued Reminders")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Issued Reminders';
+                    RunObject = Page "Issued Reminder List";
+                    ToolTip = 'Opens the list of issued reminders.';
+                }
+                action("Issued Finance Charge Memos")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Issued Finance Charge Memos';
+                    RunObject = Page "Issued Fin. Charge Memo List";
+                    ToolTip = 'Opens the list of issued finance charge memos.';
                 }
             }
             group("Administration Sales/Purchase")
@@ -447,6 +592,54 @@ page 9026 "Sales & Relationship Mgr. RC"
                 }
             }
         }
+        area(creation)
+        {
+            action("Sales &Quote")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Sales &Quote';
+                Image = NewSalesQuote;
+                RunObject = Page "Sales Quote";
+                RunPageMode = Create;
+                ToolTip = 'Create a new sales quote to offer items or services to a customer.';
+            }
+            action("Sales &Invoice")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Sales &Invoice';
+                Image = NewSalesInvoice;
+                RunObject = Page "Sales Invoice";
+                RunPageMode = Create;
+                ToolTip = 'Create a new invoice for the sales of items or services. Invoice quantities cannot be posted partially.';
+            }
+            action("Sales &Order")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Sales &Order';
+                Image = Document;
+                RunObject = Page "Sales Order";
+                RunPageMode = Create;
+                ToolTip = 'Create a new sales order for items or services.';
+            }
+            action("Sales &Return Order")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Sales &Return Order';
+                Image = ReturnOrder;
+                RunObject = Page "Sales Return Order";
+                RunPageMode = Create;
+                ToolTip = 'Compensate your customers for incorrect or damaged items that you sent to them and received payment for. Sales return orders enable you to receive items from multiple sales documents with one sales return, automatically create related sales credit memos or other return-related documents, such as a replacement sales order, and support warehouse documents for the item handling. Note: If an erroneous sale has not been paid yet, you can simply cancel the posted sales invoice to automatically revert the financial transaction.';
+            }
+            action("Sales &Credit Memo")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Sales &Credit Memo';
+                Image = CreditMemo;
+                RunObject = Page "Sales Credit Memo";
+                RunPageMode = Create;
+                ToolTip = 'Create a new sales credit memo to revert a posted sales invoice.';
+            }
+        }
         area(processing)
         {
             group(New)
@@ -526,14 +719,14 @@ page 9026 "Sales & Relationship Mgr. RC"
             }
             group(Flow)
             {
-                Caption = 'Flow';
+                Caption = 'Microsoft Power Automate';
                 action("Manage Flows")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Manage Flows';
                     Image = Flow;
                     RunObject = Page "Flow Selector";
-                    ToolTip = 'View or edit automated workflows created with Microsoft Flow.';
+                    ToolTip = 'View or edit automated flows created with Power Automate.';
                 }
             }
         }

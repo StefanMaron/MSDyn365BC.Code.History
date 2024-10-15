@@ -211,19 +211,19 @@ table 1275 "Doc. Exch. Service Setup"
 
     local procedure LogTelemetryWhenServiceEnabled()
     begin
-        SendTraceTag('00008A9', TelemetryCategoryTok, VERBOSITY::Normal, DocExchServiceEnabledTxt, DATACLASSIFICATION::SystemMetadata);
-        SendTraceTag('00008AA', TelemetryCategoryTok, VERBOSITY::Normal, "Service URL", DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008A9', DocExchServiceEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        Session.LogMessage('00008AA', "Service URL", Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 
     local procedure LogTelemetryWhenServiceDisabled()
     begin
-        SendTraceTag('00008AB', TelemetryCategoryTok, VERBOSITY::Normal, DocExchServiceDisabledTxt, DATACLASSIFICATION::SystemMetadata);
-        SendTraceTag('00008AC', TelemetryCategoryTok, VERBOSITY::Normal, "Service URL", DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008AB', DocExchServiceDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        Session.LogMessage('00008AC', "Service URL", Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 
     local procedure LogTelemetryWhenServiceCreated()
     begin
-        SendTraceTag('00008AD', TelemetryCategoryTok, VERBOSITY::Normal, DocExchServiceCreatedTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008AD', DocExchServiceCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 }
 

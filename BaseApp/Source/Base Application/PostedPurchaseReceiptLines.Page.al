@@ -159,7 +159,7 @@ page 528 "Posted Purchase Receipt Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")

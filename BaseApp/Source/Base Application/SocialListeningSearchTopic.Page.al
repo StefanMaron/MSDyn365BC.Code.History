@@ -5,6 +5,9 @@ page 871 "Social Listening Search Topic"
     PageType = Card;
     RefreshOnActivate = true;
     SourceTable = "Social Listening Search Topic";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+    ObsoleteTag = '17.0';
 
     layout
     {

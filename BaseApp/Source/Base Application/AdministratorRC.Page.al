@@ -817,7 +817,7 @@ page 8900 "Administrator Main Role Center"
                 }
                 group("Group25")
                 {
-                    Caption = 'Microsoft Flow';
+                    Caption = 'Microsoft Power Automate';
                     action("Workflows1")
                     {
                         ApplicationArea = Suite;
@@ -882,13 +882,17 @@ page 8900 "Administrator Main Role Center"
                     Caption = 'Social Engagement Setup';
                     RunObject = page "Social Listening Setup";
                     Tooltip = 'Open the Social Engagement Setup page.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+                    ObsoleteTag = '17.0';
                 }
                 action("SMTP Mail Setup")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'SMTP Mail Setup';
-                    RunObject = page "SMTP Mail Setup";
-                    Tooltip = 'Open the SMTP Mail Setup page.';
+                    Caption = 'Mail Setup';
+                    RunObject = codeunit "Open Mail Setup Page";
+                    Tooltip = 'Open the Mail Setup page.';
                 }
                 action("SharePoint Connection Setup")
                 {

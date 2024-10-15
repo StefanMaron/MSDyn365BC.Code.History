@@ -330,9 +330,13 @@ page 77 "Resource List"
 
                         trigger OnAction()
                         var
+                            Resource: Record Resource;
                             CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            RecRef: RecordRef;
                         begin
-                            CRMCouplingManagement.RemoveCoupling(RecordId);
+                            CurrPage.SetSelectionFilter(Resource);
+                            RecRef.GetTable(Resource);
+                            CRMCouplingManagement.RemoveCoupling(RecRef);
                         end;
                     }
                 }
@@ -365,7 +369,11 @@ page 77 "Resource List"
                     RunObject = Page "Resource Costs";
                     RunPageLink = Type = CONST(Resource),
                                   Code = FIELD("No.");
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or change detailed information about costs for the resource.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action(Prices)
                 {
@@ -377,7 +385,47 @@ page 77 "Resource List"
                     RunObject = Page "Resource Prices";
                     RunPageLink = Type = CONST(Resource),
                                   Code = FIELD("No.");
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or edit prices for the resource.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+                action(PurchPriceLists)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Costs';
+                    Image = ResourceCosts;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or change detailed information about costs for the resource.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Purchase, AmountType::Any);
+                    end;
+                }
+                action(SalesPriceLists)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Prices';
+                    Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or edit prices for the resource.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Sale, AmountType::Any);
+                    end;
                 }
             }
             group("Plan&ning")
@@ -483,6 +531,9 @@ page 77 "Resource List"
                 PromotedCategory = "Report";
                 RunObject = Report "Resource - Price List";
                 ToolTip = 'Specifies a list of unit prices for the selected resources. By default, a unit price is based on the price in the Resource Prices window. If there is no valid alternative price, then the unit price from the resource card is used. The report can be used by the company''s salespeople or sent to customers.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '17.0';
             }
             action("Resource Register")
             {
@@ -533,13 +584,16 @@ page 77 "Resource List"
     trigger OnOpenPage()
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 
     var
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        ExtendedPriceEnabled: Boolean;
 
     procedure GetSelectionFilter(): Text
     var

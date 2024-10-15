@@ -2,6 +2,7 @@ codeunit 134092 "ERM Consolidation"
 {
     Permissions = TableData "G/L Entry" = imd;
     Subtype = Test;
+    EventSubscriberInstance = Manual;
     TestPermissions = NonRestrictive;
 
     trigger OnRun()
@@ -17,10 +18,21 @@ codeunit 134092 "ERM Consolidation"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        Assert: Codeunit Assert;
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryTextFileValidation: Codeunit "Library - Text File Validation";
+        ERMConsolidation: Codeunit "ERM Consolidation";
         IsInitialized: Boolean;
+        CurrentSaveValuesId: Integer;
+        FileName: Text;
         GLEntryErrTagTok: Label 'ErrorText_Number__Control23';
         GLEntryDimensionErr: Label 'G/L Entry %1: Select Dimension Value Code %2 for the Dimension Code %3 for G/L Account %4.', Comment = '%1 = G/L Entry No., %2 = Expected Dimension Value, %3 = Dimension Code, %4 = G/L Account No.';
+        ExpectedTextNotFoundErr: Label 'Expected text line %1 not found in exported file', Comment = '%1 - text';
+        DimensionTextLineTok: Label '%1,"%2",%3', Comment = '%1 and %3 - numbers, %2 - text value';
+        TransactionLineTok: Label '2,"%1","%2",%3,"%4",%5,%6,%7,%8,%9', Comment = '%3, %5-%9 - numbers, %1,%4 - text value, %2 - date';
+        GLAccountLineTok: Label '1,"%1","%2"', Comment = '%1, %2 - text value, %3 - number';
+        DimensionValueLineTok: Label '7,"%1",%2,%3', Comment = '%1 text value, %2, %3 - number';
+        LegalEntityIDLineTok: Label '4,"%1"', Comment = '%1  text value';
 
     [Test]
     [Scope('OnPrem')]
@@ -274,7 +286,7 @@ codeunit 134092 "ERM Consolidation"
         // [GIVEN] Gen. journal line with account no. = "A" and bal. account no. = "B". Amount = "X".
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         LibraryJournals.CreateGenJournalLine(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, 0,
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", BalGLAccount."No.", LibraryRandom.RandDec(100, 2));
 
@@ -303,14 +315,356 @@ codeunit 134092 "ERM Consolidation"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ExportConsolidationRequesPageHandler')]
+    procedure ExportConsolidationFO_LegalEntityID()
+    var
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        FileContent: BigText;
+        PostingDate: Date;
+        LegalEntityID: Code[4];
+    begin
+        // [FEATURE] [Export F&O]
+        // [SCENARIO 341917] F&O file contains F&O legal entity ID
+        Initialize();
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(ERMConsolidation);
+
+        // [GIVEN] Post G/L entry for account X, Posting Date = 27.02.2020
+        PostingDate := CalcDate('<1M>', WorkDate());
+        ClearGLEntriesOnPostingDate(PostingDate);
+
+        // [WHEN] Report "Export Consolidation" is being run for period 27.02.2020..27.02.2020 and LegalEntityID = "ABCD"
+        LegalEntityID := LibraryRandom.RandText(4);
+        RunExportConsolidation(PostingDate, PostingDate, LegalEntityID);
+
+        // [THEN] Exported file contains section with dimension DIM1
+        LibraryTextFileValidation.ReadTextFile(ERMConsolidation.GetFileName(), FileContent);
+        VerifyFileContent(FileContent, StrSubstNo(LegalEntityIDLineTok, LegalEntityID));
+
+        UnBindSubscription(ERMConsolidation);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ExportConsolidationRequesPageHandler')]
+    procedure ExportConsolidationFO_Dimension()
+    var
+        GLAccount: Record "G/L Account";
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        SelectedDimension: Record "Selected Dimension";
+        TempGLEntry: Record "G/L Entry" temporary;
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        FileContent: BigText;
+        PostingDate: Date;
+    begin
+        // [FEATURE] [Export F&O]
+        // [SCENARIO 341917] F&O file contains dimensions from exported entries
+        Initialize();
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(ERMConsolidation);
+
+        // [GIVEN] G/L Account = "X" with Consolidation Setup, dimension DIM1
+        CreateGLAccountWithConsolidationSetup(GLAccount);
+
+        CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccount."No.", DimensionValue."Dimension Code", DimensionValue.Code);
+        LibraryDimension.CreateSelectedDimension(
+                  SelectedDimension, 3, REPORT::"Export Consolidation", '', DimensionValue."Dimension Code");
+
+        // [GIVEN] Post G/L entry for account X, Posting Date = 27.02.2020
+        PostingDate := CalcDate('<1M>', WorkDate());
+        ClearGLEntriesOnPostingDate(PostingDate);
+        PostGenJnlLine(TempGLEntry, GLAccount."No.", GLAccount."No.", LibraryRandom.RandDec(100, 2), PostingDate, false);
+
+        // [WHEN] Report "Export Consolidation" is being run for period 27.02.2020..27.02.2020
+        RunExportConsolidation(PostingDate, PostingDate, LibraryRandom.RandText(4));
+
+        // [THEN] Exported file contains section with dimension DIM1
+        Dimension.Get(DimensionValue."Dimension Code");
+        LibraryTextFileValidation.ReadTextFile(ERMConsolidation.GetFileName(), FileContent);
+        VerifyFileContent(FileContent, StrSubstNo(DimensionTextLineTok, 6, Dimension.Name, 1));
+
+        SelectedDimension.Delete();
+        UnBindSubscription(ERMConsolidation);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ExportConsolidationRequesPageHandler')]
+    procedure ExportConsolidationFO_DimensionValues()
+    var
+        GLAccount: array[2] of Record "G/L Account";
+        BalAccount: Record "G/L Account";
+        DimensionValue: array[2] of Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        SelectedDimension: Record "Selected Dimension";
+        TempGLEntry: Record "G/L Entry" temporary;
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        FileContent: BigText;
+        PostingDate: Date;
+        ExpectedDimensionValueLine: Text;
+    begin
+        // [FEATURE] [Export F&O]
+        // [SCENARIO 341917] F&O file contains dimension values from exported entries
+        Initialize();
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(ERMConsolidation);
+
+        // [GIVEN] G/L Account = "X" with Consolidation Setup, dimension DIM1, DIMVALUE1
+        CreateGLAccountWithConsolidationSetup(GLAccount[1]);
+        CreateDimWithDimValue(DimensionValue[1]);
+        LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccount[1]."No.", DimensionValue[1]."Dimension Code", DimensionValue[1].Code);
+        // [GIVEN] G/L Account = "Y" with Consolidation Setup, dimension DIM2, DIMVALUE2
+        CreateGLAccountWithConsolidationSetup(GLAccount[2]);
+        CreateDimWithDimValue(DimensionValue[2]);
+        LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccount[2]."No.", DimensionValue[2]."Dimension Code", DimensionValue[2].Code);
+
+        // [GIVEN] Post G/L entry for account X, Posting Date = 27.02.2020
+        PostingDate := CalcDate('<1M>', WorkDate());
+        ClearGLEntriesOnPostingDate(PostingDate);
+        CreateGLAccountWithConsolidationSetup(BalAccount);
+        PostGenJnlLine(TempGLEntry, GLAccount[1]."No.", BalAccount."No.", LibraryRandom.RandDec(100, 2), PostingDate, false);
+        // [GIVEN] Post G/L entry for account Y, Posting Date = 28.02.2020
+        PostGenJnlLine(TempGLEntry, GLAccount[2]."No.", BalAccount."No.", LibraryRandom.RandDec(100, 2), PostingDate + 1, false);
+
+        // [WHEN] Report "Export Consolidation" is being run with selected dimensions DIM1 and DIM2 for period 27.02.2020..28.02.2020
+        LibraryDimension.CreateSelectedDimension(
+                  SelectedDimension, 3, REPORT::"Export Consolidation", '', DimensionValue[1]."Dimension Code");
+        LibraryDimension.CreateSelectedDimension(
+                  SelectedDimension, 3, REPORT::"Export Consolidation", '', DimensionValue[2]."Dimension Code");
+        RunExportConsolidation(PostingDate, PostingDate + 1, LibraryRandom.RandText(4));
+
+        // [THEN] Exported file contains line with dimension value DIMVALUE1 for entries 1 and 2
+        LibraryTextFileValidation.ReadTextFile(ERMConsolidation.GetFileName(), FileContent);
+
+        ExpectedDimensionValueLine := StrSubstNo(DimensionValueLineTok, DimensionValue[1]."Consolidation Code", 1, 1);
+        VerifyFileContent(FileContent, ExpectedDimensionValueLine);
+        ExpectedDimensionValueLine := StrSubstNo(DimensionValueLineTok, DimensionValue[1]."Consolidation Code", 1, 3);
+        VerifyFileContent(FileContent, ExpectedDimensionValueLine);
+
+        // [THEN] Exported file contains line with dimension value DIMVALUE2 for entries 3 and 4
+        ExpectedDimensionValueLine := StrSubstNo(DimensionValueLineTok, DimensionValue[2]."Consolidation Code", 2, 2);
+        VerifyFileContent(FileContent, ExpectedDimensionValueLine);
+        ExpectedDimensionValueLine := StrSubstNo(DimensionValueLineTok, DimensionValue[2]."Consolidation Code", 2, 4);
+        VerifyFileContent(FileContent, ExpectedDimensionValueLine);
+
+        SelectedDimension.Delete();
+        UnBindSubscription(ERMConsolidation);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ExportConsolidationRequesPageHandler')]
+    procedure ExportConsolidationFO_GLEntries()
+    var
+        DebitGLAccount: Record "G/L Account";
+        CreditGLAccount: Record "G/L Account";
+        TempGLEntry: Record "G/L Entry" temporary;
+        GLSetup: Record "General Ledger Setup";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        FileContent: BigText;
+        PostingDate: Date;
+        ExpectedTransactionLine: Text;
+    begin
+        // [FEATURE] [Export F&O]
+        // [SCENARIO 341917] F&O file contains consolidated entries
+        Initialize();
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(ERMConsolidation);
+
+        GLSetup.Get();
+
+        // [GIVEN] G/L Account = "X" with "Consol. Debit Acc." = "DX" and "Consol. Credit Acc."= "CX"
+        CreateGLAccountWithConsolidationSetup(DebitGLAccount);
+        // [GIVEN] G/L Account = "Y" with Consolidation Setup "Consol. Debit Acc."= "DY" and "Consol. Credit Acc."= "CY"
+        CreateGLAccountWithConsolidationSetup(CreditGLAccount);
+        // [GIVEN] Post G/L entry for account X, Posting Date = 27.02.2020, Amount = 100
+        PostingDate := CalcDate('<1M>', WorkDate());
+        ClearGLEntriesOnPostingDate(PostingDate);
+        PostGenJnlLine(TempGLEntry, DebitGLAccount."No.", CreditGLAccount."No.", LibraryRandom.RandDec(100, 2), PostingDate, false);
+
+        // [WHEN] Report "Export Consolidation" is being run for period 27.02.2020..27.02.2020
+        RunExportConsolidation(PostingDate, PostingDate, LibraryRandom.RandText(4));
+        LibraryTextFileValidation.ReadTextFile(ERMConsolidation.GetFileName(), FileContent);
+
+        // [THEN] Exported file contains section with debit entry Account No. = "DX", Amount = 100
+        ExpectedTransactionLine :=
+            StrSubstNo(
+                TransactionLineTok,
+                DebitGLAccount."Consol. Debit Acc.",
+                FormatDate(TempGLEntry."Posting Date"),
+                1,
+                GLSetup."LCY Code",
+                0,
+                0,
+                FormatDecimal(TempGLEntry."Debit Amount"),
+                FormatDecimal(0),
+                1);
+        VerifyFileContent(FileContent, ExpectedTransactionLine);
+
+        // [THEN] Exported file contains section with credit entry Account No. = "CY", Amount = -100
+        ExpectedTransactionLine :=
+            StrSubstNo(
+                TransactionLineTok,
+                CreditGLAccount."Consol. Credit Acc.",
+                FormatDate(TempGLEntry."Posting Date"),
+                1,
+                GLSetup."LCY Code",
+                1,
+                0,
+                FormatDecimal(-TempGLEntry."Debit Amount"),
+                FormatDecimal(0),
+                2);
+        VerifyFileContent(FileContent, ExpectedTransactionLine);
+
+        UnBindSubscription(ERMConsolidation);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ExportConsolidationRequesPageHandler')]
+    procedure ExportConsolidationFO_GLEntriesWithCorrection()
+    var
+        DebitGLAccount: Record "G/L Account";
+        CreditGLAccount: Record "G/L Account";
+        TempGLEntry: Record "G/L Entry" temporary;
+        GLSetup: Record "General Ledger Setup";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        FileContent: BigText;
+        PostingDate: Date;
+        ExpectedTransactionLine: Text;
+    begin
+        // [FEATURE] [Export F&O]
+        // [SCENARIO 341917] F&O file contains consolidated entries with negative debit amount and positive credit amount
+        Initialize();
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(ERMConsolidation);
+
+        GLSetup.Get();
+
+        // [GIVEN] G/L Account = "X" with "Consol. Debit Acc." = "DX" and "Consol. Credit Acc."= "CX"
+        CreateGLAccountWithConsolidationSetup(DebitGLAccount);
+        // [GIVEN] G/L Account = "Y" with Consolidation Setup "Consol. Debit Acc."= "DY" and "Consol. Credit Acc."= "CY"
+        CreateGLAccountWithConsolidationSetup(CreditGLAccount);
+        // [GIVEN] Post G/L entry for account X, Posting Date = 27.02.2020, Amount = 100, Correction = true
+        PostingDate := CalcDate('<1M>', WorkDate());
+        ClearGLEntriesOnPostingDate(PostingDate);
+        PostGenJnlLine(TempGLEntry, DebitGLAccount."No.", CreditGLAccount."No.", LibraryRandom.RandDec(100, 2), PostingDate, true);
+
+        // [WHEN] Report "Export Consolidation" is being run for period 27.02.2020..27.02.2020
+        RunExportConsolidation(PostingDate, PostingDate, LibraryRandom.RandText(4));
+        LibraryTextFileValidation.ReadTextFile(ERMConsolidation.GetFileName(), FileContent);
+
+        // [THEN] Exported file contains section with credit entry Account No. = "CX", Amount = 100, sign = 1
+        ExpectedTransactionLine :=
+            StrSubstNo(
+                TransactionLineTok,
+                DebitGLAccount."Consol. Credit Acc.",
+                FormatDate(TempGLEntry."Posting Date"),
+                1,
+                GLSetup."LCY Code",
+                1,
+                0,
+                FormatDecimal(-TempGLEntry."Credit Amount"),
+                FormatDecimal(0),
+                1);
+        VerifyFileContent(FileContent, ExpectedTransactionLine);
+
+        // [THEN] Exported file contains section with credit entry Account No. = "DY", Amount = -100, sign = 0
+        ExpectedTransactionLine :=
+            StrSubstNo(
+                TransactionLineTok,
+                CreditGLAccount."Consol. Debit Acc.",
+                FormatDate(TempGLEntry."Posting Date"),
+                1,
+                GLSetup."LCY Code",
+                0,
+                0,
+                FormatDecimal(TempGLEntry."Credit Amount"),
+                FormatDecimal(0),
+                2);
+
+        UnBindSubscription(ERMConsolidation);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ExportConsolidationRequesPageHandler')]
+    procedure ExportConsolidationFO_GLAccounts()
+    var
+        DebitGLAccount: Record "G/L Account";
+        CreditGLAccount: Record "G/L Account";
+        GLAccount: Record "G/L Account";
+        TempGLEntry: Record "G/L Entry" temporary;
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        FileContent: BigText;
+        PostingDate: Date;
+        ExpectedGLAccountLine: Text;
+    begin
+        // [FEATURE] [Export F&O]
+        // [SCENARIO 341917] F&O file contains G/L accounts used in exported transactions
+        Initialize();
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(ERMConsolidation);
+
+        // [GIVEN] G/L Account = "X" with "Consol. Debit Acc." = "DX" and "Consol. Credit Acc."= "CX"
+        CreateGLAccountWithConsolidationSetup(DebitGLAccount);
+        // [GIVEN] G/L Account = "Y" with Consolidation Setup "Consol. Debit Acc."= "DY" and "Consol. Credit Acc."= "CY"
+        CreateGLAccountWithConsolidationSetup(CreditGLAccount);
+        // [GIVEN] Post G/L entry for account X, Posting Date = 27.02.2020, Amount = 100
+        PostingDate := CalcDate('<1M>', WorkDate());
+        ClearGLEntriesOnPostingDate(PostingDate);
+        PostGenJnlLine(TempGLEntry, DebitGLAccount."No.", CreditGLAccount."No.", LibraryRandom.RandDec(100, 2), PostingDate, false);
+
+        // [WHEN] Report "Export Consolidation" is being run for period 27.02.2020..27.02.2020
+        RunExportConsolidation(PostingDate, PostingDate, LibraryRandom.RandText(4));
+        LibraryTextFileValidation.ReadTextFile(ERMConsolidation.GetFileName(), FileContent);
+
+        // [THEN] Exported file contains section with used account "DX"
+        GLAccount.Get(DebitGLAccount."Consol. Debit Acc.");
+        ExpectedGLAccountLine := StrSubstNo(GLAccountLineTok, GLAccount."No.", DebitGLAccount.Name);
+        VerifyFileContent(FileContent, ExpectedGLAccountLine);
+
+        // [THEN] Exported file contains section with used account "CY"
+        GLAccount.Get(CreditGLAccount."Consol. Credit Acc.");
+        ExpectedGLAccountLine := StrSubstNo(GLAccountLineTok, GLAccount."No.", CreditGLAccount.Name);
+        VerifyFileContent(FileContent, ExpectedGLAccountLine);
+
+        UnBindSubscription(ERMConsolidation);
+    end;
+
     local procedure Initialize()
+    var
+        LibraryReportValidation: Codeunit "Library - Report Validation";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibrarySetupStorage.Restore;
+        LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
         if IsInitialized then
             exit;
 
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         IsInitialized := true;
+    end;
+
+    local procedure ClearGLEntriesOnPostingDate(PostingDate: Date)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetCurrentKey("Posting Date");
+        GLEntry.SetRange("Posting Date", PostingDate);
+        GLEntry.DeleteAll();
     end;
 
     local procedure CreateGLAccountWithConsolidationSetup(var GLAccount: Record "G/L Account")
@@ -329,6 +683,14 @@ codeunit 134092 "ERM Consolidation"
         BusinessUnit.Validate("Residual Account", LibraryERM.CreateGLAccountNo);
         BusinessUnit.Validate("Data Source", DataSource);
         BusinessUnit.Modify(true);
+    end;
+
+    local procedure CreateDimWithDimValue(var DimensionValue: Record "Dimension Value")
+    begin
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        DimensionValue."Consolidation Code" :=
+            LibraryUtility.GenerateRandomCode20(DimensionValue.FieldNo("Consolidation Code"), Database::"Dimension Value");
+        DimensionValue.Modify();
     end;
 
     local procedure CreateSelectedDim(var DefaultDimension: Record "Default Dimension"; var DimSetID: Integer; GLAccountCode: Code[20])
@@ -352,6 +714,21 @@ codeunit 134092 "ERM Consolidation"
         DimensionSelectionBuffer.Code := SelectedDimension."Dimension Code";
         DimensionSelectionBuffer.Selected := true;
         DimensionSelectionBuffer.Insert();
+    end;
+
+    local procedure FormatDate(DateToFormat: Date): Text
+    begin
+        exit(Format(DateToFormat, 0, '<Year4>/<Month,2>/<Day,2>'));
+    end;
+
+    local procedure FormatDecimal(Amount: Decimal): Text
+    begin
+        exit(Format(Amount, 0, 9));
+    end;
+
+    procedure GetFileName(): Text
+    begin
+        exit(FileName);
     end;
 
     local procedure InsertGLEntry(GLAccNo: Code[20]): Integer
@@ -401,9 +778,36 @@ codeunit 134092 "ERM Consolidation"
         GLEntry: Record "G/L Entry";
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
-          GenJnlLine, 0, GenJnlLine."Account Type"::"G/L Account", GLAccNo, Amount);
+          GenJnlLine, "Gen. Journal Account Type"::"G/L Account", GenJnlLine."Account Type"::"G/L Account", GLAccNo, Amount);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
         FindGLEntry(GLEntry, GenJnlLine."Account No.", GenJnlLine."Document No.");
+        GLEntryBuffer := GLEntry;
+        GLEntryBuffer.Insert();
+    end;
+
+    local procedure PostGenJnlLine(var GLEntryBuffer: Record "G/L Entry"; AccountNo: Code[20]; BalAccountNo: Code[20]; Amount: Decimal; PostingDate: Date; Correction: Boolean)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLEntry: Record "G/L Entry";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine,
+          GenJournalBatch."Journal Template Name",
+          GenJournalBatch.Name,
+          "Gen. Journal Document Type"::" ",
+          "Gen. Journal Account Type"::"G/L Account",
+          AccountNo,
+          "Gen. Journal Account Type"::"G/L Account",
+          BalAccountNo,
+          Amount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+
+        GenJournalLine.Validate(Correction, Correction);
+        GenJournalLine.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        FindGLEntry(GLEntry, GenJournalLine."Account No.", GenJournalLine."Document No.");
         GLEntryBuffer := GLEntry;
         GLEntryBuffer.Insert();
     end;
@@ -449,6 +853,19 @@ codeunit 134092 "ERM Consolidation"
         REPORT.Run(REPORT::"Consolidation - Test Database", true, false, BusinessUnit);
     end;
 
+    local procedure RunExportConsolidation(StartDate: Date; EndDate: Date; LegalEntityID: Code[4])
+    var
+        ExportConsolidation: Report "Export Consolidation";
+    begin
+        LibraryVariableStorage.Enqueue(StartDate);
+        LibraryVariableStorage.Enqueue(EndDate);
+        LibraryVariableStorage.Enqueue(LegalEntityID);
+        Commit();
+        // InitializeRequest to initialize selected dimensions description
+        ExportConsolidation.InitializeRequest(2, '');
+        ExportConsolidation.Run;
+    end;
+
     local procedure VerifyGLEntryAmount(DocNo: Code[20]; GLAccNo: Code[20]; ExpectedAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
@@ -483,6 +900,14 @@ codeunit 134092 "ERM Consolidation"
         GLEntry."Debit Amount" := DebitAmount;
         GLEntry."Credit Amount" := CreditAmount;
         GLEntry.Insert();
+    end;
+
+    local procedure VerifyFileContent(FileContent: BigText; ExpectedTextLine: Text)
+    var
+        TextPosition: Integer;
+    begin
+        TextPosition := FileContent.TextPos(ExpectedTextLine);
+        Assert.IsTrue(TextPosition > 0, StrSubstNo(ExpectedTextNotFoundErr, ExpectedTextLine));
     end;
 
     [ConfirmHandler]
@@ -527,6 +952,31 @@ codeunit 134092 "ERM Consolidation"
         GLConsolidationEliminations.StartingDate.SetValue(WorkDate);
         GLConsolidationEliminations.EndingDate.SetValue(WorkDate);
         GLConsolidationEliminations.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ExportConsolidationRequesPageHandler(var ExportConsolidation: TestRequestPage "Export Consolidation")
+    begin
+        CurrentSaveValuesId := REPORT::"Export Consolidation";
+        ExportConsolidation.StartDate.SetValue(LibraryVariableStorage.DequeueDate());
+        ExportConsolidation.EndDate.SetValue(LibraryVariableStorage.DequeueDate());
+        ExportConsolidation.ClientFileNameControl.SetValue('DummyFileName'); // not important
+        ExportConsolidation.FileFormat.SetValue(2); // Version F&O
+        ExportConsolidation."F&O Legal Entity ID".SetValue(LibraryVariableStorage.DequeueText());
+        ExportConsolidation.OK.Invoke;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
+    local procedure SaveFileToDisk(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
+    var
+        FileManagement: Codeunit "File Management";
+        ServerTempFileName: Text;
+    begin
+        FileName := FromFileName;
+        ServerTempFileName := FileManagement.ServerTempFileName('txt');
+        FileManagement.CopyServerFile(FromFileName, ServerTempFileName, false);
+        IsHandled := true;
     end;
 }
 

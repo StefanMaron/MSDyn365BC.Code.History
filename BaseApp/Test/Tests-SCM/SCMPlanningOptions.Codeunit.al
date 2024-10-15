@@ -987,7 +987,7 @@ codeunit 137008 "SCM Planning Options"
           Item, MfgSetup, ReqWkshName."Worksheet Template Name", ReqWkshName.Name, PlanningStartDate, PlanningEndDate, true, true);
     end;
 
-    local procedure CreateSKU(var SKU: Record "Stockkeeping Unit"; LocationCode: Code[10]; ItemNo: Code[20]; ReorderingPolicy: Option)
+    local procedure CreateSKU(var SKU: Record "Stockkeeping Unit"; LocationCode: Code[10]; ItemNo: Code[20]; ReorderingPolicy: Enum "Reordering Policy")
     begin
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, LocationCode, ItemNo, '');
         SKU.Validate("Reordering Policy", ReorderingPolicy);
@@ -1045,7 +1045,7 @@ codeunit 137008 "SCM Planning Options"
         end;
     end;
 
-    local procedure AssertPlanningLine(var RequisitionLineFiltered: Record "Requisition Line"; ActionMsg: Option; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; NoOfLines: Integer; NoLinesExpected: Boolean)
+    local procedure AssertPlanningLine(var RequisitionLineFiltered: Record "Requisition Line"; ActionMsg: Enum "Action Message Type"; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; NoOfLines: Integer; NoLinesExpected: Boolean)
     var
         RequisitionLine: Record "Requisition Line";
     begin

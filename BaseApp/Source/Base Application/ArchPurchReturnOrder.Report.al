@@ -479,7 +479,7 @@ report 417 "Arch.Purch. Return Order"
                             if (PurchLineArch.Type = PurchLineArch.Type::"G/L Account") and (not ShowInternalInfo) then
                                 "Purchase Line Archive"."No." := '';
                             AllowInvDisctxt := Format("Purchase Line Archive"."Allow Invoice Disc.");
-                            PurchaseLineArchiveType := "Purchase Line Archive".Type;
+                            PurchaseLineArchiveType := "Purchase Line Archive".Type.AsInteger();
 
                             TotalSubTotal += "Purchase Line Archive"."Line Amount";
                             TotalInvoiceDiscountAmount -= "Purchase Line Archive"."Inv. Discount Amount";

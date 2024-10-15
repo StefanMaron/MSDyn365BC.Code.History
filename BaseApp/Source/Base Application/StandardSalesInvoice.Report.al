@@ -208,6 +208,42 @@ report 1306 "Standard Sales - Invoice"
             column(ShipToAddress8; ShipToAddr[8])
             {
             }
+            column(SellToContactPhoneNoLbl; SellToContactPhoneNoLbl)
+            {
+            }
+            column(SellToContactMobilePhoneNoLbl; SellToContactMobilePhoneNoLbl)
+            {
+            }
+            column(SellToContactEmailLbl; SellToContactEmailLbl)
+            {
+            }
+            column(BillToContactPhoneNoLbl; BillToContactPhoneNoLbl)
+            {
+            }
+            column(BillToContactMobilePhoneNoLbl; BillToContactMobilePhoneNoLbl)
+            {
+            }
+            column(BillToContactEmailLbl; BillToContactEmailLbl)
+            {
+            }
+            column(SellToContactPhoneNo; SellToContact."Phone No.")
+            {
+            }
+            column(SellToContactMobilePhoneNo; SellToContact."Mobile Phone No.")
+            {
+            }
+            column(SellToContactEmail; SellToContact."E-Mail")
+            {
+            }
+            column(BillToContactPhoneNo; BillToContact."Phone No.")
+            {
+            }
+            column(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+            {
+            }
+            column(BillToContactEmail; BillToContact."E-Mail")
+            {
+            }
             column(PaymentTermsDescription; PaymentTerms.Description)
             {
             }
@@ -431,7 +467,7 @@ report 1306 "Standard Sales - Invoice"
                 }
                 column(AmountExcludingVAT_Line; Amount)
                 {
-                    AutoFormatExpression = GetCurrencyCode;
+                    AutoFormatExpression = GetCurrencyCode();
                     AutoFormatType = 1;
                 }
                 column(AmountExcludingVAT_Line_Lbl; FieldCaption(Amount))
@@ -439,12 +475,12 @@ report 1306 "Standard Sales - Invoice"
                 }
                 column(AmountIncludingVAT_Line; "Amount Including VAT")
                 {
-                    AutoFormatExpression = GetCurrencyCode;
+                    AutoFormatExpression = GetCurrencyCode();
                     AutoFormatType = 1;
                 }
                 column(AmountIncludingVAT_Line_Lbl; FieldCaption("Amount Including VAT"))
                 {
-                    AutoFormatExpression = GetCurrencyCode;
+                    AutoFormatExpression = GetCurrencyCode();
                     AutoFormatType = 1;
                 }
                 column(Description_Line; Description)
@@ -461,7 +497,7 @@ report 1306 "Standard Sales - Invoice"
                 }
                 column(LineAmount_Line; FormattedLineAmount)
                 {
-                    AutoFormatExpression = GetCurrencyCode;
+                    AutoFormatExpression = GetCurrencyCode();
                     AutoFormatType = 1;
                 }
                 column(LineAmount_Line_Lbl; FieldCaption("Line Amount"))
@@ -475,8 +511,20 @@ report 1306 "Standard Sales - Invoice"
                 }
                 column(CrossReferenceNo_Line; "Cross-Reference No.")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Item Reference No.';
+                    ObsoleteTag = '17.0';
                 }
                 column(CrossReferenceNo_Line_Lbl; FieldCaption("Cross-Reference No."))
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Item Reference No.';
+                    ObsoleteTag = '17.0';
+                }
+                column(ItemReferenceNo_Line; "Item Reference No.")
+                {
+                }
+                column(ItemReferenceNo_Line_Lbl; FieldCaption("Item Reference No."))
                 {
                 }
                 column(ShipmentDate_Line; Format("Shipment Date"))
@@ -496,7 +544,7 @@ report 1306 "Standard Sales - Invoice"
                 }
                 column(UnitPrice; FormattedUnitPrice)
                 {
-                    AutoFormatExpression = GetCurrencyCode;
+                    AutoFormatExpression = GetCurrencyCode();
                     AutoFormatType = 2;
                 }
                 column(UnitPrice_Lbl; FieldCaption("Unit Price"))
@@ -774,7 +822,7 @@ report 1306 "Standard Sales - Invoice"
                 }
                 column(VATBase_VatAmountLine; "VAT Base")
                 {
-                    AutoFormatExpression = Line.GetCurrencyCode;
+                    AutoFormatExpression = Line.GetCurrencyCode();
                     AutoFormatType = 1;
                 }
                 column(VATBase_VatAmountLine_Lbl; FieldCaption("VAT Base"))
@@ -1091,6 +1139,8 @@ report 1306 "Standard Sales - Invoice"
 
                 FormatAddressFields(Header);
                 FormatDocumentFields(Header);
+                if SellToContact.Get("Sell-to Contact No.") then;
+                if BillToContact.Get("Bill-to Contact No.") then;
 
                 FillLeftHeader;
                 FillRightHeader;
@@ -1270,6 +1320,12 @@ report 1306 "Standard Sales - Invoice"
         VATClausesLbl: Label 'VAT Clause';
         VATIdentifierLbl: Label 'VAT Identifier';
         VATPercentageLbl: Label 'VAT %';
+        SellToContactPhoneNoLbl: Label 'Sell-to Contact Phone No.';
+        SellToContactMobilePhoneNoLbl: Label 'Sell-to Contact Mobile Phone No.';
+        SellToContactEmailLbl: Label 'Sell-to Contact E-Mail';
+        BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
+        BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
+        BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
         GLSetup: Record "General Ledger Setup";
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
@@ -1282,6 +1338,8 @@ report 1306 "Standard Sales - Invoice"
         RespCenter: Record "Responsibility Center";
         VATClause: Record "VAT Clause";
         TempLineFeeNoteOnReportHist: Record "Line Fee Note on Report Hist." temporary;
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";

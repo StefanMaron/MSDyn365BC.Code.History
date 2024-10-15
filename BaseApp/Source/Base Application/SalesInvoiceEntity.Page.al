@@ -92,8 +92,7 @@ page 5475 "Sales Invoice Entity"
                     var
                         O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
                     begin
-                        Customer.SetRange(Id, "Customer Id");
-                        if not Customer.FindFirst then
+                        if not Customer.GetBySystemId("Customer Id") then
                             Error(CouldNotFindCustomerErr);
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(Customer);
@@ -153,7 +152,7 @@ page 5475 "Sales Invoice Entity"
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(Customer);
 
-                        "Customer Id" := Customer.Id;
+                        "Customer Id" := Customer.SystemId;
                         RegisterFieldSet(FieldNo("Customer Id"));
                         RegisterFieldSet(FieldNo("Sell-to Customer No."));
                     end;
@@ -186,8 +185,7 @@ page 5475 "Sales Invoice Entity"
                         if "Currency Id" = BlankGUID then
                             "Currency Code" := ''
                         else begin
-                            Currency.SetRange(Id, "Currency Id");
-                            if not Currency.FindFirst then
+                            if not Currency.GetBySystemId("Currency Id") then
                                 Error(CurrencyIdDoesNotMatchACurrencyErr);
 
                             "Currency Code" := Currency.Code;
@@ -220,7 +218,7 @@ page 5475 "Sales Invoice Entity"
                             if not Currency.Get("Currency Code") then
                                 Error(CurrencyCodeDoesNotMatchACurrencyErr);
 
-                            "Currency Id" := Currency.Id;
+                            "Currency Id" := Currency.SystemId;
                         end;
 
                         RegisterFieldSet(FieldNo("Currency Id"));
@@ -249,8 +247,7 @@ page 5475 "Sales Invoice Entity"
                         if "Payment Terms Id" = BlankGUID then
                             "Payment Terms Code" := ''
                         else begin
-                            PaymentTerms.SetRange(Id, "Payment Terms Id");
-                            if not PaymentTerms.FindFirst then
+                            if not PaymentTerms.GetBySystemId("Payment Terms Id") then
                                 Error(PaymentTermsIdDoesNotMatchAPaymentTermsErr);
 
                             "Payment Terms Code" := PaymentTerms.Code;
@@ -270,8 +267,7 @@ page 5475 "Sales Invoice Entity"
                         if "Shipment Method Id" = BlankGUID then
                             "Shipment Method Code" := ''
                         else begin
-                            ShipmentMethod.SetRange(Id, "Shipment Method Id");
-                            if not ShipmentMethod.FindFirst then
+                            if not ShipmentMethod.GetBySystemId("Shipment Method Id") then
                                 Error(ShipmentMethodIdDoesNotMatchAShipmentMethodErr);
 
                             "Shipment Method Code" := ShipmentMethod.Code;
@@ -476,6 +472,7 @@ page 5475 "Sales Invoice Entity"
         Currency: Record Currency;
         PaymentTerms: Record "Payment Terms";
         ShipmentMethod: Record "Shipment Method";
+        O365SetupEmail: Codeunit "O365 Setup Email";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         LCYCurrencyCode: Code[10];
         CurrencyCodeTxt: Text;
@@ -505,7 +502,6 @@ page 5475 "Sales Invoice Entity"
         CancelingInvoiceFailedNothingCreatedErr: Label 'Canceling the invoice failed because of the following error: \\%1.', Locked = true;
         EmptyEmailErr: Label 'The send-to email is empty. Specify email either for the customer or for the invoice in email preview.', Locked = true;
         AlreadyCanceledErr: Label 'The invoice cannot be canceled because it has already been canceled.', Locked = true;
-        MailNotConfiguredErr: Label 'An email account must be configured to send emails.', Locked = true;
         HasWritePermissionForDraft: Boolean;
 
     local procedure SetCalculatedFields()
@@ -589,7 +585,7 @@ page 5475 "Sales Invoice Entity"
         end;
 
         if UpdateCustomer then begin
-            Validate("Customer Id", Customer.Id);
+            Validate("Customer Id", Customer.SystemId);
             Validate("Sell-to Customer No.", Customer."No.");
             RegisterFieldSet(FieldNo("Customer Id"));
             RegisterFieldSet(FieldNo("Sell-to Customer No."));
@@ -688,17 +684,8 @@ page 5475 "Sales Invoice Entity"
         if Posted then
             Error(DraftInvoiceActionErr);
 
-        SalesHeader.SetRange(Id, Id);
-        if not SalesHeader.FindFirst then
+        if not SalesHeader.GetBySystemId(Id) then
             Error(CannotFindInvoiceErr);
-    end;
-
-    local procedure CheckSmtpMailSetup()
-    var
-        O365SetupEmail: Codeunit "O365 Setup Email";
-    begin
-        if not O365SetupEmail.SMTPEmailIsSetUp then
-            Error(MailNotConfiguredErr);
     end;
 
     local procedure CheckSendToEmailAddress(DocumentNo: Code[20])
@@ -765,12 +752,9 @@ page 5475 "Sales Invoice Entity"
     end;
 
     local procedure SendPostedInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
-    var
-        GraphIntBusinessProfile: Codeunit "Graph Int - Business Profile";
     begin
-        CheckSmtpMailSetup;
+        O365SetupEmail.CheckMailSetup();
         CheckSendToEmailAddress(SalesInvoiceHeader."No.");
-        GraphIntBusinessProfile.SyncFromGraphSynchronously;
 
         SalesInvoiceHeader.SetRecFilter;
         SalesInvoiceHeader.EmailRecords(false);
@@ -781,14 +765,12 @@ page 5475 "Sales Invoice Entity"
         DummyO365SalesDocument: Record "O365 Sales Document";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         O365SendResendInvoice: Codeunit "O365 Send + Resend Invoice";
-        GraphIntBusinessProfile: Codeunit "Graph Int - Business Profile";
     begin
         O365SendResendInvoice.CheckDocumentIfNoItemsExists(SalesHeader, false, DummyO365SalesDocument);
         LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(SalesHeader);
-        CheckSmtpMailSetup;
+        O365SetupEmail.CheckMailSetup();
         CheckSendToEmailAddress(SalesHeader."No.");
 
-        GraphIntBusinessProfile.SyncFromGraphSynchronously;
         SalesHeader.SetRecFilter;
         SalesHeader.EmailRecords(false);
     end;
@@ -796,11 +778,9 @@ page 5475 "Sales Invoice Entity"
     local procedure SendCanceledInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         JobQueueEntry: Record "Job Queue Entry";
-        GraphIntBusinessProfile: Codeunit "Graph Int - Business Profile";
     begin
-        CheckSmtpMailSetup;
+        O365SetupEmail.CheckMailSetup();
         CheckSendToEmailAddress(SalesInvoiceHeader."No.");
-        GraphIntBusinessProfile.SyncFromGraphSynchronously;
 
         JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
@@ -880,7 +860,7 @@ page 5475 "Sales Invoice Entity"
         end;
         GetDraftInvoice(SalesHeader);
         SendDraftInvoice(SalesHeader);
-        SetActionResponse(ActionContext, SalesHeader.Id);
+        SetActionResponse(ActionContext, SalesHeader.SystemId);
     end;
 
     [ServiceEnabled]

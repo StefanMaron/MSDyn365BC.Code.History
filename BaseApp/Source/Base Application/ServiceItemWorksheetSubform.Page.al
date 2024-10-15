@@ -21,7 +21,7 @@ page 5907 "Service Item Worksheet Subform"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("No."; "No.")
@@ -31,7 +31,7 @@ page 5907 "Service Item Worksheet Subform"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -77,7 +77,7 @@ page 5907 "Service Item Worksheet Subform"
                             Item.TestField(Type, Item.Type::Inventory);
                         end;
 
-                        LocationCodeOnAfterValidate;
+                        LocationCodeOnAfterValidate();
                     end;
                 }
                 field("Bin Code"; "Bin Code")
@@ -104,7 +104,7 @@ page 5907 "Service Item Worksheet Subform"
 
                     trigger OnValidate()
                     begin
-                        QuantityOnAfterValidate;
+                        QuantityOnAfterValidate();
                     end;
                 }
                 field("Reserved Quantity"; "Reserved Quantity")
@@ -425,7 +425,7 @@ page 5907 "Service Item Worksheet Subform"
                     trigger OnAction()
                     begin
                         Find;
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action("Order Tracking")
@@ -438,7 +438,7 @@ page 5907 "Service Item Worksheet Subform"
                     trigger OnAction()
                     begin
                         Find;
-                        ShowTracking;
+                        ShowTracking();
                     end;
                 }
                 action("&Catalog Items")
@@ -536,7 +536,7 @@ page 5907 "Service Item Worksheet Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Select Item Substitution")
@@ -574,7 +574,7 @@ page 5907 "Service Item Worksheet Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action("Order &Promising Line")
@@ -627,6 +627,8 @@ page 5907 "Service Item Worksheet Subform"
         ServMgtSetup: Record "Service Mgt. Setup";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ServItemLineNo: Integer;
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
 
     procedure SetValues(TempServItemLineNo: Integer)
@@ -685,7 +687,7 @@ page 5907 "Service Item Worksheet Subform"
         end;
         ServItemLine.Get("Document Type", "Document No.", "Service Item Line No.");
         Clear(FaultResolutionRelation);
-        FaultResolutionRelation.SetDocument(DATABASE::"Service Line", "Document Type", "Document No.", "Line No.");
+        FaultResolutionRelation.SetDocument(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", "Line No.");
         FaultResolutionRelation.SetFilters("Symptom Code", "Fault Code", "Fault Area Code", ServItemLine."Service Item Group Code");
         FaultResolutionRelation.RunModal;
         CurrPage.Update(false);
@@ -697,7 +699,7 @@ page 5907 "Service Item Worksheet Subform"
         Modify;
     end;
 
-    local procedure NoOnAfterValidate()
+    protected procedure NoOnAfterValidate()
     begin
         InsertExtendedText(false);
 
@@ -706,31 +708,31 @@ page 5907 "Service Item Worksheet Subform"
            ("No." <> xRec."No.")
         then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
             CurrPage.Update(false);
         end;
     end;
 
-    local procedure LocationCodeOnAfterValidate()
+    protected procedure LocationCodeOnAfterValidate()
     begin
         if (Reserve = Reserve::Always) and
            ("Outstanding Qty. (Base)" <> 0) and
            ("Location Code" <> xRec."Location Code")
         then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
             CurrPage.Update(false);
         end;
     end;
 
-    local procedure QuantityOnAfterValidate()
+    protected procedure QuantityOnAfterValidate()
     begin
         if Type = Type::Item then
             case Reserve of
                 Reserve::Always:
                     begin
                         CurrPage.SaveRecord;
-                        AutoReserve;
+                        AutoReserve();
                         CurrPage.Update(false);
                     end;
                 Reserve::Optional:
@@ -741,14 +743,14 @@ page 5907 "Service Item Worksheet Subform"
             end;
     end;
 
-    local procedure PostingDateOnAfterValidate()
+    protected procedure PostingDateOnAfterValidate()
     begin
         if (Reserve = Reserve::Always) and
            ("Outstanding Qty. (Base)" <> 0) and
            ("Posting Date" <> xRec."Posting Date")
         then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
             CurrPage.Update(false);
         end;
     end;
