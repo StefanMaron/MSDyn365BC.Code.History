@@ -2644,7 +2644,7 @@
         IsService := IsServiceType;
         IsNonInventoriable := IsNonInventoriableType;
         IsInventoriable := IsInventoriableType;
-        
+
         if IsNonInventoriable then
             "Stockout Warning" := "Stockout Warning"::No;
 
@@ -2812,17 +2812,15 @@
 
     local procedure GetPriceActionText(PriceType: Enum "Price Type"): Text
     var
-        PriceListLine: Record "Price List Line";
         PriceAssetList: Codeunit "Price Asset List";
         PriceUXManagement: Codeunit "Price UX Management";
         AssetType: Enum "Price Asset Type";
         AmountType: Enum "Price Amount Type";
     begin
         PriceAssetList.Add(AssetType::Item, Rec."No.");
-        PriceUXManagement.SetPriceListLineFilters(PriceListLine, PriceAssetList, PriceType, AmountType::Any);
-        if PriceListLine.IsEmpty() then
-            exit(CreateNewTxt);
-        exit(ViewExistingTxt);
+        if PriceUXManagement.SetPriceListLineFilters(PriceAssetList, PriceType, AmountType::Any) then
+            exit(ViewExistingTxt);
+        exit(CreateNewTxt);
     end;
 
     local procedure CreateItemFromTemplate()

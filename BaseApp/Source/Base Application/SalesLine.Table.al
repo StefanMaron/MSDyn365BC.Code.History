@@ -393,6 +393,7 @@
 
                 TestStatusOpen();
                 WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
+                OnValidateShipmentDateOnAfterSalesLineVerifyChange(Rec, CurrFieldNo);
                 if CurrFieldNo <> 0 then
                     AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
 
@@ -575,6 +576,7 @@
                 TestJobPlanningLine();
                 TestStatusOpen();
 
+                OnValidateQuantityOnBeforeCheckAssocPurchOrder(Rec);
                 CheckAssocPurchOrder(FieldCaption(Quantity));
 
                 if "Shipment No." <> '' then
@@ -3370,6 +3372,7 @@
         SalesHeader."No." := '';
         if Type = Type::Item then
             CheckInventoryPickConflict();
+        OnInsertOnAfterCheckInventoryConflict(Rec, xRec, SalesLine2);
         if ("Deferral Code" <> '') and (GetDeferralAmount <> 0) then
             UpdateDeferralAmounts();
     end;
@@ -5615,6 +5618,7 @@
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
+            OnUpdateVATOnLinesOnAfterSalesLineSetFilter(SalesLine);
             LockTable();
             if FindSet then
                 repeat
@@ -5735,6 +5739,7 @@
                             InitOutstanding();
                             if Type = Type::"Charge (Item)" then
                                 UpdateItemChargeAssgnt();
+                            OnUpdateVATOnLinesOnBeforeModifySalesLine(SalesLine, VATAmount);
                             Modify;
                             LineWasModified := true;
 
@@ -5778,6 +5783,7 @@
         RoundingLineInserted: Boolean;
         TotalVATBase: Decimal;
         FullGST: Boolean;
+        ShouldProcessRounding: Boolean;
     begin
         GetGLSetup;
         if IsCalcVATAmountLinesHandled(SalesHeader, SalesLine, VATAmountLine, QtyType) then
@@ -6018,7 +6024,9 @@
                     Modify;
                 until Next() = 0;
 
-        if RoundingLineInserted and (TotalVATAmount <> 0) then
+        ShouldProcessRounding := RoundingLineInserted and (TotalVATAmount <> 0);
+        OnCalcVATAmountLinesOnAfterCalcShouldProcessRounding(VATAmountLine, Currency, ShouldProcessRounding);
+        if ShouldProcessRounding then
             if GetVATAmountLineOfMaxAmt(VATAmountLine, SalesLine) then begin
                 VATAmountLine."VAT Amount" += TotalVATAmount;
                 VATAmountLine."VAT Base" += TotalVATBase;
@@ -6368,15 +6376,15 @@
 
         if ("Location Code" <> '') and ("No." <> '') then begin
             GetLocation("Location Code");
-            if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" and
-               not IsShipmentBinOverridesDefaultBin(Location)
-            then begin
+            if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then begin
                 if ("Qty. to Assemble to Order" > 0) or IsAsmToOrderRequired then
                     if GetATOBin(Location, "Bin Code") then
                         exit;
 
-                WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
-                HandleDedicatedBin(false);
+                if not IsShipmentBinOverridesDefaultBin(Location) then begin
+                    WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
+                    HandleDedicatedBin(false);
+                end;
             end;
         end;
     end;
@@ -9239,6 +9247,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertOnAfterCheckInventoryConflict(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var SalesLine2: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertFreightLineOnAfterCheckDocumentNo(var SalesLine: Record "Sales Line")
     begin
     end;
@@ -9355,6 +9368,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateReturnQtyToReceiveOnAfterCheck(var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateShipmentDateOnAfterSalesLineVerifyChange(var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -9547,6 +9565,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATOnLinesOnAfterSalesLineSetFilter(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATOnLinesOnBeforeModifySalesLine(var SalesLine: Record "Sales Line"; VATAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnBeforeCalculateAmounts(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
     begin
     end;
@@ -9573,6 +9601,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnAfterSetFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnAfterCalcShouldProcessRounding(var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; var IsHandled: Boolean)
     begin
     end;
 
@@ -9639,6 +9672,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePrepaymentPercentageOnBeforeUpdatePrepmtSetupFields(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnBeforeCheckAssocPurchOrder(var SalesLine: Record "Sales Line")
     begin
     end;
 

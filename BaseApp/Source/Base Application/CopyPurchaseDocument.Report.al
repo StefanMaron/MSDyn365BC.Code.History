@@ -277,7 +277,6 @@ report 492 "Copy Purchase Document"
         Text000: Label 'The price information may not be reversed correctly, if you copy a %1. If possible, copy a %2 instead or use %3 functionality.';
         Text001: Label 'Undo Receipt';
         Text002: Label 'Undo Return Shipment';
-        Text003: Label 'Quote,Blanket Order,Order,Invoice,Return Order,Credit Memo,Posted Receipt,Posted Invoice,Posted Return Shipment,Posted Credit Memo';
         ReplacePostDate: Boolean;
         ReplaceDocDate: Boolean;
         PostingDate: Date;
@@ -312,7 +311,7 @@ report 492 "Copy Purchase Document"
                             if PurchHeader."Document Type" in
                                [PurchHeader."Document Type"::"Return Order", PurchHeader."Document Type"::"Credit Memo"]
                             then
-                                Message(Text000, SelectStr(1 + FromDocType.AsInteger(), Text003), SelectStr(1 + "Purchase Document Type From"::"Posted Invoice".AsInteger(), Text003), Text001);
+                                Message(Text000, FromDocType, "Purchase Document Type From"::"Posted Invoice", Text001);
                             PostCodeCheck.CopyAllAddressID(
                               DATABASE::"Purch. Rcpt. Header", FromPurchRcptHeader.GetPosition,
                               DATABASE::"Purchase Header", FromPurchHeader.GetPosition);
@@ -332,7 +331,7 @@ report 492 "Copy Purchase Document"
                             if PurchHeader."Document Type" in
                                [PurchHeader."Document Type"::Order, PurchHeader."Document Type"::Invoice]
                             then
-                                Message(Text000, SelectStr(1 + FromDocType.AsInteger(), Text003), SelectStr(1 + "Purchase Document Type From"::"Posted Credit Memo".AsInteger(), Text003), Text002);
+                                Message(Text000, FromDocType, "Purchase Document Type From"::"Posted Credit Memo", Text002);
                             PostCodeCheck.CopyAllAddressID(
                               DATABASE::"Return Shipment Header", FromReturnShptHeader.GetPosition,
                               DATABASE::"Purchase Header", FromPurchHeader.GetPosition);

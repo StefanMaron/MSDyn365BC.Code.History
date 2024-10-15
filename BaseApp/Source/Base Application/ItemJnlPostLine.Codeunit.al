@@ -1157,7 +1157,7 @@
             OnItemQtyPostingOnAfterCalcInsertItemLedgEntryNeeded(ItemJnlLine, InsertItemLedgEntryNeeded);
             if InsertItemLedgEntryNeeded then begin
                 InsertItemLedgEntry(GlobalItemLedgEntry, false);
-                OnItemQtyPostingOnBeforeInsertApplEntry(GlobalItemLedgEntry);
+                OnItemQtyPostingOnBeforeInsertApplEntry(GlobalItemLedgEntry, ItemJnlLine);
                 if GlobalItemLedgEntry.Positive then
                     InsertApplEntry(
                       GlobalItemLedgEntry."Entry No.", GlobalItemLedgEntry."Entry No.",
@@ -1505,6 +1505,8 @@
                     OnUpdateUnitCostOnBeforeUpdateUnitCost(ItemJnlLine, ValueEntry, Item, UpdateSKU);
                     ItemCostMgt.SetProperties(false, "Invoiced Quantity");
                     ItemCostMgt.UpdateUnitCost(Item, "Location Code", "Variant Code", LastDirectCost, 0, UpdateSKU, true, false, 0);
+                    if ItemCostMgt.IsItemUnitCostUpdated() then
+                        ItemCostMgt.UpdateCostPlusPrices(Item."No.");
                 end;
             end;
         OnAfterUpdateUnitCost(ValueEntry, LastDirectCost, ItemJnlLine);
@@ -1805,6 +1807,7 @@
                     OldItemLedgEntry.TestField("Location Code", ItemJnlLine."Location Code");
                     OnApplyItemLedgEntryOnBeforeCloseReservEntry(OldItemLedgEntry, ItemJnlLine, ItemLedgEntry);
                     ReservEngineMgt.CloseReservEntry(ReservEntry, false, false);
+                    OnApplyItemLedgEntryOnAfterCloseReservEntry(OldItemLedgEntry, ItemJnlLine, ItemLedgEntry, ReservEntry);
                     OldItemLedgEntry.CalcFields("Reserved Quantity");
                     AppliedQty := -Abs(ReservEntry."Quantity (Base)");
                 end;
@@ -1908,7 +1911,7 @@
 
                     CheckPostingDateWithExpirationDate(ItemLedgEntry);
 
-                    OnApplyItemLedgEntryOnBeforeInsertApplEntry(ItemLedgEntry, ItemJnlLine);
+                    OnApplyItemLedgEntryOnBeforeInsertApplEntry(ItemLedgEntry, ItemJnlLine, OldItemLedgEntry, GlobalItemLedgEntry, AppliedQty);
 
                     InsertApplEntry(
                       ItemLedgEntry."Entry No.", OldItemLedgEntry."Entry No.", ItemLedgEntry."Entry No.", 0,
@@ -1937,7 +1940,7 @@
                         InsertTransferEntry(ItemLedgEntry, OldItemLedgEntry, AppliedQty);
                 end;
 
-                UpdateItemLedgerEntryRemainingQuantity(ItemLedgEntry, AppliedQty);
+                UpdateItemLedgerEntryRemainingQuantity(ItemLedgEntry, AppliedQty, OldItemLedgEntry, CausedByTransfer);
 
                 ItemLedgEntry.CalcFields("Reserved Quantity");
                 if ItemLedgEntry."Remaining Quantity" + ItemLedgEntry."Reserved Quantity" = 0 then
@@ -1949,8 +1952,10 @@
         OnAfterApplyItemLedgEntry(GlobalItemLedgEntry, OldItemLedgEntry, ItemJnlLine);
     end;
 
-    local procedure UpdateItemLedgerEntryRemainingQuantity(var ItemLedgerEntry: Record "Item Ledger Entry"; AppliedQty: Decimal)
+    local procedure UpdateItemLedgerEntryRemainingQuantity(var ItemLedgerEntry: Record "Item Ledger Entry"; AppliedQty: Decimal; var OldItemLedgEntry: Record "Item Ledger Entry"; CausedByTransfer: Boolean)
     begin
+        OnBeforeUpdateItemLedgerEntryRemainingQuantity(ItemLedgerEntry, OldItemLedgEntry, AppliedQty, CausedByTransfer, AverageTransfer);
+
         ItemLedgerEntry."Remaining Quantity" := ItemLedgerEntry."Remaining Quantity" - AppliedQty;
         ItemLedgerEntry.Open := ItemLedgerEntry."Remaining Quantity" <> 0;
 
@@ -2958,6 +2963,7 @@
     var
         InvdValueEntry: Record "Value Entry";
         InvoicedQty: Decimal;
+        ShouldCalcExpectedCost: Boolean;
     begin
         OnBeforeInsertValueEntryProcedure(ItemLedgEntry, ItemJnlLine);
         with ItemJnlLine do begin
@@ -3003,13 +3009,14 @@
                     ItemLedgEntry.Modify();
             end;
 
-            OnInsertValueEntryOnBeforeCalcExpectedCost(ItemJnlLine, ItemLedgEntry, ValueEntry, TransferItem, InventoryPostingToGL);
-            if ((ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost") and
-                (ValueEntry."Item Charge No." = '')) and
-               (((Quantity = 0) and ("Invoiced Quantity" <> 0)) or
-                (Adjustment and not ValueEntry."Expected Cost")) and
-               not ExpectedCostPosted(ValueEntry)
-            then begin
+            ShouldCalcExpectedCost :=
+                ((ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost") and
+                    (ValueEntry."Item Charge No." = '')) and
+                (((Quantity = 0) and ("Invoiced Quantity" <> 0)) or
+                    (Adjustment and not ValueEntry."Expected Cost")) and
+                not ExpectedCostPosted(ValueEntry);
+            OnInsertValueEntryOnBeforeCalcExpectedCost(ItemJnlLine, ItemLedgEntry, ValueEntry, TransferItem, InventoryPostingToGL, ShouldCalcExpectedCost);
+            if ShouldCalcExpectedCost then begin
                 if ValueEntry."Invoiced Quantity" = 0 then begin
                     if InvdValueEntry.Get(ValueEntry."Applies-to Entry") then
                         InvoicedQty := InvdValueEntry."Invoiced Quantity"
@@ -6135,6 +6142,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemLedgerEntryRemainingQuantity(var ItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgEntry: Record "Item Ledger Entry"; AppliedQty: Decimal; CausedByTransfer: Boolean; AverageTransfer: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyItemLedgEntryOnAfterCloseReservEntry(var OldItemLedgEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnApplyItemLedgEntryOnBeforeCloseReservEntry(var OldItemLedgEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -6215,7 +6232,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyItemLedgEntryOnBeforeInsertApplEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
+    local procedure OnApplyItemLedgEntryOnBeforeInsertApplEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; var OldItemLedgEntry: Record "Item Ledger Entry"; var GlobalItemLedgEntry: Record "Item Ledger Entry"; var AppliedQty: Decimal)
     begin
     end;
 
@@ -6909,7 +6926,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertValueEntryOnBeforeCalcExpectedCost(var ItemJnlLine: Record "Item Journal Line"; var ItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; TransferItemPBln: Boolean; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L")
+    local procedure OnInsertValueEntryOnBeforeCalcExpectedCost(var ItemJnlLine: Record "Item Journal Line"; var ItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; TransferItemPBln: Boolean; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L"; var ShouldCalcExpectedCost: Boolean)
     begin
     end;
 
@@ -6974,7 +6991,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnItemQtyPostingOnBeforeInsertApplEntry(var GlobalItemLedgEntry: Record "Item Ledger Entry")
+    local procedure OnItemQtyPostingOnBeforeInsertApplEntry(var GlobalItemLedgEntry: Record "Item Ledger Entry"; ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 

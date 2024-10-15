@@ -14,7 +14,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeIssueReminder(ReminderHeader, ReplacePostingDate, PostingDate, IsHandled);
+        OnBeforeIssueReminder(ReminderHeader, ReplacePostingDate, PostingDate, IsHandled, IssuedReminderHeader);
         if IsHandled then
             exit;
 
@@ -517,7 +517,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIssueReminder(var ReminderHeader: Record "Reminder Header"; var ReplacePostingDate: Boolean; var PostingDate: Date; var IsHandled: Boolean)
+    local procedure OnBeforeIssueReminder(var ReminderHeader: Record "Reminder Header"; var ReplacePostingDate: Boolean; var PostingDate: Date; var IsHandled: Boolean; var IssuedReminderHeader: Record "Issued Reminder Header")
     begin
     end;
 

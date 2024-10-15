@@ -693,6 +693,9 @@ codeunit 8611 "Config. Package Management"
             // "Document No." conditional relation
             DATABASE::"Sales Line", DATABASE::"Purchase Line":
                 exit(FieldID = 3);
+            // "Code"/"City" fields of Post Code record
+            Database::"Post Code":
+                exit(FieldID in [1, 2]);
         end;
         exit(false);
     end;
@@ -1166,7 +1169,13 @@ codeunit 8611 "Config. Package Management"
         StepCount: Integer;
         Counter: Integer;
         ProcessingRuleIsSet: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeApplyPackageRecords(ConfigPackageRecord, PackageCode, TableNo, ApplyMode, ConfigPackageMgt, TempAppliedConfigPackageRecord, ProcessingRuleIsSet, TempConfigRecordForProcessing, ConfigTableProcessingRule, RecordsInsertedCount, RecordsModifiedCount, HideDialog, IsHandled);
+        if IsHandled then
+            exit;
+
         ConfigPackageTable.Get(PackageCode, TableNo);
         ProcessingRuleIsSet := ConfigTableProcessingRule.FindTableRules(ConfigPackageTable);
 
@@ -2456,6 +2465,11 @@ codeunit 8611 "Config. Package Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetFieldFilter(var "Field": Record "Field"; TableID: Integer; FieldID: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyPackageRecords(var ConfigPackageRecord: Record "Config. Package Record"; var PackageCode: Code[20]; var TableNo: Integer; var ApplyMode: Option; var ConfigPackageManagement: Codeunit "Config. Package Management"; var TempAppliedConfigPackageRecord: Record "Config. Package Record" temporary; var ProcessingRuleIsSet: Boolean; var TempConfigRecordForProcessing: Record "Config. Record For Processing" temporary; var ConfigTableProcessingRule: Record "Config. Table Processing Rule"; var RecordsInsertedCount: Integer; var RecordsModifiedCount: Integer; var HideDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -419,8 +419,7 @@ table 5077 "Segment Line"
         }
         field(50; "Contact Phone No."; Text[30])
         {
-            CalcFormula = Lookup(Contact."Phone No." WHERE("No." = FIELD("Contact No."),
-                                                     Type = CONST(Person)));
+            CalcFormula = Lookup(Contact."Phone No." WHERE("No." = FIELD("Contact No.")));
             Caption = 'Contact Phone No.';
             Editable = false;
             FieldClass = FlowField;
@@ -429,8 +428,7 @@ table 5077 "Segment Line"
         }
         field(51; "Contact Mobile Phone No."; Text[30])
         {
-            CalcFormula = Lookup(Contact."Mobile Phone No." WHERE("No." = FIELD("Contact No."),
-                                                     Type = CONST(Person)));
+            CalcFormula = Lookup(Contact."Mobile Phone No." WHERE("No." = FIELD("Contact No.")));
             Caption = 'Contact Mobile Phone No.';
             Editable = false;
             FieldClass = FlowField;
@@ -439,8 +437,7 @@ table 5077 "Segment Line"
         }
         field(52; "Contact Email"; Text[80])
         {
-            CalcFormula = Lookup(Contact."E-Mail" WHERE("No." = FIELD("Contact No."),
-                                                     Type = CONST(Person)));
+            CalcFormula = Lookup(Contact."E-Mail" WHERE("No." = FIELD("Contact No.")));
             Caption = 'Contact Email';
             Editable = false;
             FieldClass = FlowField;

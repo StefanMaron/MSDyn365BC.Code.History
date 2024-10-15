@@ -1612,7 +1612,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
     [Scope('OnPrem')]
     procedure CustomerConsentConfirmationPageChooseYesModalPageHandler(var CustConsentConfPage: TestPage "Cust. Consent Confirmation")
     begin
-        CustConsentConfPage.Yes().Invoke();
+        CustConsentConfPage.Accept.Invoke();
     end;
 }
 

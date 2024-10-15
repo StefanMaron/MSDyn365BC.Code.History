@@ -243,6 +243,8 @@
                 TestNoEntriesExist(FieldCaption("Costing Method"));
 
                 ItemCostMgt.UpdateUnitCost(Rec, '', '', 0, 0, false, false, true, FieldNo("Costing Method"));
+                if ItemCostMgt.IsItemUnitCostUpdated() then
+                    ItemCostMgt.UpdateCostPlusPrices("No.");
             end;
         }
         field(22; "Unit Cost"; Decimal)
@@ -295,6 +297,8 @@
                         end;
 
                 ItemCostMgt.UpdateUnitCost(Rec, '', '', 0, 0, false, false, true, FieldNo("Standard Cost"));
+                if ItemCostMgt.IsItemUnitCostUpdated() then
+                    ItemCostMgt.UpdateCostPlusPrices("No.");
             end;
         }
         field(25; "Last Direct Cost"; Decimal)
@@ -314,6 +318,8 @@
                 if "Indirect Cost %" > 0 then
                     TestField(Type, Type::Inventory);
                 ItemCostMgt.UpdateUnitCost(Rec, '', '', 0, 0, false, false, true, FieldNo("Indirect Cost %"));
+                if ItemCostMgt.IsItemUnitCostUpdated() then
+                    ItemCostMgt.UpdateCostPlusPrices("No.");
             end;
         }
         field(29; "Cost is Adjusted"; Boolean)
@@ -2038,8 +2044,11 @@
 
                 PlanningAssignment.RoutingReplace(Rec, xRec."Routing No.");
 
-                if "Routing No." <> xRec."Routing No." then
+                if "Routing No." <> xRec."Routing No." then begin
                     ItemCostMgt.UpdateUnitCost(Rec, '', '', 0, 0, false, false, true, FieldNo("Routing No."));
+                    if ItemCostMgt.IsItemUnitCostUpdated() then
+                        ItemCostMgt.UpdateCostPlusPrices("No.");
+                end;
             end;
         }
         field(99000751; "Production BOM No."; Code[20])
@@ -2058,8 +2067,11 @@
 
                 PlanningAssignment.BomReplace(Rec, xRec."Production BOM No.");
 
-                if "Production BOM No." <> xRec."Production BOM No." then
+                if "Production BOM No." <> xRec."Production BOM No." then begin
                     ItemCostMgt.UpdateUnitCost(Rec, '', '', 0, 0, false, false, true, FieldNo("Production BOM No."));
+                    if ItemCostMgt.IsItemUnitCostUpdated() then
+                        ItemCostMgt.UpdateCostPlusPrices("No.");
+                end;
 
                 if ("Production BOM No." <> '') and ("Production BOM No." <> xRec."Production BOM No.") then begin
                     ProdBOMHeader.Get("Production BOM No.");
@@ -2284,9 +2296,7 @@
                 if xRec."Order Tracking Policy" = "Order Tracking Policy" then
                     exit;
                 if "Order Tracking Policy".AsInteger() > xRec."Order Tracking Policy".AsInteger() then begin
-                    Message(Text99000000 +
-                      Text99000001,
-                      SelectStr("Order Tracking Policy".AsInteger(), Text99000002));
+                    Message(Text99000000 + Text99000001,"Order Tracking Policy");
                 end else begin
                     ActionMessageEntry.SetCurrentKey("Reservation Entry");
                     ReservEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status");
@@ -2544,7 +2554,6 @@
         Text99000001: Label 'If you want to generate %1 for existing entries, you must run a regenerative planning.';
         ItemVend: Record "Item Vendor";
         ItemReference: Record "Item Reference";
-        Text99000002: Label 'tracking,tracking and action messages';
         SalesPrepmtPct: Record "Sales Prepayment %";
         PurchPrepmtPct: Record "Purchase Prepayment %";
         ItemTranslation: Record "Item Translation";

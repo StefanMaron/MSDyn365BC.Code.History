@@ -186,14 +186,12 @@
             if GLSetup."GST Report" then
                 BuildInvLineBufferGST(SalesHeader, SalesLine, DocumentType, TempGlobalPrepmtInvLineBufGST, SalesSetup."Invoice Rounding");
             RestorePrepmtAmounts(TempOriginalSalesLine, SalesLine, DocumentType);
+            OnCodeOnAfterBuildInvLineBuffer(TempVATAmountLine, TempPrepmtInvLineBuffer);
             TempPrepmtInvLineBuffer.Find('-');
             repeat
                 LineCount := LineCount + 1;
                 Window.Update(2, LineCount);
-                if TempPrepmtInvLineBuffer."Line No." <> 0 then
-                    LineNo := PrevLineNo + TempPrepmtInvLineBuffer."Line No."
-                else
-                    LineNo := PrevLineNo + 10000;
+                LineNo := PrevLineNo + 10000;
                 case DocumentType of
                     DocumentType::Invoice:
                         begin
@@ -1297,7 +1295,7 @@
                     Modify;
                 until Next() = 0;
 
-        OnAfterCalcVATAmountLines(SalesHeader, SalesLine, VATAmountLine, DocumentType);
+        OnAfterCalcVATAmountLines(SalesHeader, SalesLine, VATAmountLine, DocumentType, Currency);
     end;
 
     local procedure CalcFullGSTOnLine(SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; DocumentType: Option Invoice,"Credit Memo",Statistic; PricesIncludingVAT: Boolean)
@@ -2132,7 +2130,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcVATAmountLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; DocumentType: Option Invoice,"Credit Memo",Statistic)
+    local procedure OnAfterCalcVATAmountLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; DocumentType: Option Invoice,"Credit Memo",Statistic; Currency: Record Currency)
     begin
     end;
 
@@ -2298,6 +2296,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostPrepmtInvLineBuffer(var GenJnlLine: Record "Gen. Journal Line"; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterBuildInvLineBuffer(var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary)
     begin
     end;
 
