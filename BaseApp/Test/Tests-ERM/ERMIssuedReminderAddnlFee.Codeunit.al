@@ -482,10 +482,12 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Issued Reminder Addnl Fee");
         // Clear global variable.
         Clear(ReminderLevelNo);
+        DocumentNoVisibility.ClearState();
 
         if IsInitialized then
             exit;

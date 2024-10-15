@@ -1,4 +1,4 @@
-table 113 "Sales Invoice Line"
+﻿table 113 "Sales Invoice Line"
 {
     Caption = 'Sales Invoice Line';
     DrillDownPageID = "Posted Sales Invoice Lines";
@@ -802,7 +802,13 @@ table 113 "Sales Invoice Line"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetItemLedgEntries(Rec, TempItemLedgEntry, SetQuantity, IsHandled);
+        if IsHandled then
+            exit;
+
         if SetQuantity then begin
             TempItemLedgEntry.Reset();
             TempItemLedgEntry.DeleteAll();
@@ -925,6 +931,11 @@ table 113 "Sales Invoice Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromSalesLine(var SalesInvLine: Record "Sales Invoice Line"; SalesInvHeader: Record "Sales Invoice Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItemLedgEntries(var SalesInvLine: Record "Sales Invoice Line"; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SetQuantity: Boolean; var IsHandled: Boolean)
     begin
     end;
 

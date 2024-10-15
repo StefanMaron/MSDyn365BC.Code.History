@@ -1,4 +1,4 @@
-table 5108 "Sales Line Archive"
+﻿table 5108 "Sales Line Archive"
 {
     Caption = 'Sales Line Archive';
     PasteIsValid = false;
@@ -1058,6 +1058,7 @@ table 5108 "Sales Line Archive"
         SalesLineArchive.SetRange("Document Type", SalesHeaderArchive."Document Type");
         SalesLineArchive.SetRange("Document No.", SalesHeaderArchive."No.");
         SalesLineArchive.SetRange("Version No.", SalesHeaderArchive."Version No.");
+        OnCopyTempLinesOnAfterSalesLineArchiveSetFilters(SalesLineArchive, SalesHeaderArchive);
         if SalesLineArchive.FindSet then
             repeat
                 Init;
@@ -1065,7 +1066,12 @@ table 5108 "Sales Line Archive"
                 Insert;
                 TempSalesLine.TransferFields(SalesLineArchive);
                 TempSalesLine.Insert();
-            until SalesLineArchive.Next = 0;
+            until SalesLineArchive.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyTempLinesOnAfterSalesLineArchiveSetFilters(var SalesLineArchive: Record "Sales Line Archive"; SalesHeaderArchive: Record "Sales Header Archive")
+    begin
     end;
 }
 

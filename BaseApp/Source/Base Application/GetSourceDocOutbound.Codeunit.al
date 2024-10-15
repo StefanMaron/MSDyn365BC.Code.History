@@ -1,4 +1,4 @@
-codeunit 5752 "Get Source Doc. Outbound"
+﻿codeunit 5752 "Get Source Doc. Outbound"
 {
 
     trigger OnRun()
@@ -417,6 +417,7 @@ codeunit 5752 "Get Source Doc. Outbound"
             WhseRqst.SetRange(Type, WhseRqst.Type::Outbound);
             WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
             WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
+            OnFindWarehouseRequestForSalesOrderOnAfterWhseRqstSetFilters(WhseRqst, SalesHeader);
             GetRequireShipRqst(WhseRqst);
         end;
 
@@ -430,6 +431,7 @@ codeunit 5752 "Get Source Doc. Outbound"
             WhseRqst.SetRange(Type, WhseRqst.Type::Outbound);
             WhseRqst.SetSourceFilter(DATABASE::"Purchase Line", "Document Type".AsInteger(), "No.");
             WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
+            OnFindWarehouseRequestForPurchReturnOrderOnAfterWhseRqstSetFilters(WhseRqst, PurchHeader);
             GetRequireShipRqst(WhseRqst);
         end;
 
@@ -444,6 +446,7 @@ codeunit 5752 "Get Source Doc. Outbound"
             WhseRqst.SetRange(Type, WhseRqst.Type::Outbound);
             WhseRqst.SetSourceFilter(DATABASE::"Transfer Line", 0, "No.");
             WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
+            OnFindWarehouseRequestForOutbndTransferOrderOnAfterWhseRqstSetFilters(WhseRqst, TransHeader);
             GetRequireShipRqst(WhseRqst);
         end;
 
@@ -596,6 +599,21 @@ codeunit 5752 "Get Source Doc. Outbound"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowResult(WhseShipmentCreated: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindWarehouseRequestForPurchReturnOrderOnAfterWhseRqstSetFilters(var WhseRqst: Record "Warehouse Request"; var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindWarehouseRequestForSalesOrderOnAfterWhseRqstSetFilters(var WhseRqst: Record "Warehouse Request"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindWarehouseRequestForOutbndTransferOrderOnAfterWhseRqstSetFilters(var WhseRqst: Record "Warehouse Request"; var TransferOrder: Record "Transfer Header")
     begin
     end;
 

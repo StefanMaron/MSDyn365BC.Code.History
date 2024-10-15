@@ -24,6 +24,7 @@ codeunit 134976 "ERM Sales Report"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportValidation: Codeunit "Library - Report Validation";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -3482,6 +3483,7 @@ codeunit 134976 "ERM Sales Report"
 
     local procedure Initialize()
     begin
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Report");
         LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
