@@ -17,6 +17,7 @@ codeunit 137038 "SCM Transfers"
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryDimension: Codeunit "Library - Dimension";
@@ -132,7 +133,6 @@ codeunit 137038 "SCM Transfers"
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
-    [Normal]
     local procedure EditTransferOrderQuantity(TransferOrderNo: Code[20]; TransferQuantity: Integer)
     begin
         // Method Edits Transfer Order Quantity.
@@ -143,7 +143,6 @@ codeunit 137038 "SCM Transfers"
         DummyTransferOrderPage.Close;
     end;
 
-    [Normal]
     local procedure OpenTransferOrderPageByNo(TransferOrderNoToFind: Code[20]; TransferOrderToReturn: TestPage "Transfer Order")
     begin
         // Method Opens transfer order page for the transfer order no.
@@ -2009,6 +2008,91 @@ codeunit 137038 "SCM Transfers"
         WarehouseShipmentHeader.TestField("Shipment Method Code", TransferHeader."Shipment Method Code");
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler')]
+    procedure ShippingPartiallyPickedOutboundTransferFromLocationWithoutBins()
+    var
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        LocationInTransit: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        LotNo: Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Shipment] [Item Tracking] [Pick] [Basic Warehousing]
+        // [SCENARIO 392298] Stan can post partial pick and shipment with item tracking for outbound transfer at location without bins.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+
+        // [GIVEN] Locations "From" with required shipment and pick, bin mandatory = FALSE.
+        // [GIVEN] Locations "To" and "InTransit".
+        LibraryWarehouse.CreateLocationWMS(LocationFrom, false, false, true, false, true);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationTo);
+        LibraryWarehouse.CreateInTransitLocation(LocationInTransit);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationFrom.Code, false);
+
+        // [GIVEN] Lot-tracked item.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Post 20 pcs of the item to inventory, assign lot no. "L1".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationFrom.Code, '', Qty);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Transfer order for 20 pcs "From" -> "To" via "InTransit"
+        // [GIVEN] Assign lot "L1" to 10 pcs only.
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty / 2);
+        TransferLine.OpenItemTrackingLines(0);
+        LibraryInventory.ReleaseTransferOrder(TransferHeader);
+
+        // [GIVEN] Create warehouse shipment.
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Transfer Line", 0, TransferHeader."No."));
+
+        // [GIVEN] Create pick from the shipment.
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [GIVEN] Set "Qty. to Handle" = 10 pcs and register the pick.
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, DATABASE::"Transfer Line", 0, TransferLine."Document No.", TransferLine."Line No.");
+        WarehouseActivityLine.Validate("Qty. to Handle", Qty / 2);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Post the warehouse shipment.
+        WarehouseShipmentHeader.Find();
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] The transfer order has been successfully shipped.
+        TransferLine.Find();
+        TransferLine.TestField("Quantity Shipped", Qty / 2);
+
+        // [THEN] Verified that an item entry for transfer with quantity = 10 pcs and lot no. "L1" has been posted.
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.TestField(Quantity, -Qty / 2);
+        ItemLedgerEntry.TestField("Lot No.", LotNo);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3019,6 +3103,14 @@ codeunit 137038 "SCM Transfers"
         PostedTransferReceiptLines.Last;
         PostedTransferReceiptLines."Item No.".AssertEquals(LibraryVariableStorage.DequeueText);
         Assert.IsFalse(PostedTransferReceiptLines.Previous, 'Invalid number of records on the page');
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK.Invoke();
     end;
 
     [RecallNotificationHandler]

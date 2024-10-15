@@ -68,6 +68,7 @@ permissionset 8562 "Inventory - Edit"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Prod. Order Component" = Rm,
                   tabledata "Prod. Order Line" = Rm,
                   tabledata "Production BOM Header" = R,

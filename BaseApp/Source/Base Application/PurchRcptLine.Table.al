@@ -828,6 +828,8 @@ table 121 "Purch. Rcpt. Line"
         TransferOldExtLines.ClearLineNumbers;
 
         repeat
+            OnInsertInvLineFromRcptLineOnBeforeCopyFromPurchRcptLine(Rec, PurchLine, TempPurchLine, NextLineNo);
+
             ExtTextLine := (TransferOldExtLines.GetNewLineNumber("Attached to Line No.") <> 0);
 
             if PurchOrderLine.Get(
@@ -965,7 +967,7 @@ table 121 "Purch. Rcpt. Line"
         PurchLine."Receipt Line No." := "Line No.";
         PurchLine."Appl.-to Item Entry" := 0;
 
-        OnAfterCopyFromPurchRcptLine(PurchLine, Rec);
+        OnAfterCopyFromPurchRcptLine(PurchLine, Rec, TempPurchLine);
     end;
 
     procedure GetPurchInvLines(var TempPurchInvLine: Record "Purch. Inv. Line" temporary)
@@ -1213,7 +1215,7 @@ table 121 "Purch. Rcpt. Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyFromPurchRcptLine(var PurchaseLine: Record "Purchase Line"; PurchRcptLine: Record "Purch. Rcpt. Line")
+    local procedure OnAfterCopyFromPurchRcptLine(var PurchaseLine: Record "Purchase Line"; PurchRcptLine: Record "Purch. Rcpt. Line"; var TempPurchLine: Record "Purchase Line")
     begin
     end;
 
@@ -1254,6 +1256,11 @@ table 121 "Purch. Rcpt. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromRcptLineOnBeforeCheckPurchLineReceiptNo(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchLine: Record "Purchase Line"; var TempPurchLine: Record "Purchase Line"; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRcptLineOnBeforeCopyFromPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchLine: Record "Purchase Line"; TempPurchLine: Record "Purchase Line"; var NextLineNo: Integer);
     begin
     end;
 

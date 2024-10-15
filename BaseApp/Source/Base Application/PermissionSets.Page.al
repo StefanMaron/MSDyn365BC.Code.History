@@ -285,6 +285,7 @@ page 9802 "Permission Sets"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remove Obsolete Permissions';
+                    Visible = not UsePermissionSetsFromExtensions;
                     Enabled = CanManageUsersOnTenant;
                     Image = Delete;
                     ToolTip = 'Remove all permissions related to the tables which are obsolete.';
@@ -357,7 +358,9 @@ page 9802 "Permission Sets"
     trigger OnInit()
     var
         UserPermissions: Codeunit "User Permissions";
+        ServerSettings: Codeunit "Server Setting";
     begin
+        UsePermissionSetsFromExtensions := ServerSettings.GetUsePermissionSetsFromExtensions();
         CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId);
     end;
 
@@ -441,6 +444,7 @@ page 9802 "Permission Sets"
 
     var
         PermissionManager: Codeunit "Permission Manager";
+        UsePermissionSetsFromExtensions: Boolean;
         CanManageUsersOnTenant: Boolean;
         [InDataSet]
         IsPermissionSetEditable: Boolean;

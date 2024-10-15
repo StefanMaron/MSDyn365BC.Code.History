@@ -113,8 +113,15 @@ codeunit 7008 "Price Calculation Buffer Mgt."
         Price := Round(Price, UnitAmountRoundingPrecision);
     end;
 
-    procedure IsInMinQty(PriceListLine: Record "Price List Line"): Boolean
+    procedure IsInMinQty(PriceListLine: Record "Price List Line") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsInMinQty(PriceListLine, PriceCalculationBuffer, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if PriceListLine."Unit of Measure Code" = '' then
             exit(PriceListLine."Minimum Quantity" <= PriceCalculationBuffer."Qty. per Unit of Measure" * PriceCalculationBuffer.Quantity);
         exit(PriceListLine."Minimum Quantity" <= PriceCalculationBuffer.Quantity);
@@ -279,6 +286,11 @@ codeunit 7008 "Price Calculation Buffer Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConvertAmount(AmountType: Enum "Price Amount Type"; var PriceListLine: Record "Price List Line"; PriceCalculationBuffer: Record "Price Calculation Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsInMinQty(PriceListLine: Record "Price List Line"; PriceCalculationBuffer: Record "Price Calculation Buffer"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

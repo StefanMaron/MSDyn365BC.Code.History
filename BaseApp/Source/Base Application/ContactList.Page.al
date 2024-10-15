@@ -37,7 +37,7 @@ page 5052 "Contact List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the company. If the contact is a person, Specifies the name of the company for which this contact works. This field is not editable.';
                 }
-                field("Business Relation"; Rec."Business Relation")
+                field("Business Relation"; Rec."Contact Business Relation")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of the existing business relation.';

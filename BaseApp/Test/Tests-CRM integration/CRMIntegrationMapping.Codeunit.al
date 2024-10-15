@@ -2407,6 +2407,9 @@ codeunit 139183 "CRM Integration Mapping"
         LibraryCRMIntegration.CreateCRMOrganization;
         CRMOrganization.FindFirst;
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
+        CRMConnectionSetup."Is Enabled" := true;
+        CRMConnectionSetup."Is S.Order Integration Enabled" := true;
+        CRMConnectionSetup."Is Enabled For User" := true;
         CRMConnectionSetup.Modify();
     end;
 
