@@ -3,6 +3,7 @@ report 6520 "Item Tracing Specification"
     DefaultLayout = RDLC;
     RDLCLayout = './ItemTracingSpecification.rdlc';
     Caption = 'Item Tracing Specification';
+    AllowScheduling = false;
 
     dataset
     {

@@ -14,6 +14,7 @@ codeunit 134921 "ERM Standard Journal"
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryJournals: Codeunit "Library - Journals";
         Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
@@ -318,6 +319,68 @@ codeunit 134921 "ERM Standard Journal"
         VerifyEmptyDocumentNumberForCreatedGenJnlLines(GenJournalBatch);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,StandardGeneralJournalsHandler,UIMessageHandler')]
+    [Scope('OnPrem')]
+    procedure GetStandardJournalFromSimplifiedGenJournalPageWithPostingDate()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalLine: Record "Gen. Journal Line";
+        StandardGeneralJournal: Record "Standard General Journal";
+        GenJournalPage: TestPage "General Journal";
+        GenJournalSimplePage: TestPage "General Journal";
+    begin
+        // [SCENARIO 394413] Get Standard Journal from simplified General Journal page should create lines with Posting Date from page
+        Initialize();
+
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
+
+        // [GIVEN] Standard Journal line 
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch,
+            GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting, '', '');
+
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+        GenJournalLine.Delete();
+
+        // [GIVEN] General Journal page opened in simplified mode with Posting Date = Workdate + 1 and empty Document No.
+        GenJournalPage.OpenEdit();
+        GenJournalPage.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        GenJournalSimplePage.Trap();
+        GenJournalPage.SimpleView.Invoke();
+        GenJournalSimplePage."<CurrentPostingDate>".SetValue(CalcDate('<+1D>', WorkDate()));
+
+        // [WHEN] "Get Standard Journals" invoked 
+        GenJournalSimplePage.GetStandardJournals.Invoke();
+        GenJournalSimplePage.Close();
+
+        // [THEN] Gen. Journal Line is created with Posting Date = Workdate + 1
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Posting Date", CalcDate('<+1D>', WorkDate()));
+
+        GenJournalLine.Delete();
+
+        // [GIVEN] General Journal page opened in simplified mode with Posting Date = Workdate + 2 and filled Document No.
+        GenJournalSimplePage.OpenEdit();
+        GenJournalSimplePage.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        GenJournalSimplePage."<Document No. Simple Page>".SetValue(
+            LibraryUtility.GenerateRandomCode(
+                GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
+        GenJournalSimplePage."<CurrentPostingDate>".SetValue(CalcDate('<+2D>', WorkDate()));
+
+        // [WHEN] "Get Standard Journals" invoked 
+        GenJournalSimplePage.GetStandardJournals.Invoke();
+        GenJournalSimplePage.Close();
+
+        // [THEN] Gen. Journal Line is created with Posting Date = Workdate + 2
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Posting Date", CalcDate('<+2D>', WorkDate()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -578,6 +641,20 @@ codeunit 134921 "ERM Standard Journal"
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure UIMessageHandler(Message: Text[1024])
+    begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure StandardGeneralJournalsHandler(var StandardGeneralJournals: TestPage "Standard General Journals")
+    begin
+        StandardGeneralJournals.First();
+        StandardGeneralJournals.OK.Invoke();
     end;
 }
 
