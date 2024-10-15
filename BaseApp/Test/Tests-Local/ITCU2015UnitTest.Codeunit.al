@@ -161,6 +161,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         Filename := Export(SigningCompanyOfficialNo);
 
         LoadFile(Filename);
+        // Bug id 438543: A "0" char must be exported on the 527 position for the header's line
         ValidateHeader(SigningCompanyOfficialNo);
         ValidateRecordDAndH(VendorNo, SigningCompanyOfficialNo, ConstReason::A, 3, '', WithholdingTax."Non-Taxable Income Type"::"1");
         ValidateRecordDAndH(VendorNo, SigningCompanyOfficialNo, ConstReason::B, 5, '', WithholdingTax."Non-Taxable Income Type"::"1");
@@ -498,7 +499,8 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         ValidateAmountsInRecordH(WithholdingTaxLine[1], WithholdingTax."Total Amount", WithholdingTax."Non Taxable Amount", LineNo);
 
         // [THEN] Second line has Total Amount = 0, Base Excluded Amount = Y and Non-Taxable income type 2
-        ValidateAmountsInRecordH(WithholdingTaxLine[2], 0, 0, LineNo + 2);
+        // TFS ID 430480: Withholding taxes with different non taxable income type has a single D record and multiple H records
+        ValidateAmountsInRecordH(WithholdingTaxLine[2], 0, 0, LineNo + 1);
 
         // Cleanup
         WithholdingTaxLine[1].Delete();
@@ -888,6 +890,93 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         ValidateFooter(5, 1);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxExportGroupTotalsInTheFirstHRecord()
+    var
+        WithholdingTax: Record "Withholding Tax";
+        WithholdingTaxLine: array[3] of Record "Withholding Tax Line";
+        VendorNo: Code[20];
+        Filename: Text;
+        TotalAmount: Decimal;
+        TaxableBase: Decimal;
+        WithholdingTaxAmount: Decimal;
+        CombinedNonTaxableAmount: Decimal;
+        CombinedNonTaxAmtByTreaty: Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 430480] The first H record in the withholding tax export contains the totals of the "Total Amount", "Taxable Base" and "Withholding Tax Amount" of all the withholding taxes exported
+
+        Initialize();
+
+        // [GIVEN] Vendor
+        VendorNo := CreateVendor();
+
+        // [GIVEN] Two withholding tax with a single line that has "Non-Taxable Income Type" = "24"
+        // [GIVEN] First line has "Total Amount" = 110, "Taxable Base" = 100, "Non-Taxable Amount" = 10, "Non-Taxable Amount By Treaty" = 5, "Withholding Tax Amount" = 1
+        // [GIVEN] Second line has "Total Amount" = 220, "Taxable Base" = 200, "Non-Taxable Amount" = 20, "Non-Taxable Amount By Treaty" = 10, "Withholding Tax Amount" = 2
+        for i := 1 to ArrayLen(WithholdingTaxLine) - 1 do begin
+            WithholdingTax.Get(
+              CreateWithholdingTaxWithAU001006AndContributionEntry(
+                VendorNo, ConstReason::A, 0, WorkDate(), WorkDate(), WithholdingTax."Non-Taxable Income Type"::" "));
+            CreateWithholdingTaxLine(
+              WithholdingTaxLine[i], WithholdingTax."Entry No.", i * 10000,
+              WithholdingTax."Base - Excluded Amount", WithholdingTax."Non-Taxable Income Type"::"24");
+            TotalAmount += WithholdingTax."Total Amount";
+            TaxableBase += WithholdingTax."Taxable Base";
+            WithholdingTaxAmount += WithholdingTax."Withholding Tax Amount";
+            CombinedNonTaxableAmount += WithholdingTax."Non Taxable Amount";
+            CombinedNonTaxAmtByTreaty += WithholdingTax."Non Taxable Amount By Treaty";
+        end;
+
+        // [GIVEN] Third withholding tax with a single line that has "Non-Taxable Income Type" = "6", "Total Amount" = 330, "Taxable Base" = 300,
+        // [GIVEN] "Non-Taxable Amount" = 30, "Non-Taxable Amount By Treaty" = 15, "Withholding Tax Amount" = 3
+        WithholdingTax.Get(
+          CreateWithholdingTaxWithAU001006AndContributionEntry(
+            VendorNo, ConstReason::A, 0, WorkDate(), WorkDate(), WithholdingTax."Non-Taxable Income Type"::" "));
+        CreateWithholdingTaxLine(
+          WithholdingTaxLine[3], WithholdingTax."Entry No.", 30000,
+          WithholdingTax."Base - Excluded Amount", WithholdingTax."Non-Taxable Income Type"::"6");
+        TotalAmount += WithholdingTax."Total Amount";
+        TaxableBase += WithholdingTax."Taxable Base";
+        WithholdingTaxAmount += WithholdingTax."Withholding Tax Amount";
+
+        // [WHEN] Export withholding taxes
+        Filename := Export(CreateCompanyOfficial);
+
+        // [THEN] File contains Records H
+        LoadFile(Filename);
+
+        // [THEN] The exported file has in total one D record and two H records
+        ValidateFooterOfDAndHRecords(6, 2, 1);
+
+        // [THEN] First H line has AU001004 equals the total Amount of all lines (660), AU001005 equals "Non-Taxable Amount By Treaty" of the third withholding tax line (15)
+        // [THEN] AU001006 equals "Non-Taxable Income Type" of the third withholding tax line (6)
+        // [THEN] AU001007 equals the the amount and non-taxable amount of the third withholding tax line (300 + 30 = 330)
+        // [THEN] AU001008 equals the total base of all lines (600)
+        // [THEN] AU001008 equals the total withholding tax amount of all lines (6)
+        ValidateBlockValueOfStrictPosition(4, 'AU001004', ConstFormat::VP, TotalAmount, 114);
+        ValidateBlockValueOfStrictPosition(4, 'AU001005', ConstFormat::VP, WithholdingTax."Non Taxable Amount By Treaty", 138);
+        ValidateBlockValueOfStrictPosition(4, 'AU001006', ConstFormat::NP, Format(WithholdingTaxLine[3]."Non-Taxable Income Type"), 162);
+        ValidateBlockValueOfStrictPosition(
+          4, 'AU001007', ConstFormat::VP, WithholdingTaxLine[3]."Base - Excluded Amount" + WithholdingTax."Non Taxable Amount", 186);
+        ValidateBlockValueOfStrictPosition(4, 'AU001008', ConstFormat::VP, TaxableBase, 210);
+        ValidateBlockValueOfStrictPosition(4, 'AU001009', ConstFormat::VP, WithholdingTaxAmount, 234);
+
+        // [THEN] Second H line has no AU001004, AU001008 and AU001009
+        // [THEN] AU001005 equals the total non-taxable amount by trety of the first and second lines (5 + 10 = 15)
+        // [THEN] AU001006 equals the sum of the total amount and non-taxable amount (300 + 30 = 330)
+        ValidateBlockAbsence(5, 'AU001004');
+        ValidateBlockValueOfStrictPosition(5, 'AU001005', ConstFormat::VP, CombinedNonTaxAmtByTreaty, 138);
+        ValidateBlockValueOfStrictPosition(5, 'AU001006', ConstFormat::NP, Format(WithholdingTaxLine[1]."Non-Taxable Income Type"), 162);
+        ValidateBlockValueOfStrictPosition(
+          5, 'AU001007', ConstFormat::VP,
+          WithholdingTaxLine[1]."Base - Excluded Amount" + WithholdingTaxLine[2]."Base - Excluded Amount" +
+          CombinedNonTaxableAmount, 186);
+        ValidateBlockAbsence(5, 'AU001008');
+        ValidateBlockAbsence(5, 'AU001009');
+    end;
+
     local procedure Initialize()
     var
         WithholdingTax: Record "Withholding Tax";
@@ -919,7 +1008,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         WithholdingTax.Get(WHTEntryNo);
         CreateWithholdingTaxLine(
           WithholdingTaxLine[1], WHTEntryNo, 10000,
-          Round(WithholdingTax."Base - Excluded Amount" / 3), WithholdingTax."Non-Taxable Income Type"::"6");
+          Round(WithholdingTax."Base - Excluded Amount" / 3), WithholdingTax."Non-Taxable Income Type"::"5");
         CreateWithholdingTaxLine(
           WithholdingTaxLine[2], WHTEntryNo, 20000,
           WithholdingTax."Base - Excluded Amount" - WithholdingTaxLine[1]."Base - Excluded Amount",
@@ -1167,6 +1256,12 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         ValidateFooter(5, 1);
     end;
 
+    local procedure ValidateBlockValueOfStrictPosition(LineNumber: Integer; FieldName: Text; Type: Option; ExpectedValue: Variant; ExpectedPosition: Integer)
+    begin
+        ValidateTextFileValue(LineNumber, ExpectedPosition, StrLen(FieldName), FieldName);
+        ValidateBlockValue(LineNumber, FieldName, Type, ExpectedValue);
+    end;
+
     local procedure ValidateBlockValue(LineNumber: Integer; FieldName: Text; Type: Option; ExpectedValue: Variant)
     var
         FlatFileManagement: Codeunit "Flat File Management";
@@ -1181,6 +1276,11 @@ codeunit 144021 "IT - CU 2015 Unit Test"
             Expected := UpperCase(Expected);
 
         Assert.AreEqual(Expected, DelChr(LibrarySpesometro.ReadBlockValue(TextFile, LineNumber, FieldName), '<>', ' '), '');
+    end;
+
+    local procedure ValidateBlockAbsence(LineNumber: Integer; FieldName: Text)
+    begin
+        Assert.AreEqual('', LibrarySpesometro.ReadBlockValue(TextFile, LineNumber, FieldName), '');
     end;
 
     local procedure ValidateSpecialCategoryBlockValue(LineNumber: Integer; FieldName: Text; ExpectedValue: Option)
@@ -1309,6 +1409,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         ValidateTextFileValue(2, 402, 8, FormatToLength(CommunicationNumber, 8));
         if VendorTaxRepresentative.Get(CompanyInformation."Tax Representative No.") then
             ValidateTextFileValue(2, 412, 16, VendorTaxRepresentative."Fiscal Code");
+        ValidateTextFileValue(2, 527, 1, '0');
     end;
 
     local procedure ValidateFooter(LineNo: Integer; NumHRecords: Integer)
@@ -1318,6 +1419,17 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         ValidateTextFileValue(LineNo, 16, 9, '000000001'); // Number of B-Records
         ValidateTextFileValue(LineNo, 25, 9, '000000000'); // Number of C-Records
         ValidateTextFileValue(LineNo, 34, 9, '00000000' + Format(NumHRecords, 0, 1)); // Number of D-Records
+        ValidateTextFileValue(LineNo, 43, 9, '000000000'); // Number of G-Records
+        ValidateTextFileValue(LineNo, 52, 9, '00000000' + Format(NumHRecords, 0, 1)); // Number of H-Records
+    end;
+
+    local procedure ValidateFooterOfDAndHRecords(LineNo: Integer; NumHRecords: Integer; NumDRecords: Integer)
+    begin
+        ValidateTextFileValue(LineNo, 1, 1, 'Z');
+
+        ValidateTextFileValue(LineNo, 16, 9, '000000001'); // Number of B-Records
+        ValidateTextFileValue(LineNo, 25, 9, '000000000'); // Number of C-Records
+        ValidateTextFileValue(LineNo, 34, 9, '00000000' + Format(NumDRecords, 0, 1)); // Number of D-Records
         ValidateTextFileValue(LineNo, 43, 9, '000000000'); // Number of G-Records
         ValidateTextFileValue(LineNo, 52, 9, '00000000' + Format(NumHRecords, 0, 1)); // Number of H-Records
     end;

@@ -716,6 +716,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly Order Functions - NamedType UpdateDimCnfm)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1551810128 - NamedType 3860864280" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You may have changed a dimension.\\Do you want to update the lines?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly Order Functions - NamedType UpdateDimOnSalesLinesMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3425900309 - NamedType 642557744" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to update the Dimensions on the lines?]]></Val>

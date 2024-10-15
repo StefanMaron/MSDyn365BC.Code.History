@@ -4527,10 +4527,8 @@
             if CustLedgEntry.IsEmpty() then
                 CustLedgEntry.SetRange(Positive);
         end;
-        if "Document Type" = "Document Type"::Dishonored then begin
-            CustLedgEntry.SetRange("Bank Receipt", true);
+        if "Document Type" = "Document Type"::Dishonored then
             CustLedgEntry.SetRange("Document Type", "Document Type"::Payment);
-        end;
 
         OnLookUpAppliesToDocCustOnAfterSetFilters(CustLedgEntry, Rec, AccNo);
 

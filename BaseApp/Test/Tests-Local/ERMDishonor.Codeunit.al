@@ -522,6 +522,39 @@ codeunit 144133 "ERM Dishonor"
         VerifyCustLedgerEntriesAfterUnApplying(OldCustLedgerEntry, AppliedCustLedgEntry."Entry No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyNonBankRcptPaymentWithDishonored()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        TempPurchaseLine: Record "Purchase Line" temporary;
+        TempSalesLine: Record "Sales Line" temporary;
+        PaymentMethodCode: Code[20];
+        DocumentNo: Code[20];
+        DocumentNo2: Code[20];
+        DocumentNo3: Code[20];
+    begin
+        // [SCENARIO 438607] To check if system is allowing user to apply a dishonored journal line with a payment entry even if "Bank Receipt" is false on customer ledger
+
+        // [GIVEN] Create a sales invoice and apply it with a payment entry
+        Initialize();
+        DocumentNo := CreateAndPostSalesInvoice(TempSalesLine, '');
+        DocumentNo2 := CreateAndPostCashReceiptJournalForCustomer(
+          TempSalesLine."Sell-to Customer No.", DocumentNo, -TempSalesLine.Amount,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice);
+
+        // [GIVEN] upapply payment entry
+        UnapplyCustomerLedgerEntryPayment(DocumentNo2);
+
+        // [WHEN] Post a cash receipt with document type as Dishonored and apply it with payment document no.
+        DocumentNo3 := CreateAndPostCashReceiptJournalForCustomer(
+          TempSalesLine."Sell-to Customer No.", DocumentNo2, TempSalesLine.Amount,
+          GenJournalLine."Document Type"::Dishonored, GenJournalLine."Applies-to Doc. Type"::Payment);
+
+        // [THEN] it should allow user to apply payment entry and post the journal line withour any error.
+        VerifyAmountOnCustomerLedgerEntryForDishonorPayment(TempSalesLine."Sell-to Customer No.", DocumentNo2, -TempSalesLine.Amount);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1090,6 +1123,38 @@ codeunit 144133 "ERM Dishonor"
             Assert.AreEqual('', "Bank Receipts List No.", WrongValueInCustLedgerEntryErr);
             Assert.AreEqual('', "Customer Bill No.", WrongValueInCustLedgerEntryErr);
         end;
+    end;
+
+    local procedure CreateAndPostCashReceiptJournalForCustomer(AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type") DocumentNo: Code[20]
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CreateGeneralJournalLine(GenJournalLine, AccountNo, Amount, GenJournalLine."Account Type"::Customer, DocumentType);
+        GenJournalLine.Validate("Applies-to Doc. Type", AppliesToDocType);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        DocumentNo := GenJournalLine."Document No.";
+    end;
+
+    local procedure VerifyAmountOnCustomerLedgerEntryForDishonorPayment(CustomerNo: Code[20]; DocumentNo: Code[20]; Amount: Decimal)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
+        CustLedgerEntry.CalcFields(Amount);
+        Assert.AreNearlyEqual(
+          Amount, CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption()));
+        CustLedgerEntry.TestField(Open, false);
+    end;
+
+    local procedure UnapplyCustomerLedgerEntryPayment(DocumentNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
+        LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
     end;
 
     [ModalPageHandler]

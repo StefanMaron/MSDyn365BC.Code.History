@@ -26,7 +26,7 @@
         Text011: Label '%1 %2 -> Credit Memo %3';
         Text012: Label 'Prepayment %1, %2 %3.';
         Text1130004: Label 'Total Reg. %1 is different from total Document %2.', Comment = '%1 and %2 - Total Amounts';
-        Text1130007: Label 'To specify the installment to apply to please select the %1 or use the function Apply Entries.', Comment = '%1 = Applies-to Occurrence No.';             
+        Text1130007: Label 'To specify the installment to apply to please select the %1 or use the function Apply Entries.', Comment = '%1 = Applies-to Occurrence No.';
         Text1130008: Label 'must not be prior to %1', Comment = '%1 = Date';
         PostingDateNotAllowedErr: Label '%1 is not within your range of allowed posting dates.', Comment = '%1 - Posting Date field caption';
         SpecifyInvNoSerieTok: Label 'Specify the code for the number series that will be used to assign numbers to posted purchase prepayment invoices.';
@@ -472,8 +472,12 @@
                     NoSeriesMgt.TestDateOrder("Reverse Sales VAT No. Series");
                     "Reverse Sales VAT No." :=
                       NoSeriesMgt.GetNextNo("Reverse Sales VAT No. Series", "Posting Date", true);
-                    Modify;
-                    Commit();
+                      
+                    if not PreviewMode and ModifyHeader then begin
+                        Modify;
+                        if not SuppressCommit then
+                            Commit();
+                    end;
                 end;
         end;
     end;

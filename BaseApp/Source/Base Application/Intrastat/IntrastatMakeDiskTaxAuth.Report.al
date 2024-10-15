@@ -281,7 +281,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
         if IntrastatJnlLine.GetFilter(Type) <> '' then
             exit;
-
+            
         if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
             exit;
 
@@ -530,7 +530,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
             end else begin
                 OutText += FormatNum('0', 36);
                 OutText += GetTotalRecTotalAmt;
-                OutText += FormatNum('0', 18);
+                OutText += FormatNum('0', 13);
             end;
         end else
             if "Intrastat Jnl. Batch"."Corrective Entry" then begin
