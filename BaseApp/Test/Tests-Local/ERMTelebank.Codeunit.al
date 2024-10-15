@@ -1315,6 +1315,30 @@ codeunit 144037 "ERM Telebank"
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
     end;
 
+    [Test]
+    procedure UseManualNoSeriesForProposalLineIdentification()
+    var
+        ProposalLine: Record "Proposal Line";
+        TransactionMode: Record "Transaction Mode";
+        NoSeries: Record "No. Series";
+        IdentificationNo: Code[20];
+    begin
+        // [GIVEN] A transaction mode with a No. Series that uses a manual No. Series
+        CreateAndUpdateTransactionMode(TransactionMode, TransactionMode."Account Type"::Customer, GetCheckID(), TransactionMode.Order::Credit);
+        LibraryUtility.CreateNoSeries(NoSeries, false, true, false);
+        TransactionMode."Identification No. Series" := NoSeries.Code;
+        TransactionMode.Modify();
+
+        // [GIVEN] A proposal line with Identification being set
+        IdentificationNo := '1234';
+        ProposalLine."Account Type" := TransactionMode."Account Type";
+        ProposalLine."Transaction Mode" := TransactionMode.Code;
+        ProposalLine.Validate(Identification, IdentificationNo);
+
+        // [THEN] The Identification is saved
+        Assert.AreEqual(IdentificationNo, ProposalLine.Identification, 'Identification code was not set manually');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Telebank");

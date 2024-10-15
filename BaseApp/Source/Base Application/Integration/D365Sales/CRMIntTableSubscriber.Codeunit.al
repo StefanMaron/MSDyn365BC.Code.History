@@ -2862,6 +2862,9 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         SourceRecordRef.SetTable(CRMSalesorderdetail);
         DestinationRecordRef.SetTable(SalesLine);
 
+        if IsNullGuid(CRMSalesorderdetail.ProductId) then
+            exit;
+
         CRMProduct.Get(CRMSalesorderdetail.ProductId);
         case CRMProduct.ProductTypeCode of
             CRMProduct.ProductTypeCode::SalesInventory:

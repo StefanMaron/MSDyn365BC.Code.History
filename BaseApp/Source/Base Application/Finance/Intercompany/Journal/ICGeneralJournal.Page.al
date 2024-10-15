@@ -7,6 +7,7 @@ using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Foundation.Reporting;
+using Microsoft.EServices.EDocument;
 using Microsoft.Intercompany.GLAccount;
 using Microsoft.Utilities;
 using System.Automation;
@@ -576,6 +577,11 @@ page 610 "IC General Journal"
                 SubPageLink = "Journal Template Name" = field("Journal Template Name"),
                               "Journal Batch Name" = field("Journal Batch Name"),
                               "Line No." = field("Line No.");
+            }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
             }
             part(WorkflowStatusBatch; "Workflow Status FactBox")
             {
@@ -1164,6 +1170,8 @@ page 610 "IC General Journal"
         SetControlAppearance();
         if GenJournalBatch.Get(GetGenJournalTemplateName(), CurrentJnlBatchName) then
             GeneralJournal.SetApprovalStateForBatch(GenJournalBatch, Rec, OpenApprovalEntriesExistForCurrUser, OpenApprovalEntriesOnJnlBatchExist, OpenApprovalEntriesOnBatchOrAnyJnlLineExist, CanCancelApprovalForJnlBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, CanRequestFlowApprovalForBatchAndAllLines, ApprovalEntriesExistSentByCurrentUser, EnabledGeneralJournalBatchWorkflowsExist, EnabledGeneralJournalLineWorkflowsExist);
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(Rec.RecordId);
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         SetJobQueueVisibility();
         ApprovalMgmt.GetGenJnlBatchApprovalStatus(Rec, GeneralJournalBatchApprovalStatus, EnabledGeneralJournalBatchWorkflowsExist);
     end;
@@ -1180,6 +1188,11 @@ page 610 "IC General Journal"
         BalanceVisible := true;
         GeneralLedgerSetup.Get();
         SetJobQueueVisibility();
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(Rec.RecordId);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

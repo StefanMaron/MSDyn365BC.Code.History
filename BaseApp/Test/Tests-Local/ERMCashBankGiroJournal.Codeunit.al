@@ -4097,6 +4097,32 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             AppliesToIdErr);
     end;
 
+    [Test]
+    procedure UseManualNoSeriesForBankGiroJournal()
+    var
+        CBGStatementLine: Record "CBG Statement Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        NoSeries: Record "No. Series";
+        DocumentNo: Code[20];
+    begin
+        // [GIVEN] The Journal Template No. Series allows Manual document Nos.
+        GenJournalTemplate.Name := 'Manual Jnl';
+        LibraryUtility.CreateNoSeries(NoSeries, false, true, false);
+        GenJournalTemplate."No. Series" := NoSeries.Code;
+        GenJournalTemplate.Insert();
+
+        // [GIVEN] A giro journal with a document No. Already set
+        DocumentNo := '1234';
+        CBGStatementLine."Document No." := DocumentNo;
+        CBGStatementLine."Journal Template Name" := GenJournalTemplate.Name;
+
+        // [WHEN] The document No. is generated
+        CBGStatementLine.GenerateDocumentNo();
+
+        // [THEN] The document No. is not changed
+        Assert.AreEqual(DocumentNo, CBGStatementLine."Document No.", 'Document No. was not set manually');
+    end;
+
     local procedure Initialize()
     var
         GenJournalTemplate: Record "Gen. Journal Template";

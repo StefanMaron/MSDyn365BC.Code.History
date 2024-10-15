@@ -4221,8 +4221,12 @@ codeunit 134152 "ERM Intercompany II"
         MockICInboxSalesHeaderWithShipToCountryRegionAndCounty(ICInboxSalesHeader, Customer);
         MockICInboxSalesLine(
           ICInboxSalesLine, ICInboxSalesHeader, ItemNo[1], UnitPrice, Qty, Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision(), '>'));
+        ICInboxSalesLine.Validate("Unit of Measure Code", FindItemUnitOfMeasureCode(ItemNo[1]));
+        ICInboxSalesLine.Modify(true);
         MockICInboxSalesLine(
           ICInboxSalesLine, ICInboxSalesHeader, ItemNo[2], UnitPrice, Qty, Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision(), '<'));
+        ICInboxSalesLine.Validate("Unit of Measure Code", FindItemUnitOfMeasureCode(ItemNo[2]));
+        ICInboxSalesLine.Modify(true);
 
         // [WHEN] Create and release a new sales order from the intercompany inbox.
         ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
@@ -6985,6 +6989,14 @@ codeunit 134152 "ERM Intercompany II"
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", ItemNo);
         PurchaseLine.FindFirst();
+    end;
+
+    local procedure FindItemUnitOfMeasureCode(ItemNo: Code[20]): Code[10]
+    var
+        Item: Record Item;
+    begin
+        Item.Get(ItemNo);
+        exit(Item."Base Unit of Measure");
     end;
 }
 

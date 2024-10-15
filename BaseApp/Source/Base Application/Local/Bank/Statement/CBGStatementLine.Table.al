@@ -1443,9 +1443,12 @@ table 11401 "CBG Statement Line"
         if not IsHandled then begin
 #endif
             "No. Series" := JournalTemplate."No. Series";
-            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                "No. Series" := xRec."No. Series";
-            "Document No." := NoSeries.GetNextNo("No. Series", Date);
+            if "Document No." = '' then begin
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "Document No." := NoSeries.GetNextNo("No. Series", Date);
+            end else
+                NoSeries.TestManual("No. Series");
 #if not CLEAN24
             NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", JournalTemplate."No. Series", Date, "Document No.");
         end;

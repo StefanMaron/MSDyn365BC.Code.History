@@ -77,6 +77,12 @@ page 7393 "Posted Invt. Pick Subform"
                     ToolTip = 'Specifies the lot number for the item that was picked.';
                     Visible = false;
                 }
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the package number for the item that was picked.';
+                    Visible = false;
+                }
                 field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;

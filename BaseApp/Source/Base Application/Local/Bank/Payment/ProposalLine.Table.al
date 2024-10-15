@@ -294,7 +294,10 @@ table 11000000 "Proposal Line"
                 if not IsHandled then begin
 #endif
                     "Identification No. Series" := TrMode."Identification No. Series";
-                    Identification := NoSeries.GetNextNo("Identification No. Series", "Transaction Date");
+                    if Identification = '' then
+                        Identification := NoSeries.GetNextNo("Identification No. Series", "Transaction Date")
+                    else
+                        NoSeries.TestManual("Identification No. Series");
 #if not CLEAN24
                     NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("Identification No. Series", TrMode."Identification No. Series", "Transaction Date", Identification);
                 end;
