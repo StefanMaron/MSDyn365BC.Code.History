@@ -710,6 +710,8 @@ table 17 "G/L Entry"
             "Add.-Currency Debit Amount" := 0;
             "Add.-Currency Credit Amount" := -"Additional-Currency Amount";
         end;
+
+        OnAfterUpdateDebitCredit(Rec, Correction);
     end;
 
     procedure CopyFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
@@ -908,6 +910,11 @@ table 17 "G/L Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPostingGroupsFromVATEntry(var GLEntry: Record "G/L Entry"; VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDebitCredit(var GLEntry: Record "G/L Entry"; Correction: Boolean)
     begin
     end;
 

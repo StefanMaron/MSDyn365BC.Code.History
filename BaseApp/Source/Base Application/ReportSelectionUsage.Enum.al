@@ -74,8 +74,8 @@ enum 77 "Report Selection Usage"
     value(96; "P.Phys.Invt.Rec.") { Caption = 'P.Phys.Invt.Rec.'; }
     value(106; "Inventory Shipment") { Caption = 'Inventory Shipment'; }
     value(107; "Inventory Receipt") { Caption = 'Inventory Receipt'; }
-    value(109; "P.Inventory Shipment") { Caption = 'Inventory Shipment'; }
-    value(110; "P.Inventory Receipt") { Caption = 'Inventory Receipt'; }
+    value(109; "P.Inventory Shipment") { Caption = 'P.Inventory Shipment'; }
+    value(110; "P.Inventory Receipt") { Caption = 'P.Inventory Receipt'; }
     value(111; "P.Direct Transfer") { Caption = 'P.Direct Transfer'; }
     value(120; "S.Adv.Let") { Caption = 'S.Adv.Letter'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '19.0'; }
     value(121; "S.Adv.Inv") { Caption = 'S.Adv.Invoice'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '19.0'; }

@@ -1237,7 +1237,7 @@
         exit("Account Type".AsInteger());
     end;
 
-    procedure GetAppliedEntryAccountNo(AppliedToEntryNo: Integer): Code[20]
+    procedure GetAppliedEntryAccountNo(AppliedToEntryNo: Integer) AccountNo: Code[20]
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -1254,7 +1254,9 @@
                 if BankAccountLedgerEntry.Get(AppliedToEntryNo) then
                     exit(BankAccountLedgerEntry."Bal. Account No.");
         end;
-        exit("Account No.");
+        AccountNo := "Account No.";
+
+        OnAfterGetAppliedEntryAccountNo(Rec, AppliedToEntryNo, AccountNo);
     end;
 
     procedure GetAppliedToAccountNo(): Code[20]
@@ -2136,6 +2138,17 @@
             AppliedPmtEntry.Description := StrSubstNo(PmtAppliedToTxt, "Applied Entries");
     end;
 
+    [Scope('OnPrem')]
+    procedure GetAppliedPmtData(var AppliedPmtEntry: Record "Applied Payment Entry"; PmtAppliedToTxt: Text)
+    begin
+        AppliedPmtEntry.Init();
+
+        AppliedPmtEntry.FilterAppliedPmtEntry(Rec);
+        AppliedPmtEntry.SetFilter("Applies-to Entry No.", '<>0');
+        if "Applied Entries" > 1 then
+            AppliedPmtEntry.Description := StrSubstNo(PmtAppliedToTxt, "Applied Entries");
+    end;
+
     local procedure UpdateParentLineStatementAmount()
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
@@ -2382,6 +2395,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountName(AccountType: Option; AccountNo: Code[20]; var Name: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAppliedEntryAccountNo(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AppliedToEntryNo: Integer; var AccountNo: Code[20])
     begin
     end;
 

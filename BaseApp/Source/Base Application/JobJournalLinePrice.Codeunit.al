@@ -245,7 +245,10 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
                                 JobJournalLine."Direct Unit Cost (LCY)" := PriceListLine."Direct Unit Cost";
                             end;
                         JobJournalLine.Type::"G/L Account":
-                            JobJournalLine."Unit Cost" := PriceListLine."Direct Unit Cost";
+                            if PriceListLine."Unit Cost" <> 0 then
+                                JobJournalLine."Unit Cost" := PriceListLine."Unit Cost"
+                            else
+                                JobJournalLine."Unit Cost" := PriceListLine."Direct Unit Cost";
                     end;
             end;
         OnAfterSetPrice(JobJournalLine, PriceListLine, AmountType);

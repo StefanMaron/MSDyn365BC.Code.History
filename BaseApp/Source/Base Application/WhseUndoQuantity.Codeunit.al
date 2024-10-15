@@ -74,6 +74,7 @@ codeunit 7320 "Whse. Undo Quantity"
         OnBeforePostTempWhseJnlLine(TempWhseJnlLine);
         if TempWhseJnlLine.Find('-') then
             repeat
+                OnPostTempWhseJnlLineCacheOnBeforeRegisterWhseJnlLine(TempWhseJnlLine);
                 WhseJnlRegLine.RegisterWhseJnlLine(TempWhseJnlLine);
             until TempWhseJnlLine.Next() = 0;
 
@@ -581,6 +582,11 @@ codeunit 7320 "Whse. Undo Quantity"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTempWhseJnlLineOnAfterTempWhseJnlLineInit(var ItemJnlLine: Record "Item Journal Line"; var WarehouseEntry: Record "Warehouse Entry"; var WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostTempWhseJnlLineCacheOnBeforeRegisterWhseJnlLine(var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary)
     begin
     end;
 

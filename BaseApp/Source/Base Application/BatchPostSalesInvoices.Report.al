@@ -16,6 +16,8 @@ report 297 "Batch Post Sales Invoices"
             var
                 SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
             begin
+                OnBeforeSalesHeaderPreDataItem("Sales Header");
+
                 if ReplaceVATDate and (VATDateReq = 0D) then
                     Error(EnterVATDateErr);
 
@@ -173,6 +175,11 @@ report 297 "Batch Post Sales Invoices"
         // NAVCZ
         GLSetup.Get();
         UseVATDate := GLSetup."Use VAT Date";
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderPreDataItem(var SalesHeader: Record "Sales Header")
+    begin
     end;
 }
 #endif

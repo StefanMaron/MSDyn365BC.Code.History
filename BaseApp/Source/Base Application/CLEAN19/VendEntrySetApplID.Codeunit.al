@@ -27,6 +27,7 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
                         VendEntryApplID := '***';
                 end;
             end;
+            OnAfterSetVendEntryApplID(VendLedgEntry, ApplyingVendLedgEntry, VendEntryApplID);
             repeat
                 TempVendLedgEntry := VendLedgEntry;
                 TempVendLedgEntry.Insert();
@@ -73,6 +74,11 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateVendLedgerEntry(var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetVendEntryApplID(VendLedgEntry: Record "Vendor Ledger Entry"; ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; VendEntryApplID: Code[50])
     begin
     end;
 

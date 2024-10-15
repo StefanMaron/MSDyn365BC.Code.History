@@ -1,4 +1,4 @@
-﻿#if not CLEAN17
+#if not CLEAN17
 page 95 "Sales Quote Subform"
 {
     AutoSplitKey = true;
@@ -1072,6 +1072,7 @@ page 95 "Sales Quote Subform"
             Commit();
             if not SalesLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
+            OnDeleteRecordOnBeforeSalesLineReserveDeleteLine(Rec);
             SalesLineReserve.DeleteLine(Rec);
         end;
         DocumentTotals.SalesDocTotalsNotUpToDate();
@@ -1477,9 +1478,13 @@ page 95 "Sales Quote Subform"
     begin
     end;
 #endif
-
     [IntegrationEvent(false, false)]
     local procedure OnItemReferenceNoOnLookup(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteRecordOnBeforeSalesLineReserveDeleteLine(var SalesLine: Record "Sales Line")
     begin
     end;
 

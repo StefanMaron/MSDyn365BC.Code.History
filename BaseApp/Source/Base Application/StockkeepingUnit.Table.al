@@ -961,6 +961,8 @@ table 5700 "Stockkeeping Unit"
     end;
 
     procedure UpdateTempSKUTransferLevels(FromSKU: Record "Stockkeeping Unit"; var TempToSKU: Record "Stockkeeping Unit" temporary; FromLocationCode: Code[10]): Boolean
+    var
+        SavedPositionSKU: Record "Stockkeeping Unit";
     begin
         // Used by the planning engine to update the transfer level codes on a temporary SKU record set
         // generated based on actual transfer orders.
@@ -978,6 +980,8 @@ table 5700 "Stockkeeping Unit"
                 end;
                 TempToSKU."Transfer-Level Code" := FromSKU."Transfer-Level Code" - 1;
                 TempToSKU.Modify();
+
+                SavedPositionSKU.Copy(TempToSKU);
                 if not TempToSKU.UpdateTempSKUTransferLevels(TempToSKU, TempToSKU, FromLocationCode) then begin
                     if (StrLen(ErrorString) + StrLen(TempToSKU."Location Code")) >
                        (MaxStrLen(ErrorString) - 9)
@@ -990,6 +994,7 @@ table 5700 "Stockkeeping Unit"
                     ErrorString := ErrorString + ' ->' + TempToSKU."Location Code";
                     exit(false);
                 end;
+                TempToSKU.Copy(SavedPositionSKU);
             until TempToSKU.Next() = 0;
         exit(true);
     end;

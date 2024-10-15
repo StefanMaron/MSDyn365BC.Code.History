@@ -95,6 +95,13 @@ report 5084 "Email Merge"
 
         Contact_Mail_Address := '';
         Document_Date := Format(SegmentLine.Date, 0, 4);
+
+        OnAfterInitializeRequest();
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitializeRequest()
+    begin
     end;
 }
 

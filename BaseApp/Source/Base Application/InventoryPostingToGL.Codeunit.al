@@ -1131,7 +1131,7 @@
     begin
         with GlobalInvtPostBuf do begin
             Reset;
-            OnPostInvtPostBufferOnBeforeFind(GlobalInvtPostBuf, TempGLItemLedgRelation);
+            OnPostInvtPostBufferOnBeforeFind(GlobalInvtPostBuf, TempGLItemLedgRelation, ValueEntry);
             if not FindSet then
                 exit;
 
@@ -1613,7 +1613,7 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnPostInvtPostBufferOnBeforeFind(var GlobalInvtPostBuf: Record "Invt. Posting Buffer"; var TempGLItemLedgRelation: Record "G/L - Item Ledger Relation")
+    local procedure OnPostInvtPostBufferOnBeforeFind(var GlobalInvtPostBuf: Record "Invt. Posting Buffer"; var TempGLItemLedgRelation: Record "G/L - Item Ledger Relation"; var ValueEntry: Record "Value Entry")
     begin
     end;
 

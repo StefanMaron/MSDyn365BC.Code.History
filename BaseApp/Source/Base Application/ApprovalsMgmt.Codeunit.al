@@ -2375,6 +2375,9 @@ codeunit 1535 "Approvals Mgmt."
         then
             Error(PendingJournalBatchApprovalExistsErr);
         OnSendGeneralJournalBatchForApproval(GenJournalBatch);
+
+        GenJournalBatch."Pending Approval" := true;
+        GenJournalBatch.Modify();
     end;
 
     procedure TrySendJournalLineApprovalRequests(var GenJournalLine: Record "Gen. Journal Line")
@@ -2391,6 +2394,9 @@ codeunit 1535 "Approvals Mgmt."
             then begin
                 OnSendGeneralJournalLineForApproval(GenJournalLine);
                 LinesSent += 1;
+
+                GenJournalLine."Pending Approval" := true;
+                GenJournalLine.Modify();
             end;
         until GenJournalLine.Next() = 0;
 
@@ -2412,6 +2418,9 @@ codeunit 1535 "Approvals Mgmt."
         GetGeneralJournalBatch(GenJournalBatch, GenJournalLine);
         OnCancelGeneralJournalBatchApprovalRequest(GenJournalBatch);
         WorkflowWebhookManagement.FindAndCancel(GenJournalBatch.RecordId);
+
+        GenJournalBatch."Pending Approval" := false;
+        GenJournalBatch.Modify();
     end;
 
     procedure TryCancelJournalLineApprovalRequests(var GenJournalLine: Record "Gen. Journal Line")
@@ -2422,6 +2431,9 @@ codeunit 1535 "Approvals Mgmt."
             if HasOpenApprovalEntries(GenJournalLine.RecordId) then
                 OnCancelGeneralJournalLineApprovalRequest(GenJournalLine);
             WorkflowWebhookManagement.FindAndCancel(GenJournalLine.RecordId);
+
+            GenJournalLine."Pending Approval" := false;
+            GenJournalLine.Modify();
         until GenJournalLine.Next() = 0;
         Message(ApprovalReqCanceledForSelectedLinesMsg);
     end;
@@ -2891,7 +2903,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateApprReqForApprTypeWorkflowUserGroupOnBeforeMakeApprovalEntry(var WorkflowUserGroupMember: Record "Workflow User Group Member"; ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepArgument: Record "Workflow Step Argument"; ApproverId: Code[50]; var IsHandled: Boolean)
+    local procedure OnCreateApprReqForApprTypeWorkflowUserGroupOnBeforeMakeApprovalEntry(var WorkflowUserGroupMember: Record "Workflow User Group Member"; ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepArgument: Record "Workflow Step Argument"; var ApproverId: Code[50]; var IsHandled: Boolean)
     begin
     end;
 

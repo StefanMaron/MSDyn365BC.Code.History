@@ -377,7 +377,13 @@ table 901 "Assembly Line"
             trigger OnValidate()
             var
                 UOMMgt: Codeunit "Unit of Measure Management";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantitytoConsume(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 WhseValidateSourceLine.AssemblyLineVerifyChange(Rec, xRec);
 
                 "Quantity to Consume" := UOMMgt.RoundAndValidateQty("Quantity to Consume", "Qty. Rounding Precision", FieldCaption("Quantity to Consume"));
@@ -2016,6 +2022,11 @@ table 901 "Assembly Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityPerOnAfterRoundQty(var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantitytoConsume(var AssemblyLine: Record "Assembly Line"; xAssemblyLine: Record "Assembly Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

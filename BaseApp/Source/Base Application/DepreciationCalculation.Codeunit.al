@@ -429,6 +429,8 @@ codeunit 5616 "Depreciation Calculation"
         if EndingDate = 0D then
             EndingDate := UntilDate;
         NumberOfDays := DeprDays(StartingDate, EndingDate, Year365Days);
+
+        OnAfterGetDeprPeriod(FANo, DeprBookCode, UntilDate, StartingDate, EndingDate, NumberOfDays, Year365Days);
     end;
 
     procedure DeprInFiscalYear(FANo: Code[20]; DeprBookCode: Code[10]; StartingDate: Date): Decimal
@@ -609,6 +611,11 @@ codeunit 5616 "Depreciation Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeprDays(StartingDate: Date; EndingDate: Date; var NumberOfDeprDays: Integer; Year365Days: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDeprPeriod(FANo: Code[20]; DeprBookCode: Code[10]; UntilDate: Date; var StartingDate: Date; var EndingDate: Date; var NumberOfDays: Integer; Year365Days: Boolean)
     begin
     end;
 

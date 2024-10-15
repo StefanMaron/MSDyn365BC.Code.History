@@ -6,6 +6,7 @@ report 5607 "Fixed Asset - Projected Value"
     ApplicationArea = FixedAssets;
     Caption = 'Fixed Asset Projected Value';
     UsageCategory = ReportsAndAnalysis;
+    AllowScheduling = false;
 
     dataset
     {

@@ -1892,7 +1892,7 @@
                 "Output Quantity (Base)" := CalcBaseQty("Output Quantity", FieldCaption("Output Quantity"), FieldCaption("Output Quantity (Base)"));
 
                 Validate(Quantity, "Output Quantity");
-                UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Output Quantity", "Output Quantity (Base)", 0, 0);
+                ValidateQuantityIsBalanced();
             end;
         }
         field(5847; "Scrap Quantity"; Decimal)
@@ -3242,6 +3242,18 @@
             Validate("Unit Amount");
             CheckItemAvailable(FieldNo("Location Code"));
         end;
+    end;
+
+    local procedure ValidateQuantityIsBalanced()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateQuantityIsBalanced(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Output Quantity", "Output Quantity (Base)", 0, 0);
     end;
 
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -4885,6 +4897,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateItemDirectCostUnitAmount(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityIsBalanced(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

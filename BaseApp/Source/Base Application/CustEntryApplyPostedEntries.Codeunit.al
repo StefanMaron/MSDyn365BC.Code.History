@@ -104,8 +104,13 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         EntryNoAfterApplication: Integer;
         HideProgressWindow: Boolean;
         SuppressCommit: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeCustPostApplyCustLedgEntry(HideProgressWindow, CustLedgEntry);
+        IsHandled := false;
+        OnBeforeCustPostApplyCustLedgEntry(HideProgressWindow, CustLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         with CustLedgEntry do begin
             if not HideProgressWindow then
                 Window.Open(PostingApplicationMsg);
@@ -437,6 +442,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         ApplyingCustLedgEntry."Amount to Apply" := ApplyingCustLedgEntry."Amount to Apply" + LinkedNotUsedAmt;
         // NAVCZ
 
+        OnApplyCustEntryFormEntryOnBeforeRunCustEntryEdit(ApplyingCustLedgEntry);
         CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", ApplyingCustLedgEntry);
         Commit();
 
@@ -662,6 +668,11 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyCustEntryFormEntryOnBeforeRunCustEntryEdit(var ApplyingCustLedgEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeApply(var CustLedgerEntry: Record "Cust. Ledger Entry"; var DocumentNo: Code[20]; var ApplicationDate: Date)
     begin
     end;
@@ -702,7 +713,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCustPostApplyCustLedgEntry(var HideProgressWindow: Boolean; CustLedgEntry: Record "Cust. Ledger Entry");
+    local procedure OnBeforeCustPostApplyCustLedgEntry(var HideProgressWindow: Boolean; CustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 

@@ -954,7 +954,13 @@
     var
         RecRef: RecordRef;
         FldRef: FieldRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLogTestField(SourceVariant, FieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         RecRef.GetTable(SourceVariant);
         FldRef := RecRef.Field(FieldNo);
         if LogErrorMode then
@@ -967,7 +973,13 @@
     var
         RecRef: RecordRef;
         FldRef: FieldRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLogTestField(SourceVariant, FieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         RecRef.GetTable(SourceVariant);
         FldRef := RecRef.Field(FieldNo);
         if LogErrorMode then
@@ -1138,6 +1150,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeIsVendorPaymentToCrMemo(GenJnlLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLogTestField(SourceVariant: Variant; FieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

@@ -192,7 +192,14 @@ codeunit 414 "Release Sales Document"
     end;
 
     procedure PerformManualRelease(var SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePerformManualReleaseProcedure(SalesHeader, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckPrepaymentsForManualRelease(SalesHeader);
 
         OnBeforeManualReleaseSalesDoc(SalesHeader, PreviewMode);
@@ -391,6 +398,11 @@ codeunit 414 "Release Sales Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePerformManualRelease(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePerformManualReleaseProcedure(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 

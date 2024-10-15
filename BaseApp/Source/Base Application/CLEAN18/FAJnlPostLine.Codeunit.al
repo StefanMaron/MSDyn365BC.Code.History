@@ -295,6 +295,8 @@ codeunit 5632 "FA Jnl.-Post Line"
             FAInsertLedgEntry.CorrectEntries;
             FAInsertLedgEntry.SetNetdisposal(false);
         end;
+
+        OnAfterPostDisposalEntry(FALedgEntry, DeprBook, FANo, FAInsertLedgEntry);
     end;
 
     local procedure PostDeprUntilDate(FALedgEntry: Record "FA Ledger Entry"; Type: Option UntilDate,AcqCost)
@@ -553,6 +555,11 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterPostDisposalEntry(var FALedgEntry: Record "FA Ledger Entry"; DeprBook: Record "Depreciation Book"; FANo: Code[20]; var FAInsertLedgEntry: Codeunit "FA Insert Ledger Entry")
     begin
     end;
 

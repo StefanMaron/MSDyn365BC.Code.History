@@ -266,7 +266,14 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     procedure DelNonStockSales(var SalesLine2: Record "Sales Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDelNonStockSales(SalesLine2, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesLine2.Nonstock = false then
             exit;
 
@@ -696,6 +703,11 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDelNonStockItem(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDelNonStockSales(var SalesLine2: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -355,7 +355,13 @@ page 30 "Item Card"
                         trigger OnDrillDown()
                         var
                             ShowAvgCalcItem: Codeunit "Show Avg. Calc. - Item";
+                            IsHandled: Boolean;
                         begin
+                            IsHandled := false;
+                            OnBeforeUnitCostOnDrilldown(Rec, IsHandled);
+                            if IsHandled then
+                                exit;
+
                             ShowAvgCalcItem.DrillDownAvgCostAdjmtPoint(Rec)
                         end;
                     }
@@ -726,7 +732,7 @@ page 30 "Item Card"
                     }
                     field("Overhead Rate"; "Overhead Rate")
                     {
-                        ApplicationArea = Manufacturing;
+                        ApplicationArea = Basic, Suite;
                         Enabled = IsInventoriable;
                         Importance = Additional;
                         ToolTip = 'Specifies the item''s indirect cost as an absolute amount.';
@@ -2938,6 +2944,11 @@ page 30 "Item Card"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateItemFromTemplate(var NewMode: Boolean; var ItemRec: Record Item; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUnitCostOnDrillDown(var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 

@@ -738,10 +738,11 @@ page 1290 "Payment Reconciliation Journal"
                     group(StatementEndingBalanceGroup)
                     {
                         Visible = StatementEndingBalanceVisible and (not PreviousUXExperienceActive);
-                        ShowCaption = false;
+                        Caption = 'Statement Ending Balance';
                         field(StatementEndingBalanceFixedLayout; BankAccReconciliation."Statement Ending Balance")
                         {
                             ApplicationArea = Basic, Suite;
+                            ShowCaption = false;
                             AutoFormatType = 1;
                             Editable = false;
                             Caption = 'Statement Ending Balance';
@@ -1399,7 +1400,10 @@ page 1290 "Payment Reconciliation Journal"
     begin
         MatchDetails := PaymentMatchingDetails.MergeMessages(Rec);
 
-        GetAppliedPmtData(AppliedPmtEntry, RemainingAmountAfterPosting, StatementToRemAmtDifference, PmtAppliedToTxt);
+        if CurrentClientType() in [ClientType::OData, ClientType::ODataV4, ClientType::SOAP, ClientType::Api] then
+            GetAppliedPmtData(AppliedPmtEntry, PmtAppliedToTxt)
+        else
+            GetAppliedPmtData(AppliedPmtEntry, RemainingAmountAfterPosting, StatementToRemAmtDifference, PmtAppliedToTxt);
         ShowShortcutDimCode(ShortcutDimCode);
 
         ReviewStatusStyleTxt := GetReviewStatusStyle(Rec);

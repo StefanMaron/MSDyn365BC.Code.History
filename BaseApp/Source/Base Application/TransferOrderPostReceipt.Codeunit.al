@@ -152,6 +152,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
             if TransLine.Find('-') then
                 repeat
                     TransLine.Validate("Quantity Received", TransLine."Quantity Received" + TransLine."Qty. to Receive");
+                    OnRunOnBeforeUpdateWithWarehouseShipReceive(TransLine);
                     TransLine.UpdateWithWarehouseShipReceive;
                     ReservMgt.SetReservSource(ItemJnlLine);
                     ReservMgt.SetItemTrackingHandling(1); // Allow deletion
@@ -607,7 +608,13 @@ codeunit 5705 "TransferOrder-Post Receipt"
         TransLine2: Record "Transfer Line";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         ShowError: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckWarehouse(TransLine, IsHandled);
+        If IsHandled then
+            exit;
+
         TransLine2.Copy(TransLine);
         if TransLine2.Find('-') then
             repeat
@@ -797,6 +804,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWarehouse(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePostedRcptLineFromWhseRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; var WhseRcptLine: Record "Warehouse Receipt Line"; var PostedWhseRcptHeader: Record "Posted Whse. Receipt Header"; var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var TempWhseSplitSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
     begin
     end;
@@ -918,6 +930,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeCheckItemBlocked(TransLine: Record "Transfer Line"; Item: Record Item; TransHeader: Record "Transfer Header"; Location: Record Location; WhseReceive: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeUpdateWithWarehouseShipReceive(var TransferLine: Record "Transfer Line")
     begin
     end;
 }

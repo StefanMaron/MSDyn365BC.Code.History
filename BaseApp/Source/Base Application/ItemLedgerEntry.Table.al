@@ -798,6 +798,7 @@ table 32 "Item Ledger Entry"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ItemTrackingType: Enum "Item Tracking Type";
         GLSetupRead: Boolean;
+        UseItemTrackingLinesPageErr: Label 'You must use form %1 to enter %2, if item tracking is used.', Comment = '%1 - page caption, %2 - field caption';
         IsNotOnInventoryErr: Label 'You have insufficient quantity of Item %1 on inventory.';
 
     local procedure GetCurrencyCode(): Code[10]
@@ -1097,6 +1098,20 @@ table 32 "Item Ledger Entry"
         OnAfterTrackingExists(Rec, IsTrackingExist);
     end;
 
+    procedure CheckTrackingDoesNotExist(RecId: RecordId; FldCaption: Text)
+    var
+        ItemTrackingLines: Page "Item Tracking Lines";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckTrackingDoesNotExist(RecId, Rec, FldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
+        if TrackingExists() then
+            Error(UseItemTrackingLinesPageErr, ItemTrackingLines.Caption, FldCaption);
+    end;
+
     procedure CopyTrackingFromItemJnlLine(ItemJnlLine: Record "Item Journal Line")
     begin
         "Serial No." := ItemJnlLine."Serial No.";
@@ -1309,6 +1324,11 @@ table 32 "Item Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestTrackingEqualToTrackingSpec(var ItemLedgerEntry: Record "Item Ledger Entry"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTrackingDoesNotExist(RecId: RecordId; ItemLedgEntry: Record "Item Ledger Entry"; FldCaption: Text; var IsHandled: Boolean)
     begin
     end;
 

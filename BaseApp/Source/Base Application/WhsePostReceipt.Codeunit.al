@@ -634,7 +634,13 @@ codeunit 5760 "Whse.-Post Receipt"
     procedure GetResultMessage()
     var
         MessageText: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetResultMessage(CounterPutAways, IsHandled);
+        if IsHandled then
+            exit;
+
         MessageText := Text002;
         if CounterPutAways > 0 then
             MessageText := MessageText + '\\' + Text003;
@@ -1057,7 +1063,7 @@ codeunit 5760 "Whse.-Post Receipt"
                         TempPostedWhseRcptLine2 := TempPostedWhseRcptLine;
                         TempPostedWhseRcptLine2."Line No." := PostedWhseRcptLine."Line No.";
                         WhseSourceCreateDocument.SetQuantity(TempPostedWhseRcptLine2, DATABASE::"Posted Whse. Receipt Line", RemQtyToHandleBase);
-                        OnCreatePutAwayDocOnBeforeCreatePutAwayRun(TempPostedWhseRcptLine2, CreatePutAway);
+                        OnCreatePutAwayDocOnBeforeCreatePutAwayRun(TempPostedWhseRcptLine2, CreatePutAway, WhseRcptHeader);
                         CreatePutAway.Run(TempPostedWhseRcptLine2);
                     until TempPostedWhseRcptLine.Next() = 0;
             end;
@@ -1135,6 +1141,11 @@ codeunit 5760 "Whse.-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePutAwayDocProcedure(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetResultMessage(CounterPutAways: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -1429,7 +1440,7 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreatePutAwayDocOnBeforeCreatePutAwayRun(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var CreatePutAway: Codeunit "Create Put-away")
+    local procedure OnCreatePutAwayDocOnBeforeCreatePutAwayRun(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var CreatePutAway: Codeunit "Create Put-away"; WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 

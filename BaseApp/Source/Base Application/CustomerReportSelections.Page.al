@@ -241,7 +241,7 @@ page 9657 "Customer Report Selections"
                 Usage2 := Usage2::"Adv. Cr.Memo";
             // NAVCZ
             else
-                OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection, Usage2);
+                OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection, Usage2, Rec);
         end;
     end;
 
@@ -263,7 +263,7 @@ page 9657 "Customer Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection: Record "Custom Report Selection"; var ReportUsage: Option)
+    local procedure OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection: Record "Custom Report Selection"; var ReportUsage: Option; Rec: Record "Custom Report Selection")
     begin
     end;
 
