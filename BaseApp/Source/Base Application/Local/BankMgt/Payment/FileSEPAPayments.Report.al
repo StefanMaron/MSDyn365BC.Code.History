@@ -245,7 +245,7 @@ report 2000005 "File SEPA Payments"
 
         XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8"?><Document></Document>', XMLDomDoc);
         XMLRootElement := XMLDomDoc.DocumentElement;
-        XMLRootElement.SetAttribute('xmlns', 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
+        XMLRootElement.SetAttribute('xmlns', 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03');
         XMLRootElement.SetAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
         XMLNodeCurr := XMLDomDoc.SelectSingleNode('Document');
         AddElement(XMLNodeCurr, 'CstmrCdtTrfInitn', '', '', XMLNewChild);
@@ -385,10 +385,7 @@ report 2000005 "File SEPA Payments"
         XMLNodeCurr := XMLNodeCurr.ParentNode;
         XMLNodeCurr := XMLNodeCurr.ParentNode;
 
-        AddElement(XMLNodeCurr, 'ReqdExctnDt', '', '', XMLNewChild);
-        XMLNodeCurr := XMLNewChild;
-        AddElement(XMLNodeCurr, 'Dt', Format(PmtJnlLine."Posting Date", 0, 9), '', XMLNewChild);
-        XMLNodeCurr := XMLNodeCurr.ParentNode;
+        AddElement(XMLNodeCurr, 'ReqdExctnDt', Format(PmtJnlLine."Posting Date", 0, 9), '', XMLNewChild);
         AddElement(XMLNodeCurr, 'Dbtr', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 

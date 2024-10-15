@@ -4567,6 +4567,159 @@ codeunit 137072 "SCM Production Orders II"
                 ItemJnlLine.TableCaption()));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ProductionJournalPageHandlerPostOutput,ConfirmHandlerTrue,MessageHandler')]
+    procedure StatusOfProdOrderIsChangedToFinishedEvenWhenHaveProdItemWithRoundPrecision()
+    var
+        CompItem, ProdItem : Record Item;
+        Location: Record Location;
+        Bin, Bin2, Bin3, Bin4 : Record Bin;
+        CompItemUnitOfMeasure, ProdItemUnitOfMeasure : array[2] of Record "Item Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJournalLine: array[3] of Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProductionJournalMgt: codeunit "Production Journal Mgt";
+    begin
+        // [SCENARIO 523937] Status of Production Order can be changed to Finished even if it has Production Item with Rounding Precision.
+        Initialize();
+
+        // [GIVEN] Create Location and Validate Prod. Consump. Whse. Handling.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
+        Location.Modify(true);
+
+        // [GIVEN] Create Warehouse Employee.
+        WarehouseEmployee.SetRange("User ID", UserId());
+        WarehouseEmployee.DeleteAll();
+        WarehouseEmployee.Reset();
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create four Bins.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, '', '');
+        LibraryWarehouse.CreateBin(Bin2, Location.Code, Bin2.Code, '', '');
+        LibraryWarehouse.CreateBin(Bin3, Location.Code, Bin3.Code, '', '');
+        LibraryWarehouse.CreateBin(Bin4, Location.Code, Bin4.Code, '', '');
+
+        // [GIVEN] Validate To-Production Bin Code and From-Production Bin Code.
+        Location.Validate("To-Production Bin Code", Bin.Code);
+        Location.Validate("From-Production Bin Code", Bin2.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Component Item with Item Unit of Measure Code.
+        CreateCompItemWithItemUnitOfMeasureCode(CompItem, CompItemUnitOfMeasure, 1.60514);
+
+        // [GIVEN] Validate Base Unit of Measure, Flushing Method and Rounding Precision in Component Item.
+        CompItem.Validate("Base Unit of Measure", CompItemUnitOfMeasure[1].Code);
+        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::"Pick + Backward");
+        CompItem.Validate("Rounding Precision", 0.00001);
+        CompItem.Modify(true);
+
+        // [GIVEN] Create Production Item with Item Unit of Measure Code and Validate Flushing Method.
+        CreateProdItemWithItemUnitOfMeasureCode(ProdItem, ProdItemUnitOfMeasure, LibraryRandom.RandIntInRange(50, 50));
+        ProdItem.Validate("Base Unit of Measure", ProdItemUnitOfMeasure[1].Code);
+        ProdItem.Validate("Flushing Method", ProdItem."Flushing Method"::Manual);
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create Production BOM.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItemUnitOfMeasure[2].Code);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", 4.8);
+        ProductionBOMLine.Validate("Unit of Measure Code", CompItemUnitOfMeasure[2].Code);
+        ProductionBOMLine.Modify(true);
+
+        // [GIVEN] Validate Status in Production BOM Header.
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        // [GIVEN] Validate Production BOM No. in Production Item.
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProdItem."No.",
+            LibraryRandom.RandIntInRange(96, 96),
+            Location.Code,
+            Bin2.Code);
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Post Production Journal.
+        LibraryVariableStorage.Enqueue(ProdOrderLine.Quantity);
+        LibraryVariableStorage.Enqueue(PostingProductionJournalQst);
+        LibraryVariableStorage.Enqueue(PostingProductionJournalTxt);
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Create Item Journal Line 1 and Validate Unit of Measure Code.
+        CreateItemJournalLine(ItemJournalLine[1], CompItem."No.", LibraryRandom.RandIntInRange(3, 3), Bin3.Code, Location.Code);
+        ItemJournalLine[1].Validate("Unit of Measure Code", CompItemUnitOfMeasure[1].Code);
+        ItemJournalLine[1].Modify(true);
+
+        // [GIVEN] Post Item Journal Line 1.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine[1]."Journal Template Name", ItemJournalLine[1]."Journal Batch Name");
+
+        // [GIVEN] Create Item Journal Line 2 and Validate Unit of Measure Code.
+        CreateItemJournalLine(ItemJournalLine[2], CompItem."No.", LibraryRandom.RandIntInRange(8, 8), Bin4.Code, Location.Code);
+        ItemJournalLine[2].Validate("Unit of Measure Code", CompItemUnitOfMeasure[1].Code);
+        ItemJournalLine[2].Modify(true);
+
+        // [GIVEN] Post Item Journal Line 2.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine[2]."Journal Template Name", ItemJournalLine[2]."Journal Batch Name");
+
+        // [GIVEN] Create Warehouse Pick from Production Order.
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+
+        // [GIVEN] Register Warehouse Pick.
+        RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [GIVEN] Create Item Journal Line 3 and Validate Unit of Measure Code.
+        CreateItemJournalLine(ItemJournalLine[3], CompItem."No.", 3.79296, Bin4.Code, Location.Code);
+        ItemJournalLine[3].Validate("Unit of Measure Code", CompItemUnitOfMeasure[1].Code);
+        ItemJournalLine[3].Modify(true);
+
+        // [GIVEN] Post Item Journal Line 3.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine[3]."Journal Template Name", ItemJournalLine[3]."Journal Batch Name");
+
+        // [GIVEN] Create Warehouse Pick from Production Order.
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+
+        // [GIVEN] Register Warehouse Pick.
+        RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [GIVEN] Change Status of Production Order to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [GIVEN] Find Prod. Order Component.
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [WHEN] Find Item Ledger Entry.
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        ItemLedgerEntry.SetRange("Item No.", CompItem."No.");
+        ItemLedgerEntry.FindFirst();
+
+        // [THEN] Quanity of Item Ledger Entry must match Qty Picked (Base) of Prod. Order Component.
+        Assert.AreEqual(
+            -ProdOrderComponent."Qty. Picked (Base)",
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(
+                QuantityErr,
+                ItemLedgerEntry.FieldCaption(Quantity),
+                -ProdOrderComponent."Qty. Picked (Base)",
+                ItemLedgerEntry.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6378,6 +6531,26 @@ codeunit 137072 "SCM Production Orders II"
           ProductionOrderNo, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
     end;
 
+    local procedure CreateCompItemWithItemUnitOfMeasureCode(
+        var CompItem: Record Item;
+        var CompItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
+        Qty: Decimal)
+    begin
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItemUnitOfMeasureCode(CompItemUnitOfMeasure[1], CompItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        LibraryInventory.CreateItemUnitOfMeasureCode(CompItemUnitOfMeasure[2], CompItem."No.", Qty);
+    end;
+
+    local procedure CreateProdItemWithItemUnitOfMeasureCode(
+        var ProdItem: Record Item;
+        var ProdItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
+        Qty: Decimal)
+    begin
+        LibraryInventory.CreateItem(ProdItem);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ProdItemUnitOfMeasure[1], ProdItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        LibraryInventory.CreateItemUnitOfMeasureCode(ProdItemUnitOfMeasure[2], ProdItem."No.", Qty);
+    end;
+
     [ModalPageHandler]
     procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
     begin
@@ -6534,6 +6707,17 @@ codeunit 137072 "SCM Production Orders II"
         ProductionJournal.FlushingFilter.SetValue(FlushingMethod::Manual);
         Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Consumption), '');
         ProductionJournal.Quantity.SetValue(0);
+        Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Output), '');
+        ProductionJournal."Output Quantity".SetValue(LibraryVariableStorage.DequeueInteger());
+        ProductionJournal.Post.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageHandlerPostOutput(var ProductionJournal: TestPage "Production Journal")
+    var
+        EntryType: Enum "Item Ledger Entry Type";
+    begin
         Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Output), '');
         ProductionJournal."Output Quantity".SetValue(LibraryVariableStorage.DequeueInteger());
         ProductionJournal.Post.Invoke();

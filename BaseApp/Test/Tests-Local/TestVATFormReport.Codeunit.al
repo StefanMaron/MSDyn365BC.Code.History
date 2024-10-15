@@ -278,7 +278,47 @@ codeunit 144021 "Test VAT - Form Report"
 
         // [THEN] /VATConsignment/VATDeclaration/Declarant/common:Comment is "Y"
         TempXMLBuffer.Load(xmlFileName);
-        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/VATConsignment/VATDeclaration/Declarant/common:Comment');
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/VATConsignment/VATDeclaration/Comment');
+        TempXMLBuffer.TestField(Value, Comment);
+        LibraryVariableStorage.AssertEmpty();
+
+        FileManagement.DeleteServerFile(xmlFileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('VATFormRepRequestPageWithCommentHandler')]
+    [Scope('OnPrem')]
+    procedure VATReportFormWithCommentAndIncludeOpenAndClosedVATEntries()
+    var
+        Customer: Record Customer;
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        FileManagement: Codeunit "File Management";
+        IncludeVATEntries: Option Open,Closed,OpenAndClosed;
+        Prepayment: Option PrintPrepmt,PrintZero,LeaveEmpty;
+        StartDate: Date;
+        xmlFileName: Text[1024];
+        Period: Option Month,Quarter;
+        Comment: Text;
+    begin
+        // [SCENARIO 462300] Stan can add a comment to the VAT Form Report
+
+        Initialize();
+        StartDate := CalcDate('<+CY+1D>', WorkDate());
+
+        // [GIVEN] Sales invoice with "Posting Date" = "01.01.2023"
+        LibraryBEHelper.CreateCustomerItemSalesInvoiceAndPost(Customer);
+        xmlFileName := LibraryReportDataset.GetFileName();
+
+        // [GIVEN] Run VAT Form Report
+        // [GIVEN] Set "Starting Date" = "01.01.2023" and "Comment" = "Y"
+        Comment := LibraryUtility.GenerateGUID();
+        // [WHEN] Stan clicks "OK"
+        OpenVATFormRepWithComment(Period::Quarter, 1, Date2DMY(StartDate, 3), IncludeVATEntries::OpenAndClosed,
+          Prepayment::LeaveEmpty, false, false, false, false, xmlFileName, false, 0, Comment);
+
+        // [THEN] /VATConsignment/VATDeclaration/Declarant/common:Comment is "Y"
+        TempXMLBuffer.Load(xmlFileName);
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/VATConsignment/VATDeclaration/Comment');
         TempXMLBuffer.TestField(Value, Comment);
         LibraryVariableStorage.AssertEmpty();
 

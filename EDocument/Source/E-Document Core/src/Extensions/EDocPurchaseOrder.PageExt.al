@@ -10,6 +10,19 @@ using Microsoft.eServices.EDocument.OrderMatch.Copilot;
 
 pageextension 6132 "E-Doc. Purchase Order" extends "Purchase Order"
 {
+    layout
+    {
+        addlast(General)
+        {
+            field(PurchaseOrderLinkedToEdoc; (not IsNullGuid(Rec."E-Document Link")))
+            {
+                ApplicationArea = All;
+                Caption = 'Linked with E-Document';
+                Editable = false;
+                Visible = true;
+            }
+        }
+    }
     actions
     {
         addafter("P&osting")

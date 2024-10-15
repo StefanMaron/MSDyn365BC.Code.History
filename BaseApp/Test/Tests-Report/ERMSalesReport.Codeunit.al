@@ -28,6 +28,7 @@
         LibraryMarketing: Codeunit "Library - Marketing";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryERMUnapply: Codeunit "Library - ERM Unapply";
         isInitialized: Boolean;
         ColumnTotalLbl: Label 'Total';
         SuccessfullyReversedMessageMsg: Label 'The entries were successfully reversed.';
@@ -3228,6 +3229,102 @@
         VerifyVATClauseShouldBePrintOnlyOnce(VATClause);
     end;
 
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateListModalPageHandler,SimpleMessageHandler,ApplyPostCustEntryPageHandler,PostApplicationHandler,ConfirmHandler,RHCustomerBalanceToDate')]
+    [Scope('OnPrem')]
+    procedure CustBalanceToDateReportDoesNotShowClosedCLEWhenUseWorkdateforApplUnapplIsTrueInGLSetup()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PaymentTerms: Record "Payment Terms";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DueDateCalculation: DateFormula;
+        DocNo: Code[20];
+        PostingDate, PostingDate2 : Date;
+        CashReceiptJournal: TestPage "Cash Receipt Journal";
+    begin
+        // [SCENARIO 535723] When "Use Workdate for Appl./Unappl." is true in GL Setup and Stan tries to Unapply and Apply Customer Ledger Entries then Customer Balance to Date Report does not show closed Customer Ledger Entries in it.
+        Initialize();
+
+        // [GIVEN] Validate Use Workdate for Appl./Unappl. in General Ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Use Workdate for Appl./Unappl.", true);
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] Set Work Date as Today.
+        WorkDate(Today);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Payment Terms and Validate Due Date Calculation.
+        Evaluate(DueDateCalculation, '<' + Format(LibraryRandom.RandIntInRange(21, 21)) + 'D>');
+        LibraryInventory.CreatePaymentTerms(PaymentTerms);
+        PaymentTerms.Validate("Due Date Calculation", DueDateCalculation);
+        PaymentTerms.Modify(true);
+
+        // [GIVEN] Generate and save Posting Date in a Variable.
+        PostingDate := CalcDate('<CY-1Y>', WorkDate());
+
+        // [GIVEN] Create Sales Invoice with Unit Price.
+        CreateSalesInvoiceWithUnitPrice(SalesHeader, SalesLine, Customer, Item, LibraryRandom.RandIntInRange(1000, 1000), PostingDate);
+
+        // [GIVEN] Post Sales Invoice and save Doc No. in a Variable.
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [GIVEN] Create Sales Invoice with Unit Price.
+        CreateSalesInvoiceWithUnitPrice(SalesHeader, SalesLine, Customer, Item, LibraryRandom.RandIntInRange(500, 500), PostingDate);
+
+        // [GIVEN] Post Sales Invoice.
+        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [GIVEN] Generate and save Posting Date 2 in a Variable.
+        PostingDate2 := CalcDate('<-2M>', WorkDate());
+
+        // [GIVEN] Create Cash Receipt Journal and Validate Posting Date.
+        CreateCashReceiptJnlLine(GenJournalLine, GenJournalLine."Account No.");
+        GenJournalLine.Validate("Posting Date", PostingDate2);
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Open Cash Receipt Journal.
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        Commit();
+        CashReceiptJournal.OpenEdit();
+        CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
+
+        // [GIVEN] Set Applies-to Doc. No. and Post Cash Receipt Journal.
+        CashReceiptJournal."Applies-to Doc. No.".SetValue(DocNo);
+        CashReceiptJournal.Post.Invoke();
+
+        // [GIVEN] Find Cust. Ledger Entry.
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.SetRange("Customer No.", Customer."No.");
+        CustLedgerEntry.FindFirst();
+
+        // [GIVEN] Unapply Cust. Ledger Entry.
+        LibraryERMUnapply.UnapplyCustomerLedgerEntryBase(CustLedgerEntry, WorkDate());
+
+        // [GIVEN] Open Cust. Ledger Entry and run Apply action.
+        LibraryVariableStorage.Enqueue(PostingDate2);
+        OpenCustLedgerEntryPage(CustLedgerEntry."Document Type"::Payment, Customer."No.");
+
+        // [GIVEN] Run Customer Balance to Date Report.
+        RunCustomerBalanceToDateWithCustomer(Customer."No.", false, CalcDate('<1D>', PostingDate2));
+
+        // [WHEN] Customer Balance to Date Report is created.
+        LibraryReportDataset.LoadDataSetFile();
+
+        // [THEN] Doc No. is not found in Customer Balance to Date Report.
+        LibraryReportDataset.AssertElementWithValueNotExist('DocNo_CustLedgEntry', Format(DocNo));
+    end;
+
     local procedure Initialize()
     begin
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -4907,6 +5004,69 @@
         end;
     end;
 
+    local procedure CreateCashReceiptJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::"Cash Receipts");
+        GenJournalTemplate.Modify(true);
+
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJournalLine,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Customer,
+            AccountNo,
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo(),
+            0);
+    end;
+
+    local procedure RunCustomerBalanceToDateWithCustomer(CustomerNo: Code[20]; Unapplied: Boolean; ReportDate: Date)
+    var
+        Customer: Record Customer;
+        CustomerBalanceToDate: Report "Customer - Balance to Date";
+    begin
+        Commit();
+        Clear(CustomerBalanceToDate);
+        Customer.SetRange("No.", CustomerNo);
+        CustomerBalanceToDate.SetTableView(Customer);
+        CustomerBalanceToDate.InitializeRequest(false, false, Unapplied, ReportDate);
+        CustomerBalanceToDate.Run();
+    end;
+
+    local procedure OpenCustLedgerEntryPage(DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20])
+    var
+        CustomerLedgerEntries: TestPage "Customer Ledger Entries";
+    begin
+        CustomerLedgerEntries.OpenEdit();
+        CustomerLedgerEntries.FILTER.SetFilter("Document Type", Format(DocumentType));
+        CustomerLedgerEntries.FILTER.SetFilter("Customer No.", CustomerNo);
+        CustomerLedgerEntries."Apply Entries".Invoke();
+    end;
+
+    local procedure CreateSalesInvoiceWithUnitPrice(
+        var SalesHeader: Record "Sales Header";
+        var SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        Item: Record Item;
+        UnitPrice: Decimal;
+        PostingDate: Date)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Modify(true);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StandardSalesInvoiceRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
@@ -5066,6 +5226,38 @@
     begin
         LibraryVariableStorage.Dequeue(LogInteraction);
         StandardSalesShipment.LogInteractionControl.SetValue(LogInteraction);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHCustomerBalanceToDate(var CustomerBalanceToDate: TestRequestPage "Customer - Balance to Date")
+    begin
+        CustomerBalanceToDate.ShowEntriesWithZeroBalance.SetValue(false);
+        CustomerBalanceToDate.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostApplicationHandler(var PostApplication: TestPage "Post Application")
+    begin
+        PostApplication.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        PostApplication.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyPostCustEntryPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    begin
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Post Application".Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 }
 

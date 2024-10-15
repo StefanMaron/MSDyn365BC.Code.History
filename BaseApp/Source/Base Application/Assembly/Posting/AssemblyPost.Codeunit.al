@@ -29,6 +29,7 @@ using Microsoft.Sales.Document;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Tracking;
 using System.Utilities;
 
 codeunit 900 "Assembly-Post"
@@ -222,32 +223,32 @@ codeunit 900 "Assembly-Post"
     begin
         IsHandled := false;
         OnBeforeDeleteAssemblyDocument(AssemblyHeader, IsHandled);
-        if not IsHandled then
+        if not IsHandled then begin
             // Delete header and lines
-            AssemblyLine.Reset();
-        AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
-        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        if AssemblyHeader."Remaining Quantity (Base)" = 0 then begin
-            if AssemblyHeader.HasLinks then
-                AssemblyHeader.DeleteLinks();
-            DeleteWhseRequest(AssemblyHeader);
-            OnDeleteAssemblyDocumentOnBeforeDeleteAssemblyHeader(AssemblyHeader, AssemblyLine);
-            AssemblyHeader.Delete();
-            OnDeleteAssemblyDocumentOnAfterDeleteAssemblyHeader(AssemblyHeader, AssemblyLine);
-            if AssemblyLine.Find('-') then
-                repeat
-                    if AssemblyLine.HasLinks() then
-                        AssemblyHeader.DeleteLinks();
-                    AssemblyLineReserve.SetDeleteItemTracking(true);
-                    AssemblyLineReserve.DeleteLine(AssemblyLine);
-                until AssemblyLine.Next() = 0;
-            OnDeleteAssemblyDocumentOnBeforeDeleteAssemblyLines(AssemblyHeader, AssemblyLine);
-            AssemblyLine.DeleteAll();
-            AssemblyCommentLine.SetCurrentKey("Document Type", "Document No.");
-            AssemblyCommentLine.SetRange("Document Type", AssemblyHeader."Document Type");
-            AssemblyCommentLine.SetRange("Document No.", AssemblyHeader."No.");
-            if not AssemblyCommentLine.IsEmpty() then
-                AssemblyCommentLine.DeleteAll();
+            AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
+            AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+            if AssemblyHeader."Remaining Quantity (Base)" = 0 then begin
+                if AssemblyHeader.HasLinks then
+                    AssemblyHeader.DeleteLinks();
+                DeleteWhseRequest(AssemblyHeader);
+                OnDeleteAssemblyDocumentOnBeforeDeleteAssemblyHeader(AssemblyHeader, AssemblyLine);
+                AssemblyHeader.Delete();
+                OnDeleteAssemblyDocumentOnAfterDeleteAssemblyHeader(AssemblyHeader, AssemblyLine);
+                if AssemblyLine.Find('-') then
+                    repeat
+                        if AssemblyLine.HasLinks() then
+                            AssemblyHeader.DeleteLinks();
+                        AssemblyLineReserve.SetDeleteItemTracking(true);
+                        AssemblyLineReserve.DeleteLine(AssemblyLine);
+                    until AssemblyLine.Next() = 0;
+                OnDeleteAssemblyDocumentOnBeforeDeleteAssemblyLines(AssemblyHeader, AssemblyLine);
+                AssemblyLine.DeleteAll();
+                AssemblyCommentLine.SetCurrentKey("Document Type", "Document No.");
+                AssemblyCommentLine.SetRange("Document Type", AssemblyHeader."Document Type");
+                AssemblyCommentLine.SetRange("Document No.", AssemblyHeader."No.");
+                if not AssemblyCommentLine.IsEmpty() then
+                    AssemblyCommentLine.DeleteAll();
+            end;
         end;
 
         OnAfterDeleteAssemblyDocument(AssemblyHeader);
@@ -852,11 +853,11 @@ codeunit 900 "Assembly-Post"
     var
         WMSManagement: Codeunit "WMS Management";
         WhseMgt: Codeunit "Whse. Management";
-        isHandled: Boolean;
+        IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeCreateWhseJnlLine(Location, WhseJnlLine, AssemblyHeader, ItemJnlLine, IsHandled);
-        if not IsHandled then
+        if not IsHandled then begin
             case ItemJnlLine."Entry Type" of
                 ItemJnlLine."Entry Type"::"Assembly Consumption":
                     WMSManagement.CheckAdjmtBin(Location, ItemJnlLine.Quantity, true);
@@ -864,31 +865,32 @@ codeunit 900 "Assembly-Post"
                     WMSManagement.CheckAdjmtBin(Location, ItemJnlLine.Quantity, false);
             end;
 
-        WMSManagement.CreateWhseJnlLine(ItemJnlLine, 0, WhseJnlLine, false);
+            WMSManagement.CreateWhseJnlLine(ItemJnlLine, 0, WhseJnlLine, false);
 
-        case ItemJnlLine."Entry Type" of
-            ItemJnlLine."Entry Type"::"Assembly Consumption":
-                WhseJnlLine."Source Type" := DATABASE::"Assembly Line";
-            ItemJnlLine."Entry Type"::"Assembly Output":
-                WhseJnlLine."Source Type" := DATABASE::"Assembly Header";
+            case ItemJnlLine."Entry Type" of
+                ItemJnlLine."Entry Type"::"Assembly Consumption":
+                    WhseJnlLine."Source Type" := DATABASE::"Assembly Line";
+                ItemJnlLine."Entry Type"::"Assembly Output":
+                    WhseJnlLine."Source Type" := DATABASE::"Assembly Header";
+            end;
+            WhseJnlLine."Source Subtype" := AssemblyHeader."Document Type".AsInteger();
+            WhseJnlLine."Source Code" := SourceCode;
+            WhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
+            ItemJnlLine.TestField("Order Type", ItemJnlLine."Order Type"::Assembly);
+            WhseJnlLine."Source No." := ItemJnlLine."Order No.";
+            WhseJnlLine."Source Line No." := ItemJnlLine."Order Line No.";
+            WhseJnlLine."Reason Code" := ItemJnlLine."Reason Code";
+            WhseJnlLine."Registering No. Series" := ItemJnlLine."Posting No. Series";
+            WhseJnlLine."Whse. Document Type" := WhseJnlLine."Whse. Document Type"::Assembly;
+            WhseJnlLine."Whse. Document No." := ItemJnlLine."Order No.";
+            WhseJnlLine."Whse. Document Line No." := ItemJnlLine."Order Line No.";
+            WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::Assembly;
+            WhseJnlLine."Reference No." := ItemJnlLine."Document No.";
+            if Location."Directed Put-away and Pick" then
+                WMSManagement.CalcCubageAndWeight(
+                    ItemJnlLine."Item No.", ItemJnlLine."Unit of Measure Code", WhseJnlLine."Qty. (Absolute)",
+                    WhseJnlLine.Cubage, WhseJnlLine.Weight);
         end;
-        WhseJnlLine."Source Subtype" := AssemblyHeader."Document Type".AsInteger();
-        WhseJnlLine."Source Code" := SourceCode;
-        WhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
-        ItemJnlLine.TestField("Order Type", ItemJnlLine."Order Type"::Assembly);
-        WhseJnlLine."Source No." := ItemJnlLine."Order No.";
-        WhseJnlLine."Source Line No." := ItemJnlLine."Order Line No.";
-        WhseJnlLine."Reason Code" := ItemJnlLine."Reason Code";
-        WhseJnlLine."Registering No. Series" := ItemJnlLine."Posting No. Series";
-        WhseJnlLine."Whse. Document Type" := WhseJnlLine."Whse. Document Type"::Assembly;
-        WhseJnlLine."Whse. Document No." := ItemJnlLine."Order No.";
-        WhseJnlLine."Whse. Document Line No." := ItemJnlLine."Order Line No.";
-        WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::Assembly;
-        WhseJnlLine."Reference No." := ItemJnlLine."Document No.";
-        if Location."Directed Put-away and Pick" then
-            WMSManagement.CalcCubageAndWeight(
-                ItemJnlLine."Item No.", ItemJnlLine."Unit of Measure Code", WhseJnlLine."Qty. (Absolute)",
-                WhseJnlLine.Cubage, WhseJnlLine.Weight);
 
         OnAfterCreateWhseJnlLineFromItemJnlLine(WhseJnlLine, ItemJnlLine);
         CheckWhseJnlLine(WhseJnlLine, ItemJnlLine);
@@ -1206,7 +1208,8 @@ codeunit 900 "Assembly-Post"
                 AsmLine.InitQtyToConsume();
                 AsmLine.Modify();
 
-                RestoreItemTracking(TempItemLedgEntry, AsmLine."Document No.", AsmLine."Line No.", DATABASE::"Assembly Line", AsmLine."Document Type".AsInteger(), 0D, AsmLine."Due Date");
+                if not FindItemLedgerEntryAndWhseItemTrackingLine(AsmLine, PostedAsmLine) then
+                    RestoreItemTracking(TempItemLedgEntry, AsmLine."Document No.", AsmLine."Line No.", DATABASE::"Assembly Line", AsmLine."Document Type".AsInteger(), 0D, AsmLine."Due Date");
                 VerifyAsmLineReservAfterUndo(AsmLine);
             until PostedAsmLine.Next() = 0;
 
@@ -1378,49 +1381,50 @@ codeunit 900 "Assembly-Post"
     begin
         IsHandled := false;
         OnBeforeRestoreItemTracking(ItemLedgEntry, OrderNo, OrderLineNo, SourceType, DocType, RcptDate, ShptDate, IsHandled);
-        if not IsHandled then
+        if not IsHandled then begin
             AsmHeader.Get(AsmHeader."Document Type"::Order, OrderNo);
-        IsATOHeader := (OrderLineNo = 0) and AsmHeader.IsAsmToOrder();
+            IsATOHeader := (OrderLineNo = 0) and AsmHeader.IsAsmToOrder();
 
-        ItemLedgEntry.Reset();
-        ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Assembly);
-        ItemLedgEntry.SetRange("Order No.", OrderNo);
-        ItemLedgEntry.SetRange("Order Line No.", OrderLineNo);
-        if ItemLedgEntry.FindSet() then
-            repeat
-                if ItemLedgEntry.TrackingExists() then begin
-                    CreateReservEntry.SetDates(ItemLedgEntry."Warranty Date", ItemLedgEntry."Expiration Date");
-                    CreateReservEntry.SetQtyToHandleAndInvoice(ItemLedgEntry.Quantity, ItemLedgEntry.Quantity);
-                    CreateReservEntry.SetItemLedgEntryNo(ItemLedgEntry."Entry No.");
-                    ReservEntry.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
-                    CreateReservEntry.CreateReservEntryFor(
-                        SourceType, DocType, ItemLedgEntry."Order No.", '', 0, ItemLedgEntry."Order Line No.",
-                        ItemLedgEntry."Qty. per Unit of Measure", 0, Abs(ItemLedgEntry.Quantity), ReservEntry);
+            ItemLedgEntry.Reset();
+            ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Assembly);
+            ItemLedgEntry.SetRange("Order No.", OrderNo);
+            ItemLedgEntry.SetRange("Order Line No.", OrderLineNo);
+            if ItemLedgEntry.FindSet() then
+                repeat
+                    if ItemLedgEntry.TrackingExists() then begin
+                        CreateReservEntry.SetDates(ItemLedgEntry."Warranty Date", ItemLedgEntry."Expiration Date");
+                        CreateReservEntry.SetQtyToHandleAndInvoice(ItemLedgEntry.Quantity, ItemLedgEntry.Quantity);
+                        CreateReservEntry.SetItemLedgEntryNo(ItemLedgEntry."Entry No.");
+                        ReservEntry.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
+                        CreateReservEntry.CreateReservEntryFor(
+                            SourceType, DocType, ItemLedgEntry."Order No.", '', 0, ItemLedgEntry."Order Line No.",
+                            ItemLedgEntry."Qty. per Unit of Measure", 0, Abs(ItemLedgEntry.Quantity), ReservEntry);
 
-                    if IsATOHeader then begin
-                        ATOLink.Get(AsmHeader."Document Type", AsmHeader."No.");
-                        IsHandled := false;
-                        OnBeforeRestoreItemTrackingOnBeforeCreateSalesAssemblyReservationEntry(ItemLedgEntry, AsmHeader, ATOLink, CreateReservEntry, FromTrackingSpecification, ReservStatus, IsHandled);
-                        if not IsHandled then begin
-                            ATOLink.TestField(Type, ATOLink.Type::Sale);
-                            SalesLine.Get(ATOLink."Document Type", ATOLink."Document No.", ATOLink."Document Line No.");
+                        if IsATOHeader then begin
+                            ATOLink.Get(AsmHeader."Document Type", AsmHeader."No.");
+                            IsHandled := false;
+                            OnBeforeRestoreItemTrackingOnBeforeCreateSalesAssemblyReservationEntry(ItemLedgEntry, AsmHeader, ATOLink, CreateReservEntry, FromTrackingSpecification, ReservStatus, IsHandled);
+                            if not IsHandled then begin
+                                ATOLink.TestField(Type, ATOLink.Type::Sale);
+                                SalesLine.Get(ATOLink."Document Type", ATOLink."Document No.", ATOLink."Document Line No.");
 
-                            CreateReservEntry.SetDisallowCancellation(true);
-                            CreateReservEntry.SetBinding("Reservation Binding"::"Order-to-Order");
+                                CreateReservEntry.SetDisallowCancellation(true);
+                                CreateReservEntry.SetBinding("Reservation Binding"::"Order-to-Order");
 
-                            FromTrackingSpecification.InitFromSalesLine(SalesLine);
-                            FromTrackingSpecification."Qty. per Unit of Measure" := ItemLedgEntry."Qty. per Unit of Measure";
-                            FromTrackingSpecification.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
-                            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
-                            ReservStatus := ReservStatus::Reservation;
-                        end;
-                    end else
-                        ReservStatus := ReservStatus::Surplus;
-                    CreateReservEntry.CreateEntry(
-                        ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", '', RcptDate, ShptDate, 0, ReservStatus);
-                end;
-            until ItemLedgEntry.Next() = 0;
-        ItemLedgEntry.DeleteAll();
+                                FromTrackingSpecification.InitFromSalesLine(SalesLine);
+                                FromTrackingSpecification."Qty. per Unit of Measure" := ItemLedgEntry."Qty. per Unit of Measure";
+                                FromTrackingSpecification.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
+                                CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+                                ReservStatus := ReservStatus::Reservation;
+                            end;
+                        end else
+                            ReservStatus := ReservStatus::Surplus;
+                        CreateReservEntry.CreateEntry(
+                            ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", '', RcptDate, ShptDate, 0, ReservStatus);
+                    end;
+                until ItemLedgEntry.Next() = 0;
+            ItemLedgEntry.DeleteAll();
+        end;
     end;
 
     procedure InitPostATO(var AssemblyHeader: Record "Assembly Header")
@@ -1526,6 +1530,48 @@ codeunit 900 "Assembly-Post"
     begin
         Item.Get(ItemJnlLine."Item No.");
         ItemJnlLine."Item Category Code" := Item."Item Category Code";
+    end;
+
+    local procedure FindItemLedgerEntryAndWhseItemTrackingLine(AssemblyLine: Record "Assembly Line"; PostedAssemblyLine: Record "Posted Assembly Line"): Boolean
+    var
+        Item: Record Item;
+        PostedAssemblyHeader: Record "Posted Assembly Header";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+        ItemTrackingDocManagement: Codeunit "Item Tracking Doc. Management";
+        WhseItemTrackingLineIsDeleted: Boolean;
+    begin
+        PostedAssemblyHeader.SetLoadFields("Item No.");
+        PostedAssemblyHeader.Get(PostedAssemblyLine."Document No.");
+
+        Item.SetLoadFields("Assembly Policy");
+        Item.Get(PostedAssemblyHeader."Item No.");
+        if not (Item."Assembly Policy" = Item."Assembly Policy"::"Assemble-to-Order") then
+            exit(false);
+
+        ItemTrackingDocManagement.RetrieveEntriesFromShptRcpt(TempItemLedgerEntry, Database::"Posted Assembly Line", 0, PostedAssemblyLine."Document No.", '', 0, PostedAssemblyLine."Line No.");
+        if TempItemLedgerEntry.FindSet() then
+            repeat
+                ItemLedgerEntry.Get(TempItemLedgerEntry."Entry No.");
+                WhseItemTrackingLineIsDeleted := FindandDeleteWhseItemTrackingLinesforAssembly(AssemblyLine, ItemLedgerEntry);
+            until TempItemLedgerEntry.Next() = 0;
+
+        exit(WhseItemTrackingLineIsDeleted);
+    end;
+
+    local procedure FindandDeleteWhseItemTrackingLinesforAssembly(AssemblyLine: Record "Assembly Line"; ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
+    var
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        WhseItemTrackingLine.SetSourceFilter(
+            Database::"Assembly Line", AssemblyLine."Document Type".AsInteger(),
+            AssemblyLine."Document No.", AssemblyLine."Line No.", true);
+        WhseItemTrackingLine.SetRange("Quantity Handled (Base)", Abs(ItemLedgerEntry.Quantity));
+        WhseItemTrackingLine.SetTrackingFilterFromItemLedgerEntry(ItemLedgerEntry);
+        if WhseItemTrackingLine.FindFirst() then begin
+            WhseItemTrackingLine.Delete();
+            exit(true);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

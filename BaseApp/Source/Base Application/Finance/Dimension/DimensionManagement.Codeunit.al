@@ -1099,8 +1099,13 @@ codeunit 408 DimensionManagement
     var
         DimVal: Record "Dimension Value";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
+        IsHandled: Boolean;
     begin
-        OnBeforeValidateShortcutDimValues(DimVal);
+        IsHandled := false;
+        OnBeforeValidateShortcutDimValues(DimVal, FieldNumber, ShortcutDimCode, DimSetID, IsHandled);
+        if IsHandled then
+            exit;
+
         ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         DimVal."Dimension Code" := GLSetupShortcutDimCode[FieldNumber];
         if ShortcutDimCode <> '' then begin
@@ -3270,7 +3275,7 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShortcutDimValues(var DimVal: Record "Dimension Value")
+    local procedure OnBeforeValidateShortcutDimValues(var DimVal: Record "Dimension Value"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var DimSetID: Integer; var IsHandled: Boolean)
     begin
     end;
 

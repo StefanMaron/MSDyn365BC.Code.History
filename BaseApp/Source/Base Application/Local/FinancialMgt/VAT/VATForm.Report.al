@@ -414,7 +414,7 @@ report 11307 "VAT - Form"
         if IsCorrection then
             AddElementReplacedVATDeclaration(XMLCurrNode);
 
-        INTERVATHelper.AddElementDeclarant(XMLCurrNode, GetSequenceNumber(), Comment);
+        INTERVATHelper.AddElementDeclarant(XMLCurrNode, GetSequenceNumber(), '');
         XMLCurrNode := XMLFirstNode;
 
         INTERVATHelper.AddElementPeriod(XMLCurrNode, ChoicePeriodType, Vperiod, Vyear, '');
@@ -425,6 +425,9 @@ report 11307 "VAT - Form"
 
         AddElementClientListingNihil(XMLFirstNode);
         AddElementAsk(XMLFirstNode);
+
+        AddElementComment(XMLFirstNode);
+        XMLCurrNode := XMLFirstNode;
 
         ServerFileName := FileManagement.ServerTempFileName('.xml');
         XMLDocOut.Save(ServerFileName);
@@ -454,6 +457,13 @@ report 11307 "VAT - Form"
         XMLDOMMgt.AddElement(XMLCurrNode, 'Ask', '', DocNameSpace, XMLNewChild);
         XMLDOMMgt.AddAttribute(XMLNewChild, 'Restitution', YesNo(Reimbursement));
         XMLDOMMgt.AddAttribute(XMLNewChild, 'Payment', YesNo(PaymForms));
+    end;
+
+    local procedure AddElementComment(XMLCurrNode: DotNet XmlNode)
+    var
+        XMLNewChild: DotNet XmlNode;
+    begin
+        XMLDOMMgt.AddElement(XMLCurrNode, 'Comment', Comment, DocNameSpace, XMLNewChild);
     end;
 
     local procedure AddElementClientListingNihil(XMLCurrNode: DotNet XmlNode)

@@ -35,6 +35,7 @@ using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.Task;
 using Microsoft.Foundation.UOM;
 using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Payables;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Entity;
@@ -98,7 +99,6 @@ using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Service.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Bank.Ledger;
-using Microsoft.HumanResources.Payables;
 using Microsoft.Purchases.Payables;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Setup;
@@ -108,7 +108,8 @@ codeunit 104000 "Upgrade - BaseApp"
     Subtype = Upgrade;
     Permissions =
         TableData "User Group Plan" = rimd,
-        TableData "Cust. Ledger Entry" = rm;
+        TableData "Cust. Ledger Entry" = rm,
+        TableData "Employee Ledger Entry" = rm;
 
     var
         EnvironmentInformation: Codeunit "Environment Information";
@@ -259,6 +260,7 @@ codeunit 104000 "Upgrade - BaseApp"
 #endif
         UpgradeVATSetupAllowVATDate();
         CopyItemSalesBlockedToServiceBlocked();
+        SetEmployeeLedgerEntryCurrencyFactor();
     end;
 
     local procedure ClearTemporaryTables()
@@ -4319,6 +4321,27 @@ codeunit 104000 "Upgrade - BaseApp"
         end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCopyItemSalesBlockedToServiceBlockedUpgradeTag());
+    end;
+
+    local procedure SetEmployeeLedgerEntryCurrencyFactor()
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        EmployeeLedgerEntryDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetEmployeeLedgerEntryCurrencyFactorUpgradeTag()) then
+            exit;
+
+        EmployeeLedgerEntryDataTransfer.SetTables(Database::"Employee Ledger Entry", Database::"Employee Ledger Entry");
+        EmployeeLedgerEntryDataTransfer.AddSourceFilter(EmployeeLedgerEntry.FieldNo("Original Currency Factor"), '=%1', 0);
+        EmployeeLedgerEntryDataTransfer.AddConstantValue(1.0, EmployeeLedgerEntry.FieldNo("Original Currency Factor"));
+        EmployeeLedgerEntryDataTransfer.AddConstantValue(1.0, EmployeeLedgerEntry.FieldNo("Adjusted Currency Factor"));
+        EmployeeLedgerEntryDataTransfer.UpdateAuditFields := false;
+        EmployeeLedgerEntryDataTransfer.CopyFields();
+        Clear(EmployeeLedgerEntryDataTransfer);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetEmployeeLedgerEntryCurrencyFactorUpgradeTag());
     end;
 
     [IntegrationEvent(false, false)]

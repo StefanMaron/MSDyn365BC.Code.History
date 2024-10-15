@@ -9,7 +9,7 @@ page 675 "My Job Queue"
     PageType = ListPart;
     RefreshOnActivate = true;
     SourceTable = "Job Queue Entry";
-    SourceTableView = sorting("Last Ready State");
+    SourceTableView = sorting("Entry No.");
 
     layout
     {
@@ -49,6 +49,12 @@ page 675 "My Job Queue"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the earliest date and time when the job queue entry should be run.';
+                }
+                field(Priority; Rec."Priority Within Category")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the priority within other jobs with the same category code.';
+                    Visible = false;
                 }
                 field("Expiration Date/Time"; Rec."Expiration Date/Time")
                 {
@@ -116,6 +122,18 @@ page 675 "My Job Queue"
                 trigger OnAction()
                 begin
                     Rec.LookupRecordToProcess();
+                end;
+            }
+            action(RemoveError)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Remove Failed Entries';
+                Image = Delete;
+                ToolTip = 'Deletes the job queue entries that have failed.';
+
+                trigger OnAction()
+                begin
+                    Rec.RemoveFailedJobs(true);
                 end;
             }
             action(ScheduleReport)
