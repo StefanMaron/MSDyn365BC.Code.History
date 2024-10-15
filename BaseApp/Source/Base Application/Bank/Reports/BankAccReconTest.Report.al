@@ -390,6 +390,7 @@ report 1408 "Bank Acc. Recon. - Test"
                 }
                 dataitem(OutstandingBankTransaction; "Outstanding Bank Transaction")
                 {
+                    DataItemTableView = sorting("Entry No.");
                     UseTemporary = true;
                     column(Outstd_Bank_Transac_Amount; Amount)
                     {
@@ -424,6 +425,7 @@ report 1408 "Bank Acc. Recon. - Test"
                 }
                 dataitem(OutstandingPayment; "Outstanding Bank Transaction")
                 {
+                    DataItemTableView = sorting("Entry No.");
                     UseTemporary = true;
                     column(Outstd_Payment_Amount; Amount)
                     {
@@ -466,9 +468,11 @@ report 1408 "Bank Acc. Recon. - Test"
                     StatementEndingBalanceLbl += CalculatedFieldCaptionLbl;
 
                 ErrorLabel := 1;
-                OutstandingBankTransaction.DeleteAll();
-                OutstandingPayment.DeleteAll();
-                CreateOutstandingBankTransactions("Bank Account No.");
+                if PrintOutstandingTransactions then begin
+                    OutstandingBankTransaction.DeleteAll();
+                    OutstandingPayment.DeleteAll();
+                    CreateOutstandingBankTransactions();
+                end;
                 TotalOutstdBankTransac := BankAccReconTest.TotalOutstandingBankTransactions("Bank Acc. Reconciliation");
 
                 BankAccReconLine.FilterBankRecLines("Bank Acc. Reconciliation");
@@ -674,44 +678,42 @@ report 1408 "Bank Acc. Recon. - Test"
             until BankAccRecMatchBuffer.Next() = 0;
     end;
 
-    local procedure CreateOutstandingBankTransactions(BankAccountNo: Code[20])
+    local procedure CreateOutstandingBankTransactions()
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         TempOutstandingBankTransaction: Record "Outstanding Bank Transaction" temporary;
         LedgEntryRemainingAmount: Decimal;
         RemainingAmt: Decimal;
     begin
-        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        BankAccountLedgerEntry.SetRange(Open, true);
-        BankAccountLedgerEntry.SetRange(Reversed, false);
-        if "Bank Acc. Reconciliation"."Statement Date" <> 0D then
-            BankAccountLedgerEntry.SetRange("Posting Date", 0D, "Bank Acc. Reconciliation"."Statement Date");
-        if "Bank Acc. Reconciliation"."Statement Type" = "Bank Acc. Reconciliation"."Statement Type"::"Bank Reconciliation" then
-            BankAccountLedgerEntry.SetRange("Statement Status", BankAccountLedgerEntry."Statement Status"::Open);
+        BankAccReconTest.SetOutstandingFilters("Bank Acc. Reconciliation", BankAccountLedgerEntry);
+        if BankAccountLedgerEntry.IsEmpty() then
+            exit;
+
+        BankAccountLedgerEntry.SetAutoCalcFields("Check Ledger Entries");
         if BankAccountLedgerEntry.FindSet() then
             repeat
-                BankAccountLedgerEntry.CalcFields("Check Ledger Entries");
-                if BankAccountLedgerEntry."Check Ledger Entries" <> 0 then begin
-                    RemainingAmt := BankAccountLedgerEntry.Amount -
-                      OutstandingPayment.GetAppliedAmount(BankAccountLedgerEntry."Entry No.");
-                    if RemainingAmt <> 0 then
-                        OutstandingPayment.CopyFromBankAccLedgerEntry(BankAccountLedgerEntry, OutstandingPayment.Type::"Check Ledger Entry",
-                          "Bank Acc. Reconciliation"."Statement Type".AsInteger(), "Bank Acc. Reconciliation"."Statement No.", RemainingAmt, 0)
-                end else begin
-                    LedgEntryRemainingAmount := OutstandingBankTransaction.GetRemainingAmount(BankAccountLedgerEntry."Entry No.");
-                    if LedgEntryRemainingAmount = 0 then
-                        LedgEntryRemainingAmount := BankAccountLedgerEntry.Amount;
+                if BankAccReconTest.CheckBankAccountLedgerEntryFilters(BankAccountLedgerEntry, "Bank Acc. Reconciliation"."Statement No.", "Bank Acc. Reconciliation"."Statement Date") then
+                    if BankAccountLedgerEntry."Check Ledger Entries" <> 0 then begin
+                        RemainingAmt := BankAccountLedgerEntry.Amount -
+                          OutstandingPayment.GetAppliedAmount(BankAccountLedgerEntry."Entry No.");
+                        if RemainingAmt <> 0 then
+                            OutstandingPayment.CopyFromBankAccLedgerEntry(BankAccountLedgerEntry, OutstandingPayment.Type::"Check Ledger Entry",
+                              "Bank Acc. Reconciliation"."Statement Type".AsInteger(), "Bank Acc. Reconciliation"."Statement No.", RemainingAmt, 0)
+                    end else begin
+                        LedgEntryRemainingAmount := OutstandingBankTransaction.GetRemainingAmount(BankAccountLedgerEntry."Entry No.");
+                        if LedgEntryRemainingAmount = 0 then
+                            LedgEntryRemainingAmount := BankAccountLedgerEntry.Amount;
 
-                    RemainingAmt := LedgEntryRemainingAmount - OutstandingBankTransaction.GetAppliedAmount(BankAccountLedgerEntry."Entry No.");
-                    if RemainingAmt <> 0 then begin
-                        OutstandingBankTransaction.CreateTheDepositHeaderLine(
-                          OutstandingBankTransaction, TempOutstandingBankTransaction, BankAccountLedgerEntry);
-                        OutstandingBankTransaction.CopyFromBankAccLedgerEntry(BankAccountLedgerEntry,
-                          OutstandingBankTransaction.Type::"Bank Account Ledger Entry",
-                          "Bank Acc. Reconciliation"."Statement Type".AsInteger(), "Bank Acc. Reconciliation"."Statement No.",
-                          RemainingAmt, OutstandingBankTransaction.Indentation);
+                        RemainingAmt := LedgEntryRemainingAmount - OutstandingBankTransaction.GetAppliedAmount(BankAccountLedgerEntry."Entry No.");
+                        if RemainingAmt <> 0 then begin
+                            OutstandingBankTransaction.CreateTheDepositHeaderLine(
+                              OutstandingBankTransaction, TempOutstandingBankTransaction, BankAccountLedgerEntry);
+                            OutstandingBankTransaction.CopyFromBankAccLedgerEntry(BankAccountLedgerEntry,
+                              OutstandingBankTransaction.Type::"Bank Account Ledger Entry",
+                              "Bank Acc. Reconciliation"."Statement Type".AsInteger(), "Bank Acc. Reconciliation"."Statement No.",
+                              RemainingAmt, OutstandingBankTransaction.Indentation);
+                        end;
                     end;
-                end;
             until BankAccountLedgerEntry.Next() = 0;
     end;
 
@@ -856,7 +858,6 @@ report 1408 "Bank Acc. Recon. - Test"
         GLEntries.SetFilter("Source No.", ''''' |<>%1', BankAcc."No.");
         if not GLEntries.IsEmpty() then
             HeaderError3 := StrSubstNo(PotentialUnstabilityDueToDirectPostingEntriesLbl, DirectPostingURLLinkLbl);
-        ;
     end;
 
     [IntegrationEvent(false, false)]

@@ -274,37 +274,40 @@ codeunit 456 "Job Queue Management"
         JobQueueLogEntry: Record "Job Queue Log Entry";
         JobQueueEntry2: Record "Job Queue Entry";
         JobQueueLogEntry2: Record "Job Queue Log Entry";
+        DidSessionStart: Boolean;
+        DidSessionStop: Boolean;
     begin
-        if Session.CurrentClientType() <> ClientType::Background then
-            exit;
-
         // Find all in process job queue entries
         JobQueueEntry.ReadIsolation(IsolationLevel::ReadUnCommitted);
-        JobQueueEntry.SetLoadFields(ID, "System Task ID", "User Service Instance ID", "User Session ID", Status);
+        JobQueueEntry.SetLoadFields(ID, "System Task ID", "User Service Instance ID", "User Session ID", Status, "User Session Started");
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
         JobQueueEntry.SetRange(Scheduled, false);
-        JobQueueEntry.SetFilter(SystemModifiedAt, '<%1', CurrentDateTime() - GetCheckDelayInMinutes());  // Not modified in the last 10 minutes
+        JobQueueEntry.SetFilter(SystemModifiedAt, '<%1', CurrentDateTime() - GetCheckDelayInMilliseconds());  // Not modified in the last 10 minutes
         JobQueueEntry2.ReadIsolation(IsolationLevel::UpdLock);
         if JobQueueEntry.FindSet() then
             repeat
                 // Check if job is still running or stale
                 // JQE is stale if it has task no longer exists
                 // If stale, set to error
-                if not TaskScheduler.TaskExists(JobQueueEntry."System Task ID") then
-                    if HasNoActiveSession(JobQueueEntry."User Service Instance ID", JobQueueEntry."User Session ID") then begin
+                if not TaskScheduler.TaskExists(JobQueueEntry."System Task ID") then begin
+                    DidSessionStart := SessionStarted(JobQueueEntry."User Service Instance ID", JobQueueEntry."User Session ID", JobQueueEntry."User Session Started");
+                    if DidSessionStart then
+                        DidSessionStop := SessionStopped(JobQueueEntry."User Service Instance ID", JobQueueEntry."User Session ID", JobQueueEntry."User Session Started");
+                    if not DidSessionStart or DidSessionStart and DidSessionStop then begin
                         JobQueueEntry2.Get(JobQueueEntry.ID);
-                        JobQueueEntry.SetError(JobSomethingWentWrongMsg);
+                        JobQueueEntry2.SetError(JobSomethingWentWrongMsg);
                         OnFindStaleJobsAndSetErrorOnAfterSetError(JobQueueEntry2);
 
                         StaleJobQueueEntryTelemetry(JobQueueEntry2);
                     end;
+                end;
             until JobQueueEntry.Next() = 0;
 
         // Find all in process job queue log entries
         JobQueueLogEntry.ReadIsolation(IsolationLevel::ReadUnCommitted);
         JobQueueLogEntry.SetLoadFields("Entry No.", ID);
         JobQueueLogEntry.SetRange(Status, JobQueueLogEntry.Status::"In Process");
-        JobQueueLogEntry.SetFilter(SystemModifiedAt, '<%1', CurrentDateTime() - GetCheckDelayInMinutes());  // Not modified in the last 10 minutes
+        JobQueueLogEntry.SetFilter(SystemModifiedAt, '<%1', CurrentDateTime() - GetCheckDelayInMilliseconds());  // Not modified in the last 10 minutes
         JobQueueLogEntry2.ReadIsolation(IsolationLevel::UpdLock);
         if JobQueueLogEntry.FindSet() then
             repeat
@@ -319,18 +322,41 @@ codeunit 456 "Job Queue Management"
             until JobQueueLogEntry.Next() = 0;
     end;
 
-    local procedure GetCheckDelayInMinutes(): Integer
+    local procedure GetCheckDelayInMilliseconds(): Integer
+    var
+        DelayInMinutes: Integer;
     begin
-        exit(1000 * 60 * 10); // 10 minutes
+        DelayInMinutes := 10;
+        OnGetCheckDelayInMinutes(DelayInMinutes);
+        if DelayInMinutes < 0 then
+            DelayInMinutes := 0;
+        exit(1000 * 60 * DelayInMinutes); // 10 minutes
     end;
 
-    local procedure HasNoActiveSession(ServerInstanceID: Integer; SessionID: Integer): Boolean
+    local procedure SessionStarted(ServerInstanceID: Integer; SessionID: Integer; AfterDateTime: DateTime): Boolean
     var
         SessionEvent: Record "Session Event";
     begin
+        exit(SessionExists(ServerInstanceID, SessionID, AfterDateTime, SessionEvent."Event Type"::Logon));
+    end;
+
+    local procedure SessionStopped(ServerInstanceID: Integer; SessionID: Integer; AfterDateTime: DateTime): Boolean
+    var
+        SessionEvent: Record "Session Event";
+    begin
+        exit(SessionExists(ServerInstanceID, SessionID, AfterDateTime, SessionEvent."Event Type"::Logoff));
+    end;
+
+    local procedure SessionExists(ServerInstanceID: Integer; SessionID: Integer; AfterDateTime: DateTime; EventType: Option): Boolean
+    var
+        SessionEvent: Record "Session Event";
+    begin
+        if AfterDateTime = 0DT then
+            AfterDateTime := CurrentDateTime - 24 * 60 * 60 * 1000;     // 24hrs ago
         SessionEvent.SetRange("Server Instance ID", ServerInstanceID);
         SessionEvent.SetRange("Session ID", SessionID);
-        SessionEvent.SetRange("Event Type", SessionEvent."Event Type"::Logoff);
+        SessionEvent.SetFilter("Event Datetime", '>%1', AfterDateTime - 600000);  // because session id's start from 1 after server restart
+        SessionEvent.SetRange("Event Type", EventType);
         exit(not SessionEvent.IsEmpty());
     end;
 
@@ -460,6 +486,13 @@ codeunit 456 "Job Queue Management"
         Session.LogMessage('0000FNM', JobQueueStatusChangeTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
 
         GlobalLanguage(CurrentLanguage);
+    end;
+
+    /// <Summary>Used for test. Sets the minimum age of stale job queue entries and job queue log entries.</Summary>
+    /// <Parameters>DelayInMinutes defaults to 10 minutes but can be overridden to a longer or shorter time, including 0</Parameters>
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCheckDelayInMinutes(var DelayInMinutes: Integer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
