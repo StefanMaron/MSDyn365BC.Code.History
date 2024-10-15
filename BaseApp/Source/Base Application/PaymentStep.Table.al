@@ -28,11 +28,9 @@ table 10862 "Payment Step"
             Caption = 'Next Status';
             TableRelation = "Payment Status".Line WHERE("Payment Class" = FIELD("Payment Class"));
         }
-        field(6; "Action Type"; Option)
+        field(6; "Action Type"; Enum "Payment Step Action Type")
         {
             Caption = 'Action Type';
-            OptionCaption = 'None,Ledger,Report,File,Create New Document,Cancel File';
-            OptionMembers = "None",Ledger,"Report",File,"Create New Document","Cancel File";
         }
         field(7; "Report No."; Integer)
         {
@@ -50,14 +48,14 @@ table 10862 "Payment Step"
         }
         field(9; "Previous Status Name"; Text[50])
         {
-            CalcFormula = Lookup ("Payment Status".Name WHERE("Payment Class" = FIELD("Payment Class"),
+            CalcFormula = Lookup("Payment Status".Name WHERE("Payment Class" = FIELD("Payment Class"),
                                                               Line = FIELD("Previous Status")));
             Caption = 'Previous Status Name';
             FieldClass = FlowField;
         }
         field(10; "Next Status Name"; Text[50])
         {
-            CalcFormula = Lookup ("Payment Status".Name WHERE("Payment Class" = FIELD("Payment Class"),
+            CalcFormula = Lookup("Payment Status".Name WHERE("Payment Class" = FIELD("Payment Class"),
                                                               Line = FIELD("Next Status")));
             Caption = 'Next Status Name';
             FieldClass = FlowField;

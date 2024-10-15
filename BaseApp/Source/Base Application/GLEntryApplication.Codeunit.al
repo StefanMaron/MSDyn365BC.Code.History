@@ -66,7 +66,7 @@ codeunit 10842 "G/L Entry Application"
                 GLEntry."Applies-to ID" := '';
                 GLEntry."Letter Date" := LetterDate;
                 GLEntry.Modify();
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
         Message('%1', Text1120006);
     end;
 
@@ -119,10 +119,10 @@ codeunit 10842 "G/L Entry Application"
                                     else
                                         SumPos += GLEntry.Amount;
                                 end;
-                            until GLEntry3.Next = 0;
+                            until GLEntry3.Next() = 0;
                     end;
                 end;
-            until GLEntry2.Next = 0;
+            until GLEntry2.Next() = 0;
     end;
 
     [Scope('OnPrem')]

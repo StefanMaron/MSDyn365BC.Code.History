@@ -102,6 +102,8 @@ page 5774 "Warehouse Activity List"
                     Image = EditLines;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
+                    Promoted = true;
+                    PromotedCategory = Process;
 
                     trigger OnAction()
                     begin

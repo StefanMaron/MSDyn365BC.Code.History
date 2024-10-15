@@ -448,7 +448,7 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea =;
                         Caption = 'EC Sales List - Services';
-                        RunObject = report 10876;
+                        RunObject = report "EC Sales List - Services";
                     }
                     action("Customer/Item Sales1")
                     {
@@ -704,7 +704,7 @@ page 8907 "Sales & Marketing Manager RC"
                     ApplicationArea = Suite;
                     Caption = 'Coupled Data Synchronization Errors';
                     RunObject = page "CRM Skipped Records";
-                    AccessByPermission = tabledata 5331 = R;
+                    AccessByPermission = TableData "CRM Integration Record" = R;
                 }
             }
             group("Group16")
@@ -770,11 +770,24 @@ page 8907 "Sales & Marketing Manager RC"
                     Caption = 'Return Reasons';
                     RunObject = page "Return Reasons";
                 }
+#if not CLEAN18
                 action("Contact Conversion Templates")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact Conversion Templates';
                     RunObject = page "Customer Template List";
+                    Tooltip = 'Open the Contact Conversion Templates page.';
+                    ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Customer Templates".';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '18.0';
+                }
+#endif
+                action("Customer Templates")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Customer Templates';
+                    RunObject = page "Customer Templ. List";
+                    Tooltip = 'Open the Customer Templates page.';
                 }
                 group("Group17")
                 {

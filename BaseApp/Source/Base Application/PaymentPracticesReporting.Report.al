@@ -172,7 +172,7 @@ report 10887 "Payment Practices Reporting"
                 trigger OnAfterGetRecord()
                 begin
                     if Number <> 1 then
-                        if TempVendPmtApplicationBuffer.Next = 0 then
+                        if TempVendPmtApplicationBuffer.Next() = 0 then
                             CurrReport.Break();
                 end;
 
@@ -307,7 +307,7 @@ report 10887 "Payment Practices Reporting"
                 trigger OnAfterGetRecord()
                 begin
                     if Number <> 1 then
-                        if TempVendPmtApplicationBuffer.Next = 0 then
+                        if TempVendPmtApplicationBuffer.Next() = 0 then
                             CurrReport.Break();
                 end;
 
@@ -437,7 +437,7 @@ report 10887 "Payment Practices Reporting"
                 trigger OnAfterGetRecord()
                 begin
                     if Number <> 1 then
-                        if TempCustPmtApplicationBuffer.Next = 0 then
+                        if TempCustPmtApplicationBuffer.Next() = 0 then
                             CurrReport.Break();
                 end;
 
@@ -566,7 +566,7 @@ report 10887 "Payment Practices Reporting"
                 trigger OnAfterGetRecord()
                 begin
                     if Number <> 1 then
-                        if TempCustPmtApplicationBuffer.Next = 0 then
+                        if TempCustPmtApplicationBuffer.Next() = 0 then
                             CurrReport.Break();
                 end;
 
@@ -686,11 +686,11 @@ report 10887 "Payment Practices Reporting"
     begin
         if (StartingDate = 0D) or (EndingDate = 0D) then
             Error(DatesNotSpecifiedErr);
-        if PaymentPeriodSetup.IsEmpty then
+        if PaymentPeriodSetup.IsEmpty() then
             Error(PaymentPeriodSetupEmptyErr);
         PaymentReportingMgt.BuildVendPmtApplicationBuffer(TempVendPmtApplicationBuffer, StartingDate, EndingDate, PaymentsWithinPeriod);
         PaymentReportingMgt.BuildCustPmtApplicationBuffer(TempCustPmtApplicationBuffer, StartingDate, EndingDate, PaymentsWithinPeriod);
-        if TempVendPmtApplicationBuffer.IsEmpty and TempCustPmtApplicationBuffer.IsEmpty then
+        if TempVendPmtApplicationBuffer.IsEmpty and TempCustPmtApplicationBuffer.IsEmpty() then
             Error(NoInvoicesForPeriodErr);
         TotalVendAmount := PaymentReportingMgt.GetTotalAmount(TempVendPmtApplicationBuffer);
         TotalCustAmount := PaymentReportingMgt.GetTotalAmount(TempCustPmtApplicationBuffer);

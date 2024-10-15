@@ -1049,7 +1049,7 @@ page 9233 "G/L Balance by Dim. Matrix"
                         ExcludeClosingDateFilter :=
                           StrSubstNo('%1&<>%2', ExcludeClosingDateFilter, ClosingDate(AccountingPeriod."Starting Date" - 1));
                     FirstRec := false;
-                until AccountingPeriod.Next = 0;
+                until AccountingPeriod.Next() = 0;
         end;
     end;
 
@@ -1379,11 +1379,12 @@ page 9233 "G/L Balance by Dim. Matrix"
         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixAmount;
     end;
 
-    [Obsolete('The function has been replaced with another overload.','16.0')]
+#if not CLEAN16
+    [Obsolete('The function has been replaced with another overload.', '16.0')]
     procedure Load(NewLineDimCode: Text[30]; NewColumnDimCode: Text[30]; NewPeriodType: Option; NewDateFilter: Text; NewGLAccFilter: Text; NewBusUnitFilter: Text; NewBudgetFilter: Text; NewGlobalDim1Filter: Text; NewGlobalDim2Filter: Text; NewShowActualBudg: Option; NewAmountField: Option; NewClosingEntryFilter: Option; NewRoundingFactor: Option; NewShowInAddCurr: Boolean; NewMATRIX_ColumnCaptions: array[32] of Text[1024]; NewPrimKeyFirstCol: Text[1024]; NewAmountType: Option "Net Change","Balance at Date"; CurrSetLength: Integer)
     begin
     end;
-
+#endif
     procedure Load(NewAnalysisByDimParameters: Record "Analysis by Dim. Parameters"; NewLineDimCode: Text[30]; NewColumnDimCode: Text[30]; NewMATRIX_ColumnCaptions: array[32] of Text[1024]; NewPrimKeyFirstCol: Text[1024]; CurrSetLength: Integer)
     begin
         FindPeriod('');

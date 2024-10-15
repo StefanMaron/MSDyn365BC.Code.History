@@ -91,7 +91,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
                 Window.Update(2, LineCount);
                 CheckRecurringLine(FAJnlLine);
                 FAJnlCheckLine.CheckFAJnlLine(FAJnlLine);
-                if Next = 0 then
+                if Next() = 0 then
                     Find('-');
             until "Line No." = StartLineNo;
             NoOfRecords := LineCount;
@@ -129,7 +129,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
                         if FAJnlLine2."Recurring Method" <> FAJnlLine2."Recurring Method"::"F Fixed" then
                             ZeroAmounts(FAJnlLine2);
                         FAJnlLine2.Modify();
-                    until FAJnlLine2.Next = 0;
+                    until FAJnlLine2.Next() = 0;
                 end else begin
                     FAJnlLine2.CopyFilters(FAJnlLine);
                     FAJnlLine2.SetFilter("FA No.", '<>%1', '');
@@ -167,7 +167,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
                 repeat
                     Evaluate(PostingNoSeriesNo, NoSeries.Description);
                     NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
-                until NoSeries.Next = 0;
+                until NoSeries.Next() = 0;
 
             OnBeforeCommit(FARegNo);
 
@@ -353,7 +353,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
                     OnPostLinesOnAfterFAJnlPostLine(FAJnlLine);
                     CreateAndPostDerogatoryEntry(FAJnlLine);
                 end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

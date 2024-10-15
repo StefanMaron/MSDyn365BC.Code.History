@@ -34,7 +34,7 @@ report 10862 "Suggest Vendor Payments FR"
                             GetVendLedgEntries(true, false);
                             GetVendLedgEntries(false, false);
                             CheckAmounts(false);
-                        until (Next = 0) or StopPayments;
+                        until (Next() = 0) or StopPayments;
                 end;
 
                 if UsePaymentDisc and not StopPayments then begin
@@ -48,7 +48,7 @@ report 10862 "Suggest Vendor Payments FR"
                             GetVendLedgEntries(true, true);
                             GetVendLedgEntries(false, true);
                             CheckAmounts(true);
-                        until (Next = 0) or StopPayments;
+                        until (Next() = 0) or StopPayments;
                 end;
 
                 GenPayLine.LockTable();
@@ -248,7 +248,7 @@ report 10862 "Suggest Vendor Payments FR"
         if VendLedgEntry.Find('-') then
             repeat
                 SaveAmount;
-            until VendLedgEntry.Next = 0;
+            until VendLedgEntry.Next() = 0;
     end;
 
     local procedure SaveAmount()
@@ -317,7 +317,7 @@ report 10862 "Suggest Vendor Payments FR"
                     CurrencyBalance := CurrencyBalance + PayableVendLedgEntry."Amount (LCY)"
                 else
                     PayableVendLedgEntry.Delete();
-            until PayableVendLedgEntry.Next = 0;
+            until PayableVendLedgEntry.Next() = 0;
             if CurrencyBalance < 0 then begin
                 PayableVendLedgEntry.SetRange("Currency Code", PrevCurrency);
                 PayableVendLedgEntry.DeleteAll();
@@ -411,7 +411,7 @@ report 10862 "Suggest Vendor Payments FR"
                     VendLedgEntry.CalcFields("Remaining Amount");
                     VendLedgEntry."Amount to Apply" := VendLedgEntry."Remaining Amount";
                     CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
-                until PayableVendLedgEntry.Next = 0;
+                until PayableVendLedgEntry.Next() = 0;
                 PayableVendLedgEntry.SetFilter("Vendor No.", '>%1', PayableVendLedgEntry."Vendor No.");
             until not PayableVendLedgEntry.FindFirst;
 
@@ -483,7 +483,7 @@ report 10862 "Suggest Vendor Payments FR"
                     end;
                     GenPayLineInserted := true;
                 end;
-            until TempPaymentPostBuffer.Next = 0;
+            until TempPaymentPostBuffer.Next() = 0;
     end;
 
     local procedure ShowMessage(Text: Text)

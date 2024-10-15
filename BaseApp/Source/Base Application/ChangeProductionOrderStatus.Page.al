@@ -304,7 +304,7 @@ page 99000914 "Change Production Order Status"
                                 Window.Update(2, Round(POCount / NoOfRecords * 10000, 1));
                                 ProdOrderStatusMgt.ChangeProdOrderStatus(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
                                 Commit();
-                            until Next = 0;
+                            until Next() = 0;
                     end;
                 }
             }

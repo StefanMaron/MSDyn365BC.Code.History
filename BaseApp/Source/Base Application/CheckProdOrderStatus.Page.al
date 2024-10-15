@@ -113,7 +113,7 @@ page 99000833 "Check Prod. Order Status"
                                 exit(true);
                             end;
                     end;
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
 
         exit(false);
     end;

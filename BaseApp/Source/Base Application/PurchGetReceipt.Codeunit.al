@@ -1,4 +1,4 @@
-﻿codeunit 74 "Purch.-Get Receipt"
+codeunit 74 "Purch.-Get Receipt"
 {
     TableNo = "Purchase Line";
 
@@ -86,7 +86,7 @@
                         if Type = Type::"Charge (Item)" then
                             GetItemChargeAssgnt(PurchRcptLine2, PurchLine."Qty. to Invoice");
                     end;
-                until Next = 0;
+                until Next() = 0;
                 OnAfterInsertLines(PurchHeader);
 
                 CalcInvoiceDiscount(PurchLine);
@@ -156,7 +156,7 @@
                             repeat
                                 PurchLine2.CalcFields("Qty. to Assign");
                                 InsertChargeAssgnt := PurchLine2."Qty. to Assign" <> PurchLine2.Quantity;
-                            until (PurchLine2.Next = 0) or InsertChargeAssgnt;
+                            until (PurchLine2.Next() = 0) or InsertChargeAssgnt;
 
                         if InsertChargeAssgnt then begin
                             ItemChargeAssgntPurch2."Document Type" := PurchLine2."Document Type";
@@ -203,7 +203,7 @@
                             QtyToAssign := QtyToAssign - ItemChargeAssgntPurch2."Qty. to Assign";
                         end;
                     end;
-                until ItemChargeAssgntPurch.Next = 0;
+                until ItemChargeAssgntPurch.Next() = 0;
         end;
     end;
 

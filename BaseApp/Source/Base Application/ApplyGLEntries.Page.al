@@ -177,7 +177,7 @@ page 10842 "Apply G/L Entries"
                                 GLEntry.Letter := '';
                                 GLEntry."Letter Date" := 0D;
                                 GLEntry.Modify();
-                            until GLEntry.Next = 0;
+                            until GLEntry.Next() = 0;
                         if Letter <> '' then
                             Message('%1', Text001);
                     end;
@@ -221,7 +221,7 @@ page 10842 "Apply G/L Entries"
                 repeat
                     Debit := Debit + GLE."Debit Amount";
                     Credit := Credit + GLE."Credit Amount";
-                until GLE.Next = 0;
+                until GLE.Next() = 0;
         end else begin
             Debit := "Debit Amount";
             Credit := "Credit Amount";

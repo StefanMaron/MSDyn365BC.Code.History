@@ -1,4 +1,4 @@
-﻿codeunit 1222 "SEPA CT-Prepare Source"
+codeunit 1222 "SEPA CT-Prepare Source"
 {
     TableNo = "Gen. Journal Line";
 
@@ -20,7 +20,7 @@
             repeat
                 TempGenJnlLine := FromGenJnlLine;
                 TempGenJnlLine.Insert();
-            until FromGenJnlLine.Next = 0
+            until FromGenJnlLine.Next() = 0
         end else
             CreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);
     end;
@@ -76,7 +76,7 @@
                       CopyStr(AppliedDocNoList, DescriptionLen + 1, MaxStrLen(TempGenJnlLine."Message to Recipient"));
                 OnCreateTempJnlLinesOnBeforeInsertTempGenJnlLine(TempGenJnlLine, PaymentLine);
                 TempGenJnlLine.Insert();
-            until PaymentLine.Next = 0;
+            until PaymentLine.Next() = 0;
 
         OnAfterCreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);
     end;

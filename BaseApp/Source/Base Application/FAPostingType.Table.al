@@ -168,7 +168,7 @@ table 5644 "FA Posting Type"
                         "FA Posting Type Name" := FADeprBook.FieldCaption(Derogatory);
                         Insert;
                     end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

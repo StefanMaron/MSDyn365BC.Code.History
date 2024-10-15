@@ -110,11 +110,9 @@ table 5079 "Marketing Setup"
             Caption = 'Default Sales Cycle Code';
             TableRelation = "Sales Cycle";
         }
-        field(35; "Attachment Storage Type"; Option)
+        field(35; "Attachment Storage Type"; Enum "Setup Attachment Storage Type")
         {
             Caption = 'Attachment Storage Type';
-            OptionCaption = 'Embedded,Disk File';
-            OptionMembers = Embedded,"Disk File";
         }
         field(36; "Attachment Storage Location"; Text[250])
         {

@@ -221,7 +221,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
     begin
         GLRegister.FindLast;
         VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             Amount += VATEntry.Amount;
         until VATEntry.Next = 0;

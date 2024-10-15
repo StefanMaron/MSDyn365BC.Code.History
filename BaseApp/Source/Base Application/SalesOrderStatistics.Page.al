@@ -1,4 +1,4 @@
-﻿page 402 "Sales Order Statistics"
+page 402 "Sales Order Statistics"
 {
     Caption = 'Sales Order Statistics';
     DeleteAllowed = false;
@@ -721,9 +721,6 @@
         SalesSetup: Record "Sales & Receivables Setup";
         SalesPost: Codeunit "Sales-Post";
         VATLinesForm: Page "VAT Amount Lines";
-        TotalAmount1: array[3] of Decimal;
-        TotalAmount2: array[3] of Decimal;
-        VATAmount: array[3] of Decimal;
         PrepmtTotalAmount: Decimal;
         PrepmtVATAmount: Decimal;
         PrepmtTotalAmount2: Decimal;
@@ -750,6 +747,11 @@
         Text009: Label 'Prepmt. Amt. to Deduct';
         DynamicEditable: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
+
+    protected var
+        TotalAmount1: array[3] of Decimal;
+        TotalAmount2: array[3] of Decimal;
+        VATAmount: array[3] of Decimal;
 
     local procedure RefreshOnAfterGetRecord()
     var

@@ -37,13 +37,13 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea =;
                     Caption = 'Balance Sheet & Income Statement';
-                    RunObject = page 10800;
+                    RunObject = page "FR Account Schedule Names";
                 }
                 action("Fiscal Year Closing Steps")
                 {
                     ApplicationArea =;
                     Caption = 'Fiscal Year Closing Steps';
-                    RunObject = page 10818;
+                    RunObject = page "Fiscal Year Closing Steps";
                 }
                 group("Group1")
                 {
@@ -70,7 +70,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea =;
                         Caption = 'EC Sales List - Services';
-                        RunObject = report 10876;
+                        RunObject = report "EC Sales List - Services";
                     }
                     group("Group2")
                     {
@@ -281,13 +281,13 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Export G/L Entries to XML';
-                            RunObject = report 10820;
+                            RunObject = report "Export G/L Entries to XML";
                         }
                         action("Export G/L Entries - Tax Audit")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Export G/L Entries - Tax Audit';
-                            RunObject = report 10885;
+                            RunObject = report "Export G/L Entries - Tax Audit";
                         }
                     }
                 }
@@ -341,7 +341,7 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea =;
                             Caption = 'FR Account Schedule';
-                            RunObject = report 10811;
+                            RunObject = report "FR Account Schedule";
                         }
                         action("Trial Balance")
                         {
@@ -408,28 +408,28 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Balance Sheet';
                             RunObject = codeunit "Run Acc. Sched. Balance Sheet";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Income Statement")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Income Statement';
                             RunObject = codeunit "Run Acc. Sched. Income Stmt.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Statement of Cashflows")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Cash Flow Statement';
                             RunObject = codeunit "Run Acc. Sched. CashFlow Stmt.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Statement of Retained Earnings")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Retained Earnings Statement';
                             RunObject = codeunit "Run Acc. Sched. Retained Earn.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                     }
                     group("Group10")
@@ -501,79 +501,79 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Journals';
-                            RunObject = report 10801;
+                            RunObject = report "Journals";
                         }
                         action("G/L Journal")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'G/L Journal';
-                            RunObject = report 10800;
+                            RunObject = report "G/L Journal";
                         }
                         action("G/L Trial Balance")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'G/L Trial Balance';
-                            RunObject = report 10803;
+                            RunObject = report "G/L Trial Balance";
                         }
                         action("G/L Detail Trial Balance")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'G/L Detail Trial Balance';
-                            RunObject = report 10804;
+                            RunObject = report "G/L Detail Trial Balance";
                         }
                         action("Customer Detail Trial Balance")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer Detail Trial Balance';
-                            RunObject = report 10806;
+                            RunObject = report "Customer Detail Trial Balance";
                         }
                         action("Bank Account Trial Balance")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Bank Account Trial Balance';
-                            RunObject = report 10809;
+                            RunObject = report "Bank Account Trial Balance";
                         }
                         action("Bank Acc. Detail Trial Balance")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Bank Acc. Detail Trial Balance';
-                            RunObject = report 10810;
+                            RunObject = report "Bank Acc. Detail Trial Balance";
                         }
                         action("Customer Journal")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer Journal';
-                            RunObject = report 10813;
+                            RunObject = report "Customer Journal";
                         }
                         action("Vendor Journal")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Vendor Journal';
-                            RunObject = report 10814;
+                            RunObject = report "Vendor Journal";
                         }
                         action("Bank Account Journal")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Bank Account Journal';
-                            RunObject = report 10815;
+                            RunObject = report "Bank Account Journal";
                         }
                         action("GL/Cust. Ledger Reconciliation")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'GL/Cust. Ledger Reconciliation';
-                            RunObject = report 10861;
+                            RunObject = report "GL/Cust. Ledger Reconciliation";
                         }
                         action("GL/Vend. Ledger Reconciliation")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'GL/Vend. Ledger Reconciliation';
-                            RunObject = report 10863;
+                            RunObject = report "GL/Vend. Ledger Reconciliation";
                         }
                         action("G/L Account Statement")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'G/L Account Statement';
-                            RunObject = report 10842;
+                            RunObject = report "G/L Account Statement";
                         }
                     }
                 }
@@ -603,7 +603,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'G/L Account Categories';
                         RunObject = page "G/L Account Categories";
-                        AccessByPermission = tabledata 570 = R;
+                        AccessByPermission = TableData "G/L Account Category" = R;
                     }
                     action("XBRL Taxonomies")
                     {
@@ -644,7 +644,7 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Slips';
-                    RunObject = page 10870;
+                    RunObject = page "Payment Slip List";
                 }
                 group("Group14")
                 {
@@ -709,19 +709,19 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea =;
                         Caption = 'View/Edit Payment Lines';
-                        RunObject = page 10862;
+                        RunObject = page "View/Edit Payment Line";
                     }
                     action("Payment Report")
                     {
                         ApplicationArea =;
                         Caption = 'Payment Report';
-                        RunObject = page 10863;
+                        RunObject = page "Payment Report";
                     }
                     action("Archive Payment Slips")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Archive Payment Slips';
-                        RunObject = report 10873;
+                        RunObject = report "Archive Payment Slips";
                     }
                 }
                 group("Group16")
@@ -771,7 +771,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Payment Slip Archive';
-                        RunObject = page 10879;
+                        RunObject = page "Payment Slip List Archive";
                     }
                 }
                 group("Group18")
@@ -1044,7 +1044,7 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Slips';
-                    RunObject = page 10870;
+                    RunObject = page "Payment Slip List";
                 }
                 action("Create Recurring Sales Invoice")
                 {
@@ -1205,7 +1205,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer Trial Balance';
-                        RunObject = report 10805;
+                        RunObject = report "Customer Trial Balance FR";
                     }
                     action("Customer - Detail Trial Bal.")
                     {
@@ -1307,7 +1307,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Payment Practices Reporting';
-                        RunObject = report 10887;
+                        RunObject = report "Payment Practices Reporting";
                     }
                 }
                 group("Group35")
@@ -1347,7 +1347,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Payment Period Setup';
-                        RunObject = page 10883;
+                        RunObject = page "Payment Period Setup";
                     }
                 }
             }
@@ -1376,7 +1376,7 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Slips';
-                    RunObject = page 10870;
+                    RunObject = page "Payment Slip List";
                 }
                 action("Incoming Documents")
                 {
@@ -1511,13 +1511,13 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Vendor Trial Balance';
-                        RunObject = report 10807;
+                        RunObject = report "Vendor Trial Balance FR";
                     }
                     action("Vendor - Detail Trial Balance")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Vendor Detail Trial Balance';
-                        RunObject = report 10808;
+                        RunObject = report "Vendor Detail Trial Balance FR";
                     }
                     action("Vendor - Labels")
                     {
@@ -1577,7 +1577,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Payment Practices Reporting';
-                        RunObject = report 10887;
+                        RunObject = report "Payment Practices Reporting";
                     }
                 }
                 group("Group41")
@@ -1593,7 +1593,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Payment Period Setup';
-                        RunObject = page 10883;
+                        RunObject = page "Payment Period Setup";
                     }
                 }
             }
@@ -1740,13 +1740,13 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'FA Projected Value (Derogatory)';
-                            RunObject = report 10886;
+                            RunObject = report "FA - Proj. Value (Derogatory)";
                         }
                         action("Professional Tax")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Professional Tax';
-                            RunObject = report 10812;
+                            RunObject = report "Fixed Asset-Professional Tax";
                         }
                     }
                     group("Group46")
@@ -2114,7 +2114,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Rounding Methods';
                         RunObject = page "Rounding Methods";
-                        AccessByPermission = tabledata 156 = R;
+                        AccessByPermission = TableData "Resource" = R;
                     }
                     action("Analysis Types")
                     {

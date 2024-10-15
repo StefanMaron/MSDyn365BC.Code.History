@@ -185,7 +185,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         GLEntry.SetRange("Posting Date", StartingDate, EndingDate);
         GLEntry.SetFilter("G/L Account No.", GLAccNoFilter);
         GLEntry.SetFilter(Amount, '<>%1', 0);
-        if GLEntry.IsEmpty then
+        if GLEntry.IsEmpty() then
             Error(NoEntriestoExportErr);
 
         CreateServerFile;
@@ -299,7 +299,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                                         AddAppliedDocNo(DocNo, CustLedgEntryApplied."Document No.");
                                         GetCustAppliedDate(CustLedgEntryApplied, AppliedDate);
                                     end;
-                            until Next = 0;
+                            until Next() = 0;
                     end
                 else
                     if CustLedgEntryApplied.Get(DetailedCustLedgEntryOriginal."Applied Cust. Ledger Entry No.") then
@@ -307,7 +307,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                             AddAppliedDocNo(DocNo, CustLedgEntryApplied."Document No.");
                             GetCustAppliedDate(CustLedgEntryApplied, AppliedDate);
                         end;
-            until DetailedCustLedgEntryOriginal.Next = 0;
+            until DetailedCustLedgEntryOriginal.Next() = 0;
     end;
 
     local procedure GetAppliedVendorLedgEntry(VendorLedgerEntryOriginal: Record "Vendor Ledger Entry"; var DocNo: Text; var AppliedDate: Date)
@@ -341,7 +341,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                                         AddAppliedDocNo(DocNo, VendorLedgEntryApplied."Document No.");
                                         GetVendorAppliedDate(VendorLedgEntryApplied, AppliedDate);
                                     end;
-                            until Next = 0;
+                            until Next() = 0;
                     end
                 else
                     if VendorLedgEntryApplied.Get(DetailedVendorLedgEntryOriginal."Applied Vend. Ledger Entry No.") then
@@ -349,7 +349,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                             AddAppliedDocNo(DocNo, VendorLedgEntryApplied."Document No.");
                             GetVendorAppliedDate(VendorLedgEntryApplied, AppliedDate);
                         end;
-            until DetailedVendorLedgEntryOriginal.Next = 0;
+            until DetailedVendorLedgEntryOriginal.Next() = 0;
     end;
 
     local procedure GetBankLedgerEntryData(BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; GLAccountNo: Code[20]; var PartyNo: Code[20]; var PartyName: Text[100]; var Amount: Text[250]; var CurrencyCode: Code[10]; DocNoApplied: Text; DateApplied: Date)
@@ -491,7 +491,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
         BankAccountPostingGroup.Get(BankAccPostingGroup);
-        exit(BankAccountPostingGroup."G/L Bank Account No.")
+        exit(BankAccountPostingGroup."G/L Account No.")
     end;
 
     local procedure GetSourceCodeDesc("Code": Code[10]): Text[100]
@@ -549,7 +549,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                                     CurrencyCode := CustLedgerEntry."Currency Code";
                                     FCYAmount := FormatAmount(Abs(LedgerAmount));
                                 end;
-                            until CustLedgerEntry.Next = 0;
+                            until CustLedgerEntry.Next() = 0;
                         DocNoSet := DelChr(DocNoSet, '>', ';');
                     end;
                 end;
@@ -578,7 +578,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                                     CurrencyCode := VendorLedgerEntry."Currency Code";
                                     FCYAmount := FormatAmount(Abs(LedgerAmount));
                                 end;
-                            until VendorLedgerEntry.Next = 0;
+                            until VendorLedgerEntry.Next() = 0;
                         DocNoSet := DelChr(DocNoSet, '>', ';');
                     end;
                 end;

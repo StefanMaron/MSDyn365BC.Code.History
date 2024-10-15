@@ -217,7 +217,7 @@ report 10811 "FR Account Schedule"
                    ((TotalingType = TotalingType::Creditor) and (GLAccount."Net Change" < 0))
                 then
                     TotalAmount := TotalAmount + GLAccount."Net Change";
-            until GLAccount.Next = 0;
+            until GLAccount.Next() = 0;
     end;
 
     local procedure CalcSchedLineTotal(AccSchedLine2: Record "FR Acc. Schedule Line"; Level: Integer; var TotalNetChange: Decimal; var TotalNetChange2: Decimal): Boolean
@@ -244,7 +244,7 @@ report 10811 "FR Account Schedule"
                             ErrorText := ErrorText + '...';
                             AccSchedLine2.FieldError("Row No.", ErrorText);
                         end;
-                    until AccSchedLine2.Next = 0;
+                    until AccSchedLine2.Next() = 0;
             end else begin
                 "FR Acc. Schedule Line".CopyFilter("Date Filter", GLAcc."Date Filter");
                 "FR Acc. Schedule Line".CopyFilter("Business Unit Filter", GLAcc."Business Unit Filter");

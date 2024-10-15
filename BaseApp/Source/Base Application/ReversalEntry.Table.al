@@ -317,14 +317,14 @@ table 179 "Reversal Entry"
         SkipCheck := false;
         OnBeforeCheckEntries(Rec, DATABASE::"G/L Entry", SkipCheck);
         if not SkipCheck then begin
-            if GLEntry.IsEmpty then
+            if GLEntry.IsEmpty() then
                 Error(CannotReverseDeletedErr, GLEntry.TableCaption, GLAcc.TableCaption);
             if GLEntry.Find('-') then begin
                 if GLEntry."Journal Batch Name" = '' then
                     TestFieldError;
                 repeat
                     CheckGLAcc(GLEntry, BalanceCheckAmount, BalanceCheckAddCurrAmount);
-                until GLEntry.Next = 0;
+                until GLEntry.Next() = 0;
             end;
             if (BalanceCheckAmount <> 0) or (BalanceCheckAddCurrAmount <> 0) then
                 Error(Text002);
@@ -336,7 +336,7 @@ table 179 "Reversal Entry"
             if not SkipCheck then
                 repeat
                     CheckCust(CustLedgEntry);
-                until CustLedgEntry.Next = 0;
+                until CustLedgEntry.Next() = 0;
         end;
 
         if VendLedgEntry.Find('-') then begin
@@ -345,7 +345,7 @@ table 179 "Reversal Entry"
             if not SkipCheck then
                 repeat
                     CheckVend(VendLedgEntry);
-                until VendLedgEntry.Next = 0;
+                until VendLedgEntry.Next() = 0;
         end;
 
         if EmployeeLedgerEntry.FindSet then begin
@@ -354,7 +354,7 @@ table 179 "Reversal Entry"
             if not SkipCheck then
                 repeat
                     CheckEmpl(EmployeeLedgerEntry);
-                until EmployeeLedgerEntry.Next = 0;
+                until EmployeeLedgerEntry.Next() = 0;
         end;
 
         if BankAccLedgEntry.Find('-') then begin
@@ -363,7 +363,7 @@ table 179 "Reversal Entry"
             if not SkipCheck then
                 repeat
                     CheckBankAcc(BankAccLedgEntry);
-                until BankAccLedgEntry.Next = 0;
+                until BankAccLedgEntry.Next() = 0;
         end;
 
         if FALedgEntry.Find('-') then begin
@@ -372,7 +372,7 @@ table 179 "Reversal Entry"
             if not SkipCheck then
                 repeat
                     CheckFA(FALedgEntry);
-                until FALedgEntry.Next = 0;
+                until FALedgEntry.Next() = 0;
         end;
 
         if MaintenanceLedgEntry.Find('-') then begin
@@ -381,7 +381,7 @@ table 179 "Reversal Entry"
             if not SkipCheck then
                 repeat
                     CheckMaintenance(MaintenanceLedgEntry);
-                until MaintenanceLedgEntry.Next = 0;
+                until MaintenanceLedgEntry.Next() = 0;
         end;
 
         if VATEntry.Find('-') then begin
@@ -390,7 +390,7 @@ table 179 "Reversal Entry"
             if not SkipCheck then
                 repeat
                     CheckVAT(VATEntry);
-                until VATEntry.Next = 0;
+                until VATEntry.Next() = 0;
         end;
 
         OnAfterCheckEntries(MaxPostingDate);
@@ -492,7 +492,7 @@ table 179 "Reversal Entry"
             Error(
               Text007, BankAccLedgEntry.TableCaption, BankAccLedgEntry."Entry No.");
         CheckLedgEntry.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
-        if not CheckLedgEntry.IsEmpty then
+        if not CheckLedgEntry.IsEmpty() then
             Error(
               Text003, BankAccLedgEntry.TableCaption, BankAccLedgEntry."Entry No.");
 
@@ -568,7 +568,7 @@ table 179 "Reversal Entry"
         DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
         DtldCustLedgEntry.SetFilter("Entry Type", '<>%1', DtldCustLedgEntry."Entry Type"::"Initial Entry");
         DtldCustLedgEntry.SetRange(Unapplied, false);
-        if not DtldCustLedgEntry.IsEmpty then
+        if not DtldCustLedgEntry.IsEmpty() then
             Error(ReversalErrorForChangedEntry(CustLedgEntry.TableCaption, CustLedgEntry."Entry No."));
 
         DtldCustLedgEntry.Reset();
@@ -577,7 +577,7 @@ table 179 "Reversal Entry"
         DtldCustLedgEntry.SetRange("Customer No.", CustLedgEntry."Customer No.");
         DtldCustLedgEntry.SetFilter("Entry Type", '%1|%2',
           DtldCustLedgEntry."Entry Type"::"Realized Gain", DtldCustLedgEntry."Entry Type"::"Realized Loss");
-        if not DtldCustLedgEntry.IsEmpty then
+        if not DtldCustLedgEntry.IsEmpty() then
             Error(Text013, CustLedgEntry.TableCaption, CustLedgEntry."Entry No.");
 
         OnAfterCheckDtldCustLedgEntry(DtldCustLedgEntry, CustLedgEntry);
@@ -591,7 +591,7 @@ table 179 "Reversal Entry"
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
         DtldVendLedgEntry.SetFilter("Entry Type", '<>%1', DtldVendLedgEntry."Entry Type"::"Initial Entry");
         DtldVendLedgEntry.SetRange(Unapplied, false);
-        if not DtldVendLedgEntry.IsEmpty then
+        if not DtldVendLedgEntry.IsEmpty() then
             Error(ReversalErrorForChangedEntry(VendLedgEntry.TableCaption, VendLedgEntry."Entry No."));
 
         DtldVendLedgEntry.Reset();
@@ -600,7 +600,7 @@ table 179 "Reversal Entry"
         DtldVendLedgEntry.SetRange("Vendor No.", VendLedgEntry."Vendor No.");
         DtldVendLedgEntry.SetFilter("Entry Type", '%1|%2',
           DtldVendLedgEntry."Entry Type"::"Realized Gain", DtldVendLedgEntry."Entry Type"::"Realized Loss");
-        if not DtldVendLedgEntry.IsEmpty then
+        if not DtldVendLedgEntry.IsEmpty() then
             Error(Text013, VendLedgEntry.TableCaption, VendLedgEntry."Entry No.");
 
         OnAfterCheckDtldVendLedgEntry(DtldVendLedgEntry, VendLedgEntry);
@@ -613,7 +613,7 @@ table 179 "Reversal Entry"
         DetailedEmployeeLedgerEntry.SetRange("Employee Ledger Entry No.", EmployeeLedgerEntry."Entry No.");
         DetailedEmployeeLedgerEntry.SetFilter("Entry Type", '<>%1', DetailedEmployeeLedgerEntry."Entry Type"::"Initial Entry");
         DetailedEmployeeLedgerEntry.SetRange(Unapplied, false);
-        if not DetailedEmployeeLedgerEntry.IsEmpty then
+        if not DetailedEmployeeLedgerEntry.IsEmpty() then
             Error(ReversalErrorForChangedEntry(EmployeeLedgerEntry.TableCaption, EmployeeLedgerEntry."Entry No."));
 
         OnAfterCheckDtldEmplLedgEntry(DetailedEmployeeLedgerEntry, EmployeeLedgerEntry);
@@ -840,12 +840,12 @@ table 179 "Reversal Entry"
         Clear(ReversalEntry2);
         if ReversalEntry2.FindSet then
             repeat
-                if TempReversalEntry.Next = 0 then
+                if TempReversalEntry.Next() = 0 then
                     exit(false);
                 if not TempReversalEntry.Equal(ReversalEntry2) then
                     exit(false);
-            until ReversalEntry2.Next = 0;
-        exit(TempReversalEntry.Next = 0);
+            until ReversalEntry2.Next() = 0;
+        exit(TempReversalEntry.Next() = 0);
     end;
 
     procedure Equal(ReversalEntry2: Record "Reversal Entry"): Boolean
@@ -909,9 +909,9 @@ table 179 "Reversal Entry"
                 if DtldCustLedgEntry.FindSet then
                     repeat
                         InsertCustTempRevertTransNo(TempRevertTransactionNo, DtldCustLedgEntry."Unapplied by Entry No.");
-                    until DtldCustLedgEntry.Next = 0;
+                    until DtldCustLedgEntry.Next() = 0;
                 DtldCustLedgEntry.SetRange(Unapplied);
-            until CustLedgEntry.Next = 0;
+            until CustLedgEntry.Next() = 0;
 
         OnAfterInsertFromCustLedgEntry(TempRevertTransactionNo, Number, RevType, NextLineNo, TempReversalEntry, CustLedgEntry);
     end;
@@ -949,9 +949,9 @@ table 179 "Reversal Entry"
                 if DtldVendLedgEntry.FindSet then
                     repeat
                         InsertVendTempRevertTransNo(TempRevertTransactionNo, DtldVendLedgEntry."Unapplied by Entry No.");
-                    until DtldVendLedgEntry.Next = 0;
+                    until DtldVendLedgEntry.Next() = 0;
                 DtldVendLedgEntry.SetRange(Unapplied);
-            until VendLedgEntry.Next = 0;
+            until VendLedgEntry.Next() = 0;
 
         OnAfterInsertFromVendLedgEntry(TempRevertTransactionNo, Number, RevType, NextLineNo, TempReversalEntry, VendLedgEntry);
     end;
@@ -976,7 +976,7 @@ table 179 "Reversal Entry"
 
                 InsertTempRevertTransactionNoUnappliedEmployeeEntries(TempRevertTransactionNo, DetailedEmployeeLedgerEntry);
 
-            until EmployeeLedgerEntry.Next = 0;
+            until EmployeeLedgerEntry.Next() = 0;
 
         OnAfterInsertFromEmplLedgEntry(TempRevertTransactionNo, Number, RevType, NextLineNo, TempReversalEntry, EmployeeLedgerEntry);
     end;
@@ -999,7 +999,7 @@ table 179 "Reversal Entry"
                 TempReversalEntry."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + 1;
                 TempReversalEntry.Insert();
-            until BankAccLedgEntry.Next = 0;
+            until BankAccLedgEntry.Next() = 0;
 
         OnAfterInsertFromBankAccLedgEntry(TempRevertTransactionNo, Number, RevType, NextLineNo, TempReversalEntry, BankAccLedgEntry);
     end;
@@ -1024,7 +1024,7 @@ table 179 "Reversal Entry"
                     NextLineNo := NextLineNo + 1;
                     TempReversalEntry.Insert();
                 end;
-            until FALedgEntry.Next = 0;
+            until FALedgEntry.Next() = 0;
 
         OnAfterInsertFromFALedgEntry(TempRevertTransactionNo, Number, RevType, NextLineNo, TempReversalEntry, FALedgEntry);
     end;
@@ -1047,14 +1047,14 @@ table 179 "Reversal Entry"
                 TempReversalEntry."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + 1;
                 TempReversalEntry.Insert();
-            until MaintenanceLedgEntry.Next = 0;
+            until MaintenanceLedgEntry.Next() = 0;
 
         OnAfterInsertFromMaintenanceLedgEntry(TempRevertTransactionNo, Number, RevType, NextLineNo, TempReversalEntry, MaintenanceLedgEntry);
     end;
 
     local procedure InsertFromVATEntry(var TempRevertTransactionNo: Record "Integer" temporary; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer)
     begin
-        TempRevertTransactionNo.FindSet;
+        TempRevertTransactionNo.FindSet();
         repeat
             if RevType = RevType::Transaction then
                 VATEntry.SetRange("Transaction No.", TempRevertTransactionNo.Number);
@@ -1069,8 +1069,8 @@ table 179 "Reversal Entry"
                     TempReversalEntry."Line No." := NextLineNo;
                     NextLineNo := NextLineNo + 1;
                     TempReversalEntry.Insert();
-                until VATEntry.Next = 0;
-        until TempRevertTransactionNo.Next = 0;
+                until VATEntry.Next() = 0;
+        until TempRevertTransactionNo.Next() = 0;
 
         OnAfterInsertFromVATEntry(TempRevertTransactionNo, Number, RevType, NextLineNo, TempReversalEntry, VATEntry);
     end;
@@ -1079,7 +1079,7 @@ table 179 "Reversal Entry"
     var
         GLAcc: Record "G/L Account";
     begin
-        TempRevertTransactionNo.FindSet;
+        TempRevertTransactionNo.FindSet();
         repeat
             if RevType = RevType::Transaction then
                 GLEntry.SetRange("Transaction No.", TempRevertTransactionNo.Number);
@@ -1102,8 +1102,8 @@ table 179 "Reversal Entry"
                     TempReversalEntry.Insert();
                     if GLEntry.Letter <> '' then
                         Error(Text000, RevType, Number)
-                until GLEntry.Next = 0;
-        until TempRevertTransactionNo.Next = 0;
+                until GLEntry.Next() = 0;
+        until TempRevertTransactionNo.Next() = 0;
 
         OnAfterInsertFromGLEntry(TempRevertTransactionNo, Number, RevType, NextLineNo, TempReversalEntry, GLEntry);
     end;
@@ -1340,7 +1340,7 @@ table 179 "Reversal Entry"
         if DetailedEmployeeLedgerEntry.FindSet then
             repeat
                 InsertEmplTempRevertTransNo(TempRevertTransactionNo, DetailedEmployeeLedgerEntry."Unapplied by Entry No.");
-            until DetailedEmployeeLedgerEntry.Next = 0;
+            until DetailedEmployeeLedgerEntry.Next() = 0;
         DetailedEmployeeLedgerEntry.SetRange(Unapplied);
     end;
 

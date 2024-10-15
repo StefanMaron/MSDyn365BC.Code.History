@@ -1115,7 +1115,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
               "FA Posting Type", '%1|%2',
               "FA Posting Type"::Depreciation,
               "FA Posting Type"::Derogatory);
-            FindSet;
+            FindSet();
             repeat
                 TestField("FA Posting Date", CalcDerogatoryDate);
             until Next = 0;
@@ -1147,7 +1147,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         with FALedgEntry do begin
             SetRange("FA No.", FANo);
             SetRange("Depreciation Book Code", DeprBookCode);
-            FindSet;
+            FindSet();
             repeat
                 TestField(
                   "Exclude Derogatory",

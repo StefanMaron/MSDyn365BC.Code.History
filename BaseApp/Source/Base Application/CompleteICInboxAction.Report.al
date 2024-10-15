@@ -87,7 +87,7 @@ report 511 "Complete IC Inbox Action"
                                               ICDocDim, DATABASE::"IC Inbox Sales Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
                                             if ICDocDim.FindFirst then
                                                 DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Line", "Transaction Source");
-                                        until Next = 0;
+                                        until Next() = 0;
                                 end;
                                 OnAfterMoveICInboxSalesHeaderToHandled(InboxSalesHeader2, HandledInboxSalesHeader);
                             end;
@@ -138,7 +138,7 @@ report 511 "Complete IC Inbox Action"
                                               "Transaction Source", "Line No.");
                                             if ICDocDim.FindFirst then
                                                 DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Line", "Transaction Source");
-                                        until Next = 0;
+                                        until Next() = 0;
                                 end;
                                 OnAfterMoveICInboxPurchHeaderToHandled(InboxPurchHeader2, HandledInboxPurchHeader);
                             end;

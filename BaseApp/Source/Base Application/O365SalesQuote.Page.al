@@ -34,7 +34,7 @@ page 2141 "O365 Sales Quote"
                         begin
                             CurrPage.SaveRecord;
                             O365SalesInvoiceMgmt.LookupContactFromSalesHeader(Rec);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
 
                         trigger OnValidate()
@@ -115,7 +115,7 @@ page 2141 "O365 Sales Quote"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(TaxAreaDescription; TaxAreaDescription)
@@ -135,13 +135,13 @@ page 2141 "O365 Sales Quote"
                         if PAGE.RunModal(PAGE::"O365 Tax Area List", TaxArea) = ACTION::LookupOK then begin
                             Validate("Tax Area Code", TaxArea.Code);
                             TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("VAT Registration No."; "VAT Registration No.")
@@ -339,7 +339,7 @@ page 2141 "O365 Sales Quote"
                         exit;
 
                     Find;
-                    CurrPage.Update;
+                    CurrPage.Update();
                     ForceExit := true;
                     CurrPage.Close;
                 end;

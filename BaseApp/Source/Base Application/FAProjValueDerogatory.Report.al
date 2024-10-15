@@ -539,7 +539,7 @@ report 10886 "FA - Proj. Value (Derogatory)"
                     if not TempFABufferProjection.Find('-') then
                         CurrReport.Break();
                 end else
-                    if TempFABufferProjection.Next = 0 then
+                    if TempFABufferProjection.Next() = 0 then
                         CurrReport.Break();
             end;
 

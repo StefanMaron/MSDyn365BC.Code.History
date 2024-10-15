@@ -137,7 +137,7 @@ report 915 "Assemble to Order - Sales"
                 TempATOSalesBuffer.SetRange(Quantity, 0);
                 TempATOSalesBuffer.DeleteAll();
                 TempATOSalesBuffer.SetRange(Quantity);
-                if TempATOSalesBuffer.IsEmpty then
+                if TempATOSalesBuffer.IsEmpty() then
                     CurrReport.Skip();
 
                 TempATOSalesBuffer.SetRange(Type, TempATOSalesBuffer.Type::Assembly);
@@ -240,7 +240,7 @@ report 915 "Assemble to Order - Sales"
                 repeat
                     if "Entry Type" = "Entry Type"::"Assembly Consumption" then
                         TempATOSalesBuffer.UpdateBufferWithItemLedgEntry(ItemLedgEntry, false);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -257,7 +257,7 @@ report 915 "Assemble to Order - Sales"
                 repeat
                     ToATOSalesBuffer.UpdateBufferWithComp(FromCompATOSalesBuffer, ProfitPct, false);
                     ToATOSalesBuffer.UpdateBufferWithComp(FromCompATOSalesBuffer, ProfitPct, true);
-                until Next = 0;
+                until Next() = 0;
             DeleteAll();
         end;
 
@@ -278,7 +278,7 @@ report 915 "Assemble to Order - Sales"
                     ParentItem.Get("Parent Item No.");
                     if ParentItem."Assembly Policy" = ParentItem."Assembly Policy"::"Assemble-to-Order" then
                         exit(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

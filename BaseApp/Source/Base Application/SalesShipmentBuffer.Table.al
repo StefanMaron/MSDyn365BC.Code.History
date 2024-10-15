@@ -141,7 +141,7 @@ table 7190 "Sales Shipment Buffer"
                       DocLineNo, LineType, ItemNo);
                     TotalQuantity := TotalQuantity + ValueEntry."Invoiced Quantity";
                 end;
-            until (ValueEntry.Next = 0) or (TotalQuantity = 0);
+            until (ValueEntry.Next() = 0) or (TotalQuantity = 0);
     end;
 
     local procedure GenerateBufferFromShipment(SalesInvoiceLine2: Record "Sales Invoice Line"; SalesInvoiceHeader2: Record "Sales Invoice Header")
@@ -167,11 +167,11 @@ table 7190 "Sales Shipment Buffer"
                 SalesInvoiceLine.SetRange(Type, SalesInvoiceLine2.Type);
                 SalesInvoiceLine.SetRange("No.", SalesInvoiceLine2."No.");
                 SalesInvoiceLine.SetRange("Unit of Measure Code", SalesInvoiceLine2."Unit of Measure Code");
-                if not SalesInvoiceLine.IsEmpty then begin
+                if not SalesInvoiceLine.IsEmpty() then begin
                     SalesInvoiceLine.CalcSums(Quantity);
                     TotalQuantity += SalesInvoiceLine.Quantity;
                 end;
-            until SalesInvoiceHeader.Next = 0;
+            until SalesInvoiceHeader.Next() = 0;
 
         SalesShipmentLine.SetCurrentKey("Order No.", "Order Line No.", "Posting Date");
         SalesShipmentLine.SetRange("Order No.", SalesInvoiceHeader2."Order No.");
@@ -205,7 +205,7 @@ table 7190 "Sales Shipment Buffer"
                           SalesInvoiceLine2.Type,
                           SalesInvoiceLine2."No.");
                 end;
-            until (SalesShipmentLine.Next = 0) or (TotalQuantity = 0);
+            until (SalesShipmentLine.Next() = 0) or (TotalQuantity = 0);
     end;
 
     local procedure GenerateBufferFromReceipt(SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -233,7 +233,7 @@ table 7190 "Sales Shipment Buffer"
                 SalesCrMemoLine2.SetRange("Unit of Measure Code", SalesCrMemoLine."Unit of Measure Code");
                 SalesCrMemoLine2.CalcSums(Quantity);
                 TotalQuantity := TotalQuantity + SalesCrMemoLine2.Quantity;
-            until SalesCrMemoHeader2.Next = 0;
+            until SalesCrMemoHeader2.Next() = 0;
 
         ReturnReceiptLine.SetCurrentKey("Return Order No.", "Return Order Line No.");
         ReturnReceiptLine.SetRange("Return Order No.", SalesCrMemoHeader."Return Order No.");
@@ -268,7 +268,7 @@ table 7190 "Sales Shipment Buffer"
                           SalesCrMemoLine.Type,
                           SalesCrMemoLine."No.");
                 end;
-            until (ReturnReceiptLine.Next = 0) or (TotalQuantity = 0);
+            until (ReturnReceiptLine.Next() = 0) or (TotalQuantity = 0);
     end;
 
     local procedure AddBufferEntry(QtyOnShipment: Decimal; PostingDate: Date; ShipmentNo: Code[20]; DocLineNo: Integer; LineType: Enum "Sales Line Type"; ItemNo: Code[20])

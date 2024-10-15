@@ -107,7 +107,7 @@ table 5647 "FA Matrix Posting Type"
                         Delete;
                         InsertRec(12, FADeprBook.FieldCaption(Derogatory));
                     end;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure InsertRec(EntryNo: Integer; FAPostingTypeName: Text[80])

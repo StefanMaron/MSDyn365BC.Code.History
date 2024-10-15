@@ -596,7 +596,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         OutStr: OutStream;
         File: File;
     begin
-        DirectDebitCollection.CreateNew(PaymentHeader."No.", PaymentHeader."Account No.", PaymentHeader."Partner Type");
+        DirectDebitCollection.CreateRecord(PaymentHeader."No.", PaymentHeader."Account No.", PaymentHeader."Partner Type");
         DirectDebitCollection."Source Table ID" := DATABASE::"Payment Header";
         DirectDebitCollection.Modify();
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
@@ -814,7 +814,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         PaymentLine.SetRange("No.", PaymentHeader."No.");
         Assert.AreEqual(CustLedgerEntry.Count, PaymentLine.Count, 'Wrong number of payment lines.');
 
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             PaymentLine.SetRange("Account Type", PaymentLine."Account Type"::Customer);
             PaymentLine.SetRange("Account No.", CustLedgerEntry."Customer No.");

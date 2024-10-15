@@ -24,6 +24,7 @@ page 6651 "Posted Return Shipment Subform"
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -33,6 +34,7 @@ page 6651 "Posted Return Shipment Subform"
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = PurchReturnOrder;

@@ -134,7 +134,7 @@ page 8617 "Config. Package Import Preview"
         if SelectedPackageCode <> '' then begin
             TempConfigPackageTable.Copy(Rec, true);
             TempConfigPackageTable.SetFilter("Package Code", '<>%1', SelectedPackageCode);
-            if not TempConfigPackageTable.IsEmpty then
+            if not TempConfigPackageTable.IsEmpty() then
                 Error(PackageCodeMustMatchErr, SelectedPackageCode);
         end;
     end;

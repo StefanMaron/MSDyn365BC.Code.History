@@ -27,7 +27,7 @@ report 5684 "Copy FA Entries to G/L Budget"
                             FALedgEntry.Description := PostingDescription;
                             BudgetDepreciation.CopyFAToBudget(FALedgEntry, BudgetNameCode, BalAccount, '');
                         end;
-                    until FALedgEntry.Next = 0;
+                    until FALedgEntry.Next() = 0;
             end;
 
             trigger OnPreDataItem()

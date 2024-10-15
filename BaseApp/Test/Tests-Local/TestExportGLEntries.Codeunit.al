@@ -3219,7 +3219,7 @@ codeunit 144563 "Test Export G/L Entries"
 
         GLEntry.SetFilter("Entry No.", '%1..%2', GLRegister."From Entry No.", GLRegister."To Entry No.");
         GLEntry.SetFilter("G/L Account No.", GLAccountNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             PopulateFieldsArray(iStream, FieldsValueArray);
             VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLRegister."No.", GLRegister."Creation Date");

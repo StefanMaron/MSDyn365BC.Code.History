@@ -391,7 +391,7 @@ codeunit 133008 "Item Tracking Test"
         ModalHandlerExpectedToBeCalledNTimes -= 1;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6500, 'OnBeforeExistingExpirationDate', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", 'OnBeforeExistingExpirationDate', '', false, false)]
     local procedure ExpirationDateSubscriber(ItemNo: Code[20]; Variant: Code[20]; LotNo: Code[50]; SerialNo: Code[50]; TestMultiple: Boolean; var EntriesExist: Boolean; var ExpDate: Date; var IsHandled: Boolean)
     begin
         // Make sure the subscriber is only called when expected

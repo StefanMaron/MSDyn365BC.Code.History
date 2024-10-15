@@ -26,7 +26,7 @@ page 7159 "Invt. Analysis by Dimensions"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         ItemAnalysisMgt.LookupItemAnalysisView(
-                          CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
+                          CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
                           Dim1Filter, Dim2Filter, Dim3Filter);
                         ItemAnalysisMgt.SetLineAndColDim(
                           ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimCode, ColumnDimOption);
@@ -36,9 +36,9 @@ page 7159 "Invt. Analysis by Dimensions"
 
                     trigger OnValidate()
                     begin
-                        ItemAnalysisMgt.CheckAnalysisView(CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView);
+                        ItemAnalysisMgt.CheckAnalysisView(CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView);
                         ItemAnalysisMgt.SetItemAnalysisView(
-                          CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
+                          CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
                           Dim1Filter, Dim2Filter, Dim3Filter);
                         ItemAnalysisMgt.SetLineAndColDim(
                           ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimCode, ColumnDimOption);
@@ -142,7 +142,7 @@ page 7159 "Invt. Analysis by Dimensions"
                         InternalDateFilter := DateFilter;
 
                         MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(ItemFilter; ItemFilter)
@@ -220,7 +220,7 @@ page 7159 "Invt. Analysis by Dimensions"
                         ItemStatisticsBuffer.SetFilter("Dimension 1 Filter", Dim1Filter);
                         if ColumnDimOption = ColumnDimOption::"Dimension 1" then
                             MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(Dim2Filter; Dim2Filter)
@@ -241,7 +241,7 @@ page 7159 "Invt. Analysis by Dimensions"
                         ItemStatisticsBuffer.SetFilter("Dimension 2 Filter", Dim2Filter);
                         if ColumnDimOption = ColumnDimOption::"Dimension 2" then
                             MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(Dim3Filter; Dim3Filter)
@@ -262,7 +262,7 @@ page 7159 "Invt. Analysis by Dimensions"
                         ItemStatisticsBuffer.SetFilter("Dimension 3 Filter", Dim3Filter);
                         if ColumnDimOption = ColumnDimOption::"Dimension 3" then
                             MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -373,7 +373,7 @@ page 7159 "Invt. Analysis by Dimensions"
                         ItemAnalysisViewToExcel: Codeunit "Export Item Analysis View";
                     begin
                         ItemAnalysisViewToExcel.SetCommonFilters(
-                          CurrentAnalysisArea, CurrentItemAnalysisViewCode,
+                          CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode,
                           ItemAnalysisViewEntry, DateFilter, ItemFilter, Dim1Filter, Dim2Filter, Dim3Filter, LocationFilter);
                         ItemAnalysisViewEntry.FindFirst;
                         ItemAnalysisViewToExcel.ExportData(
@@ -454,14 +454,14 @@ page 7159 "Invt. Analysis by Dimensions"
         GLSetup.Get();
 
         ItemAnalysisMgt.AnalysisViewSelection(
-          CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
+          CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
           Dim1Filter, Dim2Filter, Dim3Filter);
 
         if (NewItemAnalysisCode <> '') and (NewItemAnalysisCode <> CurrentItemAnalysisViewCode) then begin
             CurrentItemAnalysisViewCode := NewItemAnalysisCode;
-            ItemAnalysisMgt.CheckAnalysisView(CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView);
+            ItemAnalysisMgt.CheckAnalysisView(CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView);
             ItemAnalysisMgt.SetItemAnalysisView(
-              CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
+              CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
               Dim1Filter, Dim2Filter, Dim3Filter);
         end;
 
@@ -486,7 +486,7 @@ page 7159 "Invt. Analysis by Dimensions"
         MATRIX_PrimKeyFirstCaption: Text;
         MATRIX_CurrentNoOfColumns: Integer;
         MATRIX_Step: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn;
-        CurrentAnalysisArea: Option Sales,Purchase,Inventory;
+        CurrentAnalysisArea: Enum "Analysis Area Type";
         CurrentItemAnalysisViewCode: Code[10];
         ItemFilter: Code[250];
         LocationFilter: Code[250];

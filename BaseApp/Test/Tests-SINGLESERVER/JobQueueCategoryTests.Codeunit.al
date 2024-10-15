@@ -18,9 +18,11 @@ codeunit 139019 "Job Queue Category Tests"
     procedure VerifyJobQueueCategoryLookupIsValidPage()
     var
         NewJobQueueCategory: Record "Job Queue Category";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         SalesReceivablesSetupPage: TestPage "Sales & Receivables Setup";
     begin
         // Setup
+        LibraryLowerPermissions.SetO365Full();
         NewJobQueueCategory.Code := LibraryUtility.GenerateRandomCode(NewJobQueueCategory.FieldNo(Code), DATABASE::"Job Queue Category");
         NewJobQueueCategory.Description :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(NewJobQueueCategory.Description)),
@@ -28,7 +30,7 @@ codeunit 139019 "Job Queue Category Tests"
         NewJobQueueCategory.Insert(true);
 
         // Start Page
-        SalesReceivablesSetupPage.OpenEdit;
+        SalesReceivablesSetupPage.OpenEdit();
 
         // Execution
         LibraryVariableStorage.Enqueue(NewJobQueueCategory.Code);
@@ -44,7 +46,7 @@ codeunit 139019 "Job Queue Category Tests"
     begin
         // Select the new value that was just created
         JobQueueCategoryList.GotoKey(LibraryVariableStorage.DequeueText);
-        JobQueueCategoryList.OK.Invoke;
+        JobQueueCategoryList.OK.Invoke();
     end;
 }
 

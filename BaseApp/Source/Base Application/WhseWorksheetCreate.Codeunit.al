@@ -84,7 +84,7 @@ codeunit 7311 "Whse. Worksheet-Create"
             WhseWkshLine.SetRange("Whse. Document Type", WhseWkshLine."Whse. Document Type"::"Internal Pick");
             WhseWkshLine.SetRange("Whse. Document No.", "No.");
             WhseWkshLine.SetRange("Whse. Document Line No.", "Line No.");
-            if not WhseWkshLine.IsEmpty then
+            if not WhseWkshLine.IsEmpty() then
                 exit;
 
             FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
@@ -130,7 +130,7 @@ codeunit 7311 "Whse. Worksheet-Create"
             WhseWkshLine.SetRange("Source No.", "Prod. Order No.");
             WhseWkshLine.SetRange("Source Line No.", "Prod. Order Line No.");
             WhseWkshLine.SetRange("Source Subline No.", "Line No.");
-            if not WhseWkshLine.IsEmpty then
+            if not WhseWkshLine.IsEmpty() then
                 exit;
 
             FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
@@ -272,7 +272,7 @@ codeunit 7311 "Whse. Worksheet-Create"
               "Whse. Document Type", WhseWkshLine."Whse. Document Type"::Receipt);
             WhseWkshLine.SetRange("Whse. Document No.", "No.");
             WhseWkshLine.SetRange("Whse. Document Line No.", "Line No.");
-            if not WhseWkshLine.IsEmpty then
+            if not WhseWkshLine.IsEmpty() then
                 exit;
 
             FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
@@ -323,7 +323,7 @@ codeunit 7311 "Whse. Worksheet-Create"
               "Whse. Document Type", WhseWkshLine."Whse. Document Type"::"Internal Put-away");
             WhseWkshLine.SetRange("Whse. Document No.", "No.");
             WhseWkshLine.SetRange("Whse. Document Line No.", "Line No.");
-            if not WhseWkshLine.IsEmpty then
+            if not WhseWkshLine.IsEmpty() then
                 exit;
 
             FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);

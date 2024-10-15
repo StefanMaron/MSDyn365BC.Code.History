@@ -54,7 +54,7 @@ report 6031 "Update Contract Prices"
                             ServContractLine.Modify(true);
                         end;
                         TotContractLinesAmount := TotContractLinesAmount + ServContractLine."Line Amount";
-                    until ServContractLine.Next = 0;
+                    until ServContractLine.Next() = 0;
 
                 if UpdateServContract then begin
                     ServContract."Last Price Update Date" := WorkDate;

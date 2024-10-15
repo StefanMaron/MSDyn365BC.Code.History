@@ -146,7 +146,7 @@ table 5645 "FA Date Type"
                         Delete;
                         InsertRec(11, FADeprBook.FieldNo("Last Derogatory Date"), FADeprBook.FieldCaption("Last Derogatory Date"));
                     end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

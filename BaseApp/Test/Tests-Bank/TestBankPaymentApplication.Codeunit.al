@@ -1732,7 +1732,7 @@ codeunit 134263 "Test Bank Payment Application"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgEntry.SetRange("Customer No.", CustNo);
-        CustLedgEntry.FindSet;
+        CustLedgEntry.FindSet();
         repeat
             Assert.IsTrue(not CustLedgEntry.Open, 'Entry is closed');
         until CustLedgEntry.Next = 0;
@@ -1743,7 +1743,7 @@ codeunit 134263 "Test Bank Payment Application"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         VendLedgEntry.SetRange("Vendor No.", VendNo);
-        VendLedgEntry.FindSet;
+        VendLedgEntry.FindSet();
         repeat
             Assert.IsTrue(not VendLedgEntry.Open, 'Entry is closed');
         until VendLedgEntry.Next = 0;
@@ -1768,7 +1768,7 @@ codeunit 134263 "Test Bank Payment Application"
 
         with GLEntry do begin
             SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(ExpectedSourceCode, "Source Code", FieldCaption("Source Code"));
             until Next = 0;

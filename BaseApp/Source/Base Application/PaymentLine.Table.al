@@ -1,4 +1,4 @@
-﻿table 10866 "Payment Line"
+table 10866 "Payment Line"
 {
     Caption = 'Payment Line';
     DrillDownPageID = "Payment Lines List";
@@ -593,7 +593,7 @@
                     if CustLedgEntry.FindSet then
                         repeat
                             AddDocumentNoToList(List, CustLedgEntry."Document No.", LenToCut);
-                        until CustLedgEntry.Next = 0;
+                        until CustLedgEntry.Next() = 0;
                 end;
             "Account Type"::Vendor:
                 begin
@@ -610,7 +610,7 @@
                             else
                                 DocumentNo := VendLedgEntry."External Document No.";
                             AddDocumentNoToList(List, DocumentNo, LenToCut);
-                        until VendLedgEntry.Next = 0;
+                        until VendLedgEntry.Next() = 0;
                 end;
             else
                 exit('');
@@ -700,7 +700,7 @@
                 TempDimSetEntry."Dimension Value Code" := DimValue.Code;
                 TempDimSetEntry."Dimension Value ID" := DimValue."Dimension Value ID";
                 TempDimSetEntry.Insert();
-            until DefaultDimension.Next = 0;
+            until DefaultDimension.Next() = 0;
 
         PaymentHeader.SetRange("No.", "No.");
         PaymentHeader.FindFirst;
@@ -712,7 +712,7 @@
                 TempDimSetEntry."Dimension Set ID" := 0;
                 if not TempDimSetEntry.Modify then
                     TempDimSetEntry.Insert();
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
 
         "Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
     end;

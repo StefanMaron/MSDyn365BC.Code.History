@@ -505,6 +505,17 @@ page 5907 "Service Item Worksheet Subform"
                             ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByLocation);
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         ApplicationArea = Planning;
@@ -593,13 +604,13 @@ page 5907 "Service Item Worksheet Subform"
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveServLine: Codeunit "Service Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
-            if not ReserveServLine.DeleteLineConfirm(Rec) then
+            if not ServiceLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
-            ReserveServLine.DeleteLine(Rec);
+            ServiceLineReserve.DeleteLine(Rec);
         end;
     end;
 
@@ -636,7 +647,7 @@ page 5907 "Service Item Worksheet Subform"
     begin
         Clear(ServOrderMgt);
         if ServOrderMgt.InsertServCost(Rec, 1, true) then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure InsertTravelFee()
@@ -645,7 +656,7 @@ page 5907 "Service Item Worksheet Subform"
     begin
         Clear(ServOrderMgt);
         if ServOrderMgt.InsertServCost(Rec, 0, true) then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     procedure InsertExtendedText(Unconditionally: Boolean)
@@ -658,7 +669,7 @@ page 5907 "Service Item Worksheet Subform"
             TransferExtendedText.InsertServExtText(Rec);
         end;
         if TransferExtendedText.MakeUpdate then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure ShowReservationEntries()

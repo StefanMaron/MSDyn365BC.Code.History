@@ -3002,7 +3002,7 @@ codeunit 134235 "Record Set UT"
             exit;
         end;
 
-        SetRecordRef.FindSet;
+        SetRecordRef.FindSet();
         repeat
             CurrentKey := TempRecordSetBuffer.No;
             Clear(TempRecordSetBuffer);
@@ -3016,7 +3016,7 @@ codeunit 134235 "Record Set UT"
     begin
         TempRecordSetBuffer.SetCurrentKey("Value RecordID");
         TempRecordSetBuffer.Ascending(true);
-        TempRecordSetBuffer.FindSet;
+        TempRecordSetBuffer.FindSet();
     end;
 }
 

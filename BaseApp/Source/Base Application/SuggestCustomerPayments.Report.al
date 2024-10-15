@@ -32,7 +32,7 @@ report 10864 "Suggest Customer Payments"
                             GetCustLedgEntries(true, true);
                             GetCustLedgEntries(false, true);
                             CheckAmounts(true);
-                        until Next = 0;
+                        until Next() = 0;
                 end;
 
                 GenPayLine.LockTable();
@@ -201,7 +201,7 @@ report 10864 "Suggest Customer Payments"
         if CustLedgEntry.Find('-') then
             repeat
                 SaveAmount;
-            until CustLedgEntry.Next = 0;
+            until CustLedgEntry.Next() = 0;
     end;
 
     local procedure SaveAmount()
@@ -260,7 +260,7 @@ report 10864 "Suggest Customer Payments"
                     PrevCurrency := PayableCustLedgEntry."Currency Code";
                 end;
                 CurrencyBalance := CurrencyBalance + PayableCustLedgEntry."Amount (LCY)"
-            until PayableCustLedgEntry.Next = 0;
+            until PayableCustLedgEntry.Next() = 0;
             if CurrencyBalance > 0 then begin
                 PayableCustLedgEntry.SetRange("Currency Code", PrevCurrency);
                 PayableCustLedgEntry.DeleteAll();
@@ -351,7 +351,7 @@ report 10864 "Suggest Customer Payments"
                     CustLedgEntry.CalcFields("Remaining Amount");
                     CustLedgEntry."Amount to Apply" := CustLedgEntry."Remaining Amount";
                     CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgEntry)
-                until PayableCustLedgEntry.Next = 0;
+                until PayableCustLedgEntry.Next() = 0;
                 PayableCustLedgEntry.SetFilter("Vendor No.", '>%1', PayableCustLedgEntry."Vendor No.");
             until not PayableCustLedgEntry.Find('-');
 
@@ -431,7 +431,7 @@ report 10864 "Suggest Customer Payments"
                     end;
                     GenPayLineInserted := true;
                 end;
-            until TempPaymentPostBuffer.Next = 0;
+            until TempPaymentPostBuffer.Next() = 0;
     end;
 
     local procedure ShowMessage(Text: Text)

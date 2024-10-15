@@ -1,4 +1,4 @@
-﻿codeunit 5626 "FA General Report"
+codeunit 5626 "FA General Report"
 {
     Permissions = TableData "Fixed Asset" = rm;
 
@@ -296,7 +296,7 @@
                         FA."FA Posting Group" := FADeprBook."FA Posting Group";
                         FA.Modify();
                     end;
-            until FA.Next = 0;
+            until FA.Next() = 0;
         Commit();
         Window.Close;
     end;

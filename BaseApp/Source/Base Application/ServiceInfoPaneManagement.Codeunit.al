@@ -115,13 +115,13 @@ codeunit 5972 "Service Info-Pane Management"
         TroubleshootingSetup.Reset();
         TroubleshootingSetup.SetRange(Type, TroubleshootingSetup.Type::"Service Item");
         TroubleshootingSetup.SetRange("No.", ServItemLine."Service Item No.");
-        if not TroubleshootingSetup.IsEmpty then
+        if not TroubleshootingSetup.IsEmpty() then
             exit(TroubleshootingSetup.Count);
         if not ServItem.Get(ServItemLine."Service Item No.") then
             exit(0);
         TroubleshootingSetup.SetRange(Type, TroubleshootingSetup.Type::Item);
         TroubleshootingSetup.SetRange("No.", ServItem."Item No.");
-        if not TroubleshootingSetup.IsEmpty then
+        if not TroubleshootingSetup.IsEmpty() then
             exit(TroubleshootingSetup.Count);
         TroubleshootingSetup.SetRange(Type, TroubleshootingSetup.Type::"Service Item Group");
         TroubleshootingSetup.SetRange("No.", ServItem."Service Item Group Code");
@@ -148,7 +148,7 @@ codeunit 5972 "Service Info-Pane Management"
                 repeat
                     if ServOrderAllocMgt.ResourceQualified(Res."No.", "Resource Skill Type"::"Service Item", ServItem."No.") then
                         NoOfSkilledResources += 1;
-                until Res.Next = 0;
+                until Res.Next() = 0;
             exit(NoOfSkilledResources);
         end;
     end;

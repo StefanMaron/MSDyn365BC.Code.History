@@ -82,7 +82,7 @@ codeunit 10821 "Export DEB DTI"
 
     local procedure CheckJnlLines(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
-        if IntrastatJnlLine.IsEmpty then
+        if IntrastatJnlLine.IsEmpty() then
             Error(Text001);
 
         IntrastatJnlLine.FindFirst;
@@ -92,7 +92,7 @@ codeunit 10821 "Export DEB DTI"
         if IntrastatJnlLine.FindSet then
             repeat
                 ValidateJnlLine(IntrastatJnlLine);
-            until IntrastatJnlLine.Next = 0;
+            until IntrastatJnlLine.Next() = 0;
     end;
 
     local procedure ValidateJnlBatch(IntrastatJnlLine: Record "Intrastat Jnl. Line")
@@ -140,7 +140,7 @@ codeunit 10821 "Export DEB DTI"
                     Type := IntrastatJnlLine.Type;
                 end;
                 InsertTempJnlLine(IntrastatJnlLine, FlowCode);
-            until IntrastatJnlLine.Next = 0;
+            until IntrastatJnlLine.Next() = 0;
     end;
 
     local procedure InsertTempJnlBatch(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FlowCode: Text[1])
@@ -259,7 +259,7 @@ codeunit 10821 "Export DEB DTI"
                 AddDeclaration(XMLNode, TempIntrastatJnlBatch, DeclarationId, ObligationLevel);
                 AddItems(XMLNode, TempIntrastatJnlBatch);
                 XMLNode := XMLNode.ParentNode;
-            until TempIntrastatJnlBatch.Next = 0;
+            until TempIntrastatJnlBatch.Next() = 0;
     end;
 
     local procedure AddDeclaration(var XMLNode: DotNet XmlNode; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; DeclarationId: Integer; ObligationLevel: Integer)
@@ -296,7 +296,7 @@ codeunit 10821 "Export DEB DTI"
                 ItemNumberXML += 1;
                 AddItem(XMLNode, TempIntrastatJnlLine, ItemNumberXML);
                 XMLNode := XMLNode.ParentNode;
-            until TempIntrastatJnlLine.Next = 0;
+            until TempIntrastatJnlLine.Next() = 0;
     end;
 
     local procedure AddItem(var XMLNode: DotNet XmlNode; IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemNumberXML: Integer)

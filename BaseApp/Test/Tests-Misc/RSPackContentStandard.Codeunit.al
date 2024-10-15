@@ -199,8 +199,8 @@ codeunit 138300 "RS Pack Content - Standard"
         InteractionTemplate: Record "Interaction Template";
     begin
         // [FEATURE] [CRM] [Interaction Template]
-        // [SCENARIO 174769] Interaction Template should have 24 templates.
-        Assert.RecordCount(InteractionTemplate, 24);
+        // [SCENARIO 174769] Interaction Template should have 25 templates.
+        Assert.RecordCount(InteractionTemplate, 25);
     end;
 
     [Test]
@@ -421,20 +421,6 @@ codeunit 138300 "RS Pack Content - Standard"
         Assert.TableIsNotEmpty(DATABASE::"VAT Statement Template");
         Assert.TableIsNotEmpty(DATABASE::"VAT Statement Name");
         Assert.TableIsNotEmpty(DATABASE::"VAT Statement Line");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyNoPermissionSetWithEmptyHash()
-    var
-        PermissionSet: Record "Permission Set";
-    begin
-        PermissionSet.SetRange(Hash, '');
-        if PermissionSet.FindSet then
-            repeat
-                if StrPos(PermissionSet."Role ID", 'TEST') = 0 then // not a test created permission set
-                    Assert.Fail(StrSubstNo('Some permissions sets, e,g. %1 have nothing filled in Hash field.', PermissionSet."Role ID"));
-            until PermissionSet.Next = 0;
     end;
 }
 

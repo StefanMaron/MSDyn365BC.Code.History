@@ -72,7 +72,7 @@
                         else
                             GenerateCustomPostCodeCity(AddrArray[CustomAddressFormat."Line Position" + 1], City, PostCode, County, Country);
                     end;
-                until CustomAddressFormat.Next = 0;
+                until CustomAddressFormat.Next() = 0;
 
             CompressArray(AddrArray);
         end else begin
@@ -268,7 +268,7 @@
                         PostCodeCityLine += CustomAddressFormatLine.Separator
                     else
                         PostCodeCityLine += ' ';
-            until CustomAddressFormatLine.Next = 0;
+            until CustomAddressFormatLine.Next() = 0;
 
         PostCodeCityText := DelStr(PostCodeCityLine, MaxStrLen(PostCodeCityText));
     end;

@@ -124,7 +124,7 @@ table 1502 "Workflow Step"
                             WorkflowRule.SetRange("Workflow Code", "Workflow Code");
                             WorkflowRule.SetRange("Workflow Step ID", ID);
                             WorkflowRule.SetRange("Workflow Step Instance ID", EmptyGuid);
-                            if not WorkflowRule.IsEmpty then
+                            if not WorkflowRule.IsEmpty() then
                                 WorkflowRule.DeleteAll();
                         end;
                 end;
@@ -553,7 +553,7 @@ table 1502 "Workflow Step"
             repeat
                 if ChildWorkflowStep.HasEventsInSubtree(ChildWorkflowStep) then
                     exit(true);
-            until ChildWorkflowStep.Next = 0;
+            until ChildWorkflowStep.Next() = 0;
 
         exit(false);
     end;
@@ -583,7 +583,7 @@ table 1502 "Workflow Step"
                 InstanceWorkflowRule.ID := 0;
                 InstanceWorkflowRule."Workflow Step Instance ID" := InstanceID;
                 InstanceWorkflowRule.Insert(true);
-            until WorkflowRule.Next = 0;
+            until WorkflowRule.Next() = 0;
     end;
 
     procedure FindWorkflowRules(var WorkflowRule: Record "Workflow Rule"): Boolean
@@ -625,7 +625,7 @@ table 1502 "Workflow Step"
             repeat
                 if WorkflowStep.HasParentEvent(WorkflowStep) then
                     exit(true);
-            until WorkflowStep.Next = 0;
+            until WorkflowStep.Next() = 0;
 
         exit(false);
     end;
@@ -640,7 +640,7 @@ table 1502 "Workflow Step"
         ReferredWorkflowStep.SetRange("Workflow Code", "Workflow Code");
         ReferredWorkflowStep.SetRange("Next Workflow Step ID", ID);
         ReferredWorkflowStep.SetRange(Type, ReferredWorkflowStep.Type::Response);
-        if not ReferredWorkflowStep.IsEmpty then begin
+        if not ReferredWorkflowStep.IsEmpty() then begin
             if not Confirm(ConfirmDeleteLinksQst, false) then
                 Error(CancelledErr);
             ReferredWorkflowStep.ModifyAll("Next Workflow Step ID", 0);

@@ -158,7 +158,7 @@ table 50 "Accounting Period"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             exit(CalcDate('<CY>', ReferenceDate));
 
         with AccountingPeriod do begin
@@ -175,7 +175,7 @@ table 50 "Accounting Period"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             exit(CalcDate('<-CY>', ReferenceDate));
 
         with AccountingPeriod do begin
@@ -282,7 +282,7 @@ table 50 "Accounting Period"
                         "Allow Posting To" := CalcDate('<+1M-1D>', GLSetup."Posting Allowed From");
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end
     end;
 
@@ -300,7 +300,7 @@ table 50 "Accounting Period"
                 repeat
                     if ("Allow Posting From" > FYEndDate) or ("Allow Posting To" > FYEndDate) then
                         exit(true);
-                until Next = 0;
+                until Next() = 0;
 
         exit(false);
     end;

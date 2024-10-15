@@ -114,7 +114,7 @@ codeunit 10862 "Fiscal Year-FiscalClose"
                         Error(Text007,
                           ClosingDate(FiscalYearEndDate),
                           FiscalYearStartDate, FiscalYearEndDate);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

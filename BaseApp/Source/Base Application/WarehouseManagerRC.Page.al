@@ -134,14 +134,14 @@ page 8909 "Warehouse Manager Role Center"
                     ApplicationArea = Warehouse;
                     Caption = 'Bin Contents';
                     RunObject = page "Bin Contents";
-                    AccessByPermission = tabledata 7354 = R;
+                    AccessByPermission = TableData "Bin" = R;
                 }
                 action("Create Invt. Put-away/Pick")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Create Invt. Put-away/Pick';
                     RunObject = report "Create Invt Put-away/Pick/Mvmt";
-                    AccessByPermission = tabledata 14 = R;
+                    AccessByPermission = TableData "Location" = R;
                 }
                 action("Pick Worksheets")
                 {
@@ -178,6 +178,20 @@ page 8909 "Warehouse Manager Role Center"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item Tracing';
                     RunObject = page "Item Tracing";
+                }
+                action("Inventory Receipts")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Inventory Receipts';
+                    RunObject = page "Invt. Receipts";
+                    Tooltip = 'Open the Item Receipts page.';
+                }
+                action("Inventory Shipments")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Inventory Shipments';
+                    RunObject = page "Invt. Shipments";
+                    Tooltip = 'Open the Item Shipments page.';
                 }
                 group("Group4")
                 {
@@ -258,6 +272,12 @@ page 8909 "Warehouse Manager Role Center"
                         Caption = 'Posted Transfer Shipments';
                         RunObject = page "Posted Transfer Shipments";
                     }
+                    action("Posted Direct Transfers")
+                    {
+                        ApplicationArea = Location;
+                        Caption = 'Posted Direct Transfers';
+                        RunObject = page "Posted Direct Transfers";
+                    }
                     action("Posted Receipts")
                     {
                         ApplicationArea = Warehouse;
@@ -281,6 +301,20 @@ page 8909 "Warehouse Manager Role Center"
                         ApplicationArea = Warehouse;
                         Caption = 'Posted Invt. Pick';
                         RunObject = page "Posted Invt. Pick List";
+                    }
+                    action("Posted Invt. Receipts")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Posted Inventory Receipts';
+                        RunObject = page "Posted Invt. Receipts";
+                        Tooltip = 'Open the Posted Inventory Receipts page.';
+                    }
+                    action("Posted Invt. Shipments")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Posted Inventory Shipments';
+                        RunObject = page "Posted Invt. Shipments";
+                        Tooltip = 'Open the Posted Inventory Shipments page.';
                     }
                 }
                 group("Group6")
@@ -385,7 +419,7 @@ page 8909 "Warehouse Manager Role Center"
                         ApplicationArea = Warehouse;
                         Caption = 'Inventory Picking List';
                         RunObject = report "Inventory Picking List";
-                        AccessByPermission = tabledata 14 = R;
+                        AccessByPermission = TableData "Location" = R;
                     }
                     action("Item Expiration - Quantity")
                     {
@@ -462,21 +496,21 @@ page 8909 "Warehouse Manager Role Center"
                         ApplicationArea = Warehouse;
                         Caption = 'Bin Contents';
                         RunObject = page "Bin Contents";
-                        AccessByPermission = tabledata 7354 = R;
+                        AccessByPermission = TableData "Bin" = R;
                     }
                     action("Bin Creation Worksheet")
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Bin Creation Worksheet';
                         RunObject = page "Bin Creation Worksheet";
-                        AccessByPermission = tabledata 7354 = R;
+                        AccessByPermission = TableData "Bin" = R;
                     }
                     action("Bin Content Creation Worksheet")
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Bin Content Creation Worksheet';
                         RunObject = page "Bin Content Creation Worksheet";
-                        AccessByPermission = tabledata 7354 = R;
+                        AccessByPermission = TableData "Bin" = R;
                     }
                 }
                 group("Group12")
@@ -545,7 +579,7 @@ page 8909 "Warehouse Manager Role Center"
                         ApplicationArea = Warehouse;
                         Caption = 'Warehouse Register - Quantity';
                         RunObject = report "Warehouse Register - Quantity";
-                        AccessByPermission = tabledata 14 = R;
+                        AccessByPermission = TableData "Location" = R;
                     }
                     action("Warehouse Bin List")
                     {
@@ -558,21 +592,21 @@ page 8909 "Warehouse Manager Role Center"
                         ApplicationArea = Warehouse;
                         Caption = 'Whse. Adjustment Bin';
                         RunObject = report "Whse. Adjustment Bin";
-                        AccessByPermission = tabledata 7354 = R;
+                        AccessByPermission = TableData "Bin" = R;
                     }
                     action("Inventory Put-away List")
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Inventory Put-away List';
                         RunObject = report "Inventory Put-away List";
-                        AccessByPermission = tabledata 14 = R;
+                        AccessByPermission = TableData "Location" = R;
                     }
                     action("Warehouse Movement")
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Warehouse Movement';
                         RunObject = report "Movement List";
-                        AccessByPermission = tabledata 14 = R;
+                        AccessByPermission = TableData "Location" = R;
                     }
                     action("Whse. - Posted Receipt")
                     {
@@ -812,7 +846,7 @@ page 8909 "Warehouse Manager Role Center"
                     ApplicationArea = Warehouse;
                     Caption = 'Bin Types';
                     RunObject = page "Bin Types";
-                    AccessByPermission = tabledata 7354 = R;
+                    AccessByPermission = TableData "Bin" = R;
                 }
                 action("Warehouse Classes")
                 {
@@ -852,7 +886,7 @@ page 8909 "Warehouse Manager Role Center"
                         ApplicationArea = Warehouse;
                         Caption = 'Bin Templates';
                         RunObject = page "Bin Templates";
-                        AccessByPermission = tabledata 7354 = R;
+                        AccessByPermission = TableData "Bin" = R;
                     }
                     action("Put-away Templates")
                     {
@@ -865,7 +899,7 @@ page 8909 "Warehouse Manager Role Center"
                         ApplicationArea = Warehouse;
                         Caption = 'Bin Creation Worksheet Templates';
                         RunObject = page "Bin Creation Wksh. Templates";
-                        AccessByPermission = tabledata 7354 = R;
+                        AccessByPermission = TableData "Bin" = R;
                     }
                     action("Whse. Journal Templates")
                     {

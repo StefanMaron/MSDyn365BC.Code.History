@@ -88,7 +88,7 @@ page 99000913 "Simulated Prod. Order Lines"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update(false);
+                        CurrPage.Update(true);
                     end;
                 }
                 field("Starting Time"; StartingTime)
@@ -124,7 +124,7 @@ page 99000913 "Simulated Prod. Order Lines"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update(false);
+                        CurrPage.Update(true);
                     end;
                 }
                 field("Ending Time"; EndingTime)
@@ -378,6 +378,17 @@ page 99000913 "Simulated Prod. Order Lines"
                             ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByLocation);
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("Item No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         ApplicationArea = Manufacturing;
@@ -469,10 +480,10 @@ page 99000913 "Simulated Prod. Order Lines"
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveProdOrderLine: Codeunit "Prod. Order Line-Reserve";
+        ProdOrderLineReserve: Codeunit "Prod. Order Line-Reserve";
     begin
         Commit();
-        if not ReserveProdOrderLine.DeleteLineConfirm(Rec) then
+        if not ProdOrderLineReserve.DeleteLineConfirm(Rec) then
             exit(false);
     end;
 

@@ -557,11 +557,9 @@
         {
             Caption = 'Last IC Transaction No.';
         }
-        field(103; "Bill-to/Sell-to VAT Calc."; Option)
+        field(103; "Bill-to/Sell-to VAT Calc."; Enum "G/L Setup VAT Calculation")
         {
             Caption = 'Bill-to/Sell-to VAT Calc.';
-            OptionCaption = 'Bill-to/Pay-to No.,Sell-to/Buy-from No.';
-            OptionMembers = "Bill-to/Pay-to No.","Sell-to/Buy-from No.";
         }
         field(110; "Acc. Sched. for Balance Sheet"; Code[10])
         {
@@ -621,23 +619,14 @@
         }
         field(152; "Use Legacy G/L Entry Locking"; Boolean)
         {
+#if CLEAN18
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
             Caption = 'Use Legacy G/L Entry Locking';
-
-            trigger OnValidate()
-            var
-                InventorySetup: Record "Inventory Setup";
-            begin
-                if not "Use Legacy G/L Entry Locking" then begin
-                    if InventorySetup.Get then
-                        if InventorySetup."Automatic Cost Posting" then
-                            Error(Text025,
-                              FieldCaption("Use Legacy G/L Entry Locking"),
-                              "Use Legacy G/L Entry Locking",
-                              InventorySetup.FieldCaption("Automatic Cost Posting"),
-                              InventorySetup.TableCaption,
-                              InventorySetup."Automatic Cost Posting");
-                end;
-            end;
+            ObsoleteReason = 'Legacy G/L Locking is no longer supported.';
+            ObsoleteTag = '18.0';
         }
         field(160; "Payroll Trans. Import Format"; Code[20])
         {
@@ -648,8 +637,8 @@
         {
             Caption = 'VAT Reg. No. Validation URL';
             ObsoleteReason = 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -763,7 +752,6 @@
         UserSetupManagement: Codeunit "User Setup Management";
         ErrorMessage: Boolean;
         DependentFieldActivatedErr: Label 'You cannot change %1 because %2 is selected.';
-        Text025: Label 'The field %1 should not be set to %2 if field %3 in %4 table is set to %5 because deadlocks can occur.';
         Text10800: Label '%1 must be within the allowed posting range: %2..%3';
         Text10801: Label '%1 %2 has %3 set to %4.';
         PaymentClass: Record "Payment Class";
@@ -879,7 +867,7 @@
                 IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
                 IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
                 IntrastatJnlLine.DeleteAll();
-            until IntrastatJnlBatch.Next = 0;
+            until IntrastatJnlBatch.Next() = 0;
     end;
 
     local procedure DeleteAnalysisView()
@@ -899,7 +887,7 @@
                     AnalysisView."Refresh When Unblocked" := true;
                     AnalysisView.Modify();
                 end;
-            until AnalysisView.Next = 0;
+            until AnalysisView.Next() = 0;
     end;
 
     procedure IsPostingAllowed(PostingDate: Date): Boolean
@@ -913,19 +901,19 @@
         exit("Post with Job Queue" or "Post & Print with Job Queue");
     end;
 
+#if not CLEAN18
+    [Obsolete('Legacy G/L Locking is no longer supported.', '18.0')]
     procedure OptimGLEntLockForMultiuserEnv(): Boolean
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        if "Use Legacy G/L Entry Locking" then
-            exit(false);
-
         if InventorySetup.Get then
             if InventorySetup."Automatic Cost Posting" then
                 exit(false);
 
         exit(true);
     end;
+#endif
 
     procedure FirstAllowedPostingDate() AllowedPostingDate: Date
     var

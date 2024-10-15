@@ -128,15 +128,13 @@ codeunit 5606 "FA Check Consistency"
                             if "FA Posting Type" = FALedgEntry2."FA Posting Type" then
                                 NewAmount := NewAmount + Amount;
                             CheckForError;
-                        until Next = 0;
+                        until Next() = 0;
                 end;
             end;
         end;
     end;
 
     local procedure CheckSalesPosting()
-    var
-        Sign: Integer;
     begin
         with FALedgEntry do begin
             if FADeprBook."Acquisition Date" = 0D then
@@ -165,14 +163,10 @@ codeunit 5606 "FA Check Consistency"
                 SetRange("FA Posting Date");
                 if Find('-') then
                     repeat
-                        if "Entry No." = FALedgEntry2."Entry No." then
-                            Sign := -1
-                        else
-                            Sign := 1;
-                        NewAmount := NewAmount + Sign * Amount;
-                        if NewAmount < 0 then
+                        NewAmount := NewAmount + Amount;
+                        if NewAmount > 0 then
                             CreatePostingTypeError;
-                    until Next = 0;
+                    until Next() = 0;
             end;
         end;
     end;
@@ -259,7 +253,7 @@ codeunit 5606 "FA Check Consistency"
     begin
         if FALedgEntry2."FA Posting Type" <> FALedgEntry2."FA Posting Type"::"Proceeds on Disposal" then
             exit;
-        if InsCoverageLedgEntry.IsEmpty then
+        if InsCoverageLedgEntry.IsEmpty() then
             exit;
         FASetup.Get();
         FASetup.TestField("Insurance Depr. Book");
@@ -332,8 +326,12 @@ codeunit 5606 "FA Check Consistency"
     local procedure CreateDisposedError(FixedAsset: Record "Fixed Asset"; DeprBookCode: Code[10])
     var
         DepreciationCalc: Codeunit "Depreciation Calculation";
+        IsHandled: Boolean;
     begin
-        Error(Text001, DepreciationCalc.FAName(FixedAsset, DeprBookCode));
+        IsHandled := false;
+        OnBeforeCreateDisposerError(FixedAsset, DeprBookCode, IsHandled);
+        if not IsHandled then
+            Error(Text001, DepreciationCalc.FAName(FixedAsset, DeprBookCode));
     end;
 
     local procedure CreateDisposalError()
@@ -345,7 +343,13 @@ codeunit 5606 "FA Check Consistency"
     local procedure CreatePostingTypeError()
     var
         AccumText: Text[30];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreatePostingTypeError(FAJnlLine, FALedgEntry2, DeprBook, IsHandled);
+        if IsHandled then
+            exit;
+
         FAJnlLine."FA Posting Type" := "FA Journal Line FA Posting Type".FromInteger(FALedgEntry2.ConvertPostingType());
         if FAJnlLine."FA Posting Type" = FAJnlLine."FA Posting Type"::Depreciation then
             AccumText := StrSubstNo('%1 %2', Text003, '');
@@ -395,6 +399,20 @@ codeunit 5606 "FA Check Consistency"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetFAPostingDateOnBeforeFADeprBookModify(var FADepreciationBook: Record "FA Depreciation Book"; var FALedgerEntry: Record "FA Ledger Entry"; MaxDate: Date; MinDate: Date; GLDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDisposerError(FixedAsset: Record "Fixed Asset"; DeprBookCode: code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePostingTypeError(
+        FAJnlLine: Record "FA Journal Line";
+        FALedgEntry2: Record "FA Ledger Entry";
+        DeprBook: Record "Depreciation Book";
+        var IsHandled: Boolean)
     begin
     end;
 }

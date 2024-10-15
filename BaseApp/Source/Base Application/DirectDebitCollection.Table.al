@@ -78,11 +78,13 @@ table 1207 "Direct Debit Collection"
     var
         CloseQst: Label 'If you close the collection, you will not be able to register the payments from the collection. Do you want to close the collection anyway?';
 
+#if not CLEAN17
     [Obsolete('Replaced by CreateRecord().', '17.0')]
     procedure CreateNew(NewIdentifier: Code[20]; NewBankAccountNo: Code[20]; PartnerType: Option)
     begin
         CreateRecord(NewIdentifier, NewBankAccountNo, PartnerType);
     end;
+#endif
 
     procedure CreateRecord(NewIdentifier: Code[20]; NewBankAccountNo: Code[20]; PartnerType: Enum "Partner Type")
     begin
@@ -172,7 +174,7 @@ table 1207 "Direct Debit Collection"
         if DirectDebitCollectionEntry.FindSet then
             repeat
                 DirectDebitCollectionEntry.DeletePaymentFileErrors;
-            until DirectDebitCollectionEntry.Next = 0;
+            until DirectDebitCollectionEntry.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

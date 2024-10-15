@@ -2,7 +2,7 @@ page 5050 "Contact Card"
 {
     Caption = 'Contact Card';
     PageType = ListPlus;
-    PromotedActionCategories = 'New,Process,Report,Navigate';
+    PromotedActionCategories = 'New,Process,Report,Navigate,Contact'; 
     SourceTable = Contact;
 
     layout
@@ -22,7 +22,7 @@ page 5050 "Contact Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Name; Name)
@@ -70,7 +70,7 @@ page 5050 "Contact Card"
                 field("Company No."; "Company No.")
                 {
                     ApplicationArea = All;
-                    Importance = Additional;
+                    Importance = Promoted;
                     ToolTip = 'Specifies the number for the contact''s company.';
                 }
                 field("Company Name"; "Company Name")
@@ -87,6 +87,18 @@ page 5050 "Contact Card"
                         Commit();
                         LookupCompany();
                         CurrPage.Update(false);
+                    end;
+                }
+                field("Business Relation"; Rec."Business Relation")
+                {
+                    ApplicationArea = All;
+                    Importance = Promoted;
+                    Caption = 'Business Relation';
+                    ToolTip = 'Specifies the type of the existing business relation.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.ShowBusinessRelation("Contact Business Relation Link To Table"::" ", true);
                     end;
                 }
                 field(IntegrationCustomerNo; IntegrationCustomerNo)
@@ -121,7 +133,7 @@ page 5050 "Contact Card"
                 field("Salesperson Code"; "Salesperson Code")
                 {
                     ApplicationArea = RelationshipMgmt;
-                    Importance = Additional;
+                    Importance = Promoted;
                     ToolTip = 'Specifies the code of the salesperson who normally handles this contact.';
                 }
                 field("Salutation Code"; "Salutation Code")
@@ -240,6 +252,14 @@ page 5050 "Contact Card"
                     Importance = Additional;
                     ToolTip = 'Specifies that a parent or guardian of the minor has provided their consent to allow the minor to use this service. When this check box is selected, data for the minor can be processed.';
                 }
+            }
+            part(ContactIntEntriesSubform; "Contact Int. Entries Subform")
+            {
+                ApplicationArea = RelationshipMgmt;
+                Caption = 'Interaction Log Entries';
+                SubPageLink = "Contact Company No." = FIELD("Company No."),
+                                "Contact No." = FILTER(<> ''),
+                                "Contact No." = FIELD(FILTER("Lookup Contact No."));
             }
             group(Communication)
             {
@@ -418,12 +438,8 @@ page 5050 "Contact Card"
                         ToolTip = 'View or edit the contact''s business relations, such as customers, vendors, banks, lawyers, consultants, competitors, and so on.';
 
                         trigger OnAction()
-                        var
-                            ContactBusinessRelationRec: Record "Contact Business Relation";
                         begin
-                            CheckContactType(Type::Company);
-                            ContactBusinessRelationRec.SetRange("Contact No.", "Company No.");
-                            PAGE.Run(PAGE::"Contact Business Relations", ContactBusinessRelationRec);
+                            Rec.ShowBusinessRelations();
                         end;
                     }
                     action("Industry Groups")
@@ -503,7 +519,6 @@ page 5050 "Contact Card"
                     RunObject = Page "Contact Picture";
                     RunPageLink = "No." = FIELD("No.");
                     ToolTip = 'View or add a picture of the contact person or, for example, the company''s logo.';
-                    Visible = ActionVisible;
                 }
                 action("Co&mments")
                 {
@@ -596,7 +611,7 @@ page 5050 "Contact Card"
                     }
                     action(DeleteCRMCoupling)
                     {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        AccessByPermission = TableData "CRM Integration Record" = D;
                         ApplicationArea = Suite;
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
@@ -660,16 +675,90 @@ page 5050 "Contact Card"
                     RunPageLink = "Contact No." = FIELD("No.");
                     ToolTip = 'View or edit the mailing groups that the contact is assigned to, for example, for sending price lists or Christmas cards.';
                 }
+#if not CLEAN18
                 action("C&ustomer/Vendor/Bank Acc.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'C&ustomer/Vendor/Bank Acc./Employee';
                     Image = ContactReference;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by 4 actions: RelatedCustomer, RelatedVendor, RelatedBank, RelatedEmployee';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                     ToolTip = 'View the related customer, vendor, bank account, or employee that is associated with the current record.';
 
                     trigger OnAction()
                     begin
                         ShowCustVendBank;
+                    end;
+                }
+#endif
+                action(RelatedCustomer)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer';
+                    Image = Customer;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Enabled = RelatedCustomerEnabled;
+                    ToolTip = 'View information about the customer that is associated with the selected record.';
+
+                    trigger OnAction()
+                    var
+                        LinkToTable: Enum "Contact Business Relation Link To Table";
+                    begin
+                        Rec.ShowBusinessRelation(LinkToTable::Customer, false);
+                    end;
+                }
+                action(RelatedVendor)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor';
+                    Image = Vendor;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Enabled = RelatedVendorEnabled;
+                    ToolTip = 'View information about the vendor that is associated with the selected record.';
+
+                    trigger OnAction()
+                    var
+                        LinkToTable: Enum "Contact Business Relation Link To Table";
+                    begin
+                        Rec.ShowBusinessRelation(LinkToTable::Vendor, false);
+                    end;
+                }
+                action(RelatedBank)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Bank Account';
+                    Image = BankAccount;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Enabled = RelatedBankEnabled;
+                    ToolTip = 'View information about the bank account that is associated with the selected record.';
+
+                    trigger OnAction()
+                    var
+                        LinkToTable: Enum "Contact Business Relation Link To Table";
+                    begin
+                        Rec.ShowBusinessRelation(LinkToTable::"Bank Account", false);
+                    end;
+                }
+                action(RelatedEmployee)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Employee';
+                    Image = Employee;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Enabled = RelatedEmployeeEnabled;
+                    ToolTip = 'View information about the employee that is associated with the selected record.';
+
+                    trigger OnAction()
+                    var
+                        LinkToTable: Enum "Contact Business Relation Link To Table";
+                    begin
+                        Rec.ShowBusinessRelation(LinkToTable::Employee, false);
                     end;
                 }
                 action("Online Map")
@@ -696,7 +785,7 @@ page 5050 "Contact Card"
 
                     trigger OnAction()
                     begin
-                        ShowCustVendBank;
+                        ShowBusinessRelation("Contact Business Relation Link To Table"::" ", false);
                     end;
                 }
             }
@@ -719,6 +808,47 @@ page 5050 "Contact Card"
                         PriceUXManagement.ShowPriceLists(Rec, "Price Type"::Sale, "Price Amount Type"::Any);
                     end;
                 }
+                action(PriceLines)
+                {
+                    AccessByPermission = TableData "Sales Price Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Prices';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up sales price lines for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Price);
+                    end;
+                }
+                action(DiscountLines)
+                {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Discounts';
+                    Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
+                    end;
+                }
+#if not CLEAN18
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -739,6 +869,7 @@ page 5050 "Contact Card"
                         PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Discount);
                     end;
                 }
+#endif
             }
             group(Tasks)
             {
@@ -779,7 +910,6 @@ page 5050 "Contact Card"
                                   "Contact No." = FIELD(FILTER("Lookup Contact No."));
                     RunPageView = SORTING("Contact Company No.", Date, "Contact No.", Canceled, "Initiated By", "Attempt Failed");
                     ToolTip = 'View postponed interactions for the contact.';
-                    Visible = ActionVisible;
                 }
             }
             group(Documents)
@@ -842,7 +972,6 @@ page 5050 "Contact Card"
                     Caption = 'Launch &Web Source';
                     Image = LaunchWeb;
                     ToolTip = 'Search for information about the contact online.';
-                    Visible = ActionVisible;
 
                     trigger OnAction()
                     var
@@ -927,7 +1056,6 @@ page 5050 "Contact Card"
                 {
                     Caption = 'Link with existing';
                     Image = Links;
-                    Visible = ActionVisible;
                     action(Customer)
                     {
                         ApplicationArea = Basic, Suite;
@@ -963,6 +1091,18 @@ page 5050 "Contact Card"
                         trigger OnAction()
                         begin
                             CreateBankAccountLink;
+                        end;
+                    }
+                    action(LinkEmployee)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Employee';
+                        Image = Employee;
+                        ToolTip = 'Link the contact to an existing employee.';
+
+                        trigger OnAction()
+                        begin
+                            Rec.CreateEmployeeLink();
                         end;
                     }
                 }
@@ -1013,7 +1153,11 @@ page 5050 "Contact Card"
 
                     trigger OnAction()
                     begin
-                        CreateCustomer(ChooseCustomerTemplate);
+#if not CLEAN18
+                        CreateCustomer(ChooseCustomerTemplate());
+#else
+                        CreateCustomerFromTemplate(ChooseNewCustomerTemplate());
+#endif
                     end;
                 }
                 action(CreateAsVendor)
@@ -1031,6 +1175,23 @@ page 5050 "Contact Card"
                         CreateVendor;
                     end;
                 }
+                action(MakePhoneCall)
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Make &Phone Call';
+                    Image = Calls;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    Scope = Repeater;
+                    ToolTip = 'Call the selected contact.';
+
+                    trigger OnAction()
+                    var
+                        TAPIManagement: Codeunit TAPIManagement;
+                    begin
+                        TAPIManagement.DialContCustVendBank(DATABASE::Contact, Rec."No.", Rec.GetDefaultPhoneNo(), '');
+                    end;
+                }
             }
             action("Create &Interaction")
             {
@@ -1045,6 +1206,25 @@ page 5050 "Contact Card"
                 trigger OnAction()
                 begin
                     CreateInteraction;
+                end;
+            }
+            action(WordTemplate)
+            {
+                ApplicationArea = All;
+                Caption = 'Word Template';
+                ToolTip = 'Apply a Word template on the contact.';
+                Image = Word;
+                Promoted = true;
+                PromotedCategory = Category5;
+
+                trigger OnAction()
+                var
+                    Contact: Record Contact;
+                    WordTemplateSelectionWizard: Page "Word Template Selection Wizard";
+                begin
+                    CurrPage.SetSelectionFilter(Contact);
+                    WordTemplateSelectionWizard.SetData(Contact);
+                    WordTemplateSelectionWizard.RunModal();
                 end;
             }
             action("Create Opportunity")
@@ -1112,8 +1292,11 @@ page 5050 "Contact Card"
                 CRMIntegrationManagement.SendResultNotification(Rec);
         end;
 
+        if Rec."Business Relation" = '' then
+            Rec.UpdateBusinessRelation();
         xRec := Rec;
         EnableFields();
+        SetEnabledRelatedActions();
 
         if Type = Type::Person then
             IntegrationFindCustomerNo()
@@ -1122,8 +1305,6 @@ page 5050 "Contact Card"
     end;
 
     trigger OnInit()
-    var
-        ClientTypeManagement: Codeunit "Client Type Management";
     begin
         "Stock CapitalEnable" := true;
         "Legal FormEnable" := true;
@@ -1133,7 +1314,6 @@ page 5050 "Contact Card"
         CompanyNameEnable := true;
         VATRegistrationNoEnable := true;
         CurrencyCodeEnable := true;
-        ActionVisible := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1189,7 +1369,10 @@ page 5050 "Contact Card"
         CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
         IsOfficeAddin: Boolean;
-        ActionVisible: Boolean;
+        RelatedCustomerEnabled: Boolean;
+        RelatedVendorEnabled: Boolean;
+        RelatedBankEnabled: Boolean;
+        RelatedEmployeeEnabled: Boolean;
         ShowMapLbl: Label 'Show Map';
         NoFieldVisible: Boolean;
         ParentalConsentReceivedEnable: Boolean;
@@ -1206,6 +1389,11 @@ page 5050 "Contact Card"
         "APE CodeEnable" := Type = Type::Company;
         "Legal FormEnable" := Type = Type::Company;
         "Stock CapitalEnable" := Type = Type::Company;
+    end;
+
+    local procedure SetEnabledRelatedActions()
+    begin
+        Rec.HasBusinessRelations(RelatedCustomerEnabled, RelatedVendorEnabled, RelatedBankEnabled, RelatedEmployeeEnabled)
     end;
 
     local procedure IntegrationFindCustomerNo()

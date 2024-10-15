@@ -52,7 +52,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                 else
                     TempAttachmentEntityBuffer."Document Id" := DocumentId;
                 TempAttachmentEntityBuffer.Modify(true);
-            until TempAttachmentEntityBuffer.Next = 0;
+            until TempAttachmentEntityBuffer.Next() = 0;
     end;
 
     [Scope('Cloud')]
@@ -553,7 +553,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             repeat
                 if not TempNewAttachmentEntityBuffer.Get(TempOldAttachmentEntityBuffer.Id) then
                     PropagateDeleteAttachment(TempOldAttachmentEntityBuffer);
-            until TempOldAttachmentEntityBuffer.Next = 0;
+            until TempOldAttachmentEntityBuffer.Next() = 0;
     end;
 
     local procedure LinkNewAttachmentsToDocument(var TempOldAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempNewAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; DocumentId: Guid)
@@ -599,7 +599,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                             FileNameToNameAndExtension(FileName, IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension");
                             IncomingDocumentAttachment.Modify(true);
                         end;
-            until TempNewAttachmentEntityBuffer.Next = 0;
+            until TempNewAttachmentEntityBuffer.Next() = 0;
     end;
 
     local procedure LinkAttachmentToDocument(AttachmentId: Guid; DocumentId: Guid; FileName: Text[250])
@@ -1377,7 +1377,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             TempBlob.FromRecord(IncomingDocumentAttachment, IncomingDocumentAttachment.FieldNo(Content));
             TempAttachmentEntityBuffer."Byte Size" := GetContentLength(TempBlob);
             TempAttachmentEntityBuffer.Modify(true);
-        until IncomingDocumentAttachment.Next = 0;
+        until IncomingDocumentAttachment.Next() = 0;
     end;
 
     local procedure LoadUnlinkedAttachmentsToBuffer(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; AttachmentIdFilter: Text)
@@ -1403,7 +1403,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             TempBlob.FromRecord(UnlinkedAttachment, UnlinkedAttachment.FieldNo(Content));
             TempAttachmentEntityBuffer."Byte Size" := GetContentLength(TempBlob);
             TempAttachmentEntityBuffer.Modify(true);
-        until UnlinkedAttachment.Next = 0;
+        until UnlinkedAttachment.Next() = 0;
     end;
 
     local procedure TransferToIncomingDocumentAttachment(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var TempFieldBuffer: Record "Field Buffer" temporary; IsNewAttachment: Boolean)

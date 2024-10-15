@@ -588,19 +588,12 @@ table 5601 "FA Ledger Entry"
             else
                 OnAfterConvertPostingTypeElse(FAJnlLine, Rec);
         end;
-        OnAfterConvertPostingType(Rec, FAJnlLine);
         exit(FAJnlLine."FA Posting Type".AsInteger());
     end;
 
     procedure ShowDimensions()
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
-    end;
-
-    [Obsolete('Replaced by event OnAfterConvertPostingTypeElse.', '15.3')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterConvertPostingType(FALedgerEntry: Record "FA Ledger Entry"; var FAJournalLine: Record "FA Journal Line")
-    begin
     end;
 
     [IntegrationEvent(false, false)]

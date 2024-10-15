@@ -168,7 +168,7 @@ codeunit 951 "Time Sheet Approval Management"
                   TimeSheetDetail.Date,
                   '',
                   TimeSheetLine.Description);
-            until TimeSheetDetail.Next = 0;
+            until TimeSheetDetail.Next() = 0;
 
         TimeSheetLine.Posted := true;
         TimeSheetLine.Modify();
@@ -193,7 +193,7 @@ codeunit 951 "Time Sheet Approval Management"
         ServiceLine.SetRange("Document No.", TimeSheetLine."Service Order No.");
         ServiceLine.SetRange("Time Sheet No.", TimeSheetLine."Time Sheet No.");
         ServiceLine.SetRange("Time Sheet Line No.", TimeSheetLine."Line No.");
-        if not ServiceLine.IsEmpty then
+        if not ServiceLine.IsEmpty() then
             Error(Text003);
     end;
 

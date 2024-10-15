@@ -55,7 +55,7 @@ codeunit 1207 "Pmt Export Mgt Vend Ledg Entry"
             VendorLedgerEntry.HasFilter:
                 begin
                     ExportVendLedgerEntry.CopyFilters(VendorLedgerEntry);
-                    ExportVendLedgerEntry.FindSet;
+                    ExportVendLedgerEntry.FindSet();
                 end;
             else
                 ExportVendLedgerEntry.Copy(VendorLedgerEntry);
@@ -64,9 +64,9 @@ codeunit 1207 "Pmt Export Mgt Vend Ledg Entry"
         AppliedToVendLedgerEntry.SetRange("Exported to Payment File", true);
         repeat
             AppliedToVendLedgerEntry.SetRange("Closed by Entry No.", ExportVendLedgerEntry."Entry No.");
-            if not AppliedToVendLedgerEntry.IsEmpty then
+            if not AppliedToVendLedgerEntry.IsEmpty() then
                 exit(true);
-        until ExportVendLedgerEntry.Next = 0;
+        until ExportVendLedgerEntry.Next() = 0;
 
         exit(false);
     end;
@@ -102,7 +102,7 @@ codeunit 1207 "Pmt Export Mgt Vend Ledg Entry"
               TotalAmount, TransferDate, HandledGenJnlDataExchLine);
             if not HandledGenJnlDataExchLine then
                 CreateVendLedgerDataExchLine(DataExch."Entry No.", VendorLedgerEntry2, LineNo);
-        until VendorLedgerEntry2.Next = 0;
+        until VendorLedgerEntry2.Next() = 0;
         Window.Close;
 
         OnBeforePaymentExportVendorLedgerEntry(VendorLedgerEntry."Bal. Account No.", DataExch."Entry No.",
@@ -200,7 +200,7 @@ codeunit 1207 "Pmt Export Mgt Vend Ledg Entry"
             repeat
                 Validate("Exported to Payment File", true);
                 CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendorLedgerEntry2);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

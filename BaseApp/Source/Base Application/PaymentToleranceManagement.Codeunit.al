@@ -1,4 +1,4 @@
-﻿codeunit 426 "Payment Tolerance Management"
+codeunit 426 "Payment Tolerance Management"
 {
     Permissions = TableData Currency = r,
                   TableData "Cust. Ledger Entry" = rim,
@@ -568,7 +568,7 @@
                     CheckCustPaymentAmountsForAppliesToID(
                       CustledgEntry, AppliedCustLedgEntry, AppliedCustLedgEntryTemp, MaxPmtTolAmount, AvailableAmount, TempAmount,
                       ApplnRoundingPrecision);
-                until AppliedCustLedgEntry.Next = 0;
+                until AppliedCustLedgEntry.Next() = 0;
 
                 TempAmount := TempAmount + MaxPmtTolAmount;
 
@@ -684,7 +684,7 @@
                                 end;
                             end else
                                 ApplyingAmount := "Remaining Amount";
-                        until Next = 0;
+                        until Next() = 0;
 
                     if not SuppressCommit then
                         Commit();
@@ -758,7 +758,7 @@
                     CheckVendPaymentAmountsForAppliesToID(
                       VendledgEntry, AppliedVendLedgEntry, AppliedVendLedgEntryTemp, MaxPmtTolAmount, AvailableAmount, TempAmount,
                       ApplnRoundingPrecision);
-                until AppliedVendLedgEntry.Next = 0;
+                until AppliedVendLedgEntry.Next() = 0;
 
                 TempAmount := TempAmount + MaxPmtTolAmount;
                 PositiveFilter := GetVendPositiveFilter(VendledgEntry."Document Type", TempAmount);
@@ -874,7 +874,7 @@
                                 end;
                             end else
                                 ApplyingAmount := "Remaining Amount";
-                        until Next = 0;
+                        until Next() = 0;
 
                     if not SuppressCommit then
                         Commit();
@@ -1081,7 +1081,7 @@
                         AppliedCustLedgEntry."Currency Code",
                         CustledgEntry."Currency Code", CustledgEntry."Posting Date");
                 TotalAmount := TotalAmount + AppliedCustLedgEntry.Amount;
-            until AppliedCustLedgEntry.Next = 0;
+            until AppliedCustLedgEntry.Next() = 0;
 
         AppliedCustLedgEntry.LockTable();
         AppliedCustLedgEntry.SetLoadFields();
@@ -1121,7 +1121,7 @@
                 AppliedCustLedgEntry."Amount to Apply" := AppliedCustLedgEntryTemp."Remaining Amount";
                 AppliedCustLedgEntry.Modify();
                 Number := Number - 1;
-            until AppliedCustLedgEntry.Next = 0;
+            until AppliedCustLedgEntry.Next() = 0;
 
         if not SuppressCommit then
             Commit();
@@ -1163,7 +1163,7 @@
                         AppliedVendLedgEntry."Currency Code",
                         VendLedgEntry."Currency Code", VendLedgEntry."Posting Date");
                 TotalAmount := TotalAmount + AppliedVendLedgEntry.Amount;
-            until AppliedVendLedgEntry.Next = 0;
+            until AppliedVendLedgEntry.Next() = 0;
 
         AppliedVendLedgEntry.LockTable();
         AppliedVendLedgEntry.SetLoadFields();
@@ -1209,7 +1209,7 @@
                 AppliedVendLedgEntry."Amount to Apply" := AppliedVendLedgEntryTemp."Remaining Amount";
                 AppliedVendLedgEntry.Modify();
                 Number := Number - 1;
-            until AppliedVendLedgEntry.Next = 0;
+            until AppliedVendLedgEntry.Next() = 0;
 
         if not SuppressCommit then
             Commit();
@@ -1245,7 +1245,7 @@
                     AppliedCustLedgEntry."Accepted Payment Tolerance" := 0;
                     AppliedCustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
                     AppliedCustLedgEntry.Modify();
-                until AppliedCustLedgEntry.Next = 0;
+                until AppliedCustLedgEntry.Next() = 0;
                 if not SuppressCommit then
                     Commit();
             end;
@@ -1277,7 +1277,7 @@
             AppliedVendLedgEntry.SetRange(Open, true);
             AppliedVendLedgEntry.SetRange("Applies-to ID", VendEntryApplID);
             AppliedVendLedgEntry.LockTable();
-            if not AppliedVendLedgEntry.IsEmpty then begin
+            if not AppliedVendLedgEntry.IsEmpty() then begin
                 AppliedVendLedgEntry.ModifyAll("Accepted Payment Tolerance", 0);
                 AppliedVendLedgEntry.ModifyAll("Accepted Pmt. Disc. Tolerance", false);
                 if not SuppressCommit then
@@ -1318,9 +1318,9 @@
                             end else
                                 CustLedgEntry."Pmt. Disc. Tolerance Date" := 0D;
                             CustLedgEntry.Modify();
-                        until CustLedgEntry.Next = 0;
+                        until CustLedgEntry.Next() = 0;
                 end;
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
 
         Vendor.SetCurrentKey("No.");
         VendLedgEntry.LockTable();
@@ -1349,9 +1349,9 @@
                             end else
                                 VendLedgEntry."Pmt. Disc. Tolerance Date" := 0D;
                             VendLedgEntry.Modify();
-                        until VendLedgEntry.Next = 0;
+                        until VendLedgEntry.Next() = 0;
                 end;
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
     end;
 
     procedure CalcTolCustLedgEntry(Customer: Record Customer)
@@ -1412,7 +1412,7 @@
                 CustLedgEntry."Max. Payment Tolerance" := CustLedgEntry.Amount;
             OnCalcTolCustLedgEntryOnBeforeModify(CustLedgEntry);
             CustLedgEntry.Modify();
-        until CustLedgEntry.Next = 0;
+        until CustLedgEntry.Next() = 0;
     end;
 
     procedure DelTolCustLedgEntry(Customer: Record Customer)
@@ -1431,7 +1431,7 @@
             CustLedgEntry."Pmt. Disc. Tolerance Date" := 0D;
             CustLedgEntry."Max. Payment Tolerance" := 0;
             CustLedgEntry.Modify();
-        until CustLedgEntry.Next = 0;
+        until CustLedgEntry.Next() = 0;
     end;
 
     procedure CalcTolVendLedgEntry(Vendor: Record Vendor)
@@ -1492,7 +1492,7 @@
                 VendLedgEntry."Max. Payment Tolerance" := VendLedgEntry.Amount;
             OnCalcTolVendLedgEntryOnBeforeModify(VendLedgEntry);
             VendLedgEntry.Modify();
-        until VendLedgEntry.Next = 0;
+        until VendLedgEntry.Next() = 0;
     end;
 
     procedure DelTolVendLedgEntry(Vendor: Record Vendor)
@@ -1511,7 +1511,7 @@
             VendLedgEntry."Pmt. Disc. Tolerance Date" := 0D;
             VendLedgEntry."Max. Payment Tolerance" := 0;
             VendLedgEntry.Modify();
-        until VendLedgEntry.Next = 0;
+        until VendLedgEntry.Next() = 0;
     end;
 
     procedure DelPmtTolApllnDocNo(GenJnlLine: Record "Gen. Journal Line"; DocumentNo: Code[20])
@@ -1535,7 +1535,7 @@
                     AppliedCustLedgEntry."Accepted Payment Tolerance" := 0;
                     AppliedCustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
                     AppliedCustLedgEntry.Modify();
-                until AppliedCustLedgEntry.Next = 0;
+                until AppliedCustLedgEntry.Next() = 0;
                 if not SuppressCommit then
                     Commit();
             end;
@@ -1551,7 +1551,7 @@
                         AppliedVendLedgEntry."Accepted Payment Tolerance" := 0;
                         AppliedVendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
                         AppliedVendLedgEntry.Modify();
-                    until AppliedVendLedgEntry.Next = 0;
+                    until AppliedVendLedgEntry.Next() = 0;
                     if not SuppressCommit then
                         Commit();
                 end;
@@ -2168,7 +2168,7 @@
                         DelCustPmtTolAcc(NewCustLedgEntry, GenJnlLineApplID);
                         exit(false);
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         exit(true);
@@ -2215,7 +2215,7 @@
                         DelVendPmtTolAcc(NewVendLedgEntry, GenJnlLineApplID);
                         exit(false);
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         exit(true);
@@ -2253,7 +2253,8 @@
         if not Customer.Get(AccountNo) then
             exit(false);
         if Customer."Block Payment Tolerance" then
-            exit(false);
+            exit(true);
+        exit(false);
     end;
 
     local procedure IsVendBlockPmtTolerance(AccountNo: Code[20]): Boolean
@@ -2263,7 +2264,8 @@
         if not Vendor.Get(AccountNo) then
             exit(false);
         if Vendor."Block Payment Tolerance" then
-            exit(false);
+            exit(true);
+        exit(false);
     end;
 
     local procedure CheckAccountType(GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type")

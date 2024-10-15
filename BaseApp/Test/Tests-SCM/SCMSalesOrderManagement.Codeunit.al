@@ -486,9 +486,7 @@ codeunit 137050 "SCM Sales Order Management"
 
         // [THEN] The COMMIT in the subscriber is stopped because of a transaction error
         Assert.ExpectedError('');
-        Assert.ExpectedMessage(
-          'The transaction cannot be completed because it will cause inconsistencies',
-          ErrorMessagesPage.Description.Value);
+        Assert.ExpectedMessage('Commit is prohibited in the current scope.', ErrorMessagesPage.Description.Value);
     end;
 
     local procedure Initialize()
@@ -742,7 +740,7 @@ codeunit 137050 "SCM Sales Order Management"
         ItemChargeAssignmentSales.GetShipmentLines.Invoke;
     end;
 
-    [EventSubscriber(ObjectType::Table, 110, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Shipment Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertShipmentHeader(var Rec: Record "Sales Shipment Header"; RunTrigger: Boolean)
     begin
         Commit();

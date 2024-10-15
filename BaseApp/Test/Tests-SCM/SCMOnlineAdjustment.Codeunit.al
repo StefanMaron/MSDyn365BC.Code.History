@@ -169,7 +169,7 @@ codeunit 137001 "SCM Online Adjustment"
         PostItemRevaluationJournal(TempItemJournalLine, Item, 1);
 
         // Validate: Value entries.
-        TempPurchInvHeader.FindSet;
+        TempPurchInvHeader.FindSet();
         repeat
             CheckPurchInvEntries(Item."No.", TempPurchInvHeader."No.");
         until TempPurchInvHeader.Next = 0;
@@ -805,7 +805,7 @@ codeunit 137001 "SCM Online Adjustment"
 
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             TempItemJournalLine := ItemJournalLine;
             TempItemJournalLine.Insert();
@@ -1019,7 +1019,7 @@ codeunit 137001 "SCM Online Adjustment"
         ValueEntry.SetRange("Entry Type", EntryType);
         ValueEntry.SetRange("Document No.", DocumentNo);
         Assert.IsFalse(ValueEntry.IsEmpty, StrSubstNo(ErrorNoEntryFound, ItemNo, Format(DocumentType)));
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
 
         // Test value entry fields.
         repeat
@@ -1082,7 +1082,7 @@ codeunit 137001 "SCM Online Adjustment"
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
         ValueEntry.SetRange("Document No.", ProductionOrder."No.");
         Assert.IsFalse(ValueEntry.IsEmpty, StrSubstNo(ErrorNoEntryFound, Item."No.", Format('Output')));
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         TotalCost := 0;
         CalculatedTotalCost := 0;
 

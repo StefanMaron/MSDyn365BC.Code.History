@@ -802,7 +802,7 @@ codeunit 144015 "ERM FR Feature Bugs"
     begin
         FALedgerEntry.SetRange("FA No.", FANo);
         FALedgerEntry.SetRange("FA Posting Type", FAPostingType);
-        FALedgerEntry.FindSet;
+        FALedgerEntry.FindSet();
         repeat
             FALedgerEntry.TestField("FA Posting Date", FAPostingDate);
             FALedgerEntry.TestField(Amount, Amount);

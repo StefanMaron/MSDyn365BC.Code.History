@@ -280,7 +280,7 @@ report 10883 "SEPA ISO20022"
                 end;
 
                 XMLNodeCurr := XMLNodeCurr.ParentNode;
-            until PaymentLine.Next = 0;
+            until PaymentLine.Next() = 0;
 
         XMLNodeCurr := XMLNodeCurr.ParentNode;
     end;
@@ -397,7 +397,7 @@ report 10883 "SEPA ISO20022"
                 if not (PaymentLine."Account Type" in [PaymentLine."Account Type"::Customer, PaymentLine."Account Type"::Vendor]) then
                     Error(Text005);
                 PaymentLineCount := PaymentLineCount + 1;
-            until PaymentLine.Next = 0;
+            until PaymentLine.Next() = 0;
     end;
 
     local procedure CheckEUCurrencyInLines(CurrencyCode: Code[10])
@@ -455,7 +455,7 @@ report 10883 "SEPA ISO20022"
                                     UstrdRemitInfo := UstrdRemitInfo + Separator + DelChr(VendLedgEntry."External Document No.")
                                 else
                                     LoopBreak := true;
-                        until (VendLedgEntry.Next = 0) or LoopBreak;
+                        until (VendLedgEntry.Next() = 0) or LoopBreak;
                 end;
             PaymentLine."Account Type"::Customer:
                 if DelChr(PaymentLine."Applies-to Doc. No.") <> '' then
@@ -475,7 +475,7 @@ report 10883 "SEPA ISO20022"
                                     UstrdRemitInfo := UstrdRemitInfo + Separator + DelChr(CustLedgEntry."Document No.")
                                 else
                                     LoopBreak := true;
-                        until (CustLedgEntry.Next = 0) or LoopBreak;
+                        until (CustLedgEntry.Next() = 0) or LoopBreak;
                 end;
         end;
         exit(UstrdRemitInfo);

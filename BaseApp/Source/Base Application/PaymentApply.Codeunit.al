@@ -1,4 +1,4 @@
-﻿codeunit 10861 "Payment-Apply"
+codeunit 10861 "Payment-Apply"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm;

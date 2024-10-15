@@ -274,7 +274,7 @@ codeunit 131305 "Library - ERM Country Data"
     begin
         GenJournalTemplate.SetRange(Recurring, false);
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::General);
-        GenJournalTemplate.FindSet;
+        GenJournalTemplate.FindSet();
         repeat
             GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
             if GenJournalBatch.Count = 0 then

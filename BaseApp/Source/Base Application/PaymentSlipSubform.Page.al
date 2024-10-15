@@ -434,7 +434,7 @@ page 10869 "Payment Slip Subform"
                 repeat
                     LineCopy.Marked := true;
                     LineCopy.Modify();
-                until LineCopy.Next = 0;
+                until LineCopy.Next() = 0;
             end else
                 LineCopy.Reset();
             LineCopy.SetRange("No.", "No.");

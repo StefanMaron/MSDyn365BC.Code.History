@@ -225,7 +225,7 @@ page 99000883 "Sales Order Planning"
                                 repeat
                                     if "Expected Delivery Date" > LastShipmentDate then
                                         LastShipmentDate := "Expected Delivery Date";
-                                until Next = 0;
+                                until Next() = 0;
                             SalesHeader.Validate("Shipment Date", LastShipmentDate);
                             SalesHeader.Modify();
                         end
@@ -239,7 +239,7 @@ page 99000883 "Sales Order Planning"
                                       "Sales Order Line No.");
                                     SalesLine."Shipment Date" := "Expected Delivery Date";
                                     SalesLine.Modify();
-                                until Next = 0;
+                                until Next() = 0;
                         end;
                         BuildForm;
                     end;
@@ -304,7 +304,7 @@ page 99000883 "Sales Order Planning"
         ReservEntry: Record "Reservation Entry";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         NewStatus: Enum "Production Order Status";
-        NewOrderType: Option ItemOrder,ProjectOrder;
+        NewOrderType: Enum "Create Production Order Type";
 
     procedure SetSalesOrder(SalesOrderNo: Code[20])
     begin
@@ -382,7 +382,7 @@ page 99000883 "Sales Order Planning"
                                             "Planning Status" := ProdOrderLine.Status.AsInteger() + 1;
                                     end;
                             end;
-                    until ReservEntry.Next = 0;
+                    until ReservEntry.Next() = 0;
                 "Needs Replanning" :=
                   ("Planned Quantity" <> SalesLine."Outstanding Qty. (Base)") or
                   ("Expected Delivery Date" > "Shipment Date");
@@ -408,15 +408,18 @@ page 99000883 "Sales Order Planning"
           "Qty. on Sales Order",
           "Scheduled Receipt (Qty.)",
           "Planned Order Receipt (Qty.)",
-          "Scheduled Need (Qty.)");
+          "Qty. on Component Lines");
 
-        Available :=
-          Item.Inventory -
-          Item."Qty. on Sales Order" +
-          Item."Qty. on Purch. Order" -
-          Item."Scheduled Need (Qty.)" +
-          Item."Scheduled Receipt (Qty.)" +
-          Item."Planned Order Receipt (Qty.)";
+        if Item.Type = Item.Type::Inventory then
+            Available :=
+              Item.Inventory -
+              Item."Qty. on Sales Order" +
+              Item."Qty. on Purch. Order" -
+              Item."Qty. on Component Lines" +
+              Item."Scheduled Receipt (Qty.)" +
+              Item."Planned Order Receipt (Qty.)"
+        else
+            Available := 0;
 
         "Next Planning Date" := WorkDate;
 
@@ -472,7 +475,7 @@ page 99000883 "Sales Order Planning"
 
                 CreateOrder(CreateProdOrder, SalesLine, EndLoop, OrdersCreated);
             end;
-        until (Next = 0) or EndLoop;
+        until (Next() = 0) or EndLoop;
 
         Rec := xSalesPlanLine;
     end;
@@ -485,13 +488,15 @@ page 99000883 "Sales Order Planning"
     procedure CreateProdOrder()
     var
         CreateOrderFromSales: Page "Create Order From Sales";
-        NewStatusOption: Option;
+        NewOrderTypeOption: Option;
         ShowCreateOrderForm: Boolean;
         IsHandled: Boolean;
     begin
         ShowCreateOrderForm := true;
         IsHandled := false;
-        OnBeforeCreateProdOrder(Rec, NewStatus, NewOrderType, ShowCreateOrderForm, IsHandled);
+        NewOrderTypeOption := NewOrderType.AsInteger();
+        OnBeforeCreateProdOrder(Rec, NewStatus, NewOrderTypeOption, ShowCreateOrderForm, IsHandled);
+        NewOrderType := "Create Production Order Type".FromInteger(NewOrderTypeOption);
         if IsHandled then
             exit;
 
@@ -499,9 +504,7 @@ page 99000883 "Sales Order Planning"
             if CreateOrderFromSales.RunModal <> ACTION::Yes then
                 exit;
 
-            NewStatusOption := NewStatus.AsInteger();
-            CreateOrderFromSales.ReturnPostingInfo(NewStatusOption, NewOrderType);
-            NewStatus := "Production Order Status".FromInteger(NewStatusOption);
+            CreateOrderFromSales.GetParameters(NewStatus, NewOrderType);
             Clear(CreateOrderFromSales);
         end;
 
@@ -519,13 +522,13 @@ page 99000883 "Sales Order Planning"
 
     local procedure CreateOrder(CreateProdOrder: Boolean; var SalesLine: Record "Sales Line"; var EndLoop: Boolean; var OrdersCreated: Boolean)
     var
-        ProdOrderFromSale: Codeunit "Create Prod. Order from Sale";
+        CreateProdOrderFromSale: Codeunit "Create Prod. Order from Sale";
     begin
         OnBeforeCreateOrder(Rec, SalesLine, CreateProdOrder);
 
         if CreateProdOrder then begin
             OrdersCreated := true;
-            ProdOrderFromSale.CreateProdOrder(SalesLine, NewStatus, NewOrderType);
+            CreateProdOrderFromSale.CreateProductionOrder(SalesLine, NewStatus, NewOrderType);
             if NewOrderType = NewOrderType::ProjectOrder then
                 EndLoop := true;
         end;

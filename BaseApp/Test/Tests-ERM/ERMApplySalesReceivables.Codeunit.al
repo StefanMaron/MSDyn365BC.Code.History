@@ -781,7 +781,8 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         CreatePaymentJournalBatch(GenJournalBatch);
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, GenJournalLineInv."Account No.", 0, '', 0);
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, GenJournalLineInv."Account No.",
+          "Gen. Journal Account Type"::"G/L Account", '', 0);
         GenJournalLine."Line No." := LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No."));
         GenJournalLine.Insert();
         Commit();
@@ -841,7 +842,8 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         CreatePaymentJournalBatch(GenJournalBatch);
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo, 0, '', 0);
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo,
+          "Gen. Journal Account Type"::"G/L Account", '', 0);
         UpdateGenJnlLineAppln(GenJournalLine, CurrencyCode2, -CustLedgerEntry2.Amount);
         UpdateCustLedgerEntryAppln(CustLedgerEntry2, GenJournalLine."Document No.", CustLedgerEntry2.Amount);
 
@@ -908,7 +910,8 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         CreatePaymentJournalBatch(GenJournalBatch);
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo, 0, '', 0);
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo,
+          "Gen. Journal Account Type"::"G/L Account", '', 0);
         UpdateGenJnlLineAppln(GenJournalLine, CurrencyCode2, -CustLedgerEntry2.Amount);
         UpdateCustLedgerEntryAppln(CustLedgerEntry2, GenJournalLine."Document No.", CustLedgerEntry2.Amount);
 
@@ -944,6 +947,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
           CustomerNo, CurrencyCode1, CustLedgerEntry1."Entry No.", CustLedgerEntry2."Entry No.", 1, 0);
     end;
 
+    [Test]
     [HandlerFunctions('MultipleSelectionApplyCustomerEntriesModalPageHandler')]
     [Scope('OnPrem')]
     procedure CheckPostingDateForMultipleCustLedgEntriesWhenSetAppliesToIDOnApplyCustomerEntries()
@@ -986,6 +990,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
     [HandlerFunctions('MultipleSelectionApplyCustomerEntriesModalPageHandler')]
     [Scope('OnPrem')]
     procedure CheckCurrencyForMultipleCustLedgEntriesWhenSetAppliesToIDOnApplyCustomerEntries()
@@ -1269,7 +1274,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         end;
     end;
 
-    local procedure FindDetailedLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; EntryType: Option)
+    local procedure FindDetailedLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type")
     begin
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);

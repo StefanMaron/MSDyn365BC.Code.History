@@ -1,4 +1,4 @@
-﻿table 5062 Attachment
+table 5062 Attachment
 {
     Caption = 'Attachment';
 
@@ -13,11 +13,9 @@
         {
             Caption = 'Attachment File';
         }
-        field(3; "Storage Type"; Option)
+        field(3; "Storage Type"; Enum "Attachment Storage Type")
         {
             Caption = 'Storage Type';
-            OptionCaption = 'Embedded,Disk File,Exchange Storage';
-            OptionMembers = Embedded,"Disk File","Exchange Storage";
         }
         field(4; "Storage Pointer"; Text[250])
         {

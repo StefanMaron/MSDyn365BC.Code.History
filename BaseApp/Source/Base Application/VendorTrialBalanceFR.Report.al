@@ -140,13 +140,13 @@ report 10807 "Vendor Trial Balance FR"
                     repeat
                         PreviousDebitAmountLCY += VendLedgEntry."Debit Amount (LCY)";
                         PreviousCreditAmountLCY += VendLedgEntry."Credit Amount (LCY)";
-                    until VendLedgEntry.Next = 0;
+                    until VendLedgEntry.Next() = 0;
                 VendLedgEntry.SetRange("Posting Date", StartDate, EndDate);
                 if VendLedgEntry.FindSet then
                     repeat
                         PeriodDebitAmountLCY += VendLedgEntry."Debit Amount (LCY)";
                         PeriodCreditAmountLCY += VendLedgEntry."Credit Amount (LCY)";
-                    until VendLedgEntry.Next = 0;
+                    until VendLedgEntry.Next() = 0;
 
                 if not PrintVendWithoutBalance and (PeriodDebitAmountLCY = 0) and (PeriodCreditAmountLCY = 0) and
                    (PreviousDebitAmountLCY = 0) and (PreviousCreditAmountLCY = 0)

@@ -72,7 +72,7 @@ table 10865 "Payment Header"
                         PaymentLine."Currency Factor" := "Currency Factor";
                         PaymentLine.Validate(Amount);
                         PaymentLine.Modify();
-                    until PaymentLine.Next = 0;
+                    until PaymentLine.Next() = 0;
             end;
         }
         field(4; "Posting Date"; Date)
@@ -104,7 +104,7 @@ table 10865 "Payment Header"
                     if PaymentLine.FindSet then
                         repeat
                             PaymentLine.UpdateDueDate("Document Date");
-                        until PaymentLine.Next = 0;
+                        until PaymentLine.Next() = 0;
                 end;
             end;
         }
@@ -679,7 +679,7 @@ table 10865 "Payment Header"
                     PaymentLine."Dimension Set ID" := NewDimSetID;
                     PaymentLine.Modify();
                 end;
-            until PaymentLine.Next = 0;
+            until PaymentLine.Next() = 0;
     end;
 }
 

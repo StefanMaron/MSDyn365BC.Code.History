@@ -732,7 +732,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         DataExchField.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchField.SetFilter("Column No.", '>0');
-        DataExchField.FindSet;
+        DataExchField.FindSet();
     end;
 
     local procedure LoadDataExchangeFieldIntoTemp(DataExch: Record "Data Exch."; DataExchDef: Record "Data Exch. Def"; var TempDataExchField: Record "Data Exch. Field" temporary)
@@ -741,7 +741,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExchLineDef.FindSet;
+        DataExchLineDef.FindSet();
 
         repeat
             Clear(DataExchField);
@@ -768,7 +768,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
         TempDataExchField.Reset();
-        TempDataExchField.FindSet;
+        TempDataExchField.FindSet();
         repeat
             TempReferenceDataExchField := TempDataExchField;
             TempReferenceDataExchField.Insert();
@@ -777,7 +777,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         TempReferenceDataExchField.FindFirst;
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExchLineDef.FindSet;
+        DataExchLineDef.FindSet();
         repeat
             VerifyValuesTransferredToIntermediateTable2(DataExch, TempDataExchField, TempReferenceDataExchField, DataExchLineDef);
         until DataExchLineDef.Next = 0;
@@ -790,7 +790,7 @@ codeunit 139156 "DataExch to Intermediate Table"
     begin
         DataExchField.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
-        DataExchField.FindSet;
+        DataExchField.FindSet();
 
         repeat
             DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
@@ -825,7 +825,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         ChildIntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
         ChildIntermediateDataImport.SetRange("Table ID", ChildTableID);
 
-        ParentIntermediateDataImport.FindSet;
+        ParentIntermediateDataImport.FindSet();
 
         repeat
             ChildIntermediateDataImport.SetRange("Parent Record No.", ParentIntermediateDataImport."Record No.");

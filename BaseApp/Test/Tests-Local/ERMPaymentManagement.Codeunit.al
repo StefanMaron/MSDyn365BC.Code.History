@@ -2636,7 +2636,7 @@ codeunit 144049 "ERM Payment Management"
         BankAmount: Decimal;
     begin
         BankAccountLedgerEntry.SetRange("Document No.", PaymentHeader."No.");
-        BankAccountLedgerEntry.FindSet;
+        BankAccountLedgerEntry.FindSet();
         repeat
             BankAmount += BankAccountLedgerEntry."Debit Amount";
         until BankAccountLedgerEntry.Next = 0;
@@ -2651,7 +2651,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         GLEntry.SetRange("Document No.", PaymentHeader."No.");
         GLEntry.SetFilter("Debit Amount", '<>%1', 0);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLAmount += GLEntry."Debit Amount";
         until GLEntry.Next = 0;

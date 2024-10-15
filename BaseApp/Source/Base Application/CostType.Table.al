@@ -44,10 +44,10 @@ table 1103 "Cost Type"
                 // CHange only if no entries or budget
                 if Blocked and not xRec.Blocked then begin
                     CostEntry.SetRange("Cost Type No.", "No.");
-                    if not CostEntry.IsEmpty then
+                    if not CostEntry.IsEmpty() then
                         Error(Text001, "No.", CostEntry.TableCaption);
                     CostBudgetEntry.SetRange("Cost Type No.", "No.");
-                    if not CostBudgetEntry.IsEmpty then
+                    if not CostBudgetEntry.IsEmpty() then
                         Error(Text001, "No.", CostBudgetEntry.TableCaption);
                 end;
 
@@ -347,7 +347,7 @@ table 1103 "Cost Type"
         AccPeriod.SetRange(Closed, false);
         if AccPeriod.FindFirst then
             CostEntry.SetFilter("Posting Date", '>=%1', AccPeriod."Starting Date");
-        if not CostEntry.IsEmpty then
+        if not CostEntry.IsEmpty() then
             Error(Text000);
 
         // Renumber to entries to no. 0

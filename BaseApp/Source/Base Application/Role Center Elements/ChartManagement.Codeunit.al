@@ -45,7 +45,7 @@ codeunit 1315 "Chart Management"
         LastChartExists :=
           LastChartRecorded and ChartDefinition.Get(LastUsedChart."Code Unit ID", LastUsedChart."Chart Name");
         LastChartEnabled := LastChartExists and ChartDefinition.Enabled;
-        if ChartDefinition.IsEmpty then
+        if ChartDefinition.IsEmpty() then
             exit;
         if not LastChartEnabled then begin
             ChartDefinition.SetRange(Enabled, true);
@@ -144,7 +144,7 @@ codeunit 1315 "Chart Management"
     var
         ChartList: Page "Chart List";
     begin
-        if ChartDefinition.IsEmpty then
+        if ChartDefinition.IsEmpty() then
             if ChartDefinition.WritePermission then begin
                 PopulateChartDefinitionTable;
                 Commit();

@@ -43,13 +43,13 @@ codeunit 10880 "Payment Reporting Mgt."
                             repeat
                                 TempPaymentApplicationBuffer.InsertVendorPayment(VendorLedgerEntry, TempDtldVendLedgEntry);
                                 TotalPmtAmount += TempPaymentApplicationBuffer."Pmt. Amount (LCY)";
-                            until TempDtldVendLedgEntry.Next = 0;
+                            until TempDtldVendLedgEntry.Next() = 0;
                         TempDtldVendLedgEntry.DeleteAll();
                     end;
 
                     TempPaymentApplicationBuffer.InsertVendorInvoice(VendorLedgerEntry, TotalPmtAmount, CorrectionAmount);
                 end;
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure HasAppliedPmtVendLedgEntries(var TempDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry" temporary; var CorrectionAmount: Decimal; InvVendorLedgerEntry: Record "Vendor Ledger Entry") Paid: Boolean
@@ -77,11 +77,11 @@ codeunit 10880 "Payment Reporting Mgt."
                             then
                                 HandleAppliedVendLedgEntry(
                                   TempDtldVendLedgEntry, Paid, CorrectionAmount, PmtDtldVendLedgEntry);
-                        until PmtDtldVendLedgEntry.Next = 0;
+                        until PmtDtldVendLedgEntry.Next() = 0;
                 end else
                     HandleAppliedVendLedgEntry(
                       TempDtldVendLedgEntry, Paid, CorrectionAmount, InvDtldVendLedgEntry);
-            until InvDtldVendLedgEntry.Next = 0;
+            until InvDtldVendLedgEntry.Next() = 0;
         exit(Paid);
     end;
 
@@ -132,13 +132,13 @@ codeunit 10880 "Payment Reporting Mgt."
                             repeat
                                 TempPaymentApplicationBuffer.InsertCustomerPayment(CustLedgerEntry, TempDtldCustLedgEntry);
                                 TotalPmtAmount += TempPaymentApplicationBuffer."Pmt. Amount (LCY)";
-                            until TempDtldCustLedgEntry.Next = 0;
+                            until TempDtldCustLedgEntry.Next() = 0;
                         TempDtldCustLedgEntry.DeleteAll();
                     end;
 
                     TempPaymentApplicationBuffer.InsertCustomerInvoice(CustLedgerEntry, TotalPmtAmount, CorrectionAmount);
                 end;
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure HasAppliedPmtCustLedgEntries(var TempDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry" temporary; var CorrectionAmount: Decimal; InvCustLedgerEntry: Record "Cust. Ledger Entry") Paid: Boolean
@@ -166,11 +166,11 @@ codeunit 10880 "Payment Reporting Mgt."
                             then
                                 HandleAppliedCustLedgEntry(
                                   TempDtldCustLedgEntry, Paid, CorrectionAmount, PmtDtldCustLedgEntry);
-                        until PmtDtldCustLedgEntry.Next = 0;
+                        until PmtDtldCustLedgEntry.Next() = 0;
                 end else
                     HandleAppliedCustLedgEntry(
                       TempDtldCustLedgEntry, Paid, CorrectionAmount, InvDtldCustLedgEntry);
-            until InvDtldCustLedgEntry.Next = 0;
+            until InvDtldCustLedgEntry.Next() = 0;
         exit(Paid);
     end;
 
@@ -268,10 +268,10 @@ codeunit 10880 "Payment Reporting Mgt."
                 DetailedCustLedgEntry.SetFilter(
                   "Entry Type", '%1|%2',
                   DetailedCustLedgEntry."Entry Type"::"Unrealized Gain", DetailedCustLedgEntry."Entry Type"::"Unrealized Loss");
-                if not DetailedCustLedgEntry.IsEmpty then
+                if not DetailedCustLedgEntry.IsEmpty() then
                     DetailedCustLedgEntry.ModifyAll(
                       "Curr. Adjmt. G/L Account No.", GetCustomerReceivablesAccount(Customer."No."));
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -286,19 +286,19 @@ codeunit 10880 "Payment Reporting Mgt."
                 DetailedVendorLedgEntry.SetFilter(
                   "Entry Type", '%1|%2',
                   DetailedVendorLedgEntry."Entry Type"::"Unrealized Gain", DetailedVendorLedgEntry."Entry Type"::"Unrealized Loss");
-                if not DetailedVendorLedgEntry.IsEmpty then
+                if not DetailedVendorLedgEntry.IsEmpty() then
                     DetailedVendorLedgEntry.ModifyAll(
                       "Curr. Adjmt. G/L Account No.", GetVendorPayablesAccount(Vendor."No."));
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
     end;
 
-    [EventSubscriber(ObjectType::Report, 595, 'OnAfterInitDtldCustLedgerEntry', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Adjust Exchange Rates", 'OnAfterInitDtldCustLedgerEntry', '', false, false)]
     local procedure UpdateDtldCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     begin
         DetailedCustLedgEntry."Curr. Adjmt. G/L Account No." := GetCustomerReceivablesAccount(DetailedCustLedgEntry."Customer No.");
     end;
 
-    [EventSubscriber(ObjectType::Report, 595, 'OnAfterInitDtldVendLedgerEntry', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Adjust Exchange Rates", 'OnAfterInitDtldVendLedgerEntry', '', false, false)]
     local procedure UpdateDtldVendLedgerEntry(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
     begin
         DetailedVendorLedgEntry."Curr. Adjmt. G/L Account No." := GetVendorPayablesAccount(DetailedVendorLedgEntry."Vendor No.");

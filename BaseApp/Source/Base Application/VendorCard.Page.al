@@ -1,4 +1,4 @@
-﻿page 26 "Vendor Card"
+page 26 "Vendor Card"
 {
     Caption = 'Vendor Card';
     PageType = Card;
@@ -23,7 +23,7 @@
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Name; Name)
@@ -182,6 +182,47 @@
                         end;
                     }
                 }
+                field("Phone No."; "Phone No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the vendor''s telephone number.';
+                }
+                field(MobilePhoneNo; "Mobile Phone No.")
+                {
+                    Caption = 'Mobile Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the vendor''s mobile telephone number.';
+                }
+                field("E-Mail"; "E-Mail")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = EMail;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the vendor''s email address.';
+                }
+                field("Fax No."; "Fax No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the vendor''s fax number.';
+                }
+                field("Home Page"; "Home Page")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the vendor''s web site.';
+                }
+                field("Our Account No."; "Our Account No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies your account number with the vendor, if you have one.';
+                }
+                field("Language Code"; "Language Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
+                }
                 group(Contact)
                 {
                     Caption = 'Contact';
@@ -202,47 +243,6 @@
                         begin
                             ContactOnAfterValidate;
                         end;
-                    }
-                    field("Phone No."; "Phone No.")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the vendor''s telephone number.';
-                    }
-                    field(MobilePhoneNo; "Mobile Phone No.")
-                    {
-                        Caption = 'Mobile Phone No.';
-                        ApplicationArea = Basic, Suite;
-                        ExtendedDatatype = PhoneNo;
-                        ToolTip = 'Specifies the vendor''s mobile telephone number.';
-                    }
-                    field("E-Mail"; "E-Mail")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ExtendedDatatype = EMail;
-                        Importance = Promoted;
-                        ToolTip = 'Specifies the vendor''s email address.';
-                    }
-                    field("Fax No."; "Fax No.")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Importance = Additional;
-                        ToolTip = 'Specifies the vendor''s fax number.';
-                    }
-                    field("Home Page"; "Home Page")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the vendor''s web site.';
-                    }
-                    field("Our Account No."; "Our Account No.")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies your account number with the vendor, if you have one.';
-                    }
-                    field("Language Code"; "Language Code")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Importance = Additional;
-                        ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
                     }
                 }
             }
@@ -670,11 +670,15 @@
                         ApprovalsMgmt.OpenApprovalEntriesPage(RecordId);
                     end;
                 }
+#if not CLEAN18
                 action("Cross References")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cross References';
                     Image = Change;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Item Reference feature.';
+                    ObsoleteTag = '18.0';
                     Promoted = true;
                     PromotedCategory = Category9;
                     RunObject = Page "Cross References";
@@ -683,6 +687,7 @@
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
                     ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
                 }
+#endif
                 action("Item References")
                 {
                     ApplicationArea = Basic, Suite;
@@ -785,6 +790,49 @@
                         PriceUXManagement.ShowPriceLists(Rec, "Price Amount Type"::Any);
                     end;
                 }
+                action(PriceLines)
+                {
+                    AccessByPermission = TableData "Purchase Price Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Prices';
+                    Image = Price;
+                    Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category7;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up purchase price lines for products that you buy from the vendor. A product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Price);
+                    end;
+                }
+                action(DiscountLines)
+                {
+                    AccessByPermission = TableData "Purchase Discount Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Discounts';
+                    Image = LineDiscount;
+                    Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category7;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you buy from the vendor. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
+                    end;
+                }
+#if not CLEAN18
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -804,6 +852,8 @@
                         PriceUXManagement.ShowPriceLists(Rec, AmountType::Discount);
                     end;
                 }
+#endif
+#if not CLEAN17
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -836,6 +886,7 @@
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 action("Prepa&yment Percentages")
                 {
                     ApplicationArea = Prepayments;
@@ -1059,7 +1110,7 @@
                     }
                     action(DeleteCDSCoupling)
                     {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        AccessByPermission = TableData "CRM Integration Record" = D;
                         ApplicationArea = Suite;
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
@@ -1339,11 +1390,11 @@
                 }
                 group(Flow)
                 {
-                    Caption = 'Flow';
+                    Caption = 'Power Automate';
                     action(CreateFlow)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Flow';
+                        Caption = 'Create a flow';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category5;
@@ -1363,7 +1414,7 @@
                     action(SeeFlows)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'See my Flows';
+                        Caption = 'See my flows';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category5;
@@ -1481,6 +1532,25 @@
                               "Applies-to ID" = FILTER(''),
                               "Document Type" = FILTER(Invoice);
                 ToolTip = 'Opens vendor ledger entries with invoices that have not been paid yet.';
+            }
+            action(WordTemplate)
+            {
+                ApplicationArea = All;
+                Caption = 'Word Template';
+                ToolTIp = 'Apply a Word template on the vendor.';
+                Image = Word;
+                Promoted = true;
+                PromotedCategory = Category9;
+
+                trigger OnAction()
+                var
+                    Vendor: Record Vendor;
+                    WordTemplateSelectionWizard: Page "Word Template Selection Wizard";
+                begin
+                    CurrPage.SetSelectionFilter(Vendor);
+                    WordTemplateSelectionWizard.SetData(Vendor);
+                    WordTemplateSelectionWizard.RunModal();
+                end;
             }
             group("Incoming Documents")
             {
@@ -1698,7 +1768,7 @@
         ActivateFields;
     end;
 
-    local procedure RunReport(ReportNumber: Integer)
+    procedure RunReport(ReportNumber: Integer)
     var
         Vendor: Record Vendor;
     begin
@@ -1750,7 +1820,7 @@
         if VendorTemplMgt.InsertVendorFromTemplate(Vendor) then begin
             VerifyVatRegNo(Vendor);
             Copy(Vendor);
-            CurrPage.Update;
+            CurrPage.Update();
         end else
             if VendorTemplMgt.TemplatesAreNotEmpty() then
                 CurrPage.Close;

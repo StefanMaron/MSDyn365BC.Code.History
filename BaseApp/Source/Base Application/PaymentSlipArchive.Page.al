@@ -173,7 +173,7 @@ page 10877 "Payment Slip Archive"
 
     local procedure DocumentDateOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

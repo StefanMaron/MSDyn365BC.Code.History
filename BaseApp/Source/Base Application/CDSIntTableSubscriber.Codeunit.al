@@ -12,13 +12,13 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         CRMSynchHelper: Codeunit "CRM Synch. Helper";
         UserCDSSetupTxt: Label 'Dataverse User Setup';
         CannotResolveUserFromConnectionSetupErr: Label 'The integration user that is specified in the Dataverse connection setup does not exist.';
-        RecordMustBeCoupledErr: Label '%1 %2 must be coupled to a Dataverse record.', Comment = '%1 = table caption, %2 = primary key value';
-        RecordMustBeCoupledExtErr: Label '%1 %2 must be coupled to a %3 record.', Comment = '%1 = BC table caption, %2 = primary key value, %3 - Dataverse table caption';
+        RecordMustBeCoupledErr: Label '%1 %2 must be coupled to a Dataverse row.', Comment = '%1 = table caption, %2 = primary key value';
+        RecordMustBeCoupledExtErr: Label '%1 %2 must be coupled to a %3 row.', Comment = '%1 = BC table caption, %2 = primary key value, %3 - Dataverse table caption';
         RecordNotFoundErr: Label 'Cannot find %1 in table %2.', Comment = '%1 = The lookup value when searching for the source record, %2 = Source table caption';
         ContactMustBeRelatedToCustomerOrVendorErr: Label 'The contact %1 must have a contact company that has a business relation to a customer or vendor.', Comment = '%1 = Contact No.';
         NewCodePatternTxt: Label 'SP NO. %1', Locked = true;
         SalespersonPurchaserCodeFilterLbl: Label 'SP NO. 0*', Locked = true;
-        CouplingsNeedToBeResetErr: Label 'Dataverse integration is enabled. The existing couplings need to be reset to enable other companies access to records coupled to the company being deleted.';
+        CouplingsNeedToBeResetErr: Label 'Dataverse integration is enabled. The existing couplings must be reset so that other companies can access records that are coupled to the company being deleted.';
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         UpdateContactParentCompanyTxt: Label 'Updating contact parent company.', Locked = true;
         UpdateContactParentCompanyFailedTxt: Label 'Updating contact parent company failed. Parent Customer ID: %1', Locked = true, Comment = '%1 - parent customer id';
@@ -124,6 +124,8 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                 end;
             'Contact-CRM Contact':
                 FixPrimaryContactIdInCDS(SourceRecordRef, DestinationRecordRef);
+            'CRM Systemuser-Salesperson/Purchaser':
+                AddCoupledUserToDefaultOwningTeam(SourceRecordRef);
         end;
     end;
 
@@ -136,6 +138,34 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         CRMIntegrationRecord.SetRange("Integration ID", Rec.SystemId);
         if CRMIntegrationRecord.FindFirst() then
             CRMIntegrationRecord.Delete();
+    end;
+
+    [TryFunction]
+    local procedure AddCoupledUserToDefaultOwningTeam(SourceRecordRef: RecordRef)
+    var
+        CRMSystemuser: Record "CRM Systemuser";
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CrmHelper: DotNet CrmHelper;
+        AdminUser: Text;
+        AdminPassword: Text;
+        AccessToken: Text;
+        AdminADDomain: Text;
+    begin
+        if not CDSIntegrationImpl.IsIntegrationEnabled() then
+            exit;
+
+        if not CDSConnectionSetup.Get() then
+            exit;
+        if CDSConnectionSetup."Authentication Type" <> CDSConnectionSetup."Authentication Type"::Office365 then
+            exit;
+
+        SourceRecordRef.SetTable(CRMSystemuser);
+        if CRMSystemuser.IsEmpty() then
+            exit;
+
+        if CDSIntegrationImpl.SignInCDSAdminUser(CDSConnectionSetup, CrmHelper, AdminUser, AdminPassword, AccessToken, AdminADDomain, true) then
+            if AccessToken <> '' then
+                CDSIntegrationImpl.AddUsersToDefaultOwningTeam(CDSConnectionSetup, CrmHelper, CRMSystemuser);
     end;
 
     local procedure SetCompanyIdOnCRMContact(var SourceRecordRef: RecordRef)
@@ -189,8 +219,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Record Synch.", 'OnTransferFieldData', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnTransferFieldData(SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValue: Variant; var IsValueFound: Boolean; var NeedsConversion: Boolean)
+    local procedure OnTransferFieldData(SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValue: Variant; var IsValueFound: Boolean; var NeedsConversion: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         CDSConnectionSetup: Record "CDS Connection Setup";
@@ -608,11 +637,20 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSIntegrationRecord: Record "CRM Integration Record";
+        CDSIntegrationSyncJob: Record "Integration Synch. Job";
+        CDSIntegrationsSyncJobErrors: Record "Integration Synch. Job Errors";
     begin
         CDSConnectionSetup.ChangeCompany(NewCompanyName);
         CDSConnectionSetup.DeleteAll();
         CRMConnectionSetup.ChangeCompany(NewCompanyName);
         CRMConnectionSetup.DeleteAll();
+        CDSIntegrationRecord.ChangeCompany(NewCompanyName);
+        CDSIntegrationRecord.DeleteAll();
+        CDSIntegrationSyncJob.ChangeCompany(NewCompanyName);
+        CDSIntegrationSyncJob.DeleteAll();
+        CDSIntegrationsSyncJobErrors.ChangeCompany(NewCompanyName);
+        CDSIntegrationsSyncJobErrors.DeleteAll();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Company, 'OnBeforeDeleteEvent', '', false, false)]
@@ -683,15 +721,15 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         if CRMSynchHelper.FindContactRelatedCustomer(SourceRecordRef, ContactBusinessRelation) then begin
             if not Customer.Get(ContactBusinessRelation."No.") then
                 Error(RecordNotFoundErr, Customer.TableCaption(), ContactBusinessRelation."No.");
-            if CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId(), AccountId) then
-                exit(AccountId);
+            CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId(), AccountId);
+            exit(AccountId);
         end;
 
         if CRMSynchHelper.FindContactRelatedVendor(SourceRecordRef, ContactBusinessRelation) then begin
             if not Vendor.Get(ContactBusinessRelation."No.") then
                 Error(RecordNotFoundErr, Vendor.TableCaption(), ContactBusinessRelation."No.");
-            if CRMIntegrationRecord.FindIDFromRecordID(Vendor.RecordId(), AccountId) then
-                exit(AccountId);
+            CRMIntegrationRecord.FindIDFromRecordID(Vendor.RecordId(), AccountId);
+            exit(AccountId);
         end;
 
         Error(ContactMustBeRelatedToCustomerOrVendorErr, SourceRecordRef.Field(Contact.FieldNo("No.")).Value());
@@ -729,7 +767,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                         if not RecordModifiedAfterLastSync then begin
                             CRMIntegrationRecord.SetRange("Integration ID", Customer.SystemId);
                             if CRMIntegrationRecord.FindFirst() then begin
-                                CRMIntegrationRecord."Last Synch. Modified On" := CurrentDateTime();
+                                CRMIntegrationRecord."Last Synch. Modified On" := Customer.SystemModifiedAt;
                                 CRMIntegrationRecord.Modify();
                             end;
                         end;
@@ -747,7 +785,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                         if not RecordModifiedAfterLastSync then begin
                             CRMIntegrationRecord.SetRange("Integration ID", Vendor.SystemId);
                             if CRMIntegrationRecord.FindFirst() then begin
-                                CRMIntegrationRecord."Last Synch. Modified On" := CurrentDateTime();
+                                CRMIntegrationRecord."Last Synch. Modified On" := Vendor.SystemModifiedAt;
                                 CRMIntegrationRecord.Modify();
                             end;
                         end;
@@ -941,7 +979,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         if not CRMAccountModifiedAfterLastSync then begin
             CRMIntegrationRecord.SetRange("CRM ID", CRMAccount.AccountId);
             if CRMIntegrationRecord.FindFirst() then begin
-                CRMIntegrationRecord."Last Synch. CRM Modified On" := CurrentDateTime();
+                CRMIntegrationRecord."Last Synch. CRM Modified On" := CRMAccount.ModifiedOn;
                 CRMIntegrationRecord.Modify();
             end;
         end;

@@ -521,7 +521,7 @@ report 10812 "Fixed Asset-Professional Tax"
                     TypeExist := DateType = "FA Date Type Name";
                     if TypeExist then
                         DateTypeNo := "FA Date Type No.";
-                until (Next = 0) or TypeExist;
+                until (Next() = 0) or TypeExist;
         end;
 
         if not TypeExist then
@@ -540,7 +540,7 @@ report 10812 "Fixed Asset-Professional Tax"
                     TypeExist := PostingType = "FA Posting Type Name";
                     if TypeExist then
                         PostingTypeNo := "FA Posting Type No.";
-                until (Next = 0) or TypeExist;
+                until (Next() = 0) or TypeExist;
         end;
         if not TypeExist then
             Error(Text008, PostingType);

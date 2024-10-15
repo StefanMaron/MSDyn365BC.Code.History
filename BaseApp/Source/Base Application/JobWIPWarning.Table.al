@@ -86,7 +86,7 @@ table 1007 "Job WIP Warning"
     procedure DeleteEntries(JobWIPTotal: Record "Job WIP Total")
     begin
         SetRange("Job WIP Total Entry No.", JobWIPTotal."Entry No.");
-        if not IsEmpty then
+        if not IsEmpty() then
             DeleteAll(true);
     end;
 

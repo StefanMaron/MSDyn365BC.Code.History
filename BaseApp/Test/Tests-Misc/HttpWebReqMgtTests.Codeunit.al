@@ -100,7 +100,7 @@ codeunit 134297 "Http Web Req. Mgt. Tests"
         Initialized := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1297, 'OnOverrideUrl', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Http Web Request Mgt.", 'OnOverrideUrl', '', false, false)]
     [Scope('OnPrem')]
     procedure ChangeUrlOnOverrideUrl(var Url: Text)
     begin

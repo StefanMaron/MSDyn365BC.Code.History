@@ -1,4 +1,4 @@
-﻿codeunit 10860 "Payment Management"
+codeunit 10860 "Payment Management"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm;

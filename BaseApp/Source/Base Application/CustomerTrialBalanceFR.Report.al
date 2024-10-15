@@ -141,13 +141,13 @@ report 10805 "Customer Trial Balance FR"
                     repeat
                         PreviousDebitAmountLCY += CustLedgEntry."Debit Amount (LCY)";
                         PreviousCreditAmountLCY += CustLedgEntry."Credit Amount (LCY)";
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
                 CustLedgEntry.SetRange("Posting Date", StartDate, EndDate);
                 if CustLedgEntry.FindSet then
                     repeat
                         PeriodDebitAmountLCY += CustLedgEntry."Debit Amount (LCY)";
                         PeriodCreditAmountLCY += CustLedgEntry."Credit Amount (LCY)";
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
 
                 if not PrintCustWithoutBalance and (PeriodDebitAmountLCY = 0) and (PeriodCreditAmountLCY = 0) and
                    (PreviousDebitAmountLCY = 0) and (PreviousCreditAmountLCY = 0)
