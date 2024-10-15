@@ -8,10 +8,8 @@ tableextension 11511 "Swiss QR-Bill Company Info." extends "Company Information"
             DataClassification = CustomerContent;
 
             trigger OnValidate()
-            var
-                SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
             begin
-                SwissQRBillMgt.CheckQRIBAN("Swiss QR-Bill IBAN");
+                CheckIBAN("Swiss QR-Bill IBAN");
             end;
         }
     }

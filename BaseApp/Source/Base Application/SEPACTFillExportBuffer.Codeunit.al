@@ -1,4 +1,4 @@
-﻿codeunit 1221 "SEPA CT-Fill Export Buffer"
+codeunit 1221 "SEPA CT-Fill Export Buffer"
 {
     Permissions = TableData "Payment Export Data" = rimd;
     TableNo = "Payment Export Data";

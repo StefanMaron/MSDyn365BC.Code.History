@@ -70,10 +70,10 @@ codeunit 11518 "Swiss QR-Bill Mgt."
 
     internal procedure CalcEnabledReportsCount(): Integer
     var
-        ReportSelection: Record "Report Selections";
+        ReportSelections: Record "Report Selections";
     begin
-        ReportSelection.SetRange("Report ID", Report::"Swiss QR-Bill Print");
-        exit(ReportSelection.Count());
+        ReportSelections.SetRange("Report ID", Report::"Swiss QR-Bill Print");
+        exit(ReportSelections.Count());
     end;
 
     internal procedure FormatQRPaymentMethodsCount(QRPaymentMethods: Integer): Text
@@ -284,10 +284,10 @@ codeunit 11518 "Swiss QR-Bill Mgt."
 
     internal procedure GetNextReferenceNo(ReferenceType: Enum "Swiss QR-Bill Payment Reference Type"; UpdateLastUsed: Boolean): Code[50]
     var
-        QRSetup: Record "Swiss QR-Bill Setup";
+        SwissQRBillSetup: Record "Swiss QR-Bill Setup";
         TempReferenceNo: Text;
     begin
-        with QRSetup do begin
+        with SwissQRBillSetup do begin
             Get();
             "Last Used Reference No." += 1;
             if UpdateLastUsed then
@@ -297,12 +297,12 @@ codeunit 11518 "Swiss QR-Bill Mgt."
         case ReferenceType of
             ReferenceType::"Creditor Reference (ISO 11649)":
                 begin
-                    TempReferenceNo := Format(QRSetup."Last Used Reference No.");
+                    TempReferenceNo := Format(SwissQRBillSetup."Last Used Reference No.");
                     exit(CopyStr(StrSubstNo('RF%1%2', CalcCheckDigitForCreditorReference(TempReferenceNo), TempReferenceNo), 1, 25));
                 end;
             ReferenceType::"QR Reference":
                 begin
-                    TempReferenceNo := Format(QRSetup."Last Used Reference No.", 0, '<Integer,26><Filler Character,0>');
+                    TempReferenceNo := Format(SwissQRBillSetup."Last Used Reference No.", 0, '<Integer,26><Filler Character,0>');
                     exit(CopyStr(StrSubstNo('%1%2', TempReferenceNo, CalcCheckDigitForQRReference(TempReferenceNo)), 1, 27));
                 end;
         end;
@@ -359,6 +359,7 @@ codeunit 11518 "Swiss QR-Bill Mgt."
 
     internal procedure CheckDigitForQRReference(PaymentReference: Text): Boolean
     begin
+        PaymentReference := DelChr(PaymentReference);
         exit(CalcCheckDigitForQRReference(CopyStr(PaymentReference, 1, 26)) = PaymentReference[27]);
     end;
 
@@ -369,17 +370,6 @@ codeunit 11518 "Swiss QR-Bill Mgt."
 
         PaymentReference := CopyStr(StrSubstNo('%1%2', PaymentReference.Remove(1, 4), CopyStr(PaymentReference, 1, 4)), 1, 25);
         exit(CalcCreditorReferenceModule97(PaymentReference) = 1);
-    end;
-
-    internal procedure CheckQRIBAN(QRIBAN: Code[50])
-    var
-        CompanyInfo: Record "Company Information";
-    begin
-        QRIBAN := CopyStr(DelChr(QRIBAN), 1, MaxStrLen(QRIBAN));
-        if QRIBAN = '' then
-            exit;
-
-        CompanyInfo.CheckIBAN(QRIBAN);
     end;
 
     internal procedure FormatPaymentReference(ReferenceType: Enum "Swiss QR-Bill Payment Reference Type"; PaymentReference: Code[50]) Result: Code[50]
@@ -487,6 +477,13 @@ codeunit 11518 "Swiss QR-Bill Mgt."
         exit('1040|2064');
     end;
 
+    internal procedure GetLanguageCodeENU(): Code[10]
+    var
+        Language: Codeunit Language;
+    begin
+        exit(Language.GetLanguageCode(GetLanguageIdENU()));
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"SEPA DD-Fill Export Buffer", 'OnBeforeInsertPaymentExportData', '', false, false)]
     local procedure OnBeforeInsertPaymentExportDataForSEPADD(var PaymentExportData: Record "Payment Export Data"; var TempDirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
     begin
@@ -494,7 +491,10 @@ codeunit 11518 "Swiss QR-Bill Mgt."
         if TempDirectDebitCollectionEntry."Payment Reference" <> '' then
             PaymentExportData."Message to Recipient 1" :=
                 CopyStr(
-                    StrSubstNo('%1; %2', TempDirectDebitCollectionEntry."Applies-to Entry Description", TempDirectDebitCollectionEntry."Payment Reference"),
+                    StrSubstNo(
+                        '%1; %2',
+                        TempDirectDebitCollectionEntry."Applies-to Entry Description",
+                        TempDirectDebitCollectionEntry."Payment Reference"),
                     1, MaxStrLen(PaymentExportData."Message to Recipient 1"));
     end;
 }

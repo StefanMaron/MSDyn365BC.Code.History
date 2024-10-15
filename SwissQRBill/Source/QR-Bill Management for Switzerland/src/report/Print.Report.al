@@ -14,17 +14,17 @@ report 11510 "Swiss QR-Bill Print"
             begin
                 if BufferIsSet or (GetFilters() = '') then
                     CurrReport.Break();
-                FilteredCount += SalesInvoiceHeader.Count();
+                FilteredCount += Count();
             end;
 
             trigger OnAfterGetRecord()
             var
-                SwissQRBillBuffer2: Record "Swiss QR-Bill Buffer" temporary;
+                TempSwissQRBillBuffer: Record "Swiss QR-Bill Buffer" temporary;
             begin
-                if QRBillMgt.AllowedCurrencyCode("Currency Code") then begin
-                    SwissQRBillBuffer2.InitBuffer('');
-                    SwissQRBillBuffer2.SetSourceRecord(SalesInvoiceHeader."Cust. Ledger Entry No.");
-                    SwissQRBillBuffer.AddBufferRecord(SwissQRBillBuffer2);
+                if SwissQRBillMgt.AllowedCurrencyCode("Currency Code") then begin
+                    TempSwissQRBillBuffer.InitBuffer('');
+                    TempSwissQRBillBuffer.SetSourceRecord("Cust. Ledger Entry No.");
+                    SwissQRBillBuffer.AddBufferRecord(TempSwissQRBillBuffer);
                 end;
             end;
         }
@@ -37,19 +37,21 @@ report 11510 "Swiss QR-Bill Print"
             begin
                 if BufferIsSet or (GetFilters() = '') then
                     CurrReport.Break();
-                FilteredCount += ServiceInvoiceHeader.Count();
+                FilteredCount += Count();
             end;
 
             trigger OnAfterGetRecord()
             var
-                SwissQRBillBuffer2: Record "Swiss QR-Bill Buffer" temporary;
+                TempSwissQRBillBuffer: Record "Swiss QR-Bill Buffer" temporary;
                 LedgerEntryNo: Integer;
             begin
-                if QRBillMgt.AllowedCurrencyCode("Currency Code") then
-                    if QRBillMgt.FindCustLedgerEntry(LedgerEntryNo, "Bill-to Customer No.", DocumentType::Invoice, "No.", "Posting Date") then begin
-                        SwissQRBillBuffer2.InitBuffer('');
-                        SwissQRBillBuffer2.SetSourceRecord(LedgerEntryNo);
-                        SwissQRBillBuffer.AddBufferRecord(SwissQRBillBuffer2);
+                if SwissQRBillMgt.AllowedCurrencyCode("Currency Code") then
+                    if SwissQRBillMgt.FindCustLedgerEntry(
+                           LedgerEntryNo, "Bill-to Customer No.", DocumentType::Invoice, "No.", "Posting Date")
+                    then begin
+                        TempSwissQRBillBuffer.InitBuffer('');
+                        TempSwissQRBillBuffer.SetSourceRecord(LedgerEntryNo);
+                        SwissQRBillBuffer.AddBufferRecord(TempSwissQRBillBuffer);
                     end;
             end;
         }
@@ -62,15 +64,16 @@ report 11510 "Swiss QR-Bill Print"
             begin
                 if BufferIsSet or (GetFilters() = '') then
                     CurrReport.Break();
-                FilteredCount += IssuedReminderHeader.Count();
+                FilteredCount += Count();
             end;
 
             trigger OnAfterGetRecord()
             var
                 CustLedgerEntry: Record "Cust. Ledger Entry";
             begin
-                if QRBillMgt.AllowedCurrencyCode("Currency Code") then begin
-                    QRBillMgt.FilterCustLedgerEntry(CustLedgerEntry, "Customer No.", DocumentType::Reminder, "No.", "Posting Date");
+                if SwissQRBillMgt.AllowedCurrencyCode("Currency Code") then begin
+                    SwissQRBillMgt.FilterCustLedgerEntry(
+                        CustLedgerEntry, "Customer No.", DocumentType::Reminder, "No.", "Posting Date");
                     SetBufferFromReminders(CustLedgerEntry);
                 end;
             end;
@@ -84,15 +87,16 @@ report 11510 "Swiss QR-Bill Print"
             begin
                 if BufferIsSet or (GetFilters() = '') then
                     CurrReport.Break();
-                FilteredCount += IssuedFinChargeMemoHeader.Count();
+                FilteredCount += Count();
             end;
 
             trigger OnAfterGetRecord()
             var
                 CustLedgerEntry: Record "Cust. Ledger Entry";
             begin
-                if QRBillMgt.AllowedCurrencyCode("Currency Code") then begin
-                    QRBillMgt.FilterCustLedgerEntry(CustLedgerEntry, "Customer No.", DocumentType::"Finance Charge Memo", "No.", "Posting Date");
+                if SwissQRBillMgt.AllowedCurrencyCode("Currency Code") then begin
+                    SwissQRBillMgt.FilterCustLedgerEntry(
+                        CustLedgerEntry, "Customer No.", DocumentType::"Finance Charge Memo", "No.", "Posting Date");
                     SetBufferFromReminders(CustLedgerEntry);
                 end;
             end;
@@ -135,22 +139,23 @@ report 11510 "Swiss QR-Bill Print"
             end;
 
             trigger OnAfterGetRecord()
+            var
+                Language: Codeunit Language;
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault(SwissQRBillBuffer."Language Code");
-                SwissQRBillBuffer.PrepareForPrint();
-                QRBillMgt.GenerateImage(SwissQRBillBuffer);
+                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                PrepareForPrint();
+                SwissQRBillMgt.GenerateImage(SwissQRBillBuffer);
                 AccountPayableTo := ReportAccountPayableToInfo(SwissQRBillBuffer);
                 PayableBy := ReportAccountPayableByInfo(SwissQRBillBuffer);
-                AmountText := FormatAmount(SwissQRBillBuffer.Amount);
-                PaymentReferenceNoText := QRBillMgt.FormatPaymentReference(SwissQRBillBuffer."Payment Reference Type", SwissQRBillBuffer."Payment Reference");
+                AmountText := FormatAmount(Amount);
+                PaymentReferenceNoText := SwissQRBillMgt.FormatPaymentReference("Payment Reference Type", "Payment Reference");
                 AddInformationText := ReportAddInformationInfo(SwissQRBillBuffer);
             end;
         }
     }
 
     var
-        QRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
-        Language: Codeunit Language;
+        SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
         DocumentType: Enum "Gen. Journal Document Type";
         AccountPayableTo: Text;
         PayableBy: Text;
@@ -196,13 +201,13 @@ report 11510 "Swiss QR-Bill Print"
 
     local procedure SetBufferFromReminders(var CustLedgerEntry: Record "Cust. Ledger Entry")
     var
-        SwissQRBillBuffer2: Record "Swiss QR-Bill Buffer" temporary;
+        TempSwissQRBillBuffer: Record "Swiss QR-Bill Buffer" temporary;
     begin
         if CustLedgerEntry.FindSet() then
             repeat
-                SwissQRBillBuffer2.InitBuffer('');
-                SwissQRBillBuffer2.SetSourceRecord(CustLedgerEntry."Entry No.");
-                SwissQRBillBuffer.AddBufferRecord(SwissQRBillBuffer2);
+                TempSwissQRBillBuffer.InitBuffer('');
+                TempSwissQRBillBuffer.SetSourceRecord(CustLedgerEntry."Entry No.");
+                SwissQRBillBuffer.AddBufferRecord(TempSwissQRBillBuffer);
             until CustLedgerEntry.Next() = 0;
     end;
 
@@ -210,9 +215,9 @@ report 11510 "Swiss QR-Bill Print"
     var
         TempCustomer: Record Customer temporary;
     begin
-        Result := QRBillMgt.FormatIBAN(SwissQRBillBuffer.IBAN);
+        Result := SwissQRBillMgt.FormatIBAN(SwissQRBillBuffer.IBAN);
         if SwissQRBillBuffer.GetCreditorInfo(TempCustomer) then
-            QRBillMgt.AddLine(Result, ReportFormatCustomerPartyInfo(TempCustomer));
+            SwissQRBillMgt.AddLine(Result, ReportFormatCustomerPartyInfo(TempCustomer));
     end;
 
     local procedure ReportAccountPayableByInfo(var SwissQRBillBuffer: Record "Swiss QR-Bill Buffer"): Text
@@ -226,9 +231,9 @@ report 11510 "Swiss QR-Bill Print"
     local procedure ReportFormatCustomerPartyInfo(Customer: Record Customer) Result: Text
     begin
         with Customer do begin
-            QRBillMgt.AddLineIfNotBlanked(Result, CopyStr(Name, 1, 70));
-            QRBillMgt.AddLineIfNotBlanked(Result, CopyStr(Address + ' ' + "Address 2", 1, 70));
-            QRBillMgt.AddLineIfNotBlanked(Result, CopyStr("Post Code" + ' ' + City, 1, 70));
+            SwissQRBillMgt.AddLineIfNotBlanked(Result, CopyStr(Name, 1, 70));
+            SwissQRBillMgt.AddLineIfNotBlanked(Result, CopyStr(Address + ' ' + "Address 2", 1, 70));
+            SwissQRBillMgt.AddLineIfNotBlanked(Result, CopyStr("Post Code" + ' ' + City, 1, 70));
         end;
     end;
 
@@ -237,13 +242,12 @@ report 11510 "Swiss QR-Bill Print"
         BillingInfo: Text;
     begin
         SwissQRBillBuffer.CheckLimitForUnstrAndBillInfoText();
-        if SwissQRBillBuffer."Billing Information" <> '' then
-            BillingInfo := StrSubstNo('//%1', SwissQRBillBuffer."Billing Information");
+        BillingInfo := SwissQRBillBuffer."Billing Information";
         Result := SwissQRBillBuffer."Unstructured Message";
         if (Result <> '') and (StrLen(BillingInfo) > 45) then
             Result += StrSubstNo(' %1', BillingInfo)
         else
-            QRBillMgt.AddLineIfNotBlanked(Result, BillingInfo);
+            SwissQRBillMgt.AddLineIfNotBlanked(Result, BillingInfo);
     end;
 
     local procedure FormatAmount(Amount: Decimal): Text

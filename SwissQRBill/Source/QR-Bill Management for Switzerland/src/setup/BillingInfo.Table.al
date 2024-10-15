@@ -45,14 +45,14 @@ table 11511 "Swiss QR-Bill Billing Info"
     }
 
     var
-        QRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
-        BillingInfo: Codeunit "Swiss QR-Bill Billing Info";
+        SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
+        SwissQRBillBillingInfo: Codeunit "Swiss QR-Bill Billing Info";
         DefaultCodeLbl: Label 'DEFAULT';
 
     internal procedure InitDefault()
     begin
         Init();
-        Code := DefaultCodeLbl;
+        Code := CopyStr(DefaultCodeLbl, 1, MaxStrLen(Code));
         "Document No." := true;
         "Document Date" := true;
         "VAT Date" := true;
@@ -73,47 +73,64 @@ table 11511 "Swiss QR-Bill Billing Info"
         PaymentTermsCode: Code[10];
     begin
         CompanyInfo.Get();
-        with CustLedgerEntry do begin
-            Get(CustomerLedgerEntryNo);
-            if "Document Type" = "Document Type"::Invoice then
-                case true of
-                    SalesInvoiceHeader.Get(CustLedgerEntry."Document No."):
-                        begin
-                            PaymentTermsCode := SalesInvoiceHeader."Payment Terms Code";
-                            SalesInvoiceLine.CalcVATAmountLines(SalesInvoiceHeader, TempVATAmountLine);
-                        end;
-                    QRBillMgt.FindServiceInvoiceFromLedgerEntry(ServiceInvoiceHeader, CustLedgerEntry):
-                        begin
-                            PaymentTermsCode := ServiceInvoiceHeader."Payment Terms Code";
-                            ServiceInvoiceLine.CalcVATAmountLines(ServiceInvoiceHeader, TempVATAmountLine);
-                        end;
-                end;
-            exit(GetDocumentBillingInfo("Document No.", "Document Date", CompanyInfo."VAT Registration No.", "Posting Date", TempVATAmountLine, PaymentTermsCode));
-        end;
+        CustLedgerEntry.Get(CustomerLedgerEntryNo);
+        if CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice then
+            case true of
+                SalesInvoiceHeader.Get(CustLedgerEntry."Document No."):
+                    begin
+                        PaymentTermsCode := SalesInvoiceHeader."Payment Terms Code";
+                        SalesInvoiceLine.CalcVATAmountLines(SalesInvoiceHeader, TempVATAmountLine);
+                    end;
+                SwissQRBillMgt.FindServiceInvoiceFromLedgerEntry(ServiceInvoiceHeader, CustLedgerEntry):
+                    begin
+                        PaymentTermsCode := ServiceInvoiceHeader."Payment Terms Code";
+                        ServiceInvoiceLine.CalcVATAmountLines(ServiceInvoiceHeader, TempVATAmountLine);
+                    end;
+            end;
+
+        exit(
+            GetDocumentBillingInfo(
+                CustLedgerEntry."Document No.",
+                CustLedgerEntry."Document Date",
+                CompanyInfo."VAT Registration No.",
+                CustLedgerEntry."Posting Date",
+                TempVATAmountLine,
+                PaymentTermsCode));
     end;
 
     local procedure GetDocumentBillingInfo(DoumentNo: Code[20]; DocumentDate: Date; VATRegNo: Text; VATDate: Date; var TempVATAmountLine: Record "VAT Amount Line"; PaymentTermsCode: Code[10]): Text[140]
     var
-        BillingDetail: Record "Swiss QR-Bill Billing Detail" temporary;
+        TempSwissQRBillBillingDetail: Record "Swiss QR-Bill Billing Detail" temporary;
     begin
         if "Document No." then
-            AddDetailsIfNotBlanked(BillingDetail, BillingDetail."Tag Type"::"Document No.", DoumentNo);
+            AddDetailsIfNotBlanked(TempSwissQRBillBillingDetail, TempSwissQRBillBillingDetail."Tag Type"::"Document No.", DoumentNo);
         if "Document Date" then
-            AddDetailsIfNotBlanked(BillingDetail, BillingDetail."Tag Type"::"Document Date", BillingInfo.FormatDate(DocumentDate));
+            AddDetailsIfNotBlanked(
+                TempSwissQRBillBillingDetail,
+                TempSwissQRBillBillingDetail."Tag Type"::"Document Date", SwissQRBillBillingInfo.FormatDate(DocumentDate));
         if "VAT Number" then
-            AddDetailsIfNotBlanked(BillingDetail, BillingDetail."Tag Type"::"VAT Registration No.", BillingInfo.FormatVATRegNo(VATRegNo));
+            AddDetailsIfNotBlanked(
+                TempSwissQRBillBillingDetail,
+                TempSwissQRBillBillingDetail."Tag Type"::"VAT Registration No.", SwissQRBillBillingInfo.FormatVATRegNo(VATRegNo));
         if "VAT Date" then
-            AddDetailsIfNotBlanked(BillingDetail, BillingDetail."Tag Type"::"VAT Date", BillingInfo.FormatDate(VATDate));
+            AddDetailsIfNotBlanked(
+                TempSwissQRBillBillingDetail,
+                TempSwissQRBillBillingDetail."Tag Type"::"VAT Date", SwissQRBillBillingInfo.FormatDate(VATDate));
         if "VAT Details" then
-            AddDetailsIfNotBlanked(BillingDetail, BillingDetail."Tag Type"::"VAT Details", BillingInfo.GetDocumentVATDetails(TempVATAmountLine));
+            AddDetailsIfNotBlanked(
+                TempSwissQRBillBillingDetail,
+                TempSwissQRBillBillingDetail."Tag Type"::"VAT Details", SwissQRBillBillingInfo.GetDocumentVATDetails(TempVATAmountLine));
         if "Payment Terms" then
-            AddDetailsIfNotBlanked(BillingDetail, BillingDetail."Tag Type"::"Payment Terms", BillingInfo.GetDocumentPaymentTerms(PaymentTermsCode));
-        exit(BillingInfo.CreateBillingInfoString(BillingDetail, 'S1'));
+            AddDetailsIfNotBlanked(
+                TempSwissQRBillBillingDetail,
+                TempSwissQRBillBillingDetail."Tag Type"::"Payment Terms", SwissQRBillBillingInfo.GetDocumentPaymentTerms(PaymentTermsCode));
+
+        exit(SwissQRBillBillingInfo.CreateBillingInfoString(TempSwissQRBillBillingDetail, 'S1'));
     end;
 
-    local procedure AddDetailsIfNotBlanked(var BillingDetail: Record "Swiss QR-Bill Billing Detail"; TagType: Enum "Swiss QR-Bill Billing Detail"; DetailsValue: Text)
+    local procedure AddDetailsIfNotBlanked(var SwissQRBillBillingDetail: Record "Swiss QR-Bill Billing Detail"; TagType: Enum "Swiss QR-Bill Billing Detail"; DetailsValue: Text)
     begin
         if DetailsValue <> '' then
-            BillingDetail.AddBufferRecord('S1', TagType, DetailsValue, '');
+            SwissQRBillBillingDetail.AddBufferRecord('S1', TagType, DetailsValue, '');
     end;
 }

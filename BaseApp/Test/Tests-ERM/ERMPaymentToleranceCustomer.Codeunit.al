@@ -826,7 +826,7 @@ codeunit 134005 "ERM Payment Tolerance Customer"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // Select Journal Batch Name and Template Name.
-        LibraryERM.SelectLastGenJnBatch(GenJournalBatch);
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         CreateDocumentLine(GenJournalLine, GenJournalBatch, DocumentType, CreateCustomer, Amount, WorkDate, CurrencyCode);
         CreateDocumentLine(GenJournalLine, GenJournalBatch, DocumentType2, GenJournalLine."Account No.", Amount2, PostingDate, CurrencyCode2);

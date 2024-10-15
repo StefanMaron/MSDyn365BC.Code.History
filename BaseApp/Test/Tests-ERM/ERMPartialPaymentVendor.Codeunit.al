@@ -20,6 +20,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         AmountToApplyLargerError: Label '%1 must not be larger than %2 in %3 %4=''%5''.';
         AmountMustNotBeEqual: Label '%1 must not be equal to %2.';
         UnknownError: Label 'Unknown Error.';
+        CannotAssignReferenceNoMsg: Label 'The Reference No. field could not be filled automatically because more than one vendor ledger entry exist for the payment.';
 
     local procedure Initialize()
     var
@@ -405,6 +406,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
     end;
 
     [Test]
+    [HandlerFunctions('ReferencNoSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure ApplyPaymentBySetAppliesToID()
     var
@@ -417,6 +419,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
     end;
 
     [Test]
+    [HandlerFunctions('ReferencNoSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure ApplyRefundBySetAppliesToID()
     var
@@ -914,6 +917,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
     end;
 
     [Test]
+    [HandlerFunctions('ReferencNoSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure ApplyPaymentToMultipleDocument()
     var
@@ -928,6 +932,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
     end;
 
     [Test]
+    [HandlerFunctions('ReferencNoSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure ApplyRefundToMultipleDocument()
     var
@@ -1654,6 +1659,14 @@ codeunit 134004 "ERM Partial Payment Vendor"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure ReferencNoSendNotificationHandler(var TheNoitification: Notification): Boolean
+    begin
+        Assert.AreEqual(Format(CannotAssignReferenceNoMsg), TheNoitification.Message, 'Wrong notification message');
+        exit(false)
     end;
 }
 

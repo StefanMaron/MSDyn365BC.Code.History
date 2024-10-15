@@ -136,7 +136,7 @@ page 11516 "Swiss QR-Bill Setup Wizard"
                     {
                         ApplicationArea = All;
                         ShowMandatory = true;
-                        ToolTip = 'Specifies the address type used for all printed QR-Bills. Recommended value is Structured';
+                        ToolTip = 'Specifies the address type used for all printed QR-Bills. Recommended value is Structured.';
                     }
                     field(UmlautCharsEncodeMode; "Umlaut Chars Encode Mode")
                     {
@@ -176,7 +176,7 @@ page 11516 "Swiss QR-Bill Setup Wizard"
                 group(PaymentMethodsDescription)
                 {
                     Caption = 'QR-BILL SETUP (STEP 4 OF 6): GENERATING AND ISSUING QR-BILLS';
-                    InstructionalText = 'Issuing QR-bills is tightly connected to sales invoices, service invoices, reminders, and finance charge memos. Whether or not a QR-bill is issued and printed when printing one of these document types is determined by the payment method specified on the customer card. If a payment type is enabled with a QR-bill layout, a QR-bill will be generated and printed. You must enable at least one payment method with a QR-bill layout to be able to issue QR-bills.';
+                    InstructionalText = 'Issuing QR-bills is tightly connected to sales invoices and service invoices. Whether or not a QR-bill is issued and printed when printing one of these document types is determined by the payment method specified on the customer card. If a payment type is enabled with a QR-bill layout, a QR-bill will be generated and printed. You must enable at least one payment method with a QR-bill layout to be able to issue QR-bills.';
                 }
                 group(PaymentMethodsDetails)
                 {
@@ -209,7 +209,7 @@ page 11516 "Swiss QR-Bill Setup Wizard"
                 group(DocumentTypeDescription)
                 {
                     Caption = 'QR-BILL SETUP (STEP 5 OF 6): GENERATING AND ISSUING QR-BILLS';
-                    InstructionalText = 'When you print sales invoices, service invoices, reminders, or finance charge memos, you can generate and issue QR-bills. To set this up you, must enable each document type for QR-bills according to your usage of these document types. When you enable a document type for QR-bills, the system will automatically insert an additional report selection for the selected document type. As a minimum, you must enable sales invoices for QR-bills.';
+                    InstructionalText = 'When you print sales invoices or service invoices, you can generate and issue QR-bills. To set this up you, must enable each document type for QR-bills according to your usage of these document types. When you enable a document type for QR-bills, the system will automatically insert an additional report selection for the selected document type. As a minimum, you must enable sales invoices for QR-bills.';
                 }
                 group(DocumentTypeDetails)
                 {
@@ -383,7 +383,7 @@ page 11516 "Swiss QR-Bill Setup Wizard"
         MediaResourcesFinished: Record "Media Resources";
         MediaResourcesStd: Record "Media Resources";
         CompanyInfo: Record "Company Information";
-        QRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
+        SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
         Step: Option Start,CompanySetup,BasicSetupFields,QRLayout,PaymentMethods,DocumentTypes,IncomingDoc,Finish;
         BackActionEnabled: Boolean;
         FinishActionEnabled: Boolean;
@@ -628,28 +628,27 @@ page 11516 "Swiss QR-Bill Setup Wizard"
                 TopBannerVisible := MediaResourcesFinished."Media Reference".HasValue();
     end;
 
-    local procedure RefreshCompanyInfo(): Text
+    local procedure RefreshCompanyInfo()
     begin
         CompanyInfo.Find();
         CompanyAddress := '';
-        QRBillMgt.AddLineIfNotBlanked(CompanyAddress, CompanyInfo.Address);
-        QRBillMgt.AddLineIfNotBlanked(CompanyAddress, CompanyInfo."Address 2");
-        QRBillMgt.AddLineIfNotBlanked(CompanyAddress, CompanyInfo.City);
-        QRBillMgt.AddLineIfNotBlanked(CompanyAddress, CompanyInfo."Post Code");
-        QRBillMgt.AddLineIfNotBlanked(CompanyAddress, CompanyInfo."Country/Region Code");
+        SwissQRBillMgt.AddLineIfNotBlanked(CompanyAddress, CompanyInfo.Address);
+        SwissQRBillMgt.AddLineIfNotBlanked(CompanyAddress, CompanyInfo."Address 2");
+        SwissQRBillMgt.AddLineIfNotBlanked(CompanyAddress, CompanyInfo.City);
+        SwissQRBillMgt.AddLineIfNotBlanked(CompanyAddress, CompanyInfo."Post Code");
+        SwissQRBillMgt.AddLineIfNotBlanked(CompanyAddress, CompanyInfo."Country/Region Code");
     end;
 
     local procedure RefreshPaymentMethods()
     begin
-        PaymentMethodsCount := QRBillMgt.CalcQRPaymentMethodsCount();
-        PaymentMethodsText := QRBillMgt.FormatQRPaymentMethodsCount(PaymentMethodsCount);
-
+        PaymentMethodsCount := SwissQRBillMgt.CalcQRPaymentMethodsCount();
+        PaymentMethodsText := SwissQRBillMgt.FormatQRPaymentMethodsCount(PaymentMethodsCount);
     end;
 
     local procedure RefreshDocumentTypes()
     begin
-        DocumentTypesCount := QRBillMgt.CalcEnabledReportsCount();
-        DocumentTypesText := QRBillMgt.FormatEnabledReportsCount(DocumentTypesCount);
+        DocumentTypesCount := SwissQRBillMgt.CalcEnabledReportsCount();
+        DocumentTypesText := SwissQRBillMgt.FormatEnabledReportsCount(DocumentTypesCount);
     end;
 
     local procedure RefreshFinishSummary()
@@ -660,11 +659,11 @@ page 11516 "Swiss QR-Bill Setup Wizard"
         if CompanyInfo."Swiss QR-Bill IBAN" = '' then
             FinishSummaryWarningText := FinishSummaryQRIBANLbl;
         if PaymentMethodsCount = 0 then
-            QRBillMgt.AddLine(FinishSummaryWarningText, FinishSummaryPaymentMethodsLbl);
+            SwissQRBillMgt.AddLine(FinishSummaryWarningText, FinishSummaryPaymentMethodsLbl);
         if DocumentTypesCount = 0 then
-            QRBillMgt.AddLine(FinishSummaryWarningText, FinishSummaryDocumentTypesLbl);
+            SwissQRBillMgt.AddLine(FinishSummaryWarningText, FinishSummaryDocumentTypesLbl);
         if ("Journal Template" = '') or ("Journal Batch" = '') then
-            QRBillMgt.AddLine(FinishSummaryWarningText, FinishSummaryJournalSetupLbl);
+            SwissQRBillMgt.AddLine(FinishSummaryWarningText, FinishSummaryJournalSetupLbl);
 
         FinishSummaryWarningVisible := FinishSummaryWarningText <> '';
     end;

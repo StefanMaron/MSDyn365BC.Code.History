@@ -93,7 +93,7 @@ codeunit 134035 "ERM Vend Date Compress Manual"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // Create Journal Lines with Random Decimal Amount and Post them. Take Invoice Value always greater than Payment.
-        LibraryERM.SelectLastGenJnBatch(GenJournalBatch);
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, VendorNo,

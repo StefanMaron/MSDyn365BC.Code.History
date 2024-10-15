@@ -1,4 +1,4 @@
-codeunit 5982 "Service-Post+Print"
+﻿codeunit 5982 "Service-Post+Print"
 {
 
     trigger OnRun()
@@ -119,7 +119,7 @@ codeunit 5982 "Service-Post+Print"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterConfirmPost(ServiceHeader: Record "Service Header"; Ship: Boolean; Consume: Boolean; Invoice: Boolean)
+    local procedure OnAfterConfirmPost(var ServiceHeader: Record "Service Header"; Ship: Boolean; Consume: Boolean; Invoice: Boolean)
     begin
     end;
 

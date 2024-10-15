@@ -11,6 +11,7 @@ table 11507 "Swiss QRBill Setup"
         {
             OptionMembers = Structured,Combined;
         }
+        field(4; "Swiss-Cross Image Blob"; BLOB) { }
         field(6; "Umlaut Chars Encode Mode"; Option)
         {
             OptionMembers = Single,Double,Remove;

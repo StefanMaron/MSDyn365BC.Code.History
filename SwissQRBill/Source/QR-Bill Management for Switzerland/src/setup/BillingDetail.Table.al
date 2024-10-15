@@ -42,15 +42,15 @@ table 11518 "Swiss QR-Bill Billing Detail"
 
     internal procedure AddBufferRecord(FormatCode: Code[10]; TagType: Enum "Swiss QR-Bill Billing Detail"; TagValue: Text; TagDescription: Text)
     begin
-        AddBufferRecord(FormatCode, TagType, MapTagTypeToTagCode(FormatCode, TagType), TagValue, TagDescription);
+        AddBufferRecordLcl(FormatCode, TagType, MapTagTypeToTagCode(FormatCode, TagType), TagValue, TagDescription);
     end;
 
     internal procedure AddBufferRecord(FormatCode: Code[10]; TagCode: Code[10]; TagValue: Text)
     begin
-        AddBufferRecord(FormatCode, MapTagCodeToTagType(FormatCode, TagCode), TagCode, TagValue, '');
+        AddBufferRecordLcl(FormatCode, MapTagCodeToTagType(FormatCode, TagCode), TagCode, TagValue, '');
     end;
 
-    local procedure AddBufferRecord(FormatCode: Code[10]; TagType: Enum "Swiss QR-Bill Billing Detail"; TagCode: Code[10]; TagValue: Text; TagDescription: Text)
+    local procedure AddBufferRecordLcl(FormatCode: Code[10]; TagType: Enum "Swiss QR-Bill Billing Detail"; TagCode: Code[10]; TagValue: Text; TagDescription: Text)
     begin
         "Entry No." += 1;
         "Format Code" := FormatCode;

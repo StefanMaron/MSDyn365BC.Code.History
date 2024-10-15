@@ -25,6 +25,7 @@ codeunit 131302 "Library - Fiscal Year"
                 AccountingPeriod.Next;
         end;
         Commit();  // Required because Modal Page Pops Up.
+        RollbackAdjustedAllowPostingFromDate;
     end;
 
     procedure CloseAccountingPeriod()
@@ -160,6 +161,15 @@ codeunit 131302 "Library - Fiscal Year"
         AccountingPeriod: Record "Accounting Period";
     begin
         exit(not AccountingPeriod.IsEmpty);
+    end;
+
+    local procedure RollbackAdjustedAllowPostingFromDate()
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        GLSetup.Get();
+        GLSetup."Allow Posting From" := 0D;
+        GLSetup.Modify();
     end;
 }
 

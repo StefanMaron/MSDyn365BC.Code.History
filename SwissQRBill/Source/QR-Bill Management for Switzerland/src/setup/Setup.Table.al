@@ -79,12 +79,12 @@ table 11512 "Swiss QR-Bill Setup"
 
     local procedure InitSwissCrossImage()
     var
-        ImageMgt: Codeunit "Swiss QR-Bill Image Mgt.";
+        SwissQRBillImageMgt: Codeunit "Swiss QR-Bill Image Mgt.";
         TempBlob: Codeunit "Temp Blob";
         InStream: InStream;
     begin
         Clear("Swiss-Cross Image");
-        ImageMgt.LoadSwissCrossImage(TempBlob);
+        SwissQRBillImageMgt.LoadSwissCrossImage(TempBlob);
         TempBlob.CreateInStream(InStream);
         "Swiss-Cross Image".ImportStream(InStream, 'QR-Bill Swiss Cross Image');
     end;
@@ -93,11 +93,12 @@ table 11512 "Swiss QR-Bill Setup"
     var
         OutStream: OutStream;
     begin
-        if not Get() then
-            exit(false);
+        Get();
 
-        if not "Swiss-Cross Image".HasValue() then
+        if not "Swiss-Cross Image".HasValue() then begin
             InitSwissCrossImage();
+            Modify();
+        end;
 
         TempBlob.CreateOutStream(OutStream);
         "Swiss-Cross Image".ExportStream(OutStream);

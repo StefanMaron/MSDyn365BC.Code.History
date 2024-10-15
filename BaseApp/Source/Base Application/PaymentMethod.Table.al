@@ -128,6 +128,7 @@ table 289 "Payment Method"
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11512 Swiss QR-Bill Payment Method';
+            ObsoleteTag = '16.1';
         }
     }
 

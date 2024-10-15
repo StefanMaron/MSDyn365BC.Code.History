@@ -22,7 +22,6 @@ codeunit 134600 "Report Layout Test"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryTablesUT: Codeunit "Library - Tables UT";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         FileManagement: Codeunit "File Management";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -30,7 +29,7 @@ codeunit 134600 "Report Layout Test"
         CopyOfTxt: Label 'Copy of %1', Comment = '%1 - custom report layout description';
         DeleteBuiltInLayoutErr: Label 'This is a built-in custom report layout, and it cannot be deleted.';
         IsInitialized: Boolean;
-        LineInFileTxt: Label '<ReportDataSet name="Test Report - Default=Word" id="134600">';
+        LineInFileTxt: Label '<ReportDataSet name="Test Report - Default=Word" id="134600">', Locked = true;
         FileNameIsBlankMsg: Label 'File name is blank.';
 
     local procedure Initialize()
@@ -965,35 +964,6 @@ codeunit 134600 "Report Layout Test"
     end;
 
     [Test]
-    [HandlerFunctions('OrderConfirmation_RPH')]
-    [Scope('OnPrem')]
-    procedure SalesOrder_Print_OrderConfirmation()
-    var
-        SalesHeader: Record "Sales Header";
-        DocumentPrint: Codeunit "Document-Print";
-        CustomerNo: Code[20];
-    begin
-        Initialize;
-        // [FEATURE] [Sales] [Order] [Print]
-        // [SCENARIO 379027] REP 1305 "Standard Sales - Order Conf." is shown when run "Print Confirmation" action from Sales Order in case of "Order Confirmation" setup in customer document layout
-
-        // [GIVEN] Custom Report Layout "X" with "Report ID" = 1305, "Report Name" = "Standard Sales - Order Conf."
-        // [GIVEN] Customer with Document Layout: Usage = "Confirmation Order", "Report ID" = 1305, "Customer Report Layout ID" = "X"
-        CustomerNo := LibrarySales.CreateCustomerNo;
-        AddOrderConfirmationToCustomerDocumentLayout(CustomerNo);
-
-        // [GIVEN] Sales Order for the given customer
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-
-        // [WHEN] Run "Print Confirmation" action from Sales Order
-        Commit();
-        DocumentPrint.PrintSalesOrder(SalesHeader, Usage::"Order Confirmation");
-
-        // [THEN] REP 1305 "Order Confirmation" is shown
-        // OrderConfirmation_RPH
-    end;
-
-    [Test]
     [HandlerFunctions('ReturnOrderConfirmation_RPH')]
     [Scope('OnPrem')]
     procedure SalesReturnOrder_Print()
@@ -1060,21 +1030,6 @@ codeunit 134600 "Report Layout Test"
 
         // [THEN] The 2nd reported line contains "Job Task No." = "321"
         VerifyJobTaskNo(20000, SalesLine[2]."Job Task No.");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestLenghtOfDescriptionCustomReportLayout()
-    var
-        CustomReportLayout: Record "Custom Report Layout";
-        CustomReportSelection: Record "Custom Report Selection";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 252058] Length of "Custom Report Layout"."Description" shoud be equal to length of "Custom Report Selection"."Custom Report Description"
-
-        LibraryTablesUT.CompareFieldTypeAndLength(
-          CustomReportLayout, CustomReportLayout.FieldNo(Description),
-          CustomReportSelection, CustomReportSelection.FieldNo("Custom Report Description"));
     end;
 
     [Test]
@@ -1191,7 +1146,7 @@ codeunit 134600 "Report Layout Test"
     begin
         with CustomReportLayout do begin
             Init;
-            "Report ID" := REPORT::"Standard Sales - Order Conf.";
+            "Report ID" := REPORT::"Order Confirmation";
             Insert(true);
             exit(Code);
         end;
@@ -1202,8 +1157,7 @@ codeunit 134600 "Report Layout Test"
         CustomReportSelection: Record "Custom Report Selection";
     begin
         AddCustomerDocumentLayoutReport(
-          CustomerNo, CustomReportSelection.Usage::"S.Order", REPORT::"Standard Sales - Order Conf.",
-          AddOrderConfirmationToCustomReportLayout);
+          CustomerNo, CustomReportSelection.Usage::"S.Order", REPORT::"Order Confirmation", AddOrderConfirmationToCustomReportLayout);
     end;
 
     local procedure AddSalesInvoiceToCustomerDocumentLayout(CustomerNo: Code[20])
@@ -1438,12 +1392,6 @@ codeunit 134600 "Report Layout Test"
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PickInstruction_RPH(var PickInstruction: TestRequestPage "Pick Instruction")
-    begin
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure OrderConfirmation_RPH(var OrderConfirmation: TestRequestPage "Standard Sales - Order Conf.")
     begin
     end;
 

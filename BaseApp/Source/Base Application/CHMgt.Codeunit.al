@@ -403,5 +403,24 @@ codeunit 11503 CHMgt
                             CopyReferenceFromVLEToGenJournalLine(VendorLedgerEntry, GenJournalLine);
             end;
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, 57, 'OnAfterSalesLineSetFilters', '', false, false)]
+    local procedure HandleOnAfterSalesLineSetFilters(var TotalSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line")
+    begin
+        TotalSalesLine.SetFilter("Quote Variant", '<>%1', TotalSalesLine."Quote Variant"::Variant);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 57, 'OnAfterSalesCheckIfDocumentChanged', '', false, false)]
+    local procedure HandleOnAfterSalesCheckIfDocumentChanged(SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var TotalsUpToDate: Boolean)
+    begin
+        if SalesLine."Quote Variant" <> xSalesLine."Quote Variant" then
+            TotalsUpToDate := false;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 57, 'OnCalculateSalesSubPageTotalsOnAfterSetFilters', '', false, false)]
+    local procedure HandleOnCalculateSalesSubPageTotalsOnAfterSetFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+        SalesLine.SetFilter("Quote Variant", '<>%1', SalesLine."Quote Variant"::Variant);
+    end;
 }
 

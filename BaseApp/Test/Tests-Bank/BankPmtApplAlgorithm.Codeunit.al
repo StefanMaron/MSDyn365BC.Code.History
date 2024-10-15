@@ -109,7 +109,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         Tolerance := Round(Amount / 4, 0.01);
         ExtDocNo := '';
-        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount + Tolerance + 0.01);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount + Tolerance + 0.02);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, Tolerance);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', '');
@@ -216,7 +216,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount + Tolerance);
         CreateAndPostSalesInvoiceWithOneLine(Customer."No.", ExtDocNo, Amount + 5 * Tolerance);
 
-        CreateBankReconciliationAmountTolerance(BankAccReconciliation, Tolerance);
+        CreateBankReconciliationAmountTolerance(BankAccReconciliation, Tolerance + 0.01);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount + 2 * Tolerance, '', '');
 
         // Exercise
@@ -1577,7 +1577,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -1625,7 +1625,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
         DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
@@ -1688,7 +1688,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
         CreateCustomer(Customer2);
@@ -1760,10 +1760,10 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
-        Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount2 := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount2);
 
         AppliedAmount := Amount + Amount2;
@@ -1825,10 +1825,10 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
-        Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount2 := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount2);
 
         AppliedAmount := Amount + Amount2;
@@ -1890,13 +1890,13 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
-        Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount2 := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount2);
 
-        AppliedAmount := Amount + Amount2 - Round(Amount2 / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Amount + Amount2 - Round(Amount2 / 2, LibraryERM.GetInvoiceRoundingPrecisionLCY);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, AppliedAmount, '', DocumentNo + ' ' + DocumentNo2);
@@ -1954,10 +1954,10 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
-        Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount2 := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount2);
 
         AppliedAmount := Amount;
@@ -2014,13 +2014,13 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
-        Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount2 := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount2);
 
-        AppliedAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Round(Amount / 2, LibraryERM.GetInvoiceRoundingPrecisionLCY);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, AppliedAmount, '', DocumentNo + ' ' + DocumentNo2);
@@ -2082,9 +2082,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Setup
         CreateCustomer(Customer);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
-        Amount3 := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
+        Amount2 := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
+        Amount3 := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
 
         DueDate := WorkDate;
         DueDate2 := CalcDate('<-3D>', DueDate);
@@ -2094,7 +2094,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine2(Customer."No.", GenerateExtDocNo, Amount2, DueDate2);
         DocumentNo3 := CreateAndPostSalesInvoiceWithOneLine2(Customer."No.", GenerateExtDocNo, Amount3, DueDate3);
 
-        AppliedAmount := Amount2 + Round(Amount3 / 2, LibraryERM.GetAmountRoundingPrecision);
+        AppliedAmount := Amount2 + Round(Amount3 / 2, LibraryERM.GetInvoiceRoundingPrecisionLCY);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(
@@ -2154,7 +2154,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         TextMapper := CopyStr(GenerateRandomSmallLetters(20), 1, 20);
         LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
 
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
@@ -2205,7 +2205,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         TextMapper := CopyStr(GenerateRandomSmallLetters(20), 1, 20);
         LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
 
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
         DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
@@ -2256,7 +2256,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Setup
         CreateCustomer(Customer);
 
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
         DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
@@ -2303,7 +2303,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Setup
         CreateCustomer(Customer);
 
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
         DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
         DocumentNo3 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, 2 * Amount);
@@ -2362,7 +2362,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Setup
         CreateCustomer(Customer);
 
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
         DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
         DocumentNo3 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
@@ -2423,7 +2423,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Setup
         CreateCustomer(Customer);
 
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
         DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
         DocumentNo3 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, 2 * Amount);
@@ -2517,10 +2517,10 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule.Reset();
 
         CreateCustomer(Customer);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
-        Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount2 := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo2 := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount2);
 
         AppliedAmount := Amount + Amount2;
@@ -5159,10 +5159,10 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankPmtApplRule.Reset();
 
         CreateVendor(Vendor);
-        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
 
-        Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
+        Amount2 := Round(LibraryRandom.RandDecInRange(1, 1000, 2), LibraryERM.GetInvoiceRoundingPrecisionLCY);
         DocumentNo2 := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount2);
 
         AppliedAmount := -Amount - Amount2;

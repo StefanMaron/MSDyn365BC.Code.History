@@ -19,6 +19,7 @@ codeunit 134976 "ERM Sales Report"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportValidation: Codeunit "Library - Report Validation";
@@ -38,8 +39,8 @@ codeunit 134976 "ERM Sales Report"
         RowNotFoundErr: Label 'There is no dataset row corresponding to Element Name %1 with value %2.', Comment = '%1=Field Caption,%2=Field Value;';
         VALVATAmountLCYTok: Label 'VALVATAmountLCY';
         VALVATBaseLCYTok: Label 'VALVATBaseLCY';
-        VATPer_VATCounterLCYTok: Label 'VATPer_VATCounterLCY';
-        VATIdentifier_VATCounterLCYTok: Label 'VATIdentifier_VATCounterLCY';
+        VATPer_VATCounterLCYTok: Label 'VATAmountLineVAT_VatCounterLCY';
+        VATIdentifier_VATCounterLCYTok: Label 'VATAmtLineVATIdentifier_VatCounterLCY';
         PostedAsmLineDescCapTxt: Label 'TempPostedAsmLineDesc';
         PostedAsmLineDescriptionCapTxt: Label 'PostedAsmLineDescription';
         Type: Option Invoice,Shipment;
@@ -47,9 +48,8 @@ codeunit 134976 "ERM Sales Report"
         CustSummAging_CurrencyLbl: Label 'Currency2_Code';
         CustSummAging_TotalBalanceLbl: Label 'LineTotalCustBalance_Control67';
         ExcelCountWorksheetsErr: Label 'Saved Excel file has incorrect number of worksheets.';
-        SalesInvoiceTxt: Label 'Sales - Invoice %1';
-        SalesPrepmtInvoiceTxt: Label 'Sales - Prepayment Invoice %1';
-        SalesTaxInvoiceTxt: Label 'Sales - Tax Invoice %1';
+        TitleDescriptionCountErr: Label 'Expected only one Description for Title';
+        SalesPrepmtInvoiceTxt: Label 'Prepayment Invoice';
         InvoiceTxt: Label 'Invoice';
         TaxInvoiceTxt: Label 'Tax Invoice';
 
@@ -1539,7 +1539,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AB', 86);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'X', 33);
     end;
 
     [Test]
@@ -1576,7 +1576,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AB', 87);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'X', 34);
     end;
 
     [Test]
@@ -1615,7 +1615,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AB', 86);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'X', 33);
     end;
 
     [Test]
@@ -1655,7 +1655,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AB', 87);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'X', 34);
     end;
 
     [Test]
@@ -2285,10 +2285,10 @@ codeunit 134976 "ERM Sales Report"
         // [WHEN] Print Sales Invoice
         RunSalesInvoiceReport(DocumentNo, false, false, false, 0);
 
-        // [THEN] Report title is 'Sales - Invoice'
+        // [THEN] Report title is 'Invoice'
         LibraryReportDataset.LoadDataSetFile;
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Cannot find first row.');
-        LibraryReportDataset.AssertCurrentRowValueEquals('DocumentCaptionCopyText', StrSubstNo(SalesInvoiceTxt, ''));
+        LibraryReportDataset.AssertCurrentRowValueEquals('DocumentCaptionCopyText', InvoiceTxt);
     end;
 
     [Test]
@@ -2306,17 +2306,17 @@ codeunit 134976 "ERM Sales Report"
         CreateAndSetupSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        // [GIVEN] Redefined report title as 'Sales - Tax Invoice'
-        ReportCaptionSubscriber.SetCaption(SalesTaxInvoiceTxt);
+        // [GIVEN] Redefined report title as 'Tax Invoice'
+        ReportCaptionSubscriber.SetCaption(TaxInvoiceTxt);
         BindSubscription(ReportCaptionSubscriber);
 
         // [WHEN] Print Sales Invoice
         RunSalesInvoiceReport(DocumentNo, false, false, false, 0);
 
-        // [THEN] Report title is 'Sales - Tax Invoice'
+        // [THEN] Report title is 'Tax Invoice'
         LibraryReportDataset.LoadDataSetFile;
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Cannot find first row.');
-        LibraryReportDataset.AssertCurrentRowValueEquals('DocumentCaptionCopyText', StrSubstNo(SalesTaxInvoiceTxt, ''));
+        LibraryReportDataset.AssertCurrentRowValueEquals('DocumentCaptionCopyText', TaxInvoiceTxt);
     end;
 
     [Test]
@@ -2341,10 +2341,10 @@ codeunit 134976 "ERM Sales Report"
         // [WHEN] Print Sales Invoice
         RunSalesInvoiceReport(DocumentNo, false, false, false, 0);
 
-        // [THEN] Report title is 'Sales - Prepayment Invoice'
+        // [THEN] Report title is 'Prepayment Invoice'
         LibraryReportDataset.LoadDataSetFile;
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Cannot find first row.');
-        LibraryReportDataset.AssertCurrentRowValueEquals('DocumentCaptionCopyText', StrSubstNo(SalesPrepmtInvoiceTxt, ''));
+        LibraryReportDataset.AssertCurrentRowValueEquals('DocumentCaptionCopyText', SalesPrepmtInvoiceTxt);
     end;
 
     [Test]
@@ -2378,6 +2378,42 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.LoadDataSetFile;
         Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Cannot find first row.');
         LibraryReportDataset.AssertCurrentRowValueEquals('DocumentTitle_Lbl', TaxInvoiceTxt);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesInvoiceExcelRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckSalesInvoiceTitle()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Sales - Invoice]
+        // [SCENARIO 277125] REP 206 "Sales - Invoice" prints exactly one "Description" for line with "Type" = "Title".
+        Initialize;
+
+        // [GIVEN] Sales Invoice with two lines:
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        // [GIVEN] Line1: "Type" = "Title", "Description" = "TitleDescription"
+        CreateSalesLineWithTypeTitle(SalesLine, SalesHeader);
+        // [GIVEN] Line2: "Type" = "Item", "Description" = "ItemDescription"
+        LibrarySales.CreateSalesLine(
+          SalesLine2, SalesHeader, SalesLine2.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+        SalesLine2.Validate(Description, 'Item');
+        SalesLine2.Modify(true);
+        // [GIVEN] Sales Invoice is posted
+        PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Print the posted sales invoice to Excel file (REP 206 "Sales - Invoice")
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        RunSalesInvoiceReport(PostedDocNo, false, false, false, 0);
+
+        // [THEN] There is exactly one row with Description = "TitleDescription" in saved Excel file
+        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.SetRange('Description', SalesLine.Description);
+        Assert.AreEqual(1, LibraryReportValidation.CountRows, TitleDescriptionCountErr);
     end;
 
     [Test]
@@ -2971,6 +3007,152 @@ codeunit 134976 "ERM Sales Report"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('StdSalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StdSalesInvoiceCustomerCrossReferenceNo()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        DummySalesInvoiceLine: Record "Sales Invoice Line";
+        ItemCrossReferenceNo: Code[20];
+    begin
+        // [FEATURE] [Posted] [Invoice] [Item Cross Reference]
+        // [SCENARIO 345453] "Cross Reference No." is included in "Standard Sales - Invoice" Report
+        Initialize;
+
+        // [GIVEN] Item Cross Reference "ITC" for Customer "C" and Item "I"
+        ItemCrossReferenceNo := CreateCustomerItemCrossReferenceNo(Customer, Item);
+
+        // [GIVEN] Posted Sales Invoice for Customer "C" and Item "I"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+
+        // [WHEN] Run "Standard Sales - Invoice" Report
+        RunStandardSalesInvoiceReport(SalesInvoiceHeader."No.");
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "ITC" is displayed under tag <CrossReferenceNo_Line> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CrossReferenceNo_Line', ItemCrossReferenceNo);
+
+        // [THEN] Value "Cross-Reference No." is displayed under tag <CrossReferenceNo_Line_Lbl> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists(
+          'CrossReferenceNo_Line_Lbl', DummySalesInvoiceLine.FieldCaption("Cross-Reference No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('StdSalesCrMemoRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StdSalesCreditMemoCustomerCrossReferenceNo()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        DummySalesCrMemoLine: Record "Sales Cr.Memo Line";
+        ItemCrossReferenceNo: Code[20];
+    begin
+        // [FEATURE] [Posted] [Credit Memo] [Item Cross Reference]
+        // [SCENARIO 345453] "Cross Reference No." is included in "Standard Sales - Credit Memo" Report
+        Initialize;
+
+        // [GIVEN] Item Cross Reference "ITC" for Customer "C" and Item "I"
+        ItemCrossReferenceNo := CreateCustomerItemCrossReferenceNo(Customer, Item);
+
+        // [GIVEN] Posted Sales Credit Memo for Customer "C" and Item "I"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+
+        // [WHEN] Run "Standard Sales - Credit Memo" Report
+        Commit;
+        SalesCrMemoHeader.SetRecFilter;
+        REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "ITC" is displayed under tag <CrossReferenceNo_Line> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CrossReferenceNo_Line', ItemCrossReferenceNo);
+
+        // [THEN] Value "Cross-Reference No." is displayed under tag <CrossReferenceNo_Line_Lbl> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists(
+          'CrossReferenceNo_Line_Lbl', DummySalesCrMemoLine.FieldCaption("Cross-Reference No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesQuoteRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StdSalesQuoteCustomerCrossReferenceNo()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemCrossReferenceNo: Code[20];
+    begin
+        // [FEATURE] [Quote] [Item Cross Reference]
+        // [SCENARIO 345453] "Cross Reference No." is included in "Standard Sales - Quote" Report
+        Initialize;
+
+        // [GIVEN] Item Cross Reference "ITC" for Customer "C" and Item "I"
+        ItemCrossReferenceNo := CreateCustomerItemCrossReferenceNo(Customer, Item);
+
+        // [GIVEN] Sales Quote for Customer "C" and Item "I"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+
+        // [WHEN] Run report "Standard Sales - Quote".
+        Commit;
+        SalesHeader.SetRecFilter;
+        REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "ITC" is displayed under tag <CrossReferenceNo_Line> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CrossReferenceNo_Line', ItemCrossReferenceNo);
+
+        // [THEN] Value "Cross-Reference No." is displayed under tag <CrossReferenceNo_Line_Lbl> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CrossReferenceNo_Line_Lbl', SalesLine.FieldCaption("Cross-Reference No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('DraftSalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DraftSalesInvoiceCustomerCrossReferenceNo()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemCrossReferenceNo: Code[20];
+    begin
+        // [FEATURE] [Invoice] [Item Cross Reference]
+        // [SCENARIO 345453] "Cross Reference No." is included in "Standard Sales - Draft Invoice" Report
+        Initialize;
+
+        // [GIVEN] Item Cross Reference "ITC" for Customer "C" and Item "I"
+        ItemCrossReferenceNo := CreateCustomerItemCrossReferenceNo(Customer, Item);
+
+        // [GIVEN] Sales Invoice for Customer "C" and Item "I"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+
+        // [WHEN] Run report "Standard Sales - Draft Invoice".
+        Commit;
+        SalesHeader.SetRecFilter;
+        REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "ITC" is displayed under tag <CrossReferenceNo_Line> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CrossReferenceNo_Line', ItemCrossReferenceNo);
+
+        // [THEN] Value "Cross-Reference No." is displayed under tag <CrossReferenceNo_Line_Lbl> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CrossReferenceNo_Line_Lbl', SalesLine.FieldCaption("Cross-Reference No."));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Report");
@@ -3096,9 +3278,11 @@ codeunit 134976 "ERM Sales Report"
         BOMComponent: Record "BOM Component";
     begin
         LibraryAssembly.CreateItem(AssemblyItem, AssemblyItem."Costing Method"::FIFO, AssemblyItem."Replenishment System"::Purchase, '', '');
-        LibraryAssembly.CreateAssemblyListComponent(
-          BOMComponent.Type::Item, AssemblyItem."No.", ParentItemNo, '',
-          BOMComponent."Resource Usage Type"::Direct, LibraryRandom.RandDec(2, 4), true);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, ParentItemNo, BOMComponent.Type::Item,
+          AssemblyItem."No.", LibraryRandom.RandDec(2, 4), AssemblyItem."Base Unit of Measure");
+        BOMComponent.Validate(Description, AssemblyItem."No.");
+        BOMComponent.Modify(true);
         exit(AssemblyItem."No.");
     end;
 
@@ -3198,6 +3382,17 @@ codeunit 134976 "ERM Sales Report"
         end;
     end;
 
+    local procedure CreateCustomerItemCrossReferenceNo(var Customer: Record Customer; var Item: Record Item): Code[20]
+    var
+        ItemCrossReference: Record "Item Cross Reference";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemCrossReference(
+          ItemCrossReference, Item."No.", ItemCrossReference."Cross-Reference Type"::Customer, Customer."No.");
+        exit(ItemCrossReference."Cross-Reference No.");
+    end;
+
     local procedure CreateItemTranslation(ItemNo: Code[20]; LanguageCode: Code[10]): Text[50]
     var
         ItemTranslation: Record "Item Translation";
@@ -3235,10 +3430,15 @@ codeunit 134976 "ERM Sales Report"
     end;
 
     local procedure MockSalesOrderWithExternalDocumentNo(var SalesHeader: Record "Sales Header")
+    var
+        CustomerPostingGroup: Record "Customer Posting Group";
     begin
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+
         SalesHeader."No." := LibraryUtility.GenerateGUID;
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader."External Document No." := LibraryUtility.GenerateGUID;
+        SalesHeader."Customer Posting Group" := CustomerPostingGroup.Code;
         SalesHeader.Insert();
     end;
 
@@ -3332,6 +3532,15 @@ codeunit 134976 "ERM Sales Report"
         CreateSalesLineWithVAT(SalesHeader, SalesLine2, ItemNo, 79);
         ExpectedAmount := Round(SalesLine1.Amount * SalesLine1."Outstanding Quantity" / SalesLine1.Quantity) +
           Round(SalesLine2.Amount * SalesLine2."Outstanding Quantity" / SalesLine2.Quantity);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateSalesLineWithTypeTitle(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
+    begin
+        LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
+        SalesLine.Validate(Type, SalesLine.Type::Title);
+        SalesLine.Validate(Description, LibraryUtility.GenerateRandomText(LibraryRandom.RandIntInRange(5, 10)));
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateSalesInvoiceWithExternalDocNo(var SalesHeader: Record "Sales Header")
@@ -4220,16 +4429,16 @@ codeunit 134976 "ERM Sales Report"
     local procedure VerifyYourReferenceSalesCrMemo(YourReference: Text[35])
     begin
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(46, 10, YourReference);
+        LibraryReportValidation.VerifyCellValue(16, 14, YourReference);
     end;
 
     local procedure VerifyAmountsSalesInvoiceReport(ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)
     begin
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(88, 28, LibraryReportValidation.FormatDecimalValue(ExpectedAmount)); // Total Amount
+        LibraryReportValidation.VerifyCellValue(36, 24, LibraryReportValidation.FormatDecimalValue(ExpectedAmount)); // Total Amount
         LibraryReportValidation.VerifyCellValue(
-          89, 28, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT - ExpectedAmount)); // Total VAT
-        LibraryReportValidation.VerifyCellValue(91, 28, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT)); // Total Amount Incl. VAT
+          37, 24, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT - ExpectedAmount)); // Total VAT
+        LibraryReportValidation.VerifyCellValue(39, 24, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT)); // Total Amount Incl. VAT
     end;
 
     local procedure VerifyCustomerOrderSummarySalesAmount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -4257,13 +4466,13 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo + 1, 1,
           LibraryReportValidation.FormatDecimalValue(-SalesLine."Inv. Discount Amount"));
         // Total Exclude VAT
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo + 2, 1,
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo + 3, 1,
           LibraryReportValidation.FormatDecimalValue(SalesLine.Amount));
         // VAT Amount
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo + 3, 1,
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo + 4, 1,
           LibraryReportValidation.FormatDecimalValue(SalesLine."Amount Including VAT" - SalesLine.Amount));
         // Total Include VAT
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo + 5, 1,
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo + 6, 1,
           LibraryReportValidation.FormatDecimalValue(SalesLine."Amount Including VAT"));
     end;
 
@@ -4494,7 +4703,7 @@ codeunit 134976 "ERM Sales Report"
     begin
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.GetLastRow;
-        VerifySalesReportVATAmount(VATEntry."Document Type"::Invoice, DocumentNo, -1);
+        VerifySalesReportVATAmount(VATEntry."Document Type"::Invoice, DocumentNo, -1, VALVATAmountLCYTok);
     end;
 
     [ModalPageHandler]
@@ -4607,10 +4816,10 @@ codeunit 134976 "ERM Sales Report"
     begin
         with LibraryReportDataset do begin
             LoadDataSetFile;
-            MoveToRow(RowCount - 1);
+            GetLastRow;
         end;
 
-        VerifySalesReportVATAmount(VATEntry."Document Type"::"Credit Memo", DocumentNo, 1);
+        VerifySalesReportVATAmount(VATEntry."Document Type"::"Credit Memo", DocumentNo, 1, 'VALVATAmtLCY');
     end;
 
     local procedure VerifySalesQuoteVATAmountInLCY(DocumentNo: Code[20]; VATAmount: Decimal; VATBaseAmount: Decimal)
@@ -4620,7 +4829,7 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.AssertCurrentRowValueEquals(VALVATBaseLCYTok, VATBaseAmount);
     end;
 
-    local procedure VerifySalesReportVATAmount(DocumentType: Option; DocumentNo: Code[20]; Sign: Integer)
+    local procedure VerifySalesReportVATAmount(DocumentType: Option; DocumentNo: Code[20]; Sign: Integer; VALVATAmountNodeName: Text)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -4629,7 +4838,7 @@ codeunit 134976 "ERM Sales Report"
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
             FindLast;
-            LibraryReportDataset.AssertCurrentRowValueEquals(VALVATAmountLCYTok, Sign * Amount);
+            LibraryReportDataset.AssertCurrentRowValueEquals(VALVATAmountNodeName, Sign * Amount);
             LibraryReportDataset.AssertCurrentRowValueEquals(VALVATBaseLCYTok, Sign * Base);
         end;
     end;

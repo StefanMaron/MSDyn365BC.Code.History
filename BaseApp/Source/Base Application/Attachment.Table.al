@@ -207,9 +207,10 @@ table 5062 Attachment
             if not WordManagement.CanRunWordApp then
                 ProcessWebAttachment(WordCaption + '.' + "File Extension")
             else
-                if WordManagement.IsWordDocumentExtension("File Extension") then
-                    WordManagement.RunMergedDocument(SegLine, Rec, WordCaption, IsTemporary, IsVisible, Handler)
-                else begin
+                if WordManagement.IsWordDocumentExtension("File Extension") then begin
+                    OnRunAttachmentOnBeforeWordManagementRunMergedDocument(Rec, Handler);
+                    WordManagement.RunMergedDocument(SegLine, Rec, WordCaption, IsTemporary, IsVisible, Handler);
+                end else begin
                     FileName := ConstFilename;
                     ExportAttachmentToClientFile(FileName);
                     HyperLink(FileName);
@@ -756,6 +757,11 @@ table 5062 Attachment
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunAttachment(var SegLine: Record "Segment Line"; WordCaption: Text[260]; IsTemporary: Boolean; IsVisible: Boolean; Handler: Boolean; var iSHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunAttachmentOnBeforeWordManagementRunMergedDocument(var Attachment: Record Attachment; var Handler: Boolean)
     begin
     end;
 }

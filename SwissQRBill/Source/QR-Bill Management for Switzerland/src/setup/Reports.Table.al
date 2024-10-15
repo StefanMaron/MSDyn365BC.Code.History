@@ -69,19 +69,17 @@ table 11514 "Swiss QR-Bill Reports"
     begin
         ReportUsage := MapReportTypeToReportUsage();
 
-        with ReportSelections do begin
-            SetRange(Usage, ReportUsage);
-            SetRange("Report ID", Report::"Swiss QR-Bill Print");
-            Exists := FindFirst();
-            if not Exists and Enabled then begin
-                SetRange("Report ID");
-                NewRecord();
-                Validate(Usage, ReportUsage);
-                Validate("Report ID", Report::"Swiss QR-Bill Print");
-                Insert();
-            end;
-            if Exists and not Enabled then
-                Delete();
+        ReportSelections.SetRange(Usage, ReportUsage);
+        ReportSelections.SetRange("Report ID", Report::"Swiss QR-Bill Print");
+        Exists := ReportSelections.FindFirst();
+        if not Exists and Enabled then begin
+            ReportSelections.SetRange("Report ID");
+            ReportSelections.NewRecord();
+            ReportSelections.Validate(Usage, ReportUsage);
+            ReportSelections.Validate("Report ID", Report::"Swiss QR-Bill Print");
+            ReportSelections.Insert();
         end;
+        if Exists and not Enabled then
+            ReportSelections.Delete();
     end;
 }

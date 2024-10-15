@@ -7,32 +7,32 @@ codeunit 11519 "Swiss QR-Bill Billing Info"
         PaymentTermsTxt: Label '%1% discount for %2 days', Comment = '%1 - percent value (0..100), %2 - number of days';
         UnsupportedFormatMsg: Label 'Unsupported billing format.';
 
-    internal procedure CreateBillingInfoString(var BillingDetail: Record "Swiss QR-Bill Billing Detail"; FormatCode: Code[10]) Result: Text[140]
+    internal procedure CreateBillingInfoString(var SwissQRBillBillingDetail: Record "Swiss QR-Bill Billing Detail"; FormatCode: Code[10]) Result: Text[140]
     var
-        BillingDetail2: Record "Swiss QR-Bill Billing Detail" temporary;
+        TempSwissQRBillBillingDetail: Record "Swiss QR-Bill Billing Detail" temporary;
         AddText: Text;
     begin
         // compress by Tag Codes: "tag-codeX/value/tag-codeX/value2" to "tag-codeX/value1;value2"
-        BillingDetail.SetRange("Format Code", FormatCode);
-        with BillingDetail do
+        SwissQRBillBillingDetail.SetRange("Format Code", FormatCode);
+        with SwissQRBillBillingDetail do
             if FindSet() then
                 repeat
-                    BillingDetail2.SetRange("Tag Code", "Tag Code");
-                    if BillingDetail2.FindFirst() then begin
-                        BillingDetail2."Tag Value" += StrSubstNo(';%1', "Tag Value");
-                        BillingDetail2.Modify();
+                    TempSwissQRBillBillingDetail.SetRange("Tag Code", "Tag Code");
+                    if TempSwissQRBillBillingDetail.FindFirst() then begin
+                        TempSwissQRBillBillingDetail."Tag Value" += StrSubstNo(';%1', "Tag Value");
+                        TempSwissQRBillBillingDetail.Modify();
                     end else begin
-                        BillingDetail2.SetRange("Tag Code");
-                        if BillingDetail2.FindLast() then;
-                        BillingDetail2.AddBufferRecord(FormatCode, "Tag Code", "Tag Value");
+                        TempSwissQRBillBillingDetail.SetRange("Tag Code");
+                        if TempSwissQRBillBillingDetail.FindLast() then;
+                        TempSwissQRBillBillingDetail.AddBufferRecord(FormatCode, "Tag Code", "Tag Value");
                     end;
                 until Next() = 0;
 
         // print in a following format: formatcode/tagcode1/value1/tagcode2/value2
-        BillingDetail2.Reset();
-        with BillingDetail2 do
+        TempSwissQRBillBillingDetail.Reset();
+        with TempSwissQRBillBillingDetail do
             if FindSet() then begin
-                Result := FormatCode;
+                Result := CopyStr(StrSubstNo('//%1', FormatCode), 1, MaxStrLen(Result));
                 repeat
                     AddText := StrSubstNo('/%1/%2', "Tag Code", "Tag Value");
                     if StrLen(Result + AddText) < 140 then
@@ -41,14 +41,14 @@ codeunit 11519 "Swiss QR-Bill Billing Info"
             end;
     end;
 
-    internal procedure GetDocumentVATDetails(var SourceTempVATAmountLine: Record "VAT Amount Line") Result: Text
+    internal procedure GetDocumentVATDetails(var SourceVATAmountLine: Record "VAT Amount Line") Result: Text
     var
-        TargetTempVATAmountLine: Record "VAT Amount Line" temporary;
+        TempTargetVATAmountLine: Record "VAT Amount Line" temporary;
     begin
         // format P vat% on A amount as "P:A"
         // single should be printed only % "P" (but zero % goes as "0:A")
-        SumUpVATAmountLinesByVATPct(TargetTempVATAmountLine, SourceTempVATAmountLine);
-        with TargetTempVATAmountLine do
+        SumUpVATAmountLinesByVATPct(TempTargetVATAmountLine, SourceVATAmountLine);
+        with TempTargetVATAmountLine do
             if FindSet() then
                 if (Count() > 1) or ("VAT %" = 0) then
                     repeat
@@ -94,18 +94,18 @@ codeunit 11519 "Swiss QR-Bill Billing Info"
 
     internal procedure DrillDownBillingInfo(BillingInfoText: Text)
     var
-        BillingDetail: Record "Swiss QR-Bill Billing Detail" temporary;
-        BillingDetailsPage: Page "Swiss QR-Bill Billing Details";
+        TempSwissQRBillBillingDetail: Record "Swiss QR-Bill Billing Detail" temporary;
+        SwissQRBillBillingDetailsPage: Page "Swiss QR-Bill Billing Details";
     begin
         if BillingInfoText <> '' then
-            if ParseBillingInfo(BillingDetail, BillingInfoText) then begin
-                BillingDetailsPage.SetBuffer(BillingDetail);
-                BillingDetailsPage.RunModal();
+            if ParseBillingInfo(TempSwissQRBillBillingDetail, BillingInfoText) then begin
+                SwissQRBillBillingDetailsPage.SetBuffer(TempSwissQRBillBillingDetail);
+                SwissQRBillBillingDetailsPage.RunModal();
             end else
                 Message(UnsupportedFormatMsg);
     end;
 
-    internal procedure ParseBillingInfo(var BillingDetail: Record "Swiss QR-Bill Billing Detail"; BillingInfoText: Text): Boolean
+    internal procedure ParseBillingInfo(var SwissQRBillBillingDetail: Record "Swiss QR-Bill Billing Detail"; BillingInfoText: Text): Boolean
     var
         TextList: List of [Text];
         TagValue: Text;
@@ -116,6 +116,8 @@ codeunit 11519 "Swiss QR-Bill Billing Info"
     begin
         // source text = FormatCode/TagCode1/TagValue1/TagCode2/TagValue2
         if BillingInfoText <> '' then begin
+            if BillingInfoText.StartsWith('//') then
+                BillingInfoText := DelStr(BillingInfoText, 1, 2);
             SlashString := '*SLASH*';
             BillingInfoText := BillingInfoText.Replace('\\', '\');
             BillingInfoText := BillingInfoText.Replace('\/', SlashString);
@@ -131,58 +133,57 @@ codeunit 11519 "Swiss QR-Bill Billing Info"
                         TagCode := CopyStr(TextList.Get(1), 1, MaxStrLen(TagCode));
                         TagValue := TextList.Get(2);
                         if (TagCode <> '') and (TagValue <> '') then
-                            BillingDetail.AddBufferRecord(FormatCode, TagCode, TagValue);
+                            SwissQRBillBillingDetail.AddBufferRecord(FormatCode, TagCode, TagValue);
                         TextList.RemoveRange(1, 2);
                     end;
             end;
-            ParseDetailsDescriptions(BillingDetail, FormatCode);
+            ParseDetailsDescriptions(SwissQRBillBillingDetail, FormatCode);
         end;
-        exit(not BillingDetail.IsEmpty())
+        exit(not SwissQRBillBillingDetail.IsEmpty())
     end;
 
-    local procedure ParseDetailsDescriptions(var BillingDetail: Record "Swiss QR-Bill Billing Detail"; FormatCode: Code[10])
+    local procedure ParseDetailsDescriptions(var SwissQRBillBillingDetail: Record "Swiss QR-Bill Billing Detail"; FormatCode: Code[10])
     var
-        BillingDetail2: Record "Swiss QR-Bill Billing Detail" temporary;
+        TempSwissQRBillBillingDetail: Record "Swiss QR-Bill Billing Detail" temporary;
     begin
         // try parse Swico "S1" format details
         // split multi values (e.g. VAT Details "P1:A1;P2:A2") into separate detail buffer records
-        if FormatCode <> 'S1' then
-            exit;
 
         // copy source into buffer2 splitting multi-values
-        with BillingDetail do
+        with SwissQRBillBillingDetail do
             if FindSet(true) then
                 repeat
                     case "Tag Type" of
                         "Tag Type"::"Document Date":
-                            BillingDetail2.AddBufferRecord(FormatCode, "Tag Type", "Tag Value", ParseDate("Tag Value"));
+                            TempSwissQRBillBillingDetail.AddBufferRecord(FormatCode, "Tag Type", "Tag Value", ParseDate("Tag Value"));
                         "Tag Type"::"VAT Registration No.":
-                            BillingDetail2.AddBufferRecord(FormatCode, "Tag Type", "Tag Value", FormatVATRegNo("Tag Value"));
+                            TempSwissQRBillBillingDetail.AddBufferRecord(FormatCode, "Tag Type", "Tag Value", FormatVATRegNo("Tag Value"));
                         "Tag Type"::"VAT Date":
-                            BillingDetail2.AddBufferRecord(FormatCode, "Tag Type", "Tag Value", ParseDate("Tag Value"));
+                            TempSwissQRBillBillingDetail.AddBufferRecord(FormatCode, "Tag Type", "Tag Value", ParseDate("Tag Value"));
                         "Tag Type"::"VAT Purely On Import":
-                            BillingDetail2.AddBufferRecord(FormatCode, "Tag Type", "Tag Value", ParseAmount("Tag Value"));
+                            TempSwissQRBillBillingDetail.AddBufferRecord(FormatCode, "Tag Type", "Tag Value", ParseAmount("Tag Value"));
                         "Tag Type"::"VAT Details":
-                            ParseVATDetails(BillingDetail2, "Tag Value");
+                            ParseVATDetails(TempSwissQRBillBillingDetail, "Tag Value");
                         "Tag Type"::"Payment Terms":
-                            ParsePaymentTermsDetails(BillingDetail2, "Tag Value");
+                            ParsePaymentTermsDetails(TempSwissQRBillBillingDetail, "Tag Value");
+                        "Tag Type"::Unknown:
+                            TempSwissQRBillBillingDetail.AddBufferRecord(FormatCode, "Tag Code", "Tag Value");
                         else
-                            if "Tag Type" <> "Tag Type"::Unknown then
-                                BillingDetail2.AddBufferRecord(FormatCode, "Tag Type", "Tag Value", "Tag Value");
+                            TempSwissQRBillBillingDetail.AddBufferRecord(FormatCode, "Tag Type", "Tag Value", "Tag Value");
                     end;
                 until Next() = 0;
 
         // copy buffer2 back to source
-        BillingDetail.DeleteAll();
-        with BillingDetail2 do
+        SwissQRBillBillingDetail.DeleteAll();
+        with TempSwissQRBillBillingDetail do
             if FindSet(true) then
                 repeat
-                    BillingDetail := BillingDetail2;
-                    BillingDetail.Insert();
+                    SwissQRBillBillingDetail := TempSwissQRBillBillingDetail;
+                    SwissQRBillBillingDetail.Insert();
                 until Next() = 0;
     end;
 
-    local procedure ParseVATDetails(var BillingDetail: Record "Swiss QR-Bill Billing Detail"; SourceText: Text)
+    local procedure ParseVATDetails(var SwissQRBillBillingDetail: Record "Swiss QR-Bill Billing Detail"; SourceText: Text)
     var
         PairsTextList: List of [Text];
         DetailsTextList: List of [Text];
@@ -197,13 +198,13 @@ codeunit 11519 "Swiss QR-Bill Billing Info"
                 case DetailsTextList.Count() of
                     1:
                         if Evaluate(Percent, DetailsTextList.Get(1), 9) then
-                            BillingDetail.AddBufferRecord(
-                                'S1', BillingDetail."Tag Type"::"VAT Details",
+                            SwissQRBillBillingDetail.AddBufferRecord(
+                                'S1', SwissQRBillBillingDetail."Tag Type"::"VAT Details",
                                 PairsTextList.Get(1), StrSubstNo(VATDetailsTotalTxt, Percent));
                     2:
                         if Evaluate(Percent, DetailsTextList.Get(1), 9) and Evaluate(Amount, DetailsTextList.Get(2)) then
-                            BillingDetail.AddBufferRecord(
-                                'S1', BillingDetail."Tag Type"::"VAT Details",
+                            SwissQRBillBillingDetail.AddBufferRecord(
+                                'S1', SwissQRBillBillingDetail."Tag Type"::"VAT Details",
                                 PairsTextList.Get(1), StrSubstNo(VATDetailsTxt, Percent, Amount));
                 end;
                 PairsTextList.RemoveAt(1);
@@ -211,7 +212,7 @@ codeunit 11519 "Swiss QR-Bill Billing Info"
         end;
     end;
 
-    local procedure ParsePaymentTermsDetails(var BillingDetail: Record "Swiss QR-Bill Billing Detail"; SourceText: Text)
+    local procedure ParsePaymentTermsDetails(var SwissQRBillBillingDetail: Record "Swiss QR-Bill Billing Detail"; SourceText: Text)
     var
         PairsTextList: List of [Text];
         DetailsTextList: List of [Text];
@@ -225,8 +226,8 @@ codeunit 11519 "Swiss QR-Bill Billing Info"
                 DetailsTextList := PairsTextList.Get(1).Split(':');
                 if DetailsTextList.Count() = 2 then
                     if Evaluate(Percent, DetailsTextList.Get(1), 9) and Evaluate(Days, DetailsTextList.Get(2)) then
-                        BillingDetail.AddBufferRecord(
-                            'S1', BillingDetail."Tag Type"::"Payment Terms",
+                        SwissQRBillBillingDetail.AddBufferRecord(
+                            'S1', SwissQRBillBillingDetail."Tag Type"::"Payment Terms",
                             PairsTextList.Get(1), StrSubstNo(PaymentTermsTxt, Percent, Days));
                 PairsTextList.RemoveAt(1);
             end;

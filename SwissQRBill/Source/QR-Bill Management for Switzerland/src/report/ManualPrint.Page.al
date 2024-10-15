@@ -90,7 +90,6 @@ page 11511 "Swiss QR-Bill Manual Print"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the payment reference number.';
-                    Editable = false;
                 }
             }
             group("Creditor Information")
@@ -221,9 +220,9 @@ page 11511 "Swiss QR-Bill Manual Print"
 
                     trigger OnDrillDown()
                     var
-                        BillingInfo: Codeunit "Swiss QR-Bill Billing Info";
+                        SwissQRBillBillingInfo: Codeunit "Swiss QR-Bill Billing Info";
                     begin
-                        BillingInfo.DrillDownBillingInfo("Billing Information");
+                        SwissQRBillBillingInfo.DrillDownBillingInfo("Billing Information");
                     end;
                 }
                 group(AltProc1)
@@ -298,12 +297,12 @@ page 11511 "Swiss QR-Bill Manual Print"
 
                 trigger OnAction()
                 var
-                    SelectDocReport: Page "Swiss QR-Bill Print Select Doc";
+                    SwissQRBillPrintSelectDoc: Page "Swiss QR-Bill Print Select Doc";
                 begin
-                    SelectDocReport.LookupMode(true);
-                    if SelectDocReport.RunModal() = Action::LookupOK then
-                        if SelectDocReport.GetSelectedLedgerEntry() <> 0 then
-                            LoadFromCustLedgerEntry(SelectDocReport.GetSelectedLedgerEntry());
+                    SwissQRBillPrintSelectDoc.LookupMode(true);
+                    if SwissQRBillPrintSelectDoc.RunModal() = Action::LookupOK then
+                        if SwissQRBillPrintSelectDoc.GetSelectedLedgerEntry() <> 0 then
+                            LoadFromCustLedgerEntry(SwissQRBillPrintSelectDoc.GetSelectedLedgerEntry());
                 end;
             }
             action(EditPrinted)
@@ -315,7 +314,7 @@ page 11511 "Swiss QR-Bill Manual Print"
 
                 trigger OnAction()
                 begin
-                    if Confirm('You are about to generate a new reference number for the document. New number will be automatically assigned during printing. This can lead to a wrong payment reconciliation. Do you want to continue?') then
+                    if Confirm(EnableEditQst) then
                         EnableEditingOfAlreadyPrinted();
                 end;
             }
@@ -329,8 +328,6 @@ page 11511 "Swiss QR-Bill Manual Print"
                 ToolTip = 'Prints the QR-bill.';
 
                 trigger OnAction()
-                var
-                    SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
                 begin
                     SwissQRBillMgt.PrintFromBuffer(Rec);
                     Validate("IBAN Type", "IBAN Type");
@@ -342,15 +339,16 @@ page 11511 "Swiss QR-Bill Manual Print"
 
     var
         UltimateDebitorCustomer: Record Customer;
+        SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
         SourceDocumentText: Text;
         CreditorIBANValue: Text;
         CreditorQRIBANValue: Text;
         AlreadyPrintedNotifyLbl: Label 'The selected source doument is already printed and has an assigned reference number. Only additinal information can be edited. Use Edit Printed action to edit and print the document with a new reference number.';
+        EnableEditQst: Label 'You are about to generate a new reference number for the document. New number will be automatically assigned during printing. This can lead to a wrong payment reconciliation. Do you want to continue?';
 
     trigger OnOpenPage()
     var
         CompanyInformation: Record "Company Information";
-        SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
     begin
         InitBuffer('');
         CompanyInformation.Get();

@@ -231,7 +231,7 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
 
     procedure Update(AmountType: enum "Price Amount Type")
     begin
-        if not IsDiscountAllowed() then
+        if not DiscountIsAllowed then
             JobPlanningLine."Line Discount %" := 0;
     end;
 }

@@ -63,7 +63,9 @@ codeunit 136602 "ERM RS Create Journal Lines"
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
 
         // 2. Exercise: Run Report Create G/L Acc. Journal Lines with Direct Posting and Account Type as Posting of G/L Account.
-        LibraryERM.SetGLAccountDirectPostingFilter(GLAccount);
+        GLAccount.SetRange("Direct Posting", true);
+        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
+        GLAccount.SetFilter("Currency Code", '%1', '');
         RunCreateGLAccountJournalLines(
           GLAccount,
           GenJournalBatch,

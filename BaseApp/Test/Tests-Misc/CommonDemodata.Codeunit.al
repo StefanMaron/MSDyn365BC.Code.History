@@ -76,26 +76,6 @@ codeunit 138500 "Common Demodata"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VATPostingSetupCount()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        // [SCENARIO] There are 12 VAT posting setup entries: 2 - "Reverse Charge VAT", none - "Full VAT" and 'Sales Tax'
-        with VATPostingSetup do begin
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
-            Assert.RecordCount(VATPostingSetup, 2);
-
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Full VAT", "VAT Calculation Type"::"Sales Tax");
-            Assert.RecordCount(VATPostingSetup, 0);
-
-            Reset;
-            SetRange("EU Service", true);
-            Assert.RecordCount(VATPostingSetup, 1);
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure EmployeeSetup()
     var
         HumanResourcesSetup: Record "Human Resources Setup";

@@ -1647,7 +1647,14 @@ table 1003 "Job Planning Line"
     end;
 
     local procedure HandleCostFactor()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHandleCostFactor(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Cost Factor" <> 0) and (("Unit Cost" <> xRec."Unit Cost") or ("Cost Factor" <> xRec."Cost Factor")) then
             "Unit Price" := Round("Unit Cost" * "Cost Factor", UnitAmountRoundingPrecisionFCY)
         else
@@ -1849,8 +1856,14 @@ table 1003 "Job Planning Line"
     local procedure ControlUsageLink()
     var
         JobUsageLink: Record "Job Usage Link";
+        IsHandled: Boolean;
     begin
         GetJob;
+
+        IsHandled := false;
+        OnControlUsageLinkOnAfterGetJob(Rec, Job, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
 
         if Job."Apply Usage Link" then begin
             if "Schedule Line" then
@@ -2230,12 +2243,22 @@ table 1003 "Job Planning Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandleCostFactor(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRetrieveCostPrice(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var ShouldRetrieveCostPrice: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAllAmounts(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnControlUsageLinkOnAfterGetJob(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job; CallingFieldNo: Integer; var IsHandling: Boolean)
     begin
     end;
 }

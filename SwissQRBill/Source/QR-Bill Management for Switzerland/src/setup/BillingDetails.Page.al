@@ -43,14 +43,14 @@ page 11518 "Swiss QR-Bill Billing Details"
         }
     }
 
-    internal procedure SetBuffer(var SourceBillingDetail: Record "Swiss QR-Bill Billing Detail")
+    internal procedure SetBuffer(var SourceSwissQRBillBillingDetail: Record "Swiss QR-Bill Billing Detail")
     begin
         DeleteAll();
-        if SourceBillingDetail.FindSet() then
+        if SourceSwissQRBillBillingDetail.FindSet() then
             repeat
-                Rec := SourceBillingDetail;
+                Rec := SourceSwissQRBillBillingDetail;
                 Insert();
-            until SourceBillingDetail.Next() = 0;
+            until SourceSwissQRBillBillingDetail.Next() = 0;
         if FindFirst() then;
     end;
 }

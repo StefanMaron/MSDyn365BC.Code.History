@@ -144,7 +144,7 @@ page 475 "VAT Statement Preview Line"
 
     trigger OnAfterGetRecord()
     begin
-        VATStatementGermany.CalcLineTotal(Rec, TotalAmount, TotalEmpty, TotalBase, TotalUnrealizedAmount, TotalUnrealizedBase, 0);
+        CalcColumnValue(Rec, TotalAmount, TotalEmpty, TotalBase, TotalUnrealizedAmount, TotalUnrealizedBase, 0);
         if "Print with" = "Print with"::"Opposite Sign" then begin
             TotalEmpty := -TotalEmpty;
             TotalBase := -TotalBase;
@@ -167,6 +167,18 @@ page 475 "VAT Statement Preview Line"
         TotalBase: Decimal;
         TotalUnrealizedAmount: Decimal;
         TotalUnrealizedBase: Decimal;
+
+    local procedure CalcColumnValue(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalEmpty: Decimal; var TotalBase: Decimal; var TotalUnrealizedAmount: Decimal; var TotalUnrealizedBase: Decimal; Level: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcColumnValue(VATStmtLine2, TotalAmount, TotalEmpty, TotalBase, TotalUnrealizedAmount, TotalUnrealizedBase, Level, IsHandled);
+        if IsHandled then
+            exit;
+
+        VATStatementGermany.CalcLineTotal(VATStmtLine2, TotalAmount, TotalEmpty, TotalBase, TotalUnrealizedAmount, TotalUnrealizedBase, Level);
+    end;
 
     procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Option Open,Closed,"Open and Closed"; NewPeriodSelection: Option "Before and Within Period","Within Period"; NewUseAmtsInAddCurr: Boolean)
     begin
@@ -227,6 +239,11 @@ page 475 "VAT Statement Preview Line"
           Type::Description:
                 Error(Text000, FieldCaption(Type), Type);
         end;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCalcColumnValue(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalEmpty: Decimal; var TotalBase: Decimal; var TotalUnrealizedAmount: Decimal; var TotalUnrealizedBase: Decimal; Level: Integer; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(true, false)]

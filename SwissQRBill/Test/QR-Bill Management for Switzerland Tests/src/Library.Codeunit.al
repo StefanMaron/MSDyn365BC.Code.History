@@ -9,31 +9,32 @@ codeunit 148090 "Swiss QR-Bill Test Library"
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
-        Mgt: Codeunit "Swiss QR-Bill Mgt.";
+        SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
 
     internal procedure CreateQRLayout(IBANType: Enum "Swiss QR-Bill IBAN Type"; ReferenceType: Enum "Swiss QR-Bill Payment Reference Type"; UnstrMsg: Text; BillInfo: Code[20]): Code[20]
     begin
-        exit(CreateQRLayoutFull(IBANType, ReferenceType, UnstrMsg, BillInfo, '', '', '', ''))
+        exit(CreateQRLayoutFull(IBANType, ReferenceType, UnstrMsg, BillInfo, '', '', '', ''));
     end;
 
     internal procedure CreateQRLayoutFull(IBANType: Enum "Swiss QR-Bill IBAN Type"; ReferenceType: Enum "Swiss QR-Bill Payment Reference Type"; UnstrMsg: Text; BillInfo: Code[20]; AltName1: Text; AltValue1: Text; AltName2: Text; AltValue2: Text): Code[20]
     var
-        QRLayout: Record "Swiss QR-Bill Layout";
+        SwissQRBillLayout: Record "Swiss QR-Bill Layout";
     begin
-        with QRLayout do begin
+        with SwissQRBillLayout do begin
             Code := LibraryUtility.GenerateGUID();
             Validate("IBAN Type", IBANType);
             Validate("Payment Reference Type", ReferenceType);
-            Validate("Unstr. Message", UnstrMsg);
+            Validate("Unstr. Message", CopyStr(UnstrMsg, 1, MaxStrLen("Unstr. Message")));
             Validate("Billing Information", CopyStr(BillInfo, 1, MaxStrLen("Billing Information")));
             Validate("Alt. Procedure Name 1", CopyStr(AltName1, 1, MaxStrLen("Alt. Procedure Name 1")));
             Validate("Alt. Procedure Value 1", CopyStr(AltValue1, 1, MaxStrLen("Alt. Procedure Value 1")));
             Validate("Alt. Procedure Name 2", CopyStr(AltName2, 1, MaxStrLen("Alt. Procedure Name 2")));
             Validate("Alt. Procedure Value 2", CopyStr(AltValue2, 1, MaxStrLen("Alt. Procedure Value 2")));
             Insert();
-            exit(Code)
+            exit(Code);
         end;
     end;
 
@@ -44,9 +45,9 @@ codeunit 148090 "Swiss QR-Bill Test Library"
 
     internal procedure CreateBillingInfo(DocNo: Boolean; DocDate: Boolean; VATNo: Boolean; VATDate: Boolean; VATDetails: Boolean; PmtTerms: Boolean): Code[20]
     var
-        BillingInfo: Record "Swiss QR-Bill Billing Info";
+        SwissQRBillBillingInfo: Record "Swiss QR-Bill Billing Info";
     begin
-        with BillingInfo do begin
+        with SwissQRBillBillingInfo do begin
             Code := LibraryUtility.GenerateGUID();
             "Document No." := DocNo;
             "Document Date" := DocDate;
@@ -55,7 +56,7 @@ codeunit 148090 "Swiss QR-Bill Test Library"
             "VAT Details" := VATDetails;
             "Payment Terms" := PmtTerms;
             Insert();
-            exit(Code)
+            exit(Code);
         end;
     end;
 
@@ -118,13 +119,45 @@ codeunit 148090 "Swiss QR-Bill Test Library"
     begin
         with Customer do begin
             Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(VATBusPostingGroup));
-            NAme := LibraryUtility.GenerateGUID();
+            Name := LibraryUtility.GenerateGUID();
             Address := LibraryUtility.GenerateGUID();
             "Address 2" := LibraryUtility.GenerateGUID();
             City := LibraryUtility.GenerateGUID();
             "Post Code" := LibraryUtility.GenerateGUID();
             Modify();
+            exit("No.");
         end;
+    end;
+
+    internal procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; CurrencyCode: Code[20]; DirectUnitCost: Decimal)
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseLine: Record "Purchase Line";
+        VendorNo: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        FindDefaultVATPostingSetup(VATPostingSetup);
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Modify();
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify();
+    end;
+
+    internal procedure CreateVendorWithBankAccount(var VendorNo: Code[20]; var VendorBankaccountNo: Code[20]; IBAN: Code[50])
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
+        VendorBankAccount.IBAN := IBAN;
+        VendorBankAccount.Modify();
+        VendorBankaccountNo := VendorBankAccount.Code;
     end;
 
     internal procedure CreatePaymentTerms(Discount: Decimal; Days: Integer): Code[10]
@@ -160,13 +193,14 @@ codeunit 148090 "Swiss QR-Bill Test Library"
         LibraryERM.CreateCurrency(Currency);
         Currency."ISO Code" := ISOCode;
         Currency.Modify();
+        exit(Currency.Code);
     end;
 
     internal procedure UpdateDefaultLayout(NewLayout: Code[20])
     var
-        QRBillSetup: Record "Swiss QR-Bill Setup";
+        SwissQRBillSetup: Record "Swiss QR-Bill Setup";
     begin
-        with QRBillSetup do begin
+        with SwissQRBillSetup do begin
             Get();
             Validate("Default Layout", NewLayout);
             Modify();
@@ -200,6 +234,37 @@ codeunit 148090 "Swiss QR-Bill Test Library"
             SetFilter("VAT Prod. Posting Group", '<>%1', '');
             FindFirst();
         end;
+    end;
+
+    internal procedure ClearJournalRecords()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        SwissQRBillSetup: Record "Swiss QR-Bill Setup";
+    begin
+        SwissQRBillSetup.Get();
+        GenJournalLine.SetRange("Journal Template Name", SwissQRBillSetup."Journal Template");
+        GenJournalLine.SetRange("Journal Batch Name", SwissQRBillSetup."Journal Batch");
+        GenJournalLine.DeleteAll();
+    end;
+
+    internal procedure ClearVendor(VendorNo: Code[20])
+    var
+        Vendor: Record Vendor;
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        VendorBankAccount.SetRange("Vendor No.", VendorNo);
+        VendorBankAccount.DeleteAll();
+        if Vendor.Get(VendorNo) then
+            Vendor.Delete();
+    end;
+
+    internal procedure CreateQRCodeText(IBAN: Code[50]; Amount: Decimal; Currency: Code[10]; PaymentReference: Code[50]; UnstrMsg: Text; BillInfo: Text): Text
+    begin
+        exit(
+            ReplaceBackSlashWithLineBreak(
+                StrSubstNo(
+                    'SPC\0200\1\%1\S\CR Name\\\\\\\\\\\\\%2\%3\\\\\\\\QRR\%4\%5\EPD\%6',
+                    IBAN, FormatAmount(Amount), Currency, PaymentReference, UnstrMsg, BillInfo)));
     end;
 
     internal procedure ReplaceBackSlashWithLineBreak(Message: Text): Text
@@ -251,17 +316,17 @@ codeunit 148090 "Swiss QR-Bill Test Library"
 
     internal procedure GetNextReferenceNo(ReferenceType: Enum "Swiss QR-Bill Payment Reference Type"; UpdateLastUsed: Boolean): Code[50]
     begin
-        exit(Mgt.GetNextReferenceNo(ReferenceType, UpdateLastUsed));
+        exit(SwissQRBillMgt.GetNextReferenceNo(ReferenceType, UpdateLastUsed));
     end;
 
     internal procedure GetBillInfoString(QRLayoutCode: Code[20]; CustLedgEntryNo: Integer): Text
     var
-        QRLayout: Record "Swiss QR-Bill Layout";
-        BillingInfo: Record "Swiss QR-Bill Billing Info";
+        SwissQRBillLayout: Record "Swiss QR-Bill Layout";
+        SwissQRBillBillingInfo: Record "Swiss QR-Bill Billing Info";
     begin
-        QRLayout.Get(QRLayoutCode);
-        BillingInfo.Get(QRLayout."Billing Information");
-        exit(BillingInfo.GetBillingInformation(CustLedgEntryNo));
+        SwissQRBillLayout.Get(QRLayoutCode);
+        SwissQRBillBillingInfo.Get(SwissQRBillLayout."Billing Information");
+        exit(SwissQRBillBillingInfo.GetBillingInformation(CustLedgEntryNo));
     end;
 
     internal procedure GetRandomIBAN(): Code[50]
@@ -284,14 +349,9 @@ codeunit 148090 "Swiss QR-Bill Test Library"
         exit('CH5800791123000889012');
     end;
 
-    internal procedure FormatBillingInfoString(BillingInfo: Text): Text
-    begin
-        exit(StrSubstNo('//%1', BillingInfo))
-    end;
-
     internal procedure GetQRLayoutForThePostedSalesInvoice(SalesInvoiceHeader: Record "Sales Invoice Header"): Code[20]
     var
-        QRBillSetup: Record "Swiss QR-Bill Setup";
+        SwissQRBillSetup: Record "Swiss QR-Bill Setup";
         PaymentMethod: Record "Payment Method";
     begin
         if SalesInvoiceHeader."Payment Method Code" <> '' then
@@ -299,13 +359,13 @@ codeunit 148090 "Swiss QR-Bill Test Library"
                 if PaymentMethod."Swiss QR-Bill Layout" <> '' then
                     exit(PaymentMethod."Swiss QR-Bill Layout");
 
-        QRBillSetup.Get();
-        exit(QRBillSetup."Default Layout");
+        SwissQRBillSetup.Get();
+        exit(SwissQRBillSetup."Default Layout");
     end;
 
     internal procedure GetQRLayoutForThePostedServiceInvoice(ServiceInvoiceHeader: Record "Service Invoice Header"): Code[20]
     var
-        QRBillSetup: Record "Swiss QR-Bill Setup";
+        SwissQRBillSetup: Record "Swiss QR-Bill Setup";
         PaymentMethod: Record "Payment Method";
     begin
         if ServiceInvoiceHeader."Payment Method Code" <> '' then
@@ -313,8 +373,8 @@ codeunit 148090 "Swiss QR-Bill Test Library"
                 if PaymentMethod."Swiss QR-Bill Layout" <> '' then
                     exit(PaymentMethod."Swiss QR-Bill Layout");
 
-        QRBillSetup.Get();
-        exit(QRBillSetup."Default Layout");
+        SwissQRBillSetup.Get();
+        exit(SwissQRBillSetup."Default Layout");
     end;
 
     internal procedure FormatReferenceNo(ReferenceNo: Code[50]): Code[50]
@@ -323,8 +383,8 @@ codeunit 148090 "Swiss QR-Bill Test Library"
     begin
         ReferenceNo := DelChr(ReferenceNo);
         if StrLen(ReferenceNo) = 27 then
-            exit(Mgt.FormatPaymentReference(ReferenceType::"QR Reference", ReferenceNo));
-        exit(Mgt.FormatPaymentReference(ReferenceType::"Creditor Reference (ISO 11649)", ReferenceNo));
+            exit(SwissQRBillMgt.FormatPaymentReference(ReferenceType::"QR Reference", ReferenceNo));
+        exit(SwissQRBillMgt.FormatPaymentReference(ReferenceType::"Creditor Reference (ISO 11649)", ReferenceNo));
     end;
 
     internal procedure FormatIBAN(IBAN: Code[50]): Code[50]

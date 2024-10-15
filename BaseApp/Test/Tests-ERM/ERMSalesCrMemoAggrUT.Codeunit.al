@@ -1460,9 +1460,11 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         TempField.FindFirst;
 
         repeat
-            SourceTableFieldRef := RecRef.Field(TempField."No.");
-            TargetTableFieldRef := TargetTableRecRef.Field(TempField."No.");
-            ValidateFieldDefinitionsMatch(SourceTableFieldRef, TargetTableFieldRef);
+            if not SkipValidation(SourceTableID, TempField."No.") then begin
+                SourceTableFieldRef := RecRef.Field(TempField."No.");
+                TargetTableFieldRef := TargetTableRecRef.Field(TempField."No.");
+                ValidateFieldDefinitionsMatch(SourceTableFieldRef, TargetTableFieldRef);
+            end;
         until TempField.Next = 0;
     end;
 
@@ -1810,6 +1812,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
           DummySalesInvoiceLineAggregate.FieldNo("Quantity Shipped"), DATABASE::"Sales Invoice Line Aggregate", TempField);
         AddFieldToBuffer(
           DummySalesInvoiceLineAggregate.FieldNo("Line Discount Calculation"), DATABASE::"Sales Invoice Line Aggregate", TempField);
+        AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo("Variant Code"), DATABASE::"Sales Invoice Line Aggregate", TempField);
     end;
 
     local procedure GetCrMemoAggregateSpecificFields(var TempField: Record "Field" temporary)
@@ -1863,6 +1866,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         AddFieldToBuffer(
           DummySalesInvoiceLineAggregate.FieldNo("Line Discount Value"), DATABASE::"Sales Invoice Line Aggregate", TempField);
         AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo(Id), DATABASE::"Sales Invoice Line Aggregate", TempField);
+        AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo("Variant Id"), DATABASE::"Sales Invoice Line Aggregate", TempField);
     end;
 
     local procedure AddFieldToBuffer(FieldNo: Integer; TableID: Integer; var TempField: Record "Field" temporary)
@@ -1918,6 +1922,18 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         TempCommonField.SetFilter(
           "No.", '<>%1&<>%2&<>%3&<>%4&<>%5', DummySalesLine.FieldNo("Currency Code"), DummySalesLine.FieldNo("Qty. to Invoice"),
           DummySalesLine.FieldNo("Qty. to Ship"), DummySalesLine.FieldNo("Quantity Shipped"), DummySalesLine.FieldNo("Quantity Invoiced"));
+    end;
+
+    local procedure SkipValidation(TableNumber: Integer; FieldNumber: Integer): Boolean
+    var
+        SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate";
+    begin
+        if (TableNumber in [DATABASE::"Sales Cr.Memo Line", DATABASE::"Sales Line", DATABASE::"Sales Invoice Line Aggregate"]) and
+           (FieldNumber in [SalesInvoiceLineAggregate.FieldNo(Type)])
+        then
+            exit(true);
+
+        exit(false);
     end;
 }
 

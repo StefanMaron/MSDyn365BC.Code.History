@@ -9,13 +9,12 @@ codeunit 148092 "Swiss QR-Bill Test Print"
 
     var
         Assert: Codeunit Assert;
-        Library: Codeunit "Swiss QR-Bill Test Library";
+        SwissQRBillTestLibrary: Codeunit "Swiss QR-Bill Test Library";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
-        Mgt: Codeunit "Swiss QR-Bill Mgt.";
-        ReportUsage: Enum "Report Selection Usage";
+        SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
         ReportType: Enum "Swiss QR-Bill Reports";
         IBANType: Enum "Swiss QR-Bill IBAN Type";
         ReferenceType: Enum "Swiss QR-Bill Payment Reference Type";
@@ -27,11 +26,11 @@ codeunit 148092 "Swiss QR-Bill Test Print"
     [Scope('OnPrem')]
     procedure ReportsPageUIVisibility()
     var
-        ReportsPage: TestPage "Swiss QR-Bill Reports";
+        SwissQRBillReports: TestPage "Swiss QR-Bill Reports";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 259169] Page "Swiss QR-Bill Reports" fields visibility and editable
-        with ReportsPage do begin
+        with SwissQRBillReports do begin
             OpenEdit();
             Assert.IsTrue("Report Type".Visible(), 'Type should be visible');
             Assert.IsTrue(Enabled.Visible(), 'Enabled should be visible');
@@ -106,25 +105,25 @@ codeunit 148092 "Swiss QR-Bill Test Print"
     [Scope('OnPrem')]
     procedure ReportsEnabling()
     var
-        Reports: Record "Swiss QR-Bill Reports" temporary;
+        TempSwissQRBillReports: Record "Swiss QR-Bill Reports" temporary;
     begin
         // [SCENARIO 259169] Record "Swiss QR-Bill Reports" enabling reports
-        with Reports do begin
+        with TempSwissQRBillReports do begin
             InitBuffer();
-            Assert.RecordCount(Reports, 2);
+            Assert.RecordCount(TempSwissQRBillReports, 2);
 
             ModifyAll(Enabled, false);
             VerifyAllReportEnabling(false, false, false, false);
 
             FindFirst();
-            VerifyReportEnabling(Reports, 1, ReportType::"Posted Sales Invoice", true, true, false, false, false);
-            VerifyReportEnabling(Reports, 2, ReportType::"Posted Service Invoice", true, true, true, false, false);
+            VerifyReportEnabling(TempSwissQRBillReports, 1, ReportType::"Posted Sales Invoice", true, true, false, false, false);
+            VerifyReportEnabling(TempSwissQRBillReports, 2, ReportType::"Posted Service Invoice", true, true, true, false, false);
             // VerifyReportEnabling(Reports, 3, ReportType::"Issued Reminder", true, true, true, true, false);
             // VerifyReportEnabling(Reports, 4, ReportType::"Issued Finance Charge Memo", true, true, true, true, true);
 
             FindFirst();
-            VerifyReportEnabling(Reports, 1, ReportType::"Posted Sales Invoice", false, false, true, false, false);
-            VerifyReportEnabling(Reports, 0, ReportType::"Posted Service Invoice", false, false, false, false, false);
+            VerifyReportEnabling(TempSwissQRBillReports, 1, ReportType::"Posted Sales Invoice", false, false, true, false, false);
+            VerifyReportEnabling(TempSwissQRBillReports, 0, ReportType::"Posted Service Invoice", false, false, false, false, false);
             // VerifyReportEnabling(Reports, 1, ReportType::"Issued Reminder", false, false, false, false, true);
             // VerifyReportEnabling(Reports, 0, ReportType::"Issued Finance Charge Memo", false, false, false, false, false);
         end;
@@ -139,7 +138,7 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         // [FEATURE] [UI] [Print]
         // [SCENARIO 259169] Print posted sales invoice in case of empty report selections
         Initialize();
-        Library.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
+        SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
 
         asserterror PrintPostedSalesInvoice(SalesInvoiceHeader);
 
@@ -162,23 +161,25 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         // [SCENARIO 259169] Print posted sales invoice in case of CHF, default QRIBAN type, blanked pmt. method
         Initialize();
         EnableReport(ReportType::"Posted Sales Invoice", true);
-        QRLayout := Library.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', Library.CreateFullBillingInfo());
-        Library.UpdateDefaultLayout(QRLayout);
+        QRLayout :=
+            SwissQRBillTestLibrary.CreateQRLayout(
+                IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', SwissQRBillTestLibrary.CreateFullBillingInfo());
+        SwissQRBillTestLibrary.UpdateDefaultLayout(QRLayout);
 
-        Library.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, Library.CreatePaymentTerms(1, 2), '');
+        SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, SwissQRBillTestLibrary.CreatePaymentTerms(1, 2), '');
         Customer.Get(SalesInvoiceHeader."Bill-to Customer No.");
-        PaymentReference := Library.GetNextReferenceNo(ReferenceType::"QR Reference", false);
+        PaymentReference := SwissQRBillTestLibrary.GetNextReferenceNo(ReferenceType::"QR Reference", false);
 
         PrintPostedSalesInvoice(SalesInvoiceHeader);
 
         CustLedgerEntry.Get(SalesInvoiceHeader."Cust. Ledger Entry No.");
         Assert.AreEqual(PaymentReference, CustLedgerEntry."Payment Reference", 'Payment Reference');
         Assert.AreEqual(PaymentReference, SalesInvoiceHeader."Payment Reference", 'Payment Reference');
-        Assert.AreEqual(QRLayout, Library.GetQRLayoutForThePostedSalesInvoice(SalesInvoiceHeader), '');
-        BilliingInfoString := Library.GetBillInfoString(QRLayout, SalesInvoiceHeader."Cust. Ledger Entry No.");
-        BilliingInfoString := Library.FormatBillingInfoString(BilliingInfoString);
+        Assert.AreEqual(QRLayout, SwissQRBillTestLibrary.GetQRLayoutForThePostedSalesInvoice(SalesInvoiceHeader), '');
+        BilliingInfoString := SwissQRBillTestLibrary.GetBillInfoString(QRLayout, SalesInvoiceHeader."Cust. Ledger Entry No.");
 
-        VerifyReportDataset('CHF', 110, Library.FormatReferenceNo(SalesInvoiceHeader."Payment Reference"), BilliingInfoString);
+        VerifyReportDataset(
+            'CHF', 110, SwissQRBillTestLibrary.FormatReferenceNo(SalesInvoiceHeader."Payment Reference"), BilliingInfoString);
         VerifyReportDatasetCreditorInfo(GetReportCompanyInfo(IBANType::"QR-IBAN"));
         VerifyReportDatasetDebitorInfo(ReportFormatCustomerPartyInfo(Customer));
         VerifyReportDatasetAltProc('', '', '', '');
@@ -201,29 +202,28 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         // [SCENARIO 259169] Print posted sales invoice in case of CHF, default QRIBAN type, blanked pmt. method
         Initialize();
         EnableReport(ReportType::"Posted Service Invoice", true);
-        QRLayout := Library.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', Library.CreateFullBillingInfo());
-        Library.UpdateDefaultLayout(QRLayout);
+        QRLayout :=
+            SwissQRBillTestLibrary.CreateQRLayout(
+                IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', SwissQRBillTestLibrary.CreateFullBillingInfo());
+        SwissQRBillTestLibrary.UpdateDefaultLayout(QRLayout);
 
-        Library.CreatePostServiceInvoice(ServiceInvoiceHeader, '', 100, Library.CreatePaymentTerms(1, 2), '');
+        SwissQRBillTestLibrary.CreatePostServiceInvoice(ServiceInvoiceHeader, '', 100, SwissQRBillTestLibrary.CreatePaymentTerms(1, 2), '');
         Customer.Get(ServiceInvoiceHeader."Bill-to Customer No.");
-        PaymentReference := Library.GetNextReferenceNo(ReferenceType::"QR Reference", false);
+        PaymentReference := SwissQRBillTestLibrary.GetNextReferenceNo(ReferenceType::"QR Reference", false);
 
         PrintPostedServiceInvoice(ServiceInvoiceHeader);
 
         Assert.IsTrue(
-            Mgt.FindCustLedgerEntry(
+            SwissQRBillMgt.FindCustLedgerEntry(
                 CustLedgerEntry."Entry No.", Customer."No.", CustLedgerEntry."Document Type"::Invoice,
-                ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Posting Date"),
-            ''
-        );
+                ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Posting Date"), '');
         CustLedgerEntry.Find();
         Assert.AreEqual(PaymentReference, CustLedgerEntry."Payment Reference", 'Payment Reference');
         Assert.AreEqual(PaymentReference, ServiceInvoiceHeader."Payment Reference", 'Payment Reference');
-        Assert.AreEqual(QRLayout, Library.GetQRLayoutForThePostedServiceInvoice(ServiceInvoiceHeader), '');
-        BilliingInfoString := Library.GetBillInfoString(QRLayout, CustLedgerEntry."Entry No.");
-        BilliingInfoString := Library.FormatBillingInfoString(BilliingInfoString);
+        Assert.AreEqual(QRLayout, SwissQRBillTestLibrary.GetQRLayoutForThePostedServiceInvoice(ServiceInvoiceHeader), '');
+        BilliingInfoString := SwissQRBillTestLibrary.GetBillInfoString(QRLayout, CustLedgerEntry."Entry No.");
 
-        VerifyReportDataset('CHF', 110, Library.FormatReferenceNo(PaymentReference), BilliingInfoString);
+        VerifyReportDataset('CHF', 110, SwissQRBillTestLibrary.FormatReferenceNo(PaymentReference), BilliingInfoString);
         VerifyReportDatasetCreditorInfo(GetReportCompanyInfo(IBANType::"QR-IBAN"));
         VerifyReportDatasetDebitorInfo(ReportFormatCustomerPartyInfo(Customer));
         VerifyReportDatasetAltProc('', '', '', '');
@@ -246,23 +246,25 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         // [SCENARIO 259169] Print posted sales invoice in case of EUR, default QRIBAN type, blanked pmt. method
         Initialize();
         EnableReport(ReportType::"Posted Sales Invoice", true);
-        QRLayout := Library.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', Library.CreateFullBillingInfo());
-        Library.UpdateDefaultLayout(QRLayout);
+        QRLayout :=
+            SwissQRBillTestLibrary.CreateQRLayout(
+                IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', SwissQRBillTestLibrary.CreateFullBillingInfo());
+        SwissQRBillTestLibrary.UpdateDefaultLayout(QRLayout);
 
-        Library.CreatePostSalesInvoice(SalesInvoiceHeader, 'EUR', 100, Library.CreatePaymentTerms(1, 2), '');
+        SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, 'EUR', 100, SwissQRBillTestLibrary.CreatePaymentTerms(1, 2), '');
         Customer.Get(SalesInvoiceHeader."Bill-to Customer No.");
-        PaymentReference := Library.GetNextReferenceNo(ReferenceType::"QR Reference", false);
+        PaymentReference := SwissQRBillTestLibrary.GetNextReferenceNo(ReferenceType::"QR Reference", false);
 
         PrintPostedSalesInvoice(SalesInvoiceHeader);
 
         CustLedgerEntry.Get(SalesInvoiceHeader."Cust. Ledger Entry No.");
         Assert.AreEqual(PaymentReference, CustLedgerEntry."Payment Reference", 'Payment Reference');
         Assert.AreEqual(PaymentReference, SalesInvoiceHeader."Payment Reference", 'Payment Reference');
-        Assert.AreEqual(QRLayout, Library.GetQRLayoutForThePostedSalesInvoice(SalesInvoiceHeader), '');
-        BilliingInfoString := Library.GetBillInfoString(QRLayout, SalesInvoiceHeader."Cust. Ledger Entry No.");
-        BilliingInfoString := Library.FormatBillingInfoString(BilliingInfoString);
+        Assert.AreEqual(QRLayout, SwissQRBillTestLibrary.GetQRLayoutForThePostedSalesInvoice(SalesInvoiceHeader), '');
+        BilliingInfoString := SwissQRBillTestLibrary.GetBillInfoString(QRLayout, SalesInvoiceHeader."Cust. Ledger Entry No.");
 
-        VerifyReportDataset('EUR', 110, Library.FormatReferenceNo(SalesInvoiceHeader."Payment Reference"), BilliingInfoString);
+        VerifyReportDataset(
+            'EUR', 110, SwissQRBillTestLibrary.FormatReferenceNo(SalesInvoiceHeader."Payment Reference"), BilliingInfoString);
         VerifyReportDatasetCreditorInfo(GetReportCompanyInfo(IBANType::"QR-IBAN"));
         VerifyReportDatasetDebitorInfo(ReportFormatCustomerPartyInfo(Customer));
         VerifyReportDatasetAltProc('', '', '', '');
@@ -282,18 +284,19 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         // [SCENARIO 259169] Print posted sales invoice in case of CHF, default IBAN type, pmt. method for QRIBAN
         Initialize();
         EnableReport(ReportType::"Posted Sales Invoice", true);
-        Library.UpdateDefaultLayout(Library.CreateQRLayout(IBANType::IBAN, ReferenceType::"Creditor Reference (ISO 11649)", '', ''));
+        SwissQRBillTestLibrary.UpdateDefaultLayout(
+            SwissQRBillTestLibrary.CreateQRLayout(IBANType::IBAN, ReferenceType::"Creditor Reference (ISO 11649)", '', ''));
 
-        QRLayout := Library.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', '');
-        Library.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', Library.CreatePaymentMethod(QRLayout));
-        PaymentReference := Library.GetNextReferenceNo(ReferenceType::"QR Reference", false);
+        QRLayout := SwissQRBillTestLibrary.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', '');
+        SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', SwissQRBillTestLibrary.CreatePaymentMethod(QRLayout));
+        PaymentReference := SwissQRBillTestLibrary.GetNextReferenceNo(ReferenceType::"QR Reference", false);
 
         PrintPostedSalesInvoice(SalesInvoiceHeader);
 
         Assert.AreEqual(PaymentReference, SalesInvoiceHeader."Payment Reference", 'Payment Reference');
-        Assert.AreEqual(QRLayout, Library.GetQRLayoutForThePostedSalesInvoice(SalesInvoiceHeader), '');
+        Assert.AreEqual(QRLayout, SwissQRBillTestLibrary.GetQRLayoutForThePostedSalesInvoice(SalesInvoiceHeader), '');
 
-        VerifyReportDataset('CHF', 110, Library.FormatReferenceNo(SalesInvoiceHeader."Payment Reference"), '');
+        VerifyReportDataset('CHF', 110, SwissQRBillTestLibrary.FormatReferenceNo(SalesInvoiceHeader."Payment Reference"), '');
     end;
 
     [Test]
@@ -309,18 +312,20 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         // [SCENARIO 259169] Print posted sales invoice in case of EUR, default QR-IBAN type, pmt. method for IBAN
         Initialize();
         EnableReport(ReportType::"Posted Sales Invoice", true);
-        Library.UpdateDefaultLayout(Library.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', ''));
+        SwissQRBillTestLibrary.UpdateDefaultLayout(
+            SwissQRBillTestLibrary.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', ''));
 
-        QRLayout := Library.CreateQRLayout(IBANType::IBAN, ReferenceType::"Creditor Reference (ISO 11649)", '', '');
-        Library.CreatePostSalesInvoice(SalesInvoiceHeader, 'EUR', 100, '', Library.CreatePaymentMethod(QRLayout));
-        PaymentReference := Library.GetNextReferenceNo(ReferenceType::"Creditor Reference (ISO 11649)", false);
+        QRLayout := SwissQRBillTestLibrary.CreateQRLayout(IBANType::IBAN, ReferenceType::"Creditor Reference (ISO 11649)", '', '');
+        SwissQRBillTestLibrary.CreatePostSalesInvoice(
+            SalesInvoiceHeader, 'EUR', 100, '', SwissQRBillTestLibrary.CreatePaymentMethod(QRLayout));
+        PaymentReference := SwissQRBillTestLibrary.GetNextReferenceNo(ReferenceType::"Creditor Reference (ISO 11649)", false);
 
         PrintPostedSalesInvoice(SalesInvoiceHeader);
 
         Assert.AreEqual(PaymentReference, SalesInvoiceHeader."Payment Reference", 'Payment Reference');
-        Assert.AreEqual(QRLayout, Library.GetQRLayoutForThePostedSalesInvoice(SalesInvoiceHeader), '');
+        Assert.AreEqual(QRLayout, SwissQRBillTestLibrary.GetQRLayoutForThePostedSalesInvoice(SalesInvoiceHeader), '');
 
-        VerifyReportDataset('EUR', 110, Library.FormatReferenceNo(SalesInvoiceHeader."Payment Reference"), '');
+        VerifyReportDataset('EUR', 110, SwissQRBillTestLibrary.FormatReferenceNo(SalesInvoiceHeader."Payment Reference"), '');
         VerifyReportDatasetCreditorInfo(GetReportCompanyInfo(IBANType::IBAN));
     end;
 
@@ -330,7 +335,6 @@ codeunit 148092 "Swiss QR-Bill Test Print"
     procedure Print_PostedSalesInvoice_UnstrMsg()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        PaymentReference: Code[50];
         UnstrMessage: Text;
     begin
         // [FEATURE] [UI] [Print]
@@ -338,14 +342,15 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         Initialize();
         EnableReport(ReportType::"Posted Sales Invoice", true);
         UnstrMessage := LibraryUtility.GenerateGUID();
-        Library.UpdateDefaultLayout(Library.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", UnstrMessage, ''));
+        SwissQRBillTestLibrary.UpdateDefaultLayout(
+            SwissQRBillTestLibrary.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", UnstrMessage, ''));
 
-        Library.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
-        PaymentReference := Library.GetNextReferenceNo(ReferenceType::"QR Reference", false);
+        SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
+        SwissQRBillTestLibrary.GetNextReferenceNo(ReferenceType::"QR Reference", false);
 
         PrintPostedSalesInvoice(SalesInvoiceHeader);
 
-        VerifyReportDataset('CHF', 110, Library.FormatReferenceNo(SalesInvoiceHeader."Payment Reference"), UnstrMessage);
+        VerifyReportDataset('CHF', 110, SwissQRBillTestLibrary.FormatReferenceNo(SalesInvoiceHeader."Payment Reference"), UnstrMessage);
     end;
 
     [Test]
@@ -354,7 +359,6 @@ codeunit 148092 "Swiss QR-Bill Test Print"
     procedure Print_PostedSalesInvoice_BIllInfoAndUnstrMsg()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        PaymentReference: Code[50];
         QRLayout: Code[20];
         BilliingInfoString: Text;
         UnstrMessage: Text;
@@ -365,20 +369,19 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         EnableReport(ReportType::"Posted Sales Invoice", true);
         UnstrMessage := LibraryUtility.GenerateGUID();
         QRLayout :=
-            Library.CreateQRLayout(
-                IBANType::"QR-IBAN", ReferenceType::"QR Reference", UnstrMessage, Library.CreateFullBillingInfo());
-        Library.UpdateDefaultLayout(QRLayout);
+            SwissQRBillTestLibrary.CreateQRLayout(
+                IBANType::"QR-IBAN", ReferenceType::"QR Reference", UnstrMessage, SwissQRBillTestLibrary.CreateFullBillingInfo());
+        SwissQRBillTestLibrary.UpdateDefaultLayout(QRLayout);
 
-        Library.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
-        PaymentReference := Library.GetNextReferenceNo(ReferenceType::"QR Reference", false);
+        SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
+        SwissQRBillTestLibrary.GetNextReferenceNo(ReferenceType::"QR Reference", false);
 
         PrintPostedSalesInvoice(SalesInvoiceHeader);
 
-        BilliingInfoString := Library.GetBillInfoString(QRLayout, SalesInvoiceHeader."Cust. Ledger Entry No.");
-        BilliingInfoString := Library.FormatBillingInfoString(BilliingInfoString);
+        BilliingInfoString := SwissQRBillTestLibrary.GetBillInfoString(QRLayout, SalesInvoiceHeader."Cust. Ledger Entry No.");
 
         UnstrMessage += StrSubstNo(' %1', BilliingInfoString);
-        VerifyReportDataset('CHF', 110, Library.FormatReferenceNo(SalesInvoiceHeader."Payment Reference"), UnstrMessage);
+        VerifyReportDataset('CHF', 110, SwissQRBillTestLibrary.FormatReferenceNo(SalesInvoiceHeader."Payment Reference"), UnstrMessage);
     end;
 
     [Test]
@@ -396,11 +399,11 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         EnableReport(ReportType::"Posted Sales Invoice", true);
         AltName1 := LibraryUtility.GenerateGUID();
         AltValue1 := LibraryUtility.GenerateGUID();
-        Library.UpdateDefaultLayout(
-            Library.CreateQRLayoutFull(
+        SwissQRBillTestLibrary.UpdateDefaultLayout(
+            SwissQRBillTestLibrary.CreateQRLayoutFull(
                 IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', '', AltName1, AltValue1, '', ''));
 
-        Library.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
+        SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
 
         PrintPostedSalesInvoice(SalesInvoiceHeader);
 
@@ -422,11 +425,11 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         EnableReport(ReportType::"Posted Sales Invoice", true);
         AltName2 := LibraryUtility.GenerateGUID();
         AltValue2 := LibraryUtility.GenerateGUID();
-        Library.UpdateDefaultLayout(
-            Library.CreateQRLayoutFull(
+        SwissQRBillTestLibrary.UpdateDefaultLayout(
+            SwissQRBillTestLibrary.CreateQRLayoutFull(
                 IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', '', '', '', AltName2, AltValue2));
 
-        Library.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
+        SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
 
         PrintPostedSalesInvoice(SalesInvoiceHeader);
 
@@ -451,11 +454,11 @@ codeunit 148092 "Swiss QR-Bill Test Print"
             AltName[i] := LibraryUtility.GenerateGUID();
             AltValue[i] := LibraryUtility.GenerateGUID();
         end;
-        Library.UpdateDefaultLayout(
-            Library.CreateQRLayoutFull(
+        SwissQRBillTestLibrary.UpdateDefaultLayout(
+            SwissQRBillTestLibrary.CreateQRLayoutFull(
                 IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', '', AltName[1], AltValue[1], AltName[2], AltValue[2]));
 
-        Library.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
+        SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
 
         PrintPostedSalesInvoice(SalesInvoiceHeader);
 
@@ -485,19 +488,18 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         end;
         UnstrMessage := LibraryUtility.GenerateGUID();
         QRLayout :=
-            Library.CreateQRLayoutFull(
-                IBANType::"QR-IBAN", ReferenceType::"QR Reference", UnstrMessage, Library.CreateFullBillingInfo(),
+            SwissQRBillTestLibrary.CreateQRLayoutFull(
+                IBANType::"QR-IBAN", ReferenceType::"QR Reference", UnstrMessage, SwissQRBillTestLibrary.CreateFullBillingInfo(),
                 AltName[1], AltValue[1], AltName[2], AltValue[2]);
-        Library.UpdateDefaultLayout(QRLayout);
+        SwissQRBillTestLibrary.UpdateDefaultLayout(QRLayout);
 
-        Library.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
+        SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
 
         PrintPostedSalesInvoice(SalesInvoiceHeader);
 
-        BilliingInfoString := Library.GetBillInfoString(QRLayout, SalesInvoiceHeader."Cust. Ledger Entry No.");
-        BilliingInfoString := Library.FormatBillingInfoString(BilliingInfoString);
+        BilliingInfoString := SwissQRBillTestLibrary.GetBillInfoString(QRLayout, SalesInvoiceHeader."Cust. Ledger Entry No.");
         UnstrMessage += StrSubstNo(' %1', BilliingInfoString);
-        VerifyReportDataset('CHF', 110, Library.FormatReferenceNo(SalesInvoiceHeader."Payment Reference"), UnstrMessage);
+        VerifyReportDataset('CHF', 110, SwissQRBillTestLibrary.FormatReferenceNo(SalesInvoiceHeader."Payment Reference"), UnstrMessage);
         VerifyReportDatasetAltProc(AltName[1], AltValue[1], AltName[2], AltValue[2]);
     end;
 
@@ -512,7 +514,7 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         // [SCENARIO 259169] Print posted sales invoice in case of EUR currency
         Initialize();
         EnableReport(ReportType::"Posted Sales Invoice", true);
-        Library.CreatePostSalesInvoice(SalesInvoiceHeader, 'USD', 100, '', '');
+        SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, 'USD', 100, '', '');
 
         asserterror PrintPostedSalesInvoice(SalesInvoiceHeader);
 
@@ -533,10 +535,10 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         // [SCENARIO 259169] Print already printed posted sales invoices in case of QR-reference (QR-IBAN)
         Initialize();
         EnableReport(ReportType::"Posted Sales Invoice", true);
-        Library.UpdateDefaultLayout(
-            Library.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', ''));
+        SwissQRBillTestLibrary.UpdateDefaultLayout(
+            SwissQRBillTestLibrary.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', ''));
 
-        Library.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
+        SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
         PrintPostedSalesInvoice(SalesInvoiceHeader);
         SalesInvoiceHeader.TestField("Payment Reference");
         PaymentReference := SalesInvoiceHeader."Payment Reference";
@@ -546,7 +548,7 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         CustLedgerEntry.Get(SalesInvoiceHeader."Cust. Ledger Entry No.");
         Assert.AreEqual(PaymentReference, CustLedgerEntry."Payment Reference", '');
         Assert.AreEqual(PaymentReference, SalesInvoiceHeader."Payment Reference", '');
-        VerifyReportDataset('CHF', 110, Library.FormatReferenceNo(PaymentReference), '');
+        VerifyReportDataset('CHF', 110, SwissQRBillTestLibrary.FormatReferenceNo(PaymentReference), '');
     end;
 
     [Test]
@@ -562,10 +564,10 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         // [SCENARIO 259169] Print already printed posted sales invoices in case of Creditor-reference (IBAN)
         Initialize();
         EnableReport(ReportType::"Posted Sales Invoice", true);
-        Library.UpdateDefaultLayout(
-            Library.CreateQRLayout(IBANType::IBAN, ReferenceType::"Creditor Reference (ISO 11649)", '', ''));
+        SwissQRBillTestLibrary.UpdateDefaultLayout(
+            SwissQRBillTestLibrary.CreateQRLayout(IBANType::IBAN, ReferenceType::"Creditor Reference (ISO 11649)", '', ''));
 
-        Library.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
+        SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, '', '');
         PrintPostedSalesInvoice(SalesInvoiceHeader);
         SalesInvoiceHeader.TestField("Payment Reference");
         PaymentReference := SalesInvoiceHeader."Payment Reference";
@@ -575,7 +577,7 @@ codeunit 148092 "Swiss QR-Bill Test Print"
         CustLedgerEntry.Get(SalesInvoiceHeader."Cust. Ledger Entry No.");
         Assert.AreEqual(PaymentReference, CustLedgerEntry."Payment Reference", '');
         Assert.AreEqual(PaymentReference, SalesInvoiceHeader."Payment Reference", '');
-        VerifyReportDataset('CHF', 110, Library.FormatReferenceNo(PaymentReference), '');
+        VerifyReportDataset('CHF', 110, SwissQRBillTestLibrary.FormatReferenceNo(PaymentReference), '');
     end;
 
     [Test]
@@ -583,50 +585,52 @@ codeunit 148092 "Swiss QR-Bill Test Print"
     [HandlerFunctions('QRBillPrintRPH')]
     procedure Print_FromBuffer()
     var
-        Buffer: Record "Swiss QR-Bill Buffer" temporary;
+        TempSwissQRBillBuffer: Record "Swiss QR-Bill Buffer" temporary;
         PaymentReference: Code[50];
     begin
         // [FEATURE] [Print]
         // [SCENARIO 259169] Print from "Swiss QR-Bill Buffer"
         Initialize();
         EnableReport(ReportType::"Posted Sales Invoice", true);
-        Library.UpdateDefaultLayout(
-            Library.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', ''));
-        PaymentReference := Library.GetNextReferenceNo(ReferenceType::"QR Reference", false);
+        SwissQRBillTestLibrary.UpdateDefaultLayout(
+            SwissQRBillTestLibrary.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', ''));
+        PaymentReference := SwissQRBillTestLibrary.GetNextReferenceNo(ReferenceType::"QR Reference", false);
 
-        with Buffer do begin
+        with TempSwissQRBillBuffer do begin
             InitBuffer('');
             Validate(Amount, LibraryRandom.RandDecInRange(1000, 2000, 2));
             Validate("Unstructured Message", LibraryUtility.GenerateGUID());
             Insert();
 
-            PrintFromBuffer(Buffer);
+            PrintFromBuffer(TempSwissQRBillBuffer);
 
             Find();
-            TestField("Payment Reference", Library.FormatReferenceNo(PaymentReference));
-            VerifyReportDataset('CHF', Amount, Library.FormatReferenceNo(PaymentReference), "Unstructured Message");
+            TestField("Payment Reference", SwissQRBillTestLibrary.FormatReferenceNo(PaymentReference));
+            VerifyReportDataset('CHF', Amount, SwissQRBillTestLibrary.FormatReferenceNo(PaymentReference), "Unstructured Message");
         end;
     end;
 
     local procedure Initialize()
+    var
+        DummyReportSelections: Record "Report Selections";
     begin
-        ClearReportSelections(ReportUsage::"S.Invoice");
-        ClearReportSelections(ReportUsage::"SM.Invoice");
+        ClearReportSelections(DummyReportSelections.Usage::"S.Invoice");
+        ClearReportSelections(DummyReportSelections.Usage::"SM.Invoice");
         LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
         IsInitialized := true;
 
-        Library.UpdateDefaultVATPostingSetup(10);
-        Library.UpdateCompanyQRIBAN();
+        SwissQRBillTestLibrary.UpdateDefaultVATPostingSetup(10);
+        SwissQRBillTestLibrary.UpdateCompanyQRIBAN();
     end;
 
     local procedure PageDrillDown(ReportTypeFilter: Enum "Swiss QR-Bill Reports")
     var
-        ReportsPage: TestPage "Swiss QR-Bill Reports";
+        SwissQRBillReports: TestPage "Swiss QR-Bill Reports";
     begin
-        with ReportsPage do begin
+        with SwissQRBillReports do begin
             OpenEdit();
             Filter.SetFilter("Report Type", Format(ReportTypeFilter));
             "Report Type".Drilldown();
@@ -688,60 +692,63 @@ codeunit 148092 "Swiss QR-Bill Test Print"
 
     local procedure EnableReport(ReportType: Enum "Swiss QR-Bill Reports"; Enable: Boolean)
     var
-        Reports: Record "Swiss QR-Bill Reports" temporary;
+        TempSwissQRBillReports: Record "Swiss QR-Bill Reports" temporary;
     begin
-        with Reports do begin
+        with TempSwissQRBillReports do begin
             Validate("Report Type", ReportType);
             Validate(Enabled, Enable);
         end;
     end;
 
-    local procedure GetReportCompanyInfo(IBANType: Enum "Swiss QR-Bill IBAN Type") Result: Text
+    local procedure GetReportCompanyInfo(IBANTypeLcl: Enum "Swiss QR-Bill IBAN Type") Result: Text
     var
         CompanyInfo: Record "Company Information";
-        QRBillBuffer: Record "Swiss QR-Bill Buffer" temporary;
+        TempSwissQRBillBuffer: Record "Swiss QR-Bill Buffer" temporary;
         TempCustomer: Record Customer temporary;
         IBAN: Code[50];
     begin
         CompanyInfo.Get();
-        if IBANType = IBANType::IBAN then
+        if IBANTypeLcl = IBANType::IBAN then
             IBAN := CompanyInfo.IBAN
         else
             IBAN := CompanyInfo."Swiss QR-Bill IBAN";
-        Result := Mgt.FormatIBAN(IBAN);
-        QRBillBuffer.SetCompanyInformation();
-        if QRBillBuffer.GetCreditorInfo(TempCustomer) then
-            Mgt.AddLine(Result, ReportFormatCustomerPartyInfo(TempCustomer));
+        Result := SwissQRBillMgt.FormatIBAN(IBAN);
+        TempSwissQRBillBuffer.SetCompanyInformation();
+        if TempSwissQRBillBuffer.GetCreditorInfo(TempCustomer) then
+            SwissQRBillMgt.AddLine(Result, ReportFormatCustomerPartyInfo(TempCustomer));
     end;
 
     local procedure ReportFormatCustomerPartyInfo(Customer: Record Customer) Result: Text
     begin
         with Customer do begin
-            Mgt.AddLineIfNotBlanked(Result, CopyStr(Name, 1, 70));
-            Mgt.AddLineIfNotBlanked(Result, CopyStr(Address + ' ' + "Address 2", 1, 70));
-            Mgt.AddLineIfNotBlanked(Result, CopyStr("Post Code" + ' ' + City, 1, 70));
+            SwissQRBillMgt.AddLineIfNotBlanked(Result, CopyStr(Name, 1, 70));
+            SwissQRBillMgt.AddLineIfNotBlanked(Result, CopyStr(Address + ' ' + "Address 2", 1, 70));
+            SwissQRBillMgt.AddLineIfNotBlanked(Result, CopyStr("Post Code" + ' ' + City, 1, 70));
         end;
     end;
 
-    local procedure VerifyReportEnabling(var Reports: Record "Swiss QR-Bill Reports"; ExpectedCount: Integer; ExpectedCurrentType: Enum "Swiss QR-Bill Reports"; Enable: Boolean; SalesInvoice: Boolean; ServiceInvoice: Boolean; Reminder: Boolean; FinCharge: Boolean)
+    local procedure VerifyReportEnabling(var SwissQRBillReports: Record "Swiss QR-Bill Reports"; ExpectedCount: Integer; ExpectedCurrentType: Enum "Swiss QR-Bill Reports"; Enable: Boolean; SalesInvoice: Boolean; ServiceInvoice: Boolean; Reminder: Boolean; FinCharge: Boolean)
     var
         EnabledReportsCount: Integer;
     begin
-        Assert.AreEqual(ExpectedCurrentType, Reports."Report Type", '');
-        Reports.Validate(Enabled, Enable);
+        Assert.AreEqual(ExpectedCurrentType, SwissQRBillReports."Report Type", '');
+        SwissQRBillReports.Validate(Enabled, Enable);
         VerifyAllReportEnabling(SalesInvoice, ServiceInvoice, Reminder, FinCharge);
-        Reports.Next();
-        EnabledReportsCount := Mgt.CalcEnabledReportsCount();
+        SwissQRBillReports.Next();
+        EnabledReportsCount := SwissQRBillMgt.CalcEnabledReportsCount();
         Assert.AreEqual(ExpectedCount, EnabledReportsCount, '');
-        Assert.AreEqual(StrSubstNo(DocumentTypesTxt, EnabledReportsCount, 2), Mgt.FormatEnabledReportsCount(EnabledReportsCount), '');
+        Assert.AreEqual(
+            StrSubstNo(DocumentTypesTxt, EnabledReportsCount, 2), SwissQRBillMgt.FormatEnabledReportsCount(EnabledReportsCount), '');
     end;
 
     local procedure VerifyAllReportEnabling(SalesInvoice: Boolean; ServiceInvoice: Boolean; Reminder: Boolean; FinCharge: Boolean)
+    var
+        DummyReportSelections: Record "Report Selections";
     begin
-        VerifyReportSelection(ReportUsage::"S.Invoice", SalesInvoice);
-        VerifyReportSelection(ReportUsage::"SM.Invoice", ServiceInvoice);
-        VerifyReportSelection(ReportUsage::Reminder, Reminder);
-        VerifyReportSelection(ReportUsage::"Fin.Charge", FinCharge);
+        VerifyReportSelection(DummyReportSelections.Usage::"S.Invoice", SalesInvoice);
+        VerifyReportSelection(DummyReportSelections.Usage::"SM.Invoice", ServiceInvoice);
+        VerifyReportSelection(DummyReportSelections.Usage::Reminder, Reminder);
+        VerifyReportSelection(DummyReportSelections.Usage::"Fin.Charge", FinCharge);
     end;
 
     local procedure VerifyReportSelection(UsageFilter: Enum "Report Selection Usage"; ExpectedEnabled: Boolean)
@@ -761,7 +768,7 @@ codeunit 148092 "Swiss QR-Bill Test Print"
     local procedure VerifyReportDataset(Currency: Text; Amount: Decimal; ReferenceNo: Text; BillInfo: Text)
     begin
         LibraryReportDataset.AssertCurrentRowValueEquals('CurrencyText', Currency);
-        LibraryReportDataset.AssertCurrentRowValueEquals('AmountText', Library.FormatAmount(Amount));
+        LibraryReportDataset.AssertCurrentRowValueEquals('AmountText', SwissQRBillTestLibrary.FormatAmount(Amount));
         LibraryReportDataset.AssertCurrentRowValueEquals('ReferenceText', ReferenceNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('AdditionalInformationText', BillInfo);
     end;
@@ -778,13 +785,13 @@ codeunit 148092 "Swiss QR-Bill Test Print"
 
     local procedure VerifyReportDatasetText(DatasetFieldName: Text; ExpectedText: text)
     var
-        ActualText: Text;
         Variant: Variant;
+        ActualText: Text;
     begin
         LibraryReportDataset.GetElementValueInCurrentRow(DatasetFieldName, Variant);
         ActualText := Variant;
-        ActualText := Library.ReplaceLineBreakWithBackSlash(ActualText).Trim();
-        ExpectedText := Library.ReplaceLineBreakWithBackSlash(ExpectedText).Trim();
+        ActualText := SwissQRBillTestLibrary.ReplaceLineBreakWithBackSlash(ActualText).Trim();
+        ExpectedText := SwissQRBillTestLibrary.ReplaceLineBreakWithBackSlash(ExpectedText).Trim();
         Assert.ExpectedMessage(ExpectedText, ActualText);
     end;
 
@@ -830,8 +837,8 @@ codeunit 148092 "Swiss QR-Bill Test Print"
     end;
 
     [RequestPageHandler]
-    procedure QRBillPrintRPH(var QRBillPrint: TestRequestPage "Swiss QR-Bill Print")
+    procedure QRBillPrintRPH(var SwissQRBillPrint: TestRequestPage "Swiss QR-Bill Print")
     begin
-        QRBillPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+        SwissQRBillPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }

@@ -307,9 +307,11 @@ codeunit 130509 "Library - Sales"
     procedure CreatePrepaymentVATSetup(var LineGLAccount: Record "G/L Account"; VATCalculationType: Option): Code[20]
     var
         PrepmtGLAccount: Record "G/L Account";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryERM.CreatePrepaymentVATSetup(
           LineGLAccount, PrepmtGLAccount, LineGLAccount."Gen. Posting Type"::Sale, VATCalculationType, VATCalculationType);
+        LibraryERMCountryData.CreateVATData;
         exit(PrepmtGLAccount."No.");
     end;
 

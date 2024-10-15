@@ -44,6 +44,12 @@ table 11513 "Swiss QR-Bill Layout"
         field(7; "Alt. Procedure Name 1"; Text[10])
         {
             Caption = 'Alternate Procedure Name 1';
+
+            trigger OnValidate()
+            begin
+                if "Alt. Procedure Name 1" = '' then
+                    "Alt. Procedure Value 1" := '';
+            end;
         }
         field(8; "Alt. Procedure Value 1"; Text[100])
         {
@@ -52,6 +58,12 @@ table 11513 "Swiss QR-Bill Layout"
         field(9; "Alt. Procedure Name 2"; Text[10])
         {
             Caption = 'Alternate Procedure Name 2';
+
+            trigger OnValidate()
+            begin
+                if "Alt. Procedure Name 2" = '' then
+                    "Alt. Procedure Value 2" := '';
+            end;
         }
         field(10; "Alt. Procedure Value 2"; Text[100])
         {

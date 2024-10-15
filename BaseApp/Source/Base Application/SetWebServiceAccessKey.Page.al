@@ -34,14 +34,13 @@ page 9812 "Set Web Service Access Key"
     {
     }
 
-    trigger OnInit()
+    trigger OnOpenPage()
     var
         UserPermissions: Codeunit "User Permissions";
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if ("User Security ID" <> UserSecurityId()) and EnvironmentInfo.IsSaaS() then
+        if Rec."User Security ID" <> UserSecurityId() then
             if not UserPermissions.CanManageUsersOnTenant(UserSecurityID()) then
-                error(CannotEditForOtherUsersErr);
+                Error(CannotEditForOtherUsersErr);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

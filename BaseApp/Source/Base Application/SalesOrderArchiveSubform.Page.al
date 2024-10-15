@@ -326,13 +326,13 @@ page 5160 "Sales Order Archive Subform"
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
-                    Visible = false;
+                    Visible = DimVisible1;
                 }
                 field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
-                    Visible = false;
+                    Visible = DimVisible2;
                 }
                 field(ShortcutDimCode3; ShortcutDimCode[3])
                 {
@@ -455,7 +455,10 @@ page 5160 "Sales Order Archive Subform"
     }
 
     trigger OnAfterGetRecord()
+    var
+        DimMgt: Codeunit DimensionManagement;
     begin
+        DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
         DescriptionIndent := 0;
         DescriptionOnFormat;
         LineAmountOnFormat(Format("Line Amount"));

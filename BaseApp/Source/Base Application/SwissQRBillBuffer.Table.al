@@ -56,6 +56,7 @@ table 11502 "Swiss QRBill Buffer"
         field(45; "UDebtor City"; Text[30]) { }
         field(46; "UDebtor Country"; Code[2]) { }
         field(100; "QR-Code Image"; Media) { }
+        field(101; "QR-Code Image Blob"; BLOB) { }
         field(102; "File Name"; Text[250]) { }
         field(104; "QR-Bill Layout"; Code[20]) { }
         field(105; "Source Record Printed"; Boolean) { }

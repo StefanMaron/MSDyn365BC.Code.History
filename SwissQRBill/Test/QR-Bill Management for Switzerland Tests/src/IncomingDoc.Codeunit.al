@@ -9,11 +9,10 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
 
     var
         Assert: Codeunit Assert;
-        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
-        Library: Codeunit "Swiss QR-Bill Test Library";
+        SwissQRBillTestLibrary: Codeunit "Swiss QR-Bill Test Library";
         ReferenceType: Enum "Swiss QR-Bill Payment Reference Type";
         BlankedImportErr: Label 'There is no data to import.';
         ImportCompletedWithWarningsTxt: Label 'QR-Bill import has been successfully completed with warnings.';
@@ -250,8 +249,8 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
         // [SCENARIO 259169] Page "Incoming Documents"."Scan QR-Bill" action in case of not matched IBAN, QR-Reference, billing info
         Initialize();
         BillInfo := 'S1/10/DOCNO123/30/VATNO123';
-        IBAN := Library.GetRandomIBAN();
-        PaymentReference := Library.GetRandomQRPaymentReference();
+        IBAN := SwissQRBillTestLibrary.GetRandomIBAN();
+        PaymentReference := SwissQRBillTestLibrary.GetRandomQRPaymentReference();
         QRCodeText :=
             'SPC\0200\1\' + IBAN + '\S\CR Name\CR A1\CR A2\CR POST\CR CITY\C1\\\\\\\\123.45\CHF\' +
             'S\UD Name\UD A1\UD A2\UD POST\UD CITY\C3\QRR\' + PaymentReference + '\Unstr Msg\EPD\' + BillInfo;
@@ -263,7 +262,7 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
             TestField("Swiss QR-Bill", true);
             TestField(Description, 'QR-Bill');
             TestField("Vendor Name", 'CR Name');
-            TestField("Vendor IBAN", Library.FormatIBAN(IBAN));
+            TestField("Vendor IBAN", IBAN);
             TestField("Vendor Invoice No.", 'DOCNO123');
             TestField("Vendor VAT Registration No.", 'VATNO123');
             TestField("Vendor No.", '');
@@ -285,7 +284,7 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
             TestField("Amount Incl. VAT", 123.45);
             TestField("Currency Code", 'CHF');
             TestField("Swiss QR-Bill Reference Type", ReferenceType::"QR Reference");
-            TestField("Swiss QR-Bill Reference No.", Library.FormatPaymentReference(ReferenceType::"QR Reference", PaymentReference));
+            TestField("Swiss QR-Bill Reference No.", PaymentReference);
             TestField("Swiss QR-Bill Unstr. Message", 'Unstr Msg');
             TestField("Swiss QR-Bill Bill Info", BillInfo);
         end;
@@ -308,8 +307,8 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
         // [FEATURE] [UI] [Scan]
         // [SCENARIO 259169] Page "Incoming Documents"."Scan QR-Bill" action in case of matched IBAN
         Initialize();
-        IBAN := Library.GetRandomIBAN();
-        CreateVendorWithBankAccount(VendorNo, VendorBankAccountNo, IBAN);
+        IBAN := SwissQRBillTestLibrary.GetRandomIBAN();
+        SwissQRBillTestLibrary.CreateVendorWithBankAccount(VendorNo, VendorBankAccountNo, IBAN);
         QRCodeText :=
             'SPC\0200\1\' + IBAN + '\S\CR Name\\\\\\\\\\\\\\CHF\\\\\\\\NON\\\EPD';
 
@@ -324,7 +323,7 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
         Assert.ExpectedMessage(ImportCompletedWithWarningsTxt, LibraryVariableStorage.DequeueText());
 
         LibraryVariableStorage.AssertEmpty();
-        ClearVendor(VendorNo);
+        SwissQRBillTestLibrary.ClearVendor(VendorNo);
     end;
 
     [Test]
@@ -343,8 +342,8 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
         // [SCENARIO 259169] Page "Incoming Documents"."Scan QR-Bill" action in case of full match
         Initialize();
         CompanyInfo.Get();
-        IBAN := Library.GetFixedIBAN();
-        CreateVendorWithBankAccount(Vendor."No.", VendorBankAccountNo, IBAN);
+        IBAN := SwissQRBillTestLibrary.GetFixedIBAN();
+        SwissQRBillTestLibrary.CreateVendorWithBankAccount(Vendor."No.", VendorBankAccountNo, IBAN);
         Vendor.Find();
         QRCodeText :=
             'SPC\0200\1\' + IBAN + '\S\' + Vendor.Name + '\\\\\\\\\\\\\\CHF\S\' + CompanyInfo.Name + '\' +
@@ -362,7 +361,7 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
         Assert.ExpectedMessage(ImportCompletedTxt, LibraryVariableStorage.DequeueText());
 
         LibraryVariableStorage.AssertEmpty();
-        ClearVendor(Vendor."No.");
+        SwissQRBillTestLibrary.ClearVendor(Vendor."No.");
     end;
 
     [Test]
@@ -383,13 +382,11 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
         // [SCENARIO 259169] Create Journal action in case of matched IBAN, QR-Reference, billing info
         Initialize();
         BillInfo := 'S1/10/DOCNO123/30/VATNO123';
-        IBAN := Library.GetRandomIBAN();
+        IBAN := SwissQRBillTestLibrary.GetRandomIBAN();
         PmtAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
-        PaymentReference := Library.GetRandomQRPaymentReference();
-        CreateVendorWithBankAccount(VendorNo, VendorBankAccountNo, IBAN);
-        QRCodeText :=
-            'SPC\0200\1\' + IBAN + '\S\CR Name\\\\\\\\\\\\\' + Library.FormatAmount(PmtAmount) +
-            '\CHF\\\\\\\\QRR\' + PaymentReference + '\Unstr Msg\EPD\' + BillInfo;
+        PaymentReference := SwissQRBillTestLibrary.GetRandomQRPaymentReference();
+        SwissQRBillTestLibrary.CreateVendorWithBankAccount(VendorNo, VendorBankAccountNo, IBAN);
+        QRCodeText := SwissQRBillTestLibrary.CreateQRCodeText(IBAN, PmtAmount, 'CHF', PaymentReference, 'Unstr Msg', BillInfo);
 
         PerformScanFromPageListAndCreateJournal(QRCodeText);
 
@@ -410,7 +407,7 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
         Assert.ExpectedMessage(ImportCompletedWithWarningsTxt, LibraryVariableStorage.DequeueText());
 
         LibraryVariableStorage.AssertEmpty();
-        ClearVendor(VendorNo);
+        SwissQRBillTestLibrary.ClearVendor(VendorNo);
     end;
 
     [Test]
@@ -431,11 +428,10 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
         // [SCENARIO 259169] Create Purchase Invoice action in case of matched IBAN, QR-Reference, billing info
         Initialize();
         BillInfo := 'S1/10/DOCNO123/30/VATNO123';
-        IBAN := Library.GetRandomIBAN();
-        PaymentReference := Library.GetRandomQRPaymentReference();
-        CreateVendorWithBankAccount(VendorNo, VendorBankAccountNo, IBAN);
-        QRCodeText :=
-            'SPC\0200\1\' + IBAN + '\S\CR Name\\\\\\\\\\\\\123.45\CHF\\\\\\\\QRR\' + PaymentReference + '\Unstr Msg\EPD\' + BillInfo;
+        IBAN := SwissQRBillTestLibrary.GetRandomIBAN();
+        PaymentReference := SwissQRBillTestLibrary.GetRandomQRPaymentReference();
+        SwissQRBillTestLibrary.CreateVendorWithBankAccount(VendorNo, VendorBankAccountNo, IBAN);
+        QRCodeText := SwissQRBillTestLibrary.CreateQRCodeText(IBAN, 123.45, 'CHF', PaymentReference, 'Unstr Msg', BillInfo);
 
         InvoiceNo := PerformScanFromPageListAndCreatePurchInv(QRCodeText);
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, InvoiceNo);
@@ -450,20 +446,20 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
         Assert.ExpectedMessage(ImportCompletedWithWarningsTxt, LibraryVariableStorage.DequeueText());
 
         LibraryVariableStorage.AssertEmpty();
-        ClearVendor(VendorNo);
+        SwissQRBillTestLibrary.ClearVendor(VendorNo);
     end;
 
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
-        ClearJournalRecords();
+        SwissQRBillTestLibrary.ClearJournalRecords();
     end;
 
     local procedure PerformScanFromPageList(QRCodeText: Text; ExpectedIBANMatch: Boolean)
     var
         IncomingDocumentPage: TestPage "Incoming Document";
     begin
-        QRCodeText := Library.ReplaceBackSlashWithLineBreak(QRCodeText);
+        QRCodeText := SwissQRBillTestLibrary.ReplaceBackSlashWithLineBreak(QRCodeText);
         LibraryVariableStorage.Enqueue(QRCodeText);
         IncomingDocumentPage.Trap();
         InvokeScanFromPageList();
@@ -476,7 +472,7 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
         IncomingDocumentPage: TestPage "Incoming Document";
         PurchaseJournalPage: TestPage "Purchase Journal";
     begin
-        QRCodeText := Library.ReplaceBackSlashWithLineBreak(QRCodeText);
+        QRCodeText := SwissQRBillTestLibrary.ReplaceBackSlashWithLineBreak(QRCodeText);
         LibraryVariableStorage.Enqueue(QRCodeText);
         IncomingDocumentPage.Trap();
         InvokeScanFromPageList();
@@ -491,7 +487,7 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
         IncomingDocumentPage: TestPage "Incoming Document";
         PurchaseInvoicePage: TestPage "Purchase Invoice";
     begin
-        QRCodeText := Library.ReplaceBackSlashWithLineBreak(QRCodeText);
+        QRCodeText := SwissQRBillTestLibrary.ReplaceBackSlashWithLineBreak(QRCodeText);
         LibraryVariableStorage.Enqueue(QRCodeText);
         IncomingDocumentPage.Trap();
         InvokeScanFromPageList();
@@ -506,70 +502,19 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
     var
         IncomingDocumentsPage: TestPage "Incoming Documents";
     begin
-        with IncomingDocumentsPage do begin
-            OpenEdit();
-            "Swiss QR-Bill Scan".Invoke();
-            Close();
-        end;
+        IncomingDocumentsPage.OpenEdit();
+        IncomingDocumentsPage."Swiss QR-Bill Scan".Invoke();
+        IncomingDocumentsPage.Close();
     end;
 
-    local procedure InvokeScanFromPageCard(var IncomingDocument: Record "Incoming Document")
+    local procedure FindLatestPurchaseJournalRecord(var GenJournalLine: Record "Gen. Journal Line")
     var
-        IncomingDocumentPage: TestPage "Incoming Document";
+        SwissQRBillSetup: Record "Swiss QR-Bill Setup";
     begin
-        with IncomingDocumentPage do begin
-            Trap();
-            Page.Run(Page::"Incoming Document", IncomingDocument);
-            "Swiss QR-Bill Scan".Invoke();
-            Close();
-        end;
-    end;
-
-    local procedure FindLatestPurchaseJournalRecord(var JournalLine: Record "Gen. Journal Line")
-    var
-        QRBillSetup: Record "Swiss QR-Bill Setup";
-    begin
-        QRBillSetup.Get();
-        with JournalLine do begin
-            SetRange("Journal Template Name", QRBillSetup."Journal Template");
-            SetRange("Journal Batch Name", QRBillSetup."Journal Batch");
-            FindLast();
-        end;
-    end;
-
-    local procedure ClearJournalRecords()
-    var
-        JournalLine: Record "Gen. Journal Line";
-        QRBillSetup: Record "Swiss QR-Bill Setup";
-    begin
-        QRBillSetup.Get();
-        with JournalLine do begin
-            SetRange("Journal Template Name", QRBillSetup."Journal Template");
-            SetRange("Journal Batch Name", QRBillSetup."Journal Batch");
-            DeleteAll();
-        end;
-    end;
-
-    local procedure ClearVendor(VendorNo: Code[20])
-    var
-        Vendor: Record Vendor;
-        VendorBankAccount: Record "Vendor Bank Account";
-    begin
-        VendorBankAccount.SetRange("Vendor No.", VendorNo);
-        VendorBankAccount.DeleteAll();
-        if Vendor.Get(VendorNo) then
-            Vendor.Delete();
-    end;
-
-    local procedure CreateVendorWithBankAccount(var VendorNo: Code[20]; var VendorBankaccountNo: Code[20]; IBAN: Code[50])
-    var
-        VendorBankAccount: Record "Vendor Bank Account";
-    begin
-        VendorNo := LibraryPurchase.CreateVendorNo();
-        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
-        VendorBankAccount.IBAN := IBAN;
-        VendorBankAccount.Modify();
-        VendorBankaccountNo := VendorBankAccount.Code;
+        SwissQRBillSetup.Get();
+        GenJournalLine.SetRange("Journal Template Name", SwissQRBillSetup."Journal Template");
+        GenJournalLine.SetRange("Journal Batch Name", SwissQRBillSetup."Journal Batch");
+        GenJournalLine.FindLast();
     end;
 
     local procedure MockIncomingDoc(var IncomingDocument: Record "Incoming Document"; QRBill: Boolean)
@@ -582,10 +527,10 @@ codeunit 148095 "Swiss QR-Bill Test IncomingDoc"
     end;
 
     [ModalPageHandler]
-    procedure QRBillScanMPH(var QRBillScanPage: TestPage "Swiss QR-Bill Scan")
+    procedure QRBillScanMPH(var SwissQRBillScan: TestPage "Swiss QR-Bill Scan")
     begin
-        QRBillScanPage.QRCodeTextField.SetValue(LibraryVariableStorage.DequeueText());
-        QRBillScanPage.OK().Invoke();
+        SwissQRBillScan.QRCodeTextField.SetValue(LibraryVariableStorage.DequeueText());
+        SwissQRBillScan.OK().Invoke();
     end;
 
     [MessageHandler]

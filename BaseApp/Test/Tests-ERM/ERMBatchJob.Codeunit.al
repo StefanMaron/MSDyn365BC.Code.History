@@ -32,6 +32,7 @@ codeunit 134900 "ERM Batch Job"
         isInitialized: Boolean;
         AmountErr: Label 'Amount must be %1.', Comment = '%1=Value';
         StatusErr: Label 'Status must be equal to ''Open''  in %1: %2=%3, %4=%5. Current value is ''Released''.', Comment = '%1 = TableCaption, %2 = FIELDCaption,%3 =   FIELDValue,%4 = FieldCaption ,%5 =  FIELDValue';
+        OrderMsg: Label 'One or more of the documents could not be posted.';
         SalesHeaderErr: Label 'You cannot delete the order line because it is associated with purchase order';
         ShipToNameErr: Label 'The %1 field on the purchase order %2 must be the same as on sales order %3.', Comment = '%1=Field;%2=Value;%3=Value;';
         DropShipWithShipToAddress2Err: Label 'Sales Order of Drop Shipment with different Ship-To-Address 2 should be carried to seperate orders.';
@@ -39,6 +40,7 @@ codeunit 134900 "ERM Batch Job"
         SpecOrderWithSameLocationCodeErr: Label 'Sales Order of Special order with the same Location Code should be carried to the same orders.';
         SpecOrderWithDifferentLocationCodeErr: Label 'Sales Order of Special order with different Location Code should be carried to seperate orders.';
         ILEAmounValueErr: Label 'Wrong value "Item Ledger Entry" field %1.', Comment = '%1=Value';
+        PrintedOrdersCountErr: Label 'Wrong number of printed Orders.';
         SelectionRef: Option "All fields","Selected fields";
         UnpaidPrepaymentErr: Label 'There are unpaid prepayment invoices related to the document';
         NoOfPicksCreatedMsg: Label 'Number of Invt. Pick activities created';
@@ -47,8 +49,6 @@ codeunit 134900 "ERM Batch Job"
         NotPaidPrepaymentErr: Label 'There are unpaid prepayment invoices related to the document of type Order with the number %1.';
         NotPaidPurchPrepaymentErr: Label 'There are unpaid prepayment invoices that are related to the document of type Order with the number %1.';
         TestPageIsNotOpenErr: Label 'The TestPage is not open.';
-        DefaultSalesCategoryCodeLbl: Label 'SALESBCKGR';
-        DefaultPurchCategoryCodeLbl: Label 'PURCHBCKGR';
 
     [Test]
     [Scope('OnPrem')]
@@ -752,9 +752,9 @@ codeunit 134900 "ERM Batch Job"
         LibraryVariableStorage.Enqueue(GeneralPostingSetupSource."Gen. Prod. Posting Group");
         RunCopyGeneralPostingSetup(GeneralPostingSetupDestination);
 
-        // [THEN] Following Setup fields are copied: "Sales Pmt. Tol. Debit Acc.","Sales Pmt. Tol. Credit Acc.",
-        // "Purch. Pmt. Tol. Debit Acc.","Purch. Pmt. Tol. Credit Acc.","Sales Prepayments Account",
-        // "Purch. Prepayments Account"
+        // [THEN] General Setup fields are copied: "Sales Account","Sales Pmt. Tol. Debit Acc.",
+        // "Sales Pmt. Tol. Credit Acc.","Purch. Pmt. Tol. Debit Acc.","Purch. Pmt. Tol. Credit Acc.",
+        // "Sales Prepayments Account","Purch. Prepayments Account"
         with GeneralPostingSetupSource do
             VerifyValuesOnGenPostingSetupAllFields(
               GeneralPostingSetupDestination, "Sales Account", "Sales Pmt. Tol. Debit Acc.", "Sales Pmt. Tol. Credit Acc.",
@@ -809,8 +809,10 @@ codeunit 134900 "ERM Batch Job"
         LibraryVariableStorage.Enqueue(VATPostingSetupSource."VAT Prod. Posting Group");
         RunCopyVATPostingSetup(VATPostingSetupDestination);
 
-        // [THEN] New VAT Posting Setup contains "VAT Identifier" = 'Z'
-        VerifyValuesOnVATPostingSetup(VATPostingSetupDestination, VATPostingSetupSource."VAT Identifier");
+        // [THEN] VAT Setup fields are copied: "VAT Identifeir","Sales VAT Stat. Cipher","Purch. VAT Stat. Cipher"
+        with VATPostingSetupSource do
+            VerifyValuesOnVATPostingSetup(
+              VATPostingSetupDestination, "VAT Identifier", "Sales VAT Stat. Cipher", "Purch. VAT Stat. Cipher");
     end;
 
     [Test]
@@ -2300,7 +2302,7 @@ codeunit 134900 "ERM Batch Job"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         i: Integer;
-        JobQueueEntryId: List of [Guid];
+        JobQueueEntryId: array[2] of Guid;
     begin
         // [FEATURE] [Batch Post] [Order] [Sales]
         // [SCENARIO] Job queue category code filled in job queue entry in the case of empty sales setup
@@ -2308,23 +2310,19 @@ codeunit 134900 "ERM Batch Job"
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
-
         // [GIVEN] Sales Orders
         for i := 1 to ArrayLen(SalesHeader) do
             CreateSalesDocument(SalesHeader[i], SalesLine, SalesHeader[1]."Document Type"::Order);
-
         // [GIVEN] "Job Queue Category Code" is empty in sales and receivables setup
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Job Queue Category Code", '');
         SalesReceivablesSetup.Modify(true);
-
         // [WHEN] Post Sales Orders with Batch Post as Ship and Invoice.
         SalesPostBatchShipInvoice(SalesHeader);
         for i := 1 to ArrayLen(SalesHeader) do
-            JobQueueEntryId.Add(GetJobQueueEntryId(SalesHeader[i].RecordId));
+            GetJobQueueEntryId(JobQueueEntryId[i], SalesHeader[i].RecordId);
         for i := 1 to ArrayLen(SalesHeader) do
             LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader[i].RecordId);
-
         // [THEN] Job Queue Category Code filled in job queue log entry
         // [THEN] 'SALESBCKGR' Job Category Code exists
         VerifySalesJobQueueCategoryCode(JobQueueEntryId);
@@ -2335,13 +2333,12 @@ codeunit 134900 "ERM Batch Job"
     [Scope('OnPrem')]
     procedure BatchPostPurchaseOrdersWithEmptyCategoryCode()
     var
-        //PurchaseHeader: List of [v: Record "purc" temporary;];
         PurchaseHeader: array[2] of Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         i: Integer;
-        JobQueueEntryId: List of [Guid];
+        JobQueueEntryId: array[2] of Guid;
     begin
         // [FEATURE] [Batch Post] [Order] [Purchase]
         // [SCENARIO] Job queue category code filled in job queue entry in the case of empty purchase setup
@@ -2349,23 +2346,19 @@ codeunit 134900 "ERM Batch Job"
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
-
         // [GIVEN] Purchase Orders
         for i := 1 to ArrayLen(PurchaseHeader) do
             CreatePurchaseDocument(PurchaseHeader[i], PurchaseLine, PurchaseHeader[i]."Document Type"::Order, LibraryPurchase.CreateVendorNo);
-
         // [GIVEN] "Job Queue Category Code" is empty in purchases and payables setup
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Job Queue Category Code", '');
         PurchasesPayablesSetup.Modify(true);
-
         // [WHEN] Run Batch Post Purchase Order
         RunBatchPostPurchaseOrders(PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", true, true, 0D, false, false, false);
         for i := 1 to ArrayLen(PurchaseHeader) do
-            JobQueueEntryId.Add(GetJobQueueEntryId(PurchaseHeader[i].RecordId));
+            GetJobQueueEntryId(JobQueueEntryId[i], PurchaseHeader[i].RecordId);
         for i := 1 to ArrayLen(PurchaseHeader) do
             LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader[i].RecordId);
-
         // [THEN] Job Queue Category Code filled in job queue log entry
         // [THEN] 'PURCHBCKGR' Job Category Code exists
         VerifyPurchaseJobQueueCategoryCode(JobQueueEntryId);
@@ -3449,6 +3442,15 @@ codeunit 134900 "ERM Batch Job"
         REPORT.Run(REPORT::"Batch Post Sales Orders", true, false, SalesHeader);
     end;
 
+    local procedure RunPostBatchPurchaseOrder(PurchaseHeaderNo: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        Commit();  // Commit is used to avoid Test failure.
+        PurchaseHeader.SetRange("No.", PurchaseHeaderNo);
+        REPORT.Run(REPORT::"Batch Post Purchase Orders", true, false, PurchaseHeader);
+    end;
+
     local procedure SetCheckPrepmtWhenPostingPurchase(CheckPrepmtwhenPosting: Boolean)
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -3902,10 +3904,14 @@ codeunit 134900 "ERM Batch Job"
         end;
     end;
 
-    local procedure VerifyValuesOnVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup"; VATIdentifier: Code[20])
+    local procedure VerifyValuesOnVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup"; VATIdentifier: Code[20]; SalesVATStatCipher: Code[20]; PurchVATStatCipher: Code[20])
     begin
-        VATPostingSetup.Get(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        VATPostingSetup.TestField("VAT Identifier", VATIdentifier);
+        with VATPostingSetup do begin
+            Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
+            TestField("VAT Identifier", VATIdentifier);
+            TestField("Sales VAT Stat. Cipher", SalesVATStatCipher);
+            TestField("Purch. VAT Stat. Cipher", PurchVATStatCipher);
+        end;
     end;
 
     local procedure VerifyPurchShippingDetails(PurchHeader: Record "Purchase Header"; ShipToName: Text[100]; ShipToAddress: Text[100])
@@ -4043,42 +4049,42 @@ codeunit 134900 "ERM Batch Job"
         Assert.RecordIsNotEmpty(ItemLedgerEntry);
     end;
 
-    local procedure GetJobQueueEntryId(RecordIdToProcess: RecordId): Guid
+    local procedure GetJobQueueEntryId(var JobQueueEntryId: Guid; RecordIdToProcess: RecordId)
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
         JobQueueEntry.SetRange("Record ID to Process", RecordIdToProcess);
         JobQueueEntry.FindFirst();
-        exit(JobQueueEntry.ID);
+        JobQueueEntryId := JobQueueEntry.ID;
     end;
 
-    local procedure VerifySalesJobQueueCategoryCode(JobQueueEntryId: List of [Guid])
+    local procedure VerifySalesJobQueueCategoryCode(JobQueueEntryId: array[2] of Guid)
     var
         JobQueueCategory: Record "Job Queue Category";
         JobQueueLogEntry: Record "Job Queue Log Entry";
         i: Integer;
     begin
-        JobQueueCategory.Get(DefaultSalesCategoryCodeLbl);
+        JobQueueCategory.Get('SALESBCKGR');
 
-        for i := 1 to JobQueueEntryId.Count do begin
-            JobQueueLogEntry.SetRange(ID, JobQueueEntryId.Get(i));
+        for i := 1 to ArrayLen(JobQueueEntryId) do begin
+            JobQueueLogEntry.SetRange(ID, JobQueueEntryId[i]);
             JobQueueLogEntry.FindFirst();
-            Assert.AreEqual(JobQueueLogEntry."Job Queue Category Code", JobQueueCategory.Code, 'Wrong job queue category code');
+            Assert.AreEqual(JobQueueLogEntry."Job Queue Category Code", 'SALESBCKGR', 'Wrong job queue category code');
         end;
     end;
 
-    local procedure VerifyPurchaseJobQueueCategoryCode(JobQueueEntryId: List of [Guid])
+    local procedure VerifyPurchaseJobQueueCategoryCode(JobQueueEntryId: array[2] of Guid)
     var
         JobQueueCategory: Record "Job Queue Category";
         JobQueueLogEntry: Record "Job Queue Log Entry";
         i: Integer;
     begin
-        JobQueueCategory.Get(DefaultPurchCategoryCodeLbl);
+        JobQueueCategory.Get('PURCHBCKGR');
 
-        for i := 1 to JobQueueEntryId.Count do begin
-            JobQueueLogEntry.SetRange(ID, JobQueueEntryId.Get(i));
+        for i := 1 to ArrayLen(JobQueueEntryId) do begin
+            JobQueueLogEntry.SetRange(ID, JobQueueEntryId[i]);
             JobQueueLogEntry.FindFirst();
-            Assert.AreEqual(JobQueueLogEntry."Job Queue Category Code", JobQueueCategory.Code, 'Wrong job queue category code');
+            Assert.AreEqual(JobQueueLogEntry."Job Queue Category Code", 'PURCHBCKGR', 'Wrong job queue category code');
         end;
     end;
 
@@ -4238,6 +4244,13 @@ codeunit 134900 "ERM Batch Job"
         CopyVATPostingSetup.OK.Invoke;
     end;
 
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure PostBatchMessageHandler(Message: Text[1024])
+    begin
+        Assert.ExpectedMessage(OrderMsg, Message);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesListPageHandler(var SalesList: TestPage "Sales List")
@@ -4273,6 +4286,13 @@ codeunit 134900 "ERM Batch Job"
     begin
         CreateInvtPutawayPickMvmt.CInvtPick.SetValue(true);
         CreateInvtPutawayPickMvmt.OK.Invoke;
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure PurchInvoiceReportHandler(var PurchaseInvoice: Report "Purchase - Invoice")
+    begin
+        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger + 1);
     end;
 
     [SendNotificationHandler]

@@ -28,7 +28,7 @@ pageextension 11511 "Swiss QR-Bill Incoming Docs" extends "Incoming Documents"
                 action("Swiss QR-Bill Import")
                 {
                     ApplicationArea = All;
-                    Caption = 'Import QR-Bill File';
+                    Caption = 'Import Scanned QR-Bill File';
                     ToolTip = 'Creates a new incoming document record by importing a scanned QR-bill that is saved as a text file.';
                     Image = Import;
 

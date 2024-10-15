@@ -253,7 +253,13 @@ codeunit 1535 "Approvals Mgmt."
     procedure DelegateApprovalRequests(var ApprovalEntry: Record "Approval Entry")
     var
         ApprovalEntryToUpdate: Record "Approval Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDelegateApprovalRequests(ApprovalEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if ApprovalEntry.FindSet() then begin
             repeat
                 ApprovalEntryToUpdate := ApprovalEntry;
@@ -261,6 +267,8 @@ codeunit 1535 "Approvals Mgmt."
             until ApprovalEntry.Next = 0;
             Message(ApprovalsDelegatedMsg);
         end;
+
+        OnAfterDelegateApprovalRequest(ApprovalEntry);
     end;
 
     local procedure ApproveSelectedApprovalRequest(var ApprovalEntry: Record "Approval Entry")
@@ -269,7 +277,7 @@ codeunit 1535 "Approvals Mgmt."
             Error(ApproveOnlyOpenRequestsErr);
 
         if ApprovalEntry."Approver ID" <> UserId then
-            CheckUserAsApprovalAdministrator;
+            CheckUserAsApprovalAdministrator(ApprovalEntry);
 
         ApprovalEntry.Validate(Status, ApprovalEntry.Status::Approved);
         ApprovalEntry.Modify(true);
@@ -282,7 +290,7 @@ codeunit 1535 "Approvals Mgmt."
             Error(RejectOnlyOpenRequestsErr);
 
         if ApprovalEntry."Approver ID" <> UserId then
-            CheckUserAsApprovalAdministrator;
+            CheckUserAsApprovalAdministrator(ApprovalEntry);
 
         OnRejectApprovalRequest(ApprovalEntry);
         ApprovalEntry.Get(ApprovalEntry."Entry No.");
@@ -291,12 +299,19 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     procedure DelegateSelectedApprovalRequest(var ApprovalEntry: Record "Approval Entry"; CheckCurrentUser: Boolean)
+    var
+        IsHandled: Boolean;
     begin
         if ApprovalEntry.Status <> ApprovalEntry.Status::Open then
             Error(DelegateOnlyOpenRequestsErr);
 
         if CheckCurrentUser and (not ApprovalEntry.CanCurrentUserEdit) then
             Error(NoPermissionToDelegateErr);
+
+        IsHandled := false;
+        OnDelegateSelectedApprovalRequestOnBeforeSubstituteUserIdForApprovalEntry(ApprovalEntry, IsHandled);
+        if IsHandled then
+            exit;
 
         SubstituteUserIdForApprovalEntry(ApprovalEntry)
     end;
@@ -305,7 +320,13 @@ codeunit 1535 "Approvals Mgmt."
     var
         UserSetup: Record "User Setup";
         ApprovalAdminUserSetup: Record "User Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSubstituteUserIdForApprovalEntry(ApprovalEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if not UserSetup.Get(ApprovalEntry."Approver ID") then
             Error(ApproverUserIdNotInSetupErr, ApprovalEntry."Sender ID");
 
@@ -971,7 +992,14 @@ codeunit 1535 "Approvals Mgmt."
     local procedure IsSufficientPurchApprover(UserSetup: Record "User Setup"; DocumentType: Option; ApprovalAmountLCY: Decimal): Boolean
     var
         PurchaseHeader: Record "Purchase Header";
+        IsHandled: Boolean;
+        IsSufficient: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsSufficientPurchApprover(UserSetup, DocumentType, ApprovalAmountLCY, IsSufficient, IsHandled);
+        if IsHandled then
+            exit(IsSufficient);
+
         if UserSetup."User ID" = UserSetup."Approver ID" then
             exit(true);
 
@@ -991,8 +1019,16 @@ codeunit 1535 "Approvals Mgmt."
         exit(false);
     end;
 
-    local procedure IsSufficientSalesApprover(UserSetup: Record "User Setup"; ApprovalAmountLCY: Decimal): Boolean
+    local procedure IsSufficientSalesApprover(UserSetup: Record "User Setup"; DocumentType: Enum "Sales Document Type"; ApprovalAmountLCY: Decimal): Boolean
+    var
+        IsHandled: Boolean;
+        IsSufficient: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsSufficientSalesApprover(UserSetup, DocumentType, ApprovalAmountLCY, IsSufficient, IsHandled);
+        if IsHandled then
+            exit(IsSufficient);
+
         if UserSetup."User ID" = UserSetup."Approver ID" then
             exit(true);
 
@@ -1016,7 +1052,7 @@ codeunit 1535 "Approvals Mgmt."
             exit(IsSufficientPurchApprover(UserSetup, ApprovalEntryArgument."Document Type", ApprovalEntryArgument."Amount (LCY)"));
 
         if GenJournalLine.IsForSales then
-            exit(IsSufficientSalesApprover(UserSetup, ApprovalEntryArgument."Amount (LCY)"));
+            exit(IsSufficientSalesApprover(UserSetup, ApprovalEntryArgument."Document Type", ApprovalEntryArgument."Amount (LCY)"));
 
         exit(true);
     end;
@@ -1029,7 +1065,7 @@ codeunit 1535 "Approvals Mgmt."
             DATABASE::"Purchase Header":
                 exit(IsSufficientPurchApprover(UserSetup, ApprovalEntryArgument."Document Type", ApprovalEntryArgument."Amount (LCY)"));
             DATABASE::"Sales Header":
-                exit(IsSufficientSalesApprover(UserSetup, ApprovalEntryArgument."Amount (LCY)"));
+                exit(IsSufficientSalesApprover(UserSetup, ApprovalEntryArgument."Document Type", ApprovalEntryArgument."Amount (LCY)"));
             DATABASE::"Gen. Journal Batch":
                 Message(ApporvalChainIsUnsupportedMsg, Format(ApprovalEntryArgument."Record ID to Approve"));
             DATABASE::"Gen. Journal Line":
@@ -1280,6 +1316,7 @@ codeunit 1535 "Approvals Mgmt."
             PostedApprovalEntry."Document No." := PostedDocNo;
             PostedApprovalEntry."Posted Record ID" := PostedRecordID;
             PostedApprovalEntry."Entry No." := 0;
+            OnPostApprovalEntriesOnBeforePostedApprovalEntryInsert(PostedApprovalEntry, ApprovalEntry);
             PostedApprovalEntry.Insert(true);
         until ApprovalEntry.Next = 0;
 
@@ -1410,7 +1447,6 @@ codeunit 1535 "Approvals Mgmt."
     var
         ApprovalCommentLine: Record "Approval Comment Line";
         ApprovalEntry: Record "Approval Entry";
-        ApprovalComments: Page "Approval Comments";
         RecRef: RecordRef;
     begin
         RecRef.GetTable(Variant);
@@ -1444,6 +1480,19 @@ codeunit 1535 "Approvals Mgmt."
 
         if IsNullGuid(WorkflowStepInstanceID) and (not IsNullGuid(ApprovalEntry."Workflow Step Instance ID")) then
             WorkflowStepInstanceID := ApprovalEntry."Workflow Step Instance ID";
+
+        RunApprovalCommentsPage(ApprovalCommentLine, WorkflowStepInstanceID);
+    end;
+
+    local procedure RunApprovalCommentsPage(var ApprovalCommentLine: Record "Approval Comment Line"; WorkflowStepInstanceID: Guid)
+    var
+        ApprovalComments: Page "Approval Comments";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunApprovalCommentsPage(ApprovalCommentLine, WorkflowStepInstanceID, IsHandled);
+        if IsHandled then
+            exit;
 
         ApprovalComments.SetTableView(ApprovalCommentLine);
         ApprovalComments.SetWorkflowStepInstanceID(WorkflowStepInstanceID);
@@ -1673,14 +1722,12 @@ codeunit 1535 "Approvals Mgmt."
         FromApprovalEntry.SetRange("Table ID", FromRecID.TableNo);
         FromApprovalEntry.SetRange("Record ID to Approve", FromRecID);
         if FromApprovalEntry.FindSet then begin
-            NextEntryNo := ToApprovalEntry.GetLastEntryNo() + 1;
             repeat
                 ToApprovalEntry := FromApprovalEntry;
-                ToApprovalEntry."Entry No." := NextEntryNo;
+                ToApprovalEntry."Entry No." := 0; // Auto increment
                 ToApprovalEntry."Document Type" := ToApprovalEntry."Document Type"::Order;
                 ToApprovalEntry."Document No." := ToDocNo;
                 ToApprovalEntry."Record ID to Approve" := ToRecID;
-                NextEntryNo += 1;
                 ToApprovalEntry.Insert();
             until FromApprovalEntry.Next = 0;
 
@@ -1757,10 +1804,16 @@ codeunit 1535 "Approvals Mgmt."
         end;
     end;
 
-    local procedure CheckUserAsApprovalAdministrator()
+    local procedure CheckUserAsApprovalAdministrator(ApprovalEntry: Record "Approval Entry")
     var
         UserSetup: Record "User Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckUserAsApprovalAdministrator(ApprovalEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         UserSetup.Get(UserId);
         UserSetup.TestField("Approval Administrator");
     end;
@@ -1830,7 +1883,52 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterDelegateApprovalRequest(var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeApprovalEntryInsert(var ApprovalEntry: Record "Approval Entry"; ApprovalEntryArgument: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDelegateApprovalRequests(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckUserAsApprovalAdministrator(ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsSufficientSalesApprover(UserSetup: Record "User Setup"; DocumentType: Enum "Sales Document Type"; ApprovalAmountLCY: Decimal; var IsSufficient: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsSufficientPurchApprover(UserSetup: Record "User Setup"; DocumentType: Enum "Purchase Document Type"; ApprovalAmountLCY: Decimal; var IsSufficient: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSubstituteUserIdForApprovalEntry(var ApprovalEntry: Record "Approval Entry"; var IsHandle: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunApprovalCommentsPage(var ApprovalCommentLine: Record "Approval Comment Line"; WorkflowStepInstanceID: Guid; var IsHandle: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDelegateSelectedApprovalRequestOnBeforeSubstituteUserIdForApprovalEntry(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostApprovalEntriesOnBeforePostedApprovalEntryInsert(var PostedApprovalEntry: Record "Posted Approval Entry"; ApprovalEntry: Record "Approval Entry")
     begin
     end;
 

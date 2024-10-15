@@ -1,5 +1,8 @@
 codeunit 11513 "Swiss QR-Bill Encode"
 {
+    var
+        SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
+
     internal procedure GenerateQRCodeText(var SwissQRBillBuffer: Record "Swiss QR-Bill Buffer"): Text
     var
         Result: Text;
@@ -20,7 +23,8 @@ codeunit 11513 "Swiss QR-Bill Encode"
             AddLine(Result, "Unstructured Message");
             AddLine(Result, 'EPD'); // Trailer
             AddLineConditionally(Result, "Billing Information", ("Alt. Procedure Value 1" <> '') or ("Alt. Procedure Value 2" <> ''));
-            AddLineConditionally(Result, FormatAltProcedureText("Alt. Procedure Name 1", "Alt. Procedure Value 1"), "Alt. Procedure Value 2" <> '');
+            AddLineConditionally(
+              Result, FormatAltProcedureText("Alt. Procedure Name 1", "Alt. Procedure Value 1"), "Alt. Procedure Value 2" <> '');
             AddLineIfNotBlanked(Result, FormatAltProcedureText("Alt. Procedure Name 2", "Alt. Procedure Value 2"));
         end;
 
@@ -153,16 +157,12 @@ codeunit 11513 "Swiss QR-Bill Encode"
     end;
 
     local procedure AddLine(var TargetText: Text; LineText: Text)
-    var
-        QRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
     begin
-        QRBillMgt.AddLine(TargetText, LineText);
+        SwissQRBillMgt.AddLine(TargetText, LineText);
     end;
 
     local procedure AddLineIfNotBlanked(var TargetText: Text; LineText: Text)
-    var
-        QRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
     begin
-        QRBillMgt.AddLineIfNotBlanked(TargetText, LineText);
+        SwissQRBillMgt.AddLineIfNotBlanked(TargetText, LineText);
     end;
 }

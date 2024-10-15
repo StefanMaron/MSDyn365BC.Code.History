@@ -591,6 +591,7 @@ table 1226 "Payment Export Data"
         "Recipient Bank Clearing Code" := CustomerBankAccount."Bank Clearing Code";
 
         FillSwissFieldsFromCustomerBankAccount(CustomerBankAccount);
+        OnAfterSetCustomerAsRecipient(Rec, Customer, CustomerBankAccount);
     end;
 
     procedure SetVendorAsRecipient(var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account")
@@ -680,6 +681,11 @@ table 1226 "Payment Export Data"
                 BlankValue := '0';
         end;
         exit(Format(FieldRef.Value) = BlankValue);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCustomerAsRecipient(var PaymentExportData: Record "Payment Export Data"; var Customer: Record Customer; var CustomerBankAccount: Record "Customer Bank Account");
+    begin
     end;
 
     local procedure FillSwissFieldsFromCustomerBankAccount(CustomerBankAccount: Record "Customer Bank Account")

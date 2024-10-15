@@ -596,7 +596,6 @@ codeunit 134763 "Test Sales Post Preview"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        Location: Record Location;
         SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
         GLPostingPreview: TestPage "G/L Posting Preview";
         ItemNo: Code[20];
@@ -607,7 +606,6 @@ codeunit 134763 "Test Sales Post Preview"
         // [GIVEN] Inventory Setup: Automatic Cost Posting = TRUE, Expected Cost Posting = TRUE
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetExpectedCostPosting(true);
-        LibraryInventory.UpdateInventoryPostingSetup(Location);
 
         // [GIVEN] Item with Lot Tracking and Costing Method FIFO
         ItemNo := CreateItemWithFIFO;

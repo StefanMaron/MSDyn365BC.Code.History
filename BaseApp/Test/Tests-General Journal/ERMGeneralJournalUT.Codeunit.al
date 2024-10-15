@@ -1264,115 +1264,7 @@ codeunit 134920 "ERM General Journal UT"
 
     [Test]
     [Scope('OnPrem')]
-    procedure RecipientBankAccountOnInvoiceGenJnlLineForCustomerAsAccount()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Customer: Record Customer;
-    begin
-        // [FEATURE] [Customer]
-        // [SCENARIO 378439] "Recipient Bank Account" should be empty on Invoice Gen. Jnl. Line when Account No has Customer with "Preferred Bank Account Code"
-        Initialize;
-        CreateCustomerWithBankAccount(Customer);
-        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, Customer."No.",
-          GenJournalLine."Bal. Account Type"::"G/L Account", '', '');
-
-        GenJournalLine.TestField("Recipient Bank Account", '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure RecipientBankAccountOnInvoiceGenJnlLineForCustomerAsBalAccount()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Customer: Record Customer;
-    begin
-        // [FEATURE] [Customer]
-        // [SCENARIO 378439] "Recipient Bank Account" should be empty on Invoice Gen. Jnl. Line when Bal. Account No has Customer with "Preferred Bank Account Code"
-        Initialize;
-        CreateCustomerWithBankAccount(Customer);
-        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", '',
-          GenJournalLine."Bal. Account Type"::Customer, Customer."No.", '');
-
-        GenJournalLine.TestField("Recipient Bank Account", '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure RecipientBankAccountOnInvoiceGenJnlLineForVendorAsAccount()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Vendor: Record Vendor;
-    begin
-        // [FEATURE] [Vendor]
-        // [SCENARIO 378439] "Recipient Bank Account" should be empty on Invoice Gen. Jnl. Line when Account No has Vendor with "Preferred Bank Account Code"
-        Initialize;
-        CreateVendorWithBankAccount(Vendor);
-        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, Vendor."No.",
-          GenJournalLine."Bal. Account Type"::"G/L Account", '', '');
-
-        GenJournalLine.TestField("Recipient Bank Account", '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure RecipientBankAccountOnInvoiceGenJnlLineForVendorAsBalAccount()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Vendor: Record Vendor;
-    begin
-        // [FEATURE] [Vendor]
-        // [SCENARIO 378439] "Recipient Bank Account" should be empty on Invoice Gen. Jnl. Line when Bal. Account No has Vendor with "Preferred Bank Account Code"
-        Initialize;
-        CreateVendorWithBankAccount(Vendor);
-        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", '',
-          GenJournalLine."Bal. Account Type"::Vendor, Vendor."No.", '');
-
-        GenJournalLine.TestField("Recipient Bank Account", '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure RecipientBankAccountOnPaymentGenJnlLineForCustomer()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Customer: Record Customer;
-    begin
-        // [FEATURE] [Customer]
-        // [SCENARIO 378439] "Recipient Bank Account" should be filled on Payment Gen. Jnl. Line when Account No has Customer with "Preferred Bank Account Code"
-        Initialize;
-        CreateCustomerWithBankAccount(Customer);
-        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, Customer."No.",
-          GenJournalLine."Bal. Account Type"::"G/L Account", '', '');
-
-        GenJournalLine.TestField("Recipient Bank Account", Customer."Preferred Bank Account Code");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure RecipientBankAccountOnPaymentGenJnlLineForVendor()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Vendor: Record Vendor;
-    begin
-        // [FEATURE] [Vendor]
-        // [SCENARIO 378439] "Recipient Bank Account" should be filled on Payment Gen. Jnl. Line when Account No has Vendor with "Preferred Bank Account Code"
-        Initialize;
-        CreateVendorWithBankAccount(Vendor);
-        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Vendor, Vendor."No.",
-          GenJournalLine."Bal. Account Type"::"G/L Account", '', '');
-
-        GenJournalLine.TestField("Recipient Bank Account", Vendor."Preferred Bank Account Code");
-    end;
-
-    [Test]
     [HandlerFunctions('YesConfirmHandler')]
-    [Scope('OnPrem')]
     procedure RenumberingOfEntriesWithoutDocNo()
     var
         GenJournalLine: array[2] of Record "Gen. Journal Line";
@@ -4374,98 +4266,6 @@ codeunit 134920 "ERM General Journal UT"
 
     [Test]
     [Scope('OnPrem')]
-    procedure EnsureRecipientBankAccountIsEmptyForBlankGenJnlLineWithAccNoVend()
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        VendorBankAccount: Record "Vendor Bank Account";
-        GLAccountNo: Code[20];
-    begin
-        // [SCENARIO 304753] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated with blank value for "Document Type" = " "
-        Initialize;
-
-        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
-        with GenJnlLine do
-            CreateGenJournalLine(
-              GenJnlLine, "Document Type"::" ", "Account Type"::"G/L Account", GLAccountNo,
-              "Bal. Account Type"::Vendor, VendorBankAccount."Vendor No.", '');
-
-        GenJnlLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
-
-        GenJnlLine.TestField("Recipient Bank Account", '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure EnsureRecipientBankAccountIsEmptyForCreditMemoGenJnlLineWithAccNoVend()
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        VendorBankAccount: Record "Vendor Bank Account";
-        GLAccountNo: Code[20];
-    begin
-        // [SCENARIO 304753] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated with blank value for "Document Type" = "Credit Memo"
-        Initialize;
-
-        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
-        with GenJnlLine do
-            CreateGenJournalLine(
-              GenJnlLine, "Document Type"::"Credit Memo", "Account Type"::"G/L Account",
-              GLAccountNo, "Bal. Account Type"::Vendor, VendorBankAccount."Vendor No.", '');
-
-        GenJnlLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
-
-        GenJnlLine.TestField("Recipient Bank Account", '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure EnsureRecipientBankAccountIsEmptyForBlankGenJnlLineWithAccNoCust()
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        CustomerBankAccount: Record "Customer Bank Account";
-        GLAccountNo: Code[20];
-    begin
-        // [SCENARIO 304753] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated with blank value for "Document Type" = " "
-        Initialize;
-
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, LibrarySales.CreateCustomerNo);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
-        with GenJnlLine do
-            CreateGenJournalLine(
-              GenJnlLine, "Document Type"::" ", "Account Type"::"G/L Account", GLAccountNo,
-              "Bal. Account Type"::Customer, CustomerBankAccount."Customer No.", '');
-
-        GenJnlLine.Validate("Recipient Bank Account", CustomerBankAccount.Code);
-
-        GenJnlLine.TestField("Recipient Bank Account", '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure EnsureRecipientBankAccountIsEmptyForCreditMemoGenJnlLineWithAccNoCust()
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        CustomerBankAccount: Record "Customer Bank Account";
-        GLAccountNo: Code[20];
-    begin
-        // [SCENARIO 304753] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated with blank value for "Document Type" = "Credit Memo"
-        Initialize;
-
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, LibrarySales.CreateCustomerNo);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
-        with GenJnlLine do
-            CreateGenJournalLine(
-              GenJnlLine, "Document Type"::"Credit Memo", "Account Type"::"G/L Account",
-              GLAccountNo, "Bal. Account Type"::Customer, CustomerBankAccount."Customer No.", '');
-
-        GenJnlLine.Validate("Recipient Bank Account", CustomerBankAccount.Code);
-
-        GenJnlLine.TestField("Recipient Bank Account", '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure DocumentNoResetOnChangedBatch()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -4622,10 +4422,150 @@ codeunit 134920 "ERM General Journal UT"
         GeneralJournal.NumberOfJournalRecords.AssertEquals(NumberOfLines);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateBlankDocumentTypeOnGeneralJournalPage()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GeneralJournalSimple: TestPage "General Journal";
+        GeneralJournalClassic: TestPage "General Journal";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 346835] Stan can set "Blank" type as document type on General Journal Page
+        Initialize;
+
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+
+        GeneralJournalSimple.OpenEdit();
+        GeneralJournalClassic.Trap();
+        GeneralJournalSimple.ClassicView.Invoke();
+        GeneralJournalClassic."Document Type".SetValue(Format(GenJournalLine."Document Type"::Invoice));
+        GeneralJournalClassic.Close();
+
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Invoice);
+
+        GeneralJournalSimple.OpenEdit();
+        GeneralJournalClassic.Trap();
+        GeneralJournalSimple.ClassicView.Invoke();
+        GeneralJournalClassic."Document Type".SetValue(Format(GenJournalLine."Document Type"::" "));
+        GeneralJournalClassic.Close();
+
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::" ");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateBlankDocumentTypeOnPurchaselJournalPage()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseJournalSimple: TestPage "Purchase Journal";
+        PurchaseJournalClassic: TestPage "Purchase Journal";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Purchase Journal] [UI]
+        // [SCENARIO 346835] Stan can set "Blank" type as document type on Purchase Journal Page
+        Initialize;
+
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        PurchaseJournalSimple.OpenEdit();
+        PurchaseJournalClassic.Trap();
+        PurchaseJournalSimple.ClassicView.Invoke();
+        PurchaseJournalClassic."Document Type".SetValue(GenJournalLine."Document Type"::Invoice);
+        PurchaseJournalClassic."Account Type".SetValue(GenJournalLine."Account Type"::Vendor);
+        PurchaseJournalClassic."Account No.".SetValue(VendorNo);
+        PurchaseJournalClassic.Close();
+
+        GenJournalLine.SetRange("Account No.", VendorNo);
+
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Invoice);
+
+        PurchaseJournalSimple.OpenEdit();
+        PurchaseJournalClassic.Trap();
+        PurchaseJournalSimple.ClassicView.Invoke();
+        PurchaseJournalClassic."Document Type".SetValue(Format(GenJournalLine."Document Type"::" "));
+        PurchaseJournalClassic.DocumentAmount.SETVALUE(LibraryRandom.RandIntInRange(100,200));
+        PurchaseJournalClassic.Close();
+
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::" ");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotChangeOnModePurchaseJournalWhenWrongAccountTypeExisted()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseJournalSimple: TestPage "Purchase Journal";
+        PurchaseJournalClassic: TestPage "Purchase Journal";
+        VendorNo: Code[20];
+        GLAccountNo: Code[20];
+        ExpectedErrorText: Text;
+    begin
+        // [FEATURE] [Purchase Journal] [UI]
+        // [SCENARIO 346835] Stan can set "Blank" type as document type on Purchase Journal Page
+        Initialize;
+
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
+
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+
+        PurchaseJournalSimple.OpenEdit();
+        PurchaseJournalClassic.Trap();
+        PurchaseJournalSimple.ClassicView.Invoke();
+        PurchaseJournalClassic."Document Type".SetValue(GenJournalLine."Document Type"::Invoice);
+        PurchaseJournalClassic."Account Type".SetValue(GenJournalLine."Account Type"::Vendor);
+        PurchaseJournalClassic."Account No.".SetValue(VendorNo);
+        PurchaseJournalClassic.Amount.SetValue(LibraryRandom.RandIntInRange(10, 100));
+        PurchaseJournalClassic.Next();
+        PurchaseJournalClassic."Document Type".SetValue(GenJournalLine."Document Type"::Invoice);
+        PurchaseJournalClassic."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
+        PurchaseJournalClassic."Account No.".SetValue(GLAccountNo);
+        PurchaseJournalClassic.Amount.SetValue(LibraryRandom.RandIntInRange(10, 100));
+        PurchaseJournalClassic.Close();
+        Commit();
+
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
+        GenJournalLine.SetRange("Account No.", GLAccountNo);
+        GenJournalLine.FindFirst();
+
+        asserterror GenJournalLine.TestField("Account Type", GenJournalLine."Account Type"::Vendor);
+        ExpectedErrorText := GetLastErrorText();
+
+        ClearLastError();
+        PurchaseJournalClassic.OpenEdit();
+        asserterror PurchaseJournalClassic.SimpleView.Invoke();
+
+        Assert.ExpectedError(ExpectedErrorText);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
+
+        // Setting the Purchase and Sales Journal to "Show Fewer Columns" mode by default.
+        GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"Purchase Journal");
+        GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"Sales Journal");
+
         if IsInitialized then
             exit;
 
@@ -4855,16 +4795,6 @@ codeunit 134920 "ERM General Journal UT"
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate(Name, LibraryUtility.GenerateGUID);
         Vendor.Modify(true);
-    end;
-
-    local procedure CreateCustomerWithBankAccount(var Customer: Record Customer)
-    var
-        CustomerBankAccount: Record "Customer Bank Account";
-    begin
-        LibrarySales.CreateCustomer(Customer);
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
-        Customer."Preferred Bank Account Code" := CustomerBankAccount.Code;
-        Customer.Modify();
     end;
 
     local procedure CreateVendorWithBankAccount(var Vendor: Record Vendor)

@@ -100,7 +100,7 @@ codeunit 7008 "Price Calculation Buffer Mgt."
         end;
     end;
 
-    local procedure RoundPrice(var Price: Decimal)
+    procedure RoundPrice(var Price: Decimal)
     begin
         Price := Round(Price, UnitAmountRoundingPrecision);
     end;
@@ -113,18 +113,31 @@ codeunit 7008 "Price Calculation Buffer Mgt."
     end;
 
     procedure ConvertAmount(AmountType: Enum "Price Amount Type"; var PriceListLine: Record "Price List Line")
+    var
+        IsHandled: Boolean;
     begin
-        case AmountType of
-            AmountType::Price:
-                ConvertAmount(PriceListLine, PriceListLine."Unit Price");
-            AmountType::Cost:
-                ConvertAmount(PriceListLine, PriceListLine."Unit Cost");
-        end;
+        OnBeforeConvertAmount(AmountType, PriceListLine, PriceCalculationBuffer, IsHandled);
+        if not IsHandled then
+            case AmountType of
+                AmountType::Price:
+                    ConvertAmount(PriceListLine, PriceListLine."Unit Price");
+                AmountType::Cost:
+                    ConvertAmount(PriceListLine, PriceListLine."Unit Cost");
+            end;
     end;
 
     local procedure ConvertAmount(var PriceListLine: Record "Price List Line"; var Amount: Decimal)
+    begin
+        ConvertAmountByTax(PriceListLine, Amount);
+        ConvertAmountByUnitOfMeasure(PriceListLine, Amount);
+        ConvertAmountByCurrency(PriceListLine, Amount);
+        RoundPrice(Amount);
+
+        SetLineDiscountPctForPickBestLine(PriceListLine);
+    end;
+
+    procedure ConvertAmountByTax(var PriceListLine: Record "Price List Line"; var Amount: Decimal)
     var
-        CurrExchRate: Record "Currency Exchange Rate";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         if PriceListLine."Price Includes VAT" then begin
@@ -136,7 +149,7 @@ codeunit 7008 "Price Calculation Buffer Mgt."
                 VATPostingSetup."VAT Calculation Type"::"Normal VAT",
                 VATPostingSetup."VAT Calculation Type"::"Full VAT":
                     if PriceCalculationBuffer."Prices Including Tax" then begin
-                        if PriceCalculationBuffer."VAT Bus. Posting Group" <> PriceListLine."VAT Bus. Posting Gr. (Price)" then // ? to test
+                        if PriceCalculationBuffer."VAT Bus. Posting Group" <> PriceListLine."VAT Bus. Posting Gr. (Price)" then
                             Amount := Amount * (100 + PriceCalculationBuffer."Tax %") / (100 + VATPostingSetup."VAT %");
                     end else
                         Amount := Amount / (1 + VATPostingSetup."VAT %" / 100);
@@ -144,17 +157,28 @@ codeunit 7008 "Price Calculation Buffer Mgt."
         end else
             if PriceCalculationBuffer."Prices Including Tax" then
                 Amount := Amount * (1 + PriceCalculationBuffer."Tax %" / 100);
+    end;
 
+    procedure ConvertAmountByUnitOfMeasure(var PriceListLine: Record "Price List Line"; var Amount: Decimal)
+    begin
         if PriceListLine."Unit of Measure Code" = '' then
             Amount := Amount * PriceCalculationBuffer."Qty. per Unit of Measure";
+    end;
 
+    procedure ConvertAmountByCurrency(var PriceListLine: Record "Price List Line"; var Amount: Decimal)
+    var
+        CurrExchRate: Record "Currency Exchange Rate";
+    begin
         if (PriceCalculationBuffer."Currency Code" <> '') and (PriceListLine."Currency Code" = '') then
             Amount :=
                 CurrExchRate.ExchangeAmtLCYToFCY(
-                    PriceCalculationBuffer."Document Date", PriceCalculationBuffer."Currency Code", Amount, PriceCalculationBuffer."Currency Factor");
-        RoundPrice(Amount);
-        // Set "Line Discount %" for PickBestLine
-        if PriceCalculationBuffer."Allow Line Disc." then
+                    PriceCalculationBuffer."Document Date", PriceCalculationBuffer."Currency Code",
+                    Amount, PriceCalculationBuffer."Currency Factor");
+    end;
+
+    procedure SetLineDiscountPctForPickBestLine(var PriceListLine: Record "Price List Line")
+    begin
+        if PriceCalculationBuffer."Allow Line Disc." and PriceListLine."Allow Line Disc." then
             PriceListLine."Line Discount %" := PriceCalculationBuffer."Line Discount %"
         else
             PriceListLine."Line Discount %" := 0;
@@ -197,6 +221,11 @@ codeunit 7008 "Price Calculation Buffer Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetFilters(var PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var PriceCalculationBuffer: Record "Price Calculation Buffer"; ShowAll: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConvertAmount(AmountType: Enum "Price Amount Type"; var PriceListLine: Record "Price List Line"; PriceCalculationBuffer: Record "Price Calculation Buffer"; var IsHandled: Boolean)
     begin
     end;
 }

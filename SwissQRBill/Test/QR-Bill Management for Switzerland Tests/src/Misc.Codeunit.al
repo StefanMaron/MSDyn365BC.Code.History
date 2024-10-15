@@ -9,8 +9,8 @@ codeunit 148093 "Swiss QR-Bill Test Misc"
 
     var
         Assert: Codeunit Assert;
-        Mgt: Codeunit "Swiss QR-Bill Mgt.";
-        Library: Codeunit "Swiss QR-Bill Test Library";
+        SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
+        SwissQRBillTestLibrary: Codeunit "Swiss QR-Bill Test Library";
         IBANType: Enum "Swiss QR-Bill IBAN Type";
         ReferenceType: Enum "Swiss QR-Bill Payment Reference Type";
 
@@ -19,11 +19,11 @@ codeunit 148093 "Swiss QR-Bill Test Misc"
     [Scope('OnPrem')]
     procedure QRBillSetupPage_UIVisibility()
     var
-        QRBillSetup: TestPage "Swiss QR-Bill Setup";
+        SwissQRBillSetup: TestPage "Swiss QR-Bill Setup";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 259169] Page "Swiss QR-Bill Setup" fields visibility and editability
-        with QRBillSetup do begin
+        with SwissQRBillSetup do begin
             OpenEdit();
             Assert.IsTrue("Address Type".Visible(), '');
             Assert.IsTrue(UmlautCharsEncodeMode.Visible(), '');
@@ -70,14 +70,14 @@ codeunit 148093 "Swiss QR-Bill Test Misc"
     procedure QRBillSetupPage_DrillDown_QRIBAN()
     var
         CompanyInfo: Record "Company Information";
-        QRBillSetup: TestPage "Swiss QR-Bill Setup";
+        SwissQRBillSetup: TestPage "Swiss QR-Bill Setup";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 259169] Page "Swiss QR-Bill Setup" assert and drill down "QR-IBAN"
-        Library.UpdateCompanyQRIBAN();
+        SwissQRBillTestLibrary.UpdateCompanyQRIBAN();
         CompanyInfo.Get();
 
-        with QRBillSetup do begin
+        with SwissQRBillSetup do begin
             OpenEdit();
             QRIBAN.AssertEquals(CompanyInfo."Swiss QR-Bill IBAN");
             QRIBAN.Drilldown();
@@ -91,13 +91,13 @@ codeunit 148093 "Swiss QR-Bill Test Misc"
     procedure QRBillSetupPage_DrillDown_IBAN()
     var
         CompanyInfo: Record "Company Information";
-        QRBillSetup: TestPage "Swiss QR-Bill Setup";
+        SwissQRBillSetup: TestPage "Swiss QR-Bill Setup";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 259169] Page "Swiss QR-Bill Setup" assert and drill down "IBAN"
         CompanyInfo.Get();
 
-        with QRBillSetup do begin
+        with SwissQRBillSetup do begin
             OpenEdit();
             IBAN.AssertEquals(CompanyInfo.IBAN);
             IBAN.Drilldown();
@@ -110,13 +110,13 @@ codeunit 148093 "Swiss QR-Bill Test Misc"
     [HandlerFunctions('PaymentMethodsMPH')]
     procedure QRBillSetupPage_DrillDown_PmtMethods()
     var
-        QRBillSetup: TestPage "Swiss QR-Bill Setup";
+        SwissQRBillSetup: TestPage "Swiss QR-Bill Setup";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 259169] Page "Swiss QR-Bill Setup" assert and drill down "Payment Methods"
-        with QRBillSetup do begin
+        with SwissQRBillSetup do begin
             OpenEdit();
-            PaymentMethods.AssertEquals(Mgt.FormatQRPaymentMethodsCount(Mgt.CalcQRPaymentMethodsCount()));
+            PaymentMethods.AssertEquals(SwissQRBillMgt.FormatQRPaymentMethodsCount(SwissQRBillMgt.CalcQRPaymentMethodsCount()));
             PaymentMethods.Drilldown();
             Close();
         end;
@@ -127,13 +127,13 @@ codeunit 148093 "Swiss QR-Bill Test Misc"
     [HandlerFunctions('ReportsMPH')]
     procedure QRBillSetupPage_DrillDown_Reports()
     var
-        SetupPage: TestPage "Swiss QR-Bill Setup";
+        SwissQRBillSetup: TestPage "Swiss QR-Bill Setup";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 259169] Page "Swiss QR-Bill Setup" assert and drill down Document Types
-        with SetupPage do begin
+        with SwissQRBillSetup do begin
             OpenEdit();
-            DocumentTypes.AssertEquals(Mgt.FormatEnabledReportsCount(Mgt.CalcEnabledReportsCount()));
+            DocumentTypes.AssertEquals(SwissQRBillMgt.FormatEnabledReportsCount(SwissQRBillMgt.CalcEnabledReportsCount()));
             DocumentTypes.Drilldown();
             Close();
         end;
@@ -144,15 +144,15 @@ codeunit 148093 "Swiss QR-Bill Test Misc"
     [HandlerFunctions('QRBillLayoutMPH')]
     procedure QRBillSetupPage_LookUp_DefaultLayout()
     var
-        SetupPage: TestPage "Swiss QR-Bill Setup";
+        SwissQRBillSetup: TestPage "Swiss QR-Bill Setup";
         QRLayout: Code[20];
     begin
         // [FEATURE] [UI]
         // [SCENARIO 259169] Page "Swiss QR-Bill Setup" assert and look up default layout
-        QRLayout := Library.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', '');
-        Library.UpdateDefaultLayout(QRLayout);
+        QRLayout := SwissQRBillTestLibrary.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', '');
+        SwissQRBillTestLibrary.UpdateDefaultLayout(QRLayout);
 
-        with SetupPage do begin
+        with SwissQRBillSetup do begin
             OpenEdit();
             DefaultQRBillLayout.AssertEquals(QRLayout);
             DefaultQRBillLayout.Lookup();
@@ -166,12 +166,12 @@ codeunit 148093 "Swiss QR-Bill Test Misc"
     procedure QRBillSetupPage_DrillDown_GLSetup()
     var
         GLSetup: Record "General Ledger Setup";
-        SetupPage: TestPage "Swiss QR-Bill Setup";
+        SwissQRBillSetup: TestPage "Swiss QR-Bill Setup";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 259169] Page "Swiss QR-Bill Setup" assert and drill down SEPA Non-Euro Export
         GLSetup.Get();
-        with SetupPage do begin
+        with SwissQRBillSetup do begin
             OpenEdit();
             SEPANonEuroExport.AssertEquals(GLSetup."SEPA Non-Euro Export");
             OpenGLSetup.Drilldown();
@@ -183,18 +183,18 @@ codeunit 148093 "Swiss QR-Bill Test Misc"
     [Scope('OnPrem')]
     procedure QRBillSetupPage_DrillDown_SEPACT()
     var
-        SetupPage: TestPage "Swiss QR-Bill Setup";
-        BankExportImportSetupPage: TestPage "Bank Export/Import Setup";
+        SwissQRBillSetup: TestPage "Swiss QR-Bill Setup";
+        BankExportImportSetup: TestPage "Bank Export/Import Setup";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 259169] Page "Swiss QR-Bill Setup" assert and drill down SEPA CT
-        with SetupPage do begin
+        with SwissQRBillSetup do begin
             OpenEdit();
             SEPACT.AssertEquals(True);
-            BankExportImportSetupPage.Trap();
+            BankExportImportSetup.Trap();
             SEPACT.Drilldown();
-            BankExportImportSetupPage."Processing Codeunit ID".AssertEquals(11520);
-            BankExportImportSetupPage.Close();
+            BankExportImportSetup."Processing Codeunit ID".AssertEquals(11520);
+            BankExportImportSetup.Close();
             Close();
         end;
     end;
@@ -203,18 +203,18 @@ codeunit 148093 "Swiss QR-Bill Test Misc"
     [Scope('OnPrem')]
     procedure QRBillSetupPage_DrillDown_SEPADD()
     var
-        SetupPage: TestPage "Swiss QR-Bill Setup";
-        BankExportImportSetupPage: TestPage "Bank Export/Import Setup";
+        SwissQRBillSetup: TestPage "Swiss QR-Bill Setup";
+        BankExportImportSetup: TestPage "Bank Export/Import Setup";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 259169] Page "Swiss QR-Bill Setup" assert and drill down SEPA DD
-        with SetupPage do begin
+        with SwissQRBillSetup do begin
             OpenEdit();
             SEPADD.AssertEquals(True);
-            BankExportImportSetupPage.Trap();
+            BankExportImportSetup.Trap();
             SEPADD.Drilldown();
-            BankExportImportSetupPage."Processing Codeunit ID".AssertEquals(11530);
-            BankExportImportSetupPage.Close();
+            BankExportImportSetup."Processing Codeunit ID".AssertEquals(11530);
+            BankExportImportSetup.Close();
             Close();
         end;
     end;
@@ -223,18 +223,18 @@ codeunit 148093 "Swiss QR-Bill Test Misc"
     [Scope('OnPrem')]
     procedure QRBillSetupPage_DrillDown_SEPACAMT()
     var
-        SetupPage: TestPage "Swiss QR-Bill Setup";
-        BankExportImportSetupPage: TestPage "Bank Export/Import Setup";
+        SwissQRBillSetup: TestPage "Swiss QR-Bill Setup";
+        BankExportImportSetup: TestPage "Bank Export/Import Setup";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 259169] Page "Swiss QR-Bill Setup" assert and drill down SEPA CAMT
-        with SetupPage do begin
+        with SwissQRBillSetup do begin
             OpenEdit();
             SEPACAMT.AssertEquals(True);
-            BankExportImportSetupPage.Trap();
+            BankExportImportSetup.Trap();
             SEPACAMT.Drilldown();
-            BankExportImportSetupPage."Data Exch. Def. Code".AssertEquals('SEPA CAMT 054');
-            BankExportImportSetupPage.Close();
+            BankExportImportSetup."Data Exch. Def. Code".AssertEquals('SEPA CAMT 054');
+            BankExportImportSetup.Close();
             Close();
         end;
     end;
@@ -244,23 +244,23 @@ codeunit 148093 "Swiss QR-Bill Test Misc"
     [HandlerFunctions('BillingInfoMPH')]
     procedure QRBillLayouts_LookUp_BillingInfo()
     var
-        QRBillLayout: Record "Swiss QR-Bill Layout";
-        LayoutPage: TestPage "Swiss QR-Bill Layout";
+        SwissQRBillLayout: Record "Swiss QR-Bill Layout";
+        SwissQRBillLayoutPage: TestPage "Swiss QR-Bill Layout";
         QRLayout: Code[20];
         BillingInfo: Code[20];
     begin
         // [FEATURE] [UI]
         // [SCENARIO 259169] Page "Swiss QR-Bill Layout" assert and look up billing information
-        BillingInfo := Library.CreateFullBillingInfo();
-        QRLayout := Library.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', BillingInfo);
-        Library.UpdateDefaultLayout(QRLayout);
+        BillingInfo := SwissQRBillTestLibrary.CreateFullBillingInfo();
+        QRLayout := SwissQRBillTestLibrary.CreateQRLayout(IBANType::"QR-IBAN", ReferenceType::"QR Reference", '', BillingInfo);
+        SwissQRBillTestLibrary.UpdateDefaultLayout(QRLayout);
 
-        QRBillLayout.SetRange(Code, QRLayout);
-        LayoutPage.Trap();
-        Page.Run(Page::"Swiss QR-Bill Layout", QRBillLayout);
-        LayoutPage.BillingFormat.AssertEquals(BillingInfo);
-        LayoutPage.BillingFormat.Lookup();
-        LayoutPage.Close();
+        SwissQRBillLayout.SetRange(Code, QRLayout);
+        SwissQRBillLayoutPage.Trap();
+        Page.Run(Page::"Swiss QR-Bill Layout", SwissQRBillLayout);
+        SwissQRBillLayoutPage.BillingFormat.AssertEquals(BillingInfo);
+        SwissQRBillLayoutPage.BillingFormat.Lookup();
+        SwissQRBillLayoutPage.Close();
     end;
 
     [ModalPageHandler]

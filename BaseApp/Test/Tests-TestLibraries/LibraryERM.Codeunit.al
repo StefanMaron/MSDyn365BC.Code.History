@@ -702,9 +702,7 @@ codeunit 131300 "Library - ERM"
         GLAccount.Init();
         // Prefix a number to fix errors for local build.
         GLAccount.Validate(
-          "No.",
-          PadStr(
-            '1' + LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account"), MaxStrLen(GLAccount."No."), '0'));
+          "No.", '1' + LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account"));
         GLAccount.Validate(Name, GLAccount."No.");  // Enter No. as Name because value is not important.
         GLAccount.Insert(true);
     end;

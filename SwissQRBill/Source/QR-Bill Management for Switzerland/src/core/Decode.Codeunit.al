@@ -1,7 +1,8 @@
 codeunit 11512 "Swiss QR-Bill Decode"
 {
     var
-        LineBuffer: Record "Name/Value Buffer" temporary;
+        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
         ErrorLogContextRecordId: RecordId;
         CurrentLineNo: Integer;
         IsAnyErrorLog: Boolean;
@@ -21,7 +22,7 @@ codeunit 11512 "Swiss QR-Bill Decode"
         UnknownPmtReferenceTypeLbl: Label 'Payment reference type (QRR, SCOR or NON) is not found.';
         QRReferenceLengthLbl: Label 'QR-Reference must be 27 chars length.';
         CreditorReferenceLengthLbl: Label 'Creditor-Reference must be up to 25 chars length and start with RF and two check digits.';
-        BlankedReferenceExpectedLbl: Label 'Blanked reference number is expected for reference type NON';
+        BlankedReferenceExpectedLbl: Label 'Blanked reference number is expected for reference type NON.';
         AddressTypeNotFoundLbl: Label 'Address type "S" or "K" is not found.';
         NameNotFoundLbl: Label 'The Name value is not found.';
         ExpectedBlankedValueLbl: Label 'The line value is expected to be blanked.';
@@ -113,15 +114,15 @@ codeunit 11512 "Swiss QR-Bill Decode"
         TempBlob.CreateInStream(InStream);
         OutStream.Write(QRCodeText);
 
-        LineBuffer.Init();
-        while not InStream.EOS() and (LineBuffer.ID < MaxLineNo) do begin
-            LineBuffer.ID += 1;
+        TempNameValueBuffer.Init();
+        while not InStream.EOS() and (TempNameValueBuffer.ID < MaxLineNo) do begin
+            TempNameValueBuffer.ID += 1;
             InStream.ReadText(LineText);
-            LineBuffer.Value := CopyStr(LineText, 1, MaxStrLen(LineBuffer.Value));
-            LineBuffer.Insert();
+            TempNameValueBuffer.Value := CopyStr(LineText, 1, MaxStrLen(TempNameValueBuffer.Value));
+            TempNameValueBuffer.Insert();
         end;
 
-        EmptyBuffer := LineBuffer.IsEmpty();
+        EmptyBuffer := TempNameValueBuffer.IsEmpty();
         exit(LogErrorAndExit(EmptyFileLbl, EmptyBuffer, not EmptyBuffer));
     end;
 
@@ -190,7 +191,6 @@ codeunit 11512 "Swiss QR-Bill Decode"
 
     local procedure ReadPaymentInfo(var SwissQRBillBuffer: Record "Swiss QR-Bill Buffer"): Boolean
     var
-        Mgt: Codeunit "Swiss QR-Bill Mgt.";
         AmountText: Text;
         CurrencyText: Text;
     begin
@@ -202,7 +202,7 @@ codeunit 11512 "Swiss QR-Bill Decode"
         if not ReadNextLineAndTestValue(CurrencyText, CurrencyNotFoundLbl) then
             exit(false);
         SwissQRBillBuffer.Currency := CopyStr(CurrencyText, 1, 3);
-        exit(LogErrorAndExit(WrongCurrencyLbl, not Mgt.AllowedISOCurrency(CurrencyText), true));
+        exit(LogErrorAndExit(WrongCurrencyLbl, not SwissQRBillMgt.AllowedISOCurrency(CurrencyText), true));
     end;
 
     local procedure ReadUltimateDebitorPartyInfo(var SwissQRBillBuffer: Record "Swiss QR-Bill Buffer"): Boolean
@@ -243,7 +243,6 @@ codeunit 11512 "Swiss QR-Bill Decode"
                     "Payment Reference Type" := "Payment Reference Type"::"Without Reference";
                 else
                     LogErrorAndExit(UnknownPmtReferenceTypeLbl, true, false);
-
             end;
 
         exit(ReadCheckAndValidateReferenceNo(SwissQRBillBuffer));
@@ -263,7 +262,10 @@ codeunit 11512 "Swiss QR-Bill Decode"
                     if StrLen(PaymentReferenceNoText) <> 27 then
                         exit(LogErrorAndExit(QRReferenceLengthLbl, true, true));
                 "Payment Reference Type"::"Creditor Reference (ISO 11649)":
-                    if (StrLen(PaymentReferenceNoText) > 25) or (StrLen(PaymentReferenceNoText) < 5) or (CopyStr(PaymentReferenceNoText, 1, 2) <> 'RF') then
+                    if (StrLen(PaymentReferenceNoText) > 25) or
+                       (StrLen(PaymentReferenceNoText) < 5) or
+                       (CopyStr(PaymentReferenceNoText, 1, 2) <> 'RF')
+                    then
                         exit(LogErrorAndExit(CreditorReferenceLengthLbl, true, true));
                 "Payment Reference Type"::"Without Reference":
                     if StrLen(PaymentReferenceNoText) > 0 then
@@ -364,12 +366,12 @@ codeunit 11512 "Swiss QR-Bill Decode"
     local procedure ReadNextLine(var LineText: Text; LogEOF: Boolean) FileRead: Boolean
     begin
         if CurrentLineNo = 0 then
-            FileRead := LineBuffer.FindSet()
+            FileRead := TempNameValueBuffer.FindSet()
         else
-            FileRead := LineBuffer.Next() <> 0;
+            FileRead := TempNameValueBuffer.Next() <> 0;
 
         CurrentLineNo += 1;
-        LineText := LineBuffer.Value;
+        LineText := TempNameValueBuffer.Value;
         exit(LogErrorAndExit(ExpectedEOFLbl, not FileRead and LogEOF, FileRead));
     end;
 

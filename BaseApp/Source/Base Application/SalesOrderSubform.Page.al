@@ -68,6 +68,8 @@ page 46 "Sales Order Subform"
                         QuantityOnAfterValidate();
                         UpdateTypeText();
                         DeltaUpdateTotals();
+
+                        CurrPage.Update();
                     end;
                 }
                 field(Position; Position)
@@ -707,7 +709,9 @@ page 46 "Sales Order Subform"
 
                     trigger OnAssistEdit()
                     begin
-                        ShowDeferralSchedule;
+                        CurrPage.SaveRecord();
+                        Commit();
+                        ShowDeferralSchedule();
                     end;
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")

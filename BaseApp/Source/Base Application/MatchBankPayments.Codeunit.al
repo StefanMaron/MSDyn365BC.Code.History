@@ -1,4 +1,4 @@
-﻿codeunit 1255 "Match Bank Payments"
+codeunit 1255 "Match Bank Payments"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm;

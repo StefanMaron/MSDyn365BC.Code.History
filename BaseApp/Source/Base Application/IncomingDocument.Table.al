@@ -326,82 +326,98 @@ table 130 "Incoming Document"
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11531; "Swiss QRBill Vendor Address 1"; Text[100])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11532; "Swiss QRBill Vendor Address 2"; Text[100])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11533; "Swiss QRBill Vendor Post Code"; Code[20])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11534; "Swiss QRBill Vendor City"; Text[100])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11535; "Swiss QRBill Vendor Country"; Code[10])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11536; "Swiss QRBill Debitor Name"; Text[100])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11537; "Swiss QRBill Debitor Address1"; Text[100])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11538; "Swiss QRBill Debitor Address2"; Text[100])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11539; "Swiss QRBill Debitor PostCode"; Code[20])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11540; "Swiss QRBill Debitor City"; Text[100])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11541; "Swiss QRBill Debitor Country"; Code[10])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11542; "Swiss QRBill Reference Type"; Option)
         {
             OptionMembers = "Without Reference","Creditor Reference (ISO 11649)","QR Reference";
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11543; "Swiss QRBill Reference No."; Code[50])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11544; "Swiss QRBill Unstr. Message"; Text[140])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
         field(11545; "Swiss QRBill Bill Info"; Text[140])
         {
             ObsoleteState = Removed;
             ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+            ObsoleteTag = '16.1';
         }
     }
 
@@ -683,8 +699,8 @@ table 130 "Incoming Document"
         TestReadyForProcessing;
         OnBeforeGetJournalTemplateAndBatch(JournalTemplate, JournalBatch, IsHandled);
         if not IsHandled then begin
-        IncomingDocumentsSetup.TestField("General Journal Template Name");
-        IncomingDocumentsSetup.TestField("General Journal Batch Name");
+            IncomingDocumentsSetup.TestField("General Journal Template Name");
+            IncomingDocumentsSetup.TestField("General Journal Batch Name");
             JournalTemplate := IncomingDocumentsSetup."General Journal Template Name";
             JournalBatch := IncomingDocumentsSetup."General Journal Batch Name";
         end;
@@ -836,19 +852,20 @@ table 130 "Incoming Document"
         exit("Entry No.");
     end;
 
-    procedure CreateIncomingDocument(PictureInStream: InStream; Description: Text)
+    procedure CreateIncomingDocument(PictureInStream: InStream; FileName: Text)
     var
         IncomingDocument: Record "Incoming Document";
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        FileManagement: Codeunit "File Management";
     begin
         IncomingDocument.CopyFilters(Rec);
-        CreateIncomingDocument(Description, '');
-        AddAttachmentFromStream(IncomingDocumentAttachment, Description, '', PictureInStream);
+        CreateIncomingDocument(FileManagement.GetFileNameWithoutExtension(FileName), '');
+        AddAttachmentFromStream(IncomingDocumentAttachment, FileName, FileManagement.GetExtension(FileName), PictureInStream);
         CopyFilters(IncomingDocument);
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('Replaced with CreateIncomingDocument function','15.3')]
+    [Obsolete('Replaced with CreateIncomingDocument function', '15.3')]
     procedure CreateIncomingDocumentFromServerFile(FileName: Text; FilePath: Text)
     var
         IncomingDocument: Record "Incoming Document";
@@ -1097,6 +1114,7 @@ table 130 "Incoming Document"
             DocumentType::"Credit Memo":
                 PurchHeader."Document Type" := PurchHeader."Document Type"::"Credit Memo";
         end;
+        OnCreatePurchDocOnBeforePurchHeaderInsert(PurchHeader);
         PurchHeader.Insert(true);
         OnAfterCreatePurchHeaderFromIncomingDoc(PurchHeader);
         if GetURL <> '' then
@@ -1890,7 +1908,7 @@ table 130 "Incoming Document"
         ImportAttachmentIncDoc.ImportAttachment(NewIncomingDocumentAttachment, FilePath);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure ShowMainAttachment()
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
@@ -2074,6 +2092,11 @@ table 130 "Incoming Document"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeCreateSalesHeaderFromIncomingDoc(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnCreatePurchDocOnBeforePurchHeaderInsert(var PurchHeader: Record "Purchase Header")
     begin
     end;
 

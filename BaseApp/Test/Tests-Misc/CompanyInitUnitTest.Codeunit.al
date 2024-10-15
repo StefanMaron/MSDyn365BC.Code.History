@@ -240,6 +240,7 @@ codeunit 134163 "Company Init Unit Test"
         DeleteAllDataInSourceCodeTable();
         DeleteAllStandardTexts();
         DeleteReportSelections();
+        DeleteDACHReportSelection;
         DeleteJobWIPMethods();
         DeleteBankExportImportSetup();
         DeleteBankClearingStandard();
@@ -256,11 +257,13 @@ codeunit 134163 "Company Init Unit Test"
         CheckSourceCodeTable();
         CheckStandardTexts();
         CheckReportSelections();
+        CheckDACHReportSelection;
         CheckJobWIPMethods();
         CheckBankExportImportSetup();
         CheckVATRegNrValidation();
         CheckBankPmtApplRules();
         CheckApplicationAreaEntry();
+        CheckDachReportSelectionsVATStatement();
     end;
 
     local procedure DeleteAllDataInSetupTables()
@@ -343,6 +346,13 @@ codeunit 134163 "Company Init Unit Test"
         ReportSelections: Record "Report Selections";
     begin
         ReportSelections.DeleteAll();
+    end;
+
+    local procedure DeleteDACHReportSelection()
+    var
+        DACHReportSelections: Record "DACH Report Selections";
+    begin
+        DACHReportSelections.DeleteAll();
     end;
 
     local procedure DeleteJobWIPMethods()
@@ -597,6 +607,15 @@ codeunit 134163 "Company Init Unit Test"
         CheckReportSelectionEntry(ReportSelections.Usage::"C.Statement", '1', REPORT::"Standard Statement");
     end;
 
+    local procedure CheckDACHReportSelection()
+    var
+        DACHReportSelections: Record "DACH Report Selections";
+    begin
+        DACHReportSelections.FindFirst;
+        DACHReportSelections.TestField("Report ID");
+        DACHReportSelections.TestField(Sequence);
+    end;
+
     local procedure CheckReportSelectionEntry(RecUsage: Integer; Sequence: Text; ReportId: Integer)
     var
         ReportSelections: Record "Report Selections";
@@ -718,12 +737,19 @@ codeunit 134163 "Company Init Unit Test"
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::High, 10,
           BankPmtApplRule."Related Party Matched"::No,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        CheckBankPmtApplRuleEntry(
+          BankPmtApplRule."Match Confidence"::High, 11,
+          BankPmtApplRule."Related Party Matched"::No,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
           BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
-          BankPmtApplRule."Match Confidence"::High, 11,
+          BankPmtApplRule."Match Confidence"::High, 12,
           BankPmtApplRule."Related Party Matched"::No,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
@@ -855,6 +881,15 @@ codeunit 134163 "Company Init Unit Test"
 
         TempApplicationAreaBuffer.SetRange(Selected, false);
         Assert.RecordCount(TempApplicationAreaBuffer, 31);
+    end;
+
+    local procedure CheckDachReportSelectionsVATStatement()
+    var
+        DACHReportSelections: Record "DACH Report Selections";
+    begin
+        DACHReportSelections.SetRange(Usage, DACHReportSelections.Usage::"VAT Statement");
+        DACHReportSelections.FindFirst;
+        DACHReportSelections.TestField("Report ID", REPORT::"Swiss VAT Statement");
     end;
 }
 

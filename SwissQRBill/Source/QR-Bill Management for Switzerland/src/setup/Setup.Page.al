@@ -23,7 +23,7 @@ page 11514 "Swiss QR-Bill Setup"
                     field("Address Type"; "Address Type")
                     {
                         ApplicationArea = All;
-                        ToolTip = 'Specifies the address type used for all printed QR-bills. Recommended value is Structured';
+                        ToolTip = 'Specifies the address type used for all printed QR-bills. Recommended value is Structured.';
                     }
                     field(UmlautCharsEncodeMode; "Umlaut Chars Encode Mode")
                     {
@@ -81,7 +81,6 @@ page 11514 "Swiss QR-Bill Setup"
                     field(PaymentMethods; PaymentMethodsText)
                     {
                         ApplicationArea = All;
-                        ShowMandatory = true;
                         Caption = 'Payment Methods';
                         ToolTip = 'Specifies how many payment methods have been enabled for QR-bills.';
                         ShowCaption = false;
@@ -98,7 +97,6 @@ page 11514 "Swiss QR-Bill Setup"
                     field(DocumentTypes; DocumentTypesText)
                     {
                         ApplicationArea = All;
-                        ShowMandatory = true;
                         ToolTip = 'Specifies how many document types have been enabled for QR-bills.';
                         Caption = 'Document Types';
                         ShowCaption = false;
@@ -157,12 +155,12 @@ page 11514 "Swiss QR-Bill Setup"
                     field(OpenGLSetup; OpenGLSetupLbl)
                     {
                         ApplicationArea = All;
-                        ShowMandatory = true;
                         ToolTip = 'Opens the General Ledger Setup page.';
                         Caption = ' ';
                         ShowCaption = false;
                         StyleExpr = true;
                         Style = StandardAccent;
+                        Editable = false;
 
                         trigger OnDrillDown()
                         begin
@@ -199,7 +197,7 @@ page 11514 "Swiss QR-Bill Setup"
     var
         CompanyInfo: Record "Company Information";
         GLSetup: Record "General Ledger Setup";
-        QRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
+        SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
         PaymentMethodsText: Text;
         DocumentTypesText: Text;
         OpenGLSetupLbl: Label 'Open the general ledger setup.';
@@ -213,8 +211,8 @@ page 11514 "Swiss QR-Bill Setup"
     trigger OnAfterGetCurrRecord()
     begin
         CalcFields("SEPA CAMT 054 DataExchDef Code");
-        PaymentMethodsText := QRBillMgt.FormatQRPaymentMethodsCount(QRBillMgt.CalcQRPaymentMethodsCount());
-        DocumentTypesText := QRBillMgt.FormatEnabledReportsCount(QRBillMgt.CalcEnabledReportsCount());
+        PaymentMethodsText := SwissQRBillMgt.FormatQRPaymentMethodsCount(SwissQRBillMgt.CalcQRPaymentMethodsCount());
+        DocumentTypesText := SwissQRBillMgt.FormatEnabledReportsCount(SwissQRBillMgt.CalcEnabledReportsCount());
         CompanyInfo.Find();
         GLSetup.Find();
     end;

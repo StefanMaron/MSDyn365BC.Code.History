@@ -19,6 +19,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         isInitialized: Boolean;
         CrMemoCorrInvNoQst: Label 'The Credit Memo doesn''t have a Corrected Invoice No. Do you want to continue?';
 
@@ -786,7 +787,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,RunAdjustExchRateReqPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure FCYInvoiceAppliedWithSameExchRateAfterAdjustment()
     var
@@ -824,7 +825,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         Amount := Round(AmountInclVAT / (1 + VATPostingSetup."VAT %" / 100));
 
         // [GIVEN] Adjusted exchange rate changed total invoice amount = 715 (1100 * 65 / 100), adjustment amount = 55 (715 - 660)
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate, WorkDate);
+        RunAdjustExchangeRates(CurrencyCode, WorkDate, WorkDate);
         VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)");
         AdjustedAmtInclVAT := -VendorLedgerEntry."Amount (LCY)";
 
@@ -855,10 +856,8 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Unrealized VAT Vendor");
-        LibraryApplicationArea.EnableFoundationSetup;
         LibrarySetupStorage.Restore;
         // Lazy Setup.
         if isInitialized then
@@ -1313,6 +1312,19 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         PurchaseHeader.Modify(true);
     end;
 
+    local procedure RunAdjustExchangeRates(CurrencyCode: Code[10]; EndDate: Date; PostingDate: Date)
+    var
+        Currency: Record Currency;
+        AdjustExchangeRates: Report "Adjust Exchange Rates";
+    begin
+        Currency.SetRange(Code, CurrencyCode);
+        AdjustExchangeRates.SetTableView(Currency);
+        AdjustExchangeRates.InitializeRequest2(
+          0D, EndDate, LibraryUtility.GenerateGUID, PostingDate, LibraryUtility.GenerateGUID, true, false);
+        Commit();
+        AdjustExchangeRates.Run;
+    end;
+
     local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; UnrealizedVATType: Option)
     begin
         with VATPostingSetup do begin
@@ -1584,6 +1596,15 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RunAdjustExchRateReqPageHandler(var AdjustExchangeRates: TestRequestPage "Adjust Exchange Rates")
+    begin
+        AdjustExchangeRates.AdjVendors.SetValue(true);
+        AdjustExchangeRates.Post.SetValue(true);
+        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

@@ -171,9 +171,9 @@ pageextension 11510 "Swiss QR-Bill Incoming Doc" extends "Incoming Document"
 
                     trigger OnDrillDown()
                     var
-                        BillingInfo: Codeunit "Swiss QR-Bill Billing Info";
+                        SwissQRBillBillingInfo: Codeunit "Swiss QR-Bill Billing Info";
                     begin
-                        BillingInfo.DrillDownBillingInfo("Swiss QR-Bill Bill Info");
+                        SwissQRBillBillingInfo.DrillDownBillingInfo("Swiss QR-Bill Bill Info");
                     end;
                 }
             }
@@ -188,6 +188,11 @@ pageextension 11510 "Swiss QR-Bill Incoming Doc" extends "Incoming Document"
                     Editable = false;
                     Caption = 'IBAN/QR-IBAN';
                     ToolTip = 'Specifies the IBAN or QR-IBAN account of the vendor on the incoming document.';
+
+                    trigger OnDrillDown()
+                    begin
+                        SwissQRBillIncomingDoc.DrillDownVendorIBAN("Vendor IBAN");
+                    end;
                 }
                 field("Swiss QR-Bill Vendor VAT Reg. No"; "Vendor VAT Registration No.")
                 {
@@ -306,7 +311,7 @@ pageextension 11510 "Swiss QR-Bill Incoming Doc" extends "Incoming Document"
                         RefreshSelectedVendorIBANMatch();
                     end;
                 }
-                field("Swiss QR-Bill Vendor Name"; SelectedVendorName)
+                field("Swiss QR-Bill Vendor Name"; QRBillSelectedVendorName)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -328,7 +333,7 @@ pageextension 11510 "Swiss QR-Bill Incoming Doc" extends "Incoming Document"
                         RefreshSelectedVendorIBANMatch();
                     end;
                 }
-                field("Swiss QR-Bill Vendor IBAN Match"; SelectedVendorIBANMatch)
+                field("Swiss QR-Bill Vendor IBAN Match"; QRBillSelectedVendorIBANMatch)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -359,7 +364,7 @@ pageextension 11510 "Swiss QR-Bill Incoming Doc" extends "Incoming Document"
                 action("Swiss QR-Bill Scan")
                 {
                     Caption = 'Scan QR-Bill';
-                    ToolTip = 'Create a new incoming document record from the scanning of QR-bill with an input scanner, or from manual (copy/paste) of the decoded QR-Code text value into a field.';
+                    ToolTip = 'Update the incoming document record from the scanning of QR-bill with an input scanner, or from manual (copy/paste) of the decoded QR-Code text value into a field.';
                     ApplicationArea = All;
                     Image = CreateDocument;
 
@@ -371,8 +376,8 @@ pageextension 11510 "Swiss QR-Bill Incoming Doc" extends "Incoming Document"
                 action("Swiss QR-Bill Import")
                 {
                     ApplicationArea = All;
-                    Caption = 'Import QR-Bill File';
-                    ToolTip = 'Creates a new incoming document record by importing a scanned QR-bill that is saved as a text file.';
+                    Caption = 'Import Scanned QR-Bill File';
+                    ToolTip = 'Update the incoming document record by importing a scanned QR-bill that is saved as a text file.';
                     Image = Import;
 
                     trigger OnAction()
@@ -420,11 +425,11 @@ pageextension 11510 "Swiss QR-Bill Incoming Doc" extends "Incoming Document"
 
     var
         SwissQRBillIncomingDoc: Codeunit "Swiss QR-Bill Incoming Doc";
-        QRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
+        SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
         QRBillAttachmentFileName: Text;
         QRBillRecordLinkTxt: Text;
-        SelectedVendorName: Text;
-        SelectedVendorIBANMatch: Boolean;
+        QRBillSelectedVendorName: Text;
+        QRBillSelectedVendorIBANMatch: Boolean;
 
     trigger OnAfterGetCurrRecord()
     var
@@ -433,7 +438,7 @@ pageextension 11510 "Swiss QR-Bill Incoming Doc" extends "Incoming Document"
         QRBillAttachmentFileName := GetMainAttachmentFileName();
         QRBillRecordLinkTxt := GetRecordLinkText();
         if "Swiss QR-Bill" then
-            CurrPage.Caption(QRBillMgt.GetQRBillCaption())
+            CurrPage.Caption(SwissQRBillMgt.GetQRBillCaption())
         else
             CurrPage.Caption(DummyIncomingDocument.TableCaption());
         RefreshSelectedVendorName();
@@ -444,10 +449,10 @@ pageextension 11510 "Swiss QR-Bill Incoming Doc" extends "Incoming Document"
     var
         Vendor: Record Vendor;
     begin
-        SelectedVendorName := '';
+        QRBillSelectedVendorName := '';
         if "Vendor No." <> '' then
             if Vendor.Get("Vendor No.") then
-                SelectedVendorName := Vendor.Name;
+                QRBillSelectedVendorName := Vendor.Name;
     end;
 
     local procedure RefreshSelectedVendorIBANMatch()
@@ -455,10 +460,10 @@ pageextension 11510 "Swiss QR-Bill Incoming Doc" extends "Incoming Document"
         Vendor: Record Vendor;
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        SelectedVendorIBANMatch := false;
+        QRBillSelectedVendorIBANMatch := false;
         if ("Vendor No." <> '') and ("Vendor Bank Account No." <> '') and ("Vendor IBAN" <> '') then
             if Vendor.Get("Vendor No.") then
                 if VendorBankAccount.Get("Vendor No.", "Vendor Bank Account No.") then
-                    SelectedVendorIBANMatch := DelChr(VendorBankAccount.IBAN) = DelChr("Vendor IBAN");
+                    QRBillSelectedVendorIBANMatch := DelChr(VendorBankAccount.IBAN) = DelChr("Vendor IBAN");
     end;
 }

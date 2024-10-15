@@ -27,7 +27,7 @@ codeunit 134144 "ERM ACY Amount in GL Entries"
         // Create and post General Journal Line using Random Values and Reversal of General Ledger Entries to test FCY Amount.
 
         // Setup: Create General Journal Line.
-        LibraryERM.SelectLastGenJnBatch(GenJournalBatch);
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         CreateGenJournalLine(
           GenJournalLine, GenJournalBatch, LibraryERM.CreateGLAccountNo, LibraryRandom.RandInt(5), CreateCurrency);

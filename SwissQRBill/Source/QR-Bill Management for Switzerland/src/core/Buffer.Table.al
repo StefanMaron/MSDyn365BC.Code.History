@@ -373,7 +373,6 @@ table 11510 "Swiss QR-Bill Buffer"
 
     var
         SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
-        PartyType: Option Creditor,UltimateCreditor,UltimateDebitor;
 
     internal procedure AddBufferRecord(SourceSwissQRBillBuffer: Record "Swiss QR-Bill Buffer")
     begin
@@ -384,17 +383,17 @@ table 11510 "Swiss QR-Bill Buffer"
 
     internal procedure InitBuffer(QRBillLayoutCode: Code[20])
     var
-        QRBillSetup: Record "Swiss QR-Bill Setup";
+        SwissQRBillSetup: Record "Swiss QR-Bill Setup";
     begin
         Init();
         Currency := SwissQRBillMgt.GetCurrency('');
-        QRBillSetup.Get();
-        "Creditor Address Type" := QRBillSetup."Address Type";
-        "UCreditor Address Type" := QRBillSetup."Address Type";
-        "UDebtor Address Type" := QRBillSetup."Address Type";
+        SwissQRBillSetup.Get();
+        "Creditor Address Type" := SwissQRBillSetup."Address Type";
+        "UCreditor Address Type" := SwissQRBillSetup."Address Type";
+        "UDebtor Address Type" := SwissQRBillSetup."Address Type";
         LoadLayout(QRBillLayoutCode);
         "File Name" := 'QR-Bill.pdf';
-        "Language Code" := 'ENU';
+        "Language Code" := SwissQRBillMgt.GetLanguageCodeENU();
     end;
 
     internal procedure SetQRCodeImage(TempBlob: Codeunit "Temp Blob")
@@ -523,21 +522,9 @@ table 11510 "Swiss QR-Bill Buffer"
         exit(true);
     end;
 
-    local procedure FormatPartyType(PartyTypeLcl: Option): Code[20]
-    begin
-        case PartyTypeLcl of
-            PartyType::Creditor:
-                exit('CR');
-            PartyType::UltimateCreditor:
-                exit('UCR');
-            PartyType::UltimateDebitor:
-                exit('UD');
-        end;
-    end;
-
     internal procedure LoadLayout(QRBillLayoutCode: Code[20])
     var
-        QRBillLayout: Record "Swiss QR-Bill Layout";
+        SwissQRBillLayout: Record "Swiss QR-Bill Layout";
         OldLayoutCode: Code[20];
     begin
         OldLayoutCode := "QR-Bill Layout";
@@ -547,28 +534,26 @@ table 11510 "Swiss QR-Bill Buffer"
         else
             if "QR-Bill Layout" = '' then
                 "QR-Bill Layout" := GetDefaultLayoutCode();
-        QRBillLayout.Get("QR-Bill Layout");
+        SwissQRBillLayout.Get("QR-Bill Layout");
 
-        if (OldLayoutCode <> "QR-Bill Layout") or (xRec."QR-Bill Layout" <> Rec."QR-Bill Layout") then begin
+        if (OldLayoutCode <> "QR-Bill Layout") or (xRec."QR-Bill Layout" <> "QR-Bill Layout") then begin
             if not "Source Record Printed" then begin
-                "IBAN Type" := QRBillLayout."IBAN Type";
-                Validate("Payment Reference Type", QRBillLayout."Payment Reference Type");
+                "IBAN Type" := SwissQRBillLayout."IBAN Type";
+                Validate("Payment Reference Type", SwissQRBillLayout."Payment Reference Type");
             end;
             ValidateIBAN();
             SetCompanyInformation();
-            LoadAdditionalInformation(QRBillLayout);
+            LoadAdditionalInformation(SwissQRBillLayout);
         end;
     end;
 
     local procedure GetDefaultLayoutCode(): Code[20]
     var
-        QRBillSetup: Record "Swiss QR-Bill Setup";
+        SwissQRBillSetup: Record "Swiss QR-Bill Setup";
     begin
-        with QRBillSetup do begin
-            Get();
-            TestField("Default Layout");
-            exit("Default Layout");
-        end;
+        SwissQRBillSetup.Get();
+        SwissQRBillSetup.TestField("Default Layout");
+        exit(SwissQRBillSetup."Default Layout");
     end;
 
     internal procedure CheckLimitForUnstrAndBillInfoText()
@@ -595,7 +580,7 @@ table 11510 "Swiss QR-Bill Buffer"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         PaymentMethod: Record "Payment Method";
-        QRBillLayout: Record "Swiss QR-Bill Layout";
+        SwissQRBillLayout: Record "Swiss QR-Bill Layout";
         Customer: Record Customer;
     begin
         CustLedgerEntry.Get(CustomerLedgerEntryNo);
@@ -615,34 +600,34 @@ table 11510 "Swiss QR-Bill Buffer"
             if PaymentMethod.Get(CustLedgerEntry."Payment Method Code") then;
 
         LoadLayout(PaymentMethod."Swiss QR-Bill Layout");
-        QRBillLayout.Get("QR-Bill Layout");
+        SwissQRBillLayout.Get("QR-Bill Layout");
 
         if CustLedgerEntry."Customer No." <> '' then
             if Customer.Get(CustLedgerEntry."Customer No.") then
                 SetUltimateDebitorInfo(Customer);
 
-        LoadSourceRecordBillingInformation(QRBillLayout);
+        LoadSourceRecordBillingInformation(SwissQRBillLayout);
     end;
 
-    local procedure LoadAdditionalInformation(QRBillLayout: Record "Swiss QR-Bill Layout")
+    local procedure LoadAdditionalInformation(SwissQRBillLayout: Record "Swiss QR-Bill Layout")
     begin
         "Billing Information" := '';
-        "Unstructured Message" := QRBillLayout."Unstr. Message";
-        LoadSourceRecordBillingInformation(QRBillLayout);
-        "Alt. Procedure Name 1" := QRBillLayout."Alt. Procedure Name 1";
-        "Alt. Procedure Value 1" := QRBillLayout."Alt. Procedure Value 1";
-        "Alt. Procedure Name 2" := QRBillLayout."Alt. Procedure Name 2";
-        "Alt. Procedure Value 2" := QRBillLayout."Alt. Procedure Value 2";
+        "Unstructured Message" := SwissQRBillLayout."Unstr. Message";
+        LoadSourceRecordBillingInformation(SwissQRBillLayout);
+        "Alt. Procedure Name 1" := SwissQRBillLayout."Alt. Procedure Name 1";
+        "Alt. Procedure Value 1" := SwissQRBillLayout."Alt. Procedure Value 1";
+        "Alt. Procedure Name 2" := SwissQRBillLayout."Alt. Procedure Name 2";
+        "Alt. Procedure Value 2" := SwissQRBillLayout."Alt. Procedure Value 2";
     end;
 
-    local procedure LoadSourceRecordBillingInformation(QRBillLayout: Record "Swiss QR-Bill Layout")
+    local procedure LoadSourceRecordBillingInformation(SwissQRBillLayout: Record "Swiss QR-Bill Layout")
     var
-        BillingInfo: Record "Swiss QR-Bill Billing Info";
+        SwissQRBillBillingInfo: Record "Swiss QR-Bill Billing Info";
     begin
         if "Customer Ledger Entry No." <> 0 then
-            if QRBillLayout."Billing Information" <> '' then
-                if BillingInfo.Get(QRBillLayout."Billing Information") then
-                    "Billing Information" := BillingInfo.GetBillingInformation("Customer Ledger Entry No.");
+            if SwissQRBillLayout."Billing Information" <> '' then
+                if SwissQRBillBillingInfo.Get(SwissQRBillLayout."Billing Information") then
+                    "Billing Information" := SwissQRBillBillingInfo.GetBillingInformation("Customer Ledger Entry No.");
     end;
 
     internal procedure PrepareForPrint()
@@ -683,7 +668,8 @@ table 11510 "Swiss QR-Bill Buffer"
                                 ServiceInvoiceHeader.Modify();
                             end;
                     end;
-                CustLedgerEntry."Payment Reference" := CopyStr(DelChr("Payment Reference"), 1, MaxStrLen(CustLedgerEntry."Payment Reference"));
+                CustLedgerEntry."Payment Reference" :=
+                    CopyStr(DelChr("Payment Reference"), 1, MaxStrLen(CustLedgerEntry."Payment Reference"));
                 CustLedgerEntry.Modify();
                 "Source Record Printed" := true;
             end;

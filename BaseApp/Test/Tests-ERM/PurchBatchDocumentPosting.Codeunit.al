@@ -49,7 +49,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         PAGE.Run(PAGE::"Purchase Invoices", PurchaseHeaderUI);
 
         LibraryVariableStorage.Enqueue(
-          StrSubstNo(DoYouWantToPostQst, LowerCase(Format(PurchaseHeader[1]."Document Type"))));
+          StrSubstNo(DoYouWantToPostQst, Format(PurchaseHeader[1]."Document Type")));
         InvokePostSelectedInvoices(PurchaseInvoices, PurchaseHeader[2]);
 
         VerifyTwoOfThreeDocumentsUnposted(PurchaseHeaderUI, PurchaseHeader);
@@ -85,7 +85,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         PAGE.Run(PAGE::"Purchase Credit Memos", PurchaseHeaderUI);
 
         LibraryVariableStorage.Enqueue(
-          StrSubstNo(DoYouWantToPostQst, LowerCase(Format(PurchaseHeader[1]."Document Type"))));
+          StrSubstNo(DoYouWantToPostQst, Format(PurchaseHeader[1]."Document Type")));
         InvokePostSelectedCreditMemos(PurchaseCreditMemos, PurchaseHeader[2]);
 
         VerifyTwoOfThreeDocumentsUnposted(PurchaseHeaderUI, PurchaseHeader);
@@ -277,7 +277,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         PAGE.Run(PAGE::"Purchase Invoices", PurchaseHeaderUI);
 
         LibraryVariableStorage.Enqueue(
-          StrSubstNo(DoYouWantToPostQst, LowerCase(Format(PurchaseHeader[1]."Document Type"))));
+          StrSubstNo(DoYouWantToPostQst, Format(PurchaseHeader[1]."Document Type")));
         ErrorMessagesPage.Trap;
         InvokePostSelectedInvoices(PurchaseInvoices, PurchaseHeader[2]);
 
@@ -312,7 +312,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         PAGE.Run(PAGE::"Purchase Credit Memos", PurchaseHeaderUI);
 
         LibraryVariableStorage.Enqueue(
-          StrSubstNo(DoYouWantToPostQst, LowerCase(Format(PurchaseHeader[1]."Document Type"))));
+          StrSubstNo(DoYouWantToPostQst, Format(PurchaseHeader[1]."Document Type")));
         ErrorMessagesPage.Trap;
         InvokePostSelectedCreditMemos(PurchaseCreditMemos, PurchaseHeader[2]);
 

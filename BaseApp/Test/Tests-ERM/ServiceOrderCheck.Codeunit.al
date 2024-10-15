@@ -1327,7 +1327,6 @@ codeunit 136114 "Service Order Check"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryService.SetupServiceMgtNoSeries;
-        UpdateInventorySetup;
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -1818,7 +1817,7 @@ codeunit 136114 "Service Order Check"
         CustomerPostingGroup.Get(CustomerPostingGroupCode);
         TempServiceLine.SetRange(Type, TempServiceLine.Type::Item);
         TempServiceLine.FindFirst;
-        Amount := Round(TempServiceLine."Line Discount Amount" + (TempServiceLine."Line Amount" * CustInvoiceDisc."Discount %" / 100));
+        Amount := Round(TempServiceLine."Line Amount" * CustInvoiceDisc."Discount %" / 100);
         GeneralPostingSetup.Get(TempServiceLine."Gen. Bus. Posting Group", TempServiceLine."Gen. Prod. Posting Group");
         FindServiceInvoiceHeader(ServiceInvoiceHeader, TempServiceLine."Document No.");
         VerifyAmountOnGLEntry(ServiceInvoiceHeader."No.", GeneralPostingSetup."Sales Inv. Disc. Account", Amount);
@@ -2138,15 +2137,6 @@ codeunit 136114 "Service Order Check"
         ServiceShipmentLine.SetRange("Order No.", OrderNo);
         ServiceShipmentLine.FindFirst;
         ServiceGetShipment.CreateInvLines(ServiceShipmentLine);
-    end;
-
-    local procedure UpdateInventorySetup()
-    var
-        InventorySetup: Record "Inventory Setup";
-    begin
-        InventorySetup.Get();
-        InventorySetup.Validate("Automatic Cost Posting", false);
-        InventorySetup.Modify(true);
     end;
 
     [ModalPageHandler]

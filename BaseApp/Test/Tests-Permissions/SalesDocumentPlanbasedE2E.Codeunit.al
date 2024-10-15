@@ -47,7 +47,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler,DummyNotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromSalesOrderBusinessManager()
     var
@@ -92,7 +92,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler,DummyNotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromSalesOrderExternalAccountant()
     var
@@ -290,12 +290,6 @@ codeunit 135404 "Sales Document Plan-based E2E"
         ConfigTemplates.OK.Invoke;
     end;
 
-    [SendNotificationHandler]
-    [Scope('OnPrem')]
-    procedure DummyNotificationHandler(var Notification: Notification): Boolean
-    begin
-    end;
-
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
@@ -303,13 +297,6 @@ codeunit 135404 "Sales Document Plan-based E2E"
         PurchOrderFromSalesOrder.First;
         PurchOrderFromSalesOrder.Vendor.SetValue(CreateVendor);
         PurchOrderFromSalesOrder.OK.Invoke;
-    end;
-
-    [RecallNotificationHandler]
-    [Scope('OnPrem')]
-    procedure RecallNotificationHandler(var NotificationToRecall: Notification): Boolean
-    begin
-        exit(true);
     end;
 }
 

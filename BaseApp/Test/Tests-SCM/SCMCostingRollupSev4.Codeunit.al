@@ -757,12 +757,17 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
     var
         Item: Record Item;
         AccountingPeriod: Record "Accounting Period";
+        GLSetup: Record "General Ledger Setup";
+        TempGLSetup: Record "General Ledger Setup" temporary;
         PostingDate: Date;
         PositiveItemJournalUnitCost: Decimal;
         NegativeItemJournalUnitCost: Decimal;
     begin
         // Refer to PS 37363 (VedbaekSE) & PS 29274 (Navision Corsica) for issue details.
         Initialize;
+
+        GLSetup.Get();
+        TempGLSetup := GLSetup;
 
         if Confirm(CloseFiscalYearQst) then;
 
@@ -793,6 +798,12 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
 
         // Verify: Item is deleted and no error occurs
         Assert.IsFalse(Item.Get(Item."No."), 'Item is deleted.');
+
+        // Teardown
+        GLSetup.Get();
+        GLSetup."Allow Posting From" := TempGLSetup."Allow Posting From";
+        GLSetup."Allow Posting To" := TempGLSetup."Allow Posting To";
+        GLSetup.Modify(true);
     end;
 
     [Test]

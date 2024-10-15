@@ -46,7 +46,7 @@ page 11512 "Swiss QR-Bill Print Select Doc"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            DocumentNo := QRBillMgt.LookupFilteredSalesInvoices();
+                            DocumentNo := SwissQRBillMgt.LookupFilteredSalesInvoices();
                             if DocumentNo <> '' then
                                 ValidateSalesInvoiceHeader(DocumentNo);
                         end;
@@ -65,7 +65,7 @@ page 11512 "Swiss QR-Bill Print Select Doc"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            DocumentNo := QRBillMgt.LookupFilteredServiceInvoices();
+                            DocumentNo := SwissQRBillMgt.LookupFilteredServiceInvoices();
                             if DocumentNo <> '' then
                                 ValidateServiceInvoiceHeader(DocumentNo);
                         end;
@@ -90,7 +90,7 @@ page 11512 "Swiss QR-Bill Print Select Doc"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            DocumentNo := QRBillMgt.LookupFilteredReminders();
+                            DocumentNo := SwissQRBillMgt.LookupFilteredReminders();
                             if DocumentNo <> '' then
                                 ValidateReminderHeader(DocumentNo);
                         end;
@@ -109,7 +109,7 @@ page 11512 "Swiss QR-Bill Print Select Doc"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            DocumentNo := QRBillMgt.LookupFilteredFinChargeMemos();
+                            DocumentNo := SwissQRBillMgt.LookupFilteredFinChargeMemos();
                             if DocumentNo <> '' then
                                 ValidateFinChargeMemoHeader(DocumentNo);
                         end;
@@ -133,7 +133,7 @@ page 11512 "Swiss QR-Bill Print Select Doc"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        EntryNo := QRBillMgt.LookupFilteredCustLedgerEntries();
+                        EntryNo := SwissQRBillMgt.LookupFilteredCustLedgerEntries();
                         if EntryNo <> 0 then
                             ValidateCustomerLedgerEntry(EntryNo);
                     end;
@@ -148,7 +148,7 @@ page 11512 "Swiss QR-Bill Print Select Doc"
         IssuedReminderHeader: Record "Issued Reminder Header";
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
-        QRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
+        SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
         DocumentNo: Code[20];
         EntryNo: Integer;
 
@@ -167,11 +167,11 @@ page 11512 "Swiss QR-Bill Print Select Doc"
             case true of
                 SalesInvoiceHeader.Get(CustLedgerEntry."Document No."):
                     ;
-                QRBillMgt.FindServiceInvoiceFromLedgerEntry(ServiceInvoiceHeader, CustLedgerEntry):
+                SwissQRBillMgt.FindServiceInvoiceFromLedgerEntry(ServiceInvoiceHeader, CustLedgerEntry):
                     ;
-                QRBillMgt.FindIssuedReminderFromLedgerEntry(IssuedReminderHeader, CustLedgerEntry):
+                SwissQRBillMgt.FindIssuedReminderFromLedgerEntry(IssuedReminderHeader, CustLedgerEntry):
                     ;
-                QRBillMgt.FindIssuedFinChargeMemoFromLedgerEntry(IssuedFinChargeMemoHeader, CustLedgerEntry):
+                SwissQRBillMgt.FindIssuedFinChargeMemoFromLedgerEntry(IssuedFinChargeMemoHeader, CustLedgerEntry):
                     ;
             end;
     end;
@@ -199,7 +199,9 @@ page 11512 "Swiss QR-Bill Print Select Doc"
         if DocumentNo <> '' then
             with ServiceInvoiceHeader do begin
                 Get(DocumentNo);
-                if QRBillMgt.FindCustLedgerEntry(EntryNo, "Bill-to Customer No.", CustLedgerEntry."Document Type"::Invoice, "No.", "Posting Date") then
+                if SwissQRBillMgt.FindCustLedgerEntry(
+                       EntryNo, "Bill-to Customer No.", CustLedgerEntry."Document Type"::Invoice, "No.", "Posting Date")
+                then
                     ValidateLedgerEntry();
             end;
     end;
@@ -210,7 +212,9 @@ page 11512 "Swiss QR-Bill Print Select Doc"
         if DocumentNo <> '' then
             with IssuedReminderHeader do begin
                 Get(DocumentNo);
-                if QRBillMgt.FindCustLedgerEntry(EntryNo, "Customer No.", CustLedgerEntry."Document Type"::Reminder, "No.", "Posting Date") then
+                if SwissQRBillMgt.FindCustLedgerEntry(
+                       EntryNo, "Customer No.", CustLedgerEntry."Document Type"::Reminder, "No.", "Posting Date")
+                then
                     ValidateLedgerEntry();
             end;
     end;
@@ -221,7 +225,9 @@ page 11512 "Swiss QR-Bill Print Select Doc"
         if DocumentNo <> '' then
             with IssuedFinChargeMemoHeader do begin
                 Get(DocumentNo);
-                if QRBillMgt.FindCustLedgerEntry(EntryNo, "Customer No.", CustLedgerEntry."Document Type"::"Finance Charge Memo", "No.", "Posting Date") then
+                if SwissQRBillMgt.FindCustLedgerEntry(
+                       EntryNo, "Customer No.", CustLedgerEntry."Document Type"::"Finance Charge Memo", "No.", "Posting Date")
+                then
                     ValidateLedgerEntry();
             end;
     end;

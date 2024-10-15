@@ -1,6 +1,6 @@
 page 11515 "Swiss QR-Bill Layout"
 {
-    Caption = 'QR-Bill Layout';
+    Caption = 'QR-Bill Layouts';
     PageType = List;
     ApplicationArea = All;
     UsageCategory = Administration;
@@ -16,7 +16,7 @@ page 11515 "Swiss QR-Bill Layout"
                 field(Code; Code)
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the QR-Bill Layout code as an identifier for the layout';
+                    ToolTip = 'Specifies the QR-Bill Layout code as an identifier for the layout.';
                 }
                 field(IBANType; "IBAN Type")
                 {

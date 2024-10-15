@@ -112,7 +112,9 @@ codeunit 5005270 "Issue Delivery Reminder"
                     IssuedDeliveryReminderLine.Init();
                     IssuedDeliveryReminderLine.TransferFields(DeliveryReminderLine);
                     IssuedDeliveryReminderLine."Document No." := IssuedDeliveryReminderHeader."No.";
+                    OnBeforeIssuedDeliveryReminderLineInsert(IssuedDeliveryReminderLine, DeliveryReminderLine);
                     IssuedDeliveryReminderLine.Insert();
+                    OnAfterIssuedDeliveryReminderLineInsert(IssuedDeliveryReminderLine, DeliveryReminderLine);
                 until DeliveryReminderLine.Next = 0;
             DeliveryReminderLine.DeleteAll();
 
@@ -200,6 +202,16 @@ codeunit 5005270 "Issue Delivery Reminder"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIssuedDeliveryReminderHeaderInsert(var IssuedDelivReminderHeader: Record "Issued Deliv. Reminder Header"; DeliveryReminderHeader: Record "Delivery Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIssuedDeliveryReminderLineInsert(var IssuedDeliveryReminderLine: Record "Issued Deliv. Reminder Line"; DeliveryReminderLine: Record "Delivery Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIssuedDeliveryReminderLineInsert(var IssuedDeliveryReminderLine: Record "Issued Deliv. Reminder Line"; DeliveryReminderLine: Record "Delivery Reminder Line")
     begin
     end;
 }

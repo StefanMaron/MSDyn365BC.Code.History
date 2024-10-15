@@ -22,6 +22,7 @@ codeunit 134425 "Payment Services Test"
         LibraryRandom: Codeunit "Library - Random";
         PaymentServiceExtensionMock: Codeunit "Payment Service Extension Mock";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         DatasetFileName: Text;
         Initialized: Boolean;
         TestServiceNameTxt: Label 'Test App for Payment Service';
@@ -33,7 +34,6 @@ codeunit 134425 "Payment Services Test"
         NoPaymentServicesAvailableErr: Label 'No payment service extension has been installed.';
         UpdateOrCreateNewOption: Option Cancel,"Update Existing","Create New";
         LCY: Code[10];
-        ItemNo: Code[20];
 
     local procedure Initialize()
     var
@@ -1084,7 +1084,7 @@ codeunit 134425 "Payment Services Test"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,NotificationHandler,NotificationDetailsHandler,RecallNotificationHandler')]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestQuoteToOrderCarriesPaymentService()
     var
@@ -1092,7 +1092,7 @@ codeunit 134425 "Payment Services Test"
         TempPaymentServiceSetup: Record "Payment Service Setup" temporary;
         SalesHeader: Record "Sales Header";
         DummyPaymentMethod: Record "Payment Method";
-        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        ItemCheckAvail: Codeunit "Item-Check Avail.";
         SalesQuote: TestPage "Sales Quote";
         SalesOrder: TestPage "Sales Order";
         ConfirmConvertingToOrder: Boolean;
@@ -1100,6 +1100,7 @@ codeunit 134425 "Payment Services Test"
     begin
         // Setup
         Initialize;
+        LibraryNotificationMgt.DisableMyNotification(ItemCheckAvail.GetItemAvailabilityNotificationId);
 
         CreateDefaultTemplate(TempTemplatePaymentServiceSetup);
         CreateDefaultPaymentService(TempPaymentServiceSetup, TempTemplatePaymentServiceSetup);
@@ -1111,8 +1112,6 @@ codeunit 134425 "Payment Services Test"
 
         SalesQuote.OpenEdit;
         SalesQuote.GotoRecord(SalesHeader);
-
-        ItemNo := SalesQuote.SalesLines."No.".Value;
 
         // Execute
         ConfirmConvertingToOrder := true;
@@ -1126,7 +1125,6 @@ codeunit 134425 "Payment Services Test"
         // Verify
         Assert.AreEqual(
           SalesOrder.SelectedPayments.Value, TempPaymentServiceSetup.Name, 'Payment service should be carried over to Sales Order');
-        NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
     [Test]
@@ -2185,41 +2183,6 @@ codeunit 134425 "Payment Services Test"
         TempPaymentServiceSetup.Enabled := true;
         TempPaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
-    end;
-
-    [RecallNotificationHandler]
-    [Scope('OnPrem')]
-    procedure RecallNotificationHandler(var Notification: Notification): Boolean
-    begin
-    end;
-
-    [SendNotificationHandler]
-    [Scope('OnPrem')]
-    procedure NotificationHandler(var Notification: Notification): Boolean
-    var
-        Item: Record Item;
-        ItemCheckAvail: Codeunit "Item-Check Avail.";
-        Inventory: Decimal;
-    begin
-        Item.Get(ItemNo);
-        Assert.AreEqual(Notification.GetData('ItemNo'), Item."No.", 'Item No. was different than expected');
-        Item.CalcFields(Inventory);
-        Evaluate(Inventory, Notification.GetData('InventoryQty'));
-        Assert.AreEqual(Inventory, Item.Inventory, 'Available Inventory was different than expected');
-        ItemCheckAvail.ShowNotificationDetails(Notification);
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure NotificationDetailsHandler(var ItemAvailabilityCheck: TestPage "Item Availability Check")
-    var
-        Item: Record Item;
-    begin
-        Item.Get(ItemNo);
-        Item.CalcFields(Inventory);
-        ItemAvailabilityCheck.AvailabilityCheckDetails."No.".AssertEquals(Item."No.");
-        ItemAvailabilityCheck.AvailabilityCheckDetails.Description.AssertEquals(Item.Description);
-        ItemAvailabilityCheck.InventoryQty.AssertEquals(Item.Inventory);
     end;
 
     local procedure BindActiveDirectoryMockEvents()

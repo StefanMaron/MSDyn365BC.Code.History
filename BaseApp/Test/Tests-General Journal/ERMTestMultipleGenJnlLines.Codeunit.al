@@ -1803,7 +1803,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
 
     local procedure SelectAndClearGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
-        LibraryERM.SelectLastGenJnBatch(GenJournalBatch);
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
     end;
 
