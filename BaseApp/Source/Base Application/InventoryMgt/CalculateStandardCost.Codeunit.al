@@ -429,7 +429,13 @@ codeunit 5812 "Calculate Standard Cost"
         CompItem: Record Item;
         CompResource: Record Resource;
         UnitPrice: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDoCalcAssemblyItemPrice(Item, Level, MaxLevel, CalcMultiLevel, IsHandled);
+        if IsHandled then
+            exit;
+
         if Level > MaxLevel then
             Error(Text000, MaxLevel);
 
@@ -440,6 +446,7 @@ codeunit 5812 "Calculate Standard Cost"
             exit;
 
         BOMComp.SetRange("Parent Item No.", Item."No.");
+        OnDoCalcAssemblyItemPriceOnAfterSetBOMCompFilters(Item, BOMComp);
         if BOMComp.Find('-') then begin
             repeat
                 case BOMComp.Type of
@@ -1129,6 +1136,16 @@ codeunit 5812 "Calculate Standard Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcProdBOMCost(MfgItem: Record Item; ProdBOMNo: Code[20]; RtngNo: Code[20]; MfgItemQtyBase: Decimal; IsTypeItem: Boolean; Level: Integer; var SLMat: Decimal; var RUMat: Decimal; var RUCap: Decimal; var RUSub: Decimal; var RUCapOvhd: Decimal; var RUMfgOvhd: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDoCalcAssemblyItemPrice(var Item: Record Item; Level: Integer; MaxLevel: Integer; CalcMultiLevel: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDoCalcAssemblyItemPriceOnAfterSetBOMCompFilters(var Item: Record Item; var BOMComponent: Record "BOM Component")
     begin
     end;
 }

@@ -509,6 +509,7 @@ table 1001 "Job Task"
         JobLedgEntry.SetCurrentKey("Job No.", "Job Task No.");
         JobLedgEntry.SetRange("Job No.", "Job No.");
         JobLedgEntry.SetRange("Job Task No.", "Job Task No.");
+        OnJobLedgEntriesExistOnAfterSetFilter(Rec, JobLedgEntry);
         exit(JobLedgEntry.FindFirst());
     end;
 
@@ -636,6 +637,11 @@ table 1001 "Job Task"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitWIPFieldsOnBeforeModify(var JobTask: Record "Job Task")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnJobLedgEntriesExistOnAfterSetFilter(var JobTask: Record "Job Task"; var JobLedgerEntry: Record "Job Ledger Entry")
     begin
     end;
 }

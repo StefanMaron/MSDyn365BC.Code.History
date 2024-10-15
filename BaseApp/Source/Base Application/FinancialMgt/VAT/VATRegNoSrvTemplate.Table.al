@@ -55,8 +55,15 @@ table 226 "VAT Reg. No. Srv. Template"
     var
         DefaultTxt: Label 'Default';
 
-    procedure FindTemplate(VATRegistrationLog: Record "VAT Registration Log"): Code[20]
+    procedure FindTemplate(VATRegistrationLog: Record "VAT Registration Log") Result: Code[20]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindTemplate(VATRegistrationLog, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         SetRange("Country/Region Code", VATRegistrationLog."Country/Region Code");
         SetRange("Account Type", MapVATRegLogAccountType(VATRegistrationLog."Account Type"));
         SetRange("Account No.", VATRegistrationLog."Account No.");
@@ -113,5 +120,10 @@ table 226 "VAT Reg. No. Srv. Template"
             else
                 exit("Account Type"::None);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindTemplate(VATRegistrationLog: Record "VAT Registration Log"; var IsHandled: Boolean; var Result: Code[20])
+    begin
     end;
 }

@@ -118,6 +118,8 @@ codeunit 99000770 "Where-Used Management"
             ProdBOMComponent.SetFilter("Ending Date", '%1|%2..', 0D, CalcDate);
         end;
 
+        OnBuildWhereUsedListOnBeforeFindSetProdBOMComponent(ProdBOMComponent);
+
         if ProdBOMComponent.FindSet() then
             repeat
                 if VersionMgt.GetBOMVersion(
@@ -205,6 +207,11 @@ codeunit 99000770 "Where-Used Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBuildWhereUsedListOnAfterItemAssemblySetFilters(var Item: Record Item; var No: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBuildWhereUsedListOnBeforeFindSetProdBOMComponent(var ProductionBOMLine: Record "Production BOM Line")
     begin
     end;
 }

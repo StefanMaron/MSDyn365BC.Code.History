@@ -8411,6 +8411,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - account schedule name]D;]A;(LookupHint=Codeunit ERM Test Account Categories - NamedType NumbeOfLinesOneErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1991565717 - NamedType 528909762" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Account Schedue Totalling Type are not matched.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Test Account Categories - NamedType TotalAccountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 744599786 - NamedType 3871258722" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Privet Drive]]></Val>
@@ -8436,6 +8445,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Test SEPA Credit Transfers - NamedType EndtoEndIDErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 744599786 - NamedType 2466234692" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Error texts entries has to be deleted, from %1 table.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Payment Jnl. Export Error Text]D;]A;(LookupHint=Codeunit ERM Test SEPA Credit Transfers - NamedType ErrorTextsExistErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 744599786 - NamedType 743427178" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
