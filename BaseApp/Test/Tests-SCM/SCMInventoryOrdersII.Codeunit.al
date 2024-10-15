@@ -2058,6 +2058,41 @@ codeunit 137068 "SCM Inventory Orders-II"
         ErrorMessagesPage."Support Url".AssertEquals(NamedForwardLink.Link);
     end;
 
+
+    [Test]
+    [HandlerFunctions('GetSalesOrdersReportHandler')]
+    procedure SpecialOrderReqLineUoMCopiedFromSalesLine()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Requisition Worksheet] [Special Order] [Get Sales Order]
+        // [SCENARIO 384262] Requisition line created with "Get Sales Order" has the same UoM as the original Sales Line for the Special Orders
+        Initialize();
+
+        // [GIVEN] Item with base UoM "PCS" and additional UoM "PACK" = 10 "PCS"
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(2, 10));
+
+        // [GIVEN] Sales Order with Special Order Sales Line for 2 "PACK" of the Item
+        CreateSalesOrderWithPurchasingCodeSpecialOrder(SalesHeader, Item."No.");
+        FindSalesLine(SalesLine, SalesHeader);
+        SalesLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        SalesLine.Modify(true);
+
+        // [WHEN] Run "Get Sales Order" (Special Order) on the Requisition Worksheet
+        GetSpecialOrderInReqWorksheet(RequisitionLine, SalesHeader."No.");
+
+        // [THEN] Requisition Line created has same Quantity and UoM as the Sales Line
+        RequisitionLine.SetRange("Sales Order No.", SalesHeader."No.");
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField("Unit of Measure Code", SalesLine."Unit of Measure Code");
+        RequisitionLine.TestField(Quantity, SalesLine.Quantity);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -22,6 +22,7 @@ codeunit 144072 "UT REP Fiscal Year"
 
     trigger OnRun()
     begin
+        // [FEATURE] [Report]
     end;
 
     var
@@ -264,27 +265,96 @@ codeunit 144072 "UT REP Fiscal Year"
         REPORT.Run(REPORT::"G/L Detail Trial Balance", true);
 
         // [THEN] Resulting dataset have 'Balance' = 100 and 'Balance' = 333.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Balance', GLEntry[1].Amount);
         LibraryReportDataset.AssertElementWithValueExists('Balance', GLEntry[2].Amount);
     end;
 
+    [Test]
+    [HandlerFunctions('GLDetailTrialBalanceForGLAccountNoRequestPageHandler')]
+    procedure GLDetailTrialBalanceForMultipleGLAccountsWithClosingDateEntries_Exclude()
+    var
+        GLAccount: array[2] of Record "G/L Account";
+        GLEntry: array[3] of Record "G/L Entry";
+        PostingDate: Date;
+    begin
+        // [FEATURE] [Closing Date]
+        // [SCENARIO 383626] Balance of a G/L Account doesn't include G/L Entry with posting date at Closing Date when date filter ends with Normal Date
+        Initialize();
+
+        PostingDate := CalcDate('<CM>', WorkDate);
+
+        LibraryERM.CreateGLAccount(GLAccount[1]);
+        CreateGLEntry(GLEntry[1], GLAccount[1]."No.", LibraryRandom.RandDecInRange(10, 100, 2), PostingDate);
+        LibraryERM.CreateGLAccount(GLAccount[2]);
+        CreateGLEntry(GLEntry[2], GLAccount[2]."No.", LibraryRandom.RandDecInRange(10, 100, 2), PostingDate);
+        CreateGLEntry(GLEntry[3], GLAccount[2]."No.", LibraryRandom.RandDecInRange(10, 100, 2), ClosingDate(PostingDate));
+
+        // [WHEN] Report "G/L Detail Trial Balance" is run for these accounts.
+        LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', GLAccount[1]."No.", GLAccount[2]."No."));
+        LibraryVariableStorage.Enqueue(StrSubstNo(PeriodStartFilterTxt, CalcDate('<-CM>', PostingDate), PostingDate));
+        Commit();
+        REPORT.Run(REPORT::"G/L Detail Trial Balance", true);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('Balance', GLEntry[1].Amount);
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('Balance', GLEntry[2].Amount);
+        Assert.AreEqual(2, LibraryReportDataset.RowCount(), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('GLDetailTrialBalanceForGLAccountNoRequestPageHandler')]
+    procedure GLDetailTrialBalanceForMultipleGLAccountsWithClosingDateEntries_Include()
+    var
+        GLAccount: array[2] of Record "G/L Account";
+        GLEntry: array[3] of Record "G/L Entry";
+        PostingDate: Date;
+    begin
+        // [FEATURE] [Closing Date]
+        // [SCENARIO 383626] Balance of a G/L Account includes G/L Entry with posting date at Closing Date when date filter ends with Closing Date
+        Initialize();
+
+        PostingDate := CalcDate('<CM>', WorkDate);
+
+        LibraryERM.CreateGLAccount(GLAccount[1]);
+        CreateGLEntry(GLEntry[1], GLAccount[1]."No.", LibraryRandom.RandDecInRange(10, 100, 2), PostingDate);
+        LibraryERM.CreateGLAccount(GLAccount[2]);
+        CreateGLEntry(GLEntry[2], GLAccount[2]."No.", LibraryRandom.RandDecInRange(10, 100, 2), PostingDate);
+        CreateGLEntry(GLEntry[3], GLAccount[2]."No.", LibraryRandom.RandDecInRange(10, 100, 2), ClosingDate(PostingDate));
+
+        LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', GLAccount[1]."No.", GLAccount[2]."No."));
+        LibraryVariableStorage.Enqueue(StrSubstNo(PeriodStartFilterTxt, CalcDate('<-CM>', PostingDate), ClosingDate(PostingDate)));
+        Commit();
+        REPORT.Run(REPORT::"G/L Detail Trial Balance", true);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('Balance', GLEntry[1].Amount);
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('Balance', GLEntry[2].Amount);
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('Balance', GLEntry[2].Amount + GLEntry[3].Amount);
+        Assert.AreEqual(3, LibraryReportDataset.RowCount(), '');
+    end;
+
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateGLEntry(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20]; DebitAmount: Decimal; PostingDate: Date)
     begin
         with GLEntry do begin
-            if FindLast then
+            if FindLast() then
                 Init;
             "Entry No." += 1;
             "G/L Account No." := GLAccountNo;
             "Debit Amount" := DebitAmount;
             Amount := DebitAmount;
             "Posting Date" := PostingDate;
-            Insert;
+            Insert();
         end;
     end;
 

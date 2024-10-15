@@ -297,7 +297,13 @@ codeunit 99000815 "Reservation-Check Date Confl."
     procedure UpdateDate(var FilterReservEntry: Record "Reservation Entry"; Date: Date)
     var
         ForceModifyShipmentDate: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateDate(FilterReservEntry, Date, IsHandled);
+        if IsHandled then
+            exit;
+
         FilterReservEntry.SetRange("Reservation Status");
         if not FilterReservEntry.Find('-') then
             exit;
@@ -445,6 +451,11 @@ codeunit 99000815 "Reservation-Check Date Confl."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckProdOrderLineDateConflict(DueDate: Date; var ForceRequest: Boolean; var ReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDate(var ReservationEntry: Record "Reservation Entry"; NewDate: Date; var IsHandled: Boolean)
     begin
     end;
 

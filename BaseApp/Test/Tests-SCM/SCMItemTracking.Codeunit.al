@@ -2549,6 +2549,130 @@ codeunit 137405 "SCM Item Tracking"
         ItemTrackingCode.TestField("Lot Warehouse Tracking", true);
     end;
 
+    [Test]
+    [HandlerFunctions('OpenItemTrackingHandler,ConfirmHandlerTrue,MessageHandler')]
+    procedure AllNonspecificReservationEntriesReleasedOnJobJournalPostedWithDifferentItemTracking()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        JobJournalTemplate: Record "Job Journal Template";
+        JobJournalBatch: Record "Job Journal Batch";
+        JobJournalLine: Record "Job Journal Line";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        JobTransferLine: Codeunit "Job Transfer Line";
+        LotNo: array[4] of Code[10];
+        Index: Integer;
+        TotalQuantity: Integer;
+    begin
+        // [FEATURE] [Job] [Job Journal]
+        // [SCENARIO 384083] All non-specific reservations for a job planning line are released, when job journal line is posted with item tracking for different tracking specifications
+        Initialize();
+
+        // [GIVEN] Lot-tracked Item "I" with lots "L1", "L2", "L3", "L4" in inventory each with Quantity = 1
+        CreateItemWithTrackingCode(Item, true, false);
+        TotalQuantity := ArrayLen(LotNo);
+        LibraryVariableStorage.Enqueue(TotalQuantity);
+        for Index := 1 to TotalQuantity do begin
+            LotNo[Index] := LibraryUtility.GenerateGUID();
+            LibraryVariableStorage.Enqueue(LotNo[Index]);
+            LibraryVariableStorage.Enqueue(1);
+        end;
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Item."No.", TotalQuantity);
+        PurchaseLine.OpenItemTrackingLines();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Job Planning Line for Item "I" with Quantity = 2
+        CreateJobPlanningLine(JobPlanningLine, Item."No.", TotalQuantity / 2);
+
+        // [GIVEN] Job Planning Line has non-specific reservation to ILEs with lots "L1", "L2"
+        JobPlanningLine.AutoReserve();
+
+        // [GIVEN] Job Journal Line is created from Job Planning Line.
+        JobTransferLine.FromPlanningLineToJnlLine(JobPlanningLine, WorkDate, LibraryJob.GetJobJournalTemplate(JobJournalTemplate),
+          LibraryJob.CreateJobJournalBatch(LibraryJob.GetJobJournalTemplate(JobJournalTemplate), JobJournalBatch), JobJournalLine);
+
+        // [GIVEN] Lots "L3", "L4" selected on Item Tracking Lines for Job Journal Line
+        LibraryVariableStorage.Enqueue(TotalQuantity / 2);
+        for Index := (1 + TotalQuantity / 2) to TotalQuantity do begin
+            LibraryVariableStorage.Enqueue(LotNo[Index]);
+            LibraryVariableStorage.Enqueue(1);
+        end;
+        JobJournalLine.OpenItemTrackingLines(false);
+
+        // [WHEN] Post Job Journal Line.
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [THEN] "Reserved Quantity" = 0 on Job Planning Line
+        JobPlanningLine.CalcFields("Reserved Quantity");
+        JobPlanningLine.TestField("Reserved Quantity", 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('OpenItemTrackingHandler,ConfirmHandlerTrue,MessageHandler')]
+    procedure NonspecificReservationEntriesReleasedOnPartialJobJournalPostedWithDifferentItemTracking()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        JobJournalTemplate: Record "Job Journal Template";
+        JobJournalBatch: Record "Job Journal Batch";
+        JobJournalLine: Record "Job Journal Line";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        JobTransferLine: Codeunit "Job Transfer Line";
+        LotNo: array[6] of Code[10];
+        Index: Integer;
+        TotalQuantity: Integer;
+        JobPlanningQuantity: Integer;
+        JobJournalQuantity: Integer;
+    begin
+        // [FEATURE] [Job] [Job Journal]
+        // [SCENARIO 384083] Correct number of non-specific reservations for a job planning line is released, when partial quantity on job journal line is posted with item tracking for different tracking specifications
+        Initialize();
+
+        // [GIVEN] Lot-tracked Item "I" with lots "L1" .. "L6" in inventory each with Quantity = 1
+        CreateItemWithTrackingCode(Item, true, false);
+        TotalQuantity := ArrayLen(LotNo);
+        JobPlanningQuantity := TotalQuantity / 2;
+        LibraryVariableStorage.Enqueue(TotalQuantity);
+        for Index := 1 to TotalQuantity do begin
+            LotNo[Index] := LibraryUtility.GenerateGUID();
+            LibraryVariableStorage.Enqueue(LotNo[Index]);
+            LibraryVariableStorage.Enqueue(1);
+        end;
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Item."No.", TotalQuantity);
+        PurchaseLine.OpenItemTrackingLines();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Job Planning Line for Item "I" with Quantity = 3
+        CreateJobPlanningLine(JobPlanningLine, Item."No.", JobPlanningQuantity);
+
+        // [GIVEN] Job Planning Line has non-specific reservation to ILEs with lots "L1".."L3"
+        JobPlanningLine.AutoReserve();
+
+        // [GIVEN] Job Journal Line is created from Job Planning Line with partial Quantity = 2;
+        JobJournalQuantity := LibraryRandom.RandIntInRange(1, JobPlanningQuantity - 1);
+        JobTransferLine.FromPlanningLineToJnlLine(JobPlanningLine, WorkDate, LibraryJob.GetJobJournalTemplate(JobJournalTemplate),
+          LibraryJob.CreateJobJournalBatch(LibraryJob.GetJobJournalTemplate(JobJournalTemplate), JobJournalBatch), JobJournalLine);
+        JobJournalLine.Validate(Quantity, JobJournalQuantity);
+        JobJournalLine.Modify(true);
+
+        // [GIVEN] Lots "L5", "L6" selected on Item Tracking Lines for Job Journal Line
+        LibraryVariableStorage.Enqueue(JobJournalQuantity);
+        for Index := (TotalQuantity - JobJournalQuantity + 1) to TotalQuantity do begin
+            LibraryVariableStorage.Enqueue(LotNo[Index]);
+            LibraryVariableStorage.Enqueue(1);
+        end;
+        JobJournalLine.OpenItemTrackingLines(false);
+
+        // [WHEN] Post Job Journal Line.
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [THEN] "Reserved Quantity" = 1 on Job Planning Line
+        JobPlanningLine.CalcFields("Reserved Quantity");
+        JobPlanningLine.TestField("Reserved Quantity", JobPlanningQuantity - JobJournalQuantity);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3003,7 +3127,7 @@ codeunit 137405 "SCM Item Tracking"
         PurchaseLine.OpenItemTrackingLines();
     end;
 
-    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; ItemNo: Code[20])
+    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; ItemNo: Code[20]; Qty: Decimal)
     var
         JobTask: Record "Job Task";
     begin
@@ -3011,7 +3135,7 @@ codeunit 137405 "SCM Item Tracking"
         with JobPlanningLine do begin
             LibraryJob.CreateJobPlanningLine("Line Type"::Budget, Type::Item, JobTask, JobPlanningLine);
             Validate("No.", ItemNo);
-            Validate(Quantity, LibraryRandom.RandInt(10));
+            Validate(Quantity, Qty);
             Validate("Usage Link", true);
             Modify(true);
         end;
@@ -3022,9 +3146,9 @@ codeunit 137405 "SCM Item Tracking"
         Item: Record Item;
     begin
         CreateLotTrackedItemForPlanning(Item);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
 
-        CreateJobPlanningLine(JobPlanningLine, Item."No.");
+        CreateJobPlanningLine(JobPlanningLine, Item."No.", LibraryRandom.RandInt(10));
         CalculatePlanAndCarryOutReqWorksheet(Item);
         PostPurchaseOrderWithLotTracking(Item."Vendor No.", LotNo);
     end;

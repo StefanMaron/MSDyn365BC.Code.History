@@ -305,6 +305,29 @@ codeunit 9651 "Document Report Mgt."
         FileMgt: Codeunit "File Management";
         LocalPrinter: Boolean;
     begin
+#if CLEAN17
+        // We cannot check the state of the pdfStream (not possible to detect that it's uninitialized from AL)
+        // Get the printer table record and check if the Payload column is empty or not. Empty means a local Windows printer, not empty is an
+        // extension based printer
+        if (PrinterTable.Get(PrinterName)) then begin
+            if (strlen(PrinterTable.Payload) = 0) then
+                LocalPrinter := True;
+        end;
+
+        if EnableLegacyPrint or LocalPrinter then begin
+            if ClientTypeMgt.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then begin
+                ConvertWordToPdf(TempBlob, ReportID);
+                FileMgt.BLOBExport(TempBlob, UserFileName(ReportID, FileTypePdfTxt), true);
+            end else
+                PrintWordDocOnServer(TempBlob, PrinterName, Collate);
+            // Don't clear the pdfStream as it might have an empty implementation (uninitialized) which can cause an runtime exception to be throw.
+            // Reinsert the clear call when compiler is fixed and emit code like this.pdfStream.Value?.Clear();
+            // clear(pdfStream); // Nothing is written to the stream when called using the legacy signature
+        end else begin
+            if not TryConvertWordBlobToPdfOnStream(TempBlob, pdfStream) then
+                Error(UnableToRenderPdfDocument);
+        end;
+#else
         if ClientTypeMgt.GetCurrentClientType = CLIENTTYPE::Windows then
             PrintWordDocInWord(ReportID, TempBlob, PrinterName, Collate, 1)
         else begin
@@ -330,8 +353,11 @@ codeunit 9651 "Document Report Mgt."
                     Error(UnableToRenderPdfDocument);
             end;
         end;
+#endif
     end;
 
+#if not CLEAN17
+    [Obsolete('The procedure uses .NET which does not function on non-Windows client types.', '17.3')]
     local procedure PrintWordDocInWord(ReportID: Integer; TempBlob: Codeunit "Temp Blob"; PrinterName: Text; Collate: Boolean; Copies: Integer)
     var
         FileMgt: Codeunit "File Management";
@@ -372,6 +398,7 @@ codeunit 9651 "Document Report Mgt."
                 FileMgt.BLOBExport(TempBlob, UserFileName(ReportID, FileTypeWordTxt), true);
         end;
     end;
+#endif
 
     local procedure SelectPrinter(var PrinterName: Text; var Collate: Boolean; var Copies: Integer): Boolean
     var
@@ -403,6 +430,7 @@ codeunit 9651 "Document Report Mgt."
         exit(true);
     end;
 
+#if not CLEAN17
     [TryFunction]
     local procedure DeleteClientFile(FileName: Text)
     var
@@ -410,6 +438,7 @@ codeunit 9651 "Document Report Mgt."
     begin
         FileMgt.DeleteClientFile(FileName);
     end;
+#endif
 
     local procedure IsValidPrinter(PrinterName: Text): Boolean
     var

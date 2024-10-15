@@ -596,9 +596,6 @@ codeunit 8800 "Custom Layout Reporting"
                 Error(OutputNotSupportedErr);
         end;
 
-        // If no path was given (often during test runs), use a temp directory on the server
-        if FileManagement.IsLocalFileSystemAccessible and (Path = '') then
-            Path := FileManagement.ServerCreateTempSubDirectory;
 
         // If we're not on the web client, use the path that was selected for saving
         // In the web client, the path isn't used since we zip up the files and send them to the client
@@ -616,7 +613,7 @@ codeunit 8800 "Custom Layout Reporting"
             if IsWebClient or IsBackground then
                 AddFileToClientZip(TempFilePath, FileName)
             else begin
-                FileManagement.DownloadToFile(TempFilePath, FileName);
+                FileManagement.DownloadHandler(TempFilePath, '', '', '', FileName);
                 TempEraseFileNameValueBuffer.AddNewEntry(Format(TempFilePath, 250), '');
                 AnyOutputExists := true;
             end;
@@ -781,10 +778,12 @@ codeunit 8800 "Custom Layout Reporting"
                 SaveReportRequestPageParameters(LocalRepId, RequestPageParameters);
                 // Validate output type and get a file save path, if necessary, only prompt for windows clients that are not in test mode
                 SetOutputType(LocalRepId);
+#if not CLEAN17
                 if FileManagement.IsLocalFileSystemAccessible and (Path = '') and (not IsTestMode) and
                    (OutputType in [OutputType::PDF, OutputType::Excel, OutputType::Word, OutputType::XML])
                 then
                     FileManagement.SelectFolderDialog(SaveFolderMsg, Path);
+#endif
 
                 // Use the temp path if we're set in test mode and the path wasn't already set
                 if (Path = '') and IsTestMode then

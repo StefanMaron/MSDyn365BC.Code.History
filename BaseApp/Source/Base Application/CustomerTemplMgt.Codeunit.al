@@ -23,6 +23,7 @@
 
         ApplyCustomerTemplate(Customer, CustomerTempl);
 
+        OnAfterCreateCustomerFromTemplate(Customer, CustomerTempl);
         exit(true);
     end;
 
@@ -98,10 +99,16 @@
         exit(SelectCustomerTemplate(CustomerTempl));
     end;
 
-    local procedure SelectCustomerTemplate(var CustomerTempl: Record "Customer Templ."): Boolean
+    local procedure SelectCustomerTemplate(var CustomerTempl: Record "Customer Templ.") Result: Boolean
     var
         SelectCustomerTemplList: Page "Select Customer Templ. List";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSelectCustomerTemplate(CustomerTempl, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if CustomerTempl.Count = 1 then begin
             CustomerTempl.FindFirst();
             exit(true);
@@ -367,6 +374,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnShowTemplates(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateCustomerFromTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectCustomerTemplate(var CustomerTempl: Record "Customer Templ."; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -595,16 +595,14 @@ table 1501 Workflow
     var
         OtherWorkflowStepArgument: Record "Workflow Step Argument";
         ThisWorkflowStepArgument: Record "Workflow Step Argument";
-        ThisWorkflowRule: Record "Workflow Rule";
-        OtherWorkflowRule: Record "Workflow Rule";
         TableCaption: Text;
     begin
         TableCaption := GetTableCaption(ThisWorkflowDefinition.Table_ID);
 
         if ((not ThisWorkflowStepArgument.Get(ThisWorkflowDefinition.Argument)) and
-            (not ThisWorkflowStep.FindWorkflowRules(ThisWorkflowRule))) or
+            (not ThisWorkflowStep.HasWorkflowRules())) or
            ((not OtherWorkflowStepArgument.Get(OtherWorkflowDefinition.Argument)) and
-            (not OtherWorkflowStep.FindWorkflowRules(OtherWorkflowRule)))
+            (not OtherWorkflowStep.HasWorkflowRules()))
         then
             Error(SameEventConditionsErr, TableCaption);
 

@@ -33,13 +33,20 @@ report 10821 "Export DEB DTI"
                         Caption = 'File Name';
                         ToolTip = 'Specifies the path and file name to store your DEB data. Add the XML file name extension to the file name.';
 
+
                         trigger OnAssistEdit()
+#if not CLEAN17
                         var
                             FileMgt: Codeunit "File Management";
+#endif
                         begin
+#if not CLEAN17
                             if FileName = '' then
                                 FileName := '.xml';
                             FileName := FileMgt.SaveFileDialog(Text002, FileName, '');
+#else
+                            FileName := '';
+#endif
                         end;
                     }
                     field("Obligation Level"; ObligationLevel)

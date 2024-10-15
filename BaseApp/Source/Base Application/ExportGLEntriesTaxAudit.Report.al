@@ -162,10 +162,14 @@ report 10885 "Export G/L Entries - Tax Audit"
         ToFileName := GetFileName;
         Writer.Close;
 
+#if not CLEAN17
         if (ToFileFullName = '') or not FileManagement.IsLocalFileSystemAccessible then
             FileManagement.DownloadHandler(OutputFileName, '', '', '', ToFileName)
         else
             FileManagement.DownloadToFile(OutputFileName, ToFileFullName);
+#else
+        FileManagement.DownloadHandler(OutputFileName, '', '', '', ToFileName);
+#endif
         Clear(oStream);
         Erase(OutputFileName);
     end;

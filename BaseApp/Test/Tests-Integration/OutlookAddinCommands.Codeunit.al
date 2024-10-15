@@ -713,7 +713,7 @@ codeunit 139056 "Outlook Add-in Commands"
         CustomerDrillDownCreate;
 
         // Verify
-        CustomerCard."E-Mail".AssertEquals(PersonEmail);
+        CustomerCard."E-Mail".AssertEquals(CompanyEmail);
     end;
 
     [Test]

@@ -1417,6 +1417,8 @@
             if JobResPrice."Apply Job Discount" then
                 "Line Discount %" := JobResPrice."Line Discount %";
         end;
+
+        OnAfterCopyJobResPriceToJobJnlLine(JobJnlLine);
     end;
 
     local procedure CopyJobGLAccPriceToJobJnlLine(var JobJnlLine: Record "Job Journal Line"; JobGLAccPrice: Record "Job G/L Account Price")
@@ -1639,6 +1641,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcLineAmount(SalesPrice: Record "Sales Price"; var LineAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyJobResPriceToJobJnlLine(var JobJnlLine: Record "Job Journal Line")
     begin
     end;
 

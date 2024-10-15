@@ -264,12 +264,18 @@ report 10876 "EC Sales List - Services"
                         Visible = XMLFileVisible;
 
                         trigger OnAssistEdit()
+#if not CLEAN17
                         var
                             FileMgt: Codeunit "File Management";
+#endif
                         begin
+#if not CLEAN17
                             if XMLFile = '' then
                                 XMLFile := '.xml';
                             XMLFile := FileMgt.SaveFileDialog(Text002, XMLFile, '');
+#else
+                            XMLFile := '';
+#endif
                         end;
                     }
                 }

@@ -58,7 +58,11 @@ codeunit 10821 "Export DEB DTI"
     local procedure CloseFile()
     begin
         OutputFile.Close;
+#if not CLEAN17
         FileMgt.DownloadToFile(TempFileName, ClientFileName);
+#else
+        FileMgt.DownloadHandler(TempFileName, '', '', '', ClientFileName)
+#endif
     end;
 
     local procedure CheckMandatoryCompanyInfo()

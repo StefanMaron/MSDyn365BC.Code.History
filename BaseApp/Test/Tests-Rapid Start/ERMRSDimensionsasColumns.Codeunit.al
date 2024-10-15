@@ -89,9 +89,11 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         Assert.ExpectedError(StrSubstNo(CannotUseDimensionsAsColumnsErr, ConfigPackageTable."Table ID"));
     end;
 
+#if not CLEAN17
     [Test]
     [HandlerFunctions('ConfirmAddDimTablesHandlerYes')]
     [Scope('OnPrem')]
+    [Obsolete('CreateAndExportBasicPackage will always throw an error.', '17.3')]
     procedure VerifyDimExportToExcelAsColumns()
     var
         ConfigPackage: Record "Config. Package";
@@ -115,6 +117,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     [Test]
     [HandlerFunctions('ConfirmAddDimTablesHandlerYes')]
     [Scope('OnPrem')]
+    [Obsolete('CreateAndExportBasicPackage will always throw an error.', '17.3')]
     procedure VerifyDefaultDimExportToExcel()
     var
         ConfigPackage: Record "Config. Package";
@@ -136,6 +139,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     [Test]
     [HandlerFunctions('ConfirmAddDimTablesHandlerYes,ImportPreviewModalPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('CreateAndExportBasicPackage will always throw an error.', '17.3')]
     procedure VerifyDefaultDimImportFromExcel()
     var
         ConfigPackage: Record "Config. Package";
@@ -164,6 +168,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     [Test]
     [HandlerFunctions('ImportPreviewModalPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
     procedure VerifyDimImportFromExcelAsNewPackage()
     var
         ConfigPackage: Record "Config. Package";
@@ -247,6 +252,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     [Test]
     [HandlerFunctions('ImportPreviewModalPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
     procedure VerifyDimImportFromExcelIntoPackageWihtoutDimensions()
     var
         ConfigPackage: Record "Config. Package";
@@ -307,6 +313,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     [Test]
     [HandlerFunctions('ConfirmAddDimTablesHandlerYes,ImportPreviewModalPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('ExportImportAndApplyPackageWithNewDimension will always throw an error.', '17.3')]
     procedure DimensionsOnApply_PackageWithNewDimensions_DimensionRecordsCreated()
     var
         Customer: Record Customer;
@@ -335,6 +342,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     [Test]
     [HandlerFunctions('ConfirmAddDimTablesHandlerYes,ImportPreviewModalPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('ExportImportAndApplyPackageWithNewDimension will always throw an error.', '17.3')]
     procedure DimensionsValueOnApply_PackageWithDimensionValueIdField_PackageErrorCreated()
     var
         Customer: Record Customer;
@@ -345,6 +353,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         Assert.IsTrue(
           PackageErrorsContainsErrorWithSubstring(DATABASE::"Dimension Value", AutoincrementMsg), DimensionValueIdNotExistsErr);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ConfirmAddDimTablesHandlerYes')]
@@ -379,8 +388,10 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         Assert.AreEqual(1, ConfigPackageTable.Count, IncorrectNumberOfTablesErr);
     end;
 
+#if not CLEAN17
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
     procedure DimensionSet_ExportWithDimensionColumn()
     var
         SalesHeader: Record "Sales Header";
@@ -417,6 +428,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     [Test]
     [HandlerFunctions('ImportPreviewModalPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('PrepareAndImportPackageForDimSet will always throw an error.', '17.3')]
     procedure DimensionSet_ImportWithExistingDimension()
     var
         DimensionSetEntry: Record "Dimension Set Entry";
@@ -441,6 +453,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     [Test]
     [HandlerFunctions('ImportPreviewModalPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('PrepareAndImportPackageForDimSet will always throw an error.', '17.3')]
     procedure DimensionSet_ImportWithNonExistingDimension()
     var
         DimensionSetEntry: Record "Dimension Set Entry";
@@ -465,6 +478,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     [Test]
     [HandlerFunctions('ImportPreviewModalPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
     procedure DimensionSet_ImportAndApply()
     var
         ConfigPackage: Record "Config. Package";
@@ -511,6 +525,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
 
         SetupManualNos(SalesHeader."No. Series", OldManualNos);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ConfirmAddDimTablesHandlerYes')]
@@ -581,9 +596,11 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         SetupManualNos(SalesHeader."No. Series", OldManualNos);
     end;
 
+#if not CLEAN17
     [Test]
     [HandlerFunctions('ConfirmAddDimTablesHandlerYes,ImportPreviewModalPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('ImportPackageFromExcel will always throw an error.', '17.3')]
     procedure ImportExcelTemplateToConfigPackageWithDimAsColumnsTwice()
     var
         ConfigPackage: Record "Config. Package";
@@ -646,6 +663,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     [Test]
     [HandlerFunctions('ConfirmAddDimTablesHandlerYes,ImportPreviewModalPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('CreateAndExportBasicPackageWithManualPayment will always throw an error.', '17.3')]
     procedure VerifyDefaultDimManualPaymentImportFromExcel()
     var
         ConfigPackage: Record "Config. Package";
@@ -674,6 +692,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageData.SetRange(Value, DefaultDimension."Dimension Value Code");
         Assert.IsTrue(ConfigPackageData.FindSet, IncorrectDefaultDimensionsImportErr);
     end;
+#endif
 
     local procedure Initialize()
     var
@@ -781,6 +800,8 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageData.FindSet;
     end;
 
+#if not CLEAN17
+    [Obsolete('UploadFileSilent will always throw an error.', '17.3')]
     local procedure ExportPackageToExcel(var ConfigPackageTable: Record "Config. Package Table"; var FileName: Text)
     var
         ConfigExcelExchange: Codeunit "Config. Excel Exchange";
@@ -792,6 +813,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         LibraryReportValidation.SetFullFileName(FileName);
     end;
 
+    [Obsolete('UploadFileSilent will always throw an error.', '17.3')]
     local procedure ImportPackageFromExcel(ClientFileName: Text)
     var
         TempBlob: Codeunit "Temp Blob";
@@ -802,6 +824,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigExcelExchange.ImportExcel(TempBlob);
     end;
 
+    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
     local procedure CreateAndExportBasicPackage(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table"; var Customer: Record Customer; var FileName: Text)
     begin
         CreateBasicPackage(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
@@ -810,6 +833,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ExportPackageToExcel(ConfigPackageTable, FileName);
     end;
 
+    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
     local procedure CreateAndExportBasicPackageWithManualPayment(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table"; var CashFlowManualExpense: Record "Cash Flow Manual Expense"; var FileName: Text)
     var
         ConfigPackageFilter: Record "Config. Package Filter";
@@ -821,6 +845,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         SetDimensionAsColumns(ConfigPackageTable);
         ExportPackageToExcel(ConfigPackageTable, FileName);
     end;
+#endif
 
     local procedure CreatePackageExcludingDimSetIDField(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table"; var SalesHeader: Record "Sales Header")
     var
@@ -870,6 +895,8 @@ codeunit 136611 "ERM RS Dimensions as Columns"
           CashFlowManualExpense.Code, Dimension.Code, DimensionValue.Code);
     end;
 
+#if not CLEAN17
+    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
     local procedure PrepareAndImportPackageForDimSet(var DimensionSetEntry: Record "Dimension Set Entry"; var ConfigPackageCode: Code[20]; var OldDimValue: Code[20]; var LastDimensionSetID: Integer; var DimensionSetID: Integer; TableID: Integer; DeleteDimension: Boolean)
     var
         ConfigPackage: Record "Config. Package";
@@ -898,6 +925,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
             DimensionValue.Delete();
         ImportPackageFromExcel(FileName);
     end;
+#endif
 
     local procedure SetPackageFilterForTable(ConfigPackageCode: Code[20]; TableID: Integer; FieldID: Integer; FieldFilter: Text[250])
     var
@@ -1029,6 +1057,8 @@ codeunit 136611 "ERM RS Dimensions as Columns"
           DefaultDimension, DATABASE::Customer, Customer."No.", DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
+#if not CLEAN17
+    [Obsolete('ExportPackageToExcel will always throw an error.', '17.3')]
     local procedure ExportImportAndApplyPackageWithNewDimension(var Customer: Record Customer; AddDimValueIdField: Boolean): Code[20]
     var
         ConfigPackage: Record "Config. Package";
@@ -1069,6 +1099,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
 
         exit(ConfigPackage.Code);
     end;
+#endif
 
     local procedure PackageErrorsContainsErrorWithSubstring(TableId: Integer; Substring: Text[250]): Boolean
     var
