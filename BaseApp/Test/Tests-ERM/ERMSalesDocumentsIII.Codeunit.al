@@ -559,7 +559,7 @@
 
         // [GIVEN] "Sales Setup"."Allow Document Deletion Before"
         LibrarySales.SetAllowDocumentDeletionBeforeDate(ReturnReceiptHeader."Posting Date" + 1);
-        
+
         // Exercise.
         asserterror ReturnReceiptHeader.Delete(true);
 
@@ -5627,7 +5627,7 @@
         // [THEN] Verify Received-from Country/Region Code is set
         SalesHeader.Get(SalesHeader."Document TYpe"::Quote, SalesQuote."No.".Value);
         SalesQuote.Close();
-        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set just as it is on customer');
+        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set just as it is on customer');
     end;
 
     [Test]
@@ -5658,7 +5658,7 @@
         // [THEN] Verify Received-from Country/Region Code is set
         SalesHeader.Get(SalesHeader."Document TYpe"::Order, SalesOrder."No.".Value);
         SalesOrder.Close();
-        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set just as it is on customer');
+        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set just as it is on customer');
     end;
 
 
@@ -5690,7 +5690,7 @@
         // [THEN] Verify Received-from Country/Region Code is set
         SalesHeader.Get(SalesHeader."Document TYpe"::Invoice, SalesInvoice."No.".Value);
         SalesInvoice.Close();
-        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set just as it is on customer');
+        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set just as it is on customer');
     end;
 
 
@@ -5722,9 +5722,9 @@
         // [THEN] Verify Received-from Country/Region Code is set
         SalesHeader.Get(SalesHeader."Document TYpe"::"Blanket Order", BlanketSalesOrder."No.".Value);
         BlanketSalesOrder.Close();
-        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set just as it is on customer');
+        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set just as it is on customer');
     end;
-    
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";

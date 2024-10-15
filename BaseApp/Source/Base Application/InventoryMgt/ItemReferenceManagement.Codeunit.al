@@ -606,6 +606,7 @@
 
                 OnValidatePurchaseReferenceNoOnBeforeAssignNo(PurchaseLine, ReturnedItemReference);
 
+                PurchaseLine.SetPurchHeader(PurchaseHeader);
                 PurchaseLine.Validate("No.", ReturnedItemReference."Item No.");
                 PurchaseLine.SetVendorItemNo();
                 if ReturnedItemReference."Variant Code" <> '' then
@@ -899,7 +900,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateSalesReferenceNoOnBeforeAssignNo(var SalesLine: Record "Sales Line"; ReturnedItemReference: Record "Item Reference");
+    local procedure OnValidateSalesReferenceNoOnBeforeAssignNo(var SalesLine: Record "Sales Line"; var ReturnedItemReference: Record "Item Reference");
     begin
     end;
 

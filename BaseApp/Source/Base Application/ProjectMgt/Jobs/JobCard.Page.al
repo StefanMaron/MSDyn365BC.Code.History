@@ -934,7 +934,12 @@
                     var
                         JobPlanningLine: Record "Job Planning Line";
                         JobPlanningLines: Page "Job Planning Lines";
+			            IsHandled: Boolean;
                     begin
+		    	        IsHandled := false;
+                        OnBeforeJobPlanningLinesAction(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
                         TestField("No.");
                         JobPlanningLine.FilterGroup(2);
                         JobPlanningLine.SetRange("Job No.", "No.");
@@ -1838,5 +1843,10 @@
     local procedure SetControlVisibility()
     begin
         ShouldSearchForCustByName := Rec.ShouldSearchForCustomerByName(Rec."Sell-to Customer No.");
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeJobPlanningLinesAction(var Job: Record Job; var IsHandled: Boolean)
+    begin
     end;
 }

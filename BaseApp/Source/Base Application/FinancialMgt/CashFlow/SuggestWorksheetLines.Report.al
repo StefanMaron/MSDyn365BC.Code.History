@@ -667,6 +667,7 @@
         FADeprBook: Record "FA Depreciation Book";
         GLBudgEntry: Record "G/L Budget Entry";
         GLSetup: Record "General Ledger Setup";
+        FALedgerEntry: Record "FA Ledger Entry";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         CashFlowManagement: Codeunit "Cash Flow Management";
         TotalAccounts: List of [Code[20]];
@@ -1047,9 +1048,22 @@
 
     local procedure InsertCFLineForFixedAssetsBudget()
     begin
-        InitCFLineForFixedAssetsBudget();
-        CFWorksheetLine2.MoveDefualtDimToJnlLineDim(DATABASE::"Fixed Asset", InvestmentFixedAsset."No.", CFWorksheetLine2."Dimension Set ID");
-        InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
+        SetFALedgerEntryFilters();
+        if FALedgerEntry.FindSet() then
+            repeat
+                InitCFLineForFixedAssetsBudget();
+                CFWorksheetLine2.MoveDefualtDimToJnlLineDim(DATABASE::"Fixed Asset", InvestmentFixedAsset."No.", CFWorksheetLine2."Dimension Set ID");
+                InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
+            until FALedgerEntry.Next() = 0;
+    end;
+
+    local procedure SetFALedgerEntryFilters()
+    begin
+        FALedgerEntry.Reset();
+        FALedgerEntry.SetRange("FA No.", FADeprBook."FA No.");
+        FALedgerEntry.SetRange("Depreciation Book Code", FADeprBook."Depreciation Book Code");
+        FALedgerEntry.SetRange("FA Posting Category", FALedgerEntry."FA Posting Category"::" ");
+        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Acquisition Cost");
     end;
 
     local procedure InitCFLineForFixedAssetsBudget()
@@ -1063,10 +1077,10 @@
             Description :=
               CopyStr(
                 StrSubstNo(
-                  Text027, InvestmentFixedAsset."No.", Format(-FADeprBook."Acquisition Cost")),
+                  Text027, InvestmentFixedAsset."No.", Format(-FALedgerEntry.Amount)),
                 1, MaxStrLen(Description));
-            SetCashFlowDate(CFWorksheetLine2, FADeprBook."Acquisition Date");
-            "Amount (LCY)" := -FADeprBook."Acquisition Cost";
+            SetCashFlowDate(CFWorksheetLine2, FALedgerEntry."Posting Date");
+            "Amount (LCY)" := -FALedgerEntry.Amount;
             "Shortcut Dimension 2 Code" := InvestmentFixedAsset."Global Dimension 2 Code";
             "Shortcut Dimension 1 Code" := InvestmentFixedAsset."Global Dimension 1 Code";
         end;

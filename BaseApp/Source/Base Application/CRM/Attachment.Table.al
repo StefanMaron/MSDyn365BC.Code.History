@@ -106,8 +106,8 @@ table 5062 Attachment
 
     var
         RMSetup: Record "Marketing Setup";
-        FileMgt: Codeunit "File Management";
-        AttachmentMgt: Codeunit AttachmentManagement;
+        FileManagement: Codeunit "File Management";
+        AttachmentManagement: Codeunit AttachmentManagement;
         ClientTypeManagement: Codeunit "Client Type Management";
 
         Text002: Label 'The attachment is empty.';
@@ -117,7 +117,9 @@ table 5062 Attachment
         Text008: Label 'Error during copying file: %1.';
         Text009: Label 'Do you want to remove %1?';
         Text010: Label 'External file could not be removed.';
+#if not CLEAN23
         Text014: Label 'You can only fax Microsoft Word documents.';
+#endif
         Text015: Label 'The email cannot be displayed or has been deleted.';
         Text020: Label 'An Outlook dialog box is open. Close it and try again.';
         CouldNotActivateOutlookErr: Label 'Cannot connect to Microsoft Outlook. If Microsoft Outlook is already running, make sure that you are not running either %1 or Microsoft Outlook as administrator. Close all instances of Microsoft Outlook and try again.', Comment = '%1 - product name';
@@ -148,18 +150,17 @@ table 5062 Attachment
             ProcessWebAttachment(Caption + '.' + "File Extension")
     end;
 
-    [Scope('OnPrem')]
-    procedure OpenAttachment(var SegLine: Record "Segment Line"; WordCaption: Text)
+    procedure OpenAttachment(var SegmentLine: Record "Segment Line"; WordCaption: Text)
     begin
         if IsHTML() then begin
-            PreviewHTMLContent(SegLine);
+            PreviewHTMLContent(SegmentLine);
             exit;
         end;
 
         if "Storage Type" = "Storage Type"::Embedded then
             CalcFields("Attachment File");
 
-        if SegLine."Word Template Code" = '' then
+        if SegmentLine."Word Template Code" = '' then
             ProcessWebAttachment(WordCaption + '.' + "File Extension");
     end;
 
@@ -203,7 +204,7 @@ table 5062 Attachment
     var
         ContentPreview: Page "Content Preview";
     begin
-        ContentPreview.SetContent(AttachmentMgt.LoadHTMLContent(Rec, SegmentLine));
+        ContentPreview.SetContent(AttachmentManagement.LoadHTMLContent(Rec, SegmentLine));
         ContentPreview.RunModal();
     end;
 
@@ -219,16 +220,16 @@ table 5062 Attachment
         if RMSetup."Attachment Storage Type" = RMSetup."Attachment Storage Type"::"Disk File" then
             RMSetup.TestField("Attachment Storage Location");
 
-        ServerFileName := FileMgt.ServerTempFileName("File Extension");
+        ServerFileName := FileManagement.ServerTempFileName("File Extension");
         ExportAttachmentToServerFile(ServerFileName);
 
-        Path := FileMgt.Magicpath();
+        Path := FileManagement.Magicpath();
         if ExportToFile = '' then
             Path := '';
 
         FileFilter := UpperCase("File Extension") + ' (*.' + "File Extension" + ')|*.' + "File Extension";
         Success := Download(ServerFileName, Text005, Path, FileFilter, ExportToFile);
-        FileMgt.DeleteServerFile(ServerFileName);
+        FileManagement.DeleteServerFile(ServerFileName);
         exit(Success);
     end;
 
@@ -249,11 +250,11 @@ table 5062 Attachment
             RMSetup.TestField("Attachment Storage Location");
 
         if IsInherited then begin
-            NewAttachmentNo := AttachmentMgt.InsertAttachment("No.");
+            NewAttachmentNo := AttachmentManagement.InsertAttachment("No.");
             Get(NewAttachmentNo);
         end else
             if "No." = 0 then
-                NewAttachmentNo := AttachmentMgt.InsertAttachment(0)
+                NewAttachmentNo := AttachmentManagement.InsertAttachment(0)
             else
                 NewAttachmentNo := "No.";
         Get(NewAttachmentNo);
@@ -276,13 +277,13 @@ table 5062 Attachment
         TempBlob: Codeunit "Temp Blob";
         FileName: Text;
     begin
-        FileName := FileMgt.BLOBImport(TempBlob, ImportFromFile);
+        FileName := FileManagement.BLOBImport(TempBlob, ImportFromFile);
 
         if FileName <> '' then begin
             SetAttachmentFileFromBlob(TempBlob);
             "Storage Type" := "Storage Type"::Embedded;
             "Storage Pointer" := '';
-            "File Extension" := CopyStr(UpperCase(FileMgt.GetExtension(FileName)), 1, 250);
+            "File Extension" := CopyStr(UpperCase(FileManagement.GetExtension(FileName)), 1, 250);
             exit(true);
         end;
 
@@ -311,8 +312,8 @@ table 5062 Attachment
                     if "Attachment File".HasValue() then begin
                         TempBlob.FromRecord(Rec, FieldNo("Attachment File"));
                         if ExportToFile = '' then
-                            ExportToFile := FileMgt.ServerTempFileName("File Extension");
-                        FileMgt.BLOBExportToServerFile(TempBlob, ExportToFile); // export BLOB to file on server (UNC location also)
+                            ExportToFile := FileManagement.ServerTempFileName("File Extension");
+                        FileManagement.BLOBExportToServerFile(TempBlob, ExportToFile); // export BLOB to file on server (UNC location also)
                         exit(true);
                     end;
                     exit(false);
@@ -320,8 +321,8 @@ table 5062 Attachment
             "Storage Type"::"Disk File":
                 begin
                     if ExportToFile = '' then
-                        ExportToFile := TemporaryPath + FileMgt.GetFileName(ConstDiskFileName());
-                    FileMgt.CopyServerFile(GetServerFileName(ConstDiskFileName()), ExportToFile, false); // Copy from server location to another location (UNC location also)
+                        ExportToFile := TemporaryPath + FileManagement.GetFileName(ConstDiskFileName());
+                    FileManagement.CopyServerFile(GetServerFileName(ConstDiskFileName()), ExportToFile, false); // Copy from server location to another location (UNC location also)
                     exit(true);
                 end;
         end;
@@ -356,11 +357,11 @@ table 5062 Attachment
         case RMSetup."Attachment Storage Type" of
             RMSetup."Attachment Storage Type"::Embedded:
                 begin
-                    FileMgt.BLOBImportFromServerFile(TempBlob, ImportFromFile); // Copy from file on server (UNC location also)
+                    FileManagement.BLOBImportFromServerFile(TempBlob, ImportFromFile); // Copy from file on server (UNC location also)
                     SetAttachmentFileFromBlob(TempBlob);
                     "Storage Type" := "Storage Type"::Embedded;
                     "Storage Pointer" := '';
-                    FileExt := CopyStr(FileMgt.GetExtension(ImportFromFile), 1, 250);
+                    FileExt := CopyStr(FileManagement.GetExtension(ImportFromFile), 1, 250);
                     if FileExt <> '' then
                         "File Extension" := FileExt;
                     Modify(true);
@@ -370,10 +371,10 @@ table 5062 Attachment
                 begin
                     "Storage Type" := "Storage Type"::"Disk File";
                     "Storage Pointer" := RMSetup."Attachment Storage Location";
-                    FileExt := CopyStr(FileMgt.GetExtension(ImportFromFile), 1, 250);
+                    FileExt := CopyStr(FileManagement.GetExtension(ImportFromFile), 1, 250);
                     if FileExt <> '' then
                         "File Extension" := FileExt;
-                    FileMgt.CopyServerFile(ImportFromFile, ConstDiskFileName(), Overwrite); // Copy from UNC location to another UNC location
+                    FileManagement.CopyServerFile(ImportFromFile, ConstDiskFileName(), Overwrite); // Copy from UNC location to another UNC location
                     Modify(true);
                     exit(true);
                 end;
@@ -382,15 +383,26 @@ table 5062 Attachment
         exit(false);
     end;
 
+    internal procedure ImportAttachmentFromStream(InStream: InStream; FileExtension: Text) NewattachmentNo: Integer
+    begin
+        SetAttachmentFileFromStream(InStream);
+        "Storage Type" := "Storage Type"::Embedded;
+        "Storage Pointer" := '';
+        "File Extension" := CopyStr(FileExtension, 1, 250);
+        Insert(true);
+
+        NewattachmentNo := "No.";
+    end;
+
     local procedure ImportTemporaryAttachmentFromServerFile(ImportFromFile: Text)
     var
         TempBlob: Codeunit "Temp Blob";
     begin
-        FileMgt.BLOBImportFromServerFile(TempBlob, ImportFromFile);
+        FileManagement.BLOBImportFromServerFile(TempBlob, ImportFromFile);
         SetAttachmentFileFromBlob(TempBlob);
         "Storage Type" := "Storage Type"::Embedded;
         "Storage Pointer" := '';
-        "File Extension" := CopyStr(UpperCase(FileMgt.GetExtension(ImportFromFile)), 1, 250);
+        "File Extension" := CopyStr(UpperCase(FileManagement.GetExtension(ImportFromFile)), 1, 250);
     end;
 
     [Scope('OnPrem')]
@@ -408,7 +420,7 @@ table 5062 Attachment
 
         if DeleteYesNo then begin
             if "Storage Type" = "Storage Type"::"Disk File" then
-                if not FileMgt.DeleteServerFile(ConstDiskFileName()) then
+                if not FileManagement.DeleteServerFile(ConstDiskFileName()) then
                     Message(Text010);
             Delete(true);
             DeleteOK := true;
@@ -459,12 +471,15 @@ table 5062 Attachment
         DiskFileName := "Storage Pointer" + '\' + Format("No.") + '.' + "File Extension";
     end;
 
+#if not CLEAN23
+    [Obsolete('Correspondence Type Fax is no longer supported. This procedure only checked for Fax.', '23.0')]
     procedure CheckCorrespondenceType(CorrespondenceType: Enum "Correspondence Type"): Text[80]
     begin
         if CorrespondenceType = CorrespondenceType::Fax then
             if (UpperCase("File Extension") <> 'DOC') and (UpperCase("File Extension") <> 'DOCX') then
                 exit(Text014);
     end;
+#endif
 
     local procedure CopyAttachmentAsFile(var FromAttachment: Record Attachment; var ToAttachment: Record Attachment)
     begin
@@ -535,39 +550,39 @@ table 5062 Attachment
 
     procedure GetMessageID() Return: Text
     var
-        Stream: InStream;
+        InStream: InStream;
     begin
         CalcFields("Email Message ID");
-        "Email Message ID".CreateInStream(Stream);
-        Stream.ReadText(Return);
+        "Email Message ID".CreateInStream(InStream);
+        InStream.ReadText(Return);
     end;
 
     procedure SetMessageID(MessageID: Text)
     var
-        Stream: OutStream;
+        OutStream: OutStream;
     begin
         Clear("Email Message ID");
-        "Email Message ID".CreateOutStream(Stream);
-        Stream.WriteText(MessageID);
+        "Email Message ID".CreateOutStream(OutStream);
+        OutStream.WriteText(MessageID);
         "Email Message Checksum" := Checksum(MessageID);
     end;
 
     local procedure GetEntryID() Return: Text
     var
-        Stream: InStream;
+        InStream: InStream;
     begin
         CalcFields("Email Entry ID");
-        "Email Entry ID".CreateInStream(Stream);
-        Stream.ReadText(Return);
+        "Email Entry ID".CreateInStream(InStream);
+        InStream.ReadText(Return);
     end;
 
     procedure SetEntryID(EntryID: Text)
     var
-        Stream: OutStream;
+        OutStream: OutStream;
     begin
         Clear("Email Entry ID");
-        "Email Entry ID".CreateOutStream(Stream);
-        Stream.WriteText(EntryID);
+        "Email Entry ID".CreateOutStream(OutStream);
+        OutStream.WriteText(EntryID);
     end;
 
     procedure GetEmailMessageUrl() Return: Text
@@ -590,23 +605,23 @@ table 5062 Attachment
 
     procedure Read() Result: Text
     var
-        DataStream: InStream;
+        DataInStream: InStream;
     begin
         Result := '';
         CalcFields("Attachment File");
         if not "Attachment File".HasValue() then
             exit;
 
-        "Attachment File".CreateInStream(DataStream, TEXTENCODING::UTF8);
-        DataStream.Read(Result);
+        "Attachment File".CreateInStream(DataInStream, TEXTENCODING::UTF8);
+        DataInStream.Read(Result);
     end;
 
     procedure Write(SourceText: Text)
     var
-        DataStream: OutStream;
+        DataOutStream: OutStream;
     begin
-        "Attachment File".CreateOutStream(DataStream, TEXTENCODING::UTF8);
-        DataStream.Write(SourceText);
+        "Attachment File".CreateOutStream(DataOutStream, TEXTENCODING::UTF8);
+        DataOutStream.Write(SourceText);
     end;
 
     procedure ReadHTMLCustomLayoutAttachment(var ContentBodyText: Text; var CustomLayoutCode: Code[20]): Boolean
@@ -712,7 +727,7 @@ table 5062 Attachment
     begin
         if Confirm(AttachmentExportQst, true) then begin
             TempBlob.FromRecord(Rec, FieldNo("Attachment File"));
-            FileMgt.BLOBExport(TempBlob, FileName, true);
+            FileManagement.BLOBExport(TempBlob, FileName, true);
             if not "Read Only" then
                 if Confirm(AttachmentImportQst, true) then
                     ImportAttachmentFromClientFile('', IsTemporary, false);

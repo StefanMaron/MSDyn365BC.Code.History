@@ -868,10 +868,16 @@
         exit(SalesLine.Count <= 100);
     end;
 
-    procedure PurchaseCheckNumberOfLinesLimit(PurchaseHeader: Record "Purchase Header"): Boolean
+    procedure PurchaseCheckNumberOfLinesLimit(PurchaseHeader: Record "Purchase Header") Result: Boolean
     var
         PurchaseLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchaseCheckNumberOfLinesLimit(PurchaseHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetFilter(Type, '<>%1', PurchaseLine.Type::" ");
@@ -1124,6 +1130,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculatePurchaseSubPageTotalsOnAfterSetFilter(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseCheckNumberOfLinesLimit(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

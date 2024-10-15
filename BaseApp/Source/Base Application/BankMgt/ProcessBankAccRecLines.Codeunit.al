@@ -18,6 +18,7 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         ProgressWindowMsg: Label 'Please wait while the operation is being completed.';
         BankAccountRecImportedBankStatementLinesCountMsg: Label 'Number of imported lines in bank statement: %1', Locked = true;
         BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
+        PaymentRecCategoryLbl: Label 'AL Payment Reconciliation', Locked = true;
 
     procedure ImportBankStatement(BankAccRecon: Record "Bank Acc. Reconciliation"; DataExch: Record "Data Exch."): Boolean
     var
@@ -31,7 +32,12 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         StartDateTime: DateTime;
         FinishDateTime: DateTime;
     begin
-        FeatureTelemetry.LogUptake('0000JLJ', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
+        case BankAccRecon."Statement Type" of
+            BankAccRecon."Statement Type"::"Bank Reconciliation":
+                FeatureTelemetry.LogUptake('0000JLJ', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
+            BankAccRecon."Statement Type"::"Payment Application":
+                FeatureTelemetry.LogUptake('0000KMD', BankAccRecon.GetPaymentRecJournalTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
+        end;
         PrepareDataExch(BankAccRecon, DataExch, DataExchDef);
 
         if not DataExch.ImportToDataExch(DataExchDef) then
@@ -61,8 +67,13 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         ProgressWindow.Close();
         FinishDateTime := CurrentDateTime();
         OnLogTelemetryAfterImportBankStatement(BankAccRecon, NumberOfLinesImported);
-        LogTelemetryOnBankAccRecOnAfterImportBankStatement(NumberOfLinesImported, StartDateTime, FinishDateTime);
-        FeatureTelemetry.LogUptake('0000JLK', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
+        LogTelemetryOnBankAccRecOnAfterImportBankStatement(BankAccRecon, NumberOfLinesImported, StartDateTime, FinishDateTime);
+        case BankAccRecon."Statement Type" of
+            BankAccRecon."Statement Type"::"Bank Reconciliation":
+                FeatureTelemetry.LogUptake('0000JLK', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
+            BankAccRecon."Statement Type"::"Payment Application":
+                FeatureTelemetry.LogUptake('0000KME', BankAccRecon.GetPaymentRecJournalTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
+        end;
         OnAfterImportBankStatement(TempBankAccReconLine, DataExch);
         exit(true);
     end;
@@ -127,18 +138,28 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         exit(0)
     end;
 
-    local procedure LogTelemetryOnBankAccRecOnAfterImportBankStatement(NumberOfLinesImported: Integer; StartDateTime: DateTime; FinishDateTime: DateTime)
+    local procedure LogTelemetryOnBankAccRecOnAfterImportBankStatement(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; NumberOfLinesImported: Integer; StartDateTime: DateTime; FinishDateTime: DateTime)
     var
         Dimensions: Dictionary of [Text, Text];
         ImportDuration: BigInteger;
     begin
         ImportDuration := FinishDateTime - StartDateTime;
-        Dimensions.Add('Category', BankAccountRecCategoryLbl);
         Dimensions.Add('ImportStartTime', Format(StartDateTime, 0, 9));
         Dimensions.Add('ImportFinishTime', Format(FinishDateTime, 0, 9));
         Dimensions.Add('ImportDuration', Format(ImportDuration));
         Dimensions.Add('NumberOfLines', Format(NumberOfLinesImported));
-        Session.LogMessage('0000FJW', StrSubstNo(BankAccountRecImportedBankStatementLinesCountMsg, NumberOfLinesImported), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
+        case BankAccReconciliation."Statement Type" of
+            BankAccReconciliation."Statement Type"::"Bank Reconciliation":
+                begin
+                    Dimensions.Add('Category', BankAccountRecCategoryLbl);
+                    Session.LogMessage('0000FJW', StrSubstNo(BankAccountRecImportedBankStatementLinesCountMsg, NumberOfLinesImported), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
+                end;
+            BankAccReconciliation."Statement Type"::"Payment Application":
+                begin
+                    Dimensions.Add('Category', PaymentRecCategoryLbl);
+                    Session.LogMessage('0000KMF', StrSubstNo(BankAccountRecImportedBankStatementLinesCountMsg, NumberOfLinesImported), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

@@ -42,14 +42,18 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication"
         JValue: JsonValue;
         JsonObj: JsonObject;
     begin
+        ExportCertAsPFX(Cert, CertPassword);
+
         JsonObj.Add('data', OriginalString);
         JsonObj.Add('certificateString', Cert);
         JsonObj.Add('certificatePassword', CertPassword);
         JsonObj.WriteTo(SerializedText);
 
         Token := CommunicateWithAzureFunction('api/SignDataWithCertificate', SerializedText);
-        JValue.ReadFrom(Token);
-        exit(JValue.AsText());
+        if JValue.ReadFrom(Token) then
+            exit(JValue.AsText())
+        else
+            exit(Token);
     end;
 
     procedure AddParameters(Parameter: Variant)
@@ -113,5 +117,18 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication"
         URIBuilder.SetPath(Path);
         URIBuilder.GetUri(URI);
         exit(URI.GetAbsoluteUri());
+    end;
+
+    [NonDebuggable]
+    local procedure ExportCertAsPFX(var CertBase64: Text; CertPassword: Text)
+    var
+        X509Certificate2: DotNet X509Certificate2;
+        X509Content: DotNet X509ContentType;
+        X509KeyFlags: DotNet X509KeyStorageFlags;
+        Convert: DotNet Convert;
+
+    begin
+        X509Certificate2 := X509Certificate2.X509Certificate2(Convert.FromBase64String(CertBase64), CertPassword, X509KeyFlags.Exportable);
+        CertBase64 := Convert.ToBase64String(X509Certificate2.Export(X509Content.Pfx, CertPassword));
     end;
 }

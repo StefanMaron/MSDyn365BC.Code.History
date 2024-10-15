@@ -1331,9 +1331,14 @@
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        IsHandled: Boolean;
     begin
-        if not DocumentIsPosted then
-            exit(Rec.ConfirmCloseUnposted());
+        IsHandled := false;
+        OnBeforeOnQueryClosePage(Rec, DocumentIsPosted, IsHandled);
+        if not IsHandled then
+            if not DocumentIsPosted then
+                exit(Rec.ConfirmCloseUnposted());
     end;
 
     var
@@ -1451,6 +1456,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTaxStatistics(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
+    begin
+    end;
+        
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnQueryClosePage(var ServiceHeader: Record "Service Header"; var DocumentIsPosted: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

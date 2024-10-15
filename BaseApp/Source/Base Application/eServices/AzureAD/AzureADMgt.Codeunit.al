@@ -13,7 +13,6 @@ codeunit 6300 "Azure AD Mgt."
         AzureADNotSetupErr: Label '%1 is not registered in your Azure Active Directory tenant.', Comment = '%1 - product name';
         O365ResourceNameTxt: Label 'Office 365 Services', Locked = true;
         OAuthLandingPageTxt: Label 'OAuthLanding.htm', Locked = true;
-        CouldNotGetAccessTokenErr: Label 'Could not get access token. %1', Comment = '%1 = The detailed error text.';
 
     [Scope('OnPrem')]
     procedure GetAuthCodeUrl(ResourceName: Text) AuthCodeUrl: Text
@@ -67,7 +66,7 @@ codeunit 6300 "Azure AD Mgt."
                 exit(AccessToken);
 
         if IsSaaS() then
-            Error(CouldNotGetAccessTokenErr, GetLastErrorMessage());
+            exit('');
         
         if ShowDialog then
             AuthorizationCode := AzureADAccessDialog.GetAuthorizationCode(ResourceUrl, ResourceName);

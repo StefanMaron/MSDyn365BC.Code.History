@@ -1612,9 +1612,7 @@ report 2 "General Journal - Test"
                     Text047,
                     FieldCaption("Account Type"), FieldCaption("Bal. Account Type"), "Account Type"));
             if "Account Type" = "Account Type"::"Fixed Asset" then
-                if "FA Posting Type" in
-                   ["FA Posting Type"::"Acquisition Cost", "FA Posting Type"::Disposal, "FA Posting Type"::Maintenance]
-                then begin
+                if IsAcquisitionCost() or ("FA Posting Type" in ["FA Posting Type"::Disposal, "FA Posting Type"::Maintenance]) then begin
                     if ("Gen. Bus. Posting Group" <> '') or ("Gen. Prod. Posting Group" <> '') then
                         if "Gen. Posting Type" = "Gen. Posting Type"::" " then
                             AddError(StrSubstNo(Text002, FieldCaption("Gen. Posting Type")));
@@ -1636,9 +1634,7 @@ report 2 "General Journal - Test"
                             FieldCaption("Gen. Prod. Posting Group"), FieldCaption("FA Posting Type"), "FA Posting Type"));
                 end;
             if "Bal. Account Type" = "Bal. Account Type"::"Fixed Asset" then
-                if "FA Posting Type" in
-                   ["FA Posting Type"::"Acquisition Cost", "FA Posting Type"::Disposal, "FA Posting Type"::Maintenance]
-                then begin
+                if IsAcquisitionCost() or ("FA Posting Type" in ["FA Posting Type"::Disposal, "FA Posting Type"::Maintenance]) then begin
                     if ("Bal. Gen. Bus. Posting Group" <> '') or ("Bal. Gen. Prod. Posting Group" <> '') then
                         if "Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::" " then
                             AddError(StrSubstNo(Text002, FieldCaption("Bal. Gen. Posting Type")));

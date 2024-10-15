@@ -183,6 +183,8 @@ report 25 "Account Schedule"
                                 (("Acc. Schedule Line".Totaling = '') and ("Acc. Schedule Line".Show = "Acc. Schedule Line".Show::Yes))
                             then
                                 LineSkipped := false;
+
+                            OnAfterGetColumnLayoutOnAfteCheckIsLineSkipped("Acc. Schedule Line", ValueIsEmpty, LineSkipped);
                         end;
 
                         trigger OnPreDataItem()
@@ -1296,6 +1298,11 @@ report 25 "Account Schedule"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetFilters(var AccScheduleName: Record "Acc. Schedule Name"; CostCenterFilter: Text; CostObjectFilter: Text; CashFlowFilter: Text; UseReqPage: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetColumnLayoutOnAfteCheckIsLineSkipped(var AccScheduleLine: Record "Acc. Schedule Line"; var ValueIsEmpty: Boolean; var IsLineSkipped: Boolean)
     begin
     end;
 }

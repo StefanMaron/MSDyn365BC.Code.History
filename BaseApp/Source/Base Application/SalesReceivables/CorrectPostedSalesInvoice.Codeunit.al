@@ -461,7 +461,13 @@
     local procedure TestIfInvoiceIsCorrectedOnce(SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         CancelledDocument: Record "Cancelled Document";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestIfInvoiceIsCorrectedOnce(SalesInvoiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if CancelledDocument.FindSalesCancelledInvoice(SalesInvoiceHeader."No.") then
             ErrorHelperHeader("Correct Sales Inv. Error Type"::IsCorrected, SalesInvoiceHeader);
     end;
@@ -615,7 +621,13 @@
     local procedure TestVATPostingSetup(SalesInvoiceLine: Record "Sales Invoice Line")
     var
         VATPostingSetup: Record "VAT Posting Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestVATPostingSetup(SalesInvoiceLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with VATPostingSetup do begin
             Get(SalesInvoiceLine."VAT Bus. Posting Group", SalesInvoiceLine."VAT Prod. Posting Group");
             if "VAT Calculation Type" <> "VAT Calculation Type"::"Sales Tax" then begin
@@ -675,7 +687,14 @@
     local procedure WasNotCancelled(InvNo: Code[20]): Boolean
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        IsHandled, Result : Boolean;
     begin
+        IsHandled := false;
+        Result := false;
+        OnBeforeWasNotCancelled(InvNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         SalesCrMemoHeader.SetRange("Applies-to Doc. Type", SalesCrMemoHeader."Applies-to Doc. Type"::Invoice);
         SalesCrMemoHeader.SetRange("Applies-to Doc. No.", InvNo);
         exit(SalesCrMemoHeader.IsEmpty);
@@ -738,6 +757,8 @@
     var
         Customer: Record Customer;
     begin
+        OnBeforeErrorHelperHeader(HeaderErrorType, SalesInvoiceHeader, CancellingOnly);
+
         if CancellingOnly then
             case HeaderErrorType of
                 "Correct Sales Inv. Error Type"::IsPaid:
@@ -982,7 +1003,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateCorrectiveSalesCrMemo(SalesInvoiceHeader: Record "Sales Invoice Header")
+    local procedure OnBeforeCreateCorrectiveSalesCrMemo(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 
@@ -1058,6 +1079,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateCorrectiveCreditMemoOnBeforePageRun(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestVATPostingSetup(SalesInvoiceLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeErrorHelperHeader(HeaderErrorType: Enum "Correct Sales Inv. Error Type"; SalesInvoiceHeader: Record "Sales Invoice Header"; CancellingOnly: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestIfInvoiceIsCorrectedOnce(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWasNotCancelled(InvNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

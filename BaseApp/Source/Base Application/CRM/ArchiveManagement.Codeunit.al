@@ -256,7 +256,7 @@ codeunit 5063 ArchiveManagement
         RestoreDocument: Boolean;
         OldOpportunityNo: Code[20];
         IsHandled: Boolean;
-        DoCheck: Boolean;
+        DoCheck, SkipDeletingLinks : Boolean;
     begin
         OnBeforeRestoreSalesDocument(SalesHeaderArchive, IsHandled);
         if IsHandled then
@@ -319,8 +319,10 @@ codeunit 5063 ArchiveManagement
                 OldOpportunityNo := SalesHeader."Opportunity No.";
                 SalesHeader."Opportunity No." := '';
             end;
-            OnRestoreDocumentOnBeforeDeleteSalesHeader(SalesHeader);
-            SalesHeader.DeleteLinks();
+            SkipDeletingLinks := false;
+            OnRestoreDocumentOnBeforeDeleteSalesHeader(SalesHeader, SkipDeletingLinks);
+            if not SkipDeletingLinks then
+                SalesHeader.DeleteLinks();
             SalesHeader.Delete(true);
             OnRestoreDocumentOnAfterDeleteSalesHeader(SalesHeader);
 
@@ -678,6 +680,7 @@ codeunit 5063 ArchiveManagement
         SalesCommentLine."Line No." := NextLine;
         SalesCommentLine.Date := WorkDate();
         SalesCommentLine.Comment := StrSubstNo(Text004, Format(SalesHeaderArchive."Version No."));
+        OnRestoreSalesLineCommentsOnBeforeInsertSalesCommentLine(SalesCommentLine);
         SalesCommentLine.Insert();
     end;
 
@@ -892,7 +895,7 @@ codeunit 5063 ArchiveManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRestoreDocumentOnBeforeDeleteSalesHeader(var SalesHeader: Record "Sales Header")
+    local procedure OnRestoreDocumentOnBeforeDeleteSalesHeader(var SalesHeader: Record "Sales Header"; var SkipDeletingLinks: Boolean)
     begin
     end;
 
@@ -958,6 +961,11 @@ codeunit 5063 ArchiveManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeArchSalesDocumentNoConfirm(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRestoreSalesLineCommentsOnBeforeInsertSalesCommentLine(var SalesCommentLine: Record "Sales Comment Line")
     begin
     end;
 }

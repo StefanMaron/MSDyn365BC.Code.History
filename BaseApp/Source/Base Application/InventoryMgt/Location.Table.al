@@ -990,7 +990,15 @@
     end;
 
     procedure IsBinBWReceiveOrShip(BinCode: Code[20]): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsBinBWReceiveOrShip(Rec, BinCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(("Receipt Bin Code" <> '') and (BinCode = "Receipt Bin Code") or
           ("Shipment Bin Code" <> '') and (BinCode = "Shipment Bin Code"));
     end;
@@ -1136,6 +1144,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostCode(var Location: Record Location; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsBinBWReceiveOrShip(Location: Record Location; BinCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

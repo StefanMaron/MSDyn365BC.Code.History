@@ -659,7 +659,15 @@
         {
             Caption = 'Received-from Country/Region Code';
             TableRelation = "Country/Region";
-        }        
+            ObsoleteReason = 'Use new field on range 181';
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+        }
+        field(181; "Rcvd.-from Count./Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -891,7 +899,7 @@
         }
         field(10009; "Outstanding Amount ($)"; Decimal)
         {
-            CalcFormula = Sum ("Sales Line"."Outstanding Amount" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Sales Line"."Outstanding Amount" WHERE("Document Type" = FIELD("Document Type"),
                                                                        "Document No." = FIELD("No.")));
             Caption = 'Outstanding Amount ($)';
             Editable = false;

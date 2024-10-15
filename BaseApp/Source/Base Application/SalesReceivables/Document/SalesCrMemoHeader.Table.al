@@ -497,7 +497,15 @@
         {
             Caption = 'Received-from Country/Region Code';
             TableRelation = "Country/Region";
-        }        
+            ObsoleteReason = 'Use new field on range 181';
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+        }
+        field(181; "Rcvd.-from Count./Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -745,7 +753,7 @@
         field(10055; "Transit-to Location"; Code[10])
         {
             Caption = 'Transit-to Location';
-            TableRelation = Location WHERE ("Use As In-Transit" = CONST (false));
+            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
         }
         field(10059; "SAT International Trade Term"; Code[10])
         {
@@ -1183,7 +1191,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeEmailRecords(var ReportSelections: Record "Report Selections"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocTxt: Text; ShowDialog: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeEmailRecords(var ReportSelections: Record "Report Selections"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocTxt: Text; var ShowDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 

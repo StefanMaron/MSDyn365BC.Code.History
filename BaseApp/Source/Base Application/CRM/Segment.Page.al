@@ -66,11 +66,6 @@ page 5091 Segment
                     ToolTip = 'Specifies the number of actions you have taken when modifying the segmentation criteria, that is, when adding contacts to the segment, refining, or reducing it.';
                 }
             }
-            part(SegLines; "Segment Subform")
-            {
-                ApplicationArea = RelationshipMgmt;
-                SubPageLink = "Segment No." = FIELD("No.");
-            }
             group(Interaction)
             {
                 Caption = 'Interaction';
@@ -106,7 +101,7 @@ page 5091 Segment
                         SubjectDefaultOnAfterValidate();
                     end;
                 }
-                field(Attachment; "Attachment No." > 0)
+                field(Attachment; Rec."Attachment No." > 0)
                 {
                     ApplicationArea = RelationshipMgmt;
                     AssistEdit = true;
@@ -117,7 +112,7 @@ page 5091 Segment
 
                     trigger OnAssistEdit()
                     begin
-                        MaintainAttachment();
+                        Rec.MaintainAttachment();
                         UpdateEditable();
                         CurrPage.SegLines.PAGE.UpdateForm();
                     end;
@@ -127,6 +122,13 @@ page 5091 Segment
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Word Template Code';
                     ToolTip = 'Specifies the Word Template code to use for merging.';
+                }
+                field("Modified Word Template"; Rec."Modified Word Template" > 0)
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Modified Word Template';
+                    ToolTip = 'Specifies if the Word Template is modified. Use the "Modify Word Template" action to modify the Word Template.';
+                    Enabled = false;
                 }
 
                 field("Ignore Contact Corres. Type"; Rec."Ignore Contact Corres. Type")
@@ -205,6 +207,11 @@ page 5091 Segment
                         SendWordDocsasAttmtOnAfterVali();
                     end;
                 }
+            }
+            part(SegLines; "Segment Subform")
+            {
+                ApplicationArea = RelationshipMgmt;
+                SubPageLink = "Segment No." = FIELD("No.");
             }
             group(Campaign)
             {
@@ -323,6 +330,19 @@ page 5091 Segment
                     RunPageView = SORTING("Segment No.");
                     ToolTip = 'View all marketing tasks that involve the segment.';
                 }
+                action("Modify Word Template")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Modify Word Template';
+                    ToolTip = 'Modify the currently selected Word Template to be used for this segment.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.CreateWordTemplateAttachment();
+                        UpdateEditable();
+                        CurrPage.SegLines.PAGE.UpdateForm();
+                    end;
+                }
             }
         }
         area(processing)
@@ -338,10 +358,10 @@ page 5091 Segment
                 var
                     LogSegment: Report "Log Segment";
                 begin
-                    LogSegment.SetSegmentNo("No.");
+                    LogSegment.SetSegmentNo(Rec."No.");
                     LogSegment.RunModal();
-                    if not Get("No.") then begin
-                        Message(Text011, "No.");
+                    if not Rec.Get(Rec."No.") then begin
+                        Message(LoggedSegmentLbl, Rec."No.");
                         CurrPage.Close();
                     end;
                 end;
@@ -421,10 +441,10 @@ page 5091 Segment
                         var
                             SegmentHistoryMgt: Codeunit SegHistoryManagement;
                         begin
-                            CalcFields("No. of Criteria Actions");
-                            if "No. of Criteria Actions" > 0 then
-                                if Confirm(Text012, false) then
-                                    SegmentHistoryMgt.GoBack("No.");
+                            Rec.CalcFields("No. of Criteria Actions");
+                            if Rec."No. of Criteria Actions" > 0 then
+                                if Confirm(UndoLastCriteriaMsg, false) then
+                                    SegmentHistoryMgt.GoBack(Rec."No.");
                         end;
                     }
                     separator(Action54)
@@ -441,7 +461,7 @@ page 5091 Segment
 
                         trigger OnAction()
                         begin
-                            ReuseCriteria();
+                            Rec.ReuseCriteria();
                         end;
                     }
                     action("Reuse Segment")
@@ -454,7 +474,7 @@ page 5091 Segment
 
                         trigger OnAction()
                         begin
-                            ReuseLogged(0);
+                            Rec.ReuseLogged(0);
                         end;
                     }
                     action(SaveCriteria)
@@ -467,7 +487,7 @@ page 5091 Segment
 
                         trigger OnAction()
                         begin
-                            SaveCriteria();
+                            Rec.SaveCriteria();
                         end;
                     }
                 }
@@ -489,8 +509,8 @@ page 5091 Segment
 
                         trigger OnAction()
                         begin
-                            TestField("Interaction Template Code");
-                            OpenAttachment();
+                            Rec.TestField("Interaction Template Code");
+                            Rec.OpenAttachment();
                         end;
                     }
                     action(Create)
@@ -502,8 +522,8 @@ page 5091 Segment
 
                         trigger OnAction()
                         begin
-                            TestField("Interaction Template Code");
-                            CreateAttachment();
+                            Rec.TestField("Interaction Template Code");
+                            Rec.CreateAttachment();
                         end;
                     }
                     action(Import)
@@ -515,8 +535,8 @@ page 5091 Segment
 
                         trigger OnAction()
                         begin
-                            TestField("Interaction Template Code");
-                            ImportAttachment();
+                            Rec.TestField("Interaction Template Code");
+                            Rec.ImportAttachment();
                         end;
                     }
                     action(Export)
@@ -541,8 +561,8 @@ page 5091 Segment
 
                         trigger OnAction()
                         begin
-                            TestField("Interaction Template Code");
-                            RemoveAttachment(false);
+                            Rec.TestField("Interaction Template Code");
+                            Rec.RemoveAttachment(false);
                         end;
                     }
                 }
@@ -649,7 +669,8 @@ page 5091 Segment
 
     trigger OnAfterGetRecord()
     begin
-        CalcFields("Attachment No.");
+        Rec.CalcFields("Attachment No.");
+        Rec.CalcFields("Modified Word Template");
     end;
 
     trigger OnInit()
@@ -668,8 +689,8 @@ page 5091 Segment
     end;
 
     var
-        Text011: Label 'Segment %1 has been logged.';
-        Text012: Label 'This will undo the last criteria action.\Do you want to continue?';
+        LoggedSegmentLbl: Label 'Segment %1 has been logged.', Comment = '%1 = Segment No.';
+        UndoLastCriteriaMsg: Label 'This will undo the last criteria action.\Do you want to continue?';
         [InDataSet]
         CampaignTargetEnable: Boolean;
         [InDataSet]
@@ -696,20 +717,20 @@ page 5091 Segment
 
     local procedure UpdateEditable()
     var
-        SegInteractLanguage: Record "Segment Interaction Language";
+        SegmentInteractionLanguage: Record "Segment Interaction Language";
     begin
-        CampaignTargetEnable := "Campaign No." <> '';
-        CampaignResponseEnable := "Campaign No." <> '';
-        CorrespondenceTypeDefaultEnabl := "Ignore Contact Corres. Type" = true;
-        LanguageCodeDefaultEnable := "Interaction Template Code" <> '';
-        SubjectDefaultEnable := SegInteractLanguage.Get("No.", 0, "Language Code (Default)");
-        AttachmentEnable := "Interaction Template Code" <> '';
-        IgnoreContactCorresTypeEnable := "Interaction Template Code" <> '';
-        InformationFlowEnable := "Interaction Template Code" <> '';
-        InitiatedByEnable := "Interaction Template Code" <> '';
-        UnitCostLCYEnable := "Interaction Template Code" <> '';
-        UnitDurationMinEnable := "Interaction Template Code" <> '';
-        LanguageCodeDefaultEnable := "Interaction Template Code" <> '';
+        CampaignTargetEnable := Rec."Campaign No." <> '';
+        CampaignResponseEnable := Rec."Campaign No." <> '';
+        CorrespondenceTypeDefaultEnabl := Rec."Ignore Contact Corres. Type" = true;
+        LanguageCodeDefaultEnable := Rec."Interaction Template Code" <> '';
+        SubjectDefaultEnable := SegmentInteractionLanguage.Get(Rec."No.", 0, Rec."Language Code (Default)");
+        AttachmentEnable := Rec."Interaction Template Code" <> '';
+        IgnoreContactCorresTypeEnable := Rec."Interaction Template Code" <> '';
+        InformationFlowEnable := Rec."Interaction Template Code" <> '';
+        InitiatedByEnable := Rec."Interaction Template Code" <> '';
+        UnitCostLCYEnable := Rec."Interaction Template Code" <> '';
+        UnitDurationMinEnable := Rec."Interaction Template Code" <> '';
+        LanguageCodeDefaultEnable := Rec."Interaction Template Code" <> '';
 
         OnAfterUpdateEditable();
     end;
