@@ -225,11 +225,11 @@ codeunit 5052 AttachmentManagement
         if FileName = '' then
             exit(false);
 
-        Attachment.Delete;
-        Attachment.Init;
+        if Attachment.Delete() then;
+        Attachment.Init();
         Attachment.ImportAttachmentFromServerFile(FileName, true, true);
         Attachment."No." := 0;
-        Attachment.Insert;
+        Attachment.Insert();
 
         exit(true);
     end;
