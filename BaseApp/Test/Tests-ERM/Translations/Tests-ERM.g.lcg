@@ -6098,6 +6098,15 @@
       <Cmt Name="Dev"><![CDATA[%1=Field;%2=Value;%3=Value]D;]A;(LookupHint=Codeunit ERM SEPA Direct Debit Test - NamedType NoDataToExportErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 256317932 - NamedType 550137366" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot change the transfer date]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM SEPA Direct Debit Test - NamedType ResetTransferDateNotAllowedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3626870028 - NamedType 2313767692" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Edit - Reminder Text - %1 %2 Beginning]]></Val>
@@ -9201,6 +9210,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Order Check - NamedType PostingDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 414629551 - NamedType 3102599359" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Posted Shipment Date]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Order Check - NamedType PostedShipmentDateTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 534852332 - NamedType 1482674974" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

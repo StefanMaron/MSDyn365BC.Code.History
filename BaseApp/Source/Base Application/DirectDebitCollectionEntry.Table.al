@@ -222,6 +222,10 @@ table 1208 "Direct Debit Collection Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(23; "Message to Recipient"; Text[140])
+        {
+            Caption = 'Message to Recipient';
+        }
     }
 
     keys

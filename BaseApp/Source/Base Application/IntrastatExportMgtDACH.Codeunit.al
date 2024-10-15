@@ -237,6 +237,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
     var
         XMLNode2: DotNet XmlNode;
         XMLNode3: DotNet XmlNode;
+        CountryOfOriginCode: Code[10];
     begin
         with IntrastatJnlLine do begin
             XMLDOMMgt.AddElement(XMLNode, 'Item', '', '', XMLNode2);
@@ -244,8 +245,11 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
             WriteXMLCN8(XMLNode2, Format(DelChr("Tariff No."), 8));
             XMLDOMMgt.AddElement(XMLNode2, 'goodsDescription', "Item Description", '', XMLNode3);
             XMLDOMMgt.AddElement(XMLNode2, 'MSConsDestCode', GetCountryCode("Country/Region Code"), '', XMLNode3);
-            if Type = Type::Receipt then
-                XMLDOMMgt.AddElement(XMLNode2, 'countryOfOriginCode', GetOriginCountryCode("Country/Region of Origin Code"), '', XMLNode3);
+
+            if (Type = Type::Receipt) or ("Country/Region of Origin Code" <> '') then
+                CountryOfOriginCode := GetOriginCountryCode("Country/Region of Origin Code");
+            XMLDOMMgt.AddElement(XMLNode2, 'countryOfOriginCode', CountryOfOriginCode, '', XMLNode3);
+
             XMLDOMMgt.AddElement(XMLNode2, 'netMass', FormatDecimal("Total Weight"), '', XMLNode3);
             if "Supplementary Units" then
                 XMLDOMMgt.AddElement(XMLNode2, 'quantityInSU', FormatDecimal(Quantity), '', XMLNode3);

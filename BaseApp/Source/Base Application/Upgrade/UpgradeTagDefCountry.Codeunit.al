@@ -11,6 +11,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
         PerCompanyUpgradeTags.Add(GetReportSelectionForGLVATReconciliationTag);
         PerCompanyUpgradeTags.Add(GetPhysInvntOrdersUpgradeTag);
         PerCompanyUpgradeTags.Add(GetCleanupPhysOrders);
+        PerCompanyUpgradeTags.Add(GetCheckPartnerVATIDTag());
     end;
 
     procedure GetPhysInvntOrdersUpgradeTag(): Code[250]
@@ -26,6 +27,11 @@ codeunit 9997 "Upgrade Tag Def - Country"
     procedure GetReportSelectionForGLVATReconciliationTag(): Code[250]
     begin
         exit('MS-306584-GLVATReconciliation-20190403');
+    end;
+
+    procedure GetCheckPartnerVATIDTag(): Code[250]
+    begin
+        exit('MS-392540-CheckPartnerVATID-20210317');
     end;
 }
 
