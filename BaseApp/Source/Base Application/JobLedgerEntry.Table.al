@@ -1,4 +1,4 @@
-table 169 "Job Ledger Entry"
+﻿table 169 "Job Ledger Entry"
 {
     Caption = 'Job Ledger Entry';
     DrillDownPageID = "Job Ledger Entries";
@@ -239,6 +239,60 @@ table 169 "Job Ledger Entry"
             begin
                 ShowDimensions();
             end;
+        }
+        field(481; "Shortcut Dimension 3 Code"; Code[20])
+        {
+            CaptionClass = '1,2,3';
+            Caption = 'Shortcut Dimension 3 Code';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
+                                                                                    "Global Dimension No." = const(3)));
+        }
+        field(482; "Shortcut Dimension 4 Code"; Code[20])
+        {
+            CaptionClass = '1,2,4';
+            Caption = 'Shortcut Dimension 4 Code';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
+                                                                                    "Global Dimension No." = const(4)));
+        }
+        field(483; "Shortcut Dimension 5 Code"; Code[20])
+        {
+            CaptionClass = '1,2,5';
+            Caption = 'Shortcut Dimension 5 Code';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
+                                                                                    "Global Dimension No." = const(5)));
+        }
+        field(484; "Shortcut Dimension 6 Code"; Code[20])
+        {
+            CaptionClass = '1,2,6';
+            Caption = 'Shortcut Dimension 6 Code';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
+                                                                                    "Global Dimension No." = const(6)));
+        }
+        field(485; "Shortcut Dimension 7 Code"; Code[20])
+        {
+            CaptionClass = '1,2,7';
+            Caption = 'Shortcut Dimension 7 Code';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
+                                                                                    "Global Dimension No." = const(7)));
+        }
+        field(486; "Shortcut Dimension 8 Code"; Code[20])
+        {
+            CaptionClass = '1,2,8';
+            Caption = 'Shortcut Dimension 8 Code';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
+                                                                                    "Global Dimension No." = const(8)));
         }
         field(1000; "Job Task No."; Code[20])
         {

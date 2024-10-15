@@ -36,8 +36,7 @@
                         if IsDefaultBin() then
                             WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code")
                     end;
-                    if ("Entry Type" = "Entry Type"::Transfer) and ("Location Code" = "New Location Code") then
-                        "New Bin Code" := "Bin Code";
+                    SetNewBinCodeForSameLocationTransfer();
                 end;
 
                 if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then
@@ -48,6 +47,7 @@
                       DATABASE::Item, "Item No.",
                       DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                       DATABASE::"Work Center", "Work Center No.");
+                    OnValidateItemNoOnAfterCreateDimInitial(Rec);
                     exit;
                 end;
 
@@ -58,6 +58,7 @@
 
                 if "Value Entry Type" = "Value Entry Type"::Revaluation then
                     Item.TestField("Inventory Value Zero", false);
+                OnValidateItemNoOnBeforeSetDescription(Rec, Item);
                 Description := Item.Description;
                 "Inventory Posting Group" := Item."Inventory Posting Group";
                 "Item Category Code" := Item."Item Category Code";
@@ -83,6 +84,7 @@
                     end else
                         UnitCost := "Unit Cost";
                 end;
+                OnValidateItemNoOnAfterCalcUnitCost(Rec, Item);
 
                 if (("Entry Type" = "Entry Type"::Output) and (WorkCenter."No." = '') and (MachineCenter."No." = '')) or
                    ("Entry Type" <> "Entry Type"::Output) or
@@ -109,6 +111,7 @@
                             Amount := 0;
                         end;
                 end;
+                OnValidateItemNoOnAfterCalcUnitAmount(Rec);
 
                 case "Entry Type" of
                     "Entry Type"::Purchase:
@@ -276,15 +279,7 @@
                 if "Location Code" <> '' then
                     Item.TestField(Type, Item.Type::Inventory);
 
-                if ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and
-                   ("Item Charge No." = '') and
-                   ("No." = '')
-                then begin
-                    GetUnitAmount(FieldNo("Location Code"));
-                    "Unit Cost" := UnitCost;
-                    Validate("Unit Amount");
-                    CheckItemAvailable(FieldNo("Location Code"));
-                end;
+                ValidateItemDirectCostUnitAmount();
 
                 if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then
                     WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
@@ -377,9 +372,7 @@
                     "Last Item Ledger Entry No." := 0;
                 end;
 
-                CalcFields("Reserved Qty. (Base)");
-                if Abs("Quantity (Base)") < Abs("Reserved Qty. (Base)") then
-                    Error(Text001, FieldCaption("Reserved Qty. (Base)"));
+                CheckReservedQtyBase();
 
                 if Item."Item Tracking Code" <> '' then
                     ReserveItemJnlLine.VerifyQuantity(Rec, xRec);
@@ -506,7 +499,14 @@
             Caption = 'Amount';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateAmount(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Quantity);
                 "Unit Amount" := Amount / Quantity;
                 Validate("Unit Amount");
@@ -1089,8 +1089,7 @@
                         if IsDefaultBin() then
                             WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code")
                     end;
-                    if ("Entry Type" = "Entry Type"::Transfer) and ("Location Code" = "New Location Code") then
-                        "New Bin Code" := "Bin Code";
+                    SetNewBinCodeForSameLocationTransfer();
                 end;
                 if ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and
                    ("Item Charge No." = '')
@@ -1153,8 +1152,7 @@
                           "Bin Code",
                           "Entry Type".AsInteger());
                     end;
-                    if ("Entry Type" = "Entry Type"::Transfer) and ("Location Code" = "New Location Code") then
-                        "New Bin Code" := "Bin Code";
+                    SetNewBinCodeForSameLocationTransfer();
 
                     if ("Entry Type" = "Entry Type"::Consumption) and
                        ("Bin Code" <> '') and ("Prod. Order Comp. Line No." <> 0)
@@ -1749,6 +1747,7 @@
                 TestField("Starting Time");
                 TestField("Ending Time");
                 TotalTime := CalendarMgt.CalcTimeDelta("Ending Time", "Starting Time");
+                OnvalidateConcurrentCapacityOnAfterCalcTotalTime(Rec, TotalTime);
                 if "Ending Time" < "Starting Time" then
                     TotalTime := TotalTime + 86400000;
                 TestField("Work Center No.");
@@ -2225,7 +2224,14 @@
     end;
 
     procedure UpdateAmount()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateAmount(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Amount := Round(Quantity * "Unit Amount");
 
         OnAfterUpdateAmount(Rec);
@@ -2325,6 +2331,20 @@
                 Error(UpdateInterruptedErr);
     end;
 
+    local procedure CheckReservedQtyBase()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckReservedQtyBase(Rec, Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        CalcFields("Reserved Qty. (Base)");
+        if Abs("Quantity (Base)") < Abs("Reserved Qty. (Base)") then
+            Error(Text001, FieldCaption("Reserved Qty. (Base)"));
+    end;
+
     local procedure GetItem()
     begin
         if Item."No." <> "Item No." then
@@ -2341,6 +2361,7 @@
         ItemJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
         if ItemJnlLine.FindFirst then begin
+            OnSetUpNewLineOnAfterFindItemJnlLine(Rec, ItemJnlLine);
             "Posting Date" := LastItemJnlLine."Posting Date";
             "Document Date" := LastItemJnlLine."Posting Date";
             if (ItemJnlTemplate.Type in
@@ -2422,6 +2443,19 @@
         "Document No." := DocNo;
         "External Document No." := ExtDocNo;
         "Posting No. Series" := PostingNos;
+    end;
+
+    local procedure SetNewBinCodeForSameLocationTransfer()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetNewBinCodeForSameLocationTransfer(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ("Entry Type" = "Entry Type"::Transfer) and ("Location Code" = "New Location Code") then
+            "New Bin Code" := "Bin Code";
     end;
 
     local procedure GetUnitAmount(CalledByFieldNo: Integer)
@@ -2673,6 +2707,26 @@
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
+    local procedure ValidateItemDirectCostUnitAmount()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateItemDirectCostUnitAmount(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and
+           ("Item Charge No." = '') and
+           ("No." = '')
+        then begin
+            GetUnitAmount(FieldNo("Location Code"));
+            "Unit Cost" := UnitCost;
+            Validate("Unit Amount");
+            CheckItemAvailable(FieldNo("Location Code"));
+        end;
+    end;
+
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
@@ -2882,12 +2936,19 @@
         "Order Date" := ServiceHeader."Order Date";
         "Source Posting Group" := ServiceHeader."Customer Posting Group";
         "Salespers./Purch. Code" := ServiceHeader."Salesperson Code";
-        "Country/Region Code" := ServiceHeader."VAT Country/Region Code";
         "Reason Code" := ServiceHeader."Reason Code";
         "Source Type" := "Source Type"::Customer;
         "Source No." := ServiceHeader."Customer No.";
         "Shpt. Method Code" := ServiceHeader."Shipment Method Code";
         "Price Calculation Method" := ServiceHeader."Price Calculation Method";
+
+        if ServiceHeader.IsCreditDocType() then
+            "Country/Region Code" := ServiceHeader."Country/Region Code"
+        else
+            if ServiceHeader."Ship-to Country/Region Code" <> '' then
+                "Country/Region Code" := ServiceHeader."Ship-to Country/Region Code"
+            else
+                "Country/Region Code" := ServiceHeader."Country/Region Code";
 
         OnAfterCopyItemJnlLineFromServHeader(Rec, ServiceHeader);
     end;
@@ -3076,7 +3137,14 @@
     end;
 
     local procedure CopyFromWorkCenter(WorkCenter: Record "Work Center")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyFromWorkCenter(Rec, WorkCenter, IsHandled);
+        if IsHandled then
+            exit;
+
         "Work Center No." := WorkCenter."No.";
         Description := WorkCenter.Name;
         "Gen. Prod. Posting Group" := WorkCenter."Gen. Prod. Posting Group";
@@ -3086,7 +3154,14 @@
     end;
 
     local procedure CopyFromMachineCenter(MachineCenter: Record "Machine Center")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyFromMachineCenter(Rec, MachineCenter, IsHandled);
+        if IsHandled then
+            exit;
+
         "Work Center No." := MachineCenter."Work Center No.";
         Description := MachineCenter.Name;
         "Gen. Prod. Posting Group" := MachineCenter."Gen. Prod. Posting Group";
@@ -3422,6 +3497,7 @@
         end;
 
         "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+        OnRecalculateUnitAmountOnAfterCalcQtyPerUnitOfMeasure(Rec, xRec);
         GetUnitAmount(FieldNo("Unit of Measure Code"));
 
         ReadGLSetup;
@@ -3737,6 +3813,16 @@
             Item.TestField(Type, Item.Type::Inventory);
     end;
 
+    procedure IsNotInternalWhseMovement(): Boolean
+    begin
+        exit(
+          not (("Entry Type" = "Entry Type"::Transfer) and
+               ("Location Code" = "New Location Code") and
+               ("Dimension Set ID" = "New Dimension Set ID") and
+               ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and
+               not Adjustment));
+    end;
+
     local procedure IsDefaultBin() Result: Boolean
     begin
         Result := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
@@ -3940,6 +4026,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckReservedQtyBase(var ItemJournalLine: Record "Item Journal Line"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromMachineCenter(var ItemJournalLine: Record "Item Journal Line"; var MachineCenter: Record "Machine Center"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromWorkCenter(var ItemJournalLine: Record "Item Journal Line"; var WorkCenter: Record "Work Center"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDisplayErrorIfItemIsBlocked(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -3966,6 +4067,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelectItemEntry(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetNewBinCodeForSameLocationTransfer(var ItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateAmount(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateItemDirectCostUnitAmount(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -4019,7 +4135,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnSetUpNewLineOnAfterFindItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; var FirstItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSelectItemEntryOnBeforeOpenPage(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnvalidateConcurrentCapacityOnAfterCalcTotalTime(var ItemJournalLine: Record "Item Journal Line"; var TotalTime: Integer)
     begin
     end;
 
@@ -4084,6 +4210,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAmount(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateScrapCode(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -4095,6 +4226,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnBeforeValidateUnitOfmeasureCode(var ItemJournalLine: Record "Item Journal Line"; var Item: Record Item; CurrFieldNo: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnBeforeSetDescription(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterCalcUnitCost(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterCalcUnitAmount(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterCreateDimInitial(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -4125,6 +4276,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePickDimension(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecalculateUnitAmountOnAfterCalcQtyPerUnitOfMeasure(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line")
     begin
     end;
 }

@@ -50,7 +50,7 @@ report 15000061 "Rem. Payment Order  - Export"
     trigger OnPreReport()
     begin
         ServerFileName := FileMgt.ServerTempFileName('txt');
-        OFile.Create(ServerFileName);
+        OFile.Create(ServerFileName, TextEncoding::UTF8);
         OFile.TextMode(true);
         OFile.CreateOutStream(Ostr);
     end;

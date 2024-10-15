@@ -40,19 +40,17 @@ codeunit 148100 "SAF-T Demodata Tests"
 
     [Test]
     procedure MediaFilesExists()
-    var
-        MediaResources: Record "Media Resources";
     begin
         // [SCENARIO 309923] Media files with XML files for mapping exists
 
         Initialize();
-        MediaResources.Get('General_Ledger_Standard_Accounts_4_character.xml');
-        MediaResources.Get('General_Ledger_Standard_Accounts_4_character.xml');
-        MediaResources.Get('KA_Grouping_Category_Code.xml');
-        MediaResources.Get('RF-1167_Grouping_Category_Code.xml');
-        MediaResources.Get('RF-1175_Grouping_Category_Code.xml');
-        MediaResources.Get('RF-1323_Grouping_Category_Code.xml');
-        MediaResources.Get('Standard_Tax_Codes.xml');
+        GetTenantMediaByFileName('General_Ledger_Standard_Accounts_4_character.xml');
+        GetTenantMediaByFileName('General_Ledger_Standard_Accounts_4_character.xml');
+        GetTenantMediaByFileName('KA_Grouping_Category_Code.xml');
+        GetTenantMediaByFileName('RF-1167_Grouping_Category_Code.xml');
+        GetTenantMediaByFileName('RF-1175_Grouping_Category_Code.xml');
+        GetTenantMediaByFileName('RF-1323_Grouping_Category_Code.xml');
+        GetTenantMediaByFileName('Standard_Tax_Codes.xml');
     end;
 
     local procedure Initialize()
@@ -65,6 +63,15 @@ codeunit 148100 "SAF-T Demodata Tests"
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SAF-T Demodata Tests");
+    end;
+
+    local procedure GetTenantMediaByFileName(FileName: Code[50]): Boolean
+    var
+        TenantMedia: Record "Tenant Media" temporary;
+    begin
+        TenantMedia.SetRange("Company Name", CompanyName());
+        TenantMedia.SetRange("File Name", FileName);
+        exit(TenantMedia.FindFirst());
     end;
 
     var

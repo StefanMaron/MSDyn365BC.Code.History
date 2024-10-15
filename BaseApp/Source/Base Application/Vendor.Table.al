@@ -676,6 +676,10 @@
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
         }
+        field(93; "EORI Number"; Text[40])
+        {
+            Caption = 'EORI Number';
+        }
         field(97; "Debit Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";

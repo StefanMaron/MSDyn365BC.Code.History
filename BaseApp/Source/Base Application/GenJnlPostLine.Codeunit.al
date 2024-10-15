@@ -44,6 +44,8 @@
         UnrealizedVendLedgEntry: Record "Vendor Ledger Entry";
         GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
         TempVATEntry: Record "VAT Entry" temporary;
+        TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
+        TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         NorwegianVATTools: Codeunit "Norwegian VAT Tools";
@@ -850,6 +852,7 @@
             CustLedgEntry.LockTable();
             OnPostCustOnBeforeInitCustLedgEntry(GenJnlLine, CustLedgEntry, CVLedgEntryBuf, TempDtldCVLedgEntryBuf, CustPostingGr);
             InitCustLedgEntry(GenJnlLine, CustLedgEntry);
+            OnPostCustOnAfterInitCustLedgEntry(GenJnlLine, CustLedgEntry, Cust, CustPostingGr);
 
             if not Cust."Block Payment Tolerance" then
                 CalcPmtTolerancePossible(
@@ -1152,7 +1155,7 @@
                               CheckLedgEntry."Entry Status"::Posted,
                               CheckLedgEntry."Entry Status"::"Financially Voided");
                             CheckLedgEntry.SetRange("Check No.", "Document No.");
-                            if not CheckLedgEntry.IsEmpty then
+                            if not CheckLedgEntry.IsEmpty() then
                                 Error(CheckAlreadyExistsErr, "Document No.");
 
                             InitCheckLedgEntry(BankAccLedgEntry, CheckLedgEntry);
@@ -1439,7 +1442,11 @@
             if CostAccSetup."Auto Transfer from G/L" then
                 TransferGlEntriesToCA.GetGLEntries;
 
+        OnFinishPostingOnBeforeResetFirstEntryNo(GlobalGLEntry, NextEntryNo, FirstEntryNo);
         FirstEntryNo := 0;
+
+        if IsTransactionConsistent then
+            UpdateAppliedCVLedgerEntries();
 
         OnAfterFinishPosting(GlobalGLEntry, GLReg, IsTransactionConsistent, GenJnlLine);
     end;
@@ -1460,6 +1467,33 @@
                 GLReg.Insert();
                 IsGLRegInserted := true;
             end;
+    end;
+
+    local procedure UpdateAppliedCVLedgerEntries()
+    var
+        VendorLedgerEntryApplied: Record "Vendor Ledger Entry";
+        CustLedgEntryApplied: Record "Cust. Ledger Entry";
+    begin
+        if TempVendorLedgerEntry.FindSet() then begin
+            repeat
+                if VendorLedgerEntryApplied.Get(TempVendorLedgerEntry."Entry No.") then begin
+                    VendorLedgerEntryApplied."Applies-to ID" := '';
+                    VendorLedgerEntryApplied."Amount to Apply" := 0;
+                    VendorLedgerEntryApplied.Modify();
+                end;
+            until TempVendorLedgerEntry.Next() = 0;
+            TempVendorLedgerEntry.DeleteAll();
+        end;
+        if TempCustLedgEntry.FindSet() then begin
+            repeat
+                if CustLedgEntryApplied.Get(TempCustLedgEntry."Entry No.") then begin
+                    CustLedgEntryApplied."Applies-to ID" := '';
+                    CustLedgEntryApplied."Amount to Apply" := 0;
+                    CustLedgEntryApplied.Modify();
+                end;
+            until TempCustLedgEntry.Next() = 0;
+            TempCustLedgEntry.DeleteAll();
+        end;
     end;
 
     local procedure PostUnrealizedVAT(GenJnlLine: Record "Gen. Journal Line")
@@ -1592,6 +1626,8 @@
 
         if CalcAddCurrResiduals then
             HandleAddCurrResidualGLEntry(GenJnlLine, GLEntry);
+
+        OnAfterInsertGLEntry(GLEntry, GenJnlLine, TempGLEntryBuf);
     end;
 
     procedure CreateGLEntry(GenJnlLine: Record "Gen. Journal Line"; AccNo: Code[20]; Amount: Decimal; AmountAddCurr: Decimal; UseAmountAddCurr: Boolean)
@@ -2730,11 +2766,15 @@
 
             TempOldCustLedgEntry.CopyFromCVLedgEntryBuffer(OldCVLedgEntryBuf);
             OldCustLedgEntry := TempOldCustLedgEntry;
-            OldCustLedgEntry."Applies-to ID" := '';
-            OldCustLedgEntry."Amount to Apply" := 0;
+            if OldCustLedgEntry."Amount to Apply" = 0 then
+                OldCustLedgEntry."Applies-to ID" := ''
+            else begin
+                TempCustLedgEntry := OldCustLedgEntry;
+                if TempCustLedgEntry.Insert() then;
+            end;
             OldCustLedgEntry.Modify();
 
-            OnAfterOldCustLedgEntryModify(OldCustLedgEntry);
+            OnAfterOldCustLedgEntryModify(OldCustLedgEntry, GenJnlLine);
 
             if GLSetup."Unrealized VAT" or
                (GLSetup."Prepayment Unrealized VAT" and TempOldCustLedgEntry.Prepayment)
@@ -3294,11 +3334,16 @@
             // Update the Old Entry
             TempOldVendLedgEntry.CopyFromCVLedgEntryBuffer(OldCVLedgEntryBuf);
             OldVendLedgEntry := TempOldVendLedgEntry;
-            OldVendLedgEntry."Applies-to ID" := '';
-            OldVendLedgEntry."Amount to Apply" := 0;
+            OldVendLedgEntry."Amount to Apply" := OldCVLedgEntryBuf."Amount to Apply";
+            if OldVendLedgEntry."Amount to Apply" = 0 then
+                OldVendLedgEntry."Applies-to ID" := ''
+            else begin
+                TempVendorLedgerEntry := OldVendLedgEntry;
+                if TempVendorLedgerEntry.Insert() then;
+            end;
             OldVendLedgEntry.Modify();
 
-            OnAfterOldVendLedgEntryModify(OldVendLedgEntry);
+            OnAfterOldVendLedgEntryModify(OldVendLedgEntry, GenJnlLine);
 
             if GLSetup."Unrealized VAT" or
                (GLSetup."Prepayment Unrealized VAT" and TempOldVendLedgEntry.Prepayment)
@@ -5451,7 +5496,7 @@
         VendorMgt.SetFilterForExternalDocNo(
           OldVendLedgEntry, GenJnlLine."Document Type", GenJnlLine."External Document No.",
           GenJnlLine."Account No.", GenJnlLine."Document Date");
-        if not OldVendLedgEntry.IsEmpty then
+        if not OldVendLedgEntry.IsEmpty() then
             Error(
               PurchaseAlreadyExistsErr,
               GenJnlLine."Document Type", GenJnlLine."External Document No.");
@@ -6250,6 +6295,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertGLEntry(GLEntry: Record "G/L Entry"; GenJnlLine: Record "Gen. Journal Line"; TempGLEntryBuf: Record "G/L Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitVAT(var GenJournalLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; var VATPostingSetup: Record "VAT Posting Setup"; var AddCurrGLEntryVATAmt: Decimal)
     begin
     end;
@@ -6280,7 +6330,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOldCustLedgEntryModify(var CustLedgEntry: Record "Cust. Ledger Entry")
+    local procedure OnAfterOldCustLedgEntryModify(var CustLedgEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -6290,7 +6340,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOldVendLedgEntryModify(var VendLedgEntry: Record "Vendor Ledger Entry")
+    local procedure OnAfterOldVendLedgEntryModify(var VendLedgEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -6874,6 +6924,11 @@
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnFinishPostingOnBeforeResetFirstEntryNo(var GLEntry: Record "G/L Entry"; NextEntryNo: Integer; FirstEntryNo: Integer)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnHandleAddCurrResidualGLEntryOnBeforeInsertGLEntry(GenJournalLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry")
     begin
@@ -6966,6 +7021,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostCustOnAfterCopyCVLedgEntryBuf(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; GenJournalLine: Record "Gen. Journal Line"; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostCustOnAfterInitCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry"; Cust: Record Customer; CustPostingGr: Record "Customer Posting Group")
     begin
     end;
 

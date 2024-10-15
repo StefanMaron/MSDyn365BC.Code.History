@@ -32,7 +32,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMSalesOrdernoteNotFoundErr: Label 'Couldn''t find a note for CRM sales order %1 with note text %2.', Locked = true;
         OrderStatusReleasedTxt: Label 'The order status has changed to Released.';
         OrderShipmentCreatedTxt: Label 'A shipment has been created for the order.';
-        MissingWriteInProductNoErr: Label '%1 %2 %3 contains a write-in product. You must choose the default write-in product in Sales & Receivables Setup window.', Comment = '%1 - CDS service name,%2 - document type (order or quote), %3 - document number';
+        MissingWriteInProductNoErr: Label '%1 %2 %3 contains a write-in product. You must choose the default write-in product in Sales & Receivables Setup window.', Comment = '%1 - Dataverse service name,%2 - document type (order or quote), %3 - document number';
 
     [Test]
     [Scope('OnPrem')]

@@ -965,6 +965,48 @@ codeunit 134099 "Purchase Documents"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure PurchaserCodeUpdatedFromUserSetupWhenChangingToVendorWithoutSalesperson()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: array[2] of Record Vendor;
+        SalespersonPurchaser: array[2] of Record "Salesperson/Purchaser";
+        UserSetup: Record "User Setup";
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        // [FEATURE] [Salesperson Code]
+        // [SCENARIO ] Customer with blank "Salesperson Code" and Salesperson Code empty - use Salesperson from UserSetup.
+        Initialize();
+
+        // [GIVEN] Purchasers "SP01" and "SP02".
+        LibrarySales.CreateSalesperson(SalespersonPurchaser[1]);
+        LibrarySales.CreateSalesperson(SalespersonPurchaser[2]);
+
+        // [GIVEN] Customer "CU01" with "Salesperson Code" = "SP01".
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        Vendor[1].Validate("Purchaser Code", SalespersonPurchaser[1].Code);
+        Vendor[1].Modify(true);
+
+        // [GIVEN] Vendor "CU02" with blank "Purchaser Code".
+        LibraryPurchase.CreateVendor(Vendor[2]);
+
+        // [GIVEN] User Setup with Purchaser Code "SP02.
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        UserSetup.Validate("Salespers./Purch. Code", SalespersonPurchaser[2].Code);
+        UserSetup.Modify(true);
+
+        // [GIVEN] Purchase Order created for Vendor with Purchaser Code "SP01".
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor[1]."No.");
+
+        // [WHEN] "Pay-to Vendor No." is changed to Vendor "CU02" in Purchase Order.
+        PurchaseHeader.Validate("Pay-to Vendor No.", Vendor[2]."No.");
+
+        // [THEN] Purchase Order has Salesperson Code "SP02".
+        PurchaseHeader.TestField("Purchaser Code", SalespersonPurchaser[2].Code);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure LocationCodeOnInsert()
     var

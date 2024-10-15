@@ -2,8 +2,8 @@ page 5334 "CRM Option Mapping"
 {
     ApplicationArea = Suite;
     UsageCategory = Lists;
-    Caption = 'Common Data Service Option Mapping';
-    AdditionalSearchTerms = 'CDS Option Mapping';
+    Caption = 'Dataverse Option Mapping';
+    AdditionalSearchTerms = 'CDS Option Mapping, Common Data Service Option Mapping';
     Editable = false;
     PageType = List;
     ShowFilter = false;
@@ -20,17 +20,17 @@ page 5334 "CRM Option Mapping"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Record';
-                    ToolTip = 'Specifies the record in Business Central that is mapped to the option value in Common Data Service.';
+                    ToolTip = 'Specifies the record in Business Central that is mapped to the option value in Dataverse.';
                 }
                 field("Option Value"; "Option Value")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the numeric value of the mapped option value in Common Data Service.';
+                    ToolTip = 'Specifies the numeric value of the mapped option value in Dataverse.';
                 }
                 field("Option Value Caption"; "Option Value Caption")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the caption of the mapped option value in Common Data Service.';
+                    ToolTip = 'Specifies the caption of the mapped option value in Dataverse.';
                 }
             }
         }
