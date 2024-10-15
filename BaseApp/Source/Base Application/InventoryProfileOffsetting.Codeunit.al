@@ -2322,18 +2322,23 @@
     end;
 
     local procedure SetQtyToHandle(var TrkgReservEntry: Record "Reservation Entry")
+    var
+        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
+        TypeHelper: Codeunit "Type Helper";
+        PickedQty: Decimal;
     begin
-        if not TrkgReservEntry.TrackingExists then
-            exit;
+        with TrkgReservEntry do begin
+            if not TrackingExists() then
+                exit;
 
-        if (TrkgReservEntry."Reservation Status" = TrkgReservEntry."Reservation Status"::Tracking) and
-           (TrkgReservEntry."Source Type" = DATABASE::"Sales Line") and not TrkgReservEntry.Positive
-        then begin
-            TrkgReservEntry."Qty. to Handle (Base)" := 0;
-            TrkgReservEntry."Qty. to Invoice (Base)" := 0;
-        end else begin
-            TrkgReservEntry."Qty. to Handle (Base)" := TrkgReservEntry."Quantity (Base)";
-            TrkgReservEntry."Qty. to Invoice (Base)" := TrkgReservEntry."Quantity (Base)";
+            "Qty. to Handle (Base)" := "Quantity (Base)";
+            "Qty. to Invoice (Base)" := "Quantity (Base)";
+
+            PickedQty := WarehouseAvailabilityMgt.CalcQtyRegisteredPick(TrkgReservEntry);
+            if PickedQty > 0 then begin
+                "Qty. to Handle (Base)" := TypeHelper.Maximum(-PickedQty, "Quantity (Base)");
+                "Qty. to Invoice (Base)" := "Qty. to Handle (Base)";
+            end;
         end;
 
         OnAfterSetQtyToHandle(TrkgReservEntry);

@@ -3033,9 +3033,9 @@
     local procedure AddToFilterText(var TextVar: Text[250]; Separator: Code[1]; Comparator: Code[2]; Addendum: Code[20])
     begin
         if TextVar = '' then
-            TextVar := Comparator + Addendum
+            TextVar := Comparator + '''' + Addendum + ''''
         else
-            TextVar += Separator + Comparator + Addendum;
+            TextVar += Separator + Comparator + '''' + Addendum + '''';
     end;
 
     procedure CreateAssemblyPickLine(AsmLine: Record "Assembly Line")

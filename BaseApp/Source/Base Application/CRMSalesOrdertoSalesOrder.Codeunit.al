@@ -313,6 +313,8 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     local procedure CreateSalesOrderHeader(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header")
     var
         Customer: Record Customer;
+        QuoteSalesHeader: Record "Sales header";
+        CRMQuote: Record "CRM Quote";
     begin
         SendTraceTag('0000DF0', CrmTelemetryCategoryTok, VERBOSITY::Normal,
             StrSubstNo(StartingToCreateSalesOrderHeaderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
@@ -330,6 +332,14 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CopyCRMOptionFields(CRMSalesorder, SalesHeader);
         SalesHeader.Validate("Payment Discount %", CRMSalesorder.DiscountPercentage);
         SalesHeader.Validate("External Document No.", CopyStr(CRMSalesorder.Name, 1, MaxStrLen(SalesHeader."External Document No.")));
+
+        // if this order was made out of a won quote, and that won quote is coupled, set the Quote No. on the Sales header too
+        if not IsNullGuid(CRMSalesorder.QuoteId) then
+            if CRMQuote.Get(CRMSalesOrder.QuoteId) then begin
+                QuoteSalesHeader.SetRange("Your Reference", CRMQuote.QuoteNumber);
+                if QuoteSalesHeader.FindLast() then
+                    SalesHeader."Quote No." := QuoteSalesHeader."No.";
+            end;
 
         OnCreateSalesOrderHeaderOnBeforeSalesHeaderInsert(SalesHeader, CRMSalesorder);
         SalesHeader.Insert();

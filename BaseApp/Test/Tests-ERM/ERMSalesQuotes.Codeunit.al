@@ -1621,6 +1621,41 @@ codeunit 134379 "ERM Sales Quotes"
         SalesQuote.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('SalesQuoteToOrderTrue')]
+    [Scope('OnPrem')]
+    procedure WorkDescriptionCorrectlyCopiedToTheSalesOrderFromSalesQuote()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesOrder: TestPage "Sales Order";
+        OldDefaultPostingDate: Option;
+        WorkDescription: Text;
+        OldStockoutWarning: Boolean;
+    begin
+        // [SCENARIO 370775] The Work Description copied correctly when the user convert Sales Quote to an Order.
+        Initialize();
+
+        // [GIVEN] Create Sales Quote with Work Description
+        OldStockoutWarning :=
+          UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
+        WorkDescription := LibraryRandom.RandText(50);
+        SalesHeader.SetWorkDescription(WorkDescription);
+
+        // [WHEN] Create Sales Order form Sales Quote.
+        SalesOrder.Trap();
+        LibraryVariableStorage.Enqueue(QuoteToOrderMessage);
+        LibraryVariableStorage.Enqueue(OpenNewOrderQst);
+        CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
+
+        // [THEN] Work Description copied successfully
+        SalesOrder.WorkDescription.AssertEquals(WorkDescription);
+        SalesOrder.Close();
+        UpdateSalesReceivablesSetup(OldDefaultPostingDate, OldDefaultPostingDate, OldStockoutWarning);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

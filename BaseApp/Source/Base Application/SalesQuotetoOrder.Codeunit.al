@@ -118,6 +118,10 @@ codeunit 86 "Sales-Quote to Order"
             if SalesOrderHeader."Posting Date" = 0D then
                 SalesOrderHeader."Posting Date" := WorkDate;
             SalesOrderHeader."KPP Code" := "KPP Code";
+	    
+            CalcFields("Work Description");
+            SalesOrderHeader."Work Description" := "Work Description";
+
             OnBeforeModifySalesOrderHeader(SalesOrderHeader, SalesHeader);
             SalesOrderHeader.Modify();
         end;

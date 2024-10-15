@@ -184,6 +184,7 @@ page 152 "Vendor Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             ShowCaption = false;
+                            Visible = false;
                         }
                         field("VendPurchLCY[2]"; VendPurchLCY[2])
                         {
@@ -277,6 +278,7 @@ page 152 "Vendor Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             ShowCaption = false;
+                            Visible = false;
                         }
                         field("VendPurchLCY[3]"; VendPurchLCY[3])
                         {
@@ -370,6 +372,7 @@ page 152 "Vendor Statistics"
                         {
                             ApplicationArea = Basic, Suite;
                             ShowCaption = false;
+                            Visible = false;
                         }
                         field("VendPurchLCY[4]"; VendPurchLCY[4])
                         {
