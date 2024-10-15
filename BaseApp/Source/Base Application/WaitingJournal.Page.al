@@ -58,6 +58,13 @@ page 15000005 "Waiting Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the waiting journal.';
+                    Visible = false;
+                }
+                field(DescriptionField; ReadDescription())
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the description of the waiting journal.';
+                    Caption = 'Description';
                 }
                 field("Currency Code"; "Currency Code")
                 {

@@ -21,6 +21,7 @@ codeunit 137510 "SMB Service Item"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
+        IndirectCostErr: Label 'Indirect Cost % must be equal to ''0''';
 
     [Test]
     [Scope('OnPrem')]
@@ -1875,6 +1876,45 @@ codeunit 137510 "SMB Service Item"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CannotSetIndirectCostOnPurchaseLineAnyTypeExceptOfItem()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Index: Integer;
+    begin
+        // [FEATURE] [Item Type Service] [Purchase] [UT]
+        // [SCENARIO 394798] System restricts setting "Indirect Cost %" on purchase line when Type is not equal to Item
+        Initialize();
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+
+        PurchaseLine.Init();
+        PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
+        PurchaseLine.Insert(true);
+        PurchaseLine.Validate("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        PurchaseLine.Modify(true);
+        Commit();
+
+        for Index := 1 to 5 do begin
+            PurchaseLine.Type := Index;
+            PurchaseLine."No." := CopyStr(LibraryRandom.RandText(20), 1, MaxStrLen(PurchaseLine."No."));
+            PurchaseLine.Quantity := LibraryRandom.RandDecInRange(100, 200, 2);
+            PurchaseLine."Direct Unit Cost" := LibraryRandom.RandDecInRange(100, 200, 2);
+            if PurchaseLine.Type <> PurchaseLine.Type::Item then begin
+                asserterror PurchaseLine.Validate("Indirect Cost %", 1 + LibraryRandom.RandIntInRange(1, 99));
+                Assert.ExpectedError(IndirectCostErr);
+                ClearLastError();
+
+                asserterror PurchaseLine.Validate("Unit Cost (LCY)", Round(PurchaseLine."Direct Unit Cost" * 1.1));
+                Assert.ExpectedError(IndirectCostErr);
+                ClearLastError();
+            end;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ValueEntryForOverheadAmountIsNotPostedForNotInventoriableItem()
     var
         Item: Record Item;
@@ -2108,6 +2148,50 @@ codeunit 137510 "SMB Service Item"
         AssemblyLine.TestField("Location Code", '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetUnitCostAndUpdateIndirectCostPurchaseLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        ExpectedIndirectPercent: Decimal;
+        ExpectedUnitCost: Decimal;
+    begin
+        // [FEATURE] [Item Type Service] [Purchase] [UT]
+        // [SCENARIO 394798] Stan can update "Unit Cost (LCY)" on Purchase Line and system updates "Indirect Cost %".
+        Initialize();
+
+	    GeneralLedgerSetup.GetRecordOnce();
+        GeneralLedgerSetup."Unit-Amount Rounding Precision" := 0.0000001;
+        GeneralLedgerSetup.Modify(true);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(10, 20, 2));
+
+        with PurchaseLine do begin
+            Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+            Modify(true);
+
+            TestField("Indirect Cost %", 0);
+
+            ExpectedIndirectPercent := 10;
+            ExpectedUnitCost := Round("Direct Unit Cost" * (100 + ExpectedIndirectPercent) / 100);
+
+            Validate("Unit Cost (LCY)", ExpectedUnitCost);
+            Modify(true);
+
+            GeneralLedgerSetup.GetRecordOnce();
+            ExpectedIndirectPercent :=
+                Round(("Unit Cost (LCY)" - "Direct Unit Cost") * 100 / "Direct Unit Cost", 0.00001); // we have fixed rounding precision
+
+            TestField("Unit Cost (LCY)", ExpectedUnitCost);
+            TestField("Indirect Cost %", ExpectedIndirectPercent);
+        end;
+    end;
+
     local procedure Initialize()
     var
         BOMComponent: Record "BOM Component";
@@ -2127,6 +2211,7 @@ codeunit 137510 "SMB Service Item"
         LibrarySetupStorage.Save(DATABASE::"Warehouse Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         SetNoSeries;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;

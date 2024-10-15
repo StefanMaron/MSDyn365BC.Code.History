@@ -305,7 +305,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         WaitingJournal: Record "Waiting Journal";
     begin
         WaitingJournal.Init();
-        WaitingJournal.TransferFields(GenJournalLine);
+        WaitingJournal.PerformTransferFieldsFromGenJournalLine(GenJournalLine);
         WaitingJournal."Payment Order ID - Sent" := RemittancePaymentOrder.ID;
         WaitingJournal."Remittance Status" := WaitingJournal."Remittance Status"::Sent;
         WaitingJournal.Reference := NextWaitingJournalRef;

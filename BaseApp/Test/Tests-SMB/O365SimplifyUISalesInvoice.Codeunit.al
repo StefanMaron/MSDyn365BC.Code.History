@@ -60,7 +60,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         // Exercise
         SalesInvoice.OpenView;
-        SalesInvoice.GotoRecord(SalesHeader);
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
         LibrarySales.EnableWarningOnCloseUnpostedDoc;
         LibrarySales.EnableConfirmOnPostingDoc;
         SalesInvoice.Post.Invoke;
@@ -92,7 +92,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         // Exercise
         SalesInvoiceList.OpenView;
-        SalesInvoiceList.GotoRecord(SalesHeader);
+        SalesInvoiceList.Filter.SetFilter("No.", SalesHeader."No.");
         LibrarySales.EnableWarningOnCloseUnpostedDoc;
         SalesInvoiceList.Post.Invoke;
 
@@ -124,7 +124,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         // Exercise
         PurchaseInvoice.OpenView;
-        PurchaseInvoice.GotoRecord(PurchaseHeader);
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
         LibrarySales.EnableWarningOnCloseUnpostedDoc;
         LibrarySales.EnableConfirmOnPostingDoc;
         PurchaseInvoice.Post.Invoke;
@@ -157,7 +157,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         // Exercise
         PurchaseInvoices.OpenView;
-        PurchaseInvoices.GotoRecord(PurchaseHeader);
+        PurchaseInvoices.Filter.SetFilter("No.", PurchaseHeader."No.");
         LibrarySales.EnableWarningOnCloseUnpostedDoc;
         PurchaseInvoices.PostSelected.Invoke;
 
@@ -349,7 +349,8 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         UserSetup.Modify();
 
         SalesInvoice.OpenEdit;
-        Assert.IsFalse(SalesInvoice.GotoRecord(SalesHeader), '');
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesInvoice."No.".AssertEquals('');
         SalesInvoice.Close;
     end;
 
@@ -463,7 +464,8 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         UserSetup.Modify();
 
         PurchaseInvoice.OpenEdit;
-        Assert.IsFalse(PurchaseInvoice.GotoRecord(PurchaseHeader), 'User shouldn''t be able to edit this invoice.');
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoice."No.".AssertEquals('');
         PurchaseInvoice.Close;
     end;
 
@@ -971,7 +973,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         MakeQuoteTransfersComments(QuoteSalesHeader, Item, Cust, TempSalesCommentLine, SalesCommentLine);
 
         SalesQuote.OpenEdit;
-        SalesQuote.GotoRecord(QuoteSalesHeader);
+        SalesQuote.Filter.SetFilter("No.", QuoteSalesHeader."No.");
 
         SalesInvoice.Trap;
         LibraryVariableStorage.Enqueue(true);
@@ -1010,7 +1012,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         MakeQuoteKeepsUserEnteredInformation(QuoteSalesHeader);
 
         SalesQuote.OpenEdit;
-        SalesQuote.GotoRecord(QuoteSalesHeader);
+        SalesQuote.Filter.SetFilter("No.", QuoteSalesHeader."No.");
 
         NewShipToAddress := LibraryUtility.GenerateRandomCode(QuoteSalesHeader.FieldNo("Ship-to Address"), DATABASE::"Sales Header");
         NewShipToName := LibraryUtility.GenerateRandomCode(QuoteSalesHeader.FieldNo("Ship-to Name"), DATABASE::"Sales Header");
@@ -1067,8 +1069,8 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         // Open both in the quote page to ensure they look the same
         SalesQuote.OpenEdit;
-        SalesQuote.GotoRecord(QuoteSalesHeader);
-        SalesQuote.GotoRecord(ReferenceQuoteSalesHeader);
+        SalesQuote.Filter.SetFilter("No.", QuoteSalesHeader."No.");
+        SalesQuote.Filter.SetFilter("No.", ReferenceQuoteSalesHeader."No.");
         SalesQuote.Close;
     end;
 
@@ -1078,7 +1080,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         SalesQuote.OpenEdit;
-        SalesQuote.GotoRecord(QuoteSalesHeader);
+        SalesQuote.Filter.SetFilter("No.", QuoteSalesHeader."No.");
 
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
@@ -1093,7 +1095,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesOrder: TestPage "Sales Order";
     begin
         SalesQuote.OpenEdit;
-        SalesQuote.GotoRecord(QuoteSalesHeader);
+        SalesQuote.Filter.SetFilter("No.", QuoteSalesHeader."No.");
 
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
@@ -1404,7 +1406,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         MakeQuoteTransfersComments(QuoteSalesHeader, Item, Cust, TempSalesCommentLine, SalesCommentLine);
 
         SalesQuote.OpenEdit;
-        SalesQuote.GotoRecord(QuoteSalesHeader);
+        SalesQuote.Filter.SetFilter("No.", QuoteSalesHeader."No.");
 
         SalesOrder.Trap;
         LibraryVariableStorage.Enqueue(true);
@@ -1443,7 +1445,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         MakeQuoteKeepsUserEnteredInformation(QuoteSalesHeader);
 
         SalesQuote.OpenEdit;
-        SalesQuote.GotoRecord(QuoteSalesHeader);
+        SalesQuote.Filter.SetFilter("No.", QuoteSalesHeader."No.");
 
         NewShipToAddress := LibraryUtility.GenerateRandomCode(QuoteSalesHeader.FieldNo("Ship-to Address"), DATABASE::"Sales Header");
         NewShipToName := LibraryUtility.GenerateRandomCode(QuoteSalesHeader.FieldNo("Ship-to Name"), DATABASE::"Sales Header");
@@ -1543,7 +1545,8 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         UserSetup.Modify();
 
         SalesQuote.OpenEdit;
-        Assert.IsFalse(SalesQuote.GotoRecord(SalesHeader), '');
+        SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesQuote."No.".AssertEquals('');
         SalesQuote.Close;
     end;
 
@@ -1690,7 +1693,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesHeader2.Insert(true);
         Commit();
         SalesQuote.OpenEdit;
-        SalesQuote.GotoRecord(SalesHeader2);
+        SalesQuote.Filter.SetFilter("No.", SalesHeader2."No.");
         SalesQuote.SalesLines.First;
 
         // Enqueue for the request page handler
@@ -1734,7 +1737,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesHeader2.Insert(true);
         Commit();
         SalesInvoice.OpenEdit;
-        SalesInvoice.GotoRecord(SalesHeader2);
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader2."No.");
         SalesInvoice.SalesLines.First;
 
         // Enqueue for the request page handler
@@ -1778,7 +1781,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         PurchaseHeader2.Insert(true);
         Commit();
         PurchaseInvoice.OpenEdit;
-        PurchaseInvoice.GotoRecord(PurchaseHeader2);
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader2."No.");
         PurchaseInvoice.PurchLines.First;
 
         // Enqueue for the request page handler
@@ -2695,7 +2698,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         // Exercise
         LibrarySmallBusiness.CreatePurchaseInvoiceHeader(PurchaseHeader, Vendor);
         PurchaseInvoice.OpenEdit;
-        PurchaseInvoice.GotoRecord(PurchaseHeader);
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
         PurchaseInvoice.GetRecurringPurchaseLines.Invoke;
 
         // Verify
@@ -2754,9 +2757,9 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         LibraryLowerPermissions.SetOutsideO365Scope;
         ItemList.OpenView;
-        ItemList.GotoRecord(ItemAsService);
+        ItemList.Filter.SetFilter("No.", ItemAsService."No.");
         ItemList.Type.AssertEquals(ItemAsService.Type);
-        ItemList.GotoRecord(Item);
+        ItemList.Filter.SetFilter("No.", Item."No.");
         ItemList.Type.AssertEquals(Item.Type);
     end;
 
@@ -2809,7 +2812,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         // invoke Edit on the created vendor, from the vendor list
         VendorList.OpenView;
-        VendorList.GotoRecord(Vendor);
+        VendorList.Filter.SetFilter("No.", Vendor."No.");
         VendorCard.Trap;
         VendorList.Edit.Invoke;
 
@@ -2826,7 +2829,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VendorCard.OK.Invoke;
 
         // verify vendor card modifications on the vendor list controls
-        VendorList.GotoRecord(Vendor);
+        VendorList.Filter.SetFilter("No.", Vendor."No.");
         Assert.AreEqual(Vendor.Name, VendorList.Name.Value, 'Unexpected vendor name.');
         Assert.AreEqual(PhoneNumber, VendorList."Phone No.".Value, 'Unexpected vendor phone number.');
         Assert.AreEqual(RandomContact, VendorList.Contact.Value, 'Unexpected vendor contact.');
@@ -2843,7 +2846,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Initialize;
         LibrarySmallBusiness.CreateVendor(Vendor);
         VendorList.OpenView;
-        VendorList.GotoRecord(Vendor);
+        VendorList.Filter.SetFilter("No.", Vendor."No.");
         PurchaseInvoice.Trap;
         VendorList.NewPurchaseInvoice.Invoke;
         PurchaseInvoice."Buy-from Vendor Name".AssertEquals(Vendor.Name);
@@ -2861,7 +2864,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Initialize;
         LibrarySmallBusiness.CreateVendor(Vendor);
         VendorCard.OpenView;
-        VendorCard.GotoRecord(Vendor);
+        VendorCard.Filter.SetFilter("No.", Vendor."No.");
         PurchaseInvoice.Trap;
         VendorCard.NewPurchaseInvoice.Invoke;
         PurchaseInvoice."Buy-from Vendor Name".AssertEquals(Vendor.Name);
@@ -2878,7 +2881,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Initialize;
         LibrarySmallBusiness.CreateVendor(Vendor);
         VendorList.OpenView;
-        VendorList.GotoRecord(Vendor);
+        VendorList.Filter.SetFilter("No.", Vendor."No.");
         LibraryVariableStorage.Enqueue(Vendor.Name);
         VendorList.NewPurchaseCrMemo.Invoke;
     end;
@@ -2893,7 +2896,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Initialize;
         LibrarySmallBusiness.CreateVendor(Vendor);
         VendorCard.OpenView;
-        VendorCard.GotoRecord(Vendor);
+        VendorCard.Filter.SetFilter("No.", Vendor."No.");
         LibraryVariableStorage.Enqueue(Vendor.Name);
         VendorCard.NewPurchaseCrMemo.Invoke;
     end;
@@ -3681,7 +3684,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibrarySmallBusiness.CreateCustomer(Cust);
 
         CustomerCard.OpenView;
-        CustomerCard.GotoRecord(Cust);
+        CustomerCard.Filter.SetFilter("No.", Cust."No.");
         SellToCustomerName4HandlerFunction := Cust.Name;
 
         CustomerCard.NewSalesQuote.Invoke;
@@ -3703,7 +3706,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibrarySmallBusiness.CreateCustomer(Cust);
 
         CustomerList.OpenView;
-        CustomerList.GotoRecord(Cust);
+        CustomerList.Filter.SetFilter("No.", Cust."No.");
         SellToCustomerName4HandlerFunction := Cust.Name;
 
         CustomerList.NewSalesQuote.Invoke;
@@ -3877,7 +3880,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         // Exercise
         LibrarySmallBusiness.CreateSalesInvoiceHeader(SalesHeader, Customer);
         SalesInvoice.OpenEdit;
-        SalesInvoice.GotoRecord(SalesHeader);
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
         SalesInvoice.GetRecurringSalesLines.Invoke;
 
         // Verify
@@ -3926,7 +3929,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         // Exercise
         LibrarySmallBusiness.CreateSalesQuoteHeader(SalesHeader, Customer);
         SalesQuote.OpenEdit;
-        SalesQuote.GotoRecord(SalesHeader);
+        SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
         SalesQuote.GetRecurringSalesLines.Invoke;
 
         // Verify
@@ -4364,7 +4367,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ItemCard: TestPage "Item Card";
     begin
         ItemCard.OpenEdit;
-        ItemCard.GotoRecord(Item);
+        ItemCard.Filter.SetFilter("No.", Item."No.");
         Assert.IsTrue(ItemCard."Unit Cost".Editable = Editable,
           'Editable property for Unit cost field should be: ' + Format(Editable));
     end;
@@ -4777,7 +4780,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         // Create Standard Code lines with one item and one description line
         StandardSalesCodeCard.OpenEdit;
-        StandardSalesCodeCard.GotoRecord(StandardSalesCode);
+        StandardSalesCodeCard.Filter.SetFilter(Code, StandardSalesCode.Code);
         StandardSalesCodeCard.StdSalesLines.New;
         StandardSalesCodeCard.StdSalesLines.Description.SetValue(
           LibraryUtility.GenerateRandomCode(StandardSalesLine.FieldNo(Description), DATABASE::"Standard Sales Line"));
@@ -4795,7 +4798,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         // Create Standard Code lines with one item and one description line
         StandardPurchaseCodeCard.OpenEdit;
-        StandardPurchaseCodeCard.GotoRecord(StandardPurchaseCode);
+        StandardPurchaseCodeCard.Filter.SetFilter(Code, StandardPurchaseCode.Code);
         StandardPurchaseCodeCard.StdPurchaseLines.New;
         StandardPurchaseCodeCard.StdPurchaseLines.Description.SetValue(
           LibraryUtility.GenerateRandomCode(StandardPurchaseLine.FieldNo(Description), DATABASE::"Standard Purchase Line"));
@@ -4883,7 +4886,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         SalesInvoice.OpenEdit;
-        SalesInvoice.GotoRecord(SalesHeader);
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
         SalesInvoice.CreatePurchaseInvoice.Invoke;
     end;
 
@@ -4892,7 +4895,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesOrder: TestPage "Sales Order";
     begin
         SalesOrder.OpenEdit;
-        SalesOrder.GotoRecord(SalesHeader);
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
         SalesOrder.CreatePurchaseInvoice.Invoke;
     end;
 
@@ -4902,7 +4905,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         PurchaseOrder.Trap;
         SalesOrder.OpenEdit;
-        SalesOrder.GotoRecord(SalesHeader);
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
         SalesOrder.CreatePurchaseOrder.Invoke;
     end;
 
@@ -4912,7 +4915,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         PurchaseOrderList.Trap;
         SalesOrder.OpenEdit;
-        SalesOrder.GotoRecord(SalesHeader);
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
         SalesOrder.CreatePurchaseOrder.Invoke;
     end;
 
@@ -5100,7 +5103,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         LibraryVariableStorage.Dequeue(CustNo);
         Cust.Get(CustNo);
-        CustomerLookup.GotoRecord(Cust);
+        CustomerLookup.Filter.SetFilter("No.", Cust."No.");
         CustomerLookup.OK.Invoke;
     end;
 
@@ -5113,7 +5116,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     begin
         LibraryVariableStorage.Dequeue(VendNo);
         Vendor.Get(VendNo);
-        VendorLookup.GotoRecord(Vendor);
+        VendorLookup.Filter.SetFilter("No.", Vendor."No.");
         VendorLookup.OK.Invoke;
     end;
 
@@ -5409,7 +5412,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ConfigTemplateHeader: Record "Config. Template Header";
     begin
         ConfigTemplateHeader.Get(LibraryVariableStorage.DequeueText);
-        ConfigTemplates.GotoRecord(ConfigTemplateHeader);
+        ConfigTemplates.Filter.SetFilter(Code, ConfigTemplateHeader.Code);
         if LibraryVariableStorage.DequeueBoolean then
             ConfigTemplates.OK.Invoke
         else
@@ -5540,7 +5543,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         // [WHEN] Sales invoice page is opened on SaaS
         SalesInvoice.OpenEdit;
-        SalesInvoice.GotoRecord(SalesHeader);
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] All controls related to customer (and on SaaS) are enabled
         Assert.IsTrue(SalesInvoice.GetRecurringSalesLines.Enabled, ControlShouldBeEnabledErr);
@@ -5553,7 +5556,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         SalesInvoice.OpenEdit;
-        SalesInvoice.GotoRecord(SalesHeader);
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] All controls related to customer (and not on SaaS) are disabled
         Assert.IsTrue(SalesInvoice.Release.Enabled, ControlShouldBeEnabledErr);
