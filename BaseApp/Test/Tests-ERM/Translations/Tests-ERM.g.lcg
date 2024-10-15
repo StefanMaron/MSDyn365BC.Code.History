@@ -3677,6 +3677,15 @@
       <Cmt Name="Dev"><![CDATA[%1 and %2 = Invoice No.]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType PostedInvoiceFromSameTransactionQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 689671132 - NamedType 842951553" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document %1 %2 for %3 %4 already exists in the %5 table.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany III - NamedType TheTransactionAlreadyExistInOutboxHandledErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 557694651 - NamedType 3800651618" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>

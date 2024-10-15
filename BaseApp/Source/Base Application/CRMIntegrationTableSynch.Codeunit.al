@@ -131,7 +131,7 @@ codeunit 5340 "CRM Integration Table Synch."
         RecordRef.Close;
     end;
 
-    local procedure CacheFilteredCRMTable(TempSourceRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"; IntegrationUserId: Guid)
+    local procedure CacheFilteredCRMTable(var TempSourceRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"; IntegrationUserId: Guid)
     var
         CRMRecordRef: RecordRef;
         ModifyByFieldRef: FieldRef;
@@ -388,8 +388,10 @@ codeunit 5340 "CRM Integration Table Synch."
     local procedure SynchCRMTableToNAV(IntegrationTableMapping: Record "Integration Table Mapping"; IntegrationUserId: Guid; var IntegrationTableSynch: Codeunit "Integration Table Synch.") LatestModifiedOn: DateTime
     var
         TempCRMIntegrationRecord: Record "CRM Integration Record" temporary;
+        OutlookSynchNAVMgt: Codeunit "Outlook Synch. NAV Mgt";
         SourceRecordRef: RecordRef;
         DestinationRecordRef: RecordRef;
+        CloneSourceRecordRef: RecordRef;
         ModifiedOn: DateTime;
         IgnoreRecord: Boolean;
         ForceModify: Boolean;
@@ -400,20 +402,23 @@ codeunit 5340 "CRM Integration Table Synch."
         ForceModify := IntegrationTableMapping."Delete After Synchronization";
         if SourceRecordRef.FindSet then
             repeat
+                CloneSourceRecordRef.Open(IntegrationTableMapping."Integration Table ID", true);
+                OutlookSynchNAVMgt.CopyRecordReference(SourceRecordRef, CloneSourceRecordRef, false);
                 IgnoreRecord := false;
-                OnQueryPostFilterIgnoreRecord(SourceRecordRef, IgnoreRecord);
+                OnQueryPostFilterIgnoreRecord(CloneSourceRecordRef, IgnoreRecord);
                 if not IgnoreRecord then begin
-                    if TempCRMIntegrationRecord.IsCRMRecordRefCoupled(SourceRecordRef) then
+                    if TempCRMIntegrationRecord.IsCRMRecordRefCoupled(CloneSourceRecordRef) then
                         TempCRMIntegrationRecord.Delete
                     else
                         IgnoreRecord := IntegrationTableMapping."Synch. Only Coupled Records";
                     if not IgnoreRecord then
-                        if IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, ForceModify, false) then begin
-                            ModifiedOn := IntegrationTableSynch.GetRowLastModifiedOn(IntegrationTableMapping, SourceRecordRef);
+                        if IntegrationTableSynch.Synchronize(CloneSourceRecordRef, DestinationRecordRef, ForceModify, false) then begin
+                            ModifiedOn := IntegrationTableSynch.GetRowLastModifiedOn(IntegrationTableMapping, CloneSourceRecordRef);
                             if ModifiedOn > LatestModifiedOn then
                                 LatestModifiedOn := ModifiedOn;
                         end;
                 end;
+                CloneSourceRecordRef.Close();
             until SourceRecordRef.Next = 0;
         if LatestModifiedOn = 0DT then
             LatestModifiedOn := IntegrationTableSynch.GetStartDateTime;
