@@ -241,7 +241,7 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
                             JobJournalLine."Direct Unit Cost (LCY)" := PriceListLine."Direct Unit Cost";
                         JobJournalLine.Type::Resource:
                             begin
-                                JobJournalLine."Unit Cost (LCY)" := PriceListLine."Unit Cost";
+                                JobJournalLine."Unit Cost" := PriceListLine."Unit Cost";
                                 JobJournalLine."Direct Unit Cost (LCY)" := PriceListLine."Direct Unit Cost";
                             end;
                         JobJournalLine.Type::"G/L Account":

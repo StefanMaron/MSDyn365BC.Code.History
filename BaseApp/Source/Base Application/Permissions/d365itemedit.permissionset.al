@@ -36,6 +36,7 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "Job Planning Line" = R,
                   tabledata "My Item" = RIMD,
                   tabledata "Nonstock Item" = RIMD,
+                  tabledata "Planning Assignment" = Rd,
                   tabledata "Price Asset" = RIMD,
                   tabledata "Price Calculation Buffer" = RIMD,
                   tabledata "Price Calculation Setup" = RIMD,

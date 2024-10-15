@@ -649,7 +649,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
         for ComponentForecast := ComponentForecastFrom to true do begin
             if ComponentForecast then begin
-                ReplenishmentLocation := ManufacturingSetup."Components at Location";
+                if not ReplenishmentLocationFound then
+                    ReplenishmentLocation := ManufacturingSetup."Components at Location";
                 if InvtSetup."Location Mandatory" and (ReplenishmentLocation = '') then
                     exit;
             end;

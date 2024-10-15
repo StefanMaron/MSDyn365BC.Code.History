@@ -45,6 +45,8 @@ Codeunit 104021 "Upgrade Item Cross Reference"
         ApplicationAreaSetup: Record "Application Area Setup";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        ItemReferenceCount: Integer;
+        ItemCrossReferenceCount: Integer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetItemCrossReferenceUpgradeTag()) then
             exit;
@@ -68,15 +70,29 @@ Codeunit 104021 "Upgrade Item Cross Reference"
 #endif
 
         ItemCrossReference.FindSet();
+        ItemReferenceCount := 0;
+        ItemCrossReferenceCount := ItemCrossReference.Count();
+        if EnvironmentInformation.IsSaaS() then
+            LogTelemetryForManyRecords(Database::"Item Cross Reference", ItemCrossReferenceCount);
         repeat
-            Clear(ItemReference);
-            ItemReference.TransferFields(ItemCrossReference, true, true);
-            ItemReference.SystemId := ItemCrossReference.SystemId;
-            ItemReference.Insert(false, true);
+            if StrLen(ItemCrossReference."Cross-Reference Type No.") <= MaxStrLen(ItemReference."Reference Type No.") then begin
+                Clear(ItemReference);
+                ItemReference.TransferFields(ItemCrossReference, true, true);
+                ItemReference.SystemId := ItemCrossReference.SystemId;
+                ItemReference.Insert(false, true);
+                ItemReferenceCount += 1;
+            end;
         until ItemCrossReference.Next() = 0;
+
+        if ItemReferenceCount <> ItemCrossReferenceCount then
+            Session.LogMessage(
+                '0000HLD', StrSubstNo(NoOfSkippedRecordsInTableMsg, Database::"Item Cross Reference", ItemCrossReferenceCount - ItemReferenceCount),
+                Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', 'AL SaaS Upgrade');
 
         ItemLedgerEntry.SetLoadFields("Cross-Reference No.", "Item Reference No.");
         ItemLedgerEntry.SetFilter("Cross-Reference No.", '<>%1', '');
+        if EnvironmentInformation.IsSaaS() then
+            LogTelemetryForManyRecords(Database::"Item Ledger Entry", ItemLedgerEntry.Count());
         if ItemLedgerEntry.FindSet() then
             repeat
                 ItemLedgerEntry."Item Reference No." := ItemLedgerEntry."Cross-Reference No.";
@@ -85,6 +101,8 @@ Codeunit 104021 "Upgrade Item Cross Reference"
 
         ItemJournalLine.SetLoadFields("Cross-Reference No.", "Item Reference No.");
         ItemJournalLine.SetFilter("Cross-Reference No.", '<>%1', '');
+        if EnvironmentInformation.IsSaaS() then
+            LogTelemetryForManyRecords(Database::"Item Journal Line", ItemJournalLine.Count());
         if ItemJournalLine.FindSet() then
             repeat
                 ItemJournalLine."Item Reference No." := ItemJournalLine."Cross-Reference No.";
@@ -101,6 +119,7 @@ Codeunit 104021 "Upgrade Item Cross Reference"
     var
         EnvironmentInformation: Codeunit "Environment Information";
         NoOfRecordsInTableMsg: Label 'Table %1, number of records to upgrade: %2', Comment = '%1- table id, %2 - number of records';
+        NoOfSkippedRecordsInTableMsg: Label 'Table %1, number of skipped records to upgrade: %2', Comment = '%1- table id, %2 - number of skipped records';
 
     local procedure UpgradePurchaseLines()
     begin
