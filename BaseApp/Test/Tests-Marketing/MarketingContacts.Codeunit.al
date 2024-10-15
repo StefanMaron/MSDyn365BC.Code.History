@@ -577,6 +577,33 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SyncCustomerOnModifyContactWithVATRegNumber()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+    begin
+        // [SCENARIO 473423] 'Registration Number' is syncronized for customer when contact is modified
+        Initialize();
+
+        // [GIVEN] Customer is created for contact of Company type
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact.CreateCustomerFromTemplate('');
+        Customer.Get(GetCustFromContact(Contact."No."));
+        Customer.TestField("Registration Number", '');
+
+        // [WHEN] Set "Registration Number" = '1234567890' to Contact 
+        Contact.Find();
+        Contact.Validate("Registration Number", LibraryUtility.GenerateGUID());
+        Contact.Modify(true);
+
+        // [THEN] "Registration Number" = '1234567890' from contact is assigned to the customer
+        Customer.Find();
+        Customer.TestField("Registration Number", Contact."Registration Number");
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure CreateVendorFromContactError()
     var
@@ -622,6 +649,34 @@ codeunit 136201 "Marketing Contacts"
         Vendor.SetRange(Name, CompanyContact.Name);
         Vendor.FindFirst();
         Vendor.TestField("Registration Number", CompanyContact."Registration Number");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SyncVendorOnModifyContactWithVATRegNumber()
+    var
+        Contact: Record Contact;
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 473423] 'Registration Number' is syncronized for vendor when contact is modified
+        Initialize();
+
+        // [GIVEN] Vendor is created for contact of Company type
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact.CreateVendorFromTemplate('');
+        Vendor.SetRange(Name, Contact.Name);
+        Vendor.FindFirst();
+        Vendor.TestField("Registration Number", '');
+
+        // [WHEN] Set "Registration Number" = '1234567890' to Contact 
+        Contact.Find();
+        Contact.Validate("Registration Number", LibraryUtility.GenerateGUID());
+        Contact.Modify(true);
+
+        // [THEN] "Registration Number" = '1234567890' from contact is assigned to the vendor
+        Vendor.Find();
+        Vendor.TestField("Registration Number", Contact."Registration Number");
     end;
 
     [Test]
@@ -1606,6 +1661,7 @@ codeunit 136201 "Marketing Contacts"
         CustomerCard: TestPage "Customer Card";
         NewName: Text[100];
         CurrMasterFields: Option Contact,Customer;
+        RegistrationNumber: Text[50];
     begin
         // Check that Contact Name gets updated after updating Customer Name for a Customer linked with Contact.
 
@@ -1613,6 +1669,7 @@ codeunit 136201 "Marketing Contacts"
         // Link Contact with an existing Customer.
         Initialize();
         NewName := LibraryUtility.GenerateGUID();
+        RegistrationNumber := LibraryUtility.GenerateGUID();
         CreateCustomerWithSetupBusinessRelation(Customer);
         LibraryVariableStorage.Enqueue(Customer."No.");
         LibraryVariableStorage.Enqueue(CurrMasterFields::Customer);
@@ -1623,11 +1680,13 @@ codeunit 136201 "Marketing Contacts"
         CustomerCard.OpenEdit;
         CustomerCard.FILTER.SetFilter("No.", Customer."No.");
         CustomerCard.Name.SetValue(NewName);
+        CustomerCard."Registration Number".SETVALUE(RegistrationNumber);
         CustomerCard.OK.Invoke;
 
         // 3. Verify: Verify that Contact Name gets updated with the new Customer Name.
         Contact.Get(Contact."No.");
         Contact.TestField(Name, NewName);
+        Contact.TESTFIELD("Registration Number", RegistrationNumber); // TFS 473423 "Registration Number" is synced from the customer
     end;
 
     [Test]
@@ -1640,6 +1699,7 @@ codeunit 136201 "Marketing Contacts"
         Vendor: Record Vendor;
         VendorCard: TestPage "Vendor Card";
         NewName: Text[100];
+        RegistrationNumber: Text[50];
     begin
         // Check that Contact Name gets updated after updating Vendor Name for a Vendor linked with Contact.
 
@@ -1647,6 +1707,7 @@ codeunit 136201 "Marketing Contacts"
         // Link Contact with an existing Vendor.
         Initialize();
         NewName := LibraryUtility.GenerateGUID();
+        RegistrationNumber := LibraryUtility.GenerateGUID();
         LibraryMarketing.CreateBusinessRelation(BusinessRelation);
         ChangeBusinessRelationCodeForVendors('');
         LibraryPurchase.CreateVendor(Vendor);
@@ -1659,11 +1720,13 @@ codeunit 136201 "Marketing Contacts"
         VendorCard.OpenEdit;
         VendorCard.FILTER.SetFilter("No.", Vendor."No.");
         VendorCard.Name.SetValue(NewName);
+        VendorCard."Registration Number".SETVALUE(RegistrationNumber);
         VendorCard.OK.Invoke;
 
         // 3. Verify: Verify that updated Vendor Name reflected in Contact Name.
         Contact.Get(Contact."No.");
         Contact.TestField(Name, NewName);
+        Contact.TESTFIELD("Registration Number", RegistrationNumber); // TFS 473423 "Registration Number" is synced from the vendor
     end;
 
     [Test]

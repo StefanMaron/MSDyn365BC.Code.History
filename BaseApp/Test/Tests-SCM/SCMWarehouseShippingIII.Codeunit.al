@@ -1,4 +1,4 @@
-﻿codeunit 137162 "SCM Warehouse - Shipping III"
+codeunit 137162 "SCM Warehouse - Shipping III"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -60,6 +60,7 @@
         CannotChangeValueErr: Label 'You cannot change %1 because one or more lines exist.';
         WhsShpmtHeaderExternalDocumentNoIsWrongErr: Label 'Warehouse Shipment Header."External Document No." is wrong.';
         WhsRcptHeaderVendorShpmntNoIsWrongErr: Label 'Warehouse Receipt Header."Vendor Shipment No." is wrong.';
+        InvPickMsg: Label 'Number of Invt. Pick activities created';
 
     [Test]
     [HandlerFunctions('MessageHandler,ItemTrackingLinesPageHandler,ConfirmHandlerAsTrue')]
@@ -1891,6 +1892,68 @@
         VerifyWarehouseRequestRec(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,UndoShipmentConfirmHandler')]
+    procedure S466089_UndoSalesShipmentLineIsAllowedForPartOfQtyShippedWithoutInventoryPick()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        PostedShipmentNo: Code[20];
+    begin
+        // [FEATURE] [Item] [Sales Order] [Inventory Pick] [Undo Sales Shipment Line]
+        // [SCENARIO 466089] Undo Sales Shipment Line is allowed for part of Quantity shipped without Inventory Pick.
+        Initialize();
+
+        // [GIVEN] Location set up for Inventory Pick.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Post 1 Qty. of Item to inventory.
+        CreateAndPostItemJournalLine(Item."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 1, Location.Code);
+
+        // [GIVEN] Create and release Sales Order with Quantity = 3.
+        CreateAndReleaseSalesOrder(SalesHeader, '', Item."No.", 3, Location.Code, '', false, ReservationMode::" ");
+
+        // [GIVEN] Create Inventory Pick from the Sales Order.
+        LibraryVariableStorage.Enqueue(InvPickMsg); // Enqueue for MessageHandler.
+        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader); // Uses MessageHandler.
+        FindWarehouseActivityLine(
+            WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
+            WarehouseActivityLine."Activity Type"::"Invt. Pick");
+        WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
+
+        // [GIVEN] Post the Inventory Pick with Quantity = 1
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+
+        // [WHEN] The Sales Shipment from Sales Order for remaining Quantity = 2.
+        SalesHeader.GetBySystemId(SalesHeader.SystemId);
+        PostedShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Verify that all Sales Shipment Qty. is posted.
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+
+        // [WHEN] Undo the 2nd Sales Shipment.
+        SalesShipmentLine.SetRange("Document No.", PostedShipmentNo);
+        SalesShipmentLine.FindFirst();
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine); // Uses UndoShipmentConfirmHandler.
+
+        // [THEN] No Error is raised.
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2765,6 +2828,19 @@
         if BinCode <> '' then
             ItemJournalLine.Validate("Bin Code", BinCode);
         ItemJournalLine.Modify(true);
+    end;
+
+    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; Quantity: Decimal; LocationCode: Code[10])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        UpdateNoSeriesOnItemJournalBatch(ItemJournalBatch, '');
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
     local procedure CreateItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code"; Serial: Boolean; Lot: Boolean; StrictExpirationPosting: Boolean)
@@ -3677,6 +3753,14 @@
     procedure ConfirmHandlerAsTrue(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure UndoShipmentConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        // Confirm handler for Undo Shipment Confirmation Message. Send Reply YES.
+        Reply := true;
     end;
 
     [MessageHandler]

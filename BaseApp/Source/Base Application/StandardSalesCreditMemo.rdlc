@@ -6976,8 +6976,8 @@
                               <rd:DefaultName>GoodsAndServices_Lbl</rd:DefaultName>
                               <Top>13.48157cm</Top>
                               <Left>0.02485cm</Left>
-                              <Height>0.6cm</Height>
-                              <Width>6cm</Width>
+                              <Height>0.4cm</Height>
+                              <Width>7cm</Width>
                               <ZIndex>8</ZIndex>
                               <Style>
                                 <Border>
@@ -7004,8 +7004,8 @@
                               <rd:DefaultName>Textbox65</rd:DefaultName>
                               <Top>14.09921cm</Top>
                               <Left>0.02485cm</Left>
-                              <Height>0.6cm</Height>
-                              <Width>6cm</Width>
+                              <Height>0.4cm</Height>
+                              <Width>7cm</Width>
                               <ZIndex>9</ZIndex>
                               <Style>
                                 <Border>

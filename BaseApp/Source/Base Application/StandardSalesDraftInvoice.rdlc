@@ -6478,17 +6478,15 @@
                               <rd:DefaultName>GoodsAndServices_Lbl</rd:DefaultName>
                               <Top>13.33085cm</Top>
                               <Left>0.07455cm</Left>
-                              <Height>0.5cm</Height>
-                              <Width>6cm</Width>
+                              <Height>0.4cm</Height>
+                              <Width>7cm</Width>
                               <ZIndex>8</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
                                 </Border>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>2pt</PaddingTop>
-                                <PaddingBottom>2pt</PaddingBottom>
+                                <PaddingLeft>5pt</PaddingLeft>
+                                <PaddingRight>5pt</PaddingRight>
                               </Style>
                             </Textbox>
                             <Textbox Name="Textbox49">
@@ -6508,17 +6506,15 @@
                               <rd:DefaultName>Textbox48</rd:DefaultName>
                               <Top>13.86613cm</Top>
                               <Left>0.07455cm</Left>
-                              <Height>0.5cm</Height>
-                              <Width>6cm</Width>
+                              <Height>0.4cm</Height>
+                              <Width>7cm</Width>
                               <ZIndex>9</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
                                 </Border>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>2pt</PaddingTop>
-                                <PaddingBottom>2pt</PaddingBottom>
+                                <PaddingLeft>5pt</PaddingLeft>
+                                <PaddingRight>5pt</PaddingRight>
                               </Style>
                             </Textbox>
                           </ReportItems>
