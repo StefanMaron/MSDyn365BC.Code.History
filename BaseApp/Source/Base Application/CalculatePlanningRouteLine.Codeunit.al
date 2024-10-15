@@ -682,7 +682,13 @@ codeunit 99000810 "Calculate Planning Route Line"
 
         PlanningRoutingLine."Starting Date" := ProdEndingDate;
         PlanningRoutingLine."Starting Time" := ProdEndingTime;
-        PlanningRoutingLine.UpdateDatetime;
+
+        if PlanningRoutingLine."Ending Date" = CalendarMgt.GetMaxDate() then begin
+            PlanningRoutingLine."Ending Date" := PlanningRoutingLine."Starting Date";
+            PlanningRoutingLine."Ending Time" := PlanningRoutingLine."Starting Time";
+        end;
+
+        PlanningRoutingLine.UpdateDatetime();
         PlanningRoutingLine.Modify();
     end;
 
@@ -962,7 +968,12 @@ codeunit 99000810 "Calculate Planning Route Line"
             WorkCenter."Calendar Rounding Precision");
         LoadCapForward(PlanningRoutingLine.Type, PlanningRoutingLine."No.", 3, false);
 
-        PlanningRoutingLine.UpdateDatetime;
+        if PlanningRoutingLine."Starting Date" = 0D then begin
+            PlanningRoutingLine."Starting Date" := PlanningRoutingLine."Ending Date";
+            PlanningRoutingLine."Starting Time" := PlanningRoutingLine."Ending Time";
+        end;
+
+        PlanningRoutingLine.UpdateDatetime();
         PlanningRoutingLine.Modify();
     end;
 

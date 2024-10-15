@@ -51,6 +51,11 @@ page 1351 "Posted Purch. Invoice - Update"
                     Editable = true;
                     ToolTip = 'Specifies the payment of the purchase invoice.';
                 }
+                field("Payment Method Code"; "Payment Method Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                }
                 field("Creditor No."; "Creditor No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -95,6 +100,7 @@ page 1351 "Posted Purch. Invoice - Update"
     begin
         IsChanged :=
           ("Payment Reference" <> xPurchInvHeader."Payment Reference") or
+          ("Payment Method Code" <> xPurchInvHeader."Payment Method Code") or
           ("Creditor No." <> xPurchInvHeader."Creditor No.") or
           ("Ship-to Code" <> xPurchInvHeader."Ship-to Code") or
           ("Posting Description" <> xPurchInvHeader."Posting Description");

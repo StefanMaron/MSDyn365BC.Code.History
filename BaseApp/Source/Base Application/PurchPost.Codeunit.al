@@ -328,6 +328,7 @@
         HideProgressWindow: Boolean;
         OverReceiptApprovalErr: Label 'There are lines with over-receipt required for approval.';
         PostDocumentLinesMsg: Label 'Post document lines.';
+        ItemChargeZeroAmountErr: Label 'The amount for item charge %1 cannot be 0.', Comment = '%1 = Item Charge No.';
 
     local procedure GetZeroPurchLineRecID(PurchHeader: Record "Purchase Header"; var PurchLineRecID: RecordId)
     var
@@ -950,7 +951,7 @@
         PurchaseLineBackup: Record "Purchase Line";
         IsHandled: Boolean;
     begin
-        if not (PurchHeader.Invoice and (PurchLine."Qty. to Invoice" <> 0) and (PurchLine.Amount <> 0)) then
+        if not (PurchHeader.Invoice and (PurchLine."Qty. to Invoice" <> 0)) then
             exit;
 
         IsHandled := false;
@@ -2011,8 +2012,8 @@
             exit;
 
         with PurchaseLine do begin
-            if ("Line Discount %" <> 100) and (("Inv. Discount Amount" - "Line Amount") <> 0) then
-                TestField(Amount);
+            if Amount = 0 then
+                Error(ItemChargeZeroAmountErr, "No.");
             TestField("Job No.", '');
         end;
     end;
@@ -3647,7 +3648,6 @@
         with TempPurchLine do begin
             ResetTempLines(TempPurchLine);
             SetRange(Type, Type::"Charge (Item)");
-            SetFilter("Line Discount %", '<>100');
             if IsEmpty then
                 exit;
 
@@ -6553,7 +6553,6 @@
         FromPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         InvEntry: Record "Vendor Ledger Entry";
         PayEntry: Record "Vendor Ledger Entry";
-        CopyDocMgt: Codeunit "Copy Document Mgt.";
         PurchPost: Codeunit "Purch.-Post";
         AmtDiffMgt: Codeunit PrepmtDiffManagement;
         DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
@@ -6602,42 +6601,7 @@
         PurchHeader."Posting Date" := DtldCVLedgEntryBuf."Posting Date";
         PurchHeader.Insert(true);
 
-        CopyDocMgt.SetProperties(true, false, false, false, true, false, false);
-        CopyDocMgt.CopyPurchDoc(DocType, InvEntry."Document No.", PurchHeader);
-        PurchHeader."Currency Code" := '';
-        PurchHeader."Currency Factor" := 0;
-        PurchHeader.Validate("Posting Date", DtldCVLedgEntryBuf."Posting Date");
-        // clear Direct Unit Cost to not having recalculation
-        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
-        PurchLine.SetRange("Document No.", PurchHeader."No.");
-        PurchLine.ModifyAll("Currency Code", '');
-        PurchLine.ModifyAll("Direct Unit Cost", 0);
-        PurchHeader.Validate("Prices Including VAT", true);
-
-        GLSetup.Get();
-        PurchHeader.Correction := GLSetup."Mark Cr. Memos as Corrections" and
-          (PurchHeader."Document Type" = PurchHeader."Document Type"::"Credit Memo");
-
-        PurchHeader."Invoice Disc. Code" := '';
-        if PrepmtDiff then begin
-            PurchHeader."Prepmt. Diff. Appln. Entry No." := InvEntry."Entry No.";
-            PurchHeader."Posting No." := InvEntry."Document No.";
-            PurchHeader."Posting Description" := InvEntry.Description;
-            AmtDiffMgt.UpdatePDDocPostingNo(
-              PurchHeader."Posting No. Series", PurchHeader."Posting No.", InvEntry."Entry No.", 1, PurchHeader."Document Type" - 2);
-        end;
-        PurchHeader.Receive := true;
-        PurchHeader.Invoice := true;
-
-        if PrepmtDiff then
-            if AmtDiffMgt.IsDifferentTaxPeriod(InvEntry."Posting Date", PurchHeader."Posting Date") then begin
-                PurchHeader.Validate("Additional VAT Ledger Sheet", true);
-                PurchHeader.Validate("Corrected Document Date", InvEntry."Posting Date");
-            end;
-
-        // "No. Printed" field is used to pass initial VAT transaction number through the codeunit 90
-        PurchHeader."No. Printed" := DtldCVLedgEntryBuf."Transaction No.";
-        PurchHeader.Modify();
+        CopyUpdateCorrDoc(PurchHeader, InvEntry, DtldCVLedgEntryBuf, AmtDiffMgt, DocType, PrepmtDiff);
 
         if (not PurchHeader."Prepmt. Diff.") or
            (PurchHeader."Prepmt. Diff." and (PayEntry."Currency Code" <> ''))
@@ -6653,6 +6617,55 @@
             PurchPost.SetIndirectCall(true);
             PurchPost.Run(PurchHeader);
         end;
+    end;
+
+    local procedure CopyUpdateCorrDoc(var PurchaseHeader: Record "Purchase Header"; VendorLedgerEntry: Record "Vendor Ledger Entry"; DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var PrepmtDiffManagement: Codeunit PrepmtDiffManagement; DocType: Option; PrepmtDiff: Boolean)
+    var
+        PurchaseLine: Record "Purchase Line";
+        CopyDocMgt: Codeunit "Copy Document Mgt.";
+        PostedDocType: Option Invoice,"Credit Memo";
+    begin
+        CopyDocMgt.SetProperties(true, false, false, false, true, false, false);
+        CopyDocMgt.CopyPurchDoc(DocType, VendorLedgerEntry."Document No.", PurchaseHeader);
+        PurchaseHeader."Currency Code" := '';
+        PurchaseHeader."Currency Factor" := 0;
+        PurchaseHeader.Validate("Posting Date", DetailedCVLedgEntryBuffer."Posting Date");
+        // clear Direct Unit Cost to not having recalculation
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.ModifyAll("Currency Code", '');
+        PurchaseLine.ModifyAll("Direct Unit Cost", 0);
+        PurchaseHeader.Validate("Prices Including VAT", true);
+
+        GLSetup.Get();
+        PurchaseHeader.Correction := GLSetup."Mark Cr. Memos as Corrections" and
+          (PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Credit Memo");
+
+        PurchaseHeader."Invoice Disc. Code" := '';
+        if PrepmtDiff then begin
+            PurchaseHeader."Prepmt. Diff. Appln. Entry No." := VendorLedgerEntry."Entry No.";
+            PurchaseHeader."Posting No." := VendorLedgerEntry."Document No.";
+            PurchaseHeader."Posting Description" := VendorLedgerEntry.Description;
+            if PurchaseHeader."Document Type" = PostedDocType::"Credit Memo" then
+                PostedDocType := PostedDocType::"Credit Memo"
+            else
+                PostedDocType := PostedDocType::Invoice;
+            PrepmtDiffManagement.UpdatePDDocPostingNo(
+              PurchaseHeader."Posting No. Series", PurchaseHeader."Posting No.",
+              VendorLedgerEntry."Entry No.", 1, PostedDocType);
+        end;
+        PurchaseHeader.Receive := true;
+        PurchaseHeader.Invoice := true;
+
+        if PrepmtDiff then
+            if PrepmtDiffManagement.IsDifferentTaxPeriod(VendorLedgerEntry."Posting Date", PurchaseHeader."Posting Date") then begin
+                PurchaseHeader.Validate("Additional VAT Ledger Sheet", true);
+                PurchaseHeader.Validate("Corrected Document Date", VendorLedgerEntry."Posting Date");
+            end;
+
+        // "No. Printed" field is used to pass initial VAT transaction number through the codeunit 90
+        PurchaseHeader."No. Printed" := DetailedCVLedgEntryBuffer."Transaction No.";
+        PurchaseHeader.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -6694,7 +6707,6 @@
         InvEntry: Record "Vendor Ledger Entry";
         PayEntry: Record "Vendor Ledger Entry";
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
-        CopyDocMgt: Codeunit "Copy Document Mgt.";
         PurchPost: Codeunit "Purch.-Post";
         AmtDiffMgt: Codeunit PrepmtDiffManagement;
         DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
@@ -6744,39 +6756,7 @@
         PurchHeader."Prepmt. Diff." := true;
         PurchHeader.Insert(true);
 
-        CopyDocMgt.SetProperties(true, false, false, false, true, false, false);
-        CopyDocMgt.CopyPurchDoc(DocType, InvEntry."Document No.", PurchHeader);
-        PurchHeader.Validate("Currency Code", '');
-        PurchHeader.Validate("Posting Date", DtldCVLedgEntryBuf."Posting Date");
-        // clear Unit Price to not having recalculation
-        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
-        PurchLine.SetRange("Document No.", PurchHeader."No.");
-        PurchLine.ModifyAll("Currency Code", '');
-        PurchLine.ModifyAll("Direct Unit Cost", 0);
-        PurchHeader.Validate("Prices Including VAT", true);
-
-        GLSetup.Get();
-        PurchHeader.Correction :=
-          GLSetup."Mark Cr. Memos as Corrections" and
-          (PurchHeader."Document Type" = PurchHeader."Document Type"::"Credit Memo");
-
-        PurchHeader."Prepmt. Diff. Appln. Entry No." := InvEntry."Entry No.";
-        PurchHeader."Posting No." := InvEntry."Document No.";
-        PurchHeader."Posting Description" := InvEntry.Description;
-        AmtDiffMgt.UpdatePDDocPostingNo(
-          PurchHeader."Posting No. Series", PurchHeader."Posting No.", InvEntry."Entry No.", 1, PurchHeader."Document Type" - 2);
-
-        PurchHeader.Receive := true;
-        PurchHeader.Invoice := true;
-
-        if AmtDiffMgt.IsDifferentTaxPeriod(InvEntry."Posting Date", PurchHeader."Posting Date") then begin
-            PurchHeader.Validate("Additional VAT Ledger Sheet", true);
-            PurchHeader.Validate("Corrected Document Date", InvEntry."Posting Date");
-        end;
-
-        // "No. Printed" field is used to pass initial VAT transaction number through the codeunit 90
-        PurchHeader."No. Printed" := DtldCVLedgEntryBuf."Transaction No.";
-        PurchHeader.Modify();
+        CopyUpdateCorrDoc(PurchHeader, InvEntry, DtldCVLedgEntryBuf, AmtDiffMgt, DocType, true);
 
         if PayEntry."Currency Code" <> '' then
             AmtDiffMgt.UpdateCorrDocDimSetID(
@@ -6785,8 +6765,11 @@
         if UpdatePurchLines(
              PurchHeader, DtldVendLedgEntry."Amount (LCY)", InvEntry."Document No.",
              InvEntry."Currency Code", PayEntry."Currency Code", CorrType)
-        then
+        then begin
+            PurchPost.SetPreviewMode(PreviewMode);
+            PurchPost.SetIndirectCall(true);
             PurchPost.Run(PurchHeader);
+        end;
     end;
 
     [Scope('OnPrem')]
