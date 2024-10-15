@@ -1114,7 +1114,7 @@ table 112 "Sales Invoice Header"
         exit('');
     end;
 
-    procedure GetRemainingAmount(): Decimal
+    procedure GetRemainingAmount() RemainingAmt: Decimal
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1122,12 +1122,15 @@ table 112 "Sales Invoice Header"
         CustLedgerEntry.SetRange("Posting Date", "Posting Date");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", "No.");
-        CustLedgerEntry.SetAutoCalcFields("Remaining Amount");
 
-        if not CustLedgerEntry.FindFirst() then
+        if not CustLedgerEntry.FindSet() then
             exit(0);
 
-        exit(CustLedgerEntry."Remaining Amount");
+        repeat
+            CustLedgerEntry.CalcFields("Remaining Amount");
+            RemainingAmt += CustLedgerEntry."Remaining Amount";
+        until CustLedgerEntry.Next() = 0;
+        exit(RemainingAmt);
     end;
 
     procedure ShowDimensions()

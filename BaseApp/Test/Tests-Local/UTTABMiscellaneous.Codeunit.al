@@ -48,6 +48,7 @@ codeunit 144126 "UT TAB Miscellaneous"
         Assert: Codeunit Assert;
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUTUtility: Codeunit "Library UT Utility";
+        LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         DialogCap: Label 'Dialog';
@@ -757,6 +758,49 @@ codeunit 144126 "UT TAB Miscellaneous"
         Assert.ExpectedError('Posting Date cannot be less than Operation Occurred Date.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetRemainingAmountFunctionOfSalesInvHeaderReturnsTotalForMultipleDocuments()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustNo: Code[20];
+        DocNo: Code[20];
+        i: Integer;
+        Amount: Decimal;
+        ExpectedAmount: Decimal;
+        ActualAmount: Decimal;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 454530] GetRemainingAmount function of Sales Invoice Header tables returns the totals of all customer ledger entries by customer, document no. and posting date
+
+        Initialize();
+        CustNo := LibrarySales.CreateCustomerNo();
+        DocNo := LibraryUTUtility.GetNewCode();
+        // [GIVEN] Three customer ledger entries with customer "X", Posting Date = 01.01.2022, "Document No." = "Y". Total amount of all entries is 100
+        for i := 1 to LibraryRandom.RandIntInRange(3, 5) do begin
+            Amount := LibraryRandom.RandDec(100, 2);
+            MockInvCustLedgEntry(CustNo, WorkDate(), DocNo, Amount);
+            ExpectedAmount += Amount;
+        end;
+        // [GIVEN] Customer ledger entry with customer "XX", Posting Date = 01.01.2022, "Document No." = "Y" and amount = 10
+        MockInvCustLedgEntry(LibrarySales.CreateCustomerNo, WorkDate(), DocNo, LibraryRandom.RandDec(100, 2));
+        // [GIVEN] Customer ledger entry with customer "X", Posting Date = 02.01.2022, "Document No." = "Y" and amount = 20
+        MockInvCustLedgEntry(CustNo, WorkDate() + 1, DocNo, LibraryRandom.RandDec(100, 2));
+        // [GIVEN] Customer ledger entry with customer "X", Posting Date = 01.01.2022, "Document No." = "YY" and amount = 30
+        MockInvCustLedgEntry(CustNo, WorkDate(), LibraryUTUtility.GetNewCode(), LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Sales invoice header has customer "X", Posting Date = 01.01.2022, "Document No." = "Y"
+        SalesInvoiceHeader."No." := DocNo;
+        SalesInvoiceHeader."Bill-to Customer No." := CustNo;
+        SalesInvoiceHeader."Posting Date" := WorkDate();
+
+        // [WHEN] Get the result of GetRemainingAmount function of Sales Invoice Header table
+        ActualAmount := SalesInvoiceHeader.GetRemainingAmount();
+
+        // [THEN] The result is 100
+        Assert.AreEqual(ExpectedAmount, ActualAmount, '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -859,6 +903,26 @@ codeunit 144126 "UT TAB Miscellaneous"
         ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Notify On Occur. Date Change", NewValue);
         ServiceMgtSetup.Modify();
+    end;
+
+    local procedure MockInvCustLedgEntry(CustNo: Code[20]; PostingDate: Date; DocNo: Code[20]; Amount: Decimal)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Customer No." := CustNo;
+        CustLedgerEntry."Posting Date" := PostingDate;
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
+        CustLedgerEntry."Document No." := DocNo;
+        CustLedgerEntry.Insert();
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." :=
+          LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntry."Entry No.";
+        DetailedCustLedgEntry.Amount := Amount;
+        DetailedCustLedgEntry.Insert();
     end;
 
     [ConfirmHandler]

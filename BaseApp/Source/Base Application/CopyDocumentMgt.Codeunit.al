@@ -1783,7 +1783,8 @@
         end else begin
             Item.Get(ToSalesLine."No.");
             if (Item."Assembly Policy" = Item."Assembly Policy"::"Assemble-to-Order") and
-               (Item."Replenishment System" = Item."Replenishment System"::Assembly)
+               (Item."Replenishment System" = Item."Replenishment System"::Assembly) and
+               ToSalesLine.IsAsmToOrderAllowed()
             then begin
                 ToSalesLine.Validate("Qty. to Assemble to Order", ToSalesLine.Quantity);
                 ToSalesLine.Modify();

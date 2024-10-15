@@ -1851,6 +1851,54 @@
         VATBusinessPostingGroup.Modify(true);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItalianCharsReplacedWithLatinCharsWhenExportEInvoicingDoc()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        DocumentNo: Code[20];
+        ClientFileName: Text[250];
+        SpecialChar: Char;
+    begin
+        // [FEAUTURE] [Sales] [Invoice]
+        // [SCENARIO 451974] Italian specical char replaced with latin char when exported to XML
+
+        Initialize();
+
+        // [GIVEN] Posted Sales invoice with unit of measure containing special "A" char with apostrophe
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer());
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        SpecialChar := 192;
+        UnitOfMeasure.Validate(Description, Format(SpecialChar));
+        UnitOfMeasure.Modify;
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, SalesLine."No.", UnitOfMeasure.Code, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Validate("Unit of Measure Code", UnitOfMeasure.Code);
+        SalesLine.Modify(true);
+
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.SetRange("No.", DocumentNo);
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] UnitaMisura replaced with "A" char
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
+        TempXMLBuffer.FindNodesByXPath(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/UnitaMisura');
+        AssertCurrentElementValue(TempXMLBuffer, 'A');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -1914,14 +1962,20 @@
     end;
 
     local procedure CreateSalesDocWithVATTransNatureAndZeroVATRate(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATPostingSetup: Record "VAT Posting Setup"; CustomerNo: Code[20])
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         CreateSalesDocument(
           SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CustomerNo, SalesHeader."Document Type"::Invoice);
         FindSalesLine(SalesLine, SalesHeader);
         VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        VATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        VATPostingSetup.Validate("VAT Identifier",
+          CopyStr(LibraryERM.CreateRandomVATIdentifierAndGetCode, 1, MaxStrLen(VATPostingSetup."VAT Identifier")));
         VATPostingSetup.Validate("VAT %", 0);
         VATPostingSetup.Validate("VAT Transaction Nature", LibrarySplitVAT.CreateVATTransactionNatureCode);
-        VATPostingSetup.Modify(true);
+        VATPostingSetup.Insert(true);
         SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         SalesLine.Modify(true);
     end;

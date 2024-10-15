@@ -110,6 +110,7 @@
             ItemFilter := CopyStr(ItemFilter, 1, StrLen(ItemFilter) - 1);
 
             SalesLine.SetFilter("No.", ItemFilter);
+            ServLine.SetFilter("No.", ItemFilter);
             ProdOrderComp.SetFilter("Item No.", ItemFilter);
             AsmLine.SetFilter("No.", ItemFilter);
             JobPlanningLine.SetFilter("No.", ItemFilter);
