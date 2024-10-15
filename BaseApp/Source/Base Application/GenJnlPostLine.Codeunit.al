@@ -4013,6 +4013,7 @@
             if OldVendLedgEntry.FindSet(false, false) then
                 repeat
                     CheckWithholdTax(OldVendLedgEntry."Document Type", OldVendLedgEntry."Document No.", GenJnlLine, false);
+                    UpdateWithholdTaxExtDocNo(OldVendLedgEntry, GenJnlLine);
                     if GenJnlApply.CheckAgainstApplnCurrency(
                          NewCVLedgEntryBuf."Currency Code", OldVendLedgEntry."Currency Code", GenJnlLine."Account Type"::Vendor, false)
                     then begin
@@ -6232,6 +6233,36 @@
                            (GenJnlLine."Payment Method Code" = '')
                         then
                             Error(Text1130023);
+            end;
+        end;
+    end;
+
+    local procedure UpdateWithholdTaxExtDocNo(VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJnlLine: Record "Gen. Journal Line");
+    var
+        WithholdingTax: Record "Withholding Tax";
+        Contributions: Record Contributions;
+    begin
+        if (VendorLedgerEntry."Document Type" in
+            [VendorLedgerEntry."Document Type"::Payment, VendorLedgerEntry."Document Type"::Refund]) and
+           (GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Invoice, GenJnlLine."Document Type"::"Credit Memo"]) and
+           (GenJnlLine."External Document No." <> '') and (VendorLedgerEntry."External Document No." = '')
+        then begin
+            WithholdingTax.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
+            WithholdingTax.SetRange("Document No.", VendorLedgerEntry."Document No.");
+            WithholdingTax.SetRange("Posting Date", VendorLedgerEntry."Posting Date");
+            WithholdingTax.SetRange("External Document No.", '');
+            if WithholdingTax.FindFirst() then begin
+                WithholdingTax."External Document No." := GenJnlLine."External Document No.";
+                WithholdingTax.Modify();
+            end;
+
+            Contributions.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
+            Contributions.SetRange("Document No.", VendorLedgerEntry."Document No.");
+            Contributions.SetRange("Posting Date", VendorLedgerEntry."Posting Date");
+            Contributions.SetRange("External Document No.", '');
+            if Contributions.FindFirst() then begin
+                Contributions."External Document No." := GenJnlLine."External Document No.";
+                Contributions.Modify();
             end;
         end;
     end;

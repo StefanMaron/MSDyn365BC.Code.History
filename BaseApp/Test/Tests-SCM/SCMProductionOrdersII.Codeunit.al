@@ -3029,6 +3029,130 @@ codeunit 137072 "SCM Production Orders II"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure OutputQuantityOnFinishWithBackwardFlushingNotLastOperation()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        JournalOutputQty: Decimal;
+        OperationNo: array[3] of Code[10];
+        FinishedProdOrderNo: Code[20];
+        I: Integer;
+    begin
+        // [FEATURE] [Output] [Flushing] [Backward]
+        // [SCENARIO 360372] Output Quantity in Capacity Ledger Entry for Backward Flushing not posted on Finished Production Order when already posted in Output Journal
+        Initialize();
+
+        // [GIVEN] Create and certify routing "R" with three lines.
+        // [GIVEN] Operation "10", Work center "A", "Flushing Method" = "Backward"
+        // [GIVEN] Operation "20", Work center "B", "Flushing Method" = "Backward"
+        // [GIVEN] Operation "30", Work center "C", "Flushing Method" = "Manual"
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        for I := 1 to ArrayLen(OperationNo) - 1 do
+            OperationNo[I] :=
+              CreateRoutingLineWithWorkCenterFlushingMethod(RoutingLine, RoutingHeader, WorkCenter."Flushing Method"::Backward);
+        OperationNo[ArrayLen(OperationNo)] :=
+          CreateRoutingLineWithWorkCenterFlushingMethod(RoutingLine, RoutingHeader, WorkCenter."Flushing Method"::Manual);
+        UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Item "I" with Routing "R"
+        LibraryInventory.CreateItem(Item);
+        UpdateRoutingOnItem(Item."No.", RoutingHeader."No.");
+
+        // [GIVEN] Released Production Order "RPO" for Item "I" and Quantity = 10, refreshed
+        CreateAndRefreshProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandDec(100, 2), '', '');
+        FindFirstProdOrderLine(ProdOrderLine, ProductionOrder);
+
+        // [GIVEN] Output Journal line posted for "RPO", operation "10", "Output Quantity" = 4
+        // [GIVEN] Output Journal line posted for "RPO", operation "20", "Output Quantity" = 5
+        // [GIVEN] Output Journal line posted for "RPO", operation "30", "Output Quantity" = 6
+        JournalOutputQty := LibraryRandom.RandDecInDecimalRange(0, ProdOrderLine.Quantity, 2);
+        for I := 1 to ArrayLen(OperationNo) - 1 do
+            CreateAndPostOutputJnlForProdOrderLine(
+              ProdOrderLine, RoutingHeader."No.", OperationNo[I], LibraryRandom.RandDec(5, 0),
+              LibraryRandom.RandDecInDecimalRange(0, JournalOutputQty, 2));
+        CreateAndPostOutputJnlForProdOrderLine(
+          ProdOrderLine, RoutingHeader."No.", OperationNo[ArrayLen(OperationNo)], LibraryRandom.RandDec(5, 0), JournalOutputQty);
+
+        // [WHEN] Change Production Order status from "Released" to "Finished"
+        LibraryVariableStorage.Enqueue(ConfirmStatusFinishTxt);
+        FinishedProdOrderNo :=
+          LibraryManufacturing.ChangeStatusFirmPlanToReleased(
+            ProductionOrder."No.", ProductionOrder.Status::Released, ProductionOrder.Status::Finished);
+
+        // [THEN] Capacity Ledger Entries for operations "10", "20", "30" have total "Output Quantity" = 7 each
+        for I := 1 to ArrayLen(OperationNo) do
+            VerifyOutputOnCapLedgerEntries(FinishedProdOrderNo, OperationNo[I], JournalOutputQty);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OutputQuantityOnFinishWithBackwardFlushingLastOperation()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        JournalOutputQty: Decimal;
+        OperationNo: array[3] of Code[10];
+        I: Integer;
+        FinishedProdOrderNo: Code[20];
+    begin
+        // [FEATURE] [Output] [Flushing] [Backward]
+        // [SCENARIO 360372] Output Quantity in Capacity Ledger Entry for Backward Flushing not posted on Finished Production Order when already posted in Output Journal
+        Initialize();
+
+        // [GIVEN] Create and certify routing "R" with three lines.
+        // [GIVEN] Operation "10", Work center "A", "Flushing Method" = "Backward"
+        // [GIVEN] Operation "20", Work center "B", "Flushing Method" = "Backward"
+        // [GIVEN] Operation "30", Work center "C", "Flushing Method" = "Backward"
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        for I := 1 to ArrayLen(OperationNo) do
+            OperationNo[I] :=
+              CreateRoutingLineWithWorkCenterFlushingMethod(RoutingLine, RoutingHeader, WorkCenter."Flushing Method"::Backward);
+        UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Item "I" with Routing "R"
+        LibraryInventory.CreateItem(Item);
+        UpdateRoutingOnItem(Item."No.", RoutingHeader."No.");
+
+        // [GIVEN] Released Production Order "RPO" for Item "I" and Quantity = 10, refreshed
+        CreateAndRefreshProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, Item."No.", LibraryRandom.RandDec(100, 2), '', '');
+        FindFirstProdOrderLine(ProdOrderLine, ProductionOrder);
+
+        // [GIVEN] Output Journal line posted for "RPO", operation "10", "Output Quantity" = 4
+        // [GIVEN] Output Journal line posted for "RPO", operation "20", "Output Quantity" = 5
+        // [GIVEN] Output Journal line posted for "RPO", operation "30", "Output Quantity" = 6
+        JournalOutputQty := LibraryRandom.RandDecInDecimalRange(0, ProdOrderLine.Quantity, 2);
+        for I := 1 to ArrayLen(OperationNo) - 1 do
+            CreateAndPostOutputJnlForProdOrderLine(
+              ProdOrderLine, RoutingHeader."No.", OperationNo[I], LibraryRandom.RandDec(5, 0),
+              LibraryRandom.RandDecInDecimalRange(0, JournalOutputQty, 2));
+        CreateAndPostOutputJnlForProdOrderLine(
+          ProdOrderLine, RoutingHeader."No.", OperationNo[ArrayLen(OperationNo)], LibraryRandom.RandDec(5, 0), JournalOutputQty);
+
+        // [WHEN] Change Production Order status from "Released" to "Finished"
+        FinishedProdOrderNo :=
+          LibraryManufacturing.ChangeStatusFirmPlanToReleased(
+            ProductionOrder."No.", ProductionOrder.Status::Released, ProductionOrder.Status::Finished);
+
+        // [THEN] Capacity Ledger Entries for operations "10", "20", "30" have total "Output Quantity" = 10 each
+        for I := 1 to ArrayLen(OperationNo) do
+            VerifyOutputOnCapLedgerEntries(FinishedProdOrderNo, OperationNo[I], ProdOrderLine.Quantity);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3517,6 +3641,17 @@ codeunit 137072 "SCM Production Orders II"
         OperationNo := FindLastOperationNo(RoutingHeader."No.") + Format(LibraryRandom.RandInt(5));
         LibraryManufacturing.CreateRoutingLineSetup(
           RoutingLine, RoutingHeader, CenterNo, OperationNo, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
+    end;
+
+    local procedure CreateRoutingLineWithWorkCenterFlushingMethod(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; FlushingMethod: Option): Code[10]
+    var
+        WorkCenter: Record "Work Center";
+    begin
+        CreateWorkCenter(WorkCenter);
+        WorkCenter.Validate("Flushing Method", FlushingMethod);
+        WorkCenter.Modify(true);
+        CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.");
+        exit(RoutingLine."Operation No.")
     end;
 
     local procedure CreateRoutingAndUpdateItem(var Item: Record Item): Code[10]
@@ -4453,6 +4588,17 @@ codeunit 137072 "SCM Production Orders II"
             ProdOrderCapacityNeed.TestField("Routing No.", ProductionOrder."Routing No.");
             ProdOrderCapacityNeed.TestField("Work Center No.", ProdOrderRoutingLine."Work Center No.");
         until ProdOrderCapacityNeed.Next = 0;
+    end;
+
+    local procedure VerifyOutputOnCapLedgerEntries(ProdOrderNo: Code[20]; OperationNo: Code[10]; ExpectedOutputQty: Decimal)
+    var
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+    begin
+        CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
+        CapacityLedgerEntry.SetRange("Order No.", ProdOrderNo);
+        CapacityLedgerEntry.SetRange("Operation No.", OperationNo);
+        CapacityLedgerEntry.CalcSums("Output Quantity");
+        CapacityLedgerEntry.TestField("Output Quantity", ExpectedOutputQty);
     end;
 
     local procedure VerifyProductionOrderRoutingLine(ProductionOrderNo: Code[20]; RoutingNo: Code[20]; SendAheadQuantity: Decimal)

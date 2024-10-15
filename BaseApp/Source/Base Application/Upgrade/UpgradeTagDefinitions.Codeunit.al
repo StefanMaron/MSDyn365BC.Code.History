@@ -39,6 +39,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetCashFlowCortanaFieldsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCortanaIntelligenceUsageUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPowerBiEmbedUrlTooShortUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetMoveAzureADAppSetupSecretToIsolatedStorageTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -283,6 +284,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetPowerBiEmbedUrlTooShortUpgradeTag(): Code[250];
     begin
         exit('MS-343007-PowerBiEmbedUrlTooShort-20200220');
+    end;
+
+    procedure GetMoveAzureADAppSetupSecretToIsolatedStorageTag(): Code[250];
+    begin
+        exit('MS-361172-MoveAzureADAppSetupSecretToIsolatedStorageTag-20200716');
     end;
 }
 

@@ -1,4 +1,4 @@
-codeunit 227 "VendEntry-Apply Posted Entries"
+﻿codeunit 227 "VendEntry-Apply Posted Entries"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Vendor Ledger Entry" = rimd;
@@ -104,6 +104,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
 
             GenJnlLine.Init;
             GenJnlLine."Document No." := DocumentNo;
+            GenJnlLine."External Document No." := "External Document No.";
             GenJnlLine."Posting Date" := ApplicationDate;
             GenJnlLine."Document Date" := GenJnlLine."Posting Date";
             GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
