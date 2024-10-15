@@ -101,6 +101,11 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = FixedAssets;
                     Importance = Additional;
                     ToolTip = 'Specifies if the asset is for budgeting purposes.';
+
+                    trigger OnValidate()
+                    begin
+                        ShowAcquireNotification();
+                    end;
                 }
                 field("Serial No."; "Serial No.")
                 {
@@ -777,7 +782,8 @@ page 5600 "Fixed Asset Card"
         ShowAcquireNotification: Boolean;
     begin
         ShowAcquireNotification :=
-          (not Acquired) and FieldsForAcquitionInGeneralGroupAreCompleted and AtLeastOneDepreciationLineIsComplete;
+          (not Acquired) and (not "Budgeted Asset") and
+          FieldsForAcquitionInGeneralGroupAreCompleted() and AtLeastOneDepreciationLineIsComplete();
         ShowAcquireNotification := false; // NAVCZ
         if ShowAcquireNotification and IsNullGuid(FAAcquireWizardNotificationId) then begin
             Acquirable := true;

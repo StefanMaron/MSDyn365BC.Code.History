@@ -1,7 +1,7 @@
 report 502 "Intrastat - Checklist"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './IntrastatChecklist.rdlc';
+    RDLCLayout = './Intrastat/IntrastatChecklist.rdlc';
     ApplicationArea = BasicEU;
     Caption = 'Intrastat - Checklist';
     UsageCategory = ReportsAndAnalysis;
@@ -149,6 +149,8 @@ report 502 "Intrastat - Checklist"
                     then
                         CurrReport.Skip();
 
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Checklist", false);
                     // NAVCZ
                     ItemIsInventoriable := false;
                     if Item.Get("Item No.") then
@@ -207,8 +209,6 @@ report 502 "Intrastat - Checklist"
                 end;
 
                 trigger OnPreDataItem()
-                var
-                    IntrastatSetup: Record "Intrastat Setup";
                 begin
                     IntrastatJnlLineTemp.DeleteAll();
                     NoOfRecordsRTC := 0;
@@ -295,6 +295,8 @@ report 502 "Intrastat - Checklist"
         IntrastatJnlLineTemp: Record "Intrastat Jnl. Line" temporary;
         PrevIntrastatJnlLine: Record "Intrastat Jnl. Line";
         ErrorMessage: Record "Error Message";
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         NoOfRecords: Integer;
         NoOfRecordsRTC: Integer;
         PrintJnlLines: Boolean;

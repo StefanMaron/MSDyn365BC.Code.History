@@ -1689,6 +1689,7 @@ codeunit 134097 "ERM Check Posting Groups"
     var
         GenBusinessPostingGroup: Record "Gen. Business Posting Group";
         GenProductPostingGroup: Record "Gen. Product Posting Group";
+        GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
@@ -1700,11 +1701,25 @@ codeunit 134097 "ERM Check Posting Groups"
             LibraryERM.SetGeneralPostingSetupPurchPmtDiscAccounts(GeneralPostingSetup);
             LibraryERM.SetGeneralPostingSetupInvtAccounts(GeneralPostingSetup);
             LibraryERM.SetGeneralPostingSetupPrepAccounts(GeneralPostingSetup);
+            UpdateGenProdPostingGroupOnGLAccount(GeneralPostingSetup."Sales Prepayments Account");
+            UpdateGenProdPostingGroupOnGLAccount(GeneralPostingSetup."Purch. Prepayments Account");
             LibraryERM.SetGeneralPostingSetupMfgAccounts(GeneralPostingSetup);
+            LibraryERM.SetGeneralPostingSetupSalesAccounts(GeneralPostingSetup);
             "Purch. FA Disc. Account" := LibraryERM.CreateGLAccountNo;
             "View All Accounts on Lookup" := ViewAllAccounts;
             Modify;
         end;
+    end;
+
+    local procedure UpdateGenProdPostingGroupOnGLAccount(GLAccontNo: Code[20])
+    var
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+        GLAccount.Get(GLAccontNo);
+        GLAccount.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
+        GLAccount.Modify(true);
     end;
 
     local procedure CreateInventoryPostingSetup(var InventoryPostingSetup: Record "Inventory Posting Setup"; ViewAllAccounts: Boolean)

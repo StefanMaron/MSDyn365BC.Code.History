@@ -35,12 +35,15 @@ codeunit 5055 "CustVendBank-Update"
     procedure UpdateCustomer(var Cont: Record Contact; var ContBusRel: Record "Contact Business Relation")
     var
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
+        RegistrationLogMgt: Codeunit "Registration Log Mgt.";
         VATRegNo: Text[20];
+        RegNo: Text[20];
     begin
         with Cust do begin
             Get(ContBusRel."No.");
             NoSeries := "No. Series";
             VATRegNo := "VAT Registration No.";
+            RegNo := "Registration No.";    // NAVCZ
             TransferFields(Cont);
             "No." := ContBusRel."No.";
             "No. Series" := NoSeries;
@@ -48,6 +51,10 @@ codeunit 5055 "CustVendBank-Update"
             "Last Date Modified" := Today;
             OnAfterUpdateCustomer(Cust, Cont);
             Modify;
+            // NAVCZ
+            if ("Registration No." <> '') and ("Registration No." <> RegNo) then
+                RegistrationLogMgt.LogCustomer(Cust);
+            // NAVCZ
             if ("VAT Registration No." <> '') and ("VAT Registration No." <> VATRegNo) then
                 VATRegistrationLogMgt.LogCustomer(Cust);
         end;
@@ -56,13 +63,16 @@ codeunit 5055 "CustVendBank-Update"
     procedure UpdateVendor(var Cont: Record Contact; var ContBusRel: Record "Contact Business Relation")
     var
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
+        RegistrationLogMgt: Codeunit "Registration Log Mgt.";
         VATRegNo: Text[20];
+        RegNo: Text[20];
     begin
         with Vend do begin
             Get(ContBusRel."No.");
             NoSeries := "No. Series";
             PurchaserCode := "Purchaser Code";
             VATRegNo := "VAT Registration No.";
+            RegNo := "Registration No.";    // NAVCZ
             TransferFields(Cont);
             "No." := ContBusRel."No.";
             "No. Series" := NoSeries;
@@ -71,6 +81,10 @@ codeunit 5055 "CustVendBank-Update"
             "Last Date Modified" := Today;
             OnAfterUpdateVendor(Vend, Cont);
             Modify;
+            // NAVCZ
+            if ("Registration No." <> '') and ("Registration No." <> RegNo) then
+                RegistrationLogMgt.LogVendor(Vend);
+            // NAVCZ
             if ("VAT Registration No." <> '') and ("VAT Registration No." <> VATRegNo) then
                 VATRegistrationLogMgt.LogVendor(Vend);
         end;

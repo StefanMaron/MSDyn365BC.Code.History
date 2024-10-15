@@ -3,7 +3,7 @@ report 31059 "Get Item Ledger Entries - Test"
     // //CO4.20: Controling - Basic: Intrastat CZ modification;
     // //CO4.20: Controling - Basic: Partner Registration More Country;
     DefaultLayout = RDLC;
-    RDLCLayout = './GetItemLedgerEntriesTest.rdlc';
+    RDLCLayout = './Intrastat/GetItemLedgerEntriesTest.rdlc';
 
     Caption = 'Get Item Ledger Entries - Test';
     Permissions = TableData "General Posting Setup" = imd;
