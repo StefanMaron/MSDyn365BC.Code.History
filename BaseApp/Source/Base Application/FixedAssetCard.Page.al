@@ -170,6 +170,7 @@ page 5600 "Fixed Asset Card"
                     Importance = Additional;
                     TableRelation = "Depreciation Book";
                     ToolTip = 'Specifies the depreciation book that is assigned to the fixed asset.';
+                    Editable = AllowEditDepBookCode;
 
                     trigger OnValidate()
                     begin
@@ -689,6 +690,7 @@ page 5600 "Fixed Asset Card"
     trigger OnOpenPage()
     begin
         Simple := true;
+        AllowEditDepBookCode := true;
         SetNoFieldVisible;
     end;
 
@@ -707,6 +709,7 @@ page 5600 "Fixed Asset Card"
         Acquirable: Boolean;
         ShowAddMoreDeprBooksLbl: Boolean;
         BookValue: Decimal;
+        AllowEditDepBookCode: Boolean;
 
     local procedure ShowAcquireNotification()
     var
@@ -788,6 +791,7 @@ page 5600 "Fixed Asset Card"
                 ShowAddMoreDeprBooksLbl := true
             end;
             Simple := true;
+            AllowEditDepBookCode := FADepreciationBookOld."Depreciation Book Code" = '';
         end else
             Simple := false;
 

@@ -959,7 +959,7 @@ codeunit 99000774 "Calculate Routing Line"
                             Workcenter2."Calendar Rounding Precision");
                     end;
                 until ProdOrderRoutingLine2.Next = 0
-            else
+            else begin
                 // parallel routing with finished first operation
                 if ProdStartingDate = 0D then begin
                     ProdOrderRoutingLine2.Get(ProdOrderRoutingLine.Status,
@@ -968,6 +968,10 @@ codeunit 99000774 "Calculate Routing Line"
                     ProdStartingDate := ProdOrderRoutingLine2."Starting Date";
                     ProdStartingTime := ProdOrderRoutingLine2."Starting Time";
                 end;
+                TotalLotSize := MaxLotSize;
+                SendAheadLotSize := MaxLotSize;
+            end;
+
             if ProdOrderRoutingLine3."Prod. Order No." <> '' then begin
                 ProdOrderRoutingLine3."Critical Path" := true;
                 ProdOrderRoutingLine3.UpdateDatetime;
