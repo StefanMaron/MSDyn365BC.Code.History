@@ -138,7 +138,7 @@ report 13403 "Export SEPA Payment File"
         xsiNameSpace: Text;
         xsdName: Text;
     begin
-        xsdName := 'pain.001.001.02';
+        xsdName := 'pain.001.001.09';
         xmlNameSpace := 'urn:iso:std:iso:20022:tech:xsd:' + xsdName;
         xsiNameSpace := 'http://www.w3.org/2001/XMLSchema-instance';
 
@@ -205,7 +205,10 @@ report 13403 "Export SEPA Payment File"
 
         XMLDomMgt.AddElement(XMLNodeCurr, 'PmtInfId', MessageId, '', XMLNewChild);
         XMLDomMgt.AddElement(XMLNodeCurr, 'PmtMtd', 'TRF', '', XMLNewChild);
-        XMLDomMgt.AddElement(XMLNodeCurr, 'ReqdExctnDt', Format(RefPaymentExported."Payment Date", 0, 9), '', XMLNewChild); // r30
+        XMLDomMgt.AddElement(XMLNodeCurr, 'ReqdExctnDt', '', '', XMLNewChild); // r30
+        XMLNodeCurr := XMLNewChild;
+        XMLDomMgt.AddElement(XMLNodeCurr, 'Dt', Format(RefPaymentExported."Payment Date", 0, 9), '', XMLNewChild); // r30
+        XMLNodeCurr := XMLNodeCurr.ParentNode;
         XMLDomMgt.AddElement(XMLNodeCurr, 'Dbtr', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
