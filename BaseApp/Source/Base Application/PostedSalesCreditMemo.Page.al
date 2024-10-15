@@ -696,7 +696,7 @@ page 134 "Posted Sales Credit Memo"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(114),
+                SubPageLink = "Table ID" = CONST(Database::"Sales Cr.Memo Header"),
                               "No." = FIELD("No.");
             }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")

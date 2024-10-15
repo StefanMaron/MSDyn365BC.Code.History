@@ -100,6 +100,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         VerifyPmtDiscEntryInGLEntry(
           GenJournalLine."Document No.", GLAccountNo, GenJournalLine."Document Type", DiscountAmountExclVAT, VATAmountForDiscount);
         VerifyVATEntry(GenJournalLine."Document No.", DiscountAmountExclVAT, VATAmountForDiscount);
+       
 
         // Tear Down: Rollback modified setups.
         UpdateGeneralPostingSetupSales(Customer."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group", OldPmtDiscDebitAcc);

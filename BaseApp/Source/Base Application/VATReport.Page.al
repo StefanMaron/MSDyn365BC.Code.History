@@ -142,7 +142,7 @@ page 740 "VAT Report"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(740),
+                SubPageLink = "Table ID" = CONST(Database::"VAT Report Header"),
                               "No." = FIELD("No."),
                               "VAT Report Config. Code" = FIELD("VAT Report Config. Code");
             }

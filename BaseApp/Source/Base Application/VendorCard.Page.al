@@ -557,7 +557,7 @@ page 26 "Vendor Card"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(23),
+                SubPageLink = "Table ID" = CONST(Database::Vendor),
                               "No." = FIELD("No.");
             }
             part(VendorStatisticsFactBox; "Vendor Statistics FactBox")

@@ -950,7 +950,7 @@ page 42 "Sales Order"
                 }
                 field("Compress Prepayment"; Rec."Compress Prepayment")
                 {
-                    ApplicationArea = Dimensions;
+                    ApplicationArea = Prepayments;
                     ToolTip = 'Specifies that prepayments on the sales order are combined if they have the same general ledger account for prepayments or the same dimensions.';
                 }
                 field("Prepmt. Payment Terms Code"; Rec."Prepmt. Payment Terms Code")
@@ -990,7 +990,7 @@ page 42 "Sales Order"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(36),
+                SubPageLink = "Table ID" = CONST(Database::"Sales Header"),
                               "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
             }
@@ -2425,10 +2425,10 @@ page 42 "Sales Order"
 
     trigger OnAfterGetRecord()
     begin
+        WorkDescription := GetWorkDescription();
         if GuiAllowed() then begin
             SetControlVisibility();
             UpdateShipToBillToGroupVisibility();
-            WorkDescription := GetWorkDescription();
             BillToContact.GetOrClear("Bill-to Contact No.");
             SellToContact.GetOrClear("Sell-to Contact No.");
         end;

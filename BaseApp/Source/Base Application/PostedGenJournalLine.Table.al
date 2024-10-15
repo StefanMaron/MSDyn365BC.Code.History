@@ -1,4 +1,4 @@
-table 181 "Posted Gen. Journal Line"
+﻿table 181 "Posted Gen. Journal Line"
 {
     Caption = 'Posted Gen. Journal Line';
     LookupPageId = "Posted General Journal";
@@ -1244,6 +1244,7 @@ table 181 "Posted Gen. Journal Line"
 
     procedure InsertFromGenJournalLine(GenJournalLine: Record "Gen. Journal Line"; GLRegNo: Integer; FirstLine: Boolean)
     var
+        RecordLinkManagement: Codeunit "Record Link Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1259,6 +1260,7 @@ table 181 "Posted Gen. Journal Line"
             Indentation := 1;
         Insert();
 
+        RecordLinkManagement.CopyLinks(GenJournalLine, Rec);
         OnAfterInsertFromGenJournalLine(GenJournalLine);
     end;
 

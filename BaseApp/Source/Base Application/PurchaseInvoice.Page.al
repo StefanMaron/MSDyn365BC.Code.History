@@ -1,4 +1,4 @@
-﻿#if not CLEAN20
+#if not CLEAN20
 page 51 "Purchase Invoice"
 {
     Caption = 'Purchase Invoice';
@@ -942,7 +942,7 @@ page 51 "Purchase Invoice"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(38),
+                SubPageLink = "Table ID" = CONST(Database::"Purchase Header"),
                               "Document Type" = FIELD("Document Type"),
                               "No." = FIELD("No.");
             }

@@ -460,7 +460,7 @@ page 140 "Posted Purchase Credit Memo"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(124),
+                SubPageLink = "Table ID" = CONST(Database::"Purch. Cr. Memo Hdr."),
                               "No." = FIELD("No.");
             }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")

@@ -1,4 +1,4 @@
-﻿#if CLEAN19
+#if CLEAN19
 page 22 "Customer List"
 {
     ApplicationArea = Basic, Suite, Service;
@@ -268,7 +268,7 @@ page 22 "Customer List"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(18),
+                SubPageLink = "Table ID" = CONST(Database::Customer),
                               "No." = FIELD("No.");
                 Visible = NOT IsOfficeAddin;
             }

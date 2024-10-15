@@ -40,6 +40,7 @@ codeunit 5342 "CRM Synch. Helper"
         ResourceUnitGroupNotFoundErr: Label 'Resource Unit Group for Resource %1 is not found.', Comment = '%1 - resource number';
         CRMUnitGroupNotFoundErr: Label 'CRM Unit Group %1 does not exist.', Comment = '%1 - unit group name';
         BaseUnitOfMeasureCannotBeEmptyErr: Label 'Base Unit of Measure must have a value in %1. It cannot be zero or empty.', Comment = '%1 - record';
+        RecordMustBeCoupledExtErr: Label '%1 %2 must be coupled to a %3 row.', Comment = '%1 = BC table caption, %2 = primary key value, %3 - Dataverse table caption';
 
     procedure ClearCache()
     begin
@@ -1408,6 +1409,41 @@ codeunit 5342 "CRM Synch. Helper"
         end;
     end;
 
+    procedure GetCoupledCDSUserId(SourceRecordRef: RecordRef): Guid
+    var
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+        Contact: Record Contact;
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        SalesPersonPurchaser: Record "Salesperson/Purchaser";
+        SalesPersonPurchaserFieldRef: FieldRef;
+        SalesPersonPurchaserCode: Code[20];
+        CDSUserId: Guid;
+    begin
+        case SourceRecordRef.Number() of
+            Database::Customer:
+                SalesPersonPurchaserFieldRef := SourceRecordRef.Field(Customer.FieldNo(Customer."Salesperson Code"));
+            Database::Vendor:
+                SalesPersonPurchaserFieldRef := SourceRecordRef.Field(Vendor.FieldNo(Vendor."Purchaser Code"));
+            Database::Contact:
+                SalesPersonPurchaserFieldRef := SourceRecordRef.Field(Contact.FieldNo(Contact."Salesperson Code"));
+            else
+                exit(CDSUserId);
+        end;
+
+        Evaluate(SalesPersonPurchaserCode, Format(SalesPersonPurchaserFieldRef.Value()));
+        if not SalesPersonPurchaser.Get(SalesPersonPurchaserCode) then
+            exit(CDSUserId);
+
+        if not CRMIntegrationRecord.FindIDFromRecordID(SalesPersonPurchaser.RecordId(), CDSUserId) then
+            Error(
+              RecordMustBeCoupledExtErr, SalesPersonPurchaser.TableCaption(), SalesPersonPurchaserFieldRef.Value(),
+              IntegrationTableMapping.GetExtendedIntegrationTableCaption());
+
+        exit(CDSUserId);
+    end;
+
     procedure ConvertBaseUnitOfMeasureToUomId(SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValue: Variant)
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -1428,7 +1464,12 @@ codeunit 5342 "CRM Synch. Helper"
                         SourceRecordCode := Item."No.";
                         if ItemUnitOfMeasure.Get(SourceRecordCode, Format(SourceFieldRef.Value())) then
                             if CRMIntegrationRecord.FindIDFromRecordID(ItemUnitOfMeasure.RecordId, NewValue) then
-                                exit;
+                                exit
+                            else begin
+                                CoupleAndSyncItemUoM(DestinationFieldRef, ItemUnitOfMeasure);
+                                if CRMIntegrationRecord.FindIDFromRecordID(ItemUnitOfMeasure.RecordId, NewValue) then
+                                    exit;
+                            end;
                     end;
                 Database::Resource:
                     begin
@@ -1436,7 +1477,12 @@ codeunit 5342 "CRM Synch. Helper"
                         SourceRecordCode := Resource."No.";
                         if ResourceUnitOfMeasure.Get(SourceRecordCode, Format(SourceFieldRef.Value())) then
                             if CRMIntegrationRecord.FindIDFromRecordID(ResourceUnitOfMeasure.RecordId, NewValue) then
-                                exit;
+                                exit
+                            else begin
+                                CoupleAndSyncResourceUoM(DestinationFieldRef, ResourceUnitOfMeasure);
+                                if CRMIntegrationRecord.FindIDFromRecordID(ResourceUnitOfMeasure.RecordId, NewValue) then
+                                    exit;
+                            end;
                     end;
                 Database::"Price List Line":
                     begin
@@ -1455,6 +1501,56 @@ codeunit 5342 "CRM Synch. Helper"
             end;
 
             Error(UnitOfMeasureMustBeCoupledErr, SourceFieldRef.Record().Name, SourceRecordCode, SourceFieldRef.Value(), CRMProductName.Short());
+        end;
+    end;
+
+    local procedure CoupleAndSyncItemUoM(DestinationFieldRef: FieldRef; ItemUnitOfMeasure: Record "Item Unit of Measure")
+    var
+        CRMProduct: Record "CRM Product";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+        UnitOfMeasureRecRef: RecordRef;
+    begin
+        DestinationFieldRef.Record().SetTable(CRMProduct);
+        if IsNullGuid(CRMProduct.ProductId) then begin // CRM product is not created
+            IntegrationTableMapping.SetRange("Table ID", Database::"Unit Group");
+            IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Uomschedule");
+            if IntegrationTableMapping.FindFirst() then
+                if not IntegrationTableMapping."Synch. Only Coupled Records" then begin
+                    IntegrationTableMapping.SetRange("Table ID", Database::"Item Unit of Measure");
+                    IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Uom");
+                    if IntegrationTableMapping.FindFirst() then
+                        if not IntegrationTableMapping."Synch. Only Coupled Records" then begin
+                            ItemUnitOfMeasure.SetRange(SystemId, ItemUnitOfMeasure.SystemId);
+                            UnitOfMeasureRecRef.GetTable(ItemUnitOfMeasure);
+                            CRMIntegrationTableSynch.SynchRecordsToIntegrationTable(UnitOfMeasureRecRef, false, true);
+                        end;
+                end;
+        end;
+    end;
+
+    local procedure CoupleAndSyncResourceUoM(DestinationFieldRef: FieldRef; ResourceUnitOfMeasure: Record "Resource Unit of Measure")
+    var
+        CRMProduct: Record "CRM Product";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+        UnitOfMeasureRecRef: RecordRef;
+    begin
+        DestinationFieldRef.Record().SetTable(CRMProduct);
+        if IsNullGuid(CRMProduct.ProductId) then begin // CRM product is not created
+            IntegrationTableMapping.SetRange("Table ID", Database::"Unit Group");
+            IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Uomschedule");
+            if IntegrationTableMapping.FindFirst() then
+                if not IntegrationTableMapping."Synch. Only Coupled Records" then begin
+                    IntegrationTableMapping.SetRange("Table ID", Database::"Resource Unit of Measure");
+                    IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Uom");
+                    if IntegrationTableMapping.FindFirst() then
+                        if not IntegrationTableMapping."Synch. Only Coupled Records" then begin
+                            ResourceUnitOfMeasure.SetRange(SystemId, ResourceUnitOfMeasure.SystemId);
+                            UnitOfMeasureRecRef.GetTable(ResourceUnitOfMeasure);
+                            CRMIntegrationTableSynch.SynchRecordsToIntegrationTable(UnitOfMeasureRecRef, false, true);
+                        end;
+                end;
         end;
     end;
 

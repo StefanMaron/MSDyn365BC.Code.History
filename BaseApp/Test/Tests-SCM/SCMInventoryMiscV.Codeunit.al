@@ -191,6 +191,62 @@ codeunit 137297 "SCM Inventory Misc. V"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CompItemLedgerEntryDocNoAfterPostSubcontractingPurchOrder()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        RoutingHeader: Record "Routing Header";
+        ProdOrderLine: Record "Prod. Order Line";
+        PurchaseLine: Record "Purchase Line";
+        RountingLink: Record "Routing Link";
+        WorkCenter: Record "Work Center";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        // Verify Starting Date on Production Order Routing when Send-Ahead Quantity is updated.
+
+        // Setup: Create Item, create and certify Production BOM.
+        Initialize(false);
+
+        // Setup: Set Doc. No. Is Prod. Order No. to assign Prod. Order. No. to component consumption item ledger entries
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Doc. No. Is Prod. Order No." := true;
+        ManufacturingSetup.Modify();
+
+        CompItem.Get(CreateAndModifyItem('', CompItem."Flushing Method"::Backward, CompItem."Replenishment System"::Purchase));
+        ProdItem.Get(CreateAndModifyItem('', ProdItem."Flushing Method"::Backward, ProdItem."Replenishment System"::"Prod. Order"));
+        LibraryManufacturing.CreateRoutingLink(RountingLink);
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ProdItem."Base Unit of Measure", CompItem."No.", RountingLink.Code);
+
+        // Create Routing with Work Center and Machine Center.
+        CreateWorkCenterWithSubcontractor(WorkCenter);
+        RoutingHeader.Get(CreateRoutingSetup(WorkCenter."No.", RountingLink.Code));
+
+        // Update Item with Prodouction BOM No. and Routing No.
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Routing No.", RoutingHeader."No.");
+        ProdItem.Modify(true);
+
+        // Create and refresh Released Production Order.
+        CreateAndRefreshProdOrder(ProductionOrder, ProdItem."No.", '', LibraryRandom.RandInt(5));  // Take random Quantity.
+
+        // [GIVEN] Calculate subcontract order and carry out action messages for "P" and "S", purchase order "R" is created
+        CarryOutAMSubcontractWksh(WorkCenter."No.", ProdItem."No.");
+
+        // Exercise: Purchase components and post Purchase Order.
+        LibraryInventory.CreateItemJnlLine(
+            ItemJnlLine, "Item Ledger Entry Type"::Purchase, WorkDate(), CompItem."No.", ProductionOrder.Quantity * 2, '');
+        LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
+        FindPurchLineAndPostPurchOrder(PurchaseLine, ProdItem."No.");
+
+        // Verify: Verify Starting Date on Production Order Routing when Send-Ahead Quantity is updated.
+        VerifyItemLedgerEntryByDocNo(ProductionOrder."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure UpdateItemJnlDescAfterDeleteVariant()
     var
         ItemVariant: Record "Item Variant";
@@ -1702,6 +1758,20 @@ codeunit 137297 "SCM Inventory Misc. V"
         CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
         CapacityLedgerEntry.SetRange("Order No.", OrderNo);
         CapacityLedgerEntry.FindFirst();
+    end;
+
+    local procedure VerifyItemLedgerEntryByDocNo(DocNo: Code[20])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // output
+        ItemLedgerEntry.SetRange("Entry Type", "Item Ledger Entry Type"::Output);
+        ItemLedgerEntry.SetRange("Document No.", DocNo);
+        ItemLedgerEntry.FindFirst();
+        // consumption
+        ItemLedgerEntry.SetRange("Entry Type", "Item Ledger Entry Type"::Consumption);
+        ItemLedgerEntry.SetRange("Document No.", DocNo);
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; No: Code[20])

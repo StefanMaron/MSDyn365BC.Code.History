@@ -261,14 +261,20 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     procedure UnApplyVendLedgEntry(VendLedgEntryNo: Integer)
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
+    begin
+        CheckVendorLedgerEntryToUnapply(VendLedgEntryNo, DtldVendLedgEntry);
+        UnApplyVendor(DtldVendLedgEntry);
+    end;
+
+    procedure CheckVendorLedgerEntryToUnapply(VendorLedgerEntryNo: Integer; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    var
         ApplicationEntryNo: Integer;
     begin
-        CheckReversal(VendLedgEntryNo);
-        ApplicationEntryNo := FindLastApplEntry(VendLedgEntryNo);
+        CheckReversal(VendorLedgerEntryNo);
+        ApplicationEntryNo := FindLastApplEntry(VendorLedgerEntryNo);
         if ApplicationEntryNo = 0 then
-            Error(NoApplicationEntryErr, VendLedgEntryNo);
-        DtldVendLedgEntry.Get(ApplicationEntryNo);
-        UnApplyVendor(DtldVendLedgEntry);
+            Error(NoApplicationEntryErr, VendorLedgerEntryNo);
+        DetailedVendorLedgEntry.Get(ApplicationEntryNo);
     end;
 
     local procedure UnApplyVendor(DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry")

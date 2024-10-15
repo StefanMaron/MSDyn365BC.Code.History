@@ -737,7 +737,7 @@ page 20 "General Ledger Entries"
     begin
         SetControlVisibility();
         SetDimVisibility();
-
+        
         if (GetFilters() <> '') and not Find() then
             if FindFirst() then;
     end;

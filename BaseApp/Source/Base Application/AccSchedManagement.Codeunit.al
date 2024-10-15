@@ -2161,6 +2161,7 @@ codeunit 8 AccSchedManagement
 
             if Totaling = '' then
                 exit;
+
             // NAVCZ
             if "Totaling Type" = "Totaling Type"::Custom then begin
                 AccSchedExtensionManagement.DrillDownAmount(
@@ -2173,13 +2174,18 @@ codeunit 8 AccSchedManagement
             end;
             // NAVCZ
 
-            if "Totaling Type" in ["Totaling Type"::"Cash Flow Entry Accounts", "Totaling Type"::"Cash Flow Total Accounts"] then
-                DrillDownOnCFAccount(TempColumnLayout, AccScheduleLine)
-            else
-                if "Totaling Type" = "Totaling Type"::"Account Category" then
-                    DrillDownOnGLAccCategory(TempColumnLayout, AccScheduleLine)
-                else
+            case "Totaling Type" of
+                "Totaling Type"::"Posting Accounts", "Totaling Type"::"Total Accounts",
+                "Totaling Type"::"Cost Type", "Totaling Type"::"Cost Type Total":
                     DrillDownOnGLAccount(TempColumnLayout, AccScheduleLine);
+                "Totaling Type"::"Cash Flow Entry Accounts",
+                "Totaling Type"::"Cash Flow Total Accounts":
+                    DrillDownOnCFAccount(TempColumnLayout, AccScheduleLine);
+                "Totaling Type"::"Account Category":
+                    DrillDownOnGLAccCategory(TempColumnLayout, AccScheduleLine);
+                else
+                    OnDrillDownTotalingTypeElseCase(TempColumnLayout, AccScheduleLine);
+            end;
         end;
     end;
 
@@ -3137,6 +3143,11 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyColumnsToTempOnBeforeFind(AccSchedName: Record "Acc. Schedule Name"; NewColumnName: Code[10]; var TempColumnLayout: Record "Column Layout" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDrillDownTotalingTypeElseCase(var TempColumnLayout: Record "Column Layout" temporary; var AccSchedLine: Record "Acc. Schedule Line")
     begin
     end;
 }

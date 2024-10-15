@@ -1,4 +1,4 @@
-#if CLEAN19
+﻿#if CLEAN19
 page 490 "Acc. Schedule Overview"
 {
     Caption = 'Financial Report';
@@ -159,8 +159,9 @@ page 490 "Acc. Schedule Overview"
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
                         FilterTokens.MakeDateFilter(DateFilter);
-                        SetFilter("Date Filter", DateFilter);
-                        DateFilter := GetFilter("Date Filter");
+                        Rec.SetFilter("Date Filter", DateFilter);
+                        DateFilter := Rec.GetFilter("Date Filter");
+                        TempFinancialReport.DateFilter := DateFilter;
                         CurrPage.Update();
                     end;
                 }
@@ -306,7 +307,6 @@ page 490 "Acc. Schedule Overview"
                     trigger OnValidate()
                     begin
                         ValidateCostCenterFilter();
-                        CurrPage.Update();
                     end;
                 }
                 field(CostObjectFilter; TempFinancialReport.CostObjectFilter)
@@ -330,7 +330,6 @@ page 490 "Acc. Schedule Overview"
                     trigger OnValidate()
                     begin
                         ValidateCostObjectFilter();
-                        CurrPage.Update();
                     end;
                 }
                 field(CashFlowFilter; TempFinancialReport.CashFlowFilter)
@@ -354,7 +353,6 @@ page 490 "Acc. Schedule Overview"
                     trigger OnValidate()
                     begin
                         ValidateCashFlowFilter();
-                        CurrPage.Update();
                     end;
                 }
                 field("G/LBudgetFilter"; TempFinancialReport.GLBudgetFilter)
@@ -369,21 +367,14 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := LookupGLBudgetFilter(Text);
-                        if Result then begin
-                            Rec.SetFilter("G/L Budget Filter", Text);
-                            Text := Rec.GetFilter("G/L Budget Filter");
-                        end;
                         TempFinancialReport.GLBudgetFilter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.GLBudgetFilter));
+                        ValidateGLBudgetFilter();
                         exit(Result);
                     end;
 
                     trigger OnValidate()
                     begin
-                        if TempFinancialReport.GLBudgetFilter = '' then
-                            Rec.SetRange("G/L Budget Filter")
-                        else
-                            Rec.SetFilter("G/L Budget Filter", TempFinancialReport.GLBudgetFilter);
-                        CurrPage.Update();
+                        ValidateGLBudgetFilter();
                     end;
                 }
                 field(CostBudgetFilter; TempFinancialReport.CostBudgetFilter)
@@ -398,21 +389,14 @@ page 490 "Acc. Schedule Overview"
                         Result: Boolean;
                     begin
                         Result := LookupCostBudgetFilter(Text);
-                        if Result then begin
-                            Rec.SetFilter("Cost Budget Filter", Text);
-                            Text := Rec.GetFilter("Cost Budget Filter");
-                        end;
                         TempFinancialReport.CostBudgetFilter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.CostBudgetFilter));
+                        ValidateCostBudgetFilter();
                         exit(Result);
                     end;
 
                     trigger OnValidate()
                     begin
-                        if TempFinancialReport.CostBudgetFilter = '' then
-                            Rec.SetRange("Cost Budget Filter")
-                        else
-                            Rec.SetFilter("Cost Budget Filter", TempFinancialReport.CostBudgetFilter);
-                        CurrPage.Update();
+                        ValidateCostBudgetFilter();
                     end;
                 }
             }
@@ -692,7 +676,7 @@ page 490 "Acc. Schedule Overview"
                     IsHandled: Boolean;
                 begin
                     IsHandled := false;
-                    OnBeforePrint(Rec, TempFinancialReport."Financial Report Column Group", IsHandled);
+                    OnBeforePrint(Rec, TempFinancialReport."Financial Report Column Group", IsHandled, TempFinancialReport);
                     if IsHandled then
                         exit;
                     if TempFinancialReport.Name <> '' then
@@ -1064,6 +1048,7 @@ page 490 "Acc. Schedule Overview"
         AccSchedManagement.OpenColumns(TempFinancialReport."Financial Report Column Group", TempColumnLayout);
         AccSchedManagement.CheckAnalysisView(TempFinancialReport."Financial Report Row Group", TempFinancialReport."Financial Report Column Group", true);
         SetLoadedDimFilters();
+        SetLoadedOtherFilters();
         UpdateColumnCaptions();
 
         if AccSchedName.Get(TempFinancialReport."Financial Report Row Group") then
@@ -1078,8 +1063,10 @@ page 490 "Acc. Schedule Overview"
         AccSchedManagement.FindPeriod(Rec, '', TempFinancialReport.PeriodType);
         ApplyShowFilter();
         UpdateDimFilterControls();
-        DateFilter := Rec.GetFilter("Date Filter");
-
+        if TempFinancialReport.DateFilter = '' then
+            DateFilter := Rec.GetFilter("Date Filter")
+        else
+            DateFilter := TempFinancialReport.DateFilter;
         OnBeforeCurrentColumnNameOnAfterValidate(TempFinancialReport."Financial Report Column Group");
         OnAfterOnOpenPage(Rec, TempFinancialReport."Financial Report Column Group");
     end;
@@ -1100,6 +1087,7 @@ page 490 "Acc. Schedule Overview"
         // Transfer filters from FinancialReport
         FinancialReportToLoadTemp.Init();
         FinancialReportToLoadTemp.TransferFields(FinancialReport);
+        FinancialReport.DateFilter := Rec.GetFilter("Date Filter");
         if not ViewOnlyMode then
             exit(true);
         UserIDCode := CopyStr(UserId(), 1, MaxStrLen(UserIDCode));
@@ -1238,6 +1226,7 @@ page 490 "Acc. Schedule Overview"
         OnAfterValidateCostObjectFilter(Rec, CurrentCostObjectFilter, CurrentDim2Filter);
         TempFinancialReport.CostObjectFilter := CopyStr(CurrentCostObjectFilter, 1, MaxStrLen(TempFinancialReport.CostObjectFilter));
         TempFinancialReport.Dim2Filter := CopyStr(CurrentDim2Filter, 1, MaxStrLen(TempFinancialReport.Dim2Filter));
+        CurrPage.Update();
     end;
 
     local procedure ValidateCashFlowFilter()
@@ -1246,6 +1235,25 @@ page 490 "Acc. Schedule Overview"
             Rec.SetRange("Cash Flow Forecast Filter")
         else
             Rec.SetFilter("Cash Flow Forecast Filter", TempFinancialReport.CashFlowFilter);
+        CurrPage.Update();
+    end;
+
+    local procedure ValidateGLBudgetFilter()
+    begin
+        if TempFinancialReport.GLBudgetFilter = '' then
+            Rec.SetRange("G/L Budget Filter")
+        else
+            Rec.SetFilter("G/L Budget Filter", TempFinancialReport.GLBudgetFilter);
+        CurrPage.Update();
+    end;
+
+    local procedure ValidateCostBudgetFilter()
+    begin
+        if TempFinancialReport.CostBudgetFilter = '' then
+            Rec.SetRange("Cost Budget Filter")
+        else
+            Rec.SetFilter("Cost Budget Filter", TempFinancialReport.CostBudgetFilter);
+        CurrPage.Update();
     end;
 
     local procedure SetLoadedDimFilters()
@@ -1256,10 +1264,22 @@ page 490 "Acc. Schedule Overview"
         SetDimFilters(4, TempFinancialReport.Dim4Filter);
     end;
 
+    local procedure SetLoadedOtherFilters()
+    begin
+        ValidateGLBudgetFilter();
+        ValidateCashFlowFilter();
+        ValidateCostBudgetFilter();
+        ValidateCostCenterFilter();
+        ValidateCostObjectFilter();
+    end;
+
     local procedure SetDimFilters(DimNo: Integer; DimValueFilter: Text)
     var
         CurrentCostCenterFilter: Text;
         CurrentCostObjectFilter: Text;
+        CurrentCostBudgetFilter: Text;
+        CurrentCashFlowFilter: Text;
+        CurrentGLBudgetFilter: Text;
     begin
         case DimNo of
             1:
@@ -1293,9 +1313,20 @@ page 490 "Acc. Schedule Overview"
         end;
         CurrentCostCenterFilter := TempFinancialReport.CostCenterFilter;
         CurrentCostObjectFilter := TempFinancialReport.CostObjectFilter;
-        OnAfterSetDimFilters(Rec, DimNo, DimValueFilter, CurrentCostCenterFilter, CurrentCostObjectFilter);
+        CurrentCostBudgetFilter := TempFinancialReport.CostBudgetFilter;
+        CurrentGLBudgetFilter := TempFinancialReport.GLBudgetFilter;
+        CurrentCashFlowFilter := TempFinancialReport.CashFlowFilter;
+
+        OnAfterSetDimFilters(
+            Rec, DimNo, DimValueFilter, CurrentCostCenterFilter, CurrentCostObjectFilter, CurrentCostBudgetFilter,
+            CurrentGLBudgetFilter, CurrentCashFlowFilter);
+
         TempFinancialReport.CostCenterFilter := CopyStr(CurrentCostCenterFilter, 1, MaxStrLen(TempFinancialReport.CostCenterFilter));
         TempFinancialReport.CostObjectFilter := CopyStr(CurrentCostObjectFilter, 1, MaxStrLen(TempFinancialReport.CostObjectFilter));
+        TempFinancialReport.CostBudgetFilter := CopyStr(CurrentCostBudgetFilter, 1, MaxStrLen(TempFinancialReport.CostBudgetFilter));
+        TempFinancialReport.GLBudgetFilter := CopyStr(CurrentGLBudgetFilter, 1, MaxStrLen(TempFinancialReport.GLBudgetFilter));
+        TempFinancialReport.CashFlowFilter := CopyStr(CurrentCashFlowFilter, 1, MaxStrLen(TempFinancialReport.CashFlowFilter));
+
         CurrPage.Update();
     end;
 
@@ -1683,7 +1714,7 @@ page 490 "Acc. Schedule Overview"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetDimFilters(var AccScheduleLine: Record "Acc. Schedule Line"; var DimNo: Integer; var DimValueFilter: Text; var CostCenterFilter: Text; var CostObjectFilter: Text)
+    local procedure OnAfterSetDimFilters(var AccScheduleLine: Record "Acc. Schedule Line"; var DimNo: Integer; var DimValueFilter: Text; var CostCenterFilter: Text; var CostObjectFilter: Text; var CurrentCostBudgetFilter: Text; var CurrentGLBudgetFilter: Text; var CurrentCashFlowFilter: Text)
     begin
     end;
 
@@ -1718,7 +1749,7 @@ page 490 "Acc. Schedule Overview"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrint(var AccScheduleLine: Record "Acc. Schedule Line"; ColumnLayoutName: Code[10]; var IsHandled: Boolean)
+    local procedure OnBeforePrint(var AccScheduleLine: Record "Acc. Schedule Line"; ColumnLayoutName: Code[10]; var IsHandled: Boolean; var TempFinancialReport: Record "Financial Report" temporary)
     begin
     end;
 

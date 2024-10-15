@@ -152,5 +152,10 @@ page 6663 "Posted Return Receipt Lines"
             }
         }
     }
+
+    trigger OnOpenPage()
+    begin
+        Rec.SetSecurityFilterOnRespCenter();
+    end;
 }
 

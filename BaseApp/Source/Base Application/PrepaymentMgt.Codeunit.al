@@ -131,10 +131,9 @@ codeunit 441 "Prepayment Mgt."
         if SalesHeader."Prepayment Type" = SalesHeader."Prepayment Type"::Advance then
             exit;
         // NAVCZ
-        IsHandled := false;
-        OnBeforeTestSalesPrepayment(SalesHeader, TestResult, IsHandled);
-        if IsHandled then
-            exit(TestResult);
+
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Quote then
+            exit(false);
 
         SalesLine.SetLoadFields("Prepmt. Line Amount", "Prepmt. Amt. Inv.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -162,6 +161,9 @@ codeunit 441 "Prepayment Mgt."
         if PurchaseHeader."Prepayment Type" = PurchaseHeader."Prepayment Type"::Advance then
             exit;
         // NAVCZ
+
+        if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Quote then
+            exit(false);
 
         PurchaseLine.SetLoadFields("Prepmt. Amt. Inv.", "Prepmt. Line Amount");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");

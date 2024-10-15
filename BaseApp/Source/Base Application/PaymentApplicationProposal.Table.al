@@ -402,10 +402,7 @@
 
         BankAccount.Get(AppliedPaymentEntry."Bank Account No.");
 
-        UpdatePaymentDiscInfo();
-        UpdateRemainingAmount(BankAccount);
-        UpdateRemainingAmountExclDiscount();
-        UpdateTypeOption(AppliedPaymentEntry."Applies-to Entry No.");
+        UpdateDefaultCalculatedFields(BankAccount, AppliedPaymentEntry."Applies-to Entry No.");
         "Applied Amt. Incl. Discount" := "Applied Amount" - "Applied Pmt. Discount";
         Insert(true);
     end;
@@ -432,15 +429,20 @@
             TempBankStmtMatchingBuffer.Quality, TempBankStmtMatchingBuffer."Entry No." < 0); // NAVCZ
 #endif
 
+        UpdateDefaultCalculatedFields(BankAccount, Rec."Applies-to Entry No.");
+
+        "Stmt To Rem. Amount Difference" := Abs(BankAccReconciliationLine."Statement Amount" - "Remaining Amount");
+        "Applied Amt. Incl. Discount" := "Applied Amount" - "Applied Pmt. Discount";
+    end;
+
+    procedure UpdateDefaultCalculatedFields(var BankAccount: Record "Bank Account"; AppliesToEntryNo: Integer)
+    begin
         UpdatePaymentDiscInfo();
         UpdateRemainingAmount(BankAccount);
         UpdateRemainingAmountExclDiscount();
 
-        if "Applies-to Entry No." > 0 then
-            UpdateTypeOption("Applies-to Entry No.");
-
-        "Stmt To Rem. Amount Difference" := Abs(BankAccReconciliationLine."Statement Amount" - "Remaining Amount");
-        "Applied Amt. Incl. Discount" := "Applied Amount" - "Applied Pmt. Discount";
+        if AppliesToEntryNo > 0 then
+            UpdateTypeOption(AppliesToEntryNo);
     end;
 
     local procedure UpdateSortingOrder()

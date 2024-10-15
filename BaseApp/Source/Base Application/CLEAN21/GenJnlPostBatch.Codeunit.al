@@ -1400,6 +1400,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             if not IsPosted then begin
                 GenJnlPostLine.RunWithoutCheck(GenJnlLine5);
                 InsertPostedGenJnlLine(GenJournalLine);
+                RemoveRecordLink(GenJournalLine);
             end;
             OnAfterPostGenJnlLine(GenJnlLine5, SuppressCommit, GenJnlPostLine);
             if (GenJnlTemplate.Type = GenJnlTemplate.Type::Intercompany) and (CurrentICPartner <> '') and
@@ -1748,6 +1749,19 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         Dimensions.Add('PostingDuration', Format(PostingDuration));
         Dimensions.Add('NumberOfLines', Format(NumberOfRecords));
         Session.LogMessage('0000F9I', StrSubstNo(GenJournalPostedTxt, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
+    end;
+
+    local procedure RemoveRecordLink(GenJournalLine: Record "Gen. Journal Line")
+    var
+        RecordLink: Record "Record Link";
+        RecordRef: RecordRef;
+        RecVariant: Variant;
+    begin
+        RecVariant := GenJournalLine;
+        RecordRef.GetTable(RecVariant);
+        RecordLink.SetRange("Record ID", RecordRef.RecordId());
+        if RecordLink.FindSet() then
+            RecordLink.DeleteAll;
     end;
 
     [IntegrationEvent(false, false)]

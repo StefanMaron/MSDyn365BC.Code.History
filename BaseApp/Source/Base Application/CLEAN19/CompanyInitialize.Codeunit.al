@@ -371,6 +371,8 @@ codeunit 2 "Company-Initialize"
             ICSetup.Init();
             ICSetup.Insert();
         end;
+
+        OnAfterInitSetupTables();
     end;
 
     local procedure InitSourceCodeSetup()
@@ -788,6 +790,11 @@ codeunit 2 "Company-Initialize"
             exit;
 
         InitializeCompany();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitSetupTables()
+    begin
     end;
 }
 

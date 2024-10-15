@@ -878,7 +878,7 @@ table 179 "Reversal Entry"
         Error(Text004);
     end;
 
-    procedure AlreadyReversedEntry(Caption: Text[50]; EntryNo: Integer)
+    procedure AlreadyReversedEntry(Caption: Text; EntryNo: Integer)
     begin
         Error(Text011, Caption, EntryNo);
     end;

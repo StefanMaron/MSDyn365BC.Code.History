@@ -1424,14 +1424,6 @@ codeunit 134982 "ERM Financial Reports"
         FileManagement.DeleteServerFile(FileName);
     end;
 
-    [Test]
-    [HandlerFunctions('RHTrialBalance')]
-    [Scope('OnPrem')]
-    procedure TestTrialBalanceReport()
-    begin
-        RunTrialBalanceReport();
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1861,18 +1853,6 @@ codeunit 134982 "ERM Financial Reports"
     begin
         Clear(TrialBalance);
         GLAccount.SetFilter("No.", GLAccountNoFilter);
-        TrialBalance.SetTableView(GLAccount);
-        Commit();
-        TrialBalance.Run
-    end;
-
-    local procedure RunTrialBalanceReport()
-    var
-        GLAccount: Record "G/L Account";
-        TrialBalance: Report "Trial Balance";
-    begin
-        Clear(TrialBalance);
-        GLAccount.SetFilter(Balance, '<>0');
         TrialBalance.SetTableView(GLAccount);
         Commit();
         TrialBalance.Run

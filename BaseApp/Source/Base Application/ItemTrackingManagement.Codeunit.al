@@ -203,6 +203,7 @@ codeunit 6500 "Item Tracking Management"
         TrackingSpecification: Record "Tracking Specification";
         ReservEntry: Record "Reservation Entry";
         TempTrackingSpecSummedUp: Record "Tracking Specification" temporary;
+        IsHandled: Boolean;
     begin
         OK := false;
         TempInvoicingSpecification.Reset();
@@ -222,29 +223,35 @@ codeunit 6500 "Item Tracking Management"
           SourceSpecification."Source Ref. No.", true);
         TrackingSpecification.SetSourceFilter(
           SourceSpecification."Source Batch Name", SourceSpecification."Source Prod. Order Line");
-        if TrackingSpecification.FindSet() then
-            repeat
-                TrackingSpecification.TestField("Qty. to Handle (Base)", 0);
-                TrackingSpecification.TestField("Qty. to Handle", 0);
-                if not TrackingSpecification.Correction then begin
-                    TempInvoicingSpecification := TrackingSpecification;
-                    TempInvoicingSpecification."Qty. to Invoice" :=
-                      Round(TempInvoicingSpecification."Qty. to Invoice (Base)" /
-                        SourceSpecification."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-                    TempInvoicingSpecification.Insert();
-                    OK := true;
+        OnRetrieveInvoiceSpecificationOnAfterTrackingSpecificationSetFilters(SourceSpecification, TrackingSpecification);
 
-                    TempTrackingSpecSummedUp.SetTrackingFilterFromSpec(TempInvoicingSpecification);
-                    if TempTrackingSpecSummedUp.FindFirst() then begin
-                        TempTrackingSpecSummedUp."Qty. to Invoice (Base)" += TempInvoicingSpecification."Qty. to Invoice (Base)";
-                        OnBeforeTempTrackingSpecSummedUpModify(TempTrackingSpecSummedUp, TempInvoicingSpecification);
-                        TempTrackingSpecSummedUp.Modify();
-                    end else begin
-                        TempTrackingSpecSummedUp := TempInvoicingSpecification;
-                        TempTrackingSpecSummedUp.Insert();
+        IsHandled := false;
+        OnRetrieveInvoiceSpecificationOnBeforeFindTrackingSpecification(
+            TempInvoicingSpecification, TempTrackingSpecSummedUp, TrackingSpecification, SourceSpecification, OK, IsHandled);
+        if not IsHandled then
+            if TrackingSpecification.FindSet() then
+                repeat
+                    TrackingSpecification.TestField("Qty. to Handle (Base)", 0);
+                    TrackingSpecification.TestField("Qty. to Handle", 0);
+                    if not TrackingSpecification.Correction then begin
+                        TempInvoicingSpecification := TrackingSpecification;
+                        TempInvoicingSpecification."Qty. to Invoice" :=
+                        Round(TempInvoicingSpecification."Qty. to Invoice (Base)" /
+                            SourceSpecification."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+                        TempInvoicingSpecification.Insert();
+                        OK := true;
+
+                        TempTrackingSpecSummedUp.SetTrackingFilterFromSpec(TempInvoicingSpecification);
+                        if TempTrackingSpecSummedUp.FindFirst() then begin
+                            TempTrackingSpecSummedUp."Qty. to Invoice (Base)" += TempInvoicingSpecification."Qty. to Invoice (Base)";
+                            OnBeforeTempTrackingSpecSummedUpModify(TempTrackingSpecSummedUp, TempInvoicingSpecification);
+                            TempTrackingSpecSummedUp.Modify();
+                        end else begin
+                            TempTrackingSpecSummedUp := TempInvoicingSpecification;
+                            TempTrackingSpecSummedUp.Insert();
+                        end;
                     end;
-                end;
-            until TrackingSpecification.Next() = 0;
+                until TrackingSpecification.Next() = 0;
 
         if not IsConsume and (SourceSpecification."Qty. to Invoice (Base)" <> 0) then
             CheckQtyToInvoiceMatchItemTracking(
@@ -632,6 +639,7 @@ codeunit 6500 "Item Tracking Management"
                 repeat
                     ReservEntry1 := TempReservEntry;
                     ReservEntry1."Entry No." := 0;
+                    OnCopyItemTracking3OnBeforeReservEntry1Insert(ReservEntry1);
                     ReservEntry1.Insert();
                 until TempReservEntry.Next() = 0;
             end;
@@ -692,7 +700,13 @@ codeunit 6500 "Item Tracking Management"
         ItemEntryRelation: Record "Item Entry Relation";
         TrackingSpecification: Record "Tracking Specification";
         QtyBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyHandledItemTrkgToPurchLine(FromPurchLine, ToPurchLine, CheckLineQty, IsHandled);
+        if IsHandled then
+            exit;
+
         // Used for combined receipts/returns:
         if FromPurchLine.Type <> FromPurchLine.Type::Item then
             exit;
@@ -864,7 +878,7 @@ codeunit 6500 "Item Tracking Management"
 
         IsHandled := false;
         OnSplitWhseJnlLineOnAfterCheckWhseItemTrkgSetup(
-            TempWhseJnlLine, TempWhseSplitTrackingSpec, WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Info Required",
+            TempWhseJnlLine, TempWhseSplitTrackingSpec, WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required",
             TempWhseJnlLine2, IsHandled);
         if not IsHandled then
             if not WhseItemTrackingSetup.TrackingRequired() then begin
@@ -1105,8 +1119,12 @@ codeunit 6500 "Item Tracking Management"
                 TempPostedWhseRcptLine.Insert();
             until WhseItemTrackingLine.Next() = 0
         else begin
-            TempPostedWhseRcptLine := PostedWhseRcptLine;
-            TempPostedWhseRcptLine.Insert();
+            IsHandled := false;
+            OnSplitInternalPutAwayLineOnNotFindWhseItemTrackingLine(PostedWhseRcptLine, TempPostedWhseRcptLine, IsHandled);
+            if not IsHandled then begin
+                TempPostedWhseRcptLine := PostedWhseRcptLine;
+                TempPostedWhseRcptLine.Insert();
+            end;
         end
     end;
 
@@ -4170,6 +4188,31 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyHandledItemTrkgToPurchLineOnAfterFilterItemEntryRelation(var ItemEntryRelation: Record "Item Entry Relation"; var FromPurchLine: Record "Purchase Line"; var ToPurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveInvoiceSpecificationOnBeforeFindTrackingSpecification(var TempInvoicingSpecification: Record "Tracking Specification" temporary; var TempTrackingSpecSummedUp: Record "Tracking Specification" temporary; TrackingSpecification: Record "Tracking Specification"; SourceSpecification: Record "Tracking Specification"; var OK: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCopyHandledItemTrkgToPurchLine(FromPurchLine: Record "Purchase Line"; var ToPurchLine: Record "Purchase Line"; CheckLineQty: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCopyItemTracking3OnBeforeReservEntry1Insert(var ReservEntry1: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveInvoiceSpecificationOnAfterTrackingSpecificationSetFilters(SourceSpecification: Record "Tracking Specification"; var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitInternalPutAwayLineOnNotFindWhseItemTrackingLine(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var TempPostedWhseRcptLine: Record "Posted Whse. Receipt Line" temporary; var IsHandled: Boolean)
     begin
     end;
 }

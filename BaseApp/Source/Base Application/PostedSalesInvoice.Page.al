@@ -734,7 +734,7 @@ page 132 "Posted Sales Invoice"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(112),
+                SubPageLink = "Table ID" = CONST(Database::"Sales Invoice Header"),
                               "No." = FIELD("No.");
             }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
