@@ -4,6 +4,12 @@ codeunit 1381 "Customer Templ. Mgt."
     begin
     end;
 
+    var
+        TemplatesDisabledTxt: Label 'Contact conversion templates are being replaced by customer templates to avoid duplication. We have migrated your existing contact conversion templates to customer templates. Going forward, use only customer templates. Contact conversion templates are no longer used.';
+        LearnMoreTxt: Label 'Learn more';
+        LearnMoreUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2171036', Locked = true;
+        OpenPageTxt: Label 'Open the %1 page', Comment = '%1 = page caption';
+
     procedure CreateCustomerFromTemplate(var Customer: Record Customer; var IsHandled: Boolean): Boolean
     var
         CustomerTempl: Record "Customer Templ.";
@@ -60,52 +66,45 @@ codeunit 1381 "Customer Templ. Mgt."
 
     local procedure ApplyTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
     var
+        CustomerRecRef: RecordRef;
+        EmptyCustomerRecRef: RecordRef;
+        CustomerTemplRecRef: RecordRef;
+        EmptyCustomerTemplRecRef: RecordRef;
+        CustomerFldRef: FieldRef;
+        EmptyCustomerFldRef: FieldRef;
+        CustomerTemplFldRef: FieldRef;
+        EmptyCustomerTemplFldRef: FieldRef;
         IsHandled: Boolean;
+        i: Integer;
+        FieldExclusionList: List of [Integer];
     begin
         IsHandled := false;
         OnBeforeApplyTemplate(Customer, CustomerTempl, IsHandled);
         if IsHandled then
             exit;
 
-        if CustomerTempl.City <> '' then
-            Customer.City := CustomerTempl.City;
-        Customer."Customer Posting Group" := CustomerTempl."Customer Posting Group";
-        if (CustomerTempl."Currency Code" <> '') and (Customer."Currency Code" = '') then
-            Customer."Currency Code" := CustomerTempl."Currency Code";
-        if (CustomerTempl."Language Code" <> '') and (Customer."Language Code" = '') then
-            Customer."Language Code" := CustomerTempl."Language Code";
-        Customer."Payment Terms Code" := CustomerTempl."Payment Terms Code";
-        Customer."Fin. Charge Terms Code" := CustomerTempl."Fin. Charge Terms Code";
+        CustomerRecRef.GetTable(Customer);
+        EmptyCustomerRecRef.Open(Database::Customer);
+        EmptyCustomerRecRef.Init();
+        CustomerTemplRecRef.GetTable(CustomerTempl);
+        EmptyCustomerTemplRecRef.Open(Database::"Customer Templ.");
+        EmptyCustomerTemplRecRef.Init();
+
+        FillFieldExclusionList(FieldExclusionList);
+
+        for i := 3 to CustomerTemplRecRef.FieldCount do begin
+            CustomerTemplFldRef := CustomerTemplRecRef.FieldIndex(i);
+            if TemplateFieldCanBeProcessed(CustomerTemplFldRef, FieldExclusionList) then begin
+                CustomerFldRef := CustomerRecRef.Field(CustomerTemplFldRef.Number);
+                EmptyCustomerFldRef := EmptyCustomerRecRef.Field(CustomerTemplFldRef.Number);
+                EmptyCustomerTemplFldRef := EmptyCustomerTemplRecRef.Field(CustomerTemplFldRef.Number);
+                if (CustomerFldRef.Value = EmptyCustomerFldRef.Value) and (CustomerTemplFldRef.Value <> EmptyCustomerTemplFldRef.Value) then
+                    CustomerFldRef.Value := CustomerTemplFldRef.Value;
+            end;
+        end;
+        CustomerRecRef.SetTable(Customer);
         if CustomerTempl."Invoice Disc. Code" <> '' then
             Customer."Invoice Disc. Code" := CustomerTempl."Invoice Disc. Code";
-        if (CustomerTempl."Country/Region Code" <> '') and (Customer."Country/Region Code" = '') then
-            Customer."Country/Region Code" := CustomerTempl."Country/Region Code";
-        Customer."Bill-to Customer No." := CustomerTempl."Bill-to Customer No.";
-        Customer."Payment Method Code" := CustomerTempl."Payment Method Code";
-        Customer."Application Method" := CustomerTempl."Application Method";
-        Customer."Prices Including VAT" := CustomerTempl."Prices Including VAT";
-        Customer."Gen. Bus. Posting Group" := CustomerTempl."Gen. Bus. Posting Group";
-        if CustomerTempl."Post Code" <> '' then
-            Customer."Post Code" := CustomerTempl."Post Code";
-        if CustomerTempl.County <> '' then
-            Customer.County := CustomerTempl.County;
-        Customer."VAT Bus. Posting Group" := CustomerTempl."VAT Bus. Posting Group";
-        Customer."Block Payment Tolerance" := CustomerTempl."Block Payment Tolerance";
-        Customer."Validate EU Vat Reg. No." := CustomerTempl."Validate EU Vat Reg. No.";
-        Customer.Blocked := CustomerTempl.Blocked;
-        Customer."Shipment Method Code" := CustomerTempl."Shipment Method Code";
-        Customer."Reminder Terms Code" := CustomerTempl."Reminder Terms Code";
-        Customer."Print Statements" := CustomerTempl."Print Statements";
-        Customer."Customer Price Group" := CustomerTempl."Customer Price Group";
-        Customer."Customer Disc. Group" := CustomerTempl."Customer Disc. Group";
-        Customer."Document Sending Profile" := CustomerTempl."Document Sending Profile";
-        if (CustomerTempl."Territory Code" <> '') and (Customer."Territory Code" = '') then
-            Customer."Territory Code" := CustomerTempl."Territory Code";
-        Customer."Credit Limit (LCY)" := CustomerTempl."Credit Limit (LCY)";
-        Customer."Allow Line Disc." := CustomerTempl."Allow Line Disc.";
-        Customer."Contact Type" := CustomerTempl."Contact Type";
-        Customer."Partner Type" := CustomerTempl."Partner Type";
-        Customer."Location Code" := CustomerTempl."Location Code";
         OnApplyTemplateOnBeforeCustomerModify(Customer, CustomerTempl);
         Customer.Modify(true);
     end;
@@ -273,41 +272,15 @@ codeunit 1381 "Customer Templ. Mgt."
     end;
 
     local procedure InsertTemplateFromCustomer(var CustomerTempl: Record "Customer Templ."; Customer: Record Customer)
+    var
+        SavedCustomerTempl: Record "Customer Templ.";
     begin
         CustomerTempl.Init();
         CustomerTempl.Code := GetCustomerTemplCode();
-
-        CustomerTempl.City := Customer.City;
-        CustomerTempl."Customer Posting Group" := Customer."Customer Posting Group";
-        CustomerTempl."Currency Code" := Customer."Currency Code";
-        CustomerTempl."Language Code" := Customer."Language Code";
-        CustomerTempl."Payment Terms Code" := Customer."Payment Terms Code";
-        CustomerTempl."Fin. Charge Terms Code" := Customer."Fin. Charge Terms Code";
-        CustomerTempl."Invoice Disc. Code" := Customer."Invoice Disc. Code";
-        CustomerTempl."Country/Region Code" := Customer."Country/Region Code";
-        CustomerTempl."Bill-to Customer No." := Customer."Bill-to Customer No.";
-        CustomerTempl."Payment Method Code" := Customer."Payment Method Code";
-        CustomerTempl."Application Method" := Customer."Application Method";
-        CustomerTempl."Prices Including VAT" := Customer."Prices Including VAT";
-        CustomerTempl."Gen. Bus. Posting Group" := Customer."Gen. Bus. Posting Group";
-        CustomerTempl."Post Code" := Customer."Post Code";
-        CustomerTempl.County := Customer.County;
-        CustomerTempl."VAT Bus. Posting Group" := Customer."VAT Bus. Posting Group";
-        CustomerTempl."Block Payment Tolerance" := Customer."Block Payment Tolerance";
-        CustomerTempl."Validate EU Vat Reg. No." := Customer."Validate EU Vat Reg. No.";
-        CustomerTempl.Blocked := Customer.Blocked;
-        CustomerTempl."Shipment Method Code" := Customer."Shipment Method Code";
-        CustomerTempl."Reminder Terms Code" := Customer."Reminder Terms Code";
-        CustomerTempl."Print Statements" := Customer."Print Statements";
-        CustomerTempl."Customer Price Group" := Customer."Customer Price Group";
-        CustomerTempl."Customer Disc. Group" := Customer."Customer Disc. Group";
-        CustomerTempl."Document Sending Profile" := Customer."Document Sending Profile";
-        CustomerTempl."Territory Code" := Customer."Territory Code";
-        CustomerTempl."Credit Limit (LCY)" := Customer."Credit Limit (LCY)";
-        CustomerTempl."Allow Line Disc." := Customer."Allow Line Disc.";
-        CustomerTempl."Partner Type" := Customer."Partner Type";
-        CustomerTempl."Location Code" := Customer."Location Code";
-
+        SavedCustomerTempl := CustomerTempl;
+        CustomerTempl.TransferFields(Customer);
+        CustomerTempl.Code := SavedCustomerTempl.Code;
+        CustomerTempl.Description := SavedCustomerTempl.Description;
         CustomerTempl.Insert();
     end;
 
@@ -365,6 +338,22 @@ codeunit 1381 "Customer Templ. Mgt."
             exit;
 
         NoSeriesManagement.InitSeries(CustomerTempl."No. Series", '', 0D, Customer."No.", Customer."No. Series");
+    end;
+
+    local procedure TemplateFieldCanBeProcessed(TemplateFldRef: FieldRef; FieldExclusionList: List of [Integer]): Boolean
+    begin
+        exit(not (FieldExclusionList.Contains(TemplateFldRef.Number) or (TemplateFldRef.Number > 2000000000)));
+    end;
+
+    local procedure FillFieldExclusionList(var FieldExclusionList: List of [Integer])
+    var
+        CustomerTempl: Record "Customer Templ.";
+    begin
+        FieldExclusionList.Add(CustomerTempl.FieldNo("Invoice Disc. Code"));
+        FieldExclusionList.Add(CustomerTempl.FieldNo("No. Series"));
+		FieldExclusionList.Add(CustomerTempl.FieldNo(State));
+
+        OnAfterFillFieldExclusionList(FieldExclusionList);
     end;
 
     [IntegrationEvent(false, false)]
@@ -427,6 +416,11 @@ codeunit 1381 "Customer Templ. Mgt."
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillFieldExclusionList(var FieldExclusionList: List of [Integer])
+    begin
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Templ. Mgt.", 'OnInsertCustomerFromTemplate', '', false, false)]
     local procedure OnInsertCustomerFromTemplateHandler(var Customer: Record Customer; var Result: Boolean; var IsHandled: Boolean)
     begin
@@ -479,5 +473,42 @@ codeunit 1381 "Customer Templ. Mgt."
             exit;
 
         ShowCustomerTemplList(IsHandled);
+    end;
+
+    procedure ShowContactConversionTemplatesNotification()
+    var
+        TemplateFeatureMgt: Codeunit "Template Feature Mgt.";
+        CustomerTemplList: Page "Customer Templ. List";
+        Notification: Notification;
+    begin
+        if not TemplateFeatureMgt.IsEnabled() then
+            exit;
+
+        Notification.Message(TemplatesDisabledTxt);
+        Notification.AddAction(LearnMoreTxt, Codeunit::"Customer Templ. Mgt.", 'OpenLearnMore');
+        Notification.AddAction(StrSubstNo(OpenPageTxt, CustomerTemplList.Caption), Codeunit::"Customer Templ. Mgt.", 'OpenCustomerTemplListPage');
+        Notification.Send();
+    end;
+
+    procedure OpenLearnMore(Notification: Notification)
+    begin
+        Hyperlink(LearnMoreUrlTxt);
+    end;
+
+    procedure OpenCustomerTemplListPage(Notification: Notification)
+    begin
+        Page.Run(Page::"Customer Templ. List");
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Customer Template List", 'OnOpenPageEvent', '', false, false)]
+    local procedure CustomerTemplateListOnOpenPageEventHandler()
+    begin
+        ShowContactConversionTemplatesNotification();
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Customer Template Card", 'OnOpenPageEvent', '', false, false)]
+    local procedure CustomerTemplateCardOnOpenPageEventHandler()
+    begin
+        ShowContactConversionTemplatesNotification();
     end;
 }

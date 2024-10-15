@@ -565,6 +565,7 @@ page 5050 "Contact Card"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this contact.';
+                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -1263,12 +1264,10 @@ page 5050 "Contact Card"
 
                 trigger OnAction()
                 var
-                    Email: Codeunit Email;
-                    EmailMessage: Codeunit "Email Message";
+                    EmailMgt: Codeunit "Mail Management";
                 begin
-                    EmailMessage.Create(Rec."E-Mail", '', '', true);
-                    Email.AddRelation(EmailMessage, Database::Contact, Rec.SystemId, Enum::"Email Relation Type"::"Primary Source");
-                    Email.OpenInEditorModally(EmailMessage);
+                    EmailMgt.AddSource(Database::Contact, Rec.SystemId);
+                    EmailMgt.Run();
                 end;
             }
             action("Create Opportunity")
@@ -1372,8 +1371,10 @@ page 5050 "Contact Card"
     trigger OnOpenPage()
     var
         OfficeManagement: Codeunit "Office Management";
+        EmailFeature: Codeunit "Email Feature";
     begin
         IsOfficeAddin := OfficeManagement.IsAvailable;
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
@@ -1395,6 +1396,7 @@ page 5050 "Contact Card"
         CompanyNameEnable: Boolean;
         [InDataSet]
         OrganizationalLevelCodeEnable: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
         CompanyGroupEnabled: Boolean;
         PersonGroupEnabled: Boolean;
         ExtendedPriceEnabled: Boolean;

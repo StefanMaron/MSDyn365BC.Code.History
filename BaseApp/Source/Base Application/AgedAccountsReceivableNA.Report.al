@@ -363,6 +363,8 @@ report 10040 "Aged Accounts Receivable NA"
 
                         if PrintDetail and PrintToExcel then
                             MakeExcelDataBody();
+
+                        NumberOfLines += 1;
                     end;
 
                     trigger OnPostDataItem()
@@ -577,10 +579,16 @@ report 10040 "Aged Accounts Receivable NA"
     begin
         if PrintToExcel then
             CreateExcelbook();
+
+        FinishDateTime := CurrentDateTime();
+        LogReportTelemetry(StartDateTime, FinishDateTime, NumberOfLines);
     end;
 
     trigger OnPreReport()
     begin
+        StartDateTime := CurrentDateTime();
+        NumberOfLines := 0;
+
         if Format(PeriodCalculation) <> '' then
             Evaluate(PeriodCalculation, '-' + Format(PeriodCalculation));
         if Format(ShowOnlyOverDueBy) <> '' then
@@ -740,6 +748,13 @@ report 10040 "Aged Accounts Receivable NA"
         TotalNumberOfEntries: Integer;
         GrandTotalBalanceDue: Decimal;
         GrandBalanceDue: array[4] of Decimal;
+        TelemetryCategoryTxt: Label 'Report', Locked = true;
+        AgedARReportGeneratedTxt: Label 'Aged AR Report generated.', Locked = true;
+
+    protected var
+        NumberOfLines: Integer;
+        StartDateTime: DateTime;
+        FinishDateTime: DateTime;
 
     local procedure InsertTemp(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
@@ -901,6 +916,20 @@ report 10040 "Aged Accounts Receivable NA"
     local procedure CreateExcelbook()
     begin
         ExcelBuf.CreateBookAndOpenExcel('', DataLbl, AgedAccountsReceivableLbl, CompanyName(), UserId());
+    end;
+
+    local procedure LogReportTelemetry(StartDateTime: DateTime; FinishDateTime: DateTime; NumberOfLines: Integer)
+    var
+        Dimensions: Dictionary of [Text, Text];
+        ReportDuration: BigInteger;
+    begin
+        ReportDuration := FinishDateTime - StartDateTime;
+        Dimensions.Add('Category', TelemetryCategoryTxt);
+        Dimensions.Add('ReportStartTime', Format(StartDateTime, 0, 9));
+        Dimensions.Add('ReportFinishTime', Format(FinishDateTime, 0, 9));
+        Dimensions.Add('ReportDuration', Format(ReportDuration));
+        Dimensions.Add('NumberOfLines', Format(NumberOfLines));
+        Session.LogMessage('0000FJM', AgedARReportGeneratedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
     end;
 }
 

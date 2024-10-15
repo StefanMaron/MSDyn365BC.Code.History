@@ -525,7 +525,14 @@ table 10121 "Bank Rec. Line"
         BankRecPost: Codeunit "Bank Rec.-Post";
 
     procedure SetUpNewLine(LastBankRecLine: Record "Bank Rec. Line"; Balance: Decimal; BottomLine: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetUpNewLine(Rec, LastBankRecLine, IsHandled);
+        if IsHandled then
+            exit;
+
         GLSetup.Get();
         BankRecLine.SetRange("Bank Account No.", "Bank Account No.");
         BankRecLine.SetRange("Statement No.", "Statement No.");
@@ -567,6 +574,7 @@ table 10121 "Bank Rec. Line"
         GLSetup.Get();
         Clear(NoSeriesMgt);
         "Document No." := NoSeriesMgt.TryGetNextNo(GLSetup."Bank Rec. Adj. Doc. Nos.", "Posting Date");
+        OnAfterGenerateDocNo(Rec);
     end;
 
     local procedure CheckGLAcc()
@@ -659,10 +667,21 @@ table 10121 "Bank Rec. Line"
         No[4] := No4;
         TableID[5] := Type5;
         No[5] := No5;
+        ClearAndAssignDefaultDimSetID(TableID, No);
+    end;
+
+    local procedure ClearAndAssignDefaultDimSetID(var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeClearAndAssignDefaultDimSetID(Rec, TableID, No, IsHandled);
+        if IsHandled then
+            exit;
+
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
-        "Dimension Set ID" :=
-          DimMgt.GetDefaultDimID(TableID, No, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+        "Dimension Set ID" := DimMgt.GetDefaultDimID(TableID, No, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -688,7 +707,13 @@ table 10121 "Bank Rec. Line"
         BankRecSubLine: Record "Bank Rec. Sub-line";
         BankLedgerEntry: Record "Bank Account Ledger Entry";
         NextBankRecLineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExpandLine(Rec, DepositBankRecLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with DepositBankRecLine do begin
             if ("Record Type" <> "Record Type"::Deposit) or
                ("Collapse Status" <> "Collapse Status"::"Collapsed Deposit") or
@@ -803,6 +828,8 @@ table 10121 "Bank Rec. Line"
                     "Cleared Amount" := Amount
                 else
                     "Cleared Amount" := 0;
+                OnCollapseLinesOnAfterAssignClearedAmount(Rec, DepositBankRecLine);
+
                 "Bank Ledger Entry No." := 0;
                 "Check Ledger Entry No." := 0;
                 "Shortcut Dimension 1 Code" := '';
@@ -822,6 +849,8 @@ table 10121 "Bank Rec. Line"
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec);
     end;
 
     local procedure UpdateLedgers()
@@ -865,6 +894,36 @@ table 10121 "Bank Rec. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBalAccountType(var BankRecLine: Record "Bank Rec. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetUpNewLine(var BankRecLine: Record "Bank Rec. Line"; var LastBankRecLine: Record "Bank Rec. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGenerateDocNo(var BankRecLine: Record "Bank Rec. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearAndAssignDefaultDimSetID(var BankAccRecLine: Record "Bank Rec. Line"; TableID: array[10] of Integer; No: array[10] of Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var BankAccRecLine: Record "Bank Rec. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExpandLine(var BankRecLineRec: Record "Bank Rec. Line"; var DepositBankRecLine: Record "Bank Rec. Line"; IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollapseLinesOnAfterAssignClearedAmount(var BankRecLineRec: Record "Bank Rec. Line"; var DepositBankRecLine: Record "Bank Rec. Line");
     begin
     end;
 }

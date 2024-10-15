@@ -20,24 +20,14 @@ codeunit 10120 "Bank Rec.-Post"
             TestField("Statement No.");
             TestField("Bank Account No.");
 
-            CalculateBalance;
-            if ("G/L Balance" +
-                ("Positive Adjustments" - "Negative Bal. Adjustments") +
-                ("Negative Adjustments" - "Positive Bal. Adjustments")) -
-               (("Statement Balance" + "Outstanding Deposits") - "Outstanding Checks") <> 0
-            then
-                Error(Text007);
+            CalculateBankRecHeaderBalance(BankRecHeader);
+            CheckBankRecDifference(BankRecHeader);
 
             CalcFields("Total Adjustments", "Total Balanced Adjustments");
             if ("Total Adjustments" - "Total Balanced Adjustments") <> 0 then
                 Error(Text008);
 
-            Window.Open(Text001 +
-              Text002 +
-              Text003 +
-              Text004 +
-              Text005 +
-              Text006);
+            OpenProcessingDialog();
 
             Window.Update(1, "Bank Account No.");
             Window.Update(2, "Statement No.");
@@ -51,12 +41,13 @@ codeunit 10120 "Bank Rec.-Post"
 
             SetRange("Date Filter", "Statement Date");
             CalcFields("G/L Balance (LCY)");
-            CalculateBalance;
+            CalculateBankRecHeaderBalance(BankRecHeader);
 
             PostedBankRecHeader.Init();
             PostedBankRecHeader.TransferFields(BankRecHeader, true);
             PostedBankRecHeader."G/L Balance (LCY)" := "G/L Balance (LCY)";
             PostedBankRecHeader.Insert();
+            OnRunOnAftertPostedBankRecHeaderInsert(PostedBankRecHeader, BankRecHeader);
 
             BankRecCommentLine.SetCurrentKey("Table Name",
               "Bank Account No.",
@@ -102,6 +93,8 @@ codeunit 10120 "Bank Rec.-Post"
                     PostedBankRecLine.TransferFields(BankRecLine, true);
                     PostedBankRecLine.Insert();
                 until BankRecLine.Next() = 0;
+
+            OnRunOnBeforeBankRecLineDeleteAll(BankRecLine);
             BankRecLine.DeleteAll();
             BankRecSubLine.Reset();
             BankRecSubLine.SetRange("Bank Account No.", "Bank Account No.");
@@ -148,6 +141,53 @@ codeunit 10120 "Bank Rec.-Post"
         Text007: Label 'Difference must be zero before the statement can be posted.';
         Text008: Label 'Balance of adjustments must be zero before posting.';
         NoSeriesMgt: Codeunit NoSeriesManagement;
+
+    local procedure CalculateBankRecHeaderBalance(var BankRecHeader: Record "Bank Rec. Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalculateBankRecHeaderBalance(BankRecHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        BankRecHeader.CalculateBalance();
+    end;
+
+    local procedure CheckBankRecDifference(var BankRecHeader: Record "Bank Rec. Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBankRecDifference(BankRecHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        with BankRecHeader do
+            if ("G/L Balance" +
+                ("Positive Adjustments" - "Negative Bal. Adjustments") +
+                ("Negative Adjustments" - "Positive Bal. Adjustments")) -
+               (("Statement Balance" + "Outstanding Deposits") - "Outstanding Checks") <> 0
+            then
+                Error(Text007);
+    end;
+
+    local procedure OpenProcessingDialog()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenProcessingDialog(Window, IsHandled);
+        if IsHandled then
+            exit;
+
+        Window.Open(Text001 +
+          Text002 +
+          Text003 +
+          Text004 +
+          Text005 +
+          Text006);
+    end;
 
     procedure UpdateLedgers(BankRecLine3: Record "Bank Rec. Line"; UseStatus: Option Open,Cleared,Posted)
     var
@@ -252,7 +292,13 @@ codeunit 10120 "Bank Rec.-Post"
     var
         GenJnlLine: Record "Gen. Journal Line";
         GLEntry: Record "G/L Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostAdjustmentToGL(BankRecLine2, BankRecHeader, BankRecLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with BankRecLine2 do
             if Amount <> 0 then begin
                 GenJnlLine.Init();
@@ -302,7 +348,37 @@ codeunit 10120 "Bank Rec.-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateBankRecHeaderBalance(var BankRecHeader: Record "Bank Rec. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBankRecDifference(var BankRecHeader: Record "Bank Rec. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenProcessingDialog(var Window: Dialog; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostAdjustmentToGL(var BankRecLine2: Record "Bank Rec. Line"; var BankRecHeader: Record "Bank Rec. Header"; var BankRecLine: Record "Bank Rec. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostAdjustmentToGLOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record "Gen. Journal Line"; BankRecLine: Record "Bank Rec. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeBankRecLineDeleteAll(var BankRecLine: Record "Bank Rec. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAftertPostedBankRecHeaderInsert(var PostedBankRecHeader: Record "Posted Bank Rec. Header"; var BankRecHeader: Record "Bank Rec. Header")
     begin
     end;
 }

@@ -280,13 +280,14 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
         InsertIntoCheckLedger(GenJournalLine, BankAccountNo);
     end;
 
-    local procedure InsertIntoCheckLedger(GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20])
+    local procedure InsertIntoCheckLedger(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20])
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
         BankAccount: Record "Bank Account";
         CheckManagement: Codeunit CheckManagement;
         BankAccountIs: Option Acnt,BalAcnt;
     begin
+        OnBeforeInsertIntoCheckLedger(GenJournalLine);
         BankAccount.Get(BankAccountNo);
 
         if GenJournalLine."Account Type" = GenJournalLine."Account Type"::"Bank Account" then
@@ -387,9 +388,20 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
                 if ProcessLine(GenJournalLine) then begin
                     GenJournalLine."Document No." := '';
                     GenJournalLine.Modify();
+                    OnClearDocNoPreviewOnAfterGenJournalLineModify(GenJournalLine);
                 end;
             until GenJournalLineRecRef.Next() = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertIntoCheckLedger(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnClearDocNoPreviewOnAfterGenJournalLineModify(var GenJournalLine: Record "Gen. Journal Line")
+    begin
     end;
 }
 

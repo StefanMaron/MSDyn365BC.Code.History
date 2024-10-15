@@ -278,6 +278,7 @@ page 27010 "Mexican CFDI Wizard"
             PostCode := CompanyInformation."SAT Postal Code";
             TaxScheme := CompanyInformation."SAT Tax Regime Classification";
         end;
+        GeneralLdegerSetup.Get();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -292,6 +293,7 @@ page 27010 "Mexican CFDI Wizard"
         MediaRepositoryDone: Record "Media Repository";
         MediaResourcesStandard: Record "Media Resources";
         MediaResourcesDone: Record "Media Resources";
+        GeneralLdegerSetup: Record "General Ledger Setup";
         Step: Option Start,Populate,Map,Company,PaymentMethods,PaymentTerms,Item,Customer,Finish;
         TopBannerVisible: Boolean;
         FirstStepVisible: Boolean;
@@ -341,7 +343,8 @@ page 27010 "Mexican CFDI Wizard"
 
     local procedure FinishAction()
     begin
-        CurrPage.Close;
+        GeneralLdegerSetup.Modify(true);
+        CurrPage.Close();
     end;
 
     local procedure NextStep(Backwards: Boolean)
@@ -349,14 +352,17 @@ page 27010 "Mexican CFDI Wizard"
         SATUtilities: Codeunit "SAT Utilities";
     begin
         // find out if system data already entered.  Then move by 2.
-        if (Step = Step::Start) and (not Backwards) then
-            if DoesSATInfoAlreadyExist then begin
+        if (Step = Step::Start) and (not Backwards) then begin
+            if not ConfirmCustomerConsent() then
+                exit;
+            if DoesSATInfoAlreadyExist() then begin
                 Step := Step + 2;
                 EnableControls;
                 exit;
             end;
+        end;
         if (Step = Step::Map) and Backwards then
-            if DoesSATInfoAlreadyExist then begin
+            if DoesSATInfoAlreadyExist() then begin
                 Step := Step - 2;
                 EnableControls;
                 exit;
@@ -563,6 +569,13 @@ page 27010 "Mexican CFDI Wizard"
                 "SAT Tax Regime Classification" := TaxScheme;
                 Modify;
             end;
+    end;
+
+    local procedure ConfirmCustomerConsent() : Boolean
+    begin
+        GeneralLdegerSetup.Get();
+        GeneralLdegerSetup.Validate("CFDI Enabled", true);
+        exit(GeneralLdegerSetup."CFDI Enabled");
     end;
 }
 

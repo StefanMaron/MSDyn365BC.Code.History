@@ -295,13 +295,9 @@ page 9308 "Purchase Invoices"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
+                        PrepareOpeningDocumentStatistics();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                        if "Tax Area Code" = '' then
-                            PAGE.RunModal(PAGE::"Purchase Statistics", Rec)
-                        else
-                            PAGE.RunModal(PAGE::"Purchase Stats.", Rec)
+                        ShowDocumentStatisticsPage();
                     end;
                 }
                 action("Co&mments")

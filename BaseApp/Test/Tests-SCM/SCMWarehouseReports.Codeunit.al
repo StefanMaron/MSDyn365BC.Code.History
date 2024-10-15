@@ -2172,6 +2172,64 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('WhsePostedShipmentRequestPageHandler')]
+    procedure MultipleReportsInReportSelectionWarehouse()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        PostedWhseShipmentHeader: Record "Posted Whse. Shipment Header";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
+        NoOfRuns: Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Warehouse Shipment] [Print]
+        // [SCENARIO 404205] Printing several reports selected in "Report Selection - Warehouse".
+        Initialize();
+        NoOfRuns := 2;
+
+        // [GIVEN] Two reports in Report Selection Warehouse for posted shipment.
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Posted Shipment");
+        ReportSelectionWarehouse.DeleteAll();
+        for i := 1 to NoOfRuns do begin
+            ReportSelectionWarehouse.Init();
+            ReportSelectionWarehouse.Validate(Usage, ReportSelectionWarehouse.Usage::"Posted Shipment");
+            ReportSelectionWarehouse.Validate(Sequence, Format(i));
+            ReportSelectionWarehouse.Validate("Report ID", REPORT::"Whse. - Posted Shipment");
+            ReportSelectionWarehouse.Insert(true);
+        end;
+
+        // [GIVEN] Location with required shipment.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Sales order, release.
+        CreateSalesOrder(SalesHeader, Location.Code, LibraryInventory.CreateItemNo(), '', LibraryRandom.RandInt(10));
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create warehouse shipment.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Post warehouse shipment.
+        WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
+        WarehouseShipmentHeader.FindFirst();
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+        PostedWhseShipmentHeader.SetRange("Whse. Shipment No.", WarehouseShipmentHeader."No.");
+        PostedWhseShipmentHeader.FindFirst();
+
+        // [WHEN] Print posted warehouse shipment.
+        LibraryVariableStorage.Enqueue(0);
+        WarehouseDocumentPrint.PrintPostedShptHeader(PostedWhseShipmentHeader);
+
+        // [THEN] Two reports are printed.
+        Assert.AreEqual(NoOfRuns, LibraryVariableStorage.DequeueInteger(), StrSubstNo('Report must be run %1 times', NoOfRuns));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3273,5 +3331,11 @@ codeunit 137305 "SCM Warehouse Reports"
         SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
+    [RequestPageHandler]
+    procedure WhsePostedShipmentRequestPageHandler(var WhsePostedShipment: TestRequestPage "Whse. - Posted Shipment")
+    begin
+        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger() + 1);
+        WhsePostedShipment.Cancel.Invoke();
+    end;
 }
 

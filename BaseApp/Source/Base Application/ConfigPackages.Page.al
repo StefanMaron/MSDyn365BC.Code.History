@@ -101,7 +101,6 @@ page 8615 "Config. Packages"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Export Package';
                     Ellipsis = true;
-                    Enabled = AditionalOptionsEnabled;
                     Image = Export;
                     Promoted = true;
                     PromotedCategory = Process;
@@ -119,7 +118,6 @@ page 8615 "Config. Packages"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Import Package';
                     Ellipsis = true;
-                    Enabled = AditionalOptionsEnabled;
                     Image = Import;
                     Promoted = true;
                     PromotedCategory = Process;
@@ -166,7 +164,6 @@ page 8615 "Config. Packages"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Export to Excel';
-                    Enabled = AditionalOptionsEnabled;
                     Image = ExportToExcel;
                     Promoted = true;
                     PromotedCategory = Category5;
@@ -189,7 +186,6 @@ page 8615 "Config. Packages"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Import from Excel';
-                    Enabled = AditionalOptionsEnabled;
                     Image = ImportExcel;
                     Promoted = true;
                     PromotedCategory = Category5;
@@ -326,11 +322,9 @@ page 8615 "Config. Packages"
     trigger OnOpenPage()
     var
         ConfigurationPackageFile: Record "Configuration Package File";
-        ConfigPackage: Record "Config. Package";
         ConfigPackageMgt: Codeunit "Config. Package Management";
     begin
         ImportPredefinedPackageVisible := not ConfigurationPackageFile.IsEmpty;
-        AditionalOptionsEnabled := ConfigPackage.WritePermission;
         ConfigPackageMgt.ShowRapidStartNotification();
     end;
 
@@ -343,6 +337,5 @@ page 8615 "Config. Packages"
         ValidationCanceledMsg: Label 'Validation canceled.';
         BackgroundSessionId: Integer;
         ImportPredefinedPackageVisible: Boolean;
-        AditionalOptionsEnabled: Boolean;
 }
 

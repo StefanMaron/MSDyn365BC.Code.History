@@ -16,8 +16,9 @@ codeunit 87 "Blanket Sales Order to Order"
         ShouldRedistributeInvoiceAmount: Boolean;
         CreditLimitExceeded: Boolean;
         IsHandled: Boolean;
+        SuppressCommit: Boolean;
     begin
-        OnBeforeRun(Rec);
+        OnBeforeRun(Rec, HideValidationDialog);
 
         TestField("Document Type", "Document Type"::"Blanket Order");
         ShouldRedistributeInvoiceAmount := SalesCalcDiscountByType.ShouldRedistributeInvoiceDiscountAmount(Rec);
@@ -146,8 +147,9 @@ codeunit 87 "Blanket Sales Order to Order"
         if (not HideValidationDialog) and (not CreditLimitExceeded) then
             CustCheckCreditLimit.BlanketSalesOrderToOrderCheck(SalesOrderHeader);
 
-        OnBeforeReserveItemsManuallyLoop(Rec, SalesOrderHeader, TempSalesLine);
-        Commit();
+        OnBeforeReserveItemsManuallyLoop(Rec, SalesOrderHeader, TempSalesLine, SuppressCommit);
+        if not SuppressCommit then
+            Commit();
 
         if GuiAllowed then
             if TempSalesLine.Find('-') then
@@ -371,7 +373,7 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRun(var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeRun(var SalesHeader: Record "Sales Header"; var HideValidationDialog: Boolean)
     begin
     end;
 
@@ -431,7 +433,7 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReserveItemsManuallyLoop(var SalesHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
+    local procedure OnBeforeReserveItemsManuallyLoop(var SalesHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; var SuppressCommit: Boolean)
     begin
     end;
 

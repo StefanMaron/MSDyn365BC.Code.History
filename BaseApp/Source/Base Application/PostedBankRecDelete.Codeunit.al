@@ -1,4 +1,4 @@
-codeunit 10125 "Posted Bank Rec.-Delete"
+﻿codeunit 10125 "Posted Bank Rec.-Delete"
 {
     Permissions = TableData "Bank Comment Line" = rd,
                   TableData "Posted Bank Rec. Header" = rd,
@@ -16,11 +16,17 @@ codeunit 10125 "Posted Bank Rec.-Delete"
         BankRecCommentLines.SetRange("No.", "Statement No.");
         BankRecCommentLines.DeleteAll();
 
+        OnRunOnBeforeDelete(Rec);
         Delete;
     end;
 
     var
         PostedBankRecLines: Record "Posted Bank Rec. Line";
         BankRecCommentLines: Record "Bank Comment Line";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeDelete(var PostedBankRecHeader: Record "Posted Bank Rec. Header")
+    begin
+    end;
 }
 

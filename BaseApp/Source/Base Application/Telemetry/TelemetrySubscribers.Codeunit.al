@@ -80,6 +80,9 @@ codeunit 1351 "Telemetry Subscribers"
         PermissionSetLink: Record "Permission Set Link";
         Dimensions: Dictionary of [Text, Text];
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not IsSaaS() then
             exit;
 
@@ -98,6 +101,9 @@ codeunit 1351 "Telemetry Subscribers"
         PermissionSetLink: Record "Permission Set Link";
         Dimensions: Dictionary of [Text, Text];
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not IsSaaS() then
             exit;
 
@@ -114,6 +120,9 @@ codeunit 1351 "Telemetry Subscribers"
         TenantPermissionSet: Record "Tenant Permission Set";
         Dimensions: Dictionary of [Text, Text];
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not IsSaaS() then
             exit;
 
@@ -136,6 +145,9 @@ codeunit 1351 "Telemetry Subscribers"
         TenantPermissionSet: Record "Tenant Permission Set";
         Dimensions: Dictionary of [Text, Text];
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not IsSaaS() then
             exit;
 
@@ -156,6 +168,9 @@ codeunit 1351 "Telemetry Subscribers"
         TenantPermissionSet: Record "Tenant Permission Set";
         Dimensions: Dictionary of [Text, Text];
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not IsSaaS() then
             exit;
 
@@ -178,6 +193,9 @@ codeunit 1351 "Telemetry Subscribers"
         TenantPermissionSet: Record "Tenant Permission Set";
         Dimensions: Dictionary of [Text, Text];
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not IsSaaS() then
             exit;
 
@@ -198,6 +216,9 @@ codeunit 1351 "Telemetry Subscribers"
         TenantPermissionSet: Record "Tenant Permission Set";
         Dimensions: Dictionary of [Text, Text];
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not IsSaaS() then
             exit;
 
@@ -221,6 +242,9 @@ codeunit 1351 "Telemetry Subscribers"
         TenantPermissionSet: Record "Tenant Permission Set";
         Dimensions: Dictionary of [Text, Text];
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not IsSaaS() then
             exit;
 

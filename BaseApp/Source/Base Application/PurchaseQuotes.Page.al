@@ -239,12 +239,7 @@ page 9306 "Purchase Quotes"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
-                        if "Tax Area Code" = '' then
-                            PAGE.RunModal(PAGE::"Purchase Statistics", Rec)
-                        else
-                            PAGE.RunModal(PAGE::"Purchase Stats.", Rec)
+                        OpenDocumentStatistics();
                     end;
                 }
                 action("Co&mments")

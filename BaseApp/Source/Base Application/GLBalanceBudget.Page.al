@@ -516,7 +516,7 @@ page 422 "G/L Balance/Budget"
         GlobalDim2Filter: Text;
         GLAccFilter: Text;
 
-    local procedure FindPeriod(SearchText: Code[10])
+    procedure FindPeriod(SearchText: Code[10])
     var
         Calendar: Record Date;
         AccountingPeriod: Record "Accounting Period";
@@ -762,6 +762,13 @@ page 422 "G/L Balance/Budget"
             end
         else
             IncomeBalanceGLAccFilter := IncomeBalanceGLAccFilter::" ";
+
+        OnAfterInitDefaultFilters(GlobalDim1Filter, GlobalDim2Filter, DateFilter);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitDefaultFilters(var GlobalDim1Filter: Text; var GlobalDim2Filter: Text; var DateFilter: Text)
+    begin
     end;
 }
 

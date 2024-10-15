@@ -145,6 +145,7 @@ codeunit 10140 "Deposit-Post"
         Window.Update(4, Text007);
         if not GenJnlTemplate."Force Doc. Balance" then begin
             PostBalancingEntry(Rec, TotalAmountLCY);
+            OnRunOnAfterPostBalancingEntry(GenJnlLine);
 
             BankAccountLedgerEntry.FindLast;
             PostedDepositLine.Reset();
@@ -345,6 +346,11 @@ codeunit 10140 "Deposit-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostedDepositLineModify(var PostedDepositLine: Record "Posted Deposit Line"; GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterPostBalancingEntry(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 

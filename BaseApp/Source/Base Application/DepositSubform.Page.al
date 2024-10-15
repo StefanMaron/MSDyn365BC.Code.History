@@ -24,6 +24,7 @@ page 10141 "Deposit Subform"
                     begin
                         if xRec."Account Type" <> "Account Type" then begin
                             CurType := "Account Type";
+                            OnValidateAccountTypeOnBeforeInit(Rec);
                             Init();
                             CopyValuesFromHeader();
                             "Account Type" := CurType;
@@ -367,6 +368,11 @@ page 10141 "Deposit Subform"
             "Document Type" := "Document Type"::Refund
         else
             "Document Type" := "Document Type"::Payment;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateAccountTypeOnBeforeInit(var GenJournalLine: Record "Gen. Journal Line")
+    begin
     end;
 }
 

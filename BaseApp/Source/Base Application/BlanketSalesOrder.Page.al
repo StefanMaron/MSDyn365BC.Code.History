@@ -766,12 +766,14 @@
                     var
                         Handled: Boolean;
                     begin
+                        Handled := false;
                         OnBeforeStatisticsAction(Rec, Handled);
-                        if not Handled then begin
-                            OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                            OpenSalesOrderStatistics;
-                            SalesCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
-                        end
+                        if Handled then
+                            exit;
+
+                        PrepareOpeningDocumentStatistics();
+                        OnBeforeCalculateSalesTaxStatistics(Rec, true);
+                        ShowDocumentStatisticsPage();
                     end;
                 }
                 action(Card)
@@ -1003,6 +1005,7 @@
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualRelease(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
                 action(Reopen)
@@ -1021,6 +1024,7 @@
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualReopen(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
             }

@@ -318,6 +318,8 @@ table 272 "Check Ledger Entry"
                     Payee := Employee.FullName;
                 end;
         end;
+
+        OnAfterGetPayee(Rec, Payee);
     end;
 
     procedure SetFilterBankAccNoOpen(BankAccNo: Code[20])
@@ -346,6 +348,11 @@ table 272 "Check Ledger Entry"
 
     [IntegrationEvent(false, false)]
     procedure OnAfterCopyFromBankAccLedgEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPayee(CheckLedgerEntry: Record "Check Ledger Entry"; var Payee: Text[100])
     begin
     end;
 }

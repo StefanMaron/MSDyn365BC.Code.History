@@ -122,25 +122,38 @@ codeunit 10090 "Export Payments (ACH)"
             RecordLength := 94;
             BatchNo := 0;
 
-            FileHeaderRec := '';
-            AddNumToPrnString(FileHeaderRec, 1, 1, 1);                                    // Record Type Code
-            AddNumToPrnString(FileHeaderRec, 1, 2, 2);                                    // Priority Code
-            AddToPrnString(FileHeaderRec, "Transit No.", 4, 10, Justification::Right, ' '); // Immediate Destination
-            AddFedIDToPrnString(FileHeaderRec, CompanyInformation."Federal ID No.", 14, 10);                              // Immediate Origin
-            AddToPrnString(FileHeaderRec, Format(FileDate, 0, '<Year,2><Month,2><Day,2>'), 24, 6, Justification::Right, '0');
-            // File Creation Date
-            AddToPrnString(FileHeaderRec, Format(FileTime, 0, '<Hours24,2><Minutes,2>'), 30, 4, Justification::Right, '0');
-            // File Creation Time
-            AddToPrnString(FileHeaderRec, "Last ACH File ID Modifier", 34, 1, Justification::Right, '0');                   // File ID Modifier
-            AddNumToPrnString(FileHeaderRec, RecordLength, 35, 3);                        // Record Size
-            AddNumToPrnString(FileHeaderRec, BlockingFactor, 38, 2);                      // Blocking Factor
-            AddNumToPrnString(FileHeaderRec, 1, 40, 1);                                   // Format Code
-            AddToPrnString(FileHeaderRec, Name, 41, 23, Justification::Left, ' ');          // Immediate Destimation Name
-            AddToPrnString(FileHeaderRec, CompanyInformation.Name, 64, 23, Justification::Left, ' ');
-            // Immediate Origin Name
-            AddToPrnString(FileHeaderRec, ReferenceCode, 87, 8, Justification::Left, ' ');  // Reference Code
+            FileHeaderRec := CreateFileHeader(BankAccount, ReferenceCode);
+
             ExportPrnString(FileHeaderRec);
         end;
+    end;
+
+    local procedure CreateFileHeader(BankAccount: Record "Bank Account"; ReferenceCode: Code[10]) FileHeaderRec: Text[250]
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateFileHeader(BankAccount, Justification, FileDate, FileTime, RecordLength, BlockingFactor, ReferenceCode, FileHeaderRec, IsHandled);
+        if IsHandled then
+            exit(FileHeaderRec);
+
+        FileHeaderRec := '';
+        AddNumToPrnString(FileHeaderRec, 1, 1, 1);                                    // Record Type Code
+        AddNumToPrnString(FileHeaderRec, 1, 2, 2);                                    // Priority Code
+        AddToPrnString(FileHeaderRec, BankAccount."Transit No.", 4, 10, Justification::Right, ' '); // Immediate Destination
+        AddFedIDToPrnString(FileHeaderRec, CompanyInformation."Federal ID No.", 14, 10);                              // Immediate Origin
+        AddToPrnString(FileHeaderRec, Format(FileDate, 0, '<Year,2><Month,2><Day,2>'), 24, 6, Justification::Right, '0');
+        // File Creation Date
+        AddToPrnString(FileHeaderRec, Format(FileTime, 0, '<Hours24,2><Minutes,2>'), 30, 4, Justification::Right, '0');
+        // File Creation Time
+        AddToPrnString(FileHeaderRec, BankAccount."Last ACH File ID Modifier", 34, 1, Justification::Right, '0');                   // File ID Modifier
+        AddNumToPrnString(FileHeaderRec, RecordLength, 35, 3);                        // Record Size
+        AddNumToPrnString(FileHeaderRec, BlockingFactor, 38, 2);                      // Blocking Factor
+        AddNumToPrnString(FileHeaderRec, 1, 40, 1);                                   // Format Code
+        AddToPrnString(FileHeaderRec, BankAccount.Name, 41, 23, Justification::Left, ' ');          // Immediate Destimation Name
+        AddToPrnString(FileHeaderRec, CompanyInformation.Name, 64, 23, Justification::Left, ' ');
+        // Immediate Origin Name
+        AddToPrnString(FileHeaderRec, ReferenceCode, 87, 8, Justification::Left, ' ');  // Reference Code
     end;
 
     procedure StartExportBatch(ServiceClassCode: Code[10]; EntryClassCode: Code[10]; SourceCode: Code[10]; SettleDate: Date)
@@ -287,10 +300,7 @@ codeunit 10090 "Export Payments (ACH)"
             DetailRec := '';
 
             AddNumToPrnString(DetailRec, 6, 1, 1);            // Record Type Code
-            if DemandCredit then
-                AddNumToPrnString(DetailRec, 22, 2, 2) // Transaction Code -> Demand Credit: Automated Deposit
-            else
-                AddNumToPrnString(DetailRec, 27, 2, 2);         // Transaction Code -> Demand Debit: Automated Payment
+            AddTransactionCodeToDetailRec(DetailRec, DemandCredit, CustBankAcct, VendorBankAcct, AcctType);
             AddToPrnString(DetailRec, TransitNo, 4, 9, Justification::Right, ' ');                      // Receiving DFI ID
             AddToPrnString(DetailRec, DelChr(BankAcctNo, '=', ' '), 13, 17, Justification::Left, ' ');    // DFI Account Number
             AddAmtToPrnString(DetailRec, PaymentAmount, 30, 10);                                      // Amount
@@ -312,6 +322,21 @@ codeunit 10090 "Export Payments (ACH)"
         end;
 
         exit(GenerateFullTraceNoCode(TraceNo));
+    end;
+
+    local procedure AddTransactionCodeToDetailRec(var DetailRec: Text[250]; DemandCredit: Boolean; CustomerBankAccount: Record "Customer Bank Account"; VendorBankAccount: Record "Vendor Bank Account"; AcctType: Text[1])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAddTransactionCodeToDetailRec(CustomerBankAccount, VendorBankAccount, AcctType, DemandCredit, DetailRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if DemandCredit then
+            AddNumToPrnString(DetailRec, 22, 2, 2) // Transaction Code -> Demand Credit: Automated Deposit
+        else
+            AddNumToPrnString(DetailRec, 27, 2, 2);         // Transaction Code -> Demand Debit: Automated Payment
     end;
 
     procedure EndExportBatch(ServiceClassCode: Code[10])
@@ -433,7 +458,14 @@ codeunit 10090 "Export Payments (ACH)"
     end;
 
     procedure AddFedIDToPrnString(var PrnString: Text[250]; FedID: Text[30]; StartPos: Integer; Length: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddFedIDToPrnString(PrnString, FedID, StartPos, Length, IsHandled);
+        if IsHandled then
+            exit;
+
         AddToPrnString(PrnString, '1' + DelChr(FedID, '=', ' .,-'), StartPos, Length, Justification::Left, ' ');
     end;
 
@@ -632,6 +664,21 @@ codeunit 10090 "Export Payments (ACH)"
         if CheckTheCheckDigit and (VendorBankAccount."Country/Region Code" = 'US') then
             if not ExportPaymentsACH.CheckDigit(VendorBankAccount."Transit No.") then
                 Error(StrSubstNo(VendorTransitNumNotValidErr, VendorBankAccount."Transit No.", VendorNo));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateFileHeader(var BankAccount: Record "Bank Account"; Justification: Option; FileDate: Date; FileTime: Time; RecordLength: Integer; BlockingFactor: Integer; ReferenceCode: Code[10]; var FileHeaderRec: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddFedIDToPrnString(var PrnString: Text[250]; FedID: Text[30]; StartPos: Integer; Length: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddTransactionCodeToDetailRec(CustomerBankAccount: Record "Customer Bank Account"; VendorBankAccount: Record "Vendor Bank Account"; AcctType: Text[1]; DemandCredit: Boolean; var DetailRec: Text[250]; var IsHandled: Boolean)
+    begin
     end;
 }
 
