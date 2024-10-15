@@ -173,6 +173,127 @@ page 5092 "Segment Subform"
                     DrillDown = false;
                     ToolTip = 'Specifies the email address of the contact to whom the segment line applies. The address will be filled in for you if you choose a contact in the Contact No. field on the line.';
                 }
+                field("Line No."; Rec."Line No.")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the line number of the contact to whom the segment line applies.';
+                }
+                field("Segment No."; Rec."Segment No.")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the segment number of the contact to whom the segment line applies.';
+                }
+                field(Date; Rec.Date)
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the date of the contact to whom the segment line applies.';
+                }
+                field("Time of Interaction"; Rec."Time of Interaction")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the time of interaction of the contact to whom the segment line applies.';
+                }
+                field("Attempt Failed"; Rec."Attempt Failed")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the attempt failed of the contact to whom the segment line applies.';
+                }
+                field("To-do No."; Rec."To-do No.")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the To-do number of the contact to whom the segment line applies.';
+                }
+                field("Contact Company No."; Rec."Contact Company No.")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the contact company number of the contact to whom the segment line applies.';
+                }
+                field("Campaign Entry No."; Rec."Campaign Entry No.")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the campaign entry number of the contact to whom the segment line applies.';
+                }
+                field("Interaction Group Code"; Rec."Interaction Group Code")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the interaction group code of the contact to whom the segment line applies.';
+                }
+                field("Document Type"; Rec."Document Type")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the document type of the contact to whom the segment line applies.';
+                }
+                field("Document No."; Rec."Document No.")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the document number of the contact to whom the segment line applies.';
+                }
+                field("Version No."; Rec."Version No.")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the version number of the contact to whom the segment line applies.';
+                }
+                field("Opportunity No."; Rec."Opportunity No.")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the opportunity number of the contact to whom the segment line applies.';
+                }
+                field("Wizard Step"; Rec."Wizard Step")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the wizard step of the contact to whom the segment line applies.';
+                }
+                field("Wizard Contact Name"; Rec."Wizard Contact Name")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the wizard contact name of the contact to whom the segment line applies.';
+                }
+                field("Opportunity Description"; Rec."Opportunity Description")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the opportunity description of the contact to whom the segment line applies.';
+                }
+                field("Campaign Description"; Rec."Campaign Description")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the campaign description of the contact to whom the segment line applies.';
+                }
+                field("Interaction Successful"; Rec."Interaction Successful")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies if the interaction was successful for the contact to whom the segment line applies.';
+                }
+                field("Dial Contact"; Rec."Dial Contact")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the dial contact of the contact to whom the segment line applies.';
+                }
+                field("Mail Contact"; Rec."Mail Contact")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Visible = false;
+                    ToolTip = 'Specifies the mail contact of the contact to whom the segment line applies.';
+                }
+
             }
         }
     }

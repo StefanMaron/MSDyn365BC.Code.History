@@ -1954,7 +1954,7 @@
         end;
 
         IsHandled := false;
-        OnCopyPurchDocLineOnBeforeCopyThisLine(ToPurchLine, FromPurchLine, MoveNegLines, FromPurchDocType, LinesNotCopied, CopyThisLine, Result, IsHandled, ToPurchHeader);
+        OnCopyPurchDocLineOnBeforeCopyThisLine(ToPurchLine, FromPurchLine, MoveNegLines, FromPurchDocType, LinesNotCopied, CopyThisLine, Result, IsHandled, ToPurchHeader, RecalculateLines);
         if IsHandled then
             exit(Result);
 
@@ -9994,7 +9994,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyPurchDocLineOnBeforeCopyThisLine(var ToPurchLine: Record "Purchase Line"; var FromPurchLine: Record "Purchase Line"; MoveNegLines: Boolean; FromPurchDocType: Enum "Purchase Document Type From"; var LinesNotCopied: Integer; var CopyThisLine: Boolean; var Result: Boolean; var IsHandled: Boolean; ToPurchaseHeader: Record "Purchase Header")
+    local procedure OnCopyPurchDocLineOnBeforeCopyThisLine(var ToPurchLine: Record "Purchase Line"; var FromPurchLine: Record "Purchase Line"; MoveNegLines: Boolean; FromPurchDocType: Enum "Purchase Document Type From"; var LinesNotCopied: Integer; var CopyThisLine: Boolean; var Result: Boolean; var IsHandled: Boolean; ToPurchaseHeader: Record "Purchase Header"; var RecalculateLines: Boolean)
     begin
     end;
 

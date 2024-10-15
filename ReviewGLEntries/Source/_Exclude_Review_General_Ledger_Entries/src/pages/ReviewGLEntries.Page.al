@@ -6,7 +6,8 @@ page 22207 "Review G/L Entries"
     InsertAllowed = false;
     ApplicationArea = Basic, Suite;
     PageType = List;
-    Permissions = tabledata "G/L Entry" = rimd;
+    Permissions = tabledata "G/L Entry" = rimd,
+                  tabledata "G/L Entry Review Setup" = ri;
     SourceTableView = sorting("G/L Account No.", "Posting Date")
                       order(descending);
     SourceTable = "G/L Entry";

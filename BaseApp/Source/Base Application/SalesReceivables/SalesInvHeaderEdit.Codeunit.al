@@ -18,6 +18,8 @@ codeunit 1409 "Sales Inv. Header - Edit"
         SalesInvoiceHeader.TestField("No.", "No.");
         SalesInvoiceHeader.Modify();
         Rec := SalesInvoiceHeader;
+
+        OnRunOnAfterSalesInvoiceHeaderEdit(Rec);
     end;
 
     [IntegrationEvent(false, false)]
@@ -27,6 +29,11 @@ codeunit 1409 "Sales Inv. Header - Edit"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeAssignValues(var SalesInvoiceHeader: Record "Sales Invoice Header"; SalesInvoiceHeaderRec: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterSalesInvoiceHeaderEdit(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 }

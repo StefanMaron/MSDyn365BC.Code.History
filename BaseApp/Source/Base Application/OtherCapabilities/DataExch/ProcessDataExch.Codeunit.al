@@ -64,19 +64,23 @@ codeunit 1201 "Process Data Exch."
                 if DataExchMapping."Data Exch. Line Field ID" = 0 then
                     SetFieldValue(RecRef, DataExchLineNoFieldId, CurrLineNo);
                 SetFieldValue(RecRef, LastKeyFieldId, CurrLineNo * 10000 + LineNoOffset);
+                OnProcessColumnMappingOnBeforeDataExchFieldMappingFindSet(RecRef, LastKeyFieldId, CurrLineNo, LineNoOffset);
                 DataExchFieldMapping.FindSet();
                 repeat
                     DataExchField.SetRange("Line No.", CurrLineNo);
                     DataExchField.SetRange("Column No.", DataExchFieldMapping."Column No.");
-                    if DataExchField.FindSet() then
-                        repeat
-                            SetField(RecRef, DataExchFieldMapping, DataExchField, TempFieldIdsToNegate)
-                        until DataExchField.Next() = 0
-                    else
-                        if not DataExchFieldMapping.Optional then
-                            Error(
-                              MissingValueErr, DataExch."File Name", GetType(DataExch."Data Exch. Def Code"),
-                              DataExch."Data Exch. Def Code", CurrLineNo, DataExchFieldMapping."Column No.");
+                    IsHandled := false;
+                    OnProcessColumnMappingOnBeforeDataExchFieldFindSet(DataExch, DataExchFieldMapping, DataExchField, RecRef, TempFieldIdsToNegate, CurrLineNo, IsHandled);
+                    if not IsHandled then
+                        if DataExchField.FindSet() then
+                            repeat
+                                SetField(RecRef, DataExchFieldMapping, DataExchField, TempFieldIdsToNegate)
+                            until DataExchField.Next() = 0
+                        else
+                            if not DataExchFieldMapping.Optional then
+                                Error(
+                                  MissingValueErr, DataExch."File Name", GetType(DataExch."Data Exch. Def Code"),
+                                  DataExch."Data Exch. Def Code", CurrLineNo, DataExchFieldMapping."Column No.");
                 until DataExchFieldMapping.Next() = 0;
 
                 NegateAmounts(RecRef, TempFieldIdsToNegate);
@@ -119,10 +123,13 @@ codeunit 1201 "Process Data Exch."
         NegativeSignIdentifier: Text;
         IsHandled: Boolean;
     begin
-        DataExchColumnDef.Get(
-          DataExchFieldMapping."Data Exch. Def Code",
-          DataExchFieldMapping."Data Exch. Line Def Code",
-          DataExchField."Column No.");
+        IsHandled := false;
+        OnSetFieldOnBeforeDataExchColumnDefGet(DataExchField, DataExchColumnDef, IsHandled);
+        if not IsHandled then
+            DataExchColumnDef.Get(
+              DataExchFieldMapping."Data Exch. Def Code",
+              DataExchFieldMapping."Data Exch. Line Def Code",
+              DataExchField."Column No.");
 
         FieldRef := RecRef.Field(DataExchFieldMapping."Field ID");
 
@@ -360,6 +367,21 @@ codeunit 1201 "Process Data Exch."
 
     [IntegrationEvent(false, false)]
     local procedure OnSetFieldOnBeforeFieldRefValidate(TransformedValue: Text; var DataExchField: Record "Data Exch. Field"; DataExchFieldMapping: Record "Data Exch. Field Mapping"; FieldRef: FieldRef; DataExchColumnDef: Record "Data Exch. Column Def"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessColumnMappingOnBeforeDataExchFieldMappingFindSet(var RecordRef: RecordRef; LastKeyFieldId: Integer; CurrLineNo: Integer; LineNoOffset: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessColumnMappingOnBeforeDataExchFieldFindSet(DataExch: Record "Data Exch."; var DataExchFieldMapping: Record "Data Exch. Field Mapping"; var DataExchField: Record "Data Exch. Field"; var RecordRef: RecordRef; var TempFieldIdsToNegateInteger: Record Integer temporary; var CurrLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFieldOnBeforeDataExchColumnDefGet(var DataExchField: Record 1221; var DataExchColumnDef: Record 1223; var IsHandled: Boolean);
     begin
     end;
 }

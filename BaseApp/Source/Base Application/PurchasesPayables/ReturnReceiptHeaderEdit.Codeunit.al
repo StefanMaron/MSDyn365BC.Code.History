@@ -18,10 +18,17 @@ codeunit 1407 "Return Receipt Header - Edit"
         ReturnReceiptHeader.TestField("No.", "No.");
         ReturnReceiptHeader.Modify();
         Rec := ReturnReceiptHeader;
+
+        OnRunOnAfterReturnReceiptHeaderEdit(Rec);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReturnReceiptHeaderModify(var ReturnReceiptHeader: Record "Return Receipt Header"; ReturnReceiptHeaderRec: Record "Return Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterReturnReceiptHeaderEdit(var ReturnReceiptHeader: Record "Return Receipt Header")
     begin
     end;
 }

@@ -18,6 +18,8 @@ codeunit 1412 "Service Inv. Header - Edit"
         ServiceInvoiceHeader.TestField("No.", "No.");
         ServiceInvoiceHeader.Modify();
         Rec := ServiceInvoiceHeader;
+
+        OnRunOnAfterServiceInvoiceHeaderEdit(Rec);
     end;
 
     [IntegrationEvent(false, false)]
@@ -27,6 +29,11 @@ codeunit 1412 "Service Inv. Header - Edit"
 
     [IntegrationEvent(false, false)]
     local procedure OnOnRunOnBeforeTestFieldNo(var ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceInvoiceHeaderRec: Record "Service Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterServiceInvoiceHeaderEdit(var ServiceInvoiceHeader: Record "Service Invoice Header")
     begin
     end;
 }

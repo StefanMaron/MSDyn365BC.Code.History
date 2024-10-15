@@ -16,8 +16,14 @@
             TableRelation = Vendor;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                OnBeforeValidateBuyFromVendorNo(Rec, xRec, CurrFieldNo, SkipBuyFromContact);
+                IsHandled := false;
+                OnBeforeValidateBuyFromVendorNo(Rec, xRec, CurrFieldNo, SkipBuyFromContact, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "No." = '' then
                     InitRecord();
                 TestStatusOpen();
@@ -5307,10 +5313,16 @@
             exit(true);
     end;
 
-    procedure ConfirmCloseUnposted(): Boolean
+    procedure ConfirmCloseUnposted() Result: Boolean
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConfirmCloseUnposted(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if PurchLinesExist() then
             if InstructionMgt.IsUnpostedEnabledForRecord(Rec) then
                 exit(InstructionMgt.ShowConfirm(DocumentNotPostedClosePageQst, InstructionMgt.QueryPostOnCloseCode()));
@@ -7193,7 +7205,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateBuyFromVendorNo(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer; var SkipBuyFromContact: Boolean)
+    local procedure OnBeforeValidateBuyFromVendorNo(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer; var SkipBuyFromContact: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -7829,6 +7841,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateSellToCustomerNo(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmCloseUnposted(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

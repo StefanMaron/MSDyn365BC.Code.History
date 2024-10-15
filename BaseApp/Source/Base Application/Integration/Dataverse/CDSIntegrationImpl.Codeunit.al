@@ -23,8 +23,8 @@ codeunit 7201 "CDS Integration Impl."
         IntegrationDisabledTxt: Label 'Integration is disabled.', Locked = true;
         BusinessEventsDisabledTxt: Label 'Business Events are disabled.', Locked = true;
         NoPermissionsTxt: Label 'No permissions.', Locked = true;
-        RebuildCouplingTableJobQueueEntryDescriptionTxt: Label 'Rebuilding the Dataverse coupling table after Cloud Migration.';
-        RebuildCouplingTableQst: Label 'You should run this action only if you have migrated your Business Central installation from version 2019 Wave 1 (version 14) to the Cloud.\This will create a job queue entry which will perform the rebuilding of the coupling table in the background. You must specify the starting time and start the job queue entry.\Do you want to continue?';
+        RebuildCouplingTableQst: Label 'You should run this action only if you have migrated your Business Central installation from version 2019 Wave 1 (version 14) to the Cloud.\To rebuild the coupling table you must upload a per-tenant extension to this Business Central environment.\Do you want to navigate to the location where the extension file is uploaded?';
+        RebuildCouplingTableExtensionLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2245902', Locked = true;
         UpdateSynchronizationSetupTxt: Label 'Update synchronization setup.', Locked = true;
         SynchronizationSetupUpdatedTxt: Label 'Synchronization setup has been updated.', Locked = true;
         UpdateBusinessEventsSetupTxt: Label 'Update business events setup.', Locked = true;
@@ -4743,34 +4743,11 @@ codeunit 7201 "CDS Integration Impl."
 
     [Scope('OnPrem')]
     procedure ScheduleRebuildingOfCouplingTable()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
     begin
         if not Confirm(RebuildCouplingTableQst) then
-            exit;
-
-        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
-        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Rebuild Dataverse Coupling Tbl");
-
-        if JobQueueEntry.FindFirst() then begin
-            if JobQueueEntry.Status in [JobQueueEntry.Status::Ready, JobQueueEntry.Status::"In Process"] then begin
-                Page.Run(Page::"Job Queue Entry Card", JobQueueEntry);
-                exit;
-            end;
-            JobQueueEntry.DeleteTasks();
-        end;
-
-        JobQueueEntry.Init();
-        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
-        JobQueueEntry."Object ID to Run" := Codeunit::"Rebuild Dataverse Coupling Tbl";
-        JobQueueEntry."Run in User Session" := false;
-        JobQueueEntry.Description := RebuildCouplingTableJobQueueEntryDescriptionTxt;
-        JobQueueEntry."Maximum No. of Attempts to Run" := 5;
-        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
-        JobQueueEntry."Rerun Delay (sec.)" := 120;
-        JobQueueEntry.Insert(true);
-
-        Page.Run(Page::"Job Queue Entry Card", JobQueueEntry);
+            exit
+        else
+           Hyperlink(RebuildCouplingTableExtensionLinkTxt);
     end;
 
     procedure GetOptionSetMetadata(EntityName: Text; FieldName: Text): Dictionary of [Integer, Text]
