@@ -171,7 +171,13 @@ table 288 "Vendor Bank Account"
             trigger OnValidate()
             var
                 CompanyInfo: Record "Company Information";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateIBAN(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CompanyInfo.CheckIBAN(IBAN);
             end;
         }
@@ -411,15 +417,16 @@ table 288 "Vendor Bank Account"
             exit(DelChr("ESR Account No.", '=', '-'));
 
         if ("Giro Account No." <> '') and ("Payment Form" = "Payment Form"::"Post Payment Domestic") then
-            exit("Giro Account No.");
+            exit(DelChr("Giro Account No.", '=', '-'));
 
         if ("Clearing No." <> '') and ("Payment Form" = "Payment Form"::"Bank Payment Domestic") then
             exit("Clearing No.");
 
-	    OnGetBankAccount(Handled, Rec, ResultBankAccountNo);
-	
-	    if Handled then exit(ResultBankAccountNo);
-	
+        OnGetBankAccount(Handled, Rec, ResultBankAccountNo);
+
+        if Handled then
+            exit(ResultBankAccountNo);
+
         if IBAN <> '' then
             exit(DelChr(IBAN, '=<>'));
 
@@ -509,6 +516,11 @@ table 288 "Vendor Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; FieldToValidate: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateIBAN(var VendorBankAccount: Record "Vendor Bank Account"; var xVendorBankAccount: Record "Vendor Bank Account"; var IsHandled: Boolean)
     begin
     end;
 

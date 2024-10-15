@@ -641,6 +641,11 @@
                 end;
             end;
         }
+        field(7005; "Use Customized Lookup"; Boolean)
+        {
+            Caption = 'Use Your Custom Lookup';
+            DataClassification = SystemMetadata;
+        }
         field(7101; "Customer Group Dimension Code"; Code[20])
         {
             Caption = 'Customer Group Dimension Code';

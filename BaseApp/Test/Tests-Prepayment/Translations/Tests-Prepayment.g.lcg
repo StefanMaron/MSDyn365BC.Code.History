@@ -185,15 +185,6 @@
       <Cmt Name="Dev"><![CDATA[%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.]D;]A;(LookupHint=Codeunit ERM Prepayment V - NamedType GenProdPostingGroupErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2731302931 - NamedType 171419661" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect G/L Entry exists.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment V - NamedType IncorrectGLEntryExistsErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2731302931 - NamedType 4206760211" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect Prepmt. Amount Inv. (LCY) value.]]></Val>

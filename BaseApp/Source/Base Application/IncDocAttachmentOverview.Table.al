@@ -106,7 +106,13 @@ table 137 "Inc. Doc. Attachment Overview"
     var
         IncomingDocument: Record "Incoming Document";
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNameDrillDown(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         case "Attachment Type" of
             "Attachment Type"::Group:
                 exit;
@@ -250,6 +256,11 @@ table 137 "Inc. Doc. Attachment Overview"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertFromIncomingDocument(IncomingDocument: Record "Incoming Document"; var TempIncDocAttachmentOverview: Record "Inc. Doc. Attachment Overview" temporary; var SortingOrder: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNameDrillDown(var IncDocAttachmentOverview: Record "Inc. Doc. Attachment Overview"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -67,7 +67,9 @@ codeunit 9013 "User Login Time Tracker Impl."
     var
         UserLogin: Record "User Login";
         UserEnvironmentLogin: Record "User Environment Login";
+#if not CLEAN21
         UserLoginTimeTracker: Codeunit "User Login Time Tracker";
+#endif
         Now: DateTime;
     begin
         Now := CurrentDateTime();
@@ -96,7 +98,10 @@ codeunit 9013 "User Login Time Tracker Impl."
             end;
         end;
 
+#if not CLEAN21
+        Commit();
         UserLoginTimeTracker.OnAfterCreateorUpdateLoginInfo(UserSecurityId());
+#endif
     end;
 }
 

@@ -2059,6 +2059,150 @@ codeunit 134776 "Document Attachment Tests"
         CheckDocAttachments(Database::"Purchase Header", 1, PurchaseHeader."No.", 1, 'attachment');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceListAttachmentFactbox()
+    var
+        SalesHeader: Record "Sales Header";
+        DocumentAttachment: Record "Document Attachment";
+        SalesInvoiceList: TestPage "Sales Invoice List";
+        SalesHeaders: array[2] of Code[20];
+        i: Integer;
+        j: Integer;
+    begin
+        // [SCENARIO 430965] Number of attached documents correctly shown on the sales invoice list page
+        Initialize();
+
+        // [GIVEN] Sales invoice "SI1" with one attachment
+        // [GIVEN] Sales invoice "SI2" with two attachments
+        for i := 1 to 2 do begin
+            LibrarySales.CreateSalesInvoice(SalesHeader);
+            SalesHeaders[i] := SalesHeader."No.";
+            for j := 1 to i do
+                MockDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type", Format(j), 'txt');
+        end;
+
+        // [WHEN] Open sales invoice list page
+        SalesInvoiceList.OpenView();
+
+        // [THEN] "SI1" has one attachment in factbox
+        SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesHeaders[1]);
+        SalesInvoiceList.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesInvoiceList.AttachedDocuments.Documents.AssertEquals(1);
+        // [THEN] "SI2" has two attachments in factbox
+        SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesHeaders[2]);
+        SalesInvoiceList.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesInvoiceList.AttachedDocuments.Documents.AssertEquals(2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesCrMemoListAttachmentFactbox()
+    var
+        SalesHeader: Record "Sales Header";
+        DocumentAttachment: Record "Document Attachment";
+        SalesCreditMemos: TestPage "Sales Credit Memos";
+        SalesHeaders: array[2] of Code[20];
+        i: Integer;
+        j: Integer;
+    begin
+        // [SCENARIO 430965] Number of attached documents correctly shown on the sales credit memo list page
+        Initialize();
+
+        // [GIVEN] Sales credit memo "SCM1" with one attachment
+        // [GIVEN] Sales credit memo "SCM2" with two attachments
+        for i := 1 to 2 do begin
+            LibrarySales.CreateSalesCreditMemo(SalesHeader);
+            SalesHeaders[i] := SalesHeader."No.";
+            for j := 1 to i do
+                MockDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type", Format(j), 'txt');
+        end;
+
+        // [WHEN] Open sales credit memo list page
+        SalesCreditMemos.OpenView();
+
+        // [THEN] "SCM1" has one attachment in factbox
+        SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeaders[1]);
+        SalesCreditMemos.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesCreditMemos.AttachedDocuments.Documents.AssertEquals(1);
+        // [THEN] "SCM2" has two attachments in factbox
+        SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeaders[2]);
+        SalesCreditMemos.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesCreditMemos.AttachedDocuments.Documents.AssertEquals(2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceListAttachmentFactbox()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        DocumentAttachment: Record "Document Attachment";
+        PurchaseInvoices: TestPage "Purchase Invoices";
+        PurchaseHeaders: array[2] of Code[20];
+        i: Integer;
+        j: Integer;
+    begin
+        // [SCENARIO 430965] Number of attached documents correctly shown on the purchase invoice list page
+        Initialize();
+
+        // [GIVEN] Purchase invoice "PI1" with one attachment
+        // [GIVEN] Purchase invoice "PI2" with two attachments
+        for i := 1 to 2 do begin
+            LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+            PurchaseHeaders[i] := PurchaseHeader."No.";
+            for j := 1 to i do
+                MockDocumentAttachment(DocumentAttachment, Database::"Purchase Header", PurchaseHeader."No.", PurchaseHeader."Document Type", Format(j), 'txt');
+        end;
+
+        // [WHEN] Open purchase invoice list page
+        PurchaseInvoices.OpenView();
+
+        // [THEN] "PI1" has one attachment in factbox
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseHeaders[1]);
+        PurchaseInvoices.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoices.AttachedDocuments.Documents.AssertEquals(1);
+        // [THEN] "PI2" has two attachments in factbox
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseHeaders[2]);
+        PurchaseInvoices.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoices.AttachedDocuments.Documents.AssertEquals(2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseCrMemoListAttachmentFactbox()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        DocumentAttachment: Record "Document Attachment";
+        PurchaseCreditMemos: TestPage "Purchase Credit Memos";
+        PurchaseHeaders: array[2] of Code[20];
+        i: Integer;
+        j: Integer;
+    begin
+        // [SCENARIO 430965] Number of attached documents correctly shown on the purchase credit memo list page
+        Initialize();
+
+        // [GIVEN] Purchase credit memo "PCM1" with one attachment
+        // [GIVEN] Purchase credit memo "PCM2" with two attachments
+        for i := 1 to 2 do begin
+            LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
+            PurchaseHeaders[i] := PurchaseHeader."No.";
+            for j := 1 to i do
+                MockDocumentAttachment(DocumentAttachment, Database::"Purchase Header", PurchaseHeader."No.", PurchaseHeader."Document Type", Format(j), 'txt');
+        end;
+
+        // [WHEN] Open purchase credit memo list page
+        PurchaseCreditMemos.OpenView();
+
+        // [THEN] "PCM1" has one attachment in factbox
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeaders[1]);
+        PurchaseCreditMemos.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseCreditMemos.AttachedDocuments.Documents.AssertEquals(1);
+        // [THEN] "PCM2" has two attachments in factbox
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeaders[2]);
+        PurchaseCreditMemos.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseCreditMemos.AttachedDocuments.Documents.AssertEquals(2);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

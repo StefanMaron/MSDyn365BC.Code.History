@@ -350,6 +350,7 @@ table 5406 "Prod. Order Line"
             trigger OnValidate()
             var
                 ProdBOMHeader: Record "Production BOM Header";
+                IsHandled: Boolean;
             begin
                 "Production BOM Version Code" := '';
                 if "Production BOM No." = '' then
@@ -358,7 +359,10 @@ table 5406 "Prod. Order Line"
                 Validate("Production BOM Version Code", VersionMgt.GetBOMVersion("Production BOM No.", "Due Date", true));
                 if "Production BOM Version Code" = '' then begin
                     ProdBOMHeader.Get("Production BOM No.");
-                    ProdBOMHeader.TestField(Status, ProdBOMHeader.Status::Certified);
+                    IsHandled := false;
+                    OnValidateProductionBOMNoOnBeforeTestStatus(Rec, IsHandled);
+                    if not IsHandled then
+                        ProdBOMHeader.TestField(Status, ProdBOMHeader.Status::Certified);
                     Validate("Unit of Measure Code", ProdBOMHeader."Unit of Measure Code");
                 end;
             end;
@@ -1029,6 +1033,8 @@ table 5406 "Prod. Order Line"
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, '',
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", ProdOrder."Dimension Set ID", DATABASE::Item);
+
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     procedure IsInbound(): Boolean
@@ -1147,7 +1153,7 @@ table 5406 "Prod. Order Line"
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2 %3', Status, "Prod. Order No.", "Line No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', Status, "Prod. Order No.", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if OldDimSetID <> "Dimension Set ID" then begin
             Modify;
@@ -1591,6 +1597,11 @@ table 5406 "Prod. Order Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var ProdOrderLine: Record "Prod. Order Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetSKU(ProdOrderLine: Record "Prod. Order Line"; var Result: Boolean)
     begin
     end;
@@ -1712,6 +1723,11 @@ table 5406 "Prod. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterAssignItemValues(var ProdOrderLine: Record "Prod. Order Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateProductionBOMNoOnBeforeTestStatus(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean);
     begin
     end;
 }

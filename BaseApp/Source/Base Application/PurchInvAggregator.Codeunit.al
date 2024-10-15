@@ -440,30 +440,38 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchaseHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
+        RecordCount: Integer;
     begin
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
         if PurchaseHeader.FindSet() then
             repeat
                 InsertOrModifyFromPurchaseHeader(PurchaseHeader);
+                APIDataUpgrade.CountRecordsAndCommit(RecordCount);
             until PurchaseHeader.Next() = 0;
 
         if PurchInvHeader.FindSet() then
             repeat
                 InsertOrModifyFromPurchaseInvoiceHeader(PurchInvHeader);
+                APIDataUpgrade.CountRecordsAndCommit(RecordCount);
             until PurchInvHeader.Next() = 0;
 
         PurchInvEntityAggregate.SetRange(Posted, false);
         if PurchInvEntityAggregate.FindSet(true, false) then
             repeat
-                if not PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchInvEntityAggregate."No.") then
+                if not PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchInvEntityAggregate."No.") then begin
                     PurchInvEntityAggregate.Delete(true);
+                    APIDataUpgrade.CountRecordsAndCommit(RecordCount);
+                end;
             until PurchInvEntityAggregate.Next() = 0;
 
         PurchInvEntityAggregate.SetRange(Posted, true);
         if PurchInvEntityAggregate.FindSet(true, false) then
             repeat
-                if not PurchInvHeader.Get(PurchInvEntityAggregate."No.") then
+                if not PurchInvHeader.Get(PurchInvEntityAggregate."No.") then begin
                     PurchInvEntityAggregate.Delete(true);
+                    APIDataUpgrade.CountRecordsAndCommit(RecordCount);
+                end;
             until PurchInvEntityAggregate.Next() = 0;
     end;
 

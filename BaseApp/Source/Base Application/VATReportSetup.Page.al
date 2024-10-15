@@ -35,6 +35,11 @@ page 743 "VAT Report Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the company for the VAT report.';
                 }
+                field("Report VAT Note"; "Report VAT Note")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies if the VAT Note field is available for reporting from the VAT Return card page.';
+                }
             }
             group(Numbering)
             {

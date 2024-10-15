@@ -129,6 +129,7 @@
             begin
                 if ExistsItemLedgerEntry then
                     Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", ItemLedgEntryTableCaptionTxt);
+                TestNoWhseEntriesExist(FieldCaption(Type));
                 CheckJournalsAndWorksheets(FieldNo(Type));
                 CheckDocuments(FieldNo(Type));
                 if IsNonInventoriableType then
@@ -2568,24 +2569,25 @@
     begin
         IsHandled := false;
         OnBeforeOnInsert(Rec, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            if "No." = '' then begin
+                GetInvtSetup;
+                InvtSetup.TestField("Item Nos.");
+                NoSeriesMgt.InitSeries(InvtSetup."Item Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+                "Costing Method" := InvtSetup."Default Costing Method";
+            end;
 
-        if "No." = '' then begin
-            GetInvtSetup;
-            InvtSetup.TestField("Item Nos.");
-            NoSeriesMgt.InitSeries(InvtSetup."Item Nos.", xRec."No. Series", 0D, "No.", "No. Series");
-            "Costing Method" := InvtSetup."Default Costing Method";
+            DimMgt.UpdateDefaultDim(
+              DATABASE::Item, "No.",
+              "Global Dimension 1 Code", "Global Dimension 2 Code");
+
+            UpdateReferencedIds;
+            SetLastDateTimeModified;
+
+            UpdateItemUnitGroup();
         end;
 
-        DimMgt.UpdateDefaultDim(
-          DATABASE::Item, "No.",
-          "Global Dimension 1 Code", "Global Dimension 2 Code");
-
-        UpdateReferencedIds;
-        SetLastDateTimeModified;
-
-        UpdateItemUnitGroup();
+        OnAfterOnInsert(Rec, xRec);
     end;
 
     trigger OnModify()
@@ -2929,7 +2931,13 @@
         RecRef: RecordRef;
         SourceType: Integer;
         SourceID: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestNoOpenDocumentsWithTrackingExist(Rec, ItemTrackingCode2, IsHandled);
+        if IsHandled then
+            exit;
+
         if ItemTrackingCode2.Code = '' then
             exit;
 
@@ -3660,7 +3668,13 @@
     local procedure UpdateQtyRoundingPrecisionForBaseUoM()
     var
         BaseItemUnitOfMeasure: Record "Item Unit of Measure";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateQtyRoundingPrecisionForBaseUoM(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         // Reset Rounding Percision in old Base UOM
         if BaseItemUnitOfMeasure.Get("No.", xRec."Base Unit of Measure") then begin
             BaseItemUnitOfMeasure.Validate("Qty. Rounding Precision", 0);
@@ -3831,6 +3845,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnInsert(var Item: Record Item; var xItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAssistEdit(var Item: Record Item; var xItem: Record Item; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -3871,12 +3890,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestNoOpenDocumentsWithTrackingExist(Item: Record Item; ItemTrackingCode2: Record "Item Tracking Code"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestNoPurchLinesExist(Item: Record Item; CurrentFieldName: Text[100]; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestNoWhseEntriesExist(Item: Record Item; CurrentFieldName: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateQtyRoundingPrecisionForBaseUoM(var Item: Record Item; xItem: Record Item; var IsHandled: Boolean)
     begin
     end;
 

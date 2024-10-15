@@ -92,5 +92,82 @@ codeunit 11500 BankMgt
 
         _Output := Format(10 - Carry); // calc checkdig. from carry
     end;
+
+    procedure IsCreditReferenceISO11649(PaymentReference: Text): Boolean
+    var
+        TypeHelper: Codeunit "Type Helper";
+        PayRefTextBuilder: TextBuilder;
+        PayRefString: Text;
+        CurrChar: Char;
+        CurrNumber: Integer;
+        CheckDigits: Integer;
+        Remainder: Integer;
+        i: Integer;
+    begin
+        PaymentReference := DelChr(PaymentReference);
+        PaymentReference := UpperCase(PaymentReference);
+
+        // first two chars must be 'RF'
+        if CopyStr(PaymentReference, 1, 2) <> 'RF' then
+            exit(false);
+
+        // 3rd and 4th chars must be digits
+        if not Evaluate(CheckDigits, CopyStr(PaymentReference, 3, 2)) then
+            exit(false);
+
+        if StrLen(PaymentReference) > 25 then
+            exit(false);
+
+        // RF 12 34567 -> 34567 RF 00
+        PaymentReference := CopyStr(PaymentReference, 5) + CopyStr(PaymentReference, 1, 2) + '00';
+
+        for i := 1 to StrLen(PaymentReference) do begin
+            CurrChar := PaymentReference[i];
+            case true of
+                TypeHelper.IsDigit(CurrChar):
+                    CurrNumber := CurrChar - '0';   // convert char digit to int, '1' -> 1 etc.
+                TypeHelper.IsUpper(CurrChar):
+                    CurrNumber := CurrChar - 55;    // convert uppercase letter to int, 'A' -> 10 etc.
+                else
+                    exit(false);
+            end;
+            PayRefTextBuilder.Append(Format(CurrNumber));
+        end;
+
+        // string is used instead of integer to avoid Integer/BigInteger overflow.
+        PayRefString := PayRefTextBuilder.ToText();
+        for i := 1 to StrLen(PayRefString) do begin
+            CurrChar := PayRefString[i];
+            CurrNumber := CurrChar - '0';
+            Remainder := (Remainder * 10 + CurrNumber) mod 97;
+        end;
+
+        exit(98 - Remainder = CheckDigits);
+    end;
+
+    procedure IsQRReference(PaymentReference: Text): Boolean
+    var
+        CheckDigit: Text[1];
+    begin
+        // QR Reference must be 27 chars long (26 + 1 check digit) and must contain digits only.
+        PaymentReference := DelChr(PaymentReference);
+        if (StrLen(PaymentReference) = 27) and (DelChr(PaymentReference, '=', '01234567890') = '') then begin
+            CheckDigit := CalcCheckDigit(CopyStr(PaymentReference, 1, 26));
+            exit(CheckDigit = CopyStr(PaymentReference, StrLen(PaymentReference)));
+        end;
+
+        exit(false);
+    end;
+
+    procedure IsQRIBAN(IBAN: Text): Boolean
+    var
+        IntValue: Integer;
+    begin
+        // QR-IBAN must have QR-IID between 30000 and 31999, these are positions 5..10, for example CH97 30024 503254925417.
+        if Evaluate(IntValue, CopyStr(DelChr(IBAN), 5, 5)) then
+            exit((IntValue >= 30000) and (IntValue <= 31999));
+
+        exit(false);
+    end;
 }
 

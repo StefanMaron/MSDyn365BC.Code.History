@@ -2431,7 +2431,8 @@ codeunit 134154 "ERM Intercompany III"
         ICInboxTransaction: Record "IC Inbox Transaction";
         Customer: Record Customer;
         PurchaseHeader: Record "Purchase Header";
-        ScheduledTask: Record "Scheduled Task";
+        JobQueueEntry: Record "Job Queue Entry";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         ICPartnerCode: Code[20];
     begin
@@ -2440,6 +2441,7 @@ codeunit 134154 "ERM Intercompany III"
         ICOutboxTransaction.DeleteAll();
         ICInboxTransaction.DeleteAll();
         LibraryApplicationArea.EnableEssentialSetup();
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(false);
 
         // [GIVEN] Auto Send Transactions is enabled.
         UpdateAutoSendTransactionsOnCompanyInfo(true);
@@ -2473,11 +2475,8 @@ codeunit 134154 "ERM Intercompany III"
         ICInboxTransaction.TestField("Document Type", "IC Transaction Document Type"::Order);
 
         // [THEN] We cannot check if Handled IC Indox Transaction is created, because it is created by Scheduled Task.
-        ScheduledTask.SetRange("Run Codeunit", Codeunit::"IC Inbox Outbox Subscribers");
-        ScheduledTask.SetRange("Failure Codeunit", 0);
-        ScheduledTask.SetRange("Is Ready", true);
-        ScheduledTask.FindLast();
-        ScheduledTask.TestField(Record, ICInboxTransaction.RecordId);
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"IC Inbox Outbox Subs. Runner");
+        Assert.RecordCount(JobQueueEntry, 1);
 
         // tear down
         LibraryApplicationArea.DisableApplicationAreaSetup();

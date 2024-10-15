@@ -1268,6 +1268,43 @@ codeunit 134456 "ERM Fixed Asset Card"
         Assert.IsFalse(FixedAssetCard.DepreciationBookCode.Editable(), 'The field "Depreciation Book Code" must not be editable.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeFASubclassCodeWithSameFAPostingGroup()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: Record "FA Subclass";
+        FAPostingGroup: Record "FA Posting Group";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FASetup: Record "FA Setup";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+    begin
+        // [GIVEN] Fixed asset "FA" with FA subclass "FASub1" with FA posting group "FAPG" and FA depreciation book "FADB" with depreciation
+        FASetup.Get();
+        FixedAsset.DeleteAll();
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass, FAPostingGroup);
+        FixedAsset.Validate("FA Class Code", FAClass.Code);
+        FixedAsset.Validate("FA Subclass Code", FASubclass.Code);
+        FixedAsset.Modify(true);
+        CreateFADepreciationBookWithValue(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FASubclass."Default FA Posting Group", 1000);
+        FADepreciationBook."Last Depreciation Date" := WorkDate();
+        FADepreciationBook.Modify();
+
+        // [WHEN] Change FA subclass code on the fixed asset card to "FASub2" with FA posting group "FAPG"
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.GoToRecord(FixedAsset);
+        FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
+
+        // [THEN] FA subclass code = "FASub2" and updated without any messages/errors
+        FixedAssetCard."FA Subclass Code".AssertEquals(FASubclass.Code);
+        // [THEN] FA depreciation book "FA Posting Group" = "FAPG"
+        FADepreciationBook.Get(FixedAsset."No.", FASetup."Default Depr. Book");
+        FADepreciationBook.TestField("FA Posting Group", FAPostingGroup.Code);
+    end;
+
     local procedure FixedAssetAndDeprecationBookSetup(var FASubclass: Record "FA Subclass")
     var
         DepreciationBook: Record "Depreciation Book";

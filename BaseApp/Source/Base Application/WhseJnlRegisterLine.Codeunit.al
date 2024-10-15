@@ -1,4 +1,4 @@
-codeunit 7301 "Whse. Jnl.-Register Line"
+﻿codeunit 7301 "Whse. Jnl.-Register Line"
 {
     Permissions = TableData "Warehouse Entry" = imd,
                   TableData "Warehouse Register" = imd;
@@ -26,7 +26,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     var
         GlobalWhseEntry: Record "Warehouse Entry";
     begin
-        OnBeforeCode(WhseJnlLine);
+        OnBeforeCode(WhseJnlLine, WhseEntryNo);
 
         with WhseJnlLine do begin
             if ("Qty. (Absolute)" = 0) and ("Qty. (Base)" = 0) and (not "Phys. Inventory") then
@@ -162,6 +162,11 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         Sign: Integer;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteFromBinContent(WhseEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         FromBinContent.Get(
             WhseEntry."Location Code", WhseEntry."Bin Code", WhseEntry."Item No.", WhseEntry."Variant Code",
             WhseEntry."Unit of Measure Code");
@@ -543,7 +548,12 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCode(var WarehouseJournalLine: Record "Warehouse Journal Line")
+    local procedure OnBeforeCode(var WarehouseJournalLine: Record "Warehouse Journal Line"; var WhseEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteFromBinContent(var WarehouseEntry: Record "Warehouse Entry"; var IsHandled: Boolean)
     begin
     end;
 

@@ -25,6 +25,7 @@
                 ProdOrderLine: Record "Prod. Order Line";
                 ProdOrderComp: Record "Prod. Order Component";
                 PriceType: Enum "Price Type";
+                ShouldCopyFromSingleProdOrderLine: Boolean;
             begin
                 if "Item No." <> xRec."Item No." then begin
                     "Variant Code" := '';
@@ -91,8 +92,9 @@
                 end;
                 OnValidateItemNoOnAfterCalcUnitCost(Rec, Item);
 
-                if (("Entry Type" = "Entry Type"::Output) and (WorkCenter."No." = '') and (MachineCenter."No." = '')) or
-                   ("Entry Type" <> "Entry Type"::Output) or
+                if ("Item No." <> xRec."Item No.") and
+                   ((("Entry Type" = "Entry Type"::Output) and (WorkCenter."No." = '') and (MachineCenter."No." = '')) or
+                   ("Entry Type" <> "Entry Type"::Output)) or
                    ("Value Entry Type" = "Value Entry Type"::Revaluation)
                 then
                     "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
@@ -128,6 +130,7 @@
                             Item.TestField("Inventory Value Zero", false);
                             ProdOrderLine.SetFilterByReleasedOrderNo("Order No.");
                             ProdOrderLine.SetRange("Item No.", "Item No.");
+                            OnValidateItemNoOnAfterSetProdOrderLineItemNoFilter(Rec, xRec, ProdOrderLine);
                             if ProdOrderLine.FindFirst() then begin
                                 "Routing No." := ProdOrderLine."Routing No.";
                                 "Source Type" := "Source Type"::Item;
@@ -138,7 +141,9 @@
                                 then
                                     Error(Text031, "Item No.", "Order No.");
 
-                            if ProdOrderLine.Count = 1 then
+                            ShouldCopyFromSingleProdOrderLine := ProdOrderLine.Count = 1;
+                            OnValidateItemNoOnAfterCalcShouldCopyFromSingleProdOrderLine(Rec, xRec, ProdOrderLine, ShouldCopyFromSingleProdOrderLine);
+                            if ShouldCopyFromSingleProdOrderLine then
                                 CopyFromProdOrderLine(ProdOrderLine)
                             else
                                 if "Order Line No." <> 0 then begin
@@ -562,7 +567,13 @@
                 ItemLedgEntry: Record "Item Ledger Entry";
                 ItemTrackingLines: Page "Item Tracking Lines";
                 ShowTrackingExistsError: Boolean;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateAppliesToEntry(Rec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Applies-to Entry" <> 0 then begin
                     ItemLedgEntry.Get("Applies-to Entry");
 
@@ -1104,7 +1115,8 @@
                     WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
 
                 if "Variant Code" <> xRec."Variant Code" then begin
-                    "Bin Code" := '';
+                    if "Entry Type" <> "Entry Type"::Output then
+                        "Bin Code" := '';
                     if (CurrFieldNo <> 0) and Item.IsInventoriableType() then
                         WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Variant Code"));
                     if ("Location Code" <> '') and ("Item No." <> '') then begin
@@ -2335,7 +2347,7 @@
         FinishedOutputQst: Label 'The operation has been finished. Do you want to post output for the finished operation?';
         SalesBlockedErr: Label 'You cannot sell this item because the Sales Blocked check box is selected on the item card.';
         PurchasingBlockedErr: Label 'You cannot purchase this item because the Purchasing Blocked check box is selected on the item card.';
-        BlockedErr: Label 'You cannot purchase this item because the Blocked check box is selected on the item card.';
+        BlockedErr: Label 'You cannot choose item number %1 because the Blocked check box is selected on its item card.', Comment = '%1 - Item No.';
         SerialNoRequiredErr: Label 'You must assign a serial number for item %1.', Comment = '%1 - Item No.';
         LotNoRequiredErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
 
@@ -2883,6 +2895,8 @@
 
         OnCreateAssemblyDimOnAfterCreateDimSetIDArr(Rec, DimSetIDArr, i);
         "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterCreateAssemblyDim(Rec, AssemblyHeader);
     end;
 
     local procedure CreateDimWithProdOrderLine()
@@ -3812,7 +3826,7 @@
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Line No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         OnAfterShowDimensions(Rec);
@@ -3986,7 +4000,7 @@
             exit;
 
         if Item.Blocked then
-            Error(BlockedErr);
+            Error(BlockedErr, Item."No.");
 
         if "Item Charge No." <> '' then
             exit;
@@ -4353,6 +4367,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateAssemblyDim(var ItemJournalLine: Record "Item Journal Line"; AssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterDisplayErrorIfItemIsBlocked(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -4491,6 +4510,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetNewBinCodeForSameLocationTransfer(var ItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateAppliesToEntry(var ItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -4687,6 +4711,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnBeforeValidateUnitOfmeasureCode(var ItemJournalLine: Record "Item Journal Line"; var Item: Record Item; CurrFieldNo: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterSetProdOrderLineItemNoFilter(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterCalcShouldCopyFromSingleProdOrderLine(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var ProdOrderLine: Record "Prod. Order Line"; var ShouldCopyFromSingleProdOrderLine: Boolean)
     begin
     end;
 

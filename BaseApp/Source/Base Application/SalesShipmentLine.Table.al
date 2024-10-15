@@ -810,7 +810,7 @@ table 111 "Sales Shipment Line"
             ClearSalesLineValues(SalesLine);
             if not ExtTextLine and (SalesLine.Type <> SalesLine.Type::" ") then begin
                 IsHandled := false;
-                OnInsertInvLineFromShptLineOnBeforeValidateQuantity(Rec, SalesLine, IsHandled);
+                OnInsertInvLineFromShptLineOnBeforeValidateQuantity(Rec, SalesLine, IsHandled, SalesInvHeader);
                 if not IsHandled then
                     SalesLine.Validate(Quantity, Quantity - "Quantity Invoiced");
                 CalcBaseQuantities(SalesLine, "Quantity (Base)" / Quantity);
@@ -1217,7 +1217,7 @@ table 111 "Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertInvLineFromShptLineOnBeforeValidateQuantity(SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnInsertInvLineFromShptLineOnBeforeValidateQuantity(SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean; var SalesInvHeader: Record "Sales Header")
     begin
     end;
 

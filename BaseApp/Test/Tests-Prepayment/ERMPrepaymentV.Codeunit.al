@@ -15,7 +15,9 @@
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryJournals: Codeunit "Library - Journals";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJob: Codeunit "Library - Job";
@@ -25,7 +27,6 @@
         isInitialized: Boolean;
         AmountError: Label '%1 must be %2 in %3.';
         IncorrectPrepmtAmountInvLCYErr: Label 'Incorrect Prepmt. Amount Inv. (LCY) value.';
-        IncorrectGLEntryExistsErr: Label 'Incorrect G/L Entry exists.';
         CountDimSetEntriesErr: Label 'Count of Dimension Set Entries is wrong.';
         IncorrectVATEntryAmountErr: Label 'Incorrect VAT Entry Amount.';
         SalesInvDiscForPrepmtExceededErr: Label 'You cannot enter an invoice discount for sales document %1.';
@@ -3742,9 +3743,299 @@
         PurchInvLine.TestField("VAT %", PrepmtVATPostingSetup."VAT %");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesPartialPrepaymentAndFinalInvoiceWithDifferentPrpmtGLAccountAndCompressPrpmt()
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        VATPostingSetupGLAccount: Record "VAT Posting Setup";
+        GLAccount: array[2] of Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        PostedDocumentNo: Code[20];
+        Index: Integer;
+    begin
+        // [FEATURE] [Sales] [Price including VAT] [Partial Prepayment] [Compress Prepayment]
+        // [SCENARIO 426793] Rounding reminding amount is not added twice on certain condition.
+        Initialize();
+
+        CreateVATPostingSetup(VATPostingSetupGLAccount, 10);
+
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+
+        CreateTwoGLAccountsWithTwoPrepaymentGenPostingSetups(GLAccount, GenBusinessPostingGroup, VATPostingSetupGLAccount);
+
+        CreateSalesOrder_426793(SalesHeader, true, true, 10, GLAccount, GenBusinessPostingGroup, VATPostingSetupGLAccount);
+
+        PostedDocumentNo := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        VerifyGLVATEntries(PostedDocumentNo);
+
+        SalesHeader.Find();
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        VerifyGLEntryDoesNotExist(PostedDocumentNo, GetInvRoundingAccFromCust(SalesHeader."Bill-to Customer No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesPartialPrepaymentAndFinalInvoiceWithDifferentPrpmtGLAccountAndWithoutCompressPrpmt()
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        VATPostingSetupGLAccount: Record "VAT Posting Setup";
+        GLAccount: array[2] of Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        PostedDocumentNo: Code[20];
+        Index: Integer;
+    begin
+        // [FEATURE] [Sales] [Price including VAT] [Partial Prepayment]
+        // [SCENARIO 426793] Rounding reminding amount is not added twice on certain condition.
+        Initialize();
+
+        CreateVATPostingSetup(VATPostingSetupGLAccount, 10);
+
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+
+        CreateTwoGLAccountsWithTwoPrepaymentGenPostingSetups(GLAccount, GenBusinessPostingGroup, VATPostingSetupGLAccount);
+
+        CreateSalesOrder_426793(SalesHeader, false, true, 10, GLAccount, GenBusinessPostingGroup, VATPostingSetupGLAccount);
+
+        PostedDocumentNo := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        VerifyGLVATEntries(PostedDocumentNo);
+
+        SalesHeader.Find();
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        VerifyGLEntryDoesNotExist(PostedDocumentNo, GetInvRoundingAccFromCust(SalesHeader."Bill-to Customer No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchasePartialPrepaymentAndFinalInvoiceWithDifferentPrpmtGLAccountAndCompressPrpmt()
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        VATPostingSetupGLAccount: Record "VAT Posting Setup";
+        GLAccount: array[2] of Record "G/L Account";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        PostedDocumentNo: Code[20];
+        Index: Integer;
+    begin
+        // [FEATURE] [Purchase] [Price including VAT] [Partial Prepayment] [Compress Prepayment]
+        // [SCENARIO 426793] Rounding reminding amount is not added twice on certain condition.
+        Initialize();
+
+        CreateVATPostingSetup(VATPostingSetupGLAccount, 10);
+
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+
+        CreateTwoGLAccountsWithTwoPrepaymentGenPostingSetups(GLAccount, GenBusinessPostingGroup, VATPostingSetupGLAccount);
+
+        CreatePurchaseOrder_426793(PurchaseHeader, true, true, 10, GLAccount, GenBusinessPostingGroup, VATPostingSetupGLAccount);
+
+        PostedDocumentNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        VerifyGLVATEntries(PostedDocumentNo);
+
+        PurchaseHeader.Find();
+        UpdatePurchInvoiceNo(PurchaseHeader);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        VerifyGLEntryDoesNotExist(PostedDocumentNo, GetInvRoundingAccFromVend(PurchaseHeader."Pay-to Vendor No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchasePartialPrepaymentAndFinalInvoiceWithDifferentPrpmtGLAccountAndWithoutCompressPrpmt()
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        VATPostingSetupGLAccount: Record "VAT Posting Setup";
+        GLAccount: array[2] of Record "G/L Account";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        PostedDocumentNo: Code[20];
+        Index: Integer;
+    begin
+        // [FEATURE] [Purchase] [Price including VAT] [Partial Prepayment]
+        // [SCENARIO 426793] Rounding reminding amount is not added twice on certain condition.
+        Initialize();
+
+        CreateVATPostingSetup(VATPostingSetupGLAccount, 10);
+
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+
+        CreateTwoGLAccountsWithTwoPrepaymentGenPostingSetups(GLAccount, GenBusinessPostingGroup, VATPostingSetupGLAccount);
+
+        CreatePurchaseOrder_426793(PurchaseHeader, false, true, 10, GLAccount, GenBusinessPostingGroup, VATPostingSetupGLAccount);
+
+        PostedDocumentNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        VerifyGLVATEntries(PostedDocumentNo);
+
+        PurchaseHeader.Find();
+        UpdatePurchInvoiceNo(PurchaseHeader);
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        VerifyGLEntryDoesNotExist(PostedDocumentNo, GetInvRoundingAccFromVend(PurchaseHeader."Pay-to Vendor No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesOrderConfRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesOrderPartialConfirmationAfterPaymentAppliedToPrepaymentInvoice()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        Customer: Record Customer;
+        SalesHeaderOrder: Record "Sales Header";
+        SalesLineOrder: Record "Sales Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        ReportSelections: Record "Report Selections";
+        DocumentPrint: Codeunit "Document-Print";
+        ItemNo: Code[20];
+        PrepaymentInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 427453] Stan can print "Order Confirmation" for prepaid and released Sales Order with modified "Qty. To Ship"
+        Initialize();
+
+        CreateVATPostingSetup(VATPostingSetup, 10);
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        Customer.Get(
+          LibrarySales.CreateCustomerWithBusPostingGroups(
+            GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+        Customer.Validate("Prepayment %", 100);
+        Customer.Modify(true);
+
+        ItemNo :=
+          LibraryInventory.CreateItemNoWithPostingSetup(
+            GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        UpdateSalesPrepmtAccount(
+          CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup),
+          GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+
+        // [GIVEN] Sales order "SO" with partial prepayment.
+        LibrarySales.CreateSalesHeader(SalesHeaderOrder, SalesHeaderOrder."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLineOrder, SalesHeaderOrder, SalesLineOrder.Type::Item, ItemNo, LibraryRandom.RandIntInRange(2, 5) * 3);
+        SalesLineOrder.Validate("Unit Price", LibraryRandom.RandIntInRange(20, 500));
+        SalesLineOrder.Modify(true);
+
+        // [GIVEN] Posted the prepayment invoice.
+        PrepaymentInvoiceNo := LibrarySales.PostSalesPrepaymentInvoice(SalesHeaderOrder);
+
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Customer, SalesHeaderOrder."Sell-to Customer No.", -SalesLineOrder."Amount Including VAT");
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", PrepaymentInvoiceNo);
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        SalesHeaderOrder.Find;
+        LibrarySales.ReleaseSalesDocument(SalesHeaderOrder);
+
+        SalesLineOrder.Find();
+        SalesLineOrder.Validate("Qty. to Ship", SalesLineOrder."Qty. to Ship" / 3);
+        SalesLineOrder.Modify(true);
+
+        SalesHeaderOrder.Find();
+        SalesHeaderOrder.SetRecFilter();
+
+        LibraryERM.SetupReportSelection(ReportSelections.Usage::"S.Order", REPORT::"Standard Sales - Order Conf.");
+        Commit();
+        DocumentPrint.PrintSalesOrder(SalesHeaderOrder, 0); // 0 = Order Confirmation = ReportSelections.Usage::"S.Order"
+
+        SalesHeaderOrder.Find();
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, true);
+
+        TearDownVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group");
+    end;
+
+    [Test]
+    [HandlerFunctions('OrderRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderPartialConfirmationAfterPaymentAppliedToPrepaymentInvoice()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineOrder: Record "Purchase Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
+        ReportSelections: Record "Report Selections";
+        DocumentPrint: Codeunit "Document-Print";
+        ItemNo: Code[20];
+        PrepaymentInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 427453] Stan can print "Order" for prepaid and released Purchase Order with modified "Qty. To Receive"
+        Initialize();
+
+        CreateVATPostingSetup(VATPostingSetup, 10);
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        Vendor.Get(
+          LibraryPurchase.CreateVendorWithBusPostingGroups(
+            GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+        Vendor.Validate("Prepayment %", 100);
+        Vendor.Modify(true);
+
+        ItemNo :=
+          LibraryInventory.CreateItemNoWithPostingSetup(
+            GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        UpdatePurchasePrepmtAccount(
+          CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup),
+          GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+
+        // [GIVEN] Sales order "SO" with partial prepayment.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineOrder, PurchaseHeaderOrder, PurchaseLineOrder.Type::Item, ItemNo, LibraryRandom.RandIntInRange(2, 5) * 3);
+        PurchaseLineOrder.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(20, 500));
+        PurchaseLineOrder.Modify(true);
+
+        // [GIVEN] Posted the prepayment invoice.
+        PrepaymentInvoiceNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeaderOrder);
+
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, PurchaseHeaderOrder."Buy-from Vendor No.", PurchaseLineOrder."Amount Including VAT");
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", PrepaymentInvoiceNo);
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        PurchaseHeaderOrder.Find();
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeaderOrder);
+
+        PurchaseLineOrder.Find();
+        PurchaseLineOrder.Validate("Qty. to Receive", PurchaseLineOrder."Qty. to Receive" / 3);
+        PurchaseLineOrder.Modify(true);
+
+        PurchaseHeaderOrder.Find();
+        PurchaseHeaderOrder.SetRecFilter();
+
+        LibraryERM.SetupReportSelection(ReportSelections.Usage::"P.Order", REPORT::Order);
+        Commit();
+        DocumentPrint.PrintPurchHeader(PurchaseHeaderOrder);
+
+        PurchaseHeaderOrder.Find();
+        UpdatePurchInvoiceNo(PurchaseHeaderOrder);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
+
+        TearDownVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        CompanyInformation: Record "Company Information";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Prepayment V");
         LibraryVariableStorage.Clear();
@@ -3753,6 +4044,9 @@
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Prepayment V");
 
+        CompanyInformation.Get();
+        CompanyInformation."SWIFT Code" := 'A';
+        CompanyInformation.Modify();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -3786,6 +4080,83 @@
         GenProductPostingGroup."Def. VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         GenProductPostingGroup.Modify();
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
+    end;
+
+    local procedure CreateTwoGLAccountsWithTwoPrepaymentGenPostingSetups(var GLAccount: array[2] of Record "G/L Account"; var GenBusinessPostingGroup: Record "Gen. Business Posting Group"; var VATPostingSetupGLAccount: Record "VAT Posting Setup")
+    var
+        GenProductPostingGroup: array[2] of Record "Gen. Product Posting Group";
+        GeneralPostingSetup: array[2] of Record "General Posting Setup";
+        GLAccountPrepayment: array[2] of Record "G/L Account";
+        Index: Integer;
+    begin
+        for Index := 1 to ArrayLen(GeneralPostingSetup) do begin
+            LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup[Index]);
+            LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup[Index], GenBusinessPostingGroup.Code, GenProductPostingGroup[Index].Code);
+
+            GLAccountPrepayment[Index].Get(LibraryERM.CreateGLAccountWithSalesSetup());
+            GLAccountPrepayment[Index].Validate("Gen. Prod. Posting Group", GenProductPostingGroup[Index].Code);
+            GLAccountPrepayment[Index].Validate("VAT Prod. Posting Group", VATPostingSetupGLAccount."VAT Prod. Posting Group");
+            GLAccountPrepayment[Index].Modify(true);
+
+            GeneralPostingSetup[Index].Validate("Sales Prepayments Account", GLAccountPrepayment[Index]."No.");
+            GeneralPostingSetup[Index].Validate("Purch. Prepayments Account", GLAccountPrepayment[Index]."No.");
+            GeneralPostingSetup[Index].Modify(true);
+
+            GLAccount[Index].Get(LibraryERM.CreateGLAccountWithSalesSetup());
+            GLAccount[Index].Validate("Gen. Prod. Posting Group", GenProductPostingGroup[Index].Code);
+            GLAccount[Index].Validate("VAT Prod. Posting Group", VATPostingSetupGLAccount."VAT Prod. Posting Group");
+            GLAccount[Index].Modify(true);
+        end;
+    end;
+
+    local procedure CreateSalesOrder_426793(var SalesHeader: Record "Sales Header"; CompressPrepayment: Boolean; PriceIncludingVAT: Boolean; PrepaymentPercent: Decimal; var GLAccount: array[2] of Record "G/L Account"; var GenBusinessPostingGroup: Record "Gen. Business Posting Group"; var VATPostingSetupGLAccount: Record "VAT Posting Setup")
+    var
+        Customer: Record Customer;
+        SalesLine: array[2] of Record "Sales Line";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetupGLAccount."VAT Bus. Posting Group");
+        Customer.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Prices Including VAT", PriceIncludingVAT);
+        SalesHeader.Validate("Prepayment %", PrepaymentPercent);
+        SalesHeader.Validate("Compress Prepayment", CompressPrepayment);
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader, SalesLine[1].Type::"G/L Account", GLAccount[1]."No.", 1);
+        SalesLine[1].Validate("Unit Price", 6.25);
+        SalesLine[1].Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader, SalesLine[2].Type::"G/L Account", GLAccount[2]."No.", 1);
+        SalesLine[2].Validate("Unit Price", 2500);
+        SalesLine[2].Modify(true);
+    end;
+
+    local procedure CreatePurchaseOrder_426793(var PurchaseHeader: Record "Purchase Header"; CompressPrepayment: Boolean; PriceIncludingVAT: Boolean; PrepaymentPercent: Decimal; var GLAccount: array[2] of Record "G/L Account"; var GenBusinessPostingGroup: Record "Gen. Business Posting Group"; var VATPostingSetupGLAccount: Record "VAT Posting Setup")
+    var
+        Vendor: Record Vendor;
+        PurchaseLine: array[2] of Record "Purchase Line";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetupGLAccount."VAT Bus. Posting Group");
+        Vendor.Modify(true);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Prices Including VAT", true);
+        PurchaseHeader.Validate("Prepayment %", 10);
+        PurchaseHeader.Validate("Compress Prepayment", true);
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[1], PurchaseHeader, PurchaseLine[1].Type::"G/L Account", GLAccount[1]."No.", 1);
+        PurchaseLine[1].Validate("Direct Unit Cost", 6.25);
+        PurchaseLine[1].Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::"G/L Account", GLAccount[2]."No.", 1);
+        PurchaseLine[2].Validate("Direct Unit Cost", 2500);
+        PurchaseLine[2].Modify(true);
     end;
 
     local procedure PrepareVendorAndTwoGLAccWithSetup(var VATPostingSetup: Record "VAT Posting Setup"; var VendorNo: Code[20]; var GLAccountNo: array[2] of Code[20]; VATRate: Decimal)
@@ -4733,7 +5104,7 @@
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        Assert.IsTrue(GLEntry.IsEmpty, IncorrectGLEntryExistsErr);
+        Assert.RecordIsEmpty(GLEntry);
     end;
 
     local procedure VerifyFirstSalesLinePrepmtAmountInvLCY(SalesHeader: Record "Sales Header")
@@ -4998,6 +5369,16 @@
         VATEntry.TestField(Amount, ExpectedAmount);
     end;
 
+    local procedure VerifyGLVATEntries(PostedDocumentNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+        VATEntry: Record "VAT Entry";
+    begin
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("Document No.", PostedDocumentNo);
+        Assert.RecordCount(GLEntry, 5);
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure PurchaseCreditMemoStatisticsPageHandler(var PurchCreditMemoStatistics: TestPage "Purch. Credit Memo Statistics")
@@ -5072,6 +5453,20 @@
     procedure SalesOrdStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         LibraryVariableStorage.Enqueue(SalesOrderStatistics.LineAmountGeneral.Value);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure StandardSalesOrderConfRequestPageHandler(var StandardSalesOrderConf: TestRequestPage "Standard Sales - Order Conf.")
+    begin
+        StandardSalesOrderConf.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderRequestPageHandler(var "Order": TestRequestPage "Order")
+    begin
+        Order.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [StrMenuHandler]

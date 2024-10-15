@@ -202,6 +202,7 @@ codeunit 5920 ServItemManagement
         x: Integer;
         ServItemWithSerialNoExist: Boolean;
         IsHandled: Boolean;
+        ShouldCreateServiceItem: Boolean;
         WarrantyStartDate: Date;
     begin
         IsHandled := false;
@@ -248,7 +249,9 @@ codeunit 5920 ServItemManagement
                         if ServItem.FindFirst() then
                             ServItemWithSerialNoExist := true;
                     end;
-                    if (TempReservEntry."Serial No." = '') or (not ServItemWithSerialNoExist) then begin
+                    ShouldCreateServiceItem := (TempReservEntry."Serial No." = '') or (not ServItemWithSerialNoExist);
+                    OnCreateServItemOnSalesLineShptOnAfterCalcShouldCreateServiceItem(SalesLine, SalesShipmentLine, TempReservEntry."Serial No.", ServItem, ServItemWithSerialNoExist, ShouldCreateServiceItem);
+                    if ShouldCreateServiceItem then begin
                         ServItem.Init();
                         NoSeriesMgt.InitSeries(
                           ServMgtSetup."Service Item Nos.", ServItem."No. Series", 0D, ServItem."No.", ServItem."No. Series");
@@ -674,6 +677,11 @@ codeunit 5920 ServItemManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateServItemOnSalesLineShptOnAfterAddServItemComponents(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesShipmentLine: Record "Sales Shipment Line"; var ServiceItem: Record "Service Item"; var TempServiceItem: Record "Service Item" temporary; var TempServiceItemComp: Record "Service Item Component" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateServItemOnSalesLineShptOnAfterCalcShouldCreateServiceItem(SalesLine: Record "Sales Line"; SalesShipmentLine: Record "Sales Shipment Line"; var SerialNo: Code[50]; var ServItem: Record "Service Item"; var ServItemWithSerialNoExist: Boolean; var ShouldCreateServiceItem: Boolean)
     begin
     end;
 

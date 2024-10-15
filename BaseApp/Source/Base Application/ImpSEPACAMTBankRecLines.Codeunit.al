@@ -15,6 +15,7 @@ codeunit 1261 "Imp. SEPA CAMT Bank Rec. Lines"
         RunPreProcess(Rec);
         ProcessDataExch.ProcessAllLinesColumnMapping(DataExch, RecRef);
         RunPostProcess(Rec);
+        OnAfterOnRun(Rec, RecRef);
     end;
 
     var
@@ -124,6 +125,11 @@ codeunit 1261 "Imp. SEPA CAMT Bank Rec. Lines"
             ImportType::CH054:
                 BalTypeDescriptorText := '';
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var RecRef: RecordRef)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

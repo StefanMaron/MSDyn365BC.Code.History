@@ -24,6 +24,12 @@ codeunit 1223 "SEPA CT-Check Line"
         FieldKeyBlankErr: Label '%1 %2 must have a value in %3.', Comment = '%1=table name, %2=key field value, %3=field name. Example: Customer 10000 must have a value in Name.';
         SwissExport: Boolean;
         UnknownSwissPaymentTypeErr: Label 'Unknown Swiss SEPA CT export payment type.';
+        IBANTypeErr: Label 'The IBAN type on the recipient bank account must match the payment reference type.';
+        QRIBANErr: Label 'The recipient bank account has an IBAN that is of type QR-IBAN. This type requires that the recipient bank account has a SEPA CT export payment type that is type 3.';
+        QRRefErr: Label 'The payment reference is a QR reference. This type requires that the recipient bank account has a SEPA CT export payment type that is type 3.';
+        IBANTypeHelpLinkTxt: Label 'https://docs.microsoft.com/dynamics365/business-central/localfunctionality/switzerland/swiss-electronic-payments#iban-qr', Locked = true;
+        QRIBANHelpLinkTxt: Label 'https://docs.microsoft.com/dynamics365/business-central/localfunctionality/switzerland/ui-extensions-qr-bill-management#get-started', Locked = true;
+        QRRefHelpLinkTxt: Label 'https://docs.microsoft.com/dynamics365/business-central/localfunctionality/switzerland/ui-extensions-qr-bill-management#formats', Locked = true;
 
     local procedure CheckGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -171,7 +177,11 @@ codeunit 1223 "SEPA CT-Check Line"
     var
         DummyPaymentExportData: Record "Payment Export Data";
         BankAccount: Record "Bank Account";
+        BankMgt: Codeunit BankMgt;
         SwissPaymentType: Option;
+        IsQRReference: Boolean;
+        IsQRIBAN: Boolean;
+        IsReferenceAndIBANTypeMatched: Boolean;
     begin
         SwissIgnoreIBAN := false;
 
@@ -196,6 +206,23 @@ codeunit 1223 "SEPA CT-Check Line"
               [DummyPaymentExportData."Swiss Payment Type"::"1",
                DummyPaymentExportData."Swiss Payment Type"::"2.1",
                DummyPaymentExportData."Swiss Payment Type"::"6"];
+
+            if not SwissIgnoreIBAN and (StrLen(DelChr(VendorBankAccount.IBAN)) = 21) then begin
+                IsQRIBAN := BankMgt.IsQRIBAN(VendorBankAccount.IBAN);
+                IsQRReference := BankMgt.IsQRReference(GenJnlLine."Payment Reference");
+                IsReferenceAndIBANTypeMatched := not (IsQRReference xor IsQRIBAN);
+
+                if SwissPaymentType = DummyPaymentExportData."Swiss Payment Type"::"3" then begin
+                    if not IsReferenceAndIBANTypeMatched then
+                        GenJnlLine.InsertPaymentFileErrorWithDetails(IBANTypeErr, '', IBANTypeHelpLinkTxt);
+                end else begin
+                    if IsQRReference then
+                        GenJnlLine.InsertPaymentFileErrorWithDetails(QRRefErr, '', QRRefHelpLinkTxt);
+                    if IsQRIBAN then
+                        GenJnlLine.InsertPaymentFileErrorWithDetails(QRIBANErr, '', QRIBANHelpLinkTxt);
+                end;
+            end;
+
             exit;
         end;
 
