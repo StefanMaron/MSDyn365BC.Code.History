@@ -43,10 +43,6 @@ codeunit 10097 "Export EFT (IAT)"
         DestinationBankCurrencyCode: Code[10];
         IsNotValidErr: Label 'The specified transit number is not valid.', Comment = 'Field Value is not valid';
         AlreadyExistsErr: Label 'The file already exists. Check the "Last E-Pay Export File Name" field in the bank account.';
-        VendorBankAccErr: Label 'The vendor has no bank account setup for electronic payments.';
-        VendorMoreThanOneBankAccErr: Label 'The vendor has more than one bank account setup for electronic payments.';
-        CustomerBankAccErr: Label 'The customer has no bank account setup for electronic payments.';
-        CustomerMoreThanOneBankAccErr: Label 'The customer has more than one bank account setup for electronic payments.';
         ReferErr: Label 'Either Account type or balance account type must refer to either a vendor or a customer for an electronic payment.';
         IsBlockedErr: Label 'Account type is blocked for processing.';
         PrivacyBlockedErr: Label 'Account type is blocked for privacy.';
@@ -487,6 +483,8 @@ codeunit 10097 "Export EFT (IAT)"
 
     [Scope('OnPrem')]
     procedure GetRecipientData(var TempEFTExportWorkset: Record "EFT Export Workset" temporary)
+    var
+        EFTRecipientBankAccountMgt: Codeunit "EFT Recipient Bank Account Mgt";
     begin
         with TempEFTExportWorkset do begin
             if "Account Type" = "Account Type"::Vendor then begin
@@ -519,14 +517,7 @@ codeunit 10097 "Export EFT (IAT)"
                 DestinationCounty := Vendor.County;
                 DestinationPostCode := Vendor."Post Code";
 
-                VendorBankAccount.SetRange("Vendor No.", DestinationAcctNo);
-                VendorBankAccount.SetRange("Use for Electronic Payments", true);
-                VendorBankAccount.FindFirst;
-
-                if VendorBankAccount.Count < 1 then
-                    Error(VendorBankAccErr);
-                if VendorBankAccount.Count > 1 then
-                    Error(VendorMoreThanOneBankAccErr);
+                EFTRecipientBankAccountMgt.GetRecipientVendorBankAccount(VendorBankAccount, TempEFTExportWorkset, DestinationAcctNo);
 
                 if not ExportPaymentsACH.CheckDigit(VendorBankAccount."Transit No.") then
                     Error(IsNotValidErr);
@@ -553,14 +544,7 @@ codeunit 10097 "Export EFT (IAT)"
                     DestinationCounty := Customer.County;
                     DestinationPostCode := Customer."Post Code";
 
-                    CustomerBankAccount.SetRange("Customer No.", DestinationAcctNo);
-                    CustomerBankAccount.SetRange("Use for Electronic Payments", true);
-                    CustomerBankAccount.FindFirst;
-
-                    if CustomerBankAccount.Count < 1 then
-                        Error(CustomerBankAccErr);
-                    if CustomerBankAccount.Count > 1 then
-                        Error(CustomerMoreThanOneBankAccErr);
+                    EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustomerBankAccount, TempEFTExportWorkset, DestinationAcctNo);
 
                     if not ExportPaymentsACH.CheckDigit(CustomerBankAccount."Transit No.") then
                         Error(IsNotValidErr);

@@ -17,10 +17,6 @@ codeunit 10096 "Export EFT (Cecoban)"
         PayeeAcctType: Integer;
         BatchDay: Integer;
         AlreadyExistsErr: Label 'The file already exists. Check the "Last E-Pay Export File Name" field in the bank account.';
-        VendorBankAccErr: Label 'The vendor has no bank account setup for electronic payments.';
-        VendorMoreThanOneBankAccErr: Label 'The vendor has more than one bank account setup for electronic payments.';
-        CustomerBankAccErr: Label 'The customer has no bank account setup for electronic payments.';
-        CustomerMoreThanOneBankAccErr: Label 'The customer has more than one bank account setup for electronic payments.';
         ReferErr: Label 'Either Account type or balance account type must refer to either a vendor or a customer for an electronic payment.';
         IsBlockedErr: Label 'Account type is blocked for processing.';
         PrivacyBlockedErr: Label 'Account type is blocked for privacy.';
@@ -108,6 +104,7 @@ codeunit 10096 "Export EFT (Cecoban)"
         Customer: Record Customer;
         CustomerBankAccount: Record "Customer Bank Account";
         ExportEFTACH: Codeunit "Export EFT (ACH)";
+        EFTRecipientBankAccountMgt: Codeunit "EFT Recipient Bank Account Mgt";
         AcctType: Text[1];
         AcctNo: Code[20];
         AcctName: Text[40];
@@ -150,16 +147,7 @@ codeunit 10096 "Export EFT (Cecoban)"
                 AcctName := CopyStr(Vendor.Name, 1, MaxStrLen(AcctName));
                 RFCNo := Vendor."VAT Registration No.";
 
-                VendorBankAccount.SetRange("Vendor No.", AcctNo);
-                VendorBankAccount.SetRange("Use for Electronic Payments", true);
-                VendorBankAccount.FindFirst;
-
-                if VendorBankAccount.Count < 1 then
-                    Error(VendorBankAccErr);
-                if VendorBankAccount.Count > 1 then
-                    Error(VendorMoreThanOneBankAccErr);
-                if not PayeeCheckDigit(VendorBankAccount."Transit No.") then
-                    VendorBankAccount.FieldError("Transit No.", TransitNoErr);
+                EFTRecipientBankAccountMgt.GetRecipientVendorBankAccount(VendorBankAccount, TempEFTExportWorkset, AcctNo);
 
                 VendorBankAccount.TestField("Bank Account No.");
                 TransitNo := VendorBankAccount."Transit No.";
@@ -174,14 +162,8 @@ codeunit 10096 "Export EFT (Cecoban)"
                     AcctName := CopyStr(Customer.Name, 1, MaxStrLen(AcctName));
                     RFCNo := Customer."VAT Registration No.";
 
-                    CustomerBankAccount.SetRange("Customer No.", AcctNo);
-                    CustomerBankAccount.SetRange("Use for Electronic Payments", true);
-                    CustomerBankAccount.FindFirst;
+                    EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustomerBankAccount, TempEFTExportWorkset, AcctNo);
 
-                    if CustomerBankAccount.Count < 1 then
-                        Error(CustomerBankAccErr);
-                    if CustomerBankAccount.Count > 1 then
-                        Error(CustomerMoreThanOneBankAccErr);
                     if not PayeeCheckDigit(CustomerBankAccount."Transit No.") then
                         CustomerBankAccount.FieldError("Transit No.", TransitNoErr);
                     CustomerBankAccount.TestField("Bank Account No.");

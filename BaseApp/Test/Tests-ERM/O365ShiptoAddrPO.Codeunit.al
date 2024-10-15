@@ -586,9 +586,11 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Ship-to Addr. P.O");
         LibrarySetupStorage.Restore;
+        DocumentNoVisibility.ClearState();
 
         if IsInitialized then
             exit;
@@ -636,10 +638,12 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
     local procedure UpdateNoSeries(NoSeriesCode: Code[20]; ManualNos: Boolean)
     var
         NoSeries: Record "No. Series";
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
         NoSeries.Get(NoSeriesCode);
         NoSeries.Validate("Manual Nos.", ManualNos);
         NoSeries.Modify(true);
+        Clear(DocumentNoVisibility);
     end;
 
     local procedure NewPurchaseOrderFromVendorCard(var PurchaseOrder: TestPage "Purchase Order"; Vendor: Record Vendor)

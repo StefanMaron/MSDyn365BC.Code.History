@@ -137,7 +137,7 @@ page 425 "Vendor Bank Account Card"
                 field("Use for Electronic Payments"; "Use for Electronic Payments")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if this vendor bank account will be the one that will be used for electronic payments. Be sure to select only one per vendor.';
+                    ToolTip = 'Specifies if this vendor bank account will be used for electronic payments.';               
                 }
             }
         }

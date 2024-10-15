@@ -848,6 +848,7 @@ codeunit 139182 "CRM Coupling Test"
     [Scope('OnPrem')]
     procedure CouplePriceListHeaderWithCRMPriceLevel()
     var
+        CRMPricelevel: Record "CRM Pricelevel";
         CRMProduct: Record "CRM Product";
         CustomerPriceGroup: Record "Customer Price Group";
         Item: Record Item;
@@ -868,11 +869,12 @@ codeunit 139182 "CRM Coupling Test"
         BindSubscription(CRMCouplingTest); // to pass 'CurPage.Activate on subpage' issue
 
 
-        // [GIVEN] A Price List Header for Customer Price Group 'CPR' with one Line for Item 'I'
+        // [GIVEN] A Price List Header for Customer Price Group 'CPR' with one Line for Item 'I', Status is 'Draft'
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, "Price Type"::Sale, "Price Source Type"::"Customer Price Group", CustomerPriceGroup.Code);
+        PriceListHeader.TestField(Status, PriceListHeader.Status::Draft);
         LibraryPriceCalculation.CreateSalesPriceLine(
             PriceListLine, PriceListHeader.Code, "Price Source Type"::"Customer Price Group", CustomerPriceGroup.Code,
             "Price Asset Type"::Item, Item."No.");
@@ -895,6 +897,10 @@ codeunit 139182 "CRM Coupling Test"
         // [THEN] The Price List Header and CRM Pricelist are coupled
         Assert.IsTrue(CRMIntegrationRecord.IsRecordCoupled(PriceListHeader.RecordId),
           'The PriceListHeader must be coupled');
+        // [THEN] CRM Price List, where State is Inactive
+        CRMIntegrationRecord.FindByRecordID(PriceListHeader.RecordId);
+        CRMPricelevel.Get(CRMIntegrationRecord."CRM ID");
+        CRMPricelevel.TestField(StateCode, CRMPricelevel.StateCode::Inactive);
         // [THEN] The Price List Line and CRM PricelistLine are coupled
         Assert.IsTrue(CRMIntegrationRecord.IsRecordCoupled(PriceListLine.RecordId),
           'The PriceListLine must be coupled');

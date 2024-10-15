@@ -14,6 +14,7 @@ codeunit 134395 "ERM Document Totals UT"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -846,6 +847,7 @@ codeunit 134395 "ERM Document Totals UT"
 
     local procedure Initialize()
     begin
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Document Totals UT");
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;

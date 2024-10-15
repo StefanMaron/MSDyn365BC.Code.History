@@ -938,6 +938,8 @@ page 1007 "Job Planning Lines"
     begin
         if "No." <> xRec."No." then
             PerformAutoReserve();
+
+        OnAfterNoOnAfterValidate(Rec);
     end;
 
     protected procedure VariantCodeOnAfterValidate()
@@ -981,6 +983,11 @@ page 1007 "Job Planning Lines"
         end;
 
         exit("Qty. Transferred to Invoice" = 0);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterNoOnAfterValidate(var JobPlanningLine: Record "Job Planning Line")
+    begin
     end;
 }
 

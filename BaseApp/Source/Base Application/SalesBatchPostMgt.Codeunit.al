@@ -27,6 +27,7 @@ codeunit 1371 "Sales Batch Post Mgt."
         BatchPostingMsg: Label 'Bacth posting of sales documents.';
         ApprovalPendingErr: Label 'Cannot post sales document no. %1 of type %2 because it is pending approval.', Comment = '%1 = Document No.; %2 = Document Type';
         ApprovalWorkflowErr: Label 'Cannot post sales document no. %1 of type %2 due to the approval workflow.', Comment = '%1 = Document No.; %2 = Document Type';
+        ProcessBarMsg: Label 'Processing: @1@@@@@@@', Comment = '1 - overall progress';
 
     procedure RunBatch(var SalesHeader: Record "Sales Header"; ReplacePostingDate: Boolean; PostingDate: Date; ReplaceDocumentDate: Boolean; CalcInvoiceDiscount: Boolean; Ship: Boolean; Invoice: Boolean)
     var
@@ -184,6 +185,94 @@ codeunit 1371 "Sales Batch Post Mgt."
         ResultBatchProcessingMgt.SetParameter(ParameterId, ParameterValue);
     end;
 
+    local procedure ProcessBatchInBackground(var SalesHeader: Record "Sales Header"; var SkippedRecordExists: Boolean)
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        SalesPostBatchviaJobQueue: Codeunit "Sales Post Batch via Job Queue";
+    begin
+        PrepareBatch(SalesHeader, JobQueueEntry, SkippedRecordExists);
+        SalesPostBatchviaJobQueue.EnqueueSalesBatch(SalesHeader, JobQueueEntry);
+    end;
+
+    local procedure PrepareBatch(var SalesHeader: Record "Sales Header"; var JobQueueEntry: Record "Job Queue Entry"; var SkippedRecordExists: Boolean)
+    var
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        Window: Dialog;
+        BatchConfirm: Option;
+        DocCounter: array[2] of Integer;
+    begin
+        if SalesHeader.FindSet() then begin
+            if GuiAllowed then begin
+                DocCounter[1] := SalesHeader.Count;
+                Window.Open(ProcessBarMsg);
+            end;
+
+            repeat
+                if GuiAllowed then begin
+                    DocCounter[2] += 1;
+                    Window.Update(1, Round(DocCounter[2] / DocCounter[1] * 10000, 1));
+                end;
+
+                if CanProcessSalesHeader(SalesHeader) then begin
+                    PrepareSalesHeader(SalesHeader, BatchConfirm);
+                    PrepareJobQueueEntry(JobQueueEntry);
+                    SalesHeader."Job Queue Entry ID" := JobQueueEntry.ID;
+                    SalesHeader."Job Queue Status" := SalesHeader."Job Queue Status"::"Scheduled for Posting";
+                    SalesHeader.Modify();
+                    Commit();
+                end else begin
+                    SkippedRecordExists := true;
+                    if GetLastErrorText <> '' then begin
+                        ErrorMessageManagement.LogError(SalesHeader.RecordId, GetLastErrorText, '');
+                        ClearLastError;
+                    end;
+                end;
+            until SalesHeader.Next() = 0;
+
+            if GuiAllowed then
+                Window.Close();
+        end;
+    end;
+
+    local procedure CanProcessSalesHeader(var SalesHeader: Record "Sales Header"): Boolean
+    begin
+        if not CheckSalesHeaderJobQueueStatus(SalesHeader) then
+            exit(false);
+
+        if not CanPostDocument(SalesHeader) then
+            exit(false);
+
+        if not ReleaseSalesHeader(SalesHeader) then
+            exit(false);
+
+        exit(true);
+    end;
+
+    [TryFunction]
+    local procedure CheckSalesHeaderJobQueueStatus(var SalesHeader: Record "Sales Header")
+    begin
+        if not (SalesHeader."Job Queue Status" in [SalesHeader."Job Queue Status"::" ", SalesHeader."Job Queue Status"::Error]) then
+            SalesHeader.FieldError("Job Queue Status");
+    end;
+
+    local procedure ReleaseSalesHeader(var SalesHeader: Record "Sales Header"): Boolean
+    begin
+        if SalesHeader.Status = SalesHeader.Status::Open then
+            if not Codeunit.Run(Codeunit::"Release Sales Document", SalesHeader) then
+                exit(false);
+        exit(true);
+    end;
+
+    local procedure PrepareJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+        if not IsNullGuid(JobQueueEntry.ID) then
+            exit;
+
+        Clear(JobQueueEntry);
+        JobQueueEntry.ID := CreateGuid();
+        JobQueueEntry.Insert(true);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, 1380, 'OnBeforeBatchProcessing', '', false, false)]
     local procedure PrepareSalesHeaderOnBeforeBatchProcessing(var RecRef: RecordRef; var BatchConfirm: Option)
     var
@@ -236,6 +325,25 @@ codeunit 1371 "Sales Batch Post Mgt."
     [IntegrationEvent(false, false)]
     local procedure OnRunBatchOnAfterAddParameters(var BatchProcessingMgt: Codeunit "Batch Processing Mgt.")
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Batch Processing Mgt.", 'OnIsPostWithJobQueueEnabled', '', false, false)]
+    local procedure OnIsPostWithJobQueueEnabledHandler(var Result: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        Result := SalesReceivablesSetup."Post with Job Queue";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Batch Processing Mgt.", 'OnProcessBatchInBackground', '', false, false)]
+    local procedure OnProcessBatchInBackgroundHandler(var RecRef: RecordRef; var SkippedRecordExists: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        RecRef.SetTable(SalesHeader);
+        ProcessBatchInBackground(SalesHeader, SkippedRecordExists);
+        RecRef.GetTable(SalesHeader);
     end;
 }
 

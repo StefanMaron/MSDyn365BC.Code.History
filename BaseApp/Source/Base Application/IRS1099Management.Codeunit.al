@@ -7,13 +7,14 @@ codeunit 10500 "IRS 1099 Management"
 
     var
         BlockIfUpgradeNeededErr: Label 'You must update the form boxes in the 1099 Forms-Boxes window before you can run this report.';
-        UpgradeFormBoxesNotificationMsg: Label 'The list of 1099 form boxes is not up to date.';
+        UpgradeFormBoxesNotificationMsg: Label 'The list of 1099 form boxes is not up to date for the year %1.', Comment = '%1 = year';
         UpgradeFormBoxesMsg: Label 'Upgrade the form boxes.';
         ScheduleUpgradeFormBoxesMsg: Label 'Schedule an update of the form boxes.';
         UpgradeFormBoxesScheduledMsg: Label 'A job queue entry has been created.\\Make sure Earliest Start Date/Time field in the Job Queue Entry Card window is correct, and then choose the Set Status to Ready action to schedule a background job.';
         ConfirmUpgradeNowQst: Label 'The update process can take a while and block other users activities. Do you want to start the update now?';
         FormBoxesUpgradedMsg: Label 'The 1099 form boxes are successfully updated.';
         UnkownCodeErr: Label 'Invoice %1 for vendor %2 has unknown 1099 code %3.', Comment = '%1 = document number;%2 = vendor number;%3 = IRS 1099 code.';
+        IRS1099CodeHasNotBeenSetupErr: Label 'IRS1099 code %1 was not set up during the initialization.', Comment = '%1 = misc code';
 
     procedure Calculate1099Amount(var Invoice1099Amount: Decimal; var Amounts: array[20] of Decimal; Codes: array[20] of Code[10]; LastLineNo: Integer; VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliedAmount: Decimal)
     begin
@@ -23,16 +24,36 @@ codeunit 10500 "IRS 1099 Management"
           Amounts, Codes, LastLineNo, VendorLedgerEntry, VendorLedgerEntry."IRS 1099 Code", Invoice1099Amount);
     end;
 
+    procedure Run1099MiscReport()
+    begin
+        if Upgrade2020Needed then
+            REPORT.Run(REPORT::"Vendor 1099 Misc")
+        else
+            REPORT.Run(REPORT::"Vendor 1099 Misc 2020");
+    end;
+
+    procedure Run1099NecReport()
+    begin
+        REPORT.Run(REPORT::"Vendor 1099 Nec");
+    end;
+
     [Scope('OnPrem')]
     procedure ShowUpgradeFormBoxesNotificationIfUpgradeNeeded()
     var
         UpgradeFormBoxes: Notification;
+        UpgradeYear: Text;
     begin
-        if not UpgradeNeeded then
-            exit;
+        case true of
+            Upgrade2019Needed():
+                UpgradeYear := '2019';
+            Upgrade2020Needed():
+                UpgradeYear := '2020';
+            else
+                exit;
+        end;
 
         UpgradeFormBoxes.Id := GetUpgradeFormBoxesNotificationID;
-        UpgradeFormBoxes.Message := UpgradeFormBoxesNotificationMsg;
+        UpgradeFormBoxes.Message := StrSubstNo(UpgradeFormBoxesNotificationMsg, UpgradeYear);
         UpgradeFormBoxes.Scope := NOTIFICATIONSCOPE::LocalScope;
         UpgradeFormBoxes.AddAction(
           GetUpgradeFormBoxesNotificationMsg, CODEUNIT::"IRS 1099 Management", 'UpgradeFormBoxesFromNotification');
@@ -40,18 +61,39 @@ codeunit 10500 "IRS 1099 Management"
     end;
 
     [Scope('OnPrem')]
-    procedure ThrowErrorfUpgradeNeeded()
+    procedure ThrowErrorfUpgrade2019Needed()
     begin
-        if UpgradeNeeded then
+        if Upgrade2019Needed() then
+            Error(BlockIfUpgradeNeededErr);
+    end;
+
+    [Scope('OnPrem')]
+    procedure ThrowErrorfUpgrade2020Needed()
+    begin
+        if Upgrade2020Needed() then
             Error(BlockIfUpgradeNeededErr);
     end;
 
     [Scope('OnPrem')]
     procedure UpgradeNeeded(): Boolean
+    begin
+        exit(Upgrade2019Needed() or Upgrade2020Needed());
+    end;
+
+    [Scope('OnPrem')]
+    procedure Upgrade2019Needed(): Boolean
     var
         IRS1099FormBox: Record "IRS 1099 Form-Box";
     begin
         exit(not IRS1099FormBox.Get('DIV-07'));
+    end;
+
+    [Scope('OnPrem')]
+    procedure Upgrade2020Needed(): Boolean
+    var
+        IRS1099FormBox: Record "IRS 1099 Form-Box";
+    begin
+        exit(not IRS1099FormBox.Get('NEC-01'));
     end;
 
     local procedure GetUpgradeFormBoxesNotificationID(): Text
@@ -136,6 +178,91 @@ codeunit 10500 "IRS 1099 Management"
         else
             Error(UnkownCodeErr, ApplVendorLedgerEntry."Entry No.", ApplVendorLedgerEntry."Vendor No.", Code);
         exit(i);
+    end;
+
+    procedure AnyCodeHasAmountExceedMinimum(Codes: array[20] of Code[10]; Amounts: array[20] of Decimal; LastLineNo: Integer): Boolean
+    var
+        IRS1099FormBox: Record "IRS 1099 Form-Box";
+        i: Integer;
+    begin
+        for i := 1 to LastLineNo do
+            if IRS1099FormBox.Get(Codes[i]) then begin
+                if IRS1099FormBox."Minimum Reportable" < 0.0 then
+                    if Amounts[i] <> 0.0 then begin
+                        Amounts[i] := -Amounts[i];
+                        exit(true);
+                    end;
+                if IRS1099FormBox."Minimum Reportable" >= 0.0 then
+                    if Amounts[i] <> 0.0 then
+                        if Amounts[i] >= IRS1099FormBox."Minimum Reportable" then
+                            exit(true);
+            end;
+        exit(false);
+    end;
+
+    procedure GetFormattedVendorAddress(Vendor: Record Vendor) FormattedAddress: Text[30]
+    begin
+        with Vendor do begin
+            FormattedAddress := '';
+            if StrLen(City + ', ' + County + '  ' + "Post Code") > MaxStrLen(FormattedAddress) then
+                exit(City);
+            if (City <> '') and (County <> '') then
+                exit(CopyStr(City + ', ' + County + '  ' + "Post Code", 1, MaxStrLen(FormattedAddress)));
+            exit(CopyStr(DelChr(City + ' ' + County + ' ' + "Post Code", '<>'), 1, MaxStrLen(FormattedAddress)));
+        end;
+    end;
+
+    procedure FormatCompanyAddress(var CompanyAddress: array[5] of Text[100]; var CompanyInfo: Record "Company Information"; TestPrint: Boolean)
+    var
+        i: Integer;
+    begin
+        with CompanyInfo do begin
+            if TestPrint then begin
+                for i := 1 to ArrayLen(CompanyAddress) do
+                    CompanyAddress[i] := PadStr('x', MaxStrLen(CompanyAddress[i]), 'X');
+                exit;
+            end;
+            Get;
+
+            Clear(CompanyAddress);
+            CompanyAddress[1] := Name;
+            CompanyAddress[2] := Address;
+            CompanyAddress[3] := "Address 2";
+            if StrLen(City + ', ' + County + '  ' + "Post Code") > MaxStrLen(CompanyAddress[4]) then begin
+                CompanyAddress[4] := City;
+                CompanyAddress[5] := County + '  ' + "Post Code";
+                if CompressArray(CompanyAddress) = ArrayLen(CompanyAddress) then begin
+                    CompanyAddress[3] := CompanyAddress[4];  // lose address 2 to add phone no.
+                    CompanyAddress[4] := CompanyAddress[5];
+                end;
+                CompanyAddress[5] := "Phone No.";
+            end else
+                if (City <> '') and (County <> '') then begin
+                    CompanyAddress[4] := CopyStr(City + ', ' + County + '  ' + "Post Code", 1, MaxStrLen(CompanyAddress[4]));
+                    CompanyAddress[5] := "Phone No.";
+                end else begin
+                    CompanyAddress[4] := CopyStr(DelChr(City + ' ' + County + ' ' + "Post Code", '<>'), 1, MaxStrLen(CompanyAddress[4]));
+                    CompanyAddress[5] := "Phone No.";
+                end;
+            CompressArray(CompanyAddress);
+        end;
+    end;
+
+    procedure GetAmtByCode(Codes: array[20] of Code[10]; Amounts: array[20] of Decimal; LastLineNo: Integer; "Code": Code[10]; TestPrint: Boolean): Decimal
+    var
+        i: Integer;
+    begin
+        if TestPrint then
+            exit(9999999.99);
+
+        i := 1;
+        while (Codes[i] <> Code) and (i <= LastLineNo) do
+            i := i + 1;
+
+        if (Codes[i] = Code) and (i <= LastLineNo) then
+            exit(Amounts[i]);
+
+        Error(IRS1099CodeHasNotBeenSetupErr, Code);
     end;
 
     [IntegrationEvent(false, false)]

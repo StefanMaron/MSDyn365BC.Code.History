@@ -199,6 +199,24 @@ page 388 "Bank Acc. Reconciliation List"
                     end;
                 }
             }
+            action(ChangeStatementNo)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Change Statement No.';
+                Ellipsis = true;
+                Image = ChangeTo;
+                ToolTip = 'Change the statement number of the bank account reconciliation. Typically, this is used when you have created a new reconciliation to correct a mistake, and you want to use the same statement number.';
+
+                trigger OnAction()
+                var
+                    BankAccReconciliation: Record "Bank Acc. Reconciliation";
+                begin
+                    BankAccReconciliation := Rec;
+                    Codeunit.Run(Codeunit::"Change Bank Rec. Statement No.", BankAccReconciliation);
+                    Rec := BankAccReconciliation;
+                    Refresh();
+                end;
+            }
         }
     }
 

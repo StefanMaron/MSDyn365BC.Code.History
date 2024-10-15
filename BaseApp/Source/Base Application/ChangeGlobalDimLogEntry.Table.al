@@ -249,10 +249,14 @@ table 483 "Change Global Dim. Log Entry"
 
     procedure GetFieldRefValues(RecRef: RecordRef; var GlobalDimFieldRef: array[2] of FieldRef; var DimValueCode: array[2] of Code[20])
     begin
-        GlobalDimFieldRef[1] := RecRef.Field("Global Dim.1 Field No.");
-        DimValueCode[1] := GlobalDimFieldRef[1].Value;
-        GlobalDimFieldRef[2] := RecRef.Field("Global Dim.2 Field No.");
-        DimValueCode[2] := GlobalDimFieldRef[2].Value;
+        if "Global Dim.1 Field No." <> 0 then begin
+            GlobalDimFieldRef[1] := RecRef.Field("Global Dim.1 Field No.");
+            DimValueCode[1] := GlobalDimFieldRef[1].Value;
+        end;
+        if "Global Dim.2 Field No." <> 0 then begin
+            GlobalDimFieldRef[2] := RecRef.Field("Global Dim.2 Field No.");
+            DimValueCode[2] := GlobalDimFieldRef[2].Value;
+        end;
     end;
 
     procedure FindDimensionSetIDField(RecRef: RecordRef): Boolean

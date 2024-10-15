@@ -20,7 +20,10 @@ codeunit 134771 "New Document from CustomerCard"
         RefMode: Option Manual,Automatic,"Always Ask";
 
     local procedure Initialize()
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
+        DocumentNoVisibility.ClearState();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"New Document from CustomerCard");
         if IsInitialized then
             exit;

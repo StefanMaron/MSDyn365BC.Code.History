@@ -1,4 +1,4 @@
-report 1316 "Standard Statement"
+﻿report 1316 "Standard Statement"
 {
     RDLCLayout = './StandardStatement.rdlc';
     WordLayout = './StandardStatement.docx';
@@ -258,6 +258,8 @@ report 1316 "Standard Statement"
                             }
 
                             trigger OnAfterGetRecord()
+                            var
+                                Skip: Boolean;
                             begin
                                 if SkipReversedUnapplied(DtldCustLedgEntries) or (Amount = 0) then
                                     CurrReport.Skip();
@@ -267,6 +269,10 @@ report 1316 "Standard Statement"
                                     "Entry Type"::"Initial Entry":
                                         begin
                                             CustLedgerEntry.Get("Cust. Ledger Entry No.");
+                                            Skip := false;
+                                            OnDtldCustLedgEntriesOnAfterGetRecordnAfterGetCustLedgerEntry(DtldCustLedgEntries, CustLedgerEntry, Skip);
+                                            if Skip then
+                                                CurrReport.Skip();
                                             Description := CustLedgerEntry.Description;
                                             DueDate := CustLedgerEntry."Due Date";
                                             CustLedgerEntry.SetRange("Date Filter", 0D, EndDate);
@@ -325,7 +331,7 @@ report 1316 "Standard Statement"
                                 SetRange("Customer No.", Customer."No.");
                                 SetRange("Posting Date", StartDate, EndDate);
                                 SetRange("Currency Code", TempCurrency2.Code);
-
+                                OnDtldCustLedgEntriesOnPreDataItemOnAfterSetFilters(DtldCustLedgEntries);
                                 if TempCurrency2.Code = '' then begin
                                     GLSetup.TestField("LCY Code");
                                     CurrencyCode3 := GLSetup."LCY Code"
@@ -448,6 +454,7 @@ report 1316 "Standard Statement"
                                 if not IncludeAgingBand then
                                     SetRange("Due Date", 0D, EndDate - 1);
                                 SetRange("Currency Code", TempCurrency2.Code);
+                                OnCustLedgEntry2OnPreDataItemOnAfterSetFilters(CustLedgEntry2);
                                 if (not PrintEntriesDue) and (not IncludeAgingBand) then
                                     CurrReport.Break();
                             end;
@@ -1167,6 +1174,21 @@ report 1316 "Standard Statement"
             TempCurrency2.Insert();
             CustLedgerEntry.SetFilter("Currency Code", '>%1', CustLedgerEntry."Currency Code");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDtldCustLedgEntriesOnPreDataItemOnAfterSetFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDtldCustLedgEntriesOnAfterGetRecordnAfterGetCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; var Skip: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCustLedgEntry2OnPreDataItemOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
     end;
 }
 

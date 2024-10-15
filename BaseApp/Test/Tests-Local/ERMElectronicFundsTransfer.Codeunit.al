@@ -467,17 +467,21 @@
     procedure ExportPaymentPostPaymentJournal()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
         BankAccount: Record "Bank Account";
         CheckLedgerEntry: Record "Check Ledger Entry";
         ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        FileManagement: Codeunit "File Management";
         PaymentJournal: TestPage "Payment Journal";
         GenerateEFTFiles: TestPage "Generate EFT Files";
         "Count": Integer;
+        FilePath: Text;
     begin
         // [SCENARIO] Verify Entry Status on Check Ledger Entry after Post Electronic Payment Journal.
         // 270132: One check ledger entry creates when export electronic payment journal
         // 286778: Entry Status is "Posted"
+        // 377993: Resulting file name = Remittance Advice <Vendor's Name>.pdf
 
         // [GIVEN] Create and Export Electronic Payment Journal.
         Initialize();
@@ -491,6 +495,7 @@
 
         PaymentJournal.OpenEdit();
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
+        Vendor.Get(GenJournalLine."Account No.");
 
         // [WHEN] Post the General Journal Line and open up the Generate EFT Files Page
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -511,6 +516,9 @@
         BankAccount.Get(GenJournalLine."Bal. Account No.");
         VerifyCheckLedgEntryCount(
           GenJournalLine."Posting Date", BankAccount."Last Remittance Advice No.", CheckLedgerEntry."Entry Status"::Posted, 1);
+        // 377993: Resulting file name = Remittance Advice <Vendor's Name>.pdf
+        FilePath := FileManagement.CombinePath(TemporaryPath, StrSubstNo('Remittance Advice for %1.pdf', Vendor.Name));
+        Assert.IsTrue(File.Exists(FilePath), 'Remittance Advice file has not been found');
     end;
 
     [Test]
@@ -1023,147 +1031,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure ExportPaymentJournal_TwoVendorBankAccounts()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        VendorBankAccount: Record "Vendor Bank Account";
-        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
-        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
-        PaymentJournal: TestPage "Payment Journal";
-        GenerateEFTFiles: TestPage "Generate EFT Files";
-        ErrorMessagesTestPage: TestPage "Error Messages";
-    begin
-        // [FEATURE] [UI] [Error Handling] [Report] [Remittance Advice]
-        // [SCENARIO 345099] System shows error page when Stan tries to Export payment from payment journal for Vendor having more than one Vendor Bank Accounts with "Use for Electronic Payments" = true for the same vendor.
-        Initialize();
-
-        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
-        BindSubscription(TestClientTypeSubscriber);
-        BindSubscription(ERMElectronicFundsTransfer);
-
-        CreateExportReportSelection(Layout::RDLC);
-        CreateElectronicPaymentJournal(GenJournalLine);
-
-        VendorBankAccount.SetRange("Vendor No.", GenJournalLine."Account No.");
-        VendorBankAccount.FindFirst();
-        VendorBankAccount.Code := LibraryUtility.GenerateGUID();
-        VendorBankAccount.Insert();
-        VendorBankAccount.TestField("Use for Electronic Payments");
-
-        PaymentJournal.OpenEdit();
-        ErrorMessagesTestPage.Trap();
-        ExportPaymentJournal(PaymentJournal, GenJournalLine);
-
-        ErrorMessagesTestPage."Message Type".AssertEquals('Error');
-        Assert.ExpectedMessage(
-            StrSubstNo(
-                ExportVendorBankAccountErr,
-                GenJournalLine."Account No.",
-                GetReportCaption(Report::"Export Electronic Payments"),
-                GenJournalLine.RecordId),
-            ErrorMessagesTestPage.Description.Value);
-        Assert.IsTrue(ErrorMessagesTestPage.Next(), '');
-        ErrorMessagesTestPage."Message Type".AssertEquals('Error');
-        Assert.ExpectedMessage(
-            NoDataOutputErr,
-            ErrorMessagesTestPage.Description.Value);
-        Assert.IsFalse(ErrorMessagesTestPage.Next(), '');
-        ErrorMessagesTestPage.Close();
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ErrorTwoVendorBankAccountsWithUserForElectronicPayment()
-    var
-        Vendor: array[2] of Record Vendor;
-        VendorBankAccount: array[2, 2] of Record "Vendor Bank Account";
-    begin
-        // [FEATURE] [Vendor Bank Account] [Vendor] [UT]
-        // [SCENARIO 345099] Stan can't set "Use for Electronic Payments" = true on "Vendor Bank Account" card when Code or "Vendor No." is not specified yet 
-        // [SCENARIO 345099] or system contains another "Vendor Bank Account" with "Use for Electronic Payments" = true for the same vendor.
-        Initialize();
-
-        LibraryPurchase.CreateVendor(Vendor[1]);
-        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount[1, 1], Vendor[1]."No.");
-        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount[1, 2], Vendor[1]."No.");
-
-        LibraryPurchase.CreateVendor(Vendor[2]);
-        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount[2, 1], Vendor[2]."No.");
-        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount[2, 2], Vendor[2]."No.");
-
-        VendorBankAccount[1, 1].Validate("Use for Electronic Payments", true);
-        VendorBankAccount[1, 1].Modify(true);
-        VendorBankAccount[2, 1].Validate("Use for Electronic Payments", true);
-        VendorBankAccount[2, 1].Modify(true);
-
-        Commit();
-
-        asserterror VendorBankAccount[1, 2].Validate("Use for Electronic Payments", true);
-        Assert.ExpectedError(StrSubstNo(VendorBankAccountErr, Vendor[1]."No."));
-
-        asserterror VendorBankAccount[2, 2].Validate("Use for Electronic Payments", true);
-        Assert.ExpectedError(StrSubstNo(VendorBankAccountErr, Vendor[2]."No."));
-
-        Clear(VendorBankAccount[1, 1]);
-        VendorBankAccount[1, 1].Code := LibraryUtility.GenerateGUID();
-        asserterror VendorBankAccount[1, 1].Validate("Use for Electronic Payments", true);
-        Assert.ExpectedErrorCode('TestField');
-
-        VendorBankAccount[1, 1].Code := '';
-        VendorBankAccount[1, 1]."Vendor No." := LibraryUtility.GenerateGUID();
-        asserterror VendorBankAccount[1, 1].Validate("Use for Electronic Payments", true);
-        Assert.ExpectedErrorCode('TestField');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ErrorTwoCustomerBankAccountsWithUserForElectronicPayment()
-    var
-        Customer: array[2] of Record Customer;
-        CustomerBankAccount: array[2, 2] of Record "Customer Bank Account";
-    begin
-        // [FEATURE] [Customer Bank Account] [Customer] [UT]
-        // [SCENARIO 345099] Stan can't set "Use for Electronic Payments" = true on "Customer Bank Account" card when Code or "Customer No." is not specified yet 
-        // [SCENARIO 345099] or system contains another "Customer Bank Account" with "Use for Electronic Payments" = true for the same customer.
-        Initialize();
-
-        LibrarySales.CreateCustomer(Customer[1]);
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[1, 1], Customer[1]."No.");
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[1, 2], Customer[1]."No.");
-
-        LibrarySales.CreateCustomer(Customer[2]);
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[2, 1], Customer[2]."No.");
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[2, 2], Customer[2]."No.");
-
-        CustomerBankAccount[1, 1].Validate("Use for Electronic Payments", true);
-        CustomerBankAccount[1, 1].Modify(true);
-        CustomerBankAccount[2, 1].Validate("Use for Electronic Payments", true);
-        CustomerBankAccount[2, 1].Modify(true);
-
-        Commit();
-
-        asserterror CustomerBankAccount[1, 2].Validate("Use for Electronic Payments", true);
-        Assert.ExpectedError(StrSubstNo(CustomerBankAccountErr, Customer[1]."No."));
-
-        asserterror CustomerBankAccount[2, 2].Validate("Use for Electronic Payments", true);
-        Assert.ExpectedError(StrSubstNo(CustomerBankAccountErr, Customer[2]."No."));
-
-        Clear(CustomerBankAccount[1, 1]);
-        CustomerBankAccount[1, 1].Code := LibraryUtility.GenerateGUID();
-        asserterror CustomerBankAccount[1, 1].Validate("Use for Electronic Payments", true);
-        Assert.ExpectedErrorCode('TestField');
-
-        CustomerBankAccount[1, 1].Code := '';
-        CustomerBankAccount[1, 1]."Customer No." := LibraryUtility.GenerateGUID();
-        asserterror CustomerBankAccount[1, 1].Validate("Use for Electronic Payments", true);
-        Assert.ExpectedErrorCode('TestField');
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure JulianDate()
     var
@@ -1456,15 +1323,24 @@
         FindEFTExport(EFTExport, GenJournalLine);
         // [GIVEN] Post the payment journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.SetRange("Line No.", GenJournalLine."Line No.");
+        if GenJournalLine.FindFirst() then begin
+            GenJournalLine."Recipient Bank Account" := VendorBankAccount.Code;
+            GenJournalLine.Modify();
+        end;
+
         // [GIVEN] Create a new payment journal line ("EFT Export Sequence No." = 0, "Check Exported" = False, "Check Transmitted" = False)
         CreateVendorPaymentLine(GenJournalLine, GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccountNo);
-        VerifyGenJnlLineFields(GenJournalLine, 0, false, false);
+        VerifyLastGenJnlLineFields(GenJournalLine, 0, false, false);
 
         // [WHEN] Perform EFT Export (Generate EFT file)
         ProcessAndGenerateEFTFile(EFTExport, BankAccountNo);
 
         // [THEN] Journal line remains with "EFT Export Sequence No." = 0, "Check Exported" = False, "Check Transmitted" = False
-        VerifyGenJnlLineFields(GenJournalLine, 0, false, false);
+        VerifyLastGenJnlLineFields(GenJournalLine, 0, false, false);
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -1898,6 +1774,72 @@
         Assert.ExpectedError(ErrorText);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure MultipleCustomerBankAccountsForElectronicPayment()
+    var
+        Customer: Record Customer;
+        CustomerBankAccount: Record "Customer Bank Account";
+    begin
+        Initialize();
+
+        // [GIVEN] A customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] A customer bank account for the customer we have just created
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
+
+        // [GIVEN] The customer bank account has "Use for Electronic Payments" set to true 
+        CustomerBankAccount.Validate("Use for Electronic Payments", true);
+        CustomerBankAccount.Modify(true);
+
+        // [WHEN] Creating a second customer bank account with "Use for Electronic Payments" set to true 
+        // for the same customer
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
+        CustomerBankAccount.Validate("Use for Electronic Payments", true);
+        CustomerBankAccount.Modify(true);
+
+        // [THEN] No errors occur and the customer has 2 customer bank accounts with 
+        // "Use for Electronic Payments" set to true
+        CustomerBankAccount.SetRange("Customer No.", Customer."No.");
+        CustomerBankAccount.SetRange("Use for Electronic Payments", true);
+        Assert.AreEqual(2, CustomerBankAccount.Count,
+            'The customer should have 2 bank accounts that have electronic payments enabled');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MultipleVendorBankAccountsForElectronicPayment()
+    var
+        Vendor: Record Vendor;
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        Initialize();
+
+        // [GIVEN] A vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] A vendor bank account for the vendor we have just created
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
+
+        // [GIVEN] The vendor bank account has "Use for Electronic Payments" set to true 
+        VendorBankAccount.Validate("Use for Electronic Payments", true);
+        VendorBankAccount.Modify(true);
+
+        // [WHEN] Creating a second vendor bank account with "Use for Electronic Payments" set to true 
+        // for the same vendor
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
+        VendorBankAccount.Validate("Use for Electronic Payments", true);
+        VendorBankAccount.Modify(true);
+
+        // [THEN] No errors occur and the vendor has 2 vendor bank accounts with 
+        // "Use for Electronic Payments" set to true
+        VendorBankAccount.SetRange("Vendor No.", Vendor."No.");
+        VendorBankAccount.SetRange("Use for Electronic Payments", true);
+        Assert.AreEqual(2, VendorBankAccount.Count,
+            'The vendor should have 2 bank accounts that have electronic payments enabled');
+    end;
+
     local procedure Initialize()
     var
         EFTExport: Record "EFT Export";
@@ -1960,7 +1902,8 @@
     begin
         // Need to create Customer Bank Account. Insertion is specific to test and required only once.
         LibrarySales.CreateCustomer(Customer);
-        CustomerBankAccount2.FindFirst();
+        if CustomerBankAccount2.FindFirst() then
+            CustomerBankAccount2.Validate("Use for Electronic Payments", true);
         CustomerBankAccount.Init();
         CustomerBankAccount.Validate("Customer No.", Customer."No.");
         CustomerBankAccount.Validate(
@@ -1969,7 +1912,6 @@
             LibraryUtility.GenerateRandomCode(CustomerBankAccount.FieldNo(Code), DATABASE::"Customer Bank Account"),
             1,
             LibraryUtility.GetFieldLength(DATABASE::"Customer Bank Account", CustomerBankAccount.FieldNo(Code))));
-        CustomerBankAccount2.Validate("Use for Electronic Payments", true);
         CustomerBankAccount.Insert(true);
         CustomerBankAccount.Validate("Bank Branch No.", CustomerBankAccount2."Bank Branch No.");
         CustomerBankAccount.Validate("Bank Account No.", CustomerBankAccount2."Bank Account No.");
@@ -2800,7 +2742,7 @@
         VendorBankAccount.Validate("Transit No.", TransitNoTxt);
         VendorBankAccount.Validate("Use for Electronic Payments", true);
         VendorBankAccount.Modify(true);
-        Vendor.Validate(Name, CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Vendor.Name), 0), 1, MaxStrLen(Vendor.Name)));
+        Vendor.Validate(Name, Vendor.Name + '_Name');
         Vendor.Validate("Currency Code", '');
         Vendor.Modify(true);
     end;
@@ -3161,6 +3103,15 @@
         TempACHCecobanDetail.TestField("External Document No.", EFTExportWorkset."External Document No.");
         TempACHCecobanDetail.TestField("Applies-to Doc. No.", EFTExportWorkset."Applies-to Doc. No.");
         TempACHCecobanDetail.TestField("Payment Reference", EFTExportWorkset."Payment Reference");
+    end;
+
+    local procedure VerifyLastGenJnlLineFields(var GenJournalLine: Record "Gen. Journal Line"; EFTSequenceNo: Integer; Exported: Boolean; Transmitted: Boolean)
+    begin
+        GenJournalLine.FindLast();
+        GenJournalLine.TestField("EFT Export Sequence No.", EFTSequenceNo);
+        GenJournalLine.TestField("Check Printed", Exported);
+        GenJournalLine.TestField("Check Exported", Exported);
+        GenJournalLine.TestField("Check Transmitted", Transmitted);
     end;
 
     local procedure VerifyGenJnlLineFields(var GenJournalLine: Record "Gen. Journal Line"; EFTSequenceNo: Integer; Exported: Boolean; Transmitted: Boolean)

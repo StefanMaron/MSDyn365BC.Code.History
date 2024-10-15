@@ -23,8 +23,6 @@ codeunit 10094 "Export EFT (ACH)"
         ModifierValues: array[26] of Code[1];
         IsNotValidErr: Label 'The specified transit number is not valid.';
         AlreadyExistsErr: Label 'The file already exists. Check the "Last E-Pay Export File Name" field in the bank account.';
-        CustomerBankAccErr: Label 'The customer has no bank account setup for electronic payments.';
-        CustomerMoreThanOneBankAccErr: Label 'The customer has more than one bank account setup for electronic payments.';
         ReferErr: Label 'Either Account type or balance account type must refer to either a vendor or a customer for an electronic payment.';
         IsBlockedErr: Label 'Account type is blocked for processing.';
         PrivacyBlockedErr: Label 'Account type is blocked for privacy.';
@@ -179,6 +177,7 @@ codeunit 10094 "Export EFT (ACH)"
         CustomerBankAccount: Record "Customer Bank Account";
         ACHUSDetail: Record "ACH US Detail";
         StringConversionManagement: Codeunit StringConversionManagement;
+        EFTRecipientBankAccountMgt: codeunit "EFT Recipient Bank Account Mgt";
         AcctType: Text[1];
         AcctNo: Code[20];
         AcctName: Text[16];
@@ -214,7 +213,7 @@ codeunit 10094 "Export EFT (ACH)"
                             Error(ReferErr);
 
             if AcctType = 'V' then begin
-                ExportPaymentsACH.CheckVendorTransitNum(AcctNo, Vendor, VendorBankAccount, true);
+                ExportPaymentsACH.CheckVendorTransitNum(TempEFTExportWorkset, AcctNo, Vendor, VendorBankAccount, true);
 
                 AcctName := CopyStr(Vendor.Name, 1, MaxStrLen(AcctName));
                 VendorBankAccount.TestField("Bank Account No.");
@@ -228,14 +227,8 @@ codeunit 10094 "Export EFT (ACH)"
                     if Customer.Blocked in [Customer.Blocked::All] then
                         Error(PrivacyBlockedErr);
                     AcctName := CopyStr(Customer.Name, 1, MaxStrLen(AcctName));
-                    CustomerBankAccount.SetRange("Customer No.", AcctNo);
-                    CustomerBankAccount.SetRange("Use for Electronic Payments", true);
-                    CustomerBankAccount.FindFirst;
 
-                    if CustomerBankAccount.Count < 1 then
-                        Error(CustomerBankAccErr);
-                    if CustomerBankAccount.Count > 1 then
-                        Error(CustomerMoreThanOneBankAccErr);
+                    EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustomerBankAccount, TempEFTExportWorkset, AcctNo);
 
                     if not ExportPaymentsACH.CheckDigit(CustomerBankAccount."Transit No.") then
                         Error(IsNotValidErr);

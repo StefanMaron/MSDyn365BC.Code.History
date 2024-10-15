@@ -108,8 +108,30 @@ page 10015 "IRS 1099 Form-Box"
                 Image = "Report";
                 Promoted = true;
                 PromotedCategory = "Report";
-                RunObject = Report "Vendor 1099 Misc";
                 ToolTip = 'View the federal form 1099-MISC for miscellaneous income.';
+
+                trigger OnAction()
+                var
+                    IRS1099Management: Codeunit "IRS 1099 Management";
+                begin
+                    IRS1099Management.Run1099MiscReport();
+                end;
+            }
+            action(RunVendor1099NecReport)
+            {
+                ApplicationArea = BasicUS;
+                Caption = 'Vendor 1099 Nec';
+                Image = "Report";
+                Promoted = true;
+                PromotedCategory = "Report";
+                ToolTip = 'View the federal form 1099-NEC for nonemployee compensation.';
+
+                trigger OnAction()
+                var
+                    IRS1099Management: Codeunit "IRS 1099 Management";
+                begin
+                    IRS1099Management.Run1099NecReport();
+                end;
             }
             action("Vendor 1099 Information")
             {

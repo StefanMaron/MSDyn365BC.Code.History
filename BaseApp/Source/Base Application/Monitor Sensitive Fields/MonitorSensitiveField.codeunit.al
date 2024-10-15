@@ -399,9 +399,11 @@ codeunit 1392 "Monitor Sensitive Field"
     var
         FieldTable: Record Field;
     begin
+        AddAllowedFieldFilters(FieldTable);
+        FieldTable.FilterGroup(2);
         FieldTable.SetRange(TableNo, TableNo);
         FieldTable.SetRange("No.", FieldNo);
-        AddAllowedFieldFilters(FieldTable);
+        FieldTable.FilterGroup(0);
         if not FieldTable.IsEmpty() then
             exit(true);
     end;

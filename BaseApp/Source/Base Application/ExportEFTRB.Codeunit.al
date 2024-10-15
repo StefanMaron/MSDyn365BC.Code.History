@@ -31,10 +31,6 @@ codeunit 10095 "Export EFT (RB)"
         RecipientBankAcctCountryCode: Code[10];
         AlreadyExistsErr: Label 'The file already exists. Check the "Last E-Pay Export File Name" field in the bank account.';
         ReferErr: Label 'Either Account type or balance account type must refer to either a vendor or a customer for an electronic payment.';
-        VendorBankAccountErr: Label 'The vendor has no bank account setup for electronic payments.';
-        VendorMoreThanOneBankAccErr: Label 'The vendor has more than one bank account setup for electronic payments.';
-        CustomerBankAccountErr: Label 'The customer has no bank account setup for electronic payments.';
-        CustomerMoreThanOneBankAccountErr: Label 'The customer has more than one bank account setup for electronic payments.';
         IsBlockedErr: Label 'Account type is blocked for processing.';
         PrivacyBlockedErr: Label 'Account type is blocked for privacy.';
 
@@ -217,16 +213,17 @@ codeunit 10095 "Export EFT (RB)"
                             Error(ReferErr);
 
             if AcctType = 'V' then
-                GetRecipientDataFromVendor
+                GetRecipientDataFromVendor(TempEFTExportWorkset)
             else
                 if AcctType = 'C' then
-                    GetRecipientDataFromCustomer;
+                    GetRecipientDataFromCustomer(TempEFTExportWorkset);
         end;
     end;
 
-    local procedure GetRecipientDataFromVendor()
+    local procedure GetRecipientDataFromVendor(var TempEFTExportWorkset: Record "EFT Export Workset" temporary)
     var
         VendorBankAccount: Record "Vendor Bank Account";
+        EFTRecipientBankAccountMgt: Codeunit "EFT Recipient Bank Account Mgt";
     begin
         if AcctNo <> Vendor."No." then begin
             Vendor.Get(AcctNo);
@@ -242,13 +239,8 @@ codeunit 10095 "Export EFT (RB)"
         RecipientCountryCode := Vendor."Country/Region Code";
         RecipientCounty := Vendor.County;
         RecipientPostCode := Vendor."Post Code";
-        VendorBankAccount.SetRange("Vendor No.", AcctNo);
-        VendorBankAccount.SetRange("Use for Electronic Payments", true);
-        if VendorBankAccount.Count < 1 then
-            Error(VendorBankAccountErr);
-        if VendorBankAccount.Count > 1 then
-            Error(VendorMoreThanOneBankAccErr);
-        VendorBankAccount.FindFirst;
+
+        EFTRecipientBankAccountMgt.GetRecipientVendorBankAccount(VendorBankAccount, TempEFTExportWorkset, AcctNo);
 
         VendorBankAccount.TestField("Bank Account No.");
         RecipientBankNo := VendorBankAccount."Bank Branch No.";
@@ -258,9 +250,10 @@ codeunit 10095 "Export EFT (RB)"
         RecipientBankAcctCountryCode := VendorBankAccount."Country/Region Code";
     end;
 
-    local procedure GetRecipientDataFromCustomer()
+    local procedure GetRecipientDataFromCustomer(var TempEFTExportWorkset: Record "EFT Export Workset" temporary)
     var
         CustomerBankAccount: Record "Customer Bank Account";
+        EFTRecipientBankAccountMgt: Codeunit "EFT Recipient Bank Account Mgt";
     begin
         if AcctNo <> Customer."No." then begin
             Customer.Get(AcctNo);
@@ -279,15 +272,8 @@ codeunit 10095 "Export EFT (RB)"
         RecipientCountryCode := Customer."Country/Region Code";
         RecipientCounty := Customer.County;
         RecipientPostCode := Customer."Post Code";
-        CustomerBankAccount.SetRange("Customer No.", AcctNo);
-        CustomerBankAccount.SetRange("Use for Electronic Payments", true);
-        if CustomerBankAccount.Count < 1 then
-            Error(CustomerBankAccountErr);
-
-        if CustomerBankAccount.Count > 1 then
-            Error(CustomerMoreThanOneBankAccountErr);
-
-        CustomerBankAccount.FindFirst;
+        
+        EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustomerBankAccount, TempEFTExportWorkset, AcctNo);
 
         CustomerBankAccount.TestField("Bank Account No.");
         RecipientBankNo := CustomerBankAccount."Bank Branch No.";

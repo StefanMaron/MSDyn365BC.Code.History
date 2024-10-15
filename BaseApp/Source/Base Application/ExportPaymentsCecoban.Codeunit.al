@@ -37,10 +37,6 @@ codeunit 10092 "Export Payments (Cecoban)"
         Text005: Label 'Cannot start new export batch until previous batch is completed.';
         Text006: Label 'Cannot export details until an export file is started.';
         Text007: Label 'Cannot export details until an export batch is started.';
-        Text008: Label 'Vendor No. %1 has no bank account setup for electronic payments.';
-        Text009: Label 'Vendor No. %1 has more than one bank account setup for electronic payments.';
-        Text010: Label 'Customer No. %1 has no bank account setup for electronic payments.';
-        Text011: Label 'Customer No. %1 has more than one bank account setup for electronic payments.';
         Text012: Label 'Cannot end export batch until an export file is started.';
         Text013: Label 'Cannot end export batch until an export batch is started.';
         Text014: Label 'Cannot end export file until an export file is started.';
@@ -149,6 +145,7 @@ codeunit 10092 "Export Payments (Cecoban)"
         VendorBankAcct: Record "Vendor Bank Account";
         Customer: Record Customer;
         CustBankAcct: Record "Customer Bank Account";
+        EFTRecepientBankAccountMgt: codeunit "EFT Recipient Bank Account Mgt";
         AcctType: Text[1];
         AcctNo: Code[20];
         AcctName: Text[40];
@@ -197,14 +194,8 @@ codeunit 10092 "Export Payments (Cecoban)"
                 AcctName := CopyStr(Vendor.Name, 1, MaxStrLen(AcctName));
                 RFCNo := Vendor."VAT Registration No.";
 
-                VendorBankAcct.SetRange("Vendor No.", AcctNo);
-                VendorBankAcct.SetRange("Use for Electronic Payments", true);
-                VendorBankAcct.FindFirst;
+                EFTRecepientBankAccountMgt.GetRecipientVendorBankAccount(VendorBankAcct, GenJnlLine, Vendor."No.");
 
-                if VendorBankAcct.Count < 1 then
-                    Error(Text008, AcctNo);
-                if VendorBankAcct.Count > 1 then
-                    Error(Text009, AcctNo);
                 if not PayeeCheckDigit(VendorBankAcct."Transit No.") then
                     VendorBankAcct.FieldError("Transit No.", TransitNoErr);
 
@@ -222,14 +213,8 @@ codeunit 10092 "Export Payments (Cecoban)"
                     AcctName := CopyStr(Customer.Name, 1, MaxStrLen(AcctName));
                     RFCNo := Customer."VAT Registration No.";
 
-                    CustBankAcct.SetRange("Customer No.", AcctNo);
-                    CustBankAcct.SetRange("Use for Electronic Payments", true);
-                    CustBankAcct.FindFirst;
+                    EFTRecepientBankAccountMgt.GetRecipientCustomerBankAccount(CustBankAcct, GenJnlLine, Customer."No.");
 
-                    if CustBankAcct.Count < 1 then
-                        Error(Text010, AcctNo);
-                    if CustBankAcct.Count > 1 then
-                        Error(Text011, AcctNo);
                     if not PayeeCheckDigit(CustBankAcct."Transit No.") then
                         CustBankAcct.FieldError("Transit No.", TransitNoErr);
                     CustBankAcct.TestField("Bank Account No.");
