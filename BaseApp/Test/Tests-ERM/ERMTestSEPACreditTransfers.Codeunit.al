@@ -942,7 +942,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GenJnlLine: Record "Gen. Journal Line";
-        SEPACTExportFile: Codeunit "SEPA CT-Export File";
     begin
         Init;
         // Setup.
@@ -954,8 +953,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine.Modify();
 
         // Exercise.
-        SEPACTExportFile.EnableExportToServerFile;
-        SEPACTExportFile.Run(GenJnlLine);
+        RunSEPACTExportFile(GenJnlLine);
 
         // Verify.
         VendorLedgerEntry.Get(VendorLedgerEntry."Entry No.");
@@ -1045,7 +1043,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     var
         GenJnlLine: Record "Gen. Journal Line";
         CreditTransferRegister: Record "Credit Transfer Register";
-        SEPACTExportFile: Codeunit "SEPA CT-Export File";
     begin
         Init;
 
@@ -1058,8 +1055,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         CreateGenJnlLine(GenJnlLine);
 
         // Exercise
-        SEPACTExportFile.EnableExportToServerFile;
-        SEPACTExportFile.Run(GenJnlLine);
+        RunSEPACTExportFile(GenJnlLine);
 
         // Pre-Verify
         CreditTransferRegister.SetRange("From Bank Account No.", BankAccount."No.");
@@ -1124,7 +1120,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         VendorLedgerEntry: array[2] of Record "Vendor Ledger Entry";
         GenJnlLine: Record "Gen. Journal Line";
         CreditTransferEntry: Record "Credit Transfer Entry";
-        SEPACTExportFile: Codeunit "SEPA CT-Export File";
     begin
         // [SCENARIO 305129] When creating SEPA Export File with Gen. Journal Line applied to several Ledger Entries, Credit Transfer Entries get generated for all the Ledger Entries
         Init;
@@ -1143,8 +1138,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         UpdateAppliesToIDOnVendorLedgerEntry(VendorLedgerEntry[2], GenJnlLine."Applies-to ID");
 
         // [WHEN] SEPA Export File is run
-        SEPACTExportFile.EnableExportToServerFile;
-        SEPACTExportFile.Run(GenJnlLine);
+        RunSEPACTExportFile(GenJnlLine);
 
         // [THEN] Credit Transfer Entry for Vendor Ledger Entry "1" is created
         CreditTransferEntry.SetRange("Applies-to Entry No.", VendorLedgerEntry[1]."Entry No.");
@@ -1160,7 +1154,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     procedure SEPAExportGenJnlLineTotalExportedAmountIsEqualtToAmount()
     var
         GenJnlLine: array[2] of Record "Gen. Journal Line";
-        SEPACTExportFile: Codeunit "SEPA CT-Export File";
     begin
         // [SCENARIO 329011]  When creating SEPA Export File with multiple Gen. Journal Lines applied to Ledger Entries, Gen. Journal Line's TotalExportedAmount is equal to Amount.
         Init;
@@ -1171,8 +1164,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
         // [WHEN] SEPA Export File is run
         GenJnlLine[1].SetFilter("Line No.", '%1|%2', GenJnlLine[1]."Line No.", GenJnlLine[2]."Line No.");
-        SEPACTExportFile.EnableExportToServerFile;
-        SEPACTExportFile.Run(GenJnlLine[1]);
+        RunSEPACTExportFile(GenJnlLine[1]);
 
         // [THEN] Gen. Journal Line's TotalExportedAmount is equal to Amount
         Assert.AreEqual(GenJnlLine[1].Amount, GenJnlLine[1].TotalExportedAmount, '');
@@ -1185,7 +1177,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     var
         CreditTransferEntry: Record "Credit Transfer Entry";
         GenJnlLine: Record "Gen. Journal Line";
-        SEPACTExportFile: Codeunit "SEPA CT-Export File";
     begin
         // [SCENARIO 329011]  When creating SEPA Export File with Gen. Journal Lines not applied to Ledger Entries, Gen. Journal Line's TotalExportedAmount is equal to Amount.
         Init;
@@ -1197,8 +1188,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
         // [WHEN] SEPA Export File is run
         GenJnlLine.SetRange("Line No.", GenJnlLine."Line No.");
-        SEPACTExportFile.EnableExportToServerFile;
-        SEPACTExportFile.Run(GenJnlLine);
+        RunSEPACTExportFile(GenJnlLine);
 
         // [THEN] Gen. Journal Line's TotalExportedAmount is equal to Amount
         Assert.AreEqual(GenJnlLine.Amount, GenJnlLine.TotalExportedAmount, '');
@@ -1210,7 +1200,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     var
         Currency: Record Currency;
         GenJnlLine: Record "Gen. Journal Line";
-        SEPACTExportFile: Codeunit "SEPA CT-Export File";
     begin
         // [SCENARIO 327227] It is possible to use SEPA CT Export Gen. Jnl. Line with Non-Euro currency when "Allow Non-Euro Export" is set to TRUE.
         Init;
@@ -1232,8 +1221,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine.Modify(true);
 
         // [WHEN] Payment is exported using SEPA Credit Transfer.
-        SEPACTExportFile.EnableExportToServerFile;
-        SEPACTExportFile.Run(GenJnlLine);
+        RunSEPACTExportFile(GenJnlLine);
 
         // [THEN] No error happens.
         Assert.IsFalse(GenJnlLine.HasPaymentFileErrors, '');
@@ -1245,7 +1233,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     var
         Currency: Record Currency;
         GenJnlLine: Record "Gen. Journal Line";
-        SEPACTExportFile: Codeunit "SEPA CT-Export File";
     begin
         // [SCENARIO 327227] Using SEPA CT Export Gen. Jnl. Line with Non-Euro currency when "Allow Non-Euro Export" is set to FALSE leads to an error.
         Init;
@@ -1267,8 +1254,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine.Modify(true);
 
         // [WHEN] Payment is exported using SEPA Credit Transfer.
-        SEPACTExportFile.EnableExportToServerFile;
-        asserterror SEPACTExportFile.Run(GenJnlLine);
+        asserterror RunSEPACTExportFile(GenJnlLine);
 
         // [THEN] Error about not using Euro currency happens.
         Assert.ExpectedError(HasErrorsErr);
@@ -1707,6 +1693,14 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     local procedure GetTodayDate(): Date
     begin
         exit(WorkDate());
+    end;
+
+    local procedure RunSEPACTExportFile(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";
+    begin
+        SEPACTExportFile.EnableExportToServerFile();
+        SEPACTExportFile.Run(GenJournalLine);
     end;
 
     local procedure UpdateAppliesToIDOnVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; NewAppliesToID: Code[50])

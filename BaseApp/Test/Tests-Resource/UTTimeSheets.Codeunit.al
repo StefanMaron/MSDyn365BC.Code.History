@@ -22,6 +22,7 @@ codeunit 136500 "UT Time Sheets"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryJob: Codeunit "Library - Job";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         GlobalWorkTypeCode: Code[10];
         GlobalChargeable: Boolean;
         IsInitialized: Boolean;
@@ -34,7 +35,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetHeader: Record "Time Sheet Header";
     begin
         // simple unit test to verify possibility set up time sheet resource and create one timesheet
-        SetUp;
+        Initialize();
 
         // resource - person
         CreateTimeSheetResource(Resource, false);
@@ -57,7 +58,7 @@ codeunit 136500 "UT Time Sheets"
         ResJnlLine: Record "Res. Journal Line";
     begin
         // resource marked as Uses Timesheet cannot be used in resource journals
-        SetUp;
+        Initialize();
 
         // resource - person
         CreateTimeSheetResource(Resource, false);
@@ -79,7 +80,7 @@ codeunit 136500 "UT Time Sheets"
         JobJnlLine: Record "Job Journal Line";
     begin
         // resource marked as Uses Timesheet cannot be used in job journals
-        SetUp;
+        Initialize();
 
         // create resource and link it to the user
         CreateTimeSheetResource(Resource, false);
@@ -105,7 +106,7 @@ codeunit 136500 "UT Time Sheets"
         ToTimeSheetLine: Record "Time Sheet Line";
     begin
         // test for function "Copy lines from previous time sheet"
-        SetUp;
+        Initialize();
 
         // create source time sheet
         LibraryTimeSheet.CreateTimeSheet(FromTimeSheetHeader, false);
@@ -155,7 +156,7 @@ codeunit 136500 "UT Time Sheets"
         Date: Date;
     begin
         // test for function "Create lines from job planning"
-        InitCreateFromJobPlanningSetup;
+        InitCreateFromJobPlanningSetup();
 
         // create time sheet
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
@@ -201,7 +202,7 @@ codeunit 136500 "UT Time Sheets"
         // with function Create lines from job planning
 
         // SETUP
-        InitCreateFromJobPlanningSetup;
+        InitCreateFromJobPlanningSetup();
 
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
         NumberOfLines := CreateSeveralJobPlanningLines(TimeSheetHeader, JobPlanningLine);
@@ -226,7 +227,7 @@ codeunit 136500 "UT Time Sheets"
         // [SCENARIO] "Create lines from time sheets" for Service Order creates service order lines, after posting Service Order TS lines are posted.
 
         // test for function "Create lines from time sheets" for Service Order
-        SetUp;
+        Initialize();
 
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
         LibraryTimeSheet.CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
@@ -267,7 +268,7 @@ codeunit 136500 "UT Time Sheets"
         RowCount: Integer;
     begin
         // test for function "Create lines from time sheets" for Service Order for 3 lines in time sheet
-        SetUp;
+        Initialize();
 
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
         LibraryTimeSheet.CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
@@ -305,7 +306,7 @@ codeunit 136500 "UT Time Sheets"
         ServiceHeader: Record "Service Header";
         TimeSheetNo: array[2] of Code[20];
     begin
-        SetUp;
+        Initialize();
         // test for function "Create lines from time sheets" for Service Order for few time sheets
         LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
         TimeSheetNo[1] := TimeSheetHeader."No.";
@@ -334,7 +335,7 @@ codeunit 136500 "UT Time Sheets"
         NoOfTimeSheetLines: Integer;
     begin
         // test for function "Create lines from time sheets" for Service Order with 3 time sheet lines and auto create in service setup = true
-        SetUp;
+        Initialize();
         ModifyCopyTimeSheetLinesinServiceSetup(true);
 
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
@@ -372,7 +373,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetLine: Record "Time Sheet Line";
         ServiceHeader: Record "Service Header";
     begin
-        SetUp;
+        Initialize();
         // test for function "CreateServDocLinesFromTSLine" for Service Order from mulitple few time sheets
         LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
 
@@ -398,7 +399,7 @@ codeunit 136500 "UT Time Sheets"
         ServiceLinesCount: Integer;
     begin
         // test to approve time sheet lines with Service Order when the auto flag is set to false.
-        SetUp;
+        Initialize();
         ModifyCopyTimeSheetLinesinServiceSetup(false);
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
         LibraryTimeSheet.CreateServiceOrder(ServiceHeader, CalcDate('<+3D>', TimeSheetHeader."Starting Date"));
@@ -438,7 +439,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetLine: Record "Time Sheet Line";
         ServiceHeader: Record "Service Header";
     begin
-        SetUp;
+        Initialize();
         // test for function "Create lines from time sheets" for line in time sheet with Chargeagle = No
         LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
         TimeSheetLine.Validate(Chargeable, false);
@@ -460,7 +461,7 @@ codeunit 136500 "UT Time Sheets"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
     begin
-        SetUp;
+        Initialize();
         // test for function "Create lines from time sheets" for Service Order
         LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
 
@@ -490,7 +491,7 @@ codeunit 136500 "UT Time Sheets"
         ServiceHeader: Record "Service Header";
         TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
     begin
-        SetUp;
+        Initialize();
         LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
         AddRowsWithDifferentTypes(TimeSheetHeader, TimeSheetLine);
 
@@ -530,7 +531,7 @@ codeunit 136500 "UT Time Sheets"
         LibraryDimension: Codeunit "Library - Dimension";
         TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
     begin
-        SetUp;
+        Initialize();
 
         // create time sheet
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
@@ -577,7 +578,7 @@ codeunit 136500 "UT Time Sheets"
         WorkType: Record "Work Type";
         ManagerTSbyJob: TestPage "Manager Time Sheet by Job";
     begin
-        SetUp;
+        Initialize();
         LibraryTimeSheet.InitScenarioWTForJob(TimeSheetHeader);
 
         // create work type
@@ -616,7 +617,7 @@ codeunit 136500 "UT Time Sheets"
         WorkType: Record "Work Type";
         ManagerTimeSheet: TestPage "Manager Time Sheet";
     begin
-        SetUp;
+        Initialize();
         LibraryTimeSheet.InitScenarioWTForServiceOrder(TimeSheetHeader, ServiceHeader);
 
         // create work type
@@ -652,7 +653,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetPostingEntry: Record "Time Sheet Posting Entry";
     begin
         // create an empty time sheet
-        SetUp;
+        Initialize();
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
         VerifyTimeSheetStatuses(TimeSheetHeader, false, false, false, false, false);
 
@@ -708,7 +709,7 @@ codeunit 136500 "UT Time Sheets"
         PostedQty: Decimal;
     begin
         // test for time sheet flow chart calculation procedure
-        SetUp;
+        Initialize();
 
         // create time sheet
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
@@ -785,7 +786,7 @@ codeunit 136500 "UT Time Sheets"
         AssemblyQty: Decimal;
     begin
         // test for time sheet flow chart calculation procedure
-        SetUp;
+        Initialize();
 
         // init quiantities
         ResourceQty := LibraryTimeSheet.GetRandomDecimal;
@@ -923,7 +924,7 @@ codeunit 136500 "UT Time Sheets"
         // [SCENARIO 174526] Stan can initiate Time Sheets tiles
 
         // [GIVEN] Create an empty time sheet
-        SetUp;
+        Initialize();
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
         VerifyTeamMemberTimeSheetStatuses(TimeSheetHeader, 0, 0, 0, 0, 0);
 
@@ -1349,7 +1350,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetHeader: Record "Time Sheet Header";
         TimeSheetLine: Record "Time Sheet Line";
     begin
-        SetUp;
+        Initialize();
 
         // create time sheet
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
@@ -1472,7 +1473,7 @@ codeunit 136500 "UT Time Sheets"
         // [FEATURE] [Job] [UT]
         // [SCENARIO 271148] "Job Task No." clears out when "Job No." changes in "Time Sheet line"
 
-        SetUp;
+        Initialize();
 
         // [GIVEN] Job "A" with Job task "A1"
         LibraryJob.CreateJob(Job);
@@ -1496,23 +1497,29 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetLine.TestField("Job Task No.", '');
     end;
 
-    local procedure SetUp()
+    local procedure Initialize()
     var
         UserSetup: Record "User Setup";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"UT Time Sheets");
+
         if IsInitialized then
             exit;
 
         IsInitialized := true;
 
-        LibraryTimeSheet.Initialize;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"UT Time Sheets");
+
+        LibraryTimeSheet.Initialize();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
         ResourcesSetup.Get();
         // create current user id setup for approver
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"UT Time Sheets");
     end;
 
     local procedure TearDown()
@@ -1646,7 +1653,7 @@ codeunit 136500 "UT Time Sheets"
         BusChartMapColumn: Record "Business Chart Map";
     begin
         // setup for managers with different roles testing
-        SetUp;
+        Initialize();
 
         // resource - person
         LibraryTimeSheet.CreateTimeSheetResource(Resource);
@@ -2150,7 +2157,7 @@ codeunit 136500 "UT Time Sheets"
         Resource: Record Resource;
         TimeSheetQty: Integer;
     begin
-        SetUp;
+        Initialize();
         LibraryVariableStorage.Clear;
 
         // create resource and link it to the user
@@ -2171,7 +2178,7 @@ codeunit 136500 "UT Time Sheets"
 
     local procedure InitCreateFromJobPlanningSetup()
     begin
-        SetUp;
+        Initialize();
         ResourcesSetup."Time Sheet by Job Approval" := ResourcesSetup."Time Sheet by Job Approval"::Never;
         ResourcesSetup.Modify();
     end;

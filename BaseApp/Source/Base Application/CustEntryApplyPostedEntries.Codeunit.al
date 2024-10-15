@@ -426,6 +426,7 @@
             SetRange("Customer No.", DetailedCustLedgEntry2."Customer No.");
             SetRange(Unapplied, false);
             SetFilter("Entry Type", '<>%1', "Entry Type"::"Initial Entry");
+            OnCollectAffectedLedgerEntriesOnAfterSetFilters(DetailedCustLedgEntry, DetailedCustLedgEntry2);
             if FindSet then
                 repeat
                     TempCustLedgerEntry."Entry No." := "Cust. Ledger Entry No.";
@@ -571,6 +572,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostUnapplyCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectAffectedLedgerEntriesOnAfterSetFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry")
     begin
     end;
 

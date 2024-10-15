@@ -718,7 +718,7 @@ table 904 "Assemble-to-Order Link"
                     CompSalesLine."Unit Price" := 0;
                     CompSalesLine."Allow Line Disc." := false;
 
-                    OnRollUpPriceOnBeforeFindSalesLinePrice(SalesHeader, CompSalesLine);
+                    OnRollUpPriceOnBeforeFindSalesLinePrice(SalesHeader, CompSalesLine, AsmLine);
 
                     SalesLinePrice.SetLine(PriceType::Sale, SalesHeader, CompSalesLine);
                     PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
@@ -1312,7 +1312,7 @@ table 904 "Assemble-to-Order Link"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRollUpPriceOnBeforeFindSalesLinePrice(var SalesHeader: Record "Sales Header"; var CompSalesLine: Record "Sales Line")
+    local procedure OnRollUpPriceOnBeforeFindSalesLinePrice(var SalesHeader: Record "Sales Header"; var CompSalesLine: Record "Sales Line"; AssemblyLine: Record "Assembly Line")
     begin
     end;
 

@@ -653,6 +653,10 @@ table 111 "Sales Shipment Line"
             SalesInvHeader.Get(TempSalesLine."Document Type", TempSalesLine."Document No.");
 
         if SalesLine."Shipment No." <> "Document No." then begin
+
+            OnInsertInvLineFromShptLineOnBeforeInsertDescriptionLine(
+                Rec, SalesLine, TempSalesLine, SalesInvHeader, NextLineNo);
+
             SalesLine.Init();
             SalesLine."Line No." := NextLineNo;
             SalesLine."Document Type" := TempSalesLine."Document Type";
@@ -1401,6 +1405,11 @@ table 111 "Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromShptLineOnBeforeValidateQuantity(SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromShptLineOnBeforeInsertDescriptionLine(SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; TempSalesLine: Record "Sales Line" temporary; var SalesInvHeader: Record "Sales Header"; var NextLineNo: integer)
     begin
     end;
 }

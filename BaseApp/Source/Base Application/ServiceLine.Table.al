@@ -56,7 +56,7 @@
                 ClearFields;
 
                 "Currency Code" := ServiceLine."Currency Code";
-                Validate("Service Item Line No.", ServiceLine."Service Item Line No.");
+                ValidateServiceItemLineNumber(ServiceLine."Service Item Line No.");
 
                 if Type = Type::Item then begin
                     if ServHeader.InventoryPickConflict("Document Type", "Document No.", ServHeader."Shipping Advice") then
@@ -237,8 +237,7 @@
                 TestField("No.");
                 TestStatusOpen;
 
-                if Quantity < 0 then
-                    FieldError(Quantity, Text029);
+                TestQuantityPositive();
 
                 case "Spare Part Action" of
                     "Spare Part Action"::Permanent, "Spare Part Action"::"Temporary":
@@ -1653,7 +1652,14 @@
             TableRelation = "Responsibility Center";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateResponsibilityCenter(Rec, DimMgt, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CreateDim(
                   DATABASE::"Responsibility Center", "Responsibility Center",
                   DimMgt.TypeToTableID5(Type), "No.",
@@ -1824,6 +1830,7 @@
                     ServItem.FilterGroup(2);
                     ServItem.SetRange("Customer No.", "Customer No.");
                     ServItem.FilterGroup(0);
+                    OnLookupServiceItemNoOnAfterServItemSetFilters(Rec, ServHeader, ServItem);
                     if PAGE.RunModal(0, ServItem) = ACTION::LookupOK then
                         Validate("Service Item No.", ServItem."No.");
                 end
@@ -1844,7 +1851,14 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateServiceItemNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Quantity Shipped", 0);
                 TestField("Shipment No.", '');
                 if "Service Item No." <> '' then begin
@@ -1890,6 +1904,7 @@
                     "Resolution Code" := ServItemLine."Resolution Code";
                     "Service Price Group Code" := ServItemLine."Service Price Group Code";
                     "Serv. Price Adjmt. Gr. Code" := ServItemLine."Serv. Price Adjmt. Gr. Code";
+                    OnValidateServiceItemLineNoOnBeforeValidateContractNo(Rec, ServItemLine);
                     if "No." <> '' then
                         Validate("Contract No.", ServItemLine."Contract No.");
                 end else begin
@@ -2763,7 +2778,13 @@
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
         DimensionSetID: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         SourceCodeSetup.Get();
         GetServHeader;
         if not ServItemLine.Get(ServHeader."Document Type", ServHeader."No.", "Service Item Line No.") then
@@ -2824,7 +2845,7 @@
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
     end;
 
-    local procedure ReplaceServItem(): Boolean
+    protected procedure ReplaceServItem(): Boolean
     var
         Item: Record Item;
         ServItemReplacement: Page "Service Item Replacement";
@@ -2897,6 +2918,19 @@
         ItemTrackingCode.Get(ReplacementItem."Item Tracking Code");
         if ItemTrackingCode."SN Specific Tracking" then
             Error(Text023);
+    end;
+
+    local procedure TestQuantityPositive()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestQuantityPositive(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Quantity < 0 then
+            FieldError(Quantity, Text029);
     end;
 
     local procedure ErrorIfAlreadySelectedSI(ServItemLineNo: Integer)
@@ -3177,7 +3211,7 @@
         if ("Location Code" = '') and (not IsNonInventoriableItem) then
             "Location Code" := ServHeader."Location Code";
 
-        OnInitHeaderDefaultsOnAfterAssignLocationCode(Rec);
+        OnInitHeaderDefaultsOnAfterAssignLocationCode(Rec, ServHeader);
 
         if Type = Type::Item then begin
             if (xRec."No." <> "No.") and (Quantity <> 0) then
@@ -3540,7 +3574,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCopyFromServItem(Rec, ServItem, ServItemComponent, IsHandled, HideReplacementDialog);
+        OnBeforeCopyFromServItem(Rec, ServItem, ServItemComponent, IsHandled, HideReplacementDialog, ServItemLine, Select, ReplaceServItemAction);
         if IsHandled then
             exit;
 
@@ -3675,7 +3709,7 @@
         ReserveServLine.CallItemTracking(Rec);
     end;
 
-    local procedure InsertItemTracking()
+    protected procedure InsertItemTracking()
     var
         ReservEntry: Record "Reservation Entry";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
@@ -3711,7 +3745,13 @@
         Bin: Record Bin;
         BinType: Record "Bin Type";
         WMSManagement: Codeunit "WMS Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDefaultBin(Rec, CurrFieldNo, IsHandled, ReplaceServItemAction);
+        if IsHandled then
+            exit;
+
         if Type <> Type::Item then
             exit;
 
@@ -4922,6 +4962,18 @@
         ServiceLedgerEntry.Modify();
     end;
 
+    local procedure ValidateServiceItemLineNumber(LineNo: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateServiceItemLineNumber(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate("Service Item Line No.", LineNo);
+    end;
+
     local procedure UpdateWithWarehouseShip()
     begin
         if Type <> Type::Item then
@@ -5071,6 +5123,7 @@
 
     procedure OutstandingInvoiceAmountFromShipment(CustomerNo: Code[20]): Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         ServiceLine: Record "Service Line";
     begin
         ServiceLine.SetCurrentKey("Document Type", "Customer No.", "Shipment No.");
@@ -5290,7 +5343,13 @@
     local procedure UpdateLineDiscPct()
     var
         LineDiscountPct: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateLineDiscPct(Rec, Currency, IsHandled);
+        if IsHandled then
+            exit;
+
         if Round(CalcChargeableQty * "Unit Price", Currency."Amount Rounding Precision") <> 0 then begin
             LineDiscountPct := Round(
                 "Line Discount Amount" / Round(CalcChargeableQty * "Unit Price", Currency."Amount Rounding Precision") * 100,
@@ -5439,12 +5498,27 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyFromServItem(var ServiceLine: Record "Service Line"; ServiceItem: Record "Service Item"; ServItemComponent: Record "Service Item Component"; var IsHandled: Boolean; var HideReplacementDialog: Boolean)
+    local procedure OnBeforeCopyFromServItem(var ServiceLine: Record "Service Line"; ServiceItem: Record "Service Item"; ServItemComponent: Record "Service Item Component"; var IsHandled: Boolean; var HideReplacementDialog: Boolean; ServItemLine: Record "Service Item Line"; var Select: Integer; var ReplaceServItemAction: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var ServiceLine: Record "Service Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDefaultBin(var ServiceLine: Record "Service Line"; CallingFieldNo: Integer; var IsHandled: Boolean; ReplaceServItemAction: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestBinCode(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestQuantityPositive(var ServiceLine: Record "Service Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -5459,12 +5533,32 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateLineDiscPct(var ServiceLine: Record "Service Line"; Currency: Record Currency; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateUnitPrice(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; CalledByFieldNo: Integer; CurrFieldNo: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateVATAmounts(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateResponsibilityCenter(var Rec: Record "Service Line"; var DimMgt: Codeunit DimensionManagement; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateServiceItemNo(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateServiceItemLineNumber(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5479,7 +5573,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitHeaderDefaultsOnAfterAssignLocationCode(var ServiceLine: Record "Service Line")
+    local procedure OnInitHeaderDefaultsOnAfterAssignLocationCode(var ServiceLine: Record "Service Line"; ServHeader: Record "Service Header")
     begin
     end;
 
@@ -5490,6 +5584,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateContractNoOnBeforeContractDiscountFind(var ServiceLine: Record "Service Line"; var ContractServDisc: Record "Contract/Service Discount"; ServItem: Record "Service Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceItemLineNoOnBeforeValidateContractNo(var ServiceLine: Record "Service Line"; ServItemLine: Record "Service Item Line")
     begin
     end;
 
@@ -5525,6 +5624,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDimensions(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupServiceItemNoOnAfterServItemSetFilters(var ServiceLine: Record "Service Line"; ServHeader: Record "Service Header"; var ServItem: Record "Service Item")
     begin
     end;
 }

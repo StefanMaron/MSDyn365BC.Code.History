@@ -1777,7 +1777,8 @@
 
         ReservEntry2.SetRange(
           "Reservation Status", ReservEntry2."Reservation Status"::Surplus, ReservEntry2."Reservation Status"::Prospect);
-        ReservEntry2.DeleteAll();
+        if not ReservEntry2.IsEmpty() then
+            ReservEntry2.DeleteAll();
     end;
 
     local procedure QuantityTracked(var ReservEntry: Record "Reservation Entry"): Decimal
@@ -2473,12 +2474,11 @@
         WhseActivLine: Record "Warehouse Activity Line";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         TempWhseActivLine2: Record "Warehouse Activity Line" temporary;
+        TempBinContentBuffer: Record "Bin Content Buffer" temporary;
         WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
         QtyOnOutboundBins: Decimal;
         QtyOnInvtMovement: Decimal;
         QtyOnSpecialBins: Decimal;
-        SpecialBins: List of [Code[20]];
-        SpecialBin: Code[20];
         IsHandled: Boolean;
     begin
         with CalcReservEntry do begin
@@ -2514,8 +2514,16 @@
             if Location."Require Pick" then begin
                 WhseItemTrackingSetup.CopyTrackingFromReservEntry(CalcReservEntry);
 
-                QtyOnOutboundBins :=
-                    WhseAvailMgt.CalcQtyOnOutboundBins("Location Code", "Item No.", "Variant Code", WhseItemTrackingSetup, true);
+                if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" and
+                   WhseItemTrackingSetup.TrackingExists()
+                then begin
+                    WhseAvailMgt.GetOutboundBinsOnBasicWarehouseLocation(
+                      TempBinContentBuffer, "Location Code", "Item No.", "Variant Code", WhseItemTrackingSetup);
+                    TempBinContentBuffer.CalcSums("Qty. Outstanding (Base)");
+                    QtyOnOutboundBins := TempBinContentBuffer."Qty. Outstanding (Base)";
+                end else
+                    QtyOnOutboundBins :=
+                        WhseAvailMgt.CalcQtyOnOutboundBins("Location Code", "Item No.", "Variant Code", WhseItemTrackingSetup, true);
 
                 QtyReservedOnPickShip :=
                   WhseAvailMgt.CalcReservQtyOnPicksShips(
@@ -2523,19 +2531,13 @@
 
                 QtyOnInvtMovement := CalcQtyOnInvtMovement(WhseActivLine);
 
-                SpecialBins.Add(Location."To-Assembly Bin Code");
-                if not SpecialBins.Contains(Location."Open Shop Floor Bin Code") then
-                    SpecialBins.Add(Location."Open Shop Floor Bin Code");
-                if not SpecialBins.Contains(Location."To-Production Bin Code") then
-                    SpecialBins.Add(Location."To-Production Bin Code");
-
-                foreach SpecialBin in SpecialBins do
-                    QtyOnSpecialBins +=
-                        WhseAvailMgt.CalcQtyOnBin("Location Code", SpecialBin, "Item No.", "Variant Code", WhseItemTrackingSetup);
+                QtyOnSpecialBins :=
+                    WhseAvailMgt.CalcQtyOnSpecialBinsOnLocation(
+                      "Location Code", "Item No.", "Variant Code", WhseItemTrackingSetup, TempBinContentBuffer);
             end;
 
             CalcAvailAllocQuantities(
-                Item, WhseActivLine, QtyOnInvtMovement, QtyOnOutboundBins, QtyOnSpecialBins,
+                Item, WhseActivLine, QtyOnOutboundBins, QtyOnInvtMovement, QtyOnSpecialBins,
                 AvailQty, AllocQty);
         end;
     end;

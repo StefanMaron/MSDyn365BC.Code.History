@@ -11,20 +11,20 @@ codeunit 455 "Job Queue User Handler"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         with JobQueueEntry do begin
-            SetFilter(Status, '%1|%2',Status::Ready, Status::"In Process");
-            SetRange("Recurring Job",true);
+            SetFilter(Status, '%1|%2', Status::Ready, Status::"In Process");
+            SetRange("Recurring Job", true);
             if FindSet(true) then
                 repeat
                     if JobShouldBeRescheduled(JobQueueEntry) then
                         Restart;
                 until Next = 0;
 
-              FilterInactiveOnHoldEntries;
-              if FindSet(true) then
-                  repeat
-                      if DoesJobNeedToBeRun then
-                          Restart;
-                  until Next = 0;
+            FilterInactiveOnHoldEntries;
+            if FindSet(true) then
+                repeat
+                    if DoesJobNeedToBeRun then
+                        Restart;
+                until Next = 0;
         end;
     end;
 
@@ -49,6 +49,8 @@ codeunit 455 "Job Queue User Handler"
         if not GuiAllowed then
             exit;
         if not (JobQueueEntry.WritePermission and JobQueueEntry.ReadPermission) then
+            exit;
+        if not (JobQueueEntry.TryCheckRequiredPermissions()) then
             exit;
         if not TASKSCHEDULER.CanCreateTask then
             exit;

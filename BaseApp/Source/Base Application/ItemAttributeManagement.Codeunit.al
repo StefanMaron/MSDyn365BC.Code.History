@@ -1,4 +1,4 @@
-codeunit 7500 "Item Attribute Management"
+﻿codeunit 7500 "Item Attribute Management"
 {
 
     trigger OnRun()
@@ -362,6 +362,7 @@ codeunit 7500 "Item Attribute Management"
                 ItemAttributeValueMapping."No." := Item."No.";
                 ItemAttributeValueMapping."Item Attribute ID" := TempItemAttributeValueToInsert."Attribute ID";
                 ItemAttributeValueMapping."Item Attribute Value ID" := TempItemAttributeValueToInsert.ID;
+                OnInsertBufferedItemAttributeValueMappingOnBeforeItemAttributeValueMappingInsert(TempItemAttributeValueToInsert, ItemAttributeValueMapping);
                 if ItemAttributeValueMapping.Insert(true) then begin
                     TempInsertedItemAttributeValueMapping.TransferFields(ItemAttributeValueMapping);
                     OnBeforeBufferedItemAttributeValueMappingInsert(ItemAttributeValueMapping, TempInsertedItemAttributeValueMapping);
@@ -413,6 +414,11 @@ codeunit 7500 "Item Attribute Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBufferedItemAttributeValueMappingInsert(var ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; var TempItemAttributeValueMapping: Record "Item Attribute Value Mapping" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertBufferedItemAttributeValueMappingOnBeforeItemAttributeValueMappingInsert(var TempItemAttributeValueToInsert: Record "Item Attribute Value" temporary; var ItemAttributeValueMapping: Record "Item Attribute Value Mapping")
     begin
     end;
 

@@ -213,6 +213,7 @@
     begin
         UpDateWindow(WindowAdjmtLevel, WindowItem, Text007, WindowFWLevel, WindowEntry, 0);
 
+        TempValueEntryCalcdOutbndCostBuf.Reset();
         TempValueEntryCalcdOutbndCostBuf.DeleteAll();
 
         with ItemLedgEntry do
@@ -566,6 +567,7 @@
                 EntryAdjusted := true;
 
             if EntryAdjusted then begin
+                ClearOutboundEntryCostBuffer(TransItemLedgEntry."Entry No.");
                 UpdateAvgCostAdjmtEntryPoint(TransValueEntry);
                 ForwardAppliedCostRecursion(TransItemLedgEntry);
             end;
@@ -1064,6 +1066,7 @@
         ValueEntry: Record "Value Entry";
         CalendarPeriod: Record Date;
         FiscalYearAccPeriod: Record "Accounting Period";
+        ItemApplicationEntry: Record "Item Application Entry";
         PeriodFormMgt: Codeunit PeriodFormManagement;
         FindNextRange: Boolean;
     begin
@@ -1123,11 +1126,12 @@
                 DeleteAvgBuffers(OutbndValueEntry, ExcludedValueEntry);
                 FindSet;
                 repeat
-                    if "Entry Type" = "Entry Type"::Revaluation then begin
-                        RevaluationPoint.Number := "Entry No.";
-                        if RevaluationPoint.Insert() then;
-                        FillFixApplBuffer("Item Ledger Entry No.");
-                    end;
+                    if "Entry Type" = "Entry Type"::Revaluation then
+                        if "Partial Revaluation" or ItemApplicationEntry.AppliedFromEntryExists("Item Ledger Entry No.") then begin
+                            RevaluationPoint.Number := "Entry No.";
+                            if RevaluationPoint.Insert() then;
+                            FillFixApplBuffer("Item Ledger Entry No.");
+                        end;
 
                     if "Valued By Average Cost" and not Adjustment and ("Valued Quantity" < 0) then begin
                         OutbndValueEntry := ValueEntry;
@@ -1960,8 +1964,11 @@
                     until TempAvgCostAdjmtEntryPoint.Next = 0
                 else
                     Modify;
-            end else
+            end else begin
+                OnUpdateItemUnitCostOnBeforeModifyItemNotStandardCostingMethod(Item);
                 Modify;
+                OnUpdateItemUnitCostOnAfterModifyItemNotStandardCostingMethod(Item);
+            end;
         end;
 
         TempAvgCostAdjmtEntryPoint.Reset();
@@ -2337,6 +2344,7 @@
         ExcludedValueEntry.Reset();
         AvgCostExceptionBuf.Reset();
         RevaluationPoint.Reset();
+        TempValueEntryCalcdOutbndCostBuf.Reset();
         AvgCostBuf.Init();
     end;
 
@@ -2609,6 +2617,19 @@
         end;
     end;
 
+    local procedure ClearOutboundEntryCostBuffer(InboundEntryNo: Integer)
+    var
+        ItemApplicationEntry: Record "Item Application Entry";
+    begin
+        if ItemApplicationEntry.AppliedOutbndEntryExists(InboundEntryNo, false, false) then
+            repeat
+                TempValueEntryCalcdOutbndCostBuf.Reset();
+                TempValueEntryCalcdOutbndCostBuf.SetRange("Item Ledger Entry No.", ItemApplicationEntry."Outbound Item Entry No.");
+                if not TempValueEntryCalcdOutbndCostBuf.IsEmpty() then
+                    TempValueEntryCalcdOutbndCostBuf.DeleteAll();
+            until ItemApplicationEntry.Next() = 0;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetValuationPeriod(var CalendarPeriod: Record Date; Item: record Item)
     begin
@@ -2691,6 +2712,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateItemUnitCostOnAfterItemGet(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemUnitCostOnAfterModifyItemNotStandardCostingMethod(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemUnitCostOnBeforeModifyItemNotStandardCostingMethod(var Item: Record Item)
     begin
     end;
 }

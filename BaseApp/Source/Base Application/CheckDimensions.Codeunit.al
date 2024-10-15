@@ -70,6 +70,7 @@ codeunit 481 "Check Dimensions"
                     then begin
                         CheckPurchDimCombLine(TempPurchLine);
                         CheckPurchDimValuePostingLine(TempPurchLine);
+                        OnCheckPurchDimLinesOnAfterCheckPurchDimValuePostingLine(TempPurchLine);
                     end
                 until Next = 0;
         end;
@@ -415,6 +416,11 @@ codeunit 481 "Check Dimensions"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSalesDim(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckPurchDimLinesOnAfterCheckPurchDimValuePostingLine(var TempPurchLine: Record "Purchase Line")
     begin
     end;
 

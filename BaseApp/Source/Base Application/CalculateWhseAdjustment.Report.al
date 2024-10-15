@@ -1,4 +1,4 @@
-report 7315 "Calculate Whse. Adjustment"
+﻿report 7315 "Calculate Whse. Adjustment"
 {
     Caption = 'Calculate Warehouse Adjustment';
     ProcessingOnly = true;
@@ -439,6 +439,8 @@ report 7315 "Calculate Whse. Adjustment"
                 if WarehouseEntry."Qty. (Base)" < 0 then
                     CreateReservEntry.SetDates(WarehouseEntry."Warranty Date", WarehouseEntry."Expiration Date");
 
+                OnCreateReservationEntryOnBeforeCreateReservEntryCreateEntry(ItemJournalLine);
+
                 CreateReservEntry.CreateEntry(
                   ItemJournalLine."Item No.", ItemJournalLine."Variant Code", ItemJournalLine."Location Code", ItemJournalLine.Description,
                   0D, 0D, 0, TempReservationEntryBuffer."Reservation Status"::Prospect);
@@ -499,6 +501,11 @@ report 7315 "Calculate Whse. Adjustment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateReservEntryFor(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationEntryOnBeforeCreateReservEntryCreateEntry(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
