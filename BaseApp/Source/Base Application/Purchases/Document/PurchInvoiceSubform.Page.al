@@ -999,6 +999,27 @@ page 55 "Purch. Invoice Subform"
                             AllocAccManualOverride.RunModal();
                         end;
                     }
+                    action(ReplaceAllocationAccountWithLines)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Generate lines from Allocation Account Line';
+                        Image = CreateLinesFromJob;
+#pragma warning disable AA0219
+                        ToolTip = 'Use this action to replace the Allocation Account line with the actual lines that would be generated from the line itself.';
+#pragma warning restore AA0219
+
+                        trigger OnAction()
+                        var
+                            PurchaseAllocAccMgt: Codeunit "Purchase Alloc. Acc. Mgt.";
+                        begin
+                            if ((Rec."Type" <> Rec."Type"::"Allocation Account") and (Rec."Selected Alloc. Account No." = '')) then
+                                Error(ActionOnlyAllowedForAllocationAccountsErr);
+
+                            PurchaseAllocAccMgt.CreateLinesFromAllocationAccountLine(Rec);
+                            Rec.Delete();
+                            CurrPage.Update(false);
+                        end;
+                    }
                 }
                 group("Item Availability by")
                 {

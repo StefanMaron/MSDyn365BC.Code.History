@@ -17,6 +17,7 @@ codeunit 3997 "Retention Policy JQ"
         JQNotRecheduledBecauseHandledLbl: Label 'The event was handled by another subscriber. Did not reschedule the job queue entry.';
         JQNotRecheduledBecauseUserInvokedRunLbl: Label 'The user invoked the retention policy run. Did not reschedule the job queue entry.';
         JQNotRecheduledBecauseOutsideTimeWindowLbl: Label 'Event occurs outside allowed time window. Did not reschedule the job queue entry.';
+        JobQueueCategoryTok: Label 'RETENTION', Locked = true, Comment = 'Max Length 10';
 
     trigger OnRun()
     var
@@ -37,7 +38,6 @@ codeunit 3997 "Retention Policy JQ"
     var
         JobQueueEntry: Record "Job Queue Entry";
         RetentionPolicyLog: Codeunit "Retention Policy Log";
-        BlankRecordId: RecordId;
     begin
         if Handled then begin
             RetentionPolicyLog.LogInfo(RetentionPolicyLogCategory::"Retention Policy - Schedule", JQNotRecheduledBecauseHandledLbl);
@@ -60,7 +60,18 @@ codeunit 3997 "Retention Policy JQ"
         end;
 
         RetentionPolicyLog.LogInfo(RetentionPolicyLogCategory::"Retention Policy - Schedule", RescheduleOnLimitExceededLbl);
-        JobQueueEntry.ScheduleJobQueueEntry(Codeunit::"Retention Policy JQ", BlankRecordId);
+
+        JobQueueEntry.ReadIsolation(IsolationLevel::ReadCommitted);
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Retention Policy JQ");
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::Ready, JobQueueEntry.Status::"On Hold");
+        if JobQueueEntry.IsEmpty() then
+            JobQueueEntry.ScheduleJobQueueEntryForLater(Codeunit::"Retention Policy JQ", CurrentDateTime(), JobQueueCategoryTok, '')
+        else begin
+            JobQueueEntry.ReadIsolation(IsolationLevel::UpdLock);
+            JobQueueEntry.FindFirst();
+            JobQueueEntry.Restart();
+        end;
         Handled := true;
     end;
 
