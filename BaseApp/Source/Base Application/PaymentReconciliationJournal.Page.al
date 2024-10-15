@@ -817,7 +817,10 @@ page 1290 "Payment Reconciliation Journal"
                         MatchBankPayments: Codeunit "Match Bank Payments";
                     begin
                         TextToAccMapping.InsertRecFromBankAccReconciliationLine(Rec);
-                        MatchBankPayments.RerunTextMapper(Rec);
+
+                        Commit();
+                        if Confirm(WouldYouLikeToRunMapTexttoAccountAgainQst) then
+                            MatchBankPayments.RerunTextMapper(Rec);
                     end;
                 }
                 action(ApplyEntries)
@@ -1205,6 +1208,7 @@ page 1290 "Payment Reconciliation Journal"
         LinesForReviewNotificationMsg: Label 'One or more lines must be reviewed before posting, because they were matched automatically with rules that require review.', Comment = '%1 number of lines for review';
         LinesForReviewDifferenceActionLbl: Label 'Review applications';
         PreviousUXExperienceActive: Boolean;
+        WouldYouLikeToRunMapTexttoAccountAgainQst: Label 'Do you want to re-apply the text to account mapping rules to all lines in the bank statement?';
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

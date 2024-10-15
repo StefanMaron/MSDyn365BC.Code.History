@@ -253,6 +253,8 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
             XMLDOMMgt.AddElement(XMLNode2, 'statisticalValue', FormatDecimal("Statistical Value"), '', XMLNode3);
             if "Document No." <> '' then
                 XMLDOMMgt.AddElement(XMLNode2, 'invoiceNumber', "Document No.", '', XMLNode3);
+            if "Partner VAT ID" <> '' then
+                XMLDOMMgt.AddElement(XMLNode2, 'partnerId', "Partner VAT ID", '', XMLNode3);
             WriteXMLNatureOfTransaction(XMLNode2, "Transaction Type");
             XMLDOMMgt.AddElement(XMLNode2, 'modeOfTransportCode', "Transport Method", '', XMLNode3);
             XMLDOMMgt.AddElement(XMLNode2, 'regionCode', Area, '', XMLNode3);

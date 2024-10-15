@@ -232,7 +232,7 @@ codeunit 330 ReqJnlManagement
             end;
 
         LastReqLine := ReqLine;
-        OnAfterGetDescriptionAndRcptName(ReqLine, Description, BuyFromVendorName);
+        OnAfterGetDescriptionAndRcptName(ReqLine, Description, BuyFromVendorName, LastReqLine);
     end;
 
     procedure SetUpNewLine(var ReqLine: Record "Requisition Line"; LastReqLine: Record "Requisition Line")
@@ -245,7 +245,7 @@ codeunit 330 ReqJnlManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetDescriptionAndRcptName(var ReqLine: Record "Requisition Line"; var Description: Text[100]; var BuyFromVendorName: Text[100])
+    local procedure OnAfterGetDescriptionAndRcptName(var ReqLine: Record "Requisition Line"; var Description: Text[100]; var BuyFromVendorName: Text[100]; var LastReqLine: Record "Requisition Line")
     begin
     end;
 

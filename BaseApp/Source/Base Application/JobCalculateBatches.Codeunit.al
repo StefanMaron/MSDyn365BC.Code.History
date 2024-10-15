@@ -205,6 +205,7 @@
             JobDiffBuffer[1]."Unit of Measure code" := "Unit of Measure Code";
             JobDiffBuffer[1]."Work Type Code" := "Work Type Code";
             JobDiffBuffer[1].Quantity := Quantity;
+            JobDiffBuffer[1]."Line Amount" := "Line Amount";
             OnCreateJTOnBeforeAssigneJobDiffBuffer2(JobDiffBuffer, JobPlanningLine);
             JobDiffBuffer[2] := JobDiffBuffer[1];
             if JobDiffBuffer[2].Find then begin
@@ -288,6 +289,7 @@
                         JobJnlLine.Validate("Work Type Code", JobDiffBuffer[1]."Work Type Code");
                     JobJnlLine."Document No." := DocNo;
                     JobJnlLine.Validate(Quantity, JobDiffBuffer[1].Quantity);
+                    JobJnlLine.Validate("Unit Price", JobDiffBuffer[1]."Line Amount" / JobDiffBuffer[1].Quantity);
                     JobJnlLine."Line No." := NextLineNo;
                     NextLineNo := NextLineNo + 10000;
                     JobJnlLine.Insert(true);

@@ -189,7 +189,7 @@ table 1313 "Activities Cue"
         field(33; "CDS Integration Errors"; Integer)
         {
             CalcFormula = Count("Integration Synch. Job Errors");
-            Caption = 'Common Data Service Integration Errors';
+            Caption = 'Dataverse Integration Errors';
             FieldClass = FlowField;
         }
         field(110; "Last Date/Time Modified"; DateTime)

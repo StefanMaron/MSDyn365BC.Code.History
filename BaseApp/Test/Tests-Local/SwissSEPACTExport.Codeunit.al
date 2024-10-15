@@ -2333,6 +2333,150 @@ codeunit 144352 "Swiss SEPA CT Export"
         VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"5");
     end;
 
+    [Test]
+    procedure XMLExport_Combined_Type1_Type3SCOR_Type3QRR()
+    var
+        VendorNo: array[3] of Code[20];
+        PaymentReferenceNo: array[3] of Code[50];
+        ESRReferenceNo: array[3] of Code[50];
+    begin
+        // [FEATURE] [XML] [Export]
+        // [SCENARIO 381289] Swiss SEPA CT combined export for 3 lines: Payment Type 1, Payment Type 3-SCOR, Payment Type 3-QRR
+        Initialize();
+
+        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 1, Payment Type 3-SCOR, Payment Type 3-QRR
+        VendorNo[1] := CreateVendorWithBankAccount_ESR();
+        VendorNo[2] := CreateVendorWithBankAccount_DomesticSWIFT();
+        VendorNo[3] := CreateVendorWithBankAccount_DomesticSWIFT();
+        ESRReferenceNo[1] := GetReferenceNo();
+        PaymentReferenceNo[2] := GetCRReferenceNo();
+        PaymentReferenceNo[3] := GetQRReferenceNo();
+
+        // [WHEN] Export payment journal to xml
+        // [THEN] "CdOrPrtry" tag: is not exported for Type1, exported with "SCOR" value for Type3-SCOR and "QRR" value for Type3-QRR
+        VerifyXMLExportForSevCombinedLines(VendorNo, PaymentReferenceNo, ESRReferenceNo);
+    end;
+
+    [Test]
+    procedure XMLExport_Combined_Type1_Type3QRR_Type3SCOR()
+    var
+        VendorNo: array[3] of Code[20];
+        PaymentReferenceNo: array[3] of Code[50];
+        ESRReferenceNo: array[3] of Code[50];
+    begin
+        // [FEATURE] [XML] [Export]
+        // [SCENARIO 381289] Swiss SEPA CT combined export for 3 lines: Payment Type 1, Payment Type 3-QRR, Payment Type 3-SCOR
+        Initialize();
+
+        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 1, Payment Type 3-QRR, Payment Type 3-SCOR
+        VendorNo[1] := CreateVendorWithBankAccount_ESR();
+        VendorNo[2] := CreateVendorWithBankAccount_DomesticSWIFT();
+        VendorNo[3] := CreateVendorWithBankAccount_DomesticSWIFT();
+        ESRReferenceNo[1] := GetReferenceNo();
+        PaymentReferenceNo[2] := GetQRReferenceNo();
+        PaymentReferenceNo[3] := GetCRReferenceNo();
+
+        // [WHEN] Export payment journal to xml
+        // [THEN] "CdOrPrtry" tag: is not exported for Type1, exported with "SCOR" value for Type3-SCOR and "QRR" value for Type3-QRR
+        VerifyXMLExportForSevCombinedLines(VendorNo, PaymentReferenceNo, ESRReferenceNo);
+    end;
+
+    [Test]
+    procedure XMLExport_Combined_Type3SCOR_Type1_Type3QRR()
+    var
+        VendorNo: array[3] of Code[20];
+        PaymentReferenceNo: array[3] of Code[50];
+        ESRReferenceNo: array[3] of Code[50];
+    begin
+        // [FEATURE] [XML] [Export]
+        // [SCENARIO 381289] Swiss SEPA CT combined export for 3 lines: Payment Type 3-SCOR, Payment Type 1, Payment Type 3-QRR
+        Initialize();
+
+        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 3-SCOR, Payment Type 1, Payment Type 3-QRR
+        VendorNo[1] := CreateVendorWithBankAccount_DomesticSWIFT();
+        VendorNo[2] := CreateVendorWithBankAccount_ESR();
+        VendorNo[3] := CreateVendorWithBankAccount_DomesticSWIFT();
+        PaymentReferenceNo[1] := GetCRReferenceNo();
+        ESRReferenceNo[2] := GetReferenceNo();
+        PaymentReferenceNo[3] := GetQRReferenceNo();
+
+        // [WHEN] Export payment journal to xml
+        // [THEN] "CdOrPrtry" tag: is not exported for Type1, exported with "SCOR" value for Type3-SCOR and "QRR" value for Type3-QRR
+        VerifyXMLExportForSevCombinedLines(VendorNo, PaymentReferenceNo, ESRReferenceNo);
+    end;
+
+    [Test]
+    procedure XMLExport_Combined_Type3SCOR_Type3QRR_Type1()
+    var
+        VendorNo: array[3] of Code[20];
+        PaymentReferenceNo: array[3] of Code[50];
+        ESRReferenceNo: array[3] of Code[50];
+    begin
+        // [FEATURE] [XML] [Export]
+        // [SCENARIO 381289] Swiss SEPA CT combined export for 3 lines: Payment Type 3-SCOR, Payment Type 3-QRR, Payment Type 1
+        Initialize();
+
+        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 3-SCOR, Payment Type 3-QRR, Payment Type 1
+        VendorNo[1] := CreateVendorWithBankAccount_DomesticSWIFT();
+        VendorNo[2] := CreateVendorWithBankAccount_DomesticSWIFT();
+        VendorNo[3] := CreateVendorWithBankAccount_ESR();
+        PaymentReferenceNo[1] := GetCRReferenceNo();
+        PaymentReferenceNo[2] := GetQRReferenceNo();
+        ESRReferenceNo[3] := GetReferenceNo();
+
+        // [WHEN] Export payment journal to xml
+        // [THEN] "CdOrPrtry" tag: is not exported for Type1, exported with "SCOR" value for Type3-SCOR and "QRR" value for Type3-QRR
+        VerifyXMLExportForSevCombinedLines(VendorNo, PaymentReferenceNo, ESRReferenceNo);
+    end;
+
+    [Test]
+    procedure XMLExport_Combined_Type3QRR_Type3SCOR_Type1()
+    var
+        VendorNo: array[3] of Code[20];
+        PaymentReferenceNo: array[3] of Code[50];
+        ESRReferenceNo: array[3] of Code[50];
+    begin
+        // [FEATURE] [XML] [Export]
+        // [SCENARIO 381289] Swiss SEPA CT combined export for 3 lines: Payment Type 3-QRR, Payment Type 3-SCOR, Payment Type 1
+        Initialize();
+
+        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 3-QRR, Payment Type 3-SCOR, Payment Type 1
+        VendorNo[1] := CreateVendorWithBankAccount_DomesticSWIFT();
+        VendorNo[2] := CreateVendorWithBankAccount_DomesticSWIFT();
+        VendorNo[3] := CreateVendorWithBankAccount_ESR();
+        PaymentReferenceNo[1] := GetQRReferenceNo();
+        PaymentReferenceNo[2] := GetCRReferenceNo();
+        ESRReferenceNo[3] := GetReferenceNo();
+
+        // [WHEN] Export payment journal to xml
+        // [THEN] "CdOrPrtry" tag: is not exported for Type1, exported with "SCOR" value for Type3-SCOR and "QRR" value for Type3-QRR
+        VerifyXMLExportForSevCombinedLines(VendorNo, PaymentReferenceNo, ESRReferenceNo);
+    end;
+
+    [Test]
+    procedure XMLExport_Combined_Type3QRR_Type1_Type3SCOR()
+    var
+        VendorNo: array[3] of Code[20];
+        PaymentReferenceNo: array[3] of Code[50];
+        ESRReferenceNo: array[3] of Code[50];
+    begin
+        // [FEATURE] [XML] [Export]
+        // [SCENARIO 381289] Swiss SEPA CT combined export for 3 lines: Payment Type 3-QRR, Payment Type 1, Payment Type 3-SCOR
+        Initialize();
+
+        // [GIVEN] Payment journal with 3 lines for different vendors having: Payment Type 3-QRR, Payment Type 1, Payment Type 3-SCOR
+        VendorNo[1] := CreateVendorWithBankAccount_DomesticSWIFT();
+        VendorNo[2] := CreateVendorWithBankAccount_ESR();
+        VendorNo[3] := CreateVendorWithBankAccount_DomesticSWIFT();
+        PaymentReferenceNo[1] := GetQRReferenceNo();
+        ESRReferenceNo[2] := GetReferenceNo();
+        PaymentReferenceNo[3] := GetCRReferenceNo();
+
+        // [WHEN] Export payment journal to xml
+        // [THEN] "CdOrPrtry" tag: is not exported for Type1, exported with "SCOR" value for Type3-SCOR and "QRR" value for Type3-QRR
+        VerifyXMLExportForSevCombinedLines(VendorNo, PaymentReferenceNo, ESRReferenceNo);
+    end;
+
     local procedure Initialize()
     var
         GLSetup: Record "General Ledger Setup";
@@ -2698,6 +2842,20 @@ codeunit 144352 "Swiss SEPA CT Export"
         GenJournalBatch.Modify(true);
     end;
 
+    local procedure AddVendPmtJnlLineWithPaymentReference(GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; PaymentReference: Code[50]; ReferenceNo: Code[50])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, AccountNo,
+          GenJournalLine."Bal. Account Type"::"Bank Account",
+          GenJournalBatch."Bal. Account No.", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        GenJournalLine.Validate("Payment Reference", PaymentReference);
+        GenJournalLine.Validate("Reference No.", CopyStr(ReferenceNo, 1, MaxStrLen(GenJournalLine."Reference No.")));
+        GenJournalLine.Modify(true);
+    end;
+
     local procedure GenJournalLine_XMLExport(var GenJournalLine: Record "Gen. Journal Line") FileName: Text
     begin
         FileName := SwissSEPACTExportFile(GenJournalLine);
@@ -2794,7 +2952,7 @@ codeunit 144352 "Swiss SEPA CT Export"
 
     local procedure GetReferenceNo(): Code[35]
     begin
-        exit('210000000003139471430009017');
+        exit('310000000003139471430009017');
     end;
 
     local procedure GetQRReferenceNo(): Code[50]
@@ -3304,6 +3462,30 @@ codeunit 144352 "Swiss SEPA CT Export"
         LibraryXMLRead.VerifyNodeValueInSubtree('CdtrAgt', 'StrtNm', VendorBankAccount.Address);
         LibraryXMLRead.VerifyNodeValueInSubtree('CdtrAgt', 'PstCd', VendorBankAccount."Post Code");
         LibraryXMLRead.VerifyNodeValueInSubtree('CdtrAgt', 'Ctry', VendorBankAccount."Country/Region Code");
+    end;
+
+    local procedure VerifyXMLExportForSevCombinedLines(VendorNo: array[3] of Code[20]; PaymentReferenceNo: array[3] of Code[50]; ESRReferenceNo: array[3] of Code[50])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        FileName: Text;
+        i: Integer;
+    begin
+        CreateGenJournalBatch(GenJournalBatch, CreateBankAccount(FindSwissSEPACTBankExpImpCode));
+        for i := 1 to ArrayLen(VendorNo) do
+            AddVendPmtJnlLineWithPaymentReference(GenJournalBatch, VendorNo[i], PaymentReferenceNo[i], ESRReferenceNo[i]);
+
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+        FileName := GenJournalLine_XMLExport(GenJournalLine);
+
+        LibraryXMLRead.Initialize(FileName);
+        Assert.AreEqual(ArrayLen(VendorNo), LibraryXMLRead.GetNodesCount('CdtrRefInf'), '<CdtrRefInf> node count');
+        Assert.AreEqual(ArrayLen(VendorNo), LibraryXMLRead.GetNodesCount('Ref'), '<Ref> node count');
+        Assert.AreEqual(ArrayLen(VendorNo) - 1, LibraryXMLRead.GetNodesCount('CdOrPrtry'), '<CdOrPrtry> node count');
+        LibraryXMLRead.VerifyNodeValueInSubtree('CdOrPrtry', 'Prtry', 'QRR');
+        LibraryXMLRead.VerifyNodeValueInSubtree('CdOrPrtry', 'Cd', 'SCOR');
     end;
 
     [RequestPageHandler]

@@ -171,15 +171,16 @@ page 5339 "Integration Synch. Error List"
                 {
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Dynamics 365 record and a Dynamics 365 Sales record.';
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dataverse record.';
                     Visible = ShowD365SIntegrationActions;
+
                     action(ManageCRMCoupling)
                     {
                         ApplicationArea = Suite;
                         Caption = 'Set Up Coupling';
                         Enabled = HasRecords;
                         Image = LinkAccount;
-                        ToolTip = 'Create or modify the coupling to a Dynamics 365 Sales entity.';
+                        ToolTip = 'Create or modify the coupling to a Dataverse entity.';
                         Visible = ShowD365SIntegrationActions;
 
                         trigger OnAction()
@@ -200,7 +201,7 @@ page 5339 "Integration Synch. Error List"
                         Caption = 'Delete Coupling';
                         Enabled = HasRecords;
                         Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Dynamics 365 Sales entity.';
+                        ToolTip = 'Delete the coupling to a Dataverse entity.';
                         Visible = ShowD365SIntegrationActions;
 
                         trigger OnAction()

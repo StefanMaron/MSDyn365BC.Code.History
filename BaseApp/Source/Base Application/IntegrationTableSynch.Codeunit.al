@@ -7,7 +7,6 @@ codeunit 5335 "Integration Table Synch."
 
     var
         IntegrationTableMappingHasNoMappedFieldsErr: Label 'There are no field mapping rows for the %2 %3 in the %1 table.', Comment = '%1="Integration Field Mapping" table caption, %2="Integration Field Mapping.Integration Table Mapping Name" field caption, %3 Integration Table Mapping value';
-        RecordMustBeIntegrationRecordErr: Label 'Table %1 must be registered for integration.', Comment = '%1 = Table caption';
         CurrentIntegrationSynchJob: Record "Integration Synch. Job";
         CurrentIntegrationTableMapping: Record "Integration Table Mapping";
         TempIntegrationFieldMapping: Record "Temp Integration Field Mapping" temporary;
@@ -324,11 +323,8 @@ codeunit 5335 "Integration Table Synch."
         JobID: Guid;
     begin
         JobID := CreateIntegrationSynchJobEntry(JobType);
-
-        if EnsureIntegrationServicesState then begin // Prepare for processing
-            Commit();
-            exit(JobID);
-        end;
+        Commit();
+        exit(JobID);
     end;
 
     local procedure FinishIntegrationSynchJob(FinalMessage: Text)
@@ -357,25 +353,6 @@ codeunit 5335 "Integration Table Synch."
             Commit();
             JobID := CurrentIntegrationSynchJob.ID;
         end;
-    end;
-
-    local procedure EnsureIntegrationServicesState(): Boolean
-    var
-        IntegrationManagement: Codeunit "Integration Management";
-    begin
-        with CurrentIntegrationTableMapping do begin
-            if IntegrationManagement.IsIntegrationRecord("Table ID") then
-                exit(true);
-
-            if IntegrationManagement.IsIntegrationRecordChild("Table ID") then
-                exit(true);
-
-            if "Integration Table ID" = DATABASE::"Graph Contact" then
-                exit(true);
-
-            FinishIntegrationSynchJob(StrSubstNo(RecordMustBeIntegrationRecordErr, "Table ID"));
-        end;
-        exit(false);
     end;
 
     local procedure BuildTempIntegrationFieldMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; SynchDirection: Option; var TempIntegrationFieldMapping: Record "Temp Integration Field Mapping")

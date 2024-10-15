@@ -19,7 +19,7 @@ page 7018 "Purchase Price List"
                     ApplicationArea = All;
                     Importance = Promoted;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies the code of the price list.';
+                    ToolTip = 'Specifies the unique identifier of the price list.';
                     Editable = PriceListIsEditable;
 
                     trigger OnAssistEdit()
@@ -43,7 +43,7 @@ page 7018 "Purchase Price List"
                     Caption = 'Applies-to Type';
                     Editable = PriceListIsEditable;
                     Visible = IsVendorGroup;
-                    ToolTip = 'Specifies the purchase source type of the price list.';
+                    ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the vendor.';
 
                     trigger OnValidate()
                     begin
@@ -57,7 +57,7 @@ page 7018 "Purchase Price List"
                     Caption = 'Applies-to Type';
                     Editable = PriceListIsEditable;
                     Visible = IsJobGroup;
-                    ToolTip = 'Specifies the job source type of the price list.';
+                    ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the job or job task.';
 
                     trigger OnValidate()
                     begin
@@ -70,7 +70,7 @@ page 7018 "Purchase Price List"
                     Importance = Promoted;
                     Enabled = SourceNoEnabled;
                     Editable = PriceListIsEditable;
-                    ToolTip = 'Specifies the number of the source for the price list.';
+                    ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
 
                     trigger OnValidate()
                     begin
@@ -107,7 +107,7 @@ page 7018 "Purchase Price List"
                 {
                     ApplicationArea = All;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the status of the price list.';
+                    ToolTip = 'Specifies whether the price list is in Draft status and can be edited, Inactive and cannot be edited or used, or Active and used for price calculations.';
 
                     trigger OnValidate()
                     begin
@@ -126,24 +126,35 @@ page 7018 "Purchase Price List"
                     ApplicationArea = All;
                     Importance = Promoted;
                     Editable = PriceListIsEditable;
-                    ToolTip = 'Specifies the starting date of the price list.';
+                    ToolTip = 'Specifies the date from which the price is valid.';
                 }
                 field(EndingDate; Rec."Ending Date")
                 {
                     ApplicationArea = All;
                     Importance = Promoted;
                     Editable = PriceListIsEditable;
-                    ToolTip = 'Specifies the ending date of the price list.';
+                    ToolTip = 'Specifies the last date that the price is valid.';
                 }
                 group(LineDefaults)
                 {
                     Caption = 'Line Defaults';
+                    field(AllowUpdatingDefaults; Rec."Allow Updating Defaults")
+                    {
+                        ApplicationArea = All;
+                        Importance = Additional;
+                        Editable = PriceListIsEditable;
+                        ToolTip = 'Specifies whether users can change the values in the fields on the price list line that contain default values from the header.';
+                        trigger OnValidate()
+                        begin
+                            CurrPage.Lines.Page.SetHeader(Rec);
+                        end;
+                    }
                     field(AllowLineDisc; Rec."Allow Line Disc.")
                     {
                         ApplicationArea = All;
                         Importance = Additional;
                         Editable = PriceListIsEditable;
-                        ToolTip = 'Specifies the if the line discount allowed. This value can be changed in the lines.';
+                        ToolTip = 'Specifies whether line discounts are allowed. You can change this value on the lines.';
                     }
                 }
             }
