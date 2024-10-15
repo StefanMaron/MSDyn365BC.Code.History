@@ -3972,7 +3972,8 @@
 
         if IsCreditDocType() then
             exit("Return Qty. Shipped" + "Return Qty. to Ship" - "Quantity Invoiced");
-
+        if "Document Type" = "Document Type"::"Blanket Order" then
+            exit(Quantity - "Quantity Invoiced");
         exit("Quantity Received" + "Qty. to Receive" - "Quantity Invoiced");
     end;
 
@@ -3988,7 +3989,8 @@
 
         if IsCreditDocType() then
             exit("Return Qty. Shipped (Base)" + "Return Qty. to Ship (Base)" - "Qty. Invoiced (Base)");
-
+        if "Document Type" = "Document Type"::"Blanket Order" then
+            exit("Quantity (Base)" - "Qty. Invoiced (Base)");
         exit("Qty. Received (Base)" + "Qty. to Receive (Base)" - "Qty. Invoiced (Base)");
     end;
 
