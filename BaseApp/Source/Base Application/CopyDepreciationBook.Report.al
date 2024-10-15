@@ -1,0 +1,349 @@
+report 5687 "Copy Depreciation Book"
+{
+    Caption = 'Copy Depreciation Book';
+    ProcessingOnly = true;
+
+    dataset
+    {
+        dataitem("Fixed Asset"; "Fixed Asset")
+        {
+            DataItemTableView = SORTING("No.");
+            RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code";
+
+            trigger OnAfterGetRecord()
+            begin
+                Window.Update(1, "No.");
+                if Inactive or Blocked then
+                    CurrReport.Skip();
+                if not FADeprBook.Get("No.", DeprBookCode) then
+                    CurrReport.Skip();
+                if not FADeprBook2.Get("No.", DeprBookCode2) then begin
+                    FADeprBook2 := FADeprBook;
+                    FADeprBook2."Depreciation Book Code" := DeprBookCode2;
+                    FADeprBook2.Insert(true);
+                end;
+                FALedgEntry.SetRange("FA No.", "No.");
+                if FALedgEntry.Find('-') then
+                    repeat
+                        SetJournalType(FALedgEntry);
+                        case JournalType of
+                            JournalType::SkipType:
+                                ;
+                            JournalType::GenJnlType:
+                                InsertGenJnlLine(FALedgEntry);
+                            JournalType::FAJnlType:
+                                InsertFAJnlLine(FALedgEntry);
+                        end;
+                    until FALedgEntry.Next = 0;
+            end;
+
+            trigger OnPreDataItem()
+            begin
+                DepreciationCalc.SetFAFilter(FALedgEntry, '', DeprBookCode, false);
+                with FALedgEntry do begin
+                    SetRange("FA Posting Category", "FA Posting Category"::" ");
+                    SetRange(
+                      "FA Posting Type",
+                      "FA Posting Type"::"Acquisition Cost", "FA Posting Type"::"Salvage Value");
+                    SetRange("FA Posting Date", StartingDate, EndingDate2);
+                end;
+            end;
+        }
+    }
+
+    requestpage
+    {
+        SaveValues = true;
+
+        layout
+        {
+            area(content)
+            {
+                group(Options)
+                {
+                    Caption = 'Options';
+                    field(CopyFromBook; DeprBookCode)
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'Copy from Book';
+                        TableRelation = "Depreciation Book";
+                        ToolTip = 'Specifies the code of the depreciation book you want to copy from.';
+                    }
+                    field(CopyToBook; DeprBookCode2)
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'Copy to Book';
+                        TableRelation = "Depreciation Book";
+                        ToolTip = 'Specifies the code of the depreciation book you want to copy to.';
+                    }
+                    field(StartingDate; StartingDate)
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'Starting Date';
+                        ToolTip = 'Specifies the date when you want the report to start.';
+                    }
+                    field(EndingDate; EndingDate)
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'Ending Date';
+                        ToolTip = 'Specifies the date when you want the report to end.';
+                    }
+                    field(DocumentNo; DocumentNo)
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'Document No.';
+                        ToolTip = 'Specifies, if you leave the field empty, the next available number on the resulting journal line. If a number series is not set up, enter the document number that you want assigned to the resulting journal line.';
+                    }
+                    field(PostingDescription; PostingDescription)
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'Posting Description';
+                        ToolTip = 'Specifies the posting date to be used by the batch job as a filter.';
+                    }
+                    field(InsertBalAccount; BalAccount)
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'Insert Bal. Account';
+                        ToolTip = 'Specifies if you want the batch job to automatically insert fixed asset entries with balancing accounts.';
+                    }
+                    group(Copy)
+                    {
+                        Caption = 'Copy';
+                        field("CopyChoices[1]"; CopyChoices[1])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Acquisition Cost';
+                            ToolTip = 'Specifies if related acquisition cost entries are included in the batch job .';
+                        }
+                        field("CopyChoices[2]"; CopyChoices[2])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Depreciation';
+                            ToolTip = 'Specifies if related depreciation entries are included in the batch job .';
+                        }
+                        field("CopyChoices[3]"; CopyChoices[3])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Write-Down';
+                            ToolTip = 'Specifies if related write-down entries are included in the batch job .';
+                        }
+                        field("CopyChoices[4]"; CopyChoices[4])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Appreciation';
+                            ToolTip = 'Specifies if related appreciation entries are included in the batch job .';
+                        }
+                        field("CopyChoices[5]"; CopyChoices[5])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Custom 1';
+                            ToolTip = 'Specifies if related custom 1 entries are included in the batch job .';
+                        }
+                        field("CopyChoices[6]"; CopyChoices[6])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Custom 2';
+                            ToolTip = 'Specifies if related custom 2 entries are included in the batch job .';
+                        }
+                        field("CopyChoices[9]"; CopyChoices[9])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Salvage Value';
+                            ToolTip = 'Specifies if related salvage value entries are included in the batch job .';
+                        }
+                        field("CopyChoices[7]"; CopyChoices[7])
+                        {
+                            ApplicationArea = FixedAssets;
+                            Caption = 'Disposal';
+                            ToolTip = 'Specifies if related disposal entries are included in the batch job .';
+                        }
+                    }
+                }
+            }
+        }
+
+        actions
+        {
+        }
+
+        trigger OnOpenPage()
+        begin
+            if DeprBookCode = '' then begin
+                FASetup.Get();
+                DeprBookCode := FASetup."Default Depr. Book";
+            end;
+        end;
+    }
+
+    labels
+    {
+    }
+
+    trigger OnPreReport()
+    begin
+        if (EndingDate > 0D) and (StartingDate > EndingDate) then
+            Error(Text000);
+        if EndingDate = 0D then
+            EndingDate2 := DMY2Date(31, 12, 9999)
+        else
+            EndingDate2 := EndingDate;
+        DeprBook.Get(DeprBookCode);
+        DeprBook2.Get(DeprBookCode2);
+        ExchangeRate := GetExchangeRate;
+        DeprBook2.IndexGLIntegration(GLIntegration);
+        FirstGenJnl := true;
+        FirstFAJnl := true;
+        Window.Open(Text001);
+    end;
+
+    var
+        Text000: Label 'The Starting Date is later than the Ending Date.';
+        Text001: Label 'Copying fixed asset    #1##########';
+        GenJnlLine: Record "Gen. Journal Line";
+        FASetup: Record "FA Setup";
+        FAJnlLine: Record "FA Journal Line";
+        FADeprBook: Record "FA Depreciation Book";
+        FADeprBook2: Record "FA Depreciation Book";
+        DeprBook: Record "Depreciation Book";
+        DeprBook2: Record "Depreciation Book";
+        FALedgEntry: Record "FA Ledger Entry";
+        FAJnlSetup: Record "FA Journal Setup";
+        DepreciationCalc: Codeunit "Depreciation Calculation";
+        Window: Dialog;
+        ExchangeRate: Decimal;
+        CopyChoices: array[9] of Boolean;
+        GLIntegration: array[9] of Boolean;
+        DocumentNo: Code[20];
+        DocumentNo2: Code[20];
+        DocumentNo3: Code[20];
+        NoSeries2: Code[20];
+        NoSeries3: Code[20];
+        PostingDescription: Text[100];
+        JournalType: Option SkipType,GenJnlType,FAJnlType;
+        DeprBookCode: Code[10];
+        DeprBookCode2: Code[10];
+        BalAccount: Boolean;
+        StartingDate: Date;
+        EndingDate: Date;
+        EndingDate2: Date;
+        FirstGenJnl: Boolean;
+        FirstFAJnl: Boolean;
+        FAJnlNextLineNo: Integer;
+        GenJnlNextLineNo: Integer;
+
+    local procedure InsertGenJnlLine(var FALedgEntry: Record "FA Ledger Entry")
+    var
+        FAInsertGLAcc: Codeunit "FA Insert G/L Account";
+    begin
+        if FirstGenJnl then begin
+            GenJnlLine.LockTable();
+            FAJnlSetup.GenJnlName(DeprBook2, GenJnlLine, GenJnlNextLineNo);
+            NoSeries2 := FAJnlSetup.GetGenNoSeries(GenJnlLine);
+            if DocumentNo = '' then
+                DocumentNo2 := FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, FALedgEntry."FA Posting Date", true)
+            else
+                DocumentNo2 := DocumentNo;
+        end;
+        FirstGenJnl := false;
+
+        with GenJnlLine do begin
+            FALedgEntry.MoveToGenJnl(GenJnlLine);
+            Validate("Depreciation Book Code", DeprBookCode2);
+            Validate(Amount, Round(Amount * ExchangeRate));
+            "Document No." := DocumentNo2;
+            "Posting No. Series" := NoSeries2;
+            "Document Type" := "Document Type"::" ";
+            "External Document No." := '';
+            if PostingDescription <> '' then
+                Description := PostingDescription;
+            GenJnlNextLineNo := GenJnlNextLineNo + 10000;
+            "Line No." := GenJnlNextLineNo;
+            Insert(true);
+            if BalAccount then begin
+                FAInsertGLAcc.GetBalAcc(GenJnlLine);
+                if FindLast then;
+                GenJnlNextLineNo := "Line No.";
+            end;
+        end;
+    end;
+
+    local procedure InsertFAJnlLine(var FALedgEntry: Record "FA Ledger Entry")
+    begin
+        if FirstFAJnl then begin
+            FAJnlLine.LockTable();
+            FAJnlSetup.FAJnlName(DeprBook2, FAJnlLine, FAJnlNextLineNo);
+            NoSeries3 := FAJnlSetup.GetFANoSeries(FAJnlLine);
+            if DocumentNo = '' then
+                DocumentNo3 := FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, FALedgEntry."FA Posting Date", true)
+            else
+                DocumentNo3 := DocumentNo;
+        end;
+        FirstFAJnl := false;
+
+        with FAJnlLine do begin
+            FALedgEntry.MoveToFAJnl(FAJnlLine);
+            Validate("Depreciation Book Code", DeprBookCode2);
+            Validate(Amount, Round(Amount * ExchangeRate));
+            "Document No." := DocumentNo3;
+            "Posting No. Series" := NoSeries3;
+            "Document Type" := "Document Type"::" ";
+            "External Document No." := '';
+            if PostingDescription <> '' then
+                Description := PostingDescription;
+            FAJnlNextLineNo := FAJnlNextLineNo + 10000;
+            "Line No." := FAJnlNextLineNo;
+            Insert(true);
+        end;
+    end;
+
+    local procedure SetJournalType(var FALedgEntry: Record "FA Ledger Entry")
+    var
+        Index: Integer;
+    begin
+        Index := FALedgEntry.ConvertPostingType + 1;
+        if CopyChoices[Index] then begin
+            if GLIntegration[Index] and not "Fixed Asset"."Budgeted Asset" then
+                JournalType := JournalType::GenJnlType
+            else
+                JournalType := JournalType::FAJnlType
+        end else
+            JournalType := JournalType::SkipType;
+    end;
+
+    local procedure GetExchangeRate(): Decimal
+    var
+        ExchangeRate2: Decimal;
+        ExchangeRate3: Decimal;
+    begin
+        ExchangeRate2 := DeprBook."Default Exchange Rate";
+        if ExchangeRate2 <= 0 then
+            ExchangeRate2 := 100;
+        if not DeprBook."Use FA Exch. Rate in Duplic." then
+            ExchangeRate2 := 100;
+
+        ExchangeRate3 := DeprBook2."Default Exchange Rate";
+        if ExchangeRate3 <= 0 then
+            ExchangeRate3 := 100;
+        if not DeprBook2."Use FA Exch. Rate in Duplic." then
+            ExchangeRate3 := 100;
+
+        exit(ExchangeRate2 / ExchangeRate3);
+    end;
+
+    procedure InitializeRequest(DeprBookCodeFrom: Code[10]; DeprBookCode2From: Code[10]; StartingDateFrom: Date; EndingDateFrom: Date; DocumentNoFrom: Code[20]; PostingDescriptionFrom: Text[100]; BalAccountFrom: Boolean)
+    begin
+        DeprBookCode := DeprBookCodeFrom;
+        DeprBookCode2 := DeprBookCode2From;
+        StartingDate := StartingDateFrom;
+        EndingDate := EndingDateFrom;
+        DocumentNo := DocumentNoFrom;
+        PostingDescription := PostingDescriptionFrom;
+        BalAccount := BalAccountFrom;
+    end;
+
+    procedure SetCopyAcquisitionCost(Choice: Boolean)
+    begin
+        CopyChoices[1] := Choice;
+    end;
+}
+
