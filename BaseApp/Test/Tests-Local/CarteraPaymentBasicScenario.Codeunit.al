@@ -29,6 +29,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PaymentMethodCodeModifyErr: Label 'For Cartera-based bills and invoices, you cannot change the Payment Method Code to this value.';
         CheckBillSituationOrderErr: Label '%1 cannot be applied because it is included in a payment order. To apply the document, remove it from the payment order and try again.', Comment = '%1 - document type and number';
         CheckBillSituationPostedOrderErr: Label '%1 cannot be applied because it is included in a posted payment order.', Comment = '%1 - document type and number';
+        PostDocumentAppliedToBillInGroupErr: Label 'A grouped document cannot be settled from a journal.\Remove Document %1/1 from Group/Pmt. Order %2 and try again.';
 
     [Test]
     [HandlerFunctions('CarteraDocumentsActionModalPageHandler,ConfirmHandlerYes,MessageVerifyHandler')]
@@ -1310,6 +1311,72 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Assert.ExpectedError(StrSubstNo(CheckBillSituationPostedOrderErr, CarteraDoc.Description));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostCrMemoAppliedToInvoiceIncludedintoPaymentOrder()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PaymentOrder: Record "Payment Order";
+        CarteraDoc: Record "Cartera Doc.";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 367139] An error occurs trying to posted credit memo applied to the bill already included into payment order
+        Initialize();
+
+        // [GIVEN] Posted purchase invoice with automatically created bill
+        PrepareVendorRelatedRecords(Vendor, '');
+        DocumentNo := LibraryCarteraPayables.CreateCarteraPayableDocument(Vendor);
+
+        // [GIVEN] Purchase credit memo applied to posted bill
+        LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
+        ApplyHeaderToBill(PurchaseHeader, DocumentNo, '1');
+
+        // [GIVEN] Add bill to Payment order
+        CreatePaymentOrderAndAddToCarteraDocument(PaymentOrder, CarteraDoc, Vendor."No.", DocumentNo);
+
+        // [WHEN] Try to post the credit memo
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] An error occurs: "A grouped document cannot be settled from a journal."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(PostDocumentAppliedToBillInGroupErr, DocumentNo, PaymentOrder."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PostCrMemAppliedToInvoiceIncludedintoPostedPaymentOrder()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PaymentOrder: Record "Payment Order";
+        CarteraDoc: Record "Cartera Doc.";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 367139] An error occurs trying to posted credit memo applied to the bill already included into posted payment order
+        Initialize();
+
+        // [GIVEN] Posted purchase invoice with automatically created bill
+        PrepareVendorRelatedRecords(Vendor, '');
+        DocumentNo := LibraryCarteraPayables.CreateCarteraPayableDocument(Vendor);
+
+        // [GIVEN] Purchase credit memo applied to posted bill
+        LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
+        ApplyHeaderToBill(PurchaseHeader, DocumentNo, '1');
+
+        // [GIVEN] Add bill to Payment order and post it
+        CreatePaymentOrderAndAddToCarteraDocument(PaymentOrder, CarteraDoc, Vendor."No.", DocumentNo);
+        PostPaymentOrderLCY(PaymentOrder);
+
+        // [WHEN] Try to post the credit memo
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] An error occurs: "A grouped document cannot be settled from a journal."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(PostDocumentAppliedToBillInGroupErr, DocumentNo, PaymentOrder."No."));
+    end;
+
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
@@ -1381,6 +1448,14 @@ codeunit 147500 "Cartera Payment Basic Scenario"
 
         // Save the changes, as the cartera document has been added to the Payment Order
         PaymentOrders.OK.Invoke;
+    end;
+
+    local procedure ApplyHeaderToBill(var PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20]; BillNo: Code[20])
+    begin
+        PurchaseHeader.Validate("Applies-to Doc. Type", PurchaseHeader."Applies-to Doc. Type"::Bill);
+        PurchaseHeader.Validate("Applies-to Doc. No.", DocumentNo);
+        PurchaseHeader.Validate("Applies-to Bill No.", BillNo);
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure UpdateVendLedgEntryPaymentCode(DocumentNo: Code[20]; VendorNo: Code[20]; PaymentMethodCode: Code[20]; IsBill: Boolean): Code[20]

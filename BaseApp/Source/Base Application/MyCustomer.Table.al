@@ -37,7 +37,8 @@ table 9150 "My Customer"
         field(5; "Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("Customer No.")));
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("Customer No."),
+                                                                                 "Excluded from calculation" = CONST(false)));
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;

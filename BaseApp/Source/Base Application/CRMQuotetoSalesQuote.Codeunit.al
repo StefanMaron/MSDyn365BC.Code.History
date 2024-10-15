@@ -21,6 +21,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         UnableToFindOrderErr: Label 'Converting the sales quote to a sales order failed.';
         UnableToFindCrmOrderErr: Label 'Unable to find Dynamics 365 Sales order that corresponds to this quote.';
         UnableToFindOrderTelemetryErr: Label 'Converting the sales quote to a sales order failed.', Locked = true;
+        CRMOrderFoundButUnsubmittedTelemetryMsg: Label 'Dynamics 365 Sales order %1 corresponding to the quote %2 found, but it is not submitted.', Locked = true;
         OrderCreatedFromQuoteTelemetryTxt: Label 'Converting the sales quote to a sales order succeeded.', Locked = true;
         UnableToFindCrmOrderTelemetryErr: Label 'Unable to find Dynamics 365 Sales order that corresponds to this quote.', Locked = true;
         UpdatedQuoteNoOnExistingOrderTelemetryTxt: Label 'Updated Quote No. on the existing order that corresponds to this quote.', Locked = true;
@@ -85,10 +86,10 @@ codeunit 5348 "CRM Quote to Sales Quote"
         OrderCRMIntegrationRecord: Record "CRM Integration Record";
         CRMSalesOrder: Record "CRM Salesorder";
         OrderSalesHeader: Record "Sales Header";
-        CRMSalesOrderToSalesOrder: Codeunit "CRM Sales Order to Sales Order";
         BlankGuid: Guid;
         OpType: Option Create,Update;
-        IsOrderAlreadyCreated: Boolean;
+        IsOrderCreated: Boolean;
+        IsCRMOrderSubmitted: Boolean;
         YourReferenceFilter: Text;
     begin
         if CRMQuote.StateCode = CRMQuote.StateCode::Won then begin
@@ -105,25 +106,36 @@ codeunit 5348 "CRM Quote to Sales Quote"
                     Error(UnableToFindCrmOrderErr);
                 end;
 
-                IsOrderAlreadyCreated := OrderCRMIntegrationRecord.FindByCRMID(CRMSalesOrder.SalesOrderId);
+                IsOrderCreated := OrderCRMIntegrationRecord.FindByCRMID(CRMSalesOrder.SalesOrderId);
+                IsCRMOrderSubmitted := (CRMSalesOrder.StateCode = CRMSalesOrder.StateCode::Submitted);
 
                 if SalesHeader.GetBySystemId(QuoteCRMIntegrationRecord."Integration ID") then begin
-                    if not IsOrderAlreadyCreated then begin
-                        CRMSalesOrderToSalesOrder.SetLastBackOfficeSubmit(CRMSalesOrder, Today());
-                        CODEUNIT.Run(CODEUNIT::"CRM Sales Order to Sales Order", CRMSalesOrder);
-                        YourReferenceFilter := CopyStr(CRMSalesOrder.orderNumber, 1, MaxStrLen(OrderSalesHeader."Your Reference"));
-                        OrderSalesHeader.SetRange("Your Reference", YourReferenceFilter);
-                        if not OrderSalesHeader.FindFirst() then begin
-                            SendTraceTag('0000D6L', CrmTelemetryCategoryTok, VERBOSITY::Warning, UnableToFindOrderTelemetryErr, DATACLASSIFICATION::SystemMetadata);
-                            Error(UnableToFindOrderErr)
+                    if not IsOrderCreated then
+                        if IsCRMOrderSubmitted then begin
+                            CODEUNIT.Run(CODEUNIT::"CRM Sales Order to Sales Order", CRMSalesOrder);
+                            YourReferenceFilter := CopyStr(CRMSalesOrder.orderNumber, 1, MaxStrLen(OrderSalesHeader."Your Reference"));
+                            OrderSalesHeader.SetRange("Your Reference", YourReferenceFilter);
+                            if not OrderSalesHeader.FindFirst() then begin
+                                SendTraceTag('0000D6L', CrmTelemetryCategoryTok, VERBOSITY::Warning, UnableToFindOrderTelemetryErr, DATACLASSIFICATION::SystemMetadata);
+                                Error(UnableToFindOrderErr)
+                            end else begin
+                                IsOrderCreated := true;
+                                SendTraceTag('0000D6M', CrmTelemetryCategoryTok, VERBOSITY::Normal, OrderCreatedFromQuoteTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                            end
                         end else
-                            SendTraceTag('0000D6M', CrmTelemetryCategoryTok, VERBOSITY::Normal, OrderCreatedFromQuoteTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
-                    end else
+                            SendTraceTag('0000DI3', CrmTelemetryCategoryTok, VERBOSITY::Normal, StrSubstNo(CRMOrderFoundButUnsubmittedTelemetryMsg, CRMQuote.QuoteId, CRMSalesOrder.SalesOrderId), DATACLASSIFICATION::SystemMetadata)
+                    else
                         OrderSalesHeader.GetBySystemId(OrderCRMIntegrationRecord."Integration ID");
-                    OrderSalesHeader."Quote No." := SalesHeader."No.";
-                    OrderSalesHeader.Modify();
-                    SendTraceTag('0000D6N', CrmTelemetryCategoryTok, VERBOSITY::Normal, UpdatedQuoteNoOnExistingOrderTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
-                    ManageSalesQuoteArchive(SalesHeader);
+
+                    if IsOrderCreated then
+                        if OrderSalesHeader."Quote No." <> SalesHeader."No." then begin
+                            OrderSalesHeader."Quote No." := SalesHeader."No.";
+                            OrderSalesHeader.Modify();
+                            SendTraceTag('0000D6N', CrmTelemetryCategoryTok, VERBOSITY::Normal, UpdatedQuoteNoOnExistingOrderTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                        end;
+
+                    SalesHeader.Status := SalesHeader.Status::Released;
+                    SalesHeader.Modify();
                 end;
 
                 WonQuoteCRMIntegrationRecord.Init();

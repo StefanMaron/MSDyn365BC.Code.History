@@ -2025,6 +2025,135 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintInvtPickViaCreateInvtDocsReport()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        WarehouseRequest: Record "Warehouse Request";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        CreateInvtPutAwayPickMvmt: Report "Create Invt Put-away/Pick/Mvmt";
+    begin
+        // [FEATURE] [Inventory Pick]
+        // [SCENARIO 370791] Printing inventory pick using "Create Invt Put-away/Pick/Mvmt" shows request page of the report.
+        Initialize();
+
+        // [GIVEN] Location "L" with required pick.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Post inventory on location "L".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Location.Code, '', LibraryRandom.RandIntInRange(50, 100));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create and release sales order on location "L".
+        CreateSalesOrder(SalesHeader, Location.Code, Item."No.", '', LibraryRandom.RandInt(10));
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Create and print inventory pick from the sales order.
+        WarehouseRequest.SetRange("Source Document", WarehouseRequest."Source Document"::"Sales Order");
+        WarehouseRequest.SetRange("Source No.", SalesHeader."No.");
+        CreateInvtPutAwayPickMvmt.SetTableView(WarehouseRequest);
+        CreateInvtPutAwayPickMvmt.InitializeRequest(false, true, false, true, false);
+        CreateInvtPutAwayPickMvmt.UseRequestPage(false);
+        asserterror CreateInvtPutAwayPickMvmt.RunModal();
+
+        // [THEN] Request page of the inventory pick report is shown.
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Invt. Pick");
+        ReportSelectionWarehouse.FindFirst();
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintInvtPutAwayViaCreateInvtDocsReport()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseRequest: Record "Warehouse Request";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        CreateInvtPutAwayPickMvmt: Report "Create Invt Put-away/Pick/Mvmt";
+    begin
+        // [FEATURE] [Inventory Put-away] [UT]
+        // [SCENARIO 370791] Printing inventory put-away using "Create Invt Put-away/Pick/Mvmt" shows request page of the report.
+        Initialize();
+
+        // [GIVEN] Location "L" with required put-away.
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and release purchase order on location "L".
+        CreatePurchaseOrder(PurchaseHeader, Location.Code, Item."No.", LibraryRandom.RandInt(10), 0);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Create and print inventory put-away from the purchase order.
+        WarehouseRequest.SetRange("Source Document", WarehouseRequest."Source Document"::"Purchase Order");
+        WarehouseRequest.SetRange("Source No.", PurchaseHeader."No.");
+        CreateInvtPutAwayPickMvmt.SetTableView(WarehouseRequest);
+        CreateInvtPutAwayPickMvmt.InitializeRequest(true, false, false, true, false);
+        CreateInvtPutAwayPickMvmt.UseRequestPage(false);
+        asserterror CreateInvtPutAwayPickMvmt.RunModal();
+
+        // [THEN] Request page of the inventory put-away report is shown.
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Invt. Put-away");
+        ReportSelectionWarehouse.FindFirst();
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowRequestPageOnPrintInvtMvmtViaCreateInvtDocsReport()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        WarehouseRequest: Record "Warehouse Request";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        CreateInvtPutAwayPickMvmt: Report "Create Invt Put-away/Pick/Mvmt";
+    begin
+        // [FEATURE] [Inventory Movement] [UT]
+        // [SCENARIO 370791] Printing inventory movement using "Create Invt Put-away/Pick/Mvmt" shows request page of the report.
+        Initialize();
+
+        // [GIVEN] Location "L" with required pick.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Post inventory on location "L".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Location.Code, '', LibraryRandom.RandIntInRange(50, 100));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create and release sales order on location "L".
+        CreateSalesOrder(SalesHeader, Location.Code, Item."No.", '', LibraryRandom.RandInt(10));
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Create and print inventory movement from the sales order.
+        WarehouseRequest.SetRange("Source Document", WarehouseRequest."Source Document"::"Sales Order");
+        WarehouseRequest.SetRange("Source No.", SalesHeader."No.");
+        CreateInvtPutAwayPickMvmt.SetTableView(WarehouseRequest);
+        CreateInvtPutAwayPickMvmt.InitializeRequest(false, false, true, true, false);
+        CreateInvtPutAwayPickMvmt.UseRequestPage(false);
+        asserterror CreateInvtPutAwayPickMvmt.RunModal();
+
+        // [THEN] Request page of the inventory movement report is shown.
+        Assert.ExpectedErrorCode('MissingUIHandler');
+
+        ReportSelectionWarehouse.SetRange(Usage, ReportSelectionWarehouse.Usage::"Invt. Movement");
+        ReportSelectionWarehouse.FindFirst();
+        Assert.ExpectedError(StrSubstNo(RequestPageMissingErr, ReportSelectionWarehouse."Report ID"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -72,14 +72,21 @@ codeunit 8617 "Config. Validate Management"
     end;
 
     procedure GetOptionNo(Value: Text; FieldRef: FieldRef): Integer
+    var
+        FieldRefValueVar: Variant;
+        FieldRefValueInt: Integer;
     begin
         if (Value = '') and (FieldRef.GetEnumValueName(1) = ' ') then
             exit(0);
 
-        if Evaluate(FieldRef, Value) then
-            exit(FieldRef.Value());
+        FieldRefValueVar := FieldRef.Value();
+        FieldRefValueInt := -1;
+        if Evaluate(FieldRef, Value) then begin
+            FieldRefValueInt := FieldRef.Value();
+            FieldRef.Value(FieldRefValueVar);
+        end;
 
-        exit(-1);
+        exit(FieldRefValueInt);
     end;
 
     procedure GetRelationInfoByIDs(TableNo: Integer; FieldNo: Integer; var RelationTableNo: Integer; var RelationFieldNo: Integer): Boolean
