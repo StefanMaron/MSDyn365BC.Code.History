@@ -20,6 +20,7 @@ page 2020 "Image Analysis Setup"
         {
             group(General)
             {
+                Caption = 'General';
                 field("Api Uri"; Rec."Api Uri")
                 {
                     ApplicationArea = Basic, Suite;

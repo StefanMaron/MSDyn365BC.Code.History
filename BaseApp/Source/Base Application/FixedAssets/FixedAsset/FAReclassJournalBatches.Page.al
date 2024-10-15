@@ -8,6 +8,7 @@ page 5640 "FA Reclass. Journal Batches"
     PageType = List;
     RefreshOnActivate = true;
     SourceTable = "FA Reclass. Journal Batch";
+    AnalysisModeEnabled = false;
 
     layout
     {

@@ -11,6 +11,7 @@ page 153 "Currency Factor Selector"
             {
                 ApplicationArea = All;
                 CaptionClass = ExchangeRateAmountCaption;
+                DecimalPlaces = 0 : 15;
                 ToolTip = 'Specifies the exchange rate amount in the consolidation currency.';
                 trigger OnValidate()
                 begin
@@ -22,6 +23,7 @@ page 153 "Currency Factor Selector"
             {
                 ApplicationArea = All;
                 CaptionClass = RelationalExchangeRateAmountCaption;
+                DecimalPlaces = 0 : 15;
                 ToolTip = 'Specifies the exchange rate amount in the currency of the business unit.';
                 trigger OnValidate()
                 begin

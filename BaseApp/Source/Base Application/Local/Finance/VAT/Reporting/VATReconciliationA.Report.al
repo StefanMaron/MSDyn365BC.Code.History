@@ -225,6 +225,7 @@ report 10940 "VAT Reconciliation A"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Period';
+                        OptionCaption = 'Custom,January-February,March-April,May-June,July-August,September-October,November-December';
                         ToolTip = 'Specifies the VAT report period. Select a two month period, or choose Custom to specify a different period in the From and to fields.';
 
                         trigger OnValidate()
@@ -258,7 +259,7 @@ report 10940 "VAT Reconciliation A"
                     field(DTil; DateTo)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'to';
+                        Caption = 'To';
                         ToolTip = 'Specifies the end of the VAT report period.';
 
                         trigger OnValidate()
@@ -282,10 +283,6 @@ report 10940 "VAT Reconciliation A"
         end;
     }
 
-    labels
-    {
-    }
-
     var
         GLEntry: Record "G/L Entry";
         DateFrom: Date;
@@ -302,7 +299,7 @@ report 10940 "VAT Reconciliation A"
         YY: Integer;
         MM: Integer;
         DD: Integer;
-        Text001: Label 'Period must be Custom.';
+        PeriodErr: Label 'Period must be Custom.';
         VATReconciliationACaptionLbl: Label 'VATReconciliation A';
         PurchVATCaptionLbl: Label 'Purchase VAT';
         BaseCaptionLbl: Label 'Base';
@@ -396,7 +393,7 @@ report 10940 "VAT Reconciliation A"
     local procedure CheckPeriodType()
     begin
         if Period <> Period::Custom then
-            Error(Text001);
+            Error(PeriodErr);
     end;
 }
 
