@@ -159,7 +159,13 @@ table 1704 "Posted Deferral Header"
         "Deferral Account" := DeferralAccount;
         CustVendorNo := CustVendNo;
         "Posting Date" := PostingDate;
-        Insert;
+        OnBeforePostedDeferralHeaderInsert(Rec, DeferralHeader);
+        Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostedDeferralHeaderInsert(var PostedDeferralHeader: Record "Posted Deferral Header"; DeferralHeader: Record "Deferral Header")
+    begin
     end;
 }
 

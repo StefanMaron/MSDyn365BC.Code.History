@@ -64,7 +64,7 @@ codeunit 9000 "Users - Create Super User"
         User.Init();
         User."User Security ID" := CreateGuid;
         User."User Name" := UserName;
-        if not EnvironmentInformation.IsSaaS() then
+        if not EnvironmentInformation.IsSaaSInfrastructure() then
             User."Windows Security ID" := WindowsSecurityID;
         User.Insert(true);
     end;

@@ -1,4 +1,4 @@
-codeunit 5407 "Prod. Order Status Management"
+﻿codeunit 5407 "Prod. Order Status Management"
 {
     Permissions = TableData "Source Code Setup" = r,
                   TableData "Production Order" = rimd,
@@ -69,7 +69,10 @@ codeunit 5407 "Prod. Order Status Management"
         if NewStatus = NewStatus::Finished then begin
             CheckBeforeFinishProdOrder(ProdOrder);
             FlushProdOrder(ProdOrder, NewStatus, NewPostingDate);
-            ReservMgt.DeleteDocumentReservation(DATABASE::"Prod. Order Line", ProdOrder.Status.AsInteger(), ProdOrder."No.", false);
+            IsHandled := false;
+            OnChangeProdOrderStatusOnBeforeDeleteDocReservation(ProdOrder, IsHandled);
+            if not IsHandled then
+                ReservMgt.DeleteDocumentReservation(DATABASE::"Prod. Order Line", ProdOrder.Status.AsInteger(), ProdOrder."No.", false);
             ErrorIfUnableToClearWIP(ProdOrder);
             TransProdOrder(ProdOrder);
 
@@ -609,6 +612,8 @@ codeunit 5407 "Prod. Order Status Management"
             exit;
 
         QtyToPost := UOMMgt.RoundToItemRndPrecision(QtyToPost, Item."Rounding Precision");
+
+        OnAfterRoundQtyToPost(ProdOrderComp, QtyToPost);
     end;
 
     local procedure FlushProdOrderProcessProdOrderRtngLine(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRtngLine: Record "Prod. Order Routing Line"; PostingDate: Date)
@@ -678,6 +683,8 @@ codeunit 5407 "Prod. Order Status Management"
                 end;
             until ProdOrderRtngLine.Next() = 0;
         end;
+
+        OnAfterFlushProdOrderProcessProdOrderRtngLine(ProdOrder, ProdOrderLine, ProdOrderRtngLine, NewStatus, PostingDate);
     end;
 
     local procedure PostFlushItemJnlLine(var ItemJnlLine: Record "Item Journal Line")
@@ -783,18 +790,21 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange(Status, ProdOrder.Status);
             SetRange("Prod. Order No.", ProdOrder."No.");
             SetFilter("Remaining Quantity", '<>0');
-            if FindSet() then
-                repeat
-                    ProdOrderRtngLine.SetRange(Status, Status);
-                    ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
-                    ProdOrderRtngLine.SetRange("Routing Reference No.", "Line No.");
-                    ProdOrderRtngLine.SetRange("Next Operation No.", '');
-                    if not ProdOrderRtngLine.IsEmpty() then begin
-                        ProdOrderRtngLine.SetFilter("Flushing Method", '<>%1', ProdOrderRtngLine."Flushing Method"::Backward);
-                        ShowWarning := not ProdOrderRtngLine.IsEmpty;
-                    end else
-                        ShowWarning := true;
-                until (Next() = 0) or ShowWarning;
+            IsHandled := false;
+            OnCheckBeforeFinishProdOrderOnBeforeFindSet(ProdOrderLine, ProdOrderRtngLine, ShowWarning, IsHandled);
+            if not IsHandled then
+                if FindSet() then
+                    repeat
+                        ProdOrderRtngLine.SetRange(Status, Status);
+                        ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
+                        ProdOrderRtngLine.SetRange("Routing Reference No.", "Line No.");
+                        ProdOrderRtngLine.SetRange("Next Operation No.", '');
+                        if not ProdOrderRtngLine.IsEmpty() then begin
+                            ProdOrderRtngLine.SetFilter("Flushing Method", '<>%1', ProdOrderRtngLine."Flushing Method"::Backward);
+                            ShowWarning := not ProdOrderRtngLine.IsEmpty();
+                        end else
+                            ShowWarning := true;
+                    until (Next() = 0) or ShowWarning;
 
             OnCheckMissingOutput(ProdOrder, ProdOrderLine, ProdOrderRtngLine, ShowWarning);
             if ShowWarning then
@@ -807,7 +817,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetProdOrderCompFilters(ProdOrderComp, ProdOrder);
             if FindSet() then
                 repeat
-                    CheckNothingRemainingToPickForProdOrderComp(ProdOrderComp);
+                        CheckNothingRemainingToPickForProdOrderComp(ProdOrderComp);
                     if (("Flushing Method" <> "Flushing Method"::Backward) and
                         ("Flushing Method" <> "Flushing Method"::"Pick + Backward") and
                         ("Routing Link Code" = '')) or
@@ -1311,6 +1321,26 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransProdOrderLineOnAfterFromProdOrderLineFindSet(FromProdOrderLine: Record "Prod. Order Line"; var ToProdOrderLine: Record "Prod. Order Line"; NewStatus: Enum "Production Order Status")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnChangeProdOrderStatusOnBeforeDeleteDocReservation(ProdOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFlushProdOrderProcessProdOrderRtngLine(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"; NewStatus: Option Simulated,Planned,"Firm Planned",Released,Finished; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRoundQtyToPost(ProdOrderComp: Record "Prod. Order Component"; QtyToPost: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckBeforeFinishProdOrderOnBeforeFindSet(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRtngLine: Record "Prod. Order Routing Line"; var ShowWarning: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

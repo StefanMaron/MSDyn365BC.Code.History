@@ -109,6 +109,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetConfigFieldMapUpgradeTag());
         PerCompanyUpgradeTags.Add(GetICSetupUpgradeTag());
         PerCompanyUpgradeTags.Add(GetItemCrossReferenceInPEPPOLUpgradeTag());
+        PercompanyUpgradeTags.Add(GetItemCrossReferenceUpgradeTag());
         PerCompanyUpgradeTags.Add(GetUseCustomLookupUpgradeTag());
         PerCompanyUpgradeTags.Add(SanitizeCloudMigratedDataUpgradeTag());
     end;
