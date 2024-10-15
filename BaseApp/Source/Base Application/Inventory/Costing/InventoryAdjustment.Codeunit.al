@@ -736,6 +736,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
                      InbndValueEntry, TempDocCostElementBuffer, InbndItemLedgEntry."Posting Date", InbndValueEntry."Entry Type")
                 then begin
                     EntryAdjusted := true;
+                    TempValueEntryCalcdOutbndCostBuf.Reset();
                     TempValueEntryCalcdOutbndCostBuf.DeleteAll();
                 end;
 

@@ -645,7 +645,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                     SetDtldVendLedgEntryFilters(DtldVendLedgEntryToAdjust, VendorLedgerEntry);
                     if DtldVendLedgEntryToAdjust.FindSet() then
                         repeat
-                            AdjustVendorLedgerEntry(Vendor, VendorLedgerEntry, ExchRateAdjmtParameters."Posting Date", true);
+                            AdjustVendorLedgerEntry(Vendor, VendorLedgerEntry, DtldVendLedgEntryToAdjust."Posting Date", true);
                         until DtldVendLedgEntryToAdjust.Next() = 0;
                 end;
             until TempVendorLedgerEntry.Next() = 0;

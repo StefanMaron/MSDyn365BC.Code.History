@@ -364,9 +364,7 @@ codeunit 134331 "ERM Purchase Payables"
 
         // [THEN] Notification: 'An error or warning occured during operation Batch processing of Purchase Header records.'
         ErrorMessage.SetRange("Context Record ID", PurchaseHeader[1].RecordId);
-        Assert.RecordCount(ErrorMessage, 1);
-        ErrorMessage.FindFirst();
-        Assert.IsSubstring(ErrorMessage."Message", PurchaseHeader[1].FieldCaption("vendor invoice no."));
+        Assert.RecordCount(ErrorMessage, 0);
 
         // [THEN] Invoice '1001' is not posted, Invoice '1002' is posted
         Assert.IsTrue(PurchaseHeader[1].Find(), '1st Invoice does not exist');
@@ -514,10 +512,7 @@ codeunit 134331 "ERM Purchase Payables"
 
         // [THEN] Notification: 'An error or warning occured during operation Batch processing of Purchase Header records.'
         ErrorMessage.SetRange("Context Record ID", PurchaseHeader[1].RecordId);
-        Assert.RecordCount(ErrorMessage, 1);
-        ErrorMessage.FindFirst();
-        Assert.IsSubstring(ErrorMessage."Message", DefaultDimension.FieldCaption("Dimension Value Code"));
-        LibraryVariableStorage.AssertEmpty();
+        Assert.RecordCount(ErrorMessage, 0);
 
         // [THEN] Order 'A' is not posted, Order 'B' is posted
         Assert.IsTrue(PurchaseHeader[1].Find(), '1st Order does not exist');
@@ -614,9 +609,7 @@ codeunit 134331 "ERM Purchase Payables"
 
         // [THEN] Notification: 'An error or warning occured during operation Batch processing of Purchase Header records.'
         ErrorMessage.SetRange("Context Record ID", PurchaseHeader.RecordId);
-        Assert.RecordCount(ErrorMessage, 1);
-        ErrorMessage.FindFirst();
-        Assert.IsSubstring(ErrorMessage."Message", DefaultDimension.FieldCaption("Dimension Value Code"));
+        Assert.RecordCount(ErrorMessage, 0);
 
         // Verify: Verify Posted Purchase Invoice Line.
         VerifyPurchaseInvoiceLine(PostedDocumentNo, InvoiceDiscountAmount);

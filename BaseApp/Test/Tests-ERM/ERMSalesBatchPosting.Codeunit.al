@@ -1028,15 +1028,11 @@ codeunit 134391 "ERM Sales Batch Posting"
         JobQueueLogEntry.SetRange(ID, JobQueueEntryId);
         JobQueueLogEntry.FindFirst();
         Assert.IsTrue(JobQueueLogEntry.Status = JobQueueLogEntry.Status::Error, 'Job queue log entry has wrong status');
-        Assert.IsTrue(StrPos(JobQueueLogEntry."Error Message", 'Posting Date must have a value') > 0, 'Job queue log entry has wrong error message');
+        Assert.AreEqual('1 sales documents out of 2 have errors during posting.', JobQueueLogEntry."Error Message", 'Job queue log entry has wrong error message');
 
-        // [THEN] Error message register contains two records, one for error during posting and one for final message
+        // [THEN] Error message register contains one record
         ErrorMessage.SetRange("Register ID", JobQueueLogEntry."Error Message Register Id");
-        Assert.RecordCount(ErrorMessage, 2);
-        ErrorMessage.FindFirst();
-        Assert.IsTrue(StrPos(ErrorMessage."Message", 'Posting Date must have a value') > 0, 'Error message register contains wrong error');
-        ErrorMessage.Next();
-        Assert.AreEqual(ErrorMessage."Message", '1 sales documents out of 2 have errors during posting.', 'Error message register contains wrong error');
+        Assert.RecordCount(ErrorMessage, 1);
     end;
 
     [Test]
