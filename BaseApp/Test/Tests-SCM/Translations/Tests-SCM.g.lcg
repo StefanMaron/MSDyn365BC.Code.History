@@ -716,6 +716,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly Order Functions - NamedType UpdateDimCnfm)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1551810128 - NamedType 3860864280" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You may have changed a dimension.\\Do you want to update the lines?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly Order Functions - NamedType UpdateDimOnSalesLinesMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3425900309 - NamedType 642557744" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to update the Dimensions on the lines?]]></Val>
@@ -16493,6 +16502,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse Reports - NamedType JournalLineRegistered)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2761472087 - NamedType 624146749" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Number of put-away activities printed: 1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse Reports - NamedType NumberOfDocPrintedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2761472087 - NamedType 4127743745" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[If you change]]></Val>
@@ -16500,6 +16518,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse Reports - NamedType RecreateSalesLinesMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2761472087 - NamedType 366663108" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Report Executed should be true]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse Reports - NamedType ReportExecutedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2761472087 - NamedType 4131444421" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -16545,6 +16572,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse Reports - NamedType WantToRegisterConfirm)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2761472087 - NamedType 2376768718" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Number of source documents posted: 1 out of a total of 1.\\Number of put-away activities created: 1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse Reports - NamedType WhsePostAndPrintMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3751593413 - NamedType 345566136" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

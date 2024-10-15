@@ -114,9 +114,9 @@ table 3 "Payment Terms"
         Language: Codeunit Language;
     begin
         if PaymentTermTranslation.Get(Code, Language.GetUserLanguageCode) then
-            exit(PaymentTermTranslation.Description);
+            exit(CopyStr(PaymentTermTranslation.Description, 1, 50));
 
-        exit(Description);
+        exit(CopyStr(Description, 1, 50));
     end;
 
     procedure UsePaymentDiscount(): Boolean
@@ -139,4 +139,3 @@ table 3 "Payment Terms"
     begin
     end;
 }
-
