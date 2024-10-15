@@ -2845,7 +2845,7 @@ codeunit 6500 "Item Tracking Management"
                 OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError(
                     TempTrackingSpec, QtyToHandleToNewRegister, QtyToHandleInItemTracking, QtyToHandleOnSourceDocLine, IsHandled);
                 if not IsHandled then
-                    if QtyToHandleToNewRegister + QtyToHandleInItemTracking > QtyToHandleOnSourceDocLine then
+                    if QtyToHandleToNewRegister + QtyToHandleInItemTracking > Abs(QtyToHandleOnSourceDocLine) then
                         Error(CannotMatchItemTrackingErr,
                             TempTrackingSpec."Source ID", TempTrackingSpec."Source Ref. No.",
                             TempTrackingSpec."Item No.", TempTrackingSpec.Description);
@@ -2859,6 +2859,8 @@ codeunit 6500 "Item Tracking Management"
                 OnRegisterNewItemTrackingLinesOnAfterClearItemTrackingLines(ItemTrackingLines);
                 ItemTrackingLines.SetCalledFromSynchWhseItemTrkg(true);
                 ItemTrackingLines.SetBlockCommit(ItemTrackingLinesBlockCommit);
+                if QtyToHandleOnSourceDocLine < 0 then
+                    ItemTrackingLines.SetSignFactor(-1);
                 OnRegisterNewItemTrackingLinesOnBeforeRegisterItemTrackingLines(TempTrackingSpecification, ItemTrackingLines);
                 ItemTrackingLines.RegisterItemTrackingLines(TrackingSpec, TrackingSpec."Creation Date", TempTrackingSpec);
                 TempTrackingSpec.ClearSourceFilter();

@@ -130,7 +130,10 @@ table 5998 "Standard Service Item Gr. Code"
                         ServLine.Validate(Quantity, StdServLine.Quantity);
                         if StdServLine."Unit of Measure Code" <> '' then
                             ServLine.Validate("Unit of Measure Code", StdServLine."Unit of Measure Code");
-                        ServLine.Description := StdServLine.Description;
+                        IsHandled := false;
+                        OnInsertServiceLinesOnBeforeSetDescriptionForLineWithTypeInLoop(ServLine, StdServLine, IsHandled);
+                        if not IsHandled then
+                            ServLine.Description := StdServLine.Description;
                         if StdServLine.Type = StdServLine.Type::"G/L Account" then
                             ServLine.Validate(
                               "Unit Price",
@@ -198,6 +201,11 @@ table 5998 "Standard Service Item Gr. Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertServiceLinesOnAfterCalcUnitPrice(var ServiceLine: Record "Service Line"; var StdServLine: Record "Standard Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertServiceLinesOnBeforeSetDescriptionForLineWithTypeInLoop(var ServiceLine: Record "Service Line"; StandardServiceLine: Record "Standard Service Line"; var IsHandled: Boolean)
     begin
     end;
 }

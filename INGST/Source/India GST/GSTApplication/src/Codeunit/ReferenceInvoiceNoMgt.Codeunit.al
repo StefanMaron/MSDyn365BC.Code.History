@@ -3248,6 +3248,8 @@ codeunit 18435 "Reference Invoice No. Mgt."
     var
         TaxTransactionValue: Record "Tax Transaction Value";
     begin
+        TaxTransactionValue.SetLoadFields("Tax Record ID", "Tax Type", Percent);
+        TaxTransactionValue.SetCurrentKey("Tax Record ID", "Tax Type");
         TaxTransactionValue.SetRange("Tax Type", TaxTypeSetupCode);
         TaxTransactionValue.SetRange("Tax Record ID", RecordId);
         TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
@@ -4242,6 +4244,9 @@ codeunit 18435 "Reference Invoice No. Mgt."
         if PurchInvLine.FindSet() then
             repeat
                 GSTSetup.TestField("GST Tax Type");
+
+                TaxTransactionValue.SetLoadFields("Tax Record ID", "Tax Type", Percent);
+                TaxTransactionValue.SetCurrentKey("Tax Record ID", "Tax Type");
                 TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
                 TaxTransactionValue.SetRange("Tax Record ID", PurchInvLine.RecordId);
                 TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
@@ -4273,6 +4278,9 @@ codeunit 18435 "Reference Invoice No. Mgt."
         if PurchCrMemoLine.FindSet() then
             repeat
                 GSTSetup.TestField("GST Tax Type");
+
+                TaxTransactionValue.SetLoadFields("Tax Record ID", "Tax Type", Percent);
+                TaxTransactionValue.SetCurrentKey("Tax Record ID", "Tax Type");
                 TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
                 TaxTransactionValue.SetRange("Tax Record ID", PurchCrMemoLine.RecordId);
                 TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
@@ -4304,6 +4312,9 @@ codeunit 18435 "Reference Invoice No. Mgt."
         if SalesInvoiceLine.FindSet() then
             repeat
                 GSTSetup.TestField("GST Tax Type");
+
+                TaxTransactionValue.SetLoadFields("Tax Record ID", "Tax Type", "Percent");
+                TaxTransactionValue.SetCurrentKey("Tax Record ID", "Tax Type");
                 TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
                 TaxTransactionValue.SetRange("Tax Record ID", SalesInvoiceLine.RecordId);
                 TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
@@ -4335,6 +4346,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
         if SalesCrMemoLine.FindSet() then
             repeat
                 GSTSetup.TestField("GST Tax Type");
+                TaxTransactionValue.SetCurrentKey("Tax Record ID", "Tax Type");
                 TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
                 TaxTransactionValue.SetRange("Tax Record ID", SalesCrMemoLine.RecordId);
                 TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
@@ -4366,6 +4378,9 @@ codeunit 18435 "Reference Invoice No. Mgt."
         if ServiceInvoiceLine.FindSet() then
             repeat
                 GSTSetup.TestField("GST Tax Type");
+
+                TaxTransactionValue.SetLoadFields("Tax Record ID", "Tax Type", Percent);
+                TaxTransactionValue.SetCurrentKey("Tax Record ID", "Tax Type");
                 TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
                 TaxTransactionValue.SetRange("Tax Record ID", ServiceInvoiceLine.RecordId);
                 TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
@@ -4397,11 +4412,15 @@ codeunit 18435 "Reference Invoice No. Mgt."
         if ServiceCrMemoLine.FindSet() then
             repeat
                 GSTSetup.TestField("GST Tax Type");
+
+                TaxTransactionValue.SetLoadFields("Tax Record ID", "Tax Type", Percent);
+                TaxTransactionValue.SetCurrentKey("Tax Record ID", "Tax Type");
                 TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
                 TaxTransactionValue.SetRange("Tax Record ID", ServiceCrMemoLine.RecordId);
                 TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
                 if not TaxTransactionValue.IsEmpty() then
                     TaxTransactionFound := true;
+
             until ServiceCrMemoLine.Next() = 0;
 
         if not TaxTransactionFound then

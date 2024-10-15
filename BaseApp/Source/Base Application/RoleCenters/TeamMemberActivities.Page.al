@@ -30,7 +30,7 @@ page 9042 "Team Member Activities"
                     action(OpenCurrentTimeSheet)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Open Current Time Sheet';
+                        Caption = 'Open My Current Time Sheet';
                         Image = TileBrickCalendar;
                         ToolTip = 'Open the time sheet for the current period. Current period is based on work date set in my settings.';
 #if not CLEAN22
@@ -46,14 +46,14 @@ page 9042 "Team Member Activities"
 #if not CLEAN22
                             FeatureTelemetry.LogUptake('0000JQU', TimeSheetManagement.GetTimeSheetV2FeatureKey(), Enum::"Feature Uptake Status"::Used);
 #endif
-                            TimeSheetManagement.FilterTimeSheets(TimeSheetHeader, TimeSheetHeader.FieldNo("Owner User ID"));
+                            TimeSheetManagement.FilterTimeSheets(TimeSheetHeader, TimeSheetHeader.FieldNo("Owner User ID"), true);
                             TimeSheetCard.SetTableView(TimeSheetHeader);
                             if TimeSheetHeader.Get(TimeSheetHeader.FindCurrentTimeSheetNo(TimeSheetHeader.FieldNo("Owner User ID"))) then begin
                                 TimeSheetCard.SetRecord(TimeSheetHeader);
                                 TimeSheetCard.Run();
                             end else begin
                                 TimeSheetHeader.Reset();
-                                TimeSheetManagement.FilterTimeSheets(TimeSheetHeader, TimeSheetHeader.FieldNo("Owner User ID"));
+                                TimeSheetManagement.FilterTimeSheets(TimeSheetHeader, TimeSheetHeader.FieldNo("Owner User ID"), true);
                                 TimeSheetList.SetTableView(TimeSheetHeader);
                                 TimeSheetList.SetRecord(TimeSheetHeader);
                                 TimeSheetList.Run();

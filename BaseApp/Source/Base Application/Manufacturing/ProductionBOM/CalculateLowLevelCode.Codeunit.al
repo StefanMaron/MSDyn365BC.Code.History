@@ -183,7 +183,12 @@ codeunit 99000793 "Calculate Low-Level Code"
         CompBOM: Record "Production BOM Header";
         xLowLevelCode: Integer;
         EntityPresent: Boolean;
+        IsHandled: Boolean;
     begin
+        OnBeforeSetRecursiveLevelsOnItem(CompItem, LowLevelCode, IgnoreMissingItemsOrBOMs, IsHandled);
+        if IsHandled then
+            exit;
+
         Item := CompItem; // to store the last item- used in RecalcLowerLevels
         xLowLevelCode := CompItem."Low-Level Code";
         CompItem."Low-Level Code" := GetMax(Item."Low-Level Code", LowLevelCode);
@@ -263,6 +268,11 @@ codeunit 99000793 "Calculate Low-Level Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetRecursiveLevelsOnItemOnBeforeCompItemModify(var CompItem: Record Item; IgnoreMissingItemsOrBOMs: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetRecursiveLevelsOnItem(var CompItem: Record Item; LowLevelCode: Integer; IgnoreMissingItemsOrBOMs: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

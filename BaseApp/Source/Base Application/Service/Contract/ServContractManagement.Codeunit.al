@@ -2302,6 +2302,11 @@ codeunit 5940 ServContractManagement
     end;
 
     local procedure PostPartialServLedgEntry(var InvAmountRounded: array[4] of Decimal; ServContractLine: Record "Service Contract Line"; ServHeader: Record "Service Header"; InvFrom: Date; InvTo: Date; DueDate: Date; AmtRoundingPrecision: Decimal) YearContractCorrection: Boolean
+    var
+        AmountLCY: Decimal;
+        UnitPrice: Decimal;
+        UnitCost: Decimal;
+        ContractDiscAmt: Decimal;
     begin
         OnBeforePostPartialServLedgEntry(ServLedgEntry, ServContractLine);
         ServLedgEntry."Service Item No. (Serviced)" := ServContractLine."Service Item No.";
@@ -2315,13 +2320,12 @@ codeunit 5940 ServContractManagement
         end else
             YearContractCorrection := false;
 
+        CalcAndSetRemainingAmount(
+            ServLedgEntry, ServContractLine, AmountLCY, UnitPrice, UnitCost,
+            ContractDiscAmt, InvFrom, InvTo, AmtRoundingPrecision);
         SetServLedgEntryAmounts(
-          ServLedgEntry, InvAmountRounded,
-          -CalcContractLineAmount(ServContractLine."Line Amount", InvFrom, InvTo),
-          -CalcContractLineAmount(ServContractLine."Line Value", InvFrom, InvTo),
-          -CalcContractLineAmount(ServContractLine."Line Cost", InvFrom, InvTo),
-          -CalcContractLineAmount(ServContractLine."Line Discount Amount", InvFrom, InvTo),
-          AmtRoundingPrecision);
+            ServLedgEntry, InvAmountRounded, AmountLCY, UnitPrice,
+            UnitCost, ContractDiscAmt, AmtRoundingPrecision);
         ServLedgEntry."Entry No." := NextEntry;
         UpdateServLedgEntryAmount(ServLedgEntry, ServHeader);
         ServLedgEntry."Posting Date" := DueDate;
@@ -2494,6 +2498,38 @@ codeunit 5940 ServContractManagement
             exit('<CM-1D>');
 
         exit('<CM>');
+    end;
+
+    local procedure CalcAndSetRemainingAmount(ServLedgerEntry: Record "Service Ledger Entry"; ServContractLine: Record "Service Contract Line"; var AmountLCY: Decimal; var UnitPrice: Decimal; var UnitCost: Decimal; var ContractDiscAmt: Decimal; InvFrom: Date; InvTo: Date; AmtRoundingPrecision: Decimal)
+    var
+        ServiceLedgerEntry: Record "Service Ledger Entry";
+        ServiceContractHeader: Record "Service Contract Header";
+        RemainingAmount: Decimal;
+    begin
+        ServiceContractHeader.Get(ServContractLine."Contract Type", ServContractLine."Contract No.");
+        ServiceLedgerEntry.SetRange("Service Contract No.", ServContractLine."Contract No.");
+        ServiceLedgerEntry.SetRange("Document No.", ServLedgerEntry."Document No.");
+        if ServiceLedgerEntry.FindSet() then begin
+            ServiceLedgerEntry.CalcSums(Amount);
+            RemainingAmount := ServiceContractHeader."Annual Amount" - Abs(ServiceLedgerEntry.Amount);
+        end;
+
+        AmountLCY := Round(-CalcContractLineAmount(ServContractLine."Line Amount", InvFrom, InvTo), AmtRoundingPrecision);
+        UnitPrice := Round(-CalcContractLineAmount(ServContractLine."Line Value", InvFrom, InvTo), AmtRoundingPrecision);
+        UnitCost := Round(-CalcContractLineAmount(ServContractLine."Line Cost", InvFrom, InvTo), AmtRoundingPrecision);
+        ContractDiscAmt := Round(-CalcContractLineAmount(ServContractLine."Line Discount Amount", InvFrom, InvTo), AmtRoundingPrecision);
+
+        if RemainingAmount = 0 then
+            exit;
+
+        if (AmountLCY <> 0) and ((Abs(AmountLCY) - Abs(RemainingAmount)) = AmtRoundingPrecision) then
+            AmountLCY := -RemainingAmount;
+        if (UnitPrice <> 0) and ((Abs(UnitPrice) - Abs(RemainingAmount)) = AmtRoundingPrecision) then
+            UnitPrice := -RemainingAmount;
+        if (UnitCost <> 0) and ((Abs(UnitCost) - Abs(RemainingAmount)) = AmtRoundingPrecision) then
+            UnitCost := -RemainingAmount;
+        if (ContractDiscAmt <> 0) and ((Abs(ContractDiscAmt) - Abs(RemainingAmount)) = AmtRoundingPrecision) then
+            ContractDiscAmt := -RemainingAmount;
     end;
 
     #region Service Item Blocked checks
