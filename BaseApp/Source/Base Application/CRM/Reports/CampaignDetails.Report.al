@@ -10,6 +10,7 @@ report 5060 "Campaign - Details"
     ApplicationArea = RelationshipMgmt;
     Caption = 'Campaign - Details';
     UsageCategory = ReportsAndAnalysis;
+    WordMergeDataItem = Campaign;
 
     dataset
     {

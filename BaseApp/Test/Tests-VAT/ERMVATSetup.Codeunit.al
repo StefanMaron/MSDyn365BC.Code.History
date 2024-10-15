@@ -932,7 +932,7 @@ codeunit 134047 "ERM VAT Setup"
     end;
 
     [Test]
-    procedure TestVATPostingSetupChangeVATCalcTypeError() 
+    procedure TestVATPostingSetupChangeVATCalcTypeError()
     var
         GeneralPostingSetup: Record "General Posting Setup";
         GLAccount: Record "G/L Account";
@@ -945,15 +945,15 @@ codeunit 134047 "ERM VAT Setup"
         CustomerNo: Code[20];
         VatPostingSetupTestPage: TestPage "VAT Posting Setup";
     begin
-        
+
         // [GIVEN] A posting setup exists
         // [GIVEN] A sales invoice have been created
         // [GIVEM] The sales invoice is posted
-        
+
         // Setup.
         LibrarySetupStorage.Restore();
         LibraryRandom.SetSeed(1);  // Generate Random Seed using Random Number Generator.
-        
+
         // Lazy Setup.
         if IsInitialized then
             exit;
@@ -973,7 +973,7 @@ codeunit 134047 "ERM VAT Setup"
         CreateSalesDocWithPartQtyToShip(SalesHeader, SalesLine, 1, SalesHeader."Document Type"::Order);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-    
+
         // [WHEN] Posting setup page is opened and VAT group is selected
         VatPostingSetupTestPage.OpenEdit();
         VatPostingSetupTestPage.Filter.SetFilter("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -982,7 +982,7 @@ codeunit 134047 "ERM VAT Setup"
         // [THEN] Fail to modify VAT Calculation Type as VAT entries have been created when posting invoice
         asserterror VatPostingSetupTestPage."VAT Calculation Type".SetValue(Enum::"Tax Calculation Type"::"Reverse Charge VAT");
         Assert.ExpectedError(StrSubstNo(VATPostingSetupHasVATEntriesErr, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group"));
-    end;  
+    end;
 
     local procedure CreateSalesDocWithPartQtyToShip(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; NoOfLine: Integer; DocumentType: Enum "Sales Document Type") TotalAmount: Decimal
     var

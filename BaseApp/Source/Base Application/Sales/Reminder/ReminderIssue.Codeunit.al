@@ -4,12 +4,13 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.Receivables;
-// do not merge using statements for Microsoft.Utilities and System.Utilities here 
+using System.Utilities;
 
 codeunit 393 "Reminder-Issue"
 {
@@ -33,6 +34,10 @@ codeunit 393 "Reminder-Issue"
             exit;
 
         with ReminderHeader do begin
+            
+            ErrorMessageMgt.Activate(ErrorMessageHandler);
+            ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, '');
+
             UpdateReminderRounding(ReminderHeader);
             if (PostingDate <> 0D) and (ReplacePostingDate or ("Posting Date" = 0D)) then
                 Validate("Posting Date", PostingDate);
@@ -44,6 +49,11 @@ codeunit 393 "Reminder-Issue"
             TestField("Document Date");
             TestField("Due Date");
             TestField("Customer Posting Group");
+
+            if ErrorMessageHandler.HasErrors() then
+                if ErrorMessageHandler.ShowErrors() then
+                    Error('');
+
             GLSetup.Get();
             if GLSetup."Journal Templ. Name Mandatory" then
                 if "Post Additional Fee" or "Post Interest" or "Post Add. Fee per Line" then begin
@@ -166,6 +176,7 @@ codeunit 393 "Reminder-Issue"
             Delete();
         end;
 
+        ErrorMessageMgt.PopContext(ErrorContextElement);
         OnAfterIssueReminder(ReminderHeader, IssuedReminderHeader."No.", GenJnlPostLine);
     end;
 
@@ -187,6 +198,9 @@ codeunit 393 "Reminder-Issue"
         DimMgt: Codeunit DimensionManagement;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorContextElement: Codeunit "Error Context Element";
         DocNo: Code[20];
         NextEntryNo: Integer;
         ReplacePostingDate, ReplaceVATDate : Boolean;

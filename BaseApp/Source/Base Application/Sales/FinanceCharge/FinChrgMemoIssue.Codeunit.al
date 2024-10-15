@@ -6,6 +6,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Sales.Customer;
@@ -28,8 +29,12 @@ codeunit 395 "FinChrgMemo-Issue"
         ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
         FinChrgCommentLine: Record "Fin. Charge Comment Line";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
+        IsHandled: Boolean;
     begin
-        OnBeforeIssueFinChargeMemo(FinChrgMemoHeader);
+        IsHandled := false;
+        OnBeforeIssueFinChargeMemo(FinChrgMemoHeader, ReplacePostingDate, PostingDate, IsHandled, IssuedFinChrgMemoHeader);
+        if IsHandled then
+            exit;
 
         with FinChrgMemoHeader do begin
             UpdateFinanceChargeRounding(FinChrgMemoHeader);
@@ -501,7 +506,7 @@ codeunit 395 "FinChrgMemo-Issue"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIssueFinChargeMemo(var FinChargeMemoHeader: Record "Finance Charge Memo Header")
+    local procedure OnBeforeIssueFinChargeMemo(var FinChargeMemoHeader: Record "Finance Charge Memo Header"; var ReplacePostingDate: Boolean; var PostingDate: Date; var IsHandled: Boolean; IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header")
     begin
     end;
 

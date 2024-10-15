@@ -1698,30 +1698,35 @@ table 5407 "Prod. Order Component"
     var
         Item: Record Item;
         FullAutoReservation: Boolean;
+        IsHandled: Boolean;
     begin
         if Status in [Status::Simulated, Status::Finished] then
             exit;
 
         TestField("Item No.");
         Item.Get("Item No.");
-        OnBeforeAutoReserve(Item, Rec);
-        if Item.Reserve <> Item.Reserve::Always then
-            exit;
 
-        if "Remaining Qty. (Base)" <> 0 then begin
-            TestField("Due Date");
-            ReservMgt.SetReservSource(Rec);
-            ReservMgt.AutoReserve(FullAutoReservation, '', "Due Date", "Remaining Quantity", "Remaining Qty. (Base)");
-            CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
-            Find();
-            if not FullAutoReservation and
-               (CurrFieldNo <> 0)
-            then
-                if Confirm(Text99000009, true) then begin
-                    Commit();
-                    Rec.ShowReservation();
-                    Find();
-                end;
+        IsHandled := false;
+        OnBeforeAutoReserve(Item, Rec, IsHandled);
+        if not IsHandled then begin
+            if Item.Reserve <> Item.Reserve::Always then
+                exit;
+
+            if "Remaining Qty. (Base)" <> 0 then begin
+                TestField("Due Date");
+                ReservMgt.SetReservSource(Rec);
+                ReservMgt.AutoReserve(FullAutoReservation, '', "Due Date", "Remaining Quantity", "Remaining Qty. (Base)");
+                CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+                Find();
+                if not FullAutoReservation and
+                   (CurrFieldNo <> 0)
+                then
+                    if Confirm(Text99000009, true) then begin
+                        Commit();
+                        Rec.ShowReservation();
+                        Find();
+                    end;
+            end;
         end;
 
         OnAfterAutoReserve(Item, Rec);
@@ -2097,7 +2102,7 @@ table 5407 "Prod. Order Component"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoReserve(var Item: Record Item; var ProdOrderComp: Record "Prod. Order Component")
+    local procedure OnBeforeAutoReserve(var Item: Record Item; var ProdOrderComp: Record "Prod. Order Component"; var IsHandled: Boolean)
     begin
     end;
 

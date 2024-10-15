@@ -971,6 +971,16 @@ page 8900 "Administrator Main Role Center"
                     }
                 }
             }
+            group("GroupCopilot")
+            {
+                Caption = 'Copilot';
+                action("CopilotAICapabilities")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Copilot & AI capabilities';
+                    RunObject = page "Copilot AI Capabilities";
+                }
+            }
             group("Group28")
             {
                 Caption = 'RapidStart';

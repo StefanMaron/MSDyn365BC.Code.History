@@ -1312,7 +1312,7 @@ page 52 "Purchase Credit Memo"
                     Ellipsis = true;
                     Enabled = Rec."No." <> '';
                     Image = CopyDocument;
-                    ToolTip = 'Copy document lines and header information from another sales document to this document. You can copy a posted sales invoice into a new sales invoice to quickly create a similar document.';
+                    ToolTip = 'Copy document lines and header information from another purchase document to this document. You can copy a posted purchase invoice into a new purchase invoice to quickly create a similar document.';
 
                     trigger OnAction()
                     begin
@@ -1331,7 +1331,7 @@ page 52 "Purchase Credit Memo"
                     Caption = 'Move Negative Lines';
                     Ellipsis = true;
                     Image = MoveNegativeLines;
-                    ToolTip = 'Prepare to create a replacement sales order in a sales return process.';
+                    ToolTip = 'Prepare to create a replacement purchase order in a purchase return process.';
 
                     trigger OnAction()
                     begin

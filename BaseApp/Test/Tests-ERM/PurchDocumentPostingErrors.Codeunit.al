@@ -454,7 +454,7 @@ codeunit 132502 "Purch. Document Posting Errors"
             LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
         until JobQueueEntry.Next() = 0;
 
-        // [THEN] "Error Message" table contains 3 lines:
+        // [THEN] "Error Message" table contains 2 lines:
         // [THEN] 2 lines for Invoice '1002' and 1 line for Invoice '1003'
         // [THEN] The first error for Invoice '1002' is 'Posting Date is not within your range of allowed posting dates.'
         ErrorMessage.SetRange("Context Record ID", PurchHeader[1].RecordId);

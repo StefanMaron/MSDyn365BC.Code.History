@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Foundation.UOM;
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
@@ -185,7 +186,7 @@ report 5405 "Calc. Consumption"
 
         Window.Update(3, QtyToPost);
 
-        if Location.Get(LocationCode) and Location."Require Pick" and Location."Require Shipment" then
+        if Location.Get(LocationCode) and (Location."Prod. Consump. Whse. Handling" = Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then
             "Prod. Order Component".AdjustQtyToQtyPicked(QtyToPost);
 
         ShouldModifyItemJnlLine :=

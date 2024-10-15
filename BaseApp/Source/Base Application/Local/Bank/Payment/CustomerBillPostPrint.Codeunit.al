@@ -239,7 +239,7 @@ codeunit 12172 "Customer Bill - Post + Print"
             "Shortcut Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
             "Dimension Set ID" := CustLedgEntry."Dimension Set ID";
 
-            OnBeforePostCustomerBillLine(GenJnlLine, CustomerBillHeader, CustomerBillLine, CustLedgEntry);
+            OnBeforePostCustomerBillLine(GenJnlLine, CustomerBillHeader, CustomerBillLine, CustLedgEntry, GenJnlPostLine);
             GenJnlPostLine.RunWithoutCheck(GenJnlLine);
         end;
     end;
@@ -248,7 +248,13 @@ codeunit 12172 "Customer Bill - Post + Print"
     procedure PostBalanceAccount(CustomerBillHeader: Record "Customer Bill Header"; CustLedgEntry: Record "Cust. Ledger Entry"; BillPostingGroup: Record "Bill Posting Group"; BalanceAmount: Decimal)
     var
         GenJnlLine: Record "Gen. Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostBalanceAccount(GenJnlLine, CustomerBillHeader, CustLedgEntry, BalanceAmount, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine do begin
             Init();
 
@@ -356,7 +362,7 @@ codeunit 12172 "Customer Bill - Post + Print"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostCustomerBillLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerBillHeader: Record "Customer Bill Header"; CustomerBillLine: Record "Customer Bill Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnBeforePostCustomerBillLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerBillHeader: Record "Customer Bill Header"; CustomerBillLine: Record "Customer Bill Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
@@ -372,6 +378,11 @@ codeunit 12172 "Customer Bill - Post + Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostBalanceAccountOnAfterValidateAccountNo(var GenJournalLine: Record "Gen. Journal Line"; BillPostingGroup: Record "Bill Posting Group"; CustomerBillHeader: Record "Customer Bill Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostBalanceAccount(var GenJournalLine: Record "Gen. Journal Line"; CustomerBillHeader: Record "Customer Bill Header"; CustLedgerEntry: Record "Cust. Ledger Entry"; var BalanceAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

@@ -184,10 +184,13 @@ codeunit 442 "Sales-Post Prepayments"
                   CopyStr(
                     StrSubstNo(Text012, SelectStr(1 + DocumentType, Text019), "Document Type", "No."),
                     1, MaxStrLen("Posting Description"));
+            OnCodeOnAfterPostingDescriptionSet(SalesHeader, DocumentType);
 
             // Create posted header
             if SalesSetup."Ext. Doc. No. Mandatory" then
                 TestField("External Document No.");
+
+            OnCodeOnBeforeInsertPostedHeaders(SalesHeader);
             case DocumentType of
                 DocumentType::Invoice:
                     begin
@@ -464,6 +467,8 @@ codeunit 442 "Sales-Post Prepayments"
 
         if GLSetup."Journal Templ. Name Mandatory" then
             GenJournalTemplate.Get(SalesHeader."Journal Templ. Name");
+
+        OnAfterUpdateDocNos(SalesHeader);
     end;
 
     local procedure UpdateInvoiceDocNos(var SalesHeader: Record "Sales Header"; var ModifyHeader: Boolean)
@@ -631,6 +636,7 @@ codeunit 442 "Sales-Post Prepayments"
                                 SalesLine.TestField("Service Tariff No.", '');
                         end;
 
+                        OnBuildInvLineBufferOnBeforeFillInvLineBuffer(SalesHeader, SalesLine);
                         FillInvLineBuffer(SalesHeader, SalesLine, PrepmtInvLineBuf2);
                         if UpdateLines then
                             TempGlobalPrepmtInvLineBuf.CopyWithLineNo(PrepmtInvLineBuf2, SalesLine."Line No.");
@@ -1668,6 +1674,7 @@ codeunit 442 "Sales-Post Prepayments"
     local procedure InsertSalesInvLine(SalesInvHeader: Record "Sales Invoice Header"; LineNo: Integer; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; SalesHeader: Record "Sales Header")
     var
         SalesInvLine: Record "Sales Invoice Line";
+        SalesLine: Record "Sales Line";
     begin
         with PrepmtInvLineBuffer do begin
             SalesInvLine.Init();
@@ -1682,6 +1689,10 @@ codeunit 442 "Sales-Post Prepayments"
             SalesInvLine."Shortcut Dimension 2 Code" := "Global Dimension 2 Code";
             SalesInvLine."Dimension Set ID" := "Dimension Set ID";
             SalesInvLine.Description := Description;
+            if not SalesHeader."Compress Prepayment" then
+                if SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", "Line No.") then
+                    SalesInvLine."Description 2" := SalesLine."Description 2";
+
             SalesInvLine.Quantity := 1;
             if SalesInvHeader."Prices Including VAT" then begin
                 SalesInvLine."Unit Price" := "Amount Incl. VAT";
@@ -2196,6 +2207,26 @@ codeunit 442 "Sales-Post Prepayments"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSalesLinesOnBeforeInsertToSalesLine(var ToSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeInsertPostedHeaders(var SalesHeader: Record "Sales Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDocNos(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBuildInvLineBufferOnBeforeFillInvLineBuffer(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterPostingDescriptionSet(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo")
     begin
     end;
 }

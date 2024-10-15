@@ -54,6 +54,8 @@ codeunit 60 "Sales-Calc. Discount"
         ShouldGetCustInvDisc: Boolean;
         IsHandled: Boolean;
     begin
+        OnBeforeCalculateInvoiceDiscount(SalesHeader, SalesLine2, UpdateHeader);
+
         SalesSetup.Get();
         if UpdateHeader then
             SalesHeader.Find(); // To ensure we have the latest - otherwise update fails.
@@ -398,6 +400,12 @@ codeunit 60 "Sales-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCustInvDiscRecExists(InvDiscCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateInvoiceDiscount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var UpdateHeader: Boolean)
     begin
     end;
 }

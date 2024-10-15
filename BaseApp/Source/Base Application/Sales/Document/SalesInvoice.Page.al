@@ -2096,7 +2096,6 @@ page 43 "Sales Invoice"
         ShowQuoteNo: Boolean;
         JobQueuesUsed: Boolean;
         CanCancelApprovalForRecord: Boolean;
-        DocumentIsPosted: Boolean;
         EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
         IsSaaS: Boolean;
         IsBillToCountyVisible: Boolean;
@@ -2108,13 +2107,14 @@ page 43 "Sales Invoice"
         IsSalesLinesEditable: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
-        SkipConfirmationDialogOnClosing: Boolean;
         RejectICSalesInvoiceEnabled: Boolean;
         VATDateEnabled: Boolean;
 
     protected var
         ShipToOptions: Enum "Sales Ship-to Options";
         BillToOptions: Enum "Sales Bill-to Options";
+        DocumentIsPosted: Boolean;
+        SkipConfirmationDialogOnClosing: Boolean;
         IsActivityCodeMandatory: Boolean;
 
     local procedure ActivateFields()

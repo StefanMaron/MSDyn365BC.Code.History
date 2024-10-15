@@ -193,6 +193,7 @@ codeunit 12184 "Fattura Doc. Helper"
         CollectVATOnLines(TempVATEntry, TempVATPostingSetup, TempFatturaHeader);
         TempVATEntry.Reset();
         if TempVATEntry.FindSet() then begin
+            LineRecRef.FindSet();
             IsSplitPayment := HasSplitPayment(LineRecRef);
             Clear(TempFatturaLine);
             TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::VAT;

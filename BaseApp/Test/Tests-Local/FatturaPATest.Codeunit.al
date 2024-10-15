@@ -64,6 +64,7 @@ codeunit 144200 "FatturaPA Test"
         SignatureXSDRelativePathTxt: Label '\GDL\IT\App\Test\XMLSchemas\xmldsig-core-schema.xsd', Locked = true;
         XSDRelativePathTxt: Label '\GDL\IT\App\Test\XMLSchemas\FatturaPA_1_2.xsd', Locked = true;
         InetRootRelativePathTxt: Label '..\', Locked = true;
+        DescriptionTxt: Label 'Description Text';
 
     [Test]
     [Scope('OnPrem')]
@@ -1811,6 +1812,49 @@ codeunit 144200 "FatturaPA Test"
         until SalesInvoiceLine.Next() = 0;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyExportedSalesInvoiceEsigibilitaIVATagWhenCoomentLineExist()
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
+        DocumentRecRef: RecordRef;
+        DocumentNo: Code[20];
+        ClientFileName: Text[250];
+    begin
+        // [SCENARIO 465151] If a line type Comment is added after the Split VAT calculated line, 
+        // the exported sale invoice VAT is not correct
+        Initialize();
+
+        // [GIVEN] Create a posted Sales Invoice with Amount = 100 and split payment line with amount = -100
+        CreateCommentLineInvoiceWithSplitPayment(SalesHeader);
+
+        // [GIVEN] Post the Sales Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [GIVEN] Save the Document No.
+        DocumentRecRef.GetTable(SalesInvoiceHeader);
+        DocumentNo := GetDocumentNo(DocumentRecRef);
+
+        // [WHEN] Find the Sales Invoice Header
+        SalesInvoiceHeader.SetRange("No.", DocumentNo);
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] Load the XMLBuffer from TenpBlob
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
+
+        // [VERIFY] Verify the Document Header have correct node and values
+        VerifyFatturaPAFileHeaderPublicCompany(TempXMLBuffer, DocumentRecRef, SalesInvoiceHeader."Sell-to Customer No.");
+
+        // [VERIFY] Verify the Document Line have correct values
+        VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef, CustLedgerEntry."Document Type"::Invoice, ExportFromType::Sales, '', true, '');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -3163,6 +3207,28 @@ codeunit 144200 "FatturaPA Test"
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDecInDecimalRange(1, 1000, 2));
         ServiceLine.Modify(true);
         UpdateItemGTIN(ServiceLine."No.", Format(LibraryRandom.RandIntInRange(1000, 2000)));
+    end;
+
+    local procedure CreateCommentLineInvoiceWithSplitPayment(var SalesHeader: Record "Sales Header")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SplitVATPostingSetup: Record "VAT Posting Setup";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySplitVAT.CreateVATPostingSetupForSplitVAT(
+          VATPostingSetup, SplitVATPostingSetup, LibraryRandom.RandIntInRange(10, 20));
+        VATPostingSetup.Validate("VAT Transaction Nature", '');
+        VATPostingSetup.Modify(true);
+        SplitVATPostingSetup.Validate("VAT %", VATPostingSetup."VAT %");
+        SplitVATPostingSetup.Validate("VAT Transaction Nature", VATPostingSetup."VAT Transaction Nature");
+        SplitVATPostingSetup.Modify(true);
+        LibrarySplitVAT.UpdateVATPostingSetupFullVAT(SplitVATPostingSetup);
+        CreateInvoiceWithVATPostingSetup(SalesHeader, VATPostingSetup);
+        SalesHeader.AddSplitVATLines();
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::" ", '', 0);
+        SalesLine.Description := DescriptionTxt;
+        SalesLine.Modify();
     end;
 }
 

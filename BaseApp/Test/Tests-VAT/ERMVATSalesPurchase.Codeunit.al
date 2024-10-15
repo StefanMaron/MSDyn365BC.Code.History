@@ -1,4 +1,4 @@
-codeunit 134045 "ERM VAT Sales/Purchase"
+﻿codeunit 134045 "ERM VAT Sales/Purchase"
 {
     Subtype = Test;
     TestPermissions = Disabled;

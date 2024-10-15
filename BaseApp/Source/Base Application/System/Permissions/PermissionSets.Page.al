@@ -375,41 +375,41 @@ page 9802 "Permission Sets"
                         TenantPermissionSet: Record "Tenant Permission Set";
                         MetadataPermissionSet: Record "Metadata Permission Set";
                         TempBlob: Codeunit "Temp Blob";
-                        EnvironmentInfo: Codeunit "Environment Information";
+                        EnvironmentInformation: Codeunit "Environment Information";
                         FileManagement: Codeunit "File Management";
-                        ExportPermissionSetsSystem: Xmlport "Export Permission Sets System";
-                        ExportPermissionSetsTenant: XmlPort "Export Permission Sets Tenant";
-                        OutStr: OutStream;
+                        OutStream: OutStream;
+                        ExportToExtension, ExportSystem, ExportTenant : Boolean;
                     begin
-                        if Rec.Type = Rec.Type::System then
-                            GetSelectionFilter(MetadataPermissionSet)
-                        else
-                            GetSelectionFilter(TenantPermissionSet);
+                        ExportToExtension := false;
 
-                        if EnvironmentInfo.IsSandbox() then
-                            if Confirm(ExportExtensionSchemaQst) then begin
-                                TempBlob.CreateOutStream(OutStr);
+                        if EnvironmentInformation.IsSandbox() then
+                            if Confirm(ExportExtensionSchemaQst) then
+                                ExportToExtension := true;
 
-                                if Rec.Type = Rec.Type::System then begin
-                                    ExportPermissionSetsSystem.SetExportToExtensionSchema(true);
-                                    ExportPermissionSetsSystem.SetTableView(MetadataPermissionSet);
-                                    ExportPermissionSetsSystem.SetDestination(OutStr);
-                                    ExportPermissionSetsSystem.Export();
-                                end else begin
-                                    ExportPermissionSetsTenant.SetExportToExtensionSchema(true);
-                                    ExportPermissionSetsTenant.SetTableView(TenantPermissionSet);
-                                    ExportPermissionSetsTenant.SetDestination(OutStr);
-                                    ExportPermissionSetsTenant.Export();
-                                end;
+                        GetSelectionFilter(MetadataPermissionSet);
+                        GetSelectionFilter(TenantPermissionSet);
 
-                                FileManagement.BLOBExport(TempBlob, FileManagement.ServerTempFileName('xml'), true);
-                                exit;
-                            end;
+                        ExportSystem := MetadataPermissionSet.Count() > 0;
+                        ExportTenant := TenantPermissionSet.Count() > 0;
 
-                        if Rec.Type = Rec.Type::System then
-                            XmlPort.Run(XmlPort::"Export Permission Sets System", false, false, MetadataPermissionSet)
-                        else
-                            XmlPort.Run(XmlPort::"Export Permission Sets Tenant", false, false, TenantPermissionSet);
+                        TempBlob.CreateOutStream(OutStream);
+
+                        if ExportSystem then
+                            Message(ExportSystemPermissionSetsMsg);
+
+                        if ExportSystem and ExportTenant then begin
+                            ExportMixedPermissionSets(ExportToExtension, MetadataPermissionSet, TenantPermissionSet, OutStream);
+                            FileManagement.BLOBExport(TempBlob, PermissionSetsLbl, true);
+                            exit;
+                        end;
+
+                        if ExportSystem then begin
+                            ExportSystemPermissionSets(ExportToExtension, MetadataPermissionSet, OutStream);
+                            FileManagement.BLOBExport(TempBlob, PermissionSetsSystemLbl, true);
+                        end else begin
+                            ExportTenantPermissionSets(ExportToExtension, TenantPermissionSet, OutStream);
+                            FileManagement.BLOBExport(TempBlob, PermissionSetsTenantLbl, true);
+                        end;
                     end;
                 }
                 action(RemoveObsoletePermissions)
@@ -512,25 +512,13 @@ page 9802 "Permission Sets"
 
     trigger OnDeleteRecord(): Boolean
     var
-        PermissionSetLink: Record "Permission Set Link";
         TenantPermissionSet: Record "Tenant Permission Set";
-#if not CLEAN22
-        UserGroupPermissionSet: Record "User Group Permission Set";
-#endif
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
     begin
         PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
 
         if Rec.Type <> Rec.Type::"User-Defined" then
             Error(CannotDeletePermissionSetErr);
-
-        PermissionSetLink.SetRange("Linked Permission Set ID", Rec."Role ID");
-        PermissionSetLink.DeleteAll();
-
-#if not CLEAN22
-        UserGroupPermissionSet.SetRange("Role ID", Rec."Role ID");
-        UserGroupPermissionSet.DeleteAll();
-#endif
 
         TenantPermissionSet.Get(Rec."App ID", Rec."Role ID");
         TenantPermissionSet.Delete();
@@ -636,6 +624,49 @@ page 9802 "Permission Sets"
     end;
 #endif
 
+    local procedure ExportMixedPermissionSets(ExportToExtension: Boolean; var MetadataPermissionSet: Record "Metadata Permission Set"; var TenantPermissionSet: Record "Tenant Permission Set"; var OutStreamDest: OutStream)
+    var
+        DataCompression: Codeunit "Data Compression";
+        TempBlobTenant: Codeunit "Temp Blob";
+        TempBlobSystem: Codeunit "Temp Blob";
+        InStream: InStream;
+        OutStream: OutStream;
+    begin
+        DataCompression.CreateZipArchive();
+
+        TempBlobSystem.CreateOutStream(OutStream);
+        ExportSystemPermissionSets(ExportToExtension, MetadataPermissionSet, OutStream);
+        TempBlobSystem.CreateInStream(InStream);
+        DataCompression.AddEntry(InStream, PermissionSetsSystemLbl);
+
+        TempBlobTenant.CreateOutStream(OutStream);
+        ExportTenantPermissionSets(ExportToExtension, TenantPermissionSet, OutStream);
+        TempBlobTenant.CreateInStream(InStream);
+        DataCompression.AddEntry(InStream, PermissionSetsTenantLbl);
+
+        DataCompression.SaveZipArchive(OutStreamDest);
+    end;
+
+    local procedure ExportTenantPermissionSets(ExportToExtension: Boolean; var TenantPermissionSet: Record "Tenant Permission Set"; var OutStream: OutStream)
+    var
+        ExportPermissionSetsTenant: XmlPort "Export Permission Sets Tenant";
+    begin
+        ExportPermissionSetsTenant.SetExportToExtensionSchema(ExportToExtension);
+        ExportPermissionSetsTenant.SetTableView(TenantPermissionSet);
+        ExportPermissionSetsTenant.SetDestination(OutStream);
+        ExportPermissionSetsTenant.Export();
+    end;
+
+    local procedure ExportSystemPermissionSets(ExportToExtension: Boolean; var MetadataPermissionSet: Record "Metadata Permission Set"; var OutStream: OutStream)
+    var
+        ExportPermissionSetsSystem: Xmlport "Export Permission Sets System";
+    begin
+        ExportPermissionSetsSystem.SetExportToExtensionSchema(ExportToExtension);
+        ExportPermissionSetsSystem.SetTableView(MetadataPermissionSet);
+        ExportPermissionSetsSystem.SetDestination(OutStream);
+        ExportPermissionSetsSystem.Export();
+    end;
+
     local procedure GetSelectionFilter(var TenantPermissionSet: Record "Tenant Permission Set")
     var
         PermissionSetBuffer: Record "Permission Set Buffer";
@@ -711,6 +742,10 @@ page 9802 "Permission Sets"
         ObsoletePermissionsMsg: Label '%1 obsolete permissions were removed.', Comment = '%1 = number of deleted records.';
         NothingToRemoveMsg: Label 'There is nothing to remove.';
         UpdateExistingPermissionsLbl: Label 'Update existing permissions and permission sets';
+        ExportSystemPermissionSetsMsg: Label 'You are exporting system permission sets. These permission sets will become user-defined permission sets when they are imported.';
+        PermissionSetsLbl: Label 'PermissionSets.zip', Locked = true;
+        PermissionSetsTenantLbl: Label 'UserDefinedPermissionSets.xml', Locked = true;
+        PermissionSetsSystemLbl: Label 'SystemPermissionSets.xml', Locked = true;
 #if not CLEAN22
         LegacyUserGroupsVisible: Boolean;
 #endif

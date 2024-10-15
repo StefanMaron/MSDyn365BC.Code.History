@@ -36,6 +36,7 @@ report 202 "Sales Document - Test"
     DefaultLayout = RDLC;
     RDLCLayout = './Sales/Reports/SalesDocumentTest.rdlc';
     Caption = 'Sales Document - Test';
+    WordMergeDataItem = "Sales Header";
 
     dataset
     {

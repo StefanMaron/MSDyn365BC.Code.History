@@ -30,8 +30,8 @@ codeunit 137047 "SCM Warehouse I"
         ErrNoRecord: Label 'There must not be any record within the filter. ';
         EmptyTableErr: Label 'There must be %1 records in %2 within the filter %3.';
         SortingOrderErr: Label 'Wrong sorting order in %1';
-        NoWhseReceiptLinesCreatedErr: Label 'There are no Warehouse Receipt Lines created.';
-        NoWhseShipmentLinesCreatedErr: Label 'There are no Warehouse Shipment Lines created.';
+        NoWhseReceiptLinesCreatedErr: Label 'There are no warehouse receipt lines created.';
+        NoWhseShipmentLinesCreatedErr: Label 'There are no warehouse shipment lines created.';
         CannotReclassifyLocationErr: Label 'You cannot reclassify location %1 because it is set up with Directed Put-away and Pick';
         CannotUseLocationErr: Label 'You cannot use a %1 because %2 %3 is set up with %4';
         ShipmentDateMustNotChangeErr: Label 'Shipment Date must not be changed when a Warehouse Shipment Line for this Sales Line exists';

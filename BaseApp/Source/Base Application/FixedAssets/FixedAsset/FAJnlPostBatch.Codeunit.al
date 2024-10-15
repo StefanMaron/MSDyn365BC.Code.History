@@ -486,7 +486,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
                             OnPostLinesOnAfterGetNextNoSeries(FAJnlLine);
                             LastPostedDocNo := "Document No.";
                         end;
-                OnPostLinesOnBeforeFAJnlPostLine(FAJnlLine);
+                OnPostLinesOnBeforeFAJnlPostLine(FAJnlLine, FAJnlPostLine);
                 FAJnlPostLine.FAJnlPostLine(FAJnlLine, false);
                 OnPostLinesOnAfterFAJnlPostLine(FAJnlLine);
                 CreateCompressTable(FAJnlLine);
@@ -611,7 +611,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostLinesOnBeforeFAJnlPostLine(var FAJournalLine: Record "FA Journal Line")
+    local procedure OnPostLinesOnBeforeFAJnlPostLine(var FAJournalLine: Record "FA Journal Line"; var FAJnlPostLine: Codeunit "FA Jnl.-Post Line")
     begin
     end;
 

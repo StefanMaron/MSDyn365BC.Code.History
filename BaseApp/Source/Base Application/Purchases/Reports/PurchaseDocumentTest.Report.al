@@ -36,6 +36,7 @@ report 402 "Purchase Document - Test"
     DefaultLayout = RDLC;
     RDLCLayout = './Purchases/Reports/PurchaseDocumentTest.rdlc';
     Caption = 'Purchase Document - Test';
+    WordMergeDataItem = "Purchase Header";
 
     dataset
     {

@@ -10,6 +10,7 @@ page 5372 "CDS Available Virtual Tables"
 {
     PageType = List;
     Caption = 'Available Virtual Tables - Dataverse';
+    AnalysisModeEnabled = false;
     SourceTable = "CDS Av. Virtual Table Buffer";
     SourceTableTemporary = true;
     SourceTableView = sorting("Phsyical Name");

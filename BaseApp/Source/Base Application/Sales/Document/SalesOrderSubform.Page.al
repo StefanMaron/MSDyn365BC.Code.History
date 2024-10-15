@@ -765,7 +765,7 @@ page 46 "Sales Order Subform"
                 }
                 field("Work Type Code"; Rec."Work Type Code")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to when the sale is related to a job.';
                     Visible = false;
                 }
@@ -1578,7 +1578,7 @@ page 46 "Sales Order Subform"
 
                         trigger OnAction()
                         var
-                            AllocAccManualOverride: Page Microsoft.Finance.AllocationAccount."Redistribute Acc. Allocations";
+                            AllocAccManualOverride: Page "Redistribute Acc. Allocations";
                         begin
                             if ((Rec."Type" <> Rec."Type"::"Allocation Account") and (Rec."Selected Alloc. Account No." = '')) then
                                 Error(ActionOnlyAllowedForAllocationAccountsErr);
@@ -1814,16 +1814,13 @@ page 46 "Sales Order Subform"
     end;
 
     var
-        Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
-        DocumentTotals: Codeunit "Document Totals";
         AmountWithDiscountAllowed: Decimal;
         Text001: Label 'You cannot use the Explode BOM function because a prepayment of the sales order has been invoiced.';
-        LocationCodeMandatory: Boolean;
         VariantCodeMandatory: Boolean;
         LocationCodeVisible: Boolean;
         IsFoundation: Boolean;
@@ -1843,8 +1840,10 @@ page 46 "Sales Order Subform"
         ExcelFileNameTxt: Label 'Sales Order %1 - Lines', Comment = '%1 = document number, ex. 10000';
 
     protected var
+        Currency: Record Currency;
         TotalSalesHeader: Record "Sales Header";
         TotalSalesLine: Record "Sales Line";
+        DocumentTotals: Codeunit "Document Totals";
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -1860,6 +1859,7 @@ page 46 "Sales Order Subform"
         IsCommentLine: Boolean;
         IsBlankNumber: Boolean;
         ItemReferenceVisible: Boolean;
+        LocationCodeMandatory: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
         AttachToInvtItemEnabled: Boolean;
         VATAmount: Decimal;
@@ -1979,6 +1979,8 @@ page 46 "Sales Order Subform"
             Commit();
             TransferExtendedText.InsertSalesExtText(Rec);
         end;
+        OnInsertExtendedTextOnAfterInsertSalesExtText(Rec);
+
         if TransferExtendedText.MakeUpdate() then
             UpdateForm(true);
     end;
@@ -2452,6 +2454,11 @@ page 46 "Sales Order Subform"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterUnitofMeasureCodeOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertExtendedTextOnAfterInsertSalesExtText(SalesLine: Record "Sales Line")
     begin
     end;
 }

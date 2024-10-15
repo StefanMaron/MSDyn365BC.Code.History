@@ -356,6 +356,7 @@ table 8613 "Config. Package Table"
                     ConfigPackageField.SetRange("Table ID", "Table ID");
                     ConfigPackageField.SetRange("Field ID", Field."No.");
                     ConfigPackageMgt.SelectAllPackageFields(ConfigPackageField, true);
+                    OnInitPackageFieldsOnAfterSelectAllPackageFields(ConfigPackageField);
                     FieldsAdded := true;
                 end;
             until Field.Next() = 0;
@@ -828,6 +829,11 @@ table 8613 "Config. Package Table"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowPackageRecordsOnBeforeShowRecords(var ConfigPackageRecords: Page "Config. Package Records"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitPackageFieldsOnAfterSelectAllPackageFields(var ConfigPackageField: Record "Config. Package Field")
     begin
     end;
 }

@@ -16,6 +16,7 @@ using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 using System.Environment.Configuration;
 using System.Integration.Excel;
+
 page 96 "Sales Cr. Memo Subform"
 {
     AutoSplitKey = true;
@@ -531,7 +532,7 @@ page 96 "Sales Cr. Memo Subform"
                 }
                 field("Work Type Code"; Rec."Work Type Code")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to when the sale is related to a job.';
                     Visible = false;
                 }
@@ -857,7 +858,7 @@ page 96 "Sales Cr. Memo Subform"
 
                 trigger OnAction()
                 var
-                    AllocAccManualOverride: Page Microsoft.Finance.AllocationAccount."Redistribute Acc. Allocations";
+                    AllocAccManualOverride: Page "Redistribute Acc. Allocations";
                 begin
                     if ((Rec."Type" <> Rec."Type"::"Allocation Account") and (Rec."Selected Alloc. Account No." = '')) then
                         Error(ActionOnlyAllowedForAllocationAccountsErr);
@@ -1196,7 +1197,6 @@ page 96 "Sales Cr. Memo Subform"
 
     var
         SalesSetup: Record "Sales & Receivables Setup";
-        Currency: Record Currency;
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
@@ -1214,6 +1214,7 @@ page 96 "Sales Cr. Memo Subform"
         ExcelFileNameTxt: Label 'Sales Credit Memo %1 - Lines', Comment = '%1 = document number, ex. 10000';
 
     protected var
+        Currency: Record Currency;
         TotalSalesHeader: Record "Sales Header";
         TotalSalesLine: Record "Sales Line";
         DocumentTotals: Codeunit "Document Totals";
@@ -1378,8 +1379,13 @@ page 96 "Sales Cr. Memo Subform"
     end;
 
     procedure DeltaUpdateTotals()
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeDeltaUpdateTotals(Rec, xRec);
+        IsHandled := false;
+        OnBeforeDeltaUpdateTotals(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
 
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if Rec."Line Amount" <> xRec."Line Amount" then
@@ -1522,7 +1528,7 @@ page 96 "Sales Cr. Memo Subform"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
