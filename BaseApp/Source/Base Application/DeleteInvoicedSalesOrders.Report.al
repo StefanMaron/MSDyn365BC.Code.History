@@ -52,6 +52,7 @@ report 299 "Delete Invoiced Sales Orders"
 
                                 ArchiveManagement.AutoArchiveSalesDocument("Sales Header");
 
+                                OnBeforeDeleteSalesLinesLoop("Sales Header", SalesOrderLine);
                                 if SalesOrderLine.Find('-') then
                                     repeat
                                         SalesOrderLine.CalcFields("Qty. Assigned");
@@ -72,6 +73,7 @@ report 299 "Delete Invoiced Sales Orders"
                                             AllLinesDeleted := false;
                                         UpdateAssociatedPurchOrder;
                                     until SalesOrderLine.Next = 0;
+                                OnAfterDeleteSalesLinesLoop("Sales Header", AllLinesDeleted);
 
                                 if AllLinesDeleted then begin
                                     PostSalesDelete.DeleteHeader(
@@ -178,12 +180,22 @@ report 299 "Delete Invoiced Sales Orders"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterDeleteSalesLinesLoop(var SalesHeader: Record "Sales Header"; AllLinesDeleted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteSalesHeader(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteSalesLinesLoop(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
 

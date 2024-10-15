@@ -346,7 +346,6 @@ table 297 "Issued Reminder Header"
         ReminderIssue: Codeunit "Reminder-Issue";
         DimMgt: Codeunit DimensionManagement;
         PostCodeCheck: Codeunit "Post Code Check";
-        ReminderTxt: Label 'Issued Reminder';
         SuppresSendDialogQst: Label 'Do you want to suppress send dialog?';
 
     procedure PrintRecords(ShowRequestForm: Boolean; SendAsEmail: Boolean; HideDialog: Boolean)
@@ -355,6 +354,7 @@ table 297 "Issued Reminder Header"
         DummyReportSelections: Record "Report Selections";
         IssuedReminderHeader: Record "Issued Reminder Header";
         IssuedReminderHeaderToSend: Record "Issued Reminder Header";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -372,8 +372,8 @@ table 297 "Issued Reminder Header"
                     IssuedReminderHeaderToSend.Copy(IssuedReminderHeader);
                     IssuedReminderHeaderToSend.SetRecFilter;
                     DocumentSendingProfile.TrySendToEMail(
-                      DummyReportSelections.Usage::Reminder, IssuedReminderHeaderToSend,
-                      IssuedReminderHeaderToSend.FieldNo("No."), ReminderTxt, IssuedReminderHeaderToSend.FieldNo("Customer No."), not HideDialog)
+                      DummyReportSelections.Usage::Reminder, IssuedReminderHeaderToSend, IssuedReminderHeaderToSend.FieldNo("No."),
+                      ReportDistributionMgt.GetFullDocumentTypeText(Rec), IssuedReminderHeaderToSend.FieldNo("Customer No."), not HideDialog)
                 until IssuedReminderHeader.Next = 0;
         end else
             DocumentSendingProfile.TrySendToPrinter(

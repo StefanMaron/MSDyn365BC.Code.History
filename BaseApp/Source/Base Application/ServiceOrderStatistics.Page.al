@@ -1469,7 +1469,7 @@ page 5914 "Service Order Statistics"
         UpdateInvDiscAmount(1);
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateHeaderInfo(var TotalServLineLCY: array[7] of Record "Service Line"; var IndexNo: Integer)
     begin
     end;

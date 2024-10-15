@@ -27,6 +27,12 @@ report 28027 "VAT Report - Vendor"
             column(VATGoods; VATGoods)
             {
             }
+            column(TotalBaseAmtgoods; TotalBaseAmtgoods)
+            {
+            }
+            column(TotalVATGoods; TotalVATGoods)
+            {
+            }
             column(TIN; TIN)
             {
             }
@@ -43,6 +49,12 @@ report 28027 "VAT Report - Vendor"
             {
             }
             column(BaseAmtServices; BaseAmtServices)
+            {
+            }
+            column(TotalVATServices; TotalVATServices)
+            {
+            }
+            column(TotalBaseAmtServices; TotalBaseAmtServices)
             {
             }
             column(BaseAmtgoods_Control1500022; BaseAmtgoods)
@@ -109,10 +121,14 @@ report 28027 "VAT Report - Vendor"
                 TIN := Vend."VAT Registration No.";
                 if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::Invoice] then begin
                     BaseAmtgoods := BaseAmtgoods + Base;
+                    TotalBaseAmtgoods += Base;
                     VATGoods := VATGoods + Amount;
+                    TotalVATGoods += Amount;
                 end else begin
                     BaseAmtServices := BaseAmtServices + Base;
+                    TotalBaseAmtServices += Base;
                     VATServices := VATServices + Amount;
+                    TotalVATServices += Amount;
                 end;
             end;
 
@@ -161,6 +177,10 @@ report 28027 "VAT Report - Vendor"
         VATGoods: Decimal;
         BaseAmtServices: Decimal;
         VATServices: Decimal;
+        TotalBaseAmtgoods: Decimal;
+        TotalVATGoods: Decimal;
+        TotalBaseAmtServices: Decimal;
+        TotalVATServices: Decimal;
         TempBillTo: Code[20];
         VAT_Entries___VendorCaptionLbl: Label 'VAT Entries - Vendor';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

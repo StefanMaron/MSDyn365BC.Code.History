@@ -711,7 +711,6 @@ table 6660 "Return Receipt Header"
         UserSetupMgt: Codeunit "User Setup Management";
         Text001: Label 'Posted Document Dimensions';
         PostCodeCheck: Codeunit "Post Code Check";
-        DocTxt: Label 'Receipt';
 
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
@@ -729,9 +728,11 @@ table 6660 "Return Receipt Header"
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
         DocumentSendingProfile.TrySendToEMail(
-          DummyReportSelections.Usage::"S.Ret.Rcpt.", Rec, FieldNo("No."), DocTxt, FieldNo("Bill-to Customer No."), ShowDialog);
+          DummyReportSelections.Usage::"S.Ret.Rcpt.", Rec, FieldNo("No."),
+          ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), ShowDialog);
     end;
 
     procedure Navigate()

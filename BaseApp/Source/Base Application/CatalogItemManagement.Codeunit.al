@@ -45,6 +45,7 @@ codeunit 5703 "Catalog Item Management"
             Error(Text000, NonStock2."Item No.");
 
         CreateNewItem(NonStock2."Item No.", NonStock2);
+        OnNonstockAutoItemOnAfterCreateNewItem(NewItem);
         Message(Text001, NonStock2."Item No.");
 
         if CheckLicensePermission(DATABASE::"Item Vendor") then
@@ -70,24 +71,27 @@ codeunit 5703 "Catalog Item Management"
     local procedure NonstockItemCrossRef(var NonStock2: Record "Nonstock Item")
     var
         ItemCrossReference: Record "Item Cross Reference";
+        IsHandled: Boolean;
     begin
-        OnBeforeNonstockItemCrossRef(NonStock2);
-
-        ItemCrossReference.SetRange("Item No.", NonStock2."Item No.");
-        ItemCrossReference.SetRange("Unit of Measure", NonStock2."Unit of Measure");
-        ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
-        ItemCrossReference.SetRange("Cross-Reference Type No.", NonStock2."Vendor No.");
-        ItemCrossReference.SetRange("Cross-Reference No.", NonStock2."Vendor Item No.");
-        OnAfterItemCrossReferenceFilter(ItemCrossReference, NonStock2);
-        if not ItemCrossReference.FindFirst then begin
-            ItemCrossReference.Init();
-            ItemCrossReference.Validate("Item No.", NonStock2."Item No.");
-            ItemCrossReference.Validate("Unit of Measure", NonStock2."Unit of Measure");
-            ItemCrossReference.Validate("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
-            ItemCrossReference.Validate("Cross-Reference Type No.", NonStock2."Vendor No.");
-            ItemCrossReference.Validate("Cross-Reference No.", NonStock2."Vendor Item No.");
-            ItemCrossReference.Insert();
-            OnAfterItemCrossReferenceInsert(ItemCrossReference, NonStock2);
+        IsHandled := false;
+        OnBeforeNonstockItemCrossRef(NonStock2, IsHandled);
+        if not IsHandled then begin
+            ItemCrossReference.SetRange("Item No.", NonStock2."Item No.");
+            ItemCrossReference.SetRange("Unit of Measure", NonStock2."Unit of Measure");
+            ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
+            ItemCrossReference.SetRange("Cross-Reference Type No.", NonStock2."Vendor No.");
+            ItemCrossReference.SetRange("Cross-Reference No.", NonStock2."Vendor Item No.");
+            OnAfterItemCrossReferenceFilter(ItemCrossReference, NonStock2);
+            if not ItemCrossReference.FindFirst() then begin
+                ItemCrossReference.Init();
+                ItemCrossReference.Validate("Item No.", NonStock2."Item No.");
+                ItemCrossReference.Validate("Unit of Measure", NonStock2."Unit of Measure");
+                ItemCrossReference.Validate("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
+                ItemCrossReference.Validate("Cross-Reference Type No.", NonStock2."Vendor No.");
+                ItemCrossReference.Validate("Cross-Reference No.", NonStock2."Vendor Item No.");
+                ItemCrossReference.Insert();
+                OnAfterItemCrossReferenceInsert(ItemCrossReference, NonStock2);
+            end;
         end;
         if NonStock2."Bar Code" <> '' then begin
             ItemCrossReference.Reset();
@@ -96,7 +100,7 @@ codeunit 5703 "Catalog Item Management"
             ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::"Bar Code");
             ItemCrossReference.SetRange("Cross-Reference No.", NonStock2."Bar Code");
             OnAfterItemCrossReferenceFilter(ItemCrossReference, NonStock2);
-            if not ItemCrossReference.FindFirst then begin
+            if not ItemCrossReference.FindFirst() then begin
                 ItemCrossReference.Init();
                 ItemCrossReference.Validate("Item No.", NonStock2."Item No.");
                 ItemCrossReference.Validate("Unit of Measure", NonStock2."Unit of Measure");
@@ -106,6 +110,8 @@ codeunit 5703 "Catalog Item Management"
                 OnAfterItemCrossReferenceInsert(ItemCrossReference, NonStock2);
             end;
         end;
+
+        OnAfterNonstockItemCrossRef(NonStock2);
     end;
 
     procedure NonstockItemDel(var Item: Record Item)
@@ -129,7 +135,13 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     procedure NonStockSales(var SalesLine2: Record "Sales Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNonStockSales(NonStock, SalesLine2, IsHandled);
+        If IsHandled then
+            exit;
         if (SalesLine2."Document Type" in
             [SalesLine2."Document Type"::"Return Order", SalesLine2."Document Type"::"Credit Memo"])
         then
@@ -163,6 +175,7 @@ codeunit 5703 "Catalog Item Management"
         ProgWindow.Update(4, SalesLine2."No.");
 
         CreateNewItem(SalesLine2."No.", NonStock);
+        OnNonStockSalesOnAfterCreateNewItem(NewItem);
 
         if CheckLicensePermission(DATABASE::"Item Vendor") then
             NonstockItemVend(NonStock);
@@ -248,6 +261,7 @@ codeunit 5703 "Catalog Item Management"
         ProgWindow.Update(4, ServInvLine2."No.");
 
         CreateNewItem(ServInvLine2."No.", NonStock);
+        OnNonStockFSMOnAfterCreateNewItem(NewItem);
 
         if CheckLicensePermission(DATABASE::"Item Vendor") then
             NonstockItemVend(NonStock);
@@ -259,6 +273,7 @@ codeunit 5703 "Catalog Item Management"
 
     procedure CreateItemFromNonstock(Nonstock2: Record "Nonstock Item")
     begin
+        OnBeforeCreateItemFromNonstock(Nonstock2);
         if NewItem.Get(Nonstock2."Item No.") then
             Error(Text000, Nonstock2."Item No.");
 
@@ -375,7 +390,12 @@ codeunit 5703 "Catalog Item Management"
     local procedure GetNewItemNo(NonstockItem: Record "Nonstock Item"; Length1: Integer; Length2: Integer) NewItemNo: Code[20]
     var
         NonstockItemSetupMy: Record "Nonstock Item Setup";
+        IsHandled: Boolean;
     begin
+        OnBeforeGetNewItemNo(NonstockItem, Length1, Length2, NewItemNo, IsHandled);
+        if IsHandled then
+            exit(NewItemNo);
+
         NonstockItemSetupMy.Get();
         case NonstockItemSetupMy."No. Format" of
             NonstockItemSetupMy."No. Format"::"Vendor Item No.":
@@ -480,17 +500,52 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     [IntegrationEvent(false, false)]
+    procedure OnBeforeCreateItemFromNonstock(var NonstockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateNewItem(var Item: Record Item; ItemTemplate: Record "Item Template"; NonstockItem: Record "Nonstock Item")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNonstockItemCrossRef(var NonstockItem: Record "Nonstock Item")
+    local procedure OnBeforeGetNewItemNo(NonstockItem: Record "Nonstock Item"; Length1: Integer; Length2: Integer; var NewItemNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNonstockItemCrossRef(var NonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNonStockSales(var NonStockItem: Record "Nonstock Item"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnNonstockItemVendOnBeforeItemVendInsert(var ItemVend: Record "Item Vendor"; NonStockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNonstockAutoItemOnAfterCreateNewItem(var NewItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNonStockSalesOnAfterCreateNewItem(var NewItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNonStockFSMOnAfterCreateNewItem(var NewItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterNonstockItemCrossRef(var NonStock2: Record "Nonstock Item")
     begin
     end;
 }

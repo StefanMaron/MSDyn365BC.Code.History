@@ -1,4 +1,4 @@
-codeunit 7307 "Whse.-Activity-Register"
+﻿codeunit 7307 "Whse.-Activity-Register"
 {
     Permissions = TableData "Registered Whse. Activity Hdr." = i,
                   TableData "Registered Whse. Activity Line" = i,
@@ -957,6 +957,8 @@ codeunit 7307 "Whse.-Activity-Register"
                ((WhseActivLine2."Activity Type" = WhseActivLine2."Activity Type"::"Invt. Movement") and
                 (WhseActivLine2."Source Type" > 0))
             then begin
+                OnRegisterWhseItemTrkgLineOnBeforeCreateSpecification(WhseActivLine2, DueDate);
+
                 if (WhseActivLine2."Whse. Document Type" = WhseActivLine2."Whse. Document Type"::Shipment) and
                    WhseActivLine2."Assemble to Order"
                 then
@@ -2030,6 +2032,11 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnGroupWhseActivLinesByWhseDocAndSourceOnBeforeTempWarehouseActivityLineModify(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterWhseItemTrkgLineOnBeforeCreateSpecification(var WhseActivLine2: Record "Warehouse Activity Line"; var DueDate: Date)
     begin
     end;
 }

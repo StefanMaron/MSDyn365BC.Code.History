@@ -28,6 +28,7 @@ codeunit 134202 "Document Approval - Users"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPermissions: Codeunit "Library - Permissions";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         ApprovalAdministratorErr: Label 'Approval Administrator must have a value in User Setup';
@@ -704,6 +705,7 @@ codeunit 134202 "Document Approval - Users"
     var
         UserSetup: Record "User Setup";
     begin
+        Initialize();
         // Setup
         SetupUsers(UserSetup, '', false, false, false, 0, LibraryRandom.RandInt(100), 0);
 
@@ -856,6 +858,7 @@ codeunit 134202 "Document Approval - Users"
     var
         UserSetup: Record "User Setup";
     begin
+        Initialize();
         // Setup
         SetupUsers(UserSetup, '', false, false, false, 0, 0, LibraryRandom.RandInt(100));
 
@@ -986,6 +989,7 @@ codeunit 134202 "Document Approval - Users"
     var
         UserSetup: Record "User Setup";
     begin
+        Initialize();
         // Setup
         SetupUsers(UserSetup, '', false, false, false, LibraryRandom.RandInt(100), 0, 0);
 
@@ -1010,6 +1014,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Purchase Header",
           PurchHeader."Document Type"::"Blanket Order", '');
@@ -1042,6 +1047,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Purchase Header",
           PurchHeader."Document Type"::"Credit Memo", '');
@@ -1073,6 +1079,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Purchase Header", PurchHeader."Document Type"::Invoice, '');
 
@@ -1103,6 +1110,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         PurchaseOrder: TestPage "Purchase Order";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Purchase Header", PurchHeader."Document Type"::Order, '');
 
@@ -1133,6 +1141,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         PurchaseQuote: TestPage "Purchase Quote";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Purchase Header", PurchHeader."Document Type"::Quote, '');
 
@@ -1163,6 +1172,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Purchase Header",
           PurchHeader."Document Type"::"Return Order", '');
@@ -1194,6 +1204,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         BlanketSalesOrder: TestPage "Blanket Sales Order";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header",
           SalesHeader."Document Type"::"Blanket Order", '');
@@ -1226,6 +1237,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header",
           SalesHeader."Document Type"::"Credit Memo", '');
@@ -1258,6 +1270,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         SalesInvoice: TestPage "Sales Invoice";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header", SalesHeader."Document Type"::Invoice, '');
 
@@ -1289,6 +1302,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         SalesOrder: TestPage "Sales Order";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header", SalesHeader."Document Type"::Order, '');
 
@@ -1319,6 +1333,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         SalesQuote: TestPage "Sales Quote";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header", SalesHeader."Document Type"::Quote, '');
 
@@ -1349,6 +1364,7 @@ codeunit 134202 "Document Approval - Users"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header",
           SalesHeader."Document Type"::"Return Order", '');
@@ -2805,6 +2821,7 @@ codeunit 134202 "Document Approval - Users"
         SubstituteUserSetup: Record "User Setup";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
+        Initialize();
         // Pre-Setup
         LibraryDocumentApprovals.CreateMockupUserSetup(SubstituteUserSetup);
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header", DocumentType, SubstituteUserSetup."User ID");
@@ -2832,6 +2849,7 @@ codeunit 134202 "Document Approval - Users"
         UserSetup: Record "User Setup";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Purchase Header", DocumentType, '');
 
@@ -2858,6 +2876,7 @@ codeunit 134202 "Document Approval - Users"
         UserSetup: Record "User Setup";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header", DocumentType, '');
 
@@ -2899,6 +2918,7 @@ codeunit 134202 "Document Approval - Users"
         UserSetup: Record "User Setup";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Purchase Header", DocumentType, '');
 
@@ -2931,6 +2951,7 @@ codeunit 134202 "Document Approval - Users"
         UserSetup: Record "User Setup";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header", DocumentType, '');
 
@@ -2971,6 +2992,7 @@ codeunit 134202 "Document Approval - Users"
         UserSetup: Record "User Setup";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Purchase Header", DocumentType, '');
 
@@ -2999,6 +3021,7 @@ codeunit 134202 "Document Approval - Users"
         UserSetup: Record "User Setup";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header", DocumentType, '');
 
@@ -3028,6 +3051,7 @@ codeunit 134202 "Document Approval - Users"
         PurchHeader: Record "Purchase Header";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Purchase Header", DocumentType, '');
         ExpectedUserSetup := UserSetup;
@@ -3055,6 +3079,7 @@ codeunit 134202 "Document Approval - Users"
         UserSetup: Record "User Setup";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
+        Initialize();
         // Pre-Setup
         SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header", DocumentType, '');
         ExpectedUserSetup := UserSetup;
@@ -3446,6 +3471,8 @@ codeunit 134202 "Document Approval - Users"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Document Approval - Users");
+
         if IsInitialized then
             exit;
         IsInitialized := true;

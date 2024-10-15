@@ -14,10 +14,9 @@ codeunit 260 "Document-Mailing"
 
     var
         EmailSubjectCapTxt: Label '%1 - %2 %3', Comment = '%1 = Customer Name. %2 = Document Type %3 = Invoice No.';
-        ReportAsPdfFileNameMsg: Label 'Sales %1 %2.pdf', Comment = '%1 = Document Type %2 = Invoice No.';
+        ReportAsPdfFileNameMsg: Label '%1 %2.pdf', Comment = '%1 = Document Type %2 = Invoice No. or Job Number';
         EmailSubjectPluralCapTxt: Label '%1 - %2', Comment = '%1 = Customer Name. %2 = Document Type in plural form';
         ReportAsPdfFileNamePluralMsg: Label 'Sales %1.pdf', Comment = '%1 = Document Type in plural form';
-        JobsReportAsPdfFileNameMsg: Label '%1 %2.pdf', Comment = '%1 = Document Type %2 = Job Number';
         PdfFileNamePluralMsg: Label '%1.pdf', Comment = '%1 = Document Type in plural form';
         InvoiceEmailSubjectTxt: Label 'Invoice from %1', Comment = '%1 = name of the company';
         TestInvoiceEmailSubjectTxt: Label 'Test invoice from %1', Comment = '%1 = name of the company';
@@ -158,16 +157,7 @@ codeunit 260 "Document-Mailing"
                 else
                     AttachmentFileName := StrSubstNo(ReportAsPdfFileNamePluralMsg, EmailDocumentName);
             end else
-                case ReportUsage of
-                    ReportSelections.Usage::JQ,
-                    ReportSelections.Usage::"P.Order",
-                    ReportSelections.Usage::"V.Remittance",
-                    ReportSelections.Usage::"P.V.Remit.",
-                    ReportSelections.Usage::"P.Invoice":
-                        AttachmentFileName := StrSubstNo(JobsReportAsPdfFileNameMsg, EmailDocumentName, PostedDocNo);
-                    else
-                        AttachmentFileName := StrSubstNo(ReportAsPdfFileNameMsg, EmailDocumentName, PostedDocNo)
-                end;
+                AttachmentFileName := StrSubstNo(ReportAsPdfFileNameMsg, EmailDocumentName, PostedDocNo)
     end;
 
     procedure GetEmailBody(PostedDocNo: Code[20]; ReportUsage: Integer; CustomerNo: Code[20]): Text

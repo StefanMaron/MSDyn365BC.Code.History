@@ -88,6 +88,7 @@ codeunit 394 "FinChrgMemo-Make"
         Cust := Cust2;
         CustLedgEntry.Copy(CustLedgEntry2);
         FinChrgMemoHeaderReq := FinChrgMemoHeaderReq2;
+        OnAfterSet(CustLedgEntry);
     end;
 
     procedure SuggestLines(FinChrgMemoHeader2: Record "Finance Charge Memo Header"; var CustLedgEntry2: Record "Cust. Ledger Entry")
@@ -223,6 +224,11 @@ codeunit 394 "FinChrgMemo-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinChrgMemoLineCreated(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; Checking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSet(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

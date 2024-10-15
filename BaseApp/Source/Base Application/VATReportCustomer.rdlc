@@ -600,7 +600,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!BaseAmtgoods.Value)</Value>
+                                  <Value>=Last(Fields!BaseAmtgoods.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!BaseAmtgoodsFormat.Value</Format>
@@ -632,7 +632,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!VATGoods.Value)</Value>
+                                  <Value>=Last(Fields!VATGoods.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!VATGoodsFormat.Value</Format>
@@ -664,7 +664,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!BaseAmtServices.Value)</Value>
+                                  <Value>=Last(Fields!BaseAmtServices.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!BaseAmtServicesFormat.Value</Format>
@@ -696,7 +696,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!VATServices.Value)</Value>
+                                  <Value>=Last(Fields!VATServices.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!VATServicesFormat.Value</Format>
@@ -763,7 +763,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!BaseAmtgoods.Value)</Value>
+                                  <Value>=Last(Fields!TotalBaseAmtgoods.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!BaseAmtgoods_Control1500022Format.Value</Format>
@@ -791,7 +791,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!VATGoods.Value)</Value>
+                                  <Value>=Last(Fields!TotalVATGoods.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!VATGoods_Control1500025Format.Value</Format>
@@ -818,7 +818,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!BaseAmtServices.Value)</Value>
+                                  <Value>=Last(Fields!TotalBaseAmtServices.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!BaseAmtServicesFormat.Value</Format>
@@ -845,7 +845,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!VATServices.Value)</Value>
+                                  <Value>=Last(Fields!TotalVATServices.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!VATServices_Control1500023Format.Value</Format>
@@ -1192,6 +1192,18 @@ End Function
         <Field Name="VATGoodsFormat">
           <DataField>VATGoodsFormat</DataField>
         </Field>
+        <Field Name="TotalBaseAmtgoods">
+          <DataField>TotalBaseAmtgoods</DataField>
+        </Field>
+        <Field Name="TotalBaseAmtgoodsFormat">
+          <DataField>TotalBaseAmtgoodsFormat</DataField>
+        </Field>
+        <Field Name="TotalVATGoods">
+          <DataField>TotalVATGoods</DataField>
+        </Field>
+        <Field Name="TotalVATGoodsFormat">
+          <DataField>TotalVATGoodsFormat</DataField>
+        </Field>
         <Field Name="TIN">
           <DataField>TIN</DataField>
         </Field>
@@ -1215,6 +1227,18 @@ End Function
         </Field>
         <Field Name="BaseAmtServicesFormat">
           <DataField>BaseAmtServicesFormat</DataField>
+        </Field>
+        <Field Name="TotalVATServices">
+          <DataField>TotalVATServices</DataField>
+        </Field>
+        <Field Name="TotalVATServicesFormat">
+          <DataField>TotalVATServicesFormat</DataField>
+        </Field>
+        <Field Name="TotalBaseAmtServices">
+          <DataField>TotalBaseAmtServices</DataField>
+        </Field>
+        <Field Name="TotalBaseAmtServicesFormat">
+          <DataField>TotalBaseAmtServicesFormat</DataField>
         </Field>
         <Field Name="BaseAmtgoods_Control1500022">
           <DataField>BaseAmtgoods_Control1500022</DataField>

@@ -306,6 +306,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         GenJournalBatch: Record "Gen. Journal Batch";
         InvGenJournalLine: Record "Gen. Journal Line";
         PmtGenJournalLine: Record "Gen. Journal Line";
+        DataExchDef: Record "Data Exch. Def";
         DataExchMapping: Record "Data Exch. Mapping";
         Vendor: Record Vendor;
         CountryRegion: Record "Country/Region";
@@ -326,10 +327,10 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         Currency.Validate("Currency Factor", LibraryRandom.RandDecInRange(5, 10, 2));
         CreateVendorWithBankAccountAndCountryRegion(Vendor, PaymentType, CountryRegion.Code);
         CreateBankAccountWithExportFormatAndCountryRegion(
-          BankAcc, CreatePaymentExportFormatWithFullSetupClient(PaymentType), CountryRegion);
+          BankAcc, CreatePaymentExportFormatWithFullSetupClient(PaymentType), CountryRegion.Code);
 
         PostPurchaseInvoice(InvGenJournalLine, Vendor."No.");
-        DefinePaymentExportFormatForAmount(DataExchMapping);
+        DefinePaymentExportFormatForAmount(DataExchMapping, DataExchDef."File Type"::"Variable Text");
         UpdatePaymentMethodLineDef(Vendor."Payment Method Code", DataExchMapping."Data Exch. Line Def Code");
 
         // [GIVEN] GenJnlLine is created with Amount LCY and prepared to Export
@@ -373,7 +374,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
 
         CreateVendorWithBankAccountAndCountryRegion(Vendor, PaymentType, CountryRegion.Code);
         CreateBankAccountWithExportFormatAndCountryRegion(
-          BankAcc, CreatePaymentExportFormatWithFullSetupClient(PaymentType), CountryRegion);
+          BankAcc, CreatePaymentExportFormatWithFullSetupClient(PaymentType), CountryRegion.Code);
         CreateExportGenJournalBatch(GenJnlBatch, BankAcc."No.");
 
         // [GIVEN] GenJnlLine is created with Amount LCY and prepared to Export
@@ -418,7 +419,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         CreateCurrencyWithFactor(Currency);
         CreateVendorWithBankAccountAndCountryRegion(Vendor, PaymentType, CountryRegion.Code);
         CreateBankAccountWithExportFormatAndCountryRegion(
-          BankAcc, CreatePaymentExportFormatWithFullSetupClient(PaymentType), CountryRegion);
+          BankAcc, CreatePaymentExportFormatWithFullSetupClient(PaymentType), CountryRegion.Code);
 
         // [GIVEN] VendorLedgerEntry is created with Amount LCY and prepared to Export
         CreateVendorLedgerEntry(
@@ -444,6 +445,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
     procedure ExportPaymentJournalWithEmployee()
     var
         Employee: Record Employee;
+        DataExchDef: Record "Data Exch. Def";
         DataExchMapping: Record "Data Exch. Mapping";
         PaymentMethod: Record "Payment Method";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -457,7 +459,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
 
         // [GIVEN] Set up Data Exchange Definition for exporting "Amount" field.
-        DefinePaymentExportFormatForAmount(DataExchMapping);
+        DefinePaymentExportFormatForAmount(DataExchMapping, DataExchDef."File Type"::"Variable Text");
 
         // [GIVEN] Set up payment method.
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -535,6 +537,62 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         end;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DataExchangeDefinitionTextPaddingForPaymentExport()
+    var
+        GenJnlBatch: Record "Gen. Journal Batch";
+        InvGenJnlLine: Record "Gen. Journal Line";
+        PmtGenJnlLine: Record "Gen. Journal Line";
+        DataExchColumnDef: Record "Data Exch. Column Def";
+        DataExchDef: Record "Data Exch. Def";
+        DataExchMapping: Record "Data Exch. Mapping";
+        Vendor: Record Vendor;
+        BankAcc: Record "Bank Account";
+        PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
+        PaymentType: Code[20];
+        PadChar: Text[1];
+        PaddedAmount: Text;
+        AmountLength: Integer;
+        PaddedLength: Integer;
+    begin
+        // [SCENARIO 362731] Payment Export Data Exchange Definition can be setup to use Text Padding.
+
+        // [GIVEN] Vendor, Vendor Bank Account and Bank Account.
+        PaymentType := LibraryUtility.GenerateGUID();
+        CreateVendorWithBankAccountAndCountryRegion(Vendor, PaymentType, '');
+        CreateBankAccountWithExportFormatAndCountryRegion(BankAcc, CreatePaymentExportFormatWithFullSetupClient(PaymentType), '');
+
+        PostPurchaseInvoice(InvGenJnlLine, Vendor."No.");
+        DefinePaymentExportFormatForAmount(DataExchMapping, DataExchDef."File Type"::"Fixed Text");
+        UpdatePaymentMethodLineDef(Vendor."Payment Method Code", DataExchMapping."Data Exch. Line Def Code");
+
+        // [GIVEN] General Journal Line is created with Amount and prepared to export.
+        LibraryPaymentExport.CreatePaymentExportBatch(GenJnlBatch, DataExchMapping."Data Exch. Def Code");
+        UpdateBankExportImportSetup(GenJnlBatch."Bal. Account No.");
+        LibraryPaymentExport.CreateVendorPmtJnlLine(PmtGenJnlLine, GenJnlBatch, Vendor."No.");
+        PmtGenJnlLine.Validate("Bank Payment Type", PmtGenJnlLine."Bank Payment Type"::"Electronic Payment");
+        PmtGenJnlLine.Modify(true);
+        ApplyPaymentToPurchaseInvoiceManually(PmtGenJnlLine, InvGenJnlLine);
+
+        // [GIVEN] Payment export's Data Dxchange Column Definition for Amount = "14.7" with Length = "6",
+        // [GIVEN] Pad Character = "0" and "Text Padding Required" = "True", Justification = "Left".
+        AmountLength := StrLen(Format(PmtGenJnlLine.Amount));
+        PaddedLength := AmountLength + LibraryRandom.RandInt(10);
+        PadChar := CopyStr(LibraryRandom.RandText(1), 1, 1);
+        UpdateDataExchColumnDefToUsePadding(
+            DataExchMapping."Data Exch. Def Code", DataExchMapping."Data Exch. Line Def Code", 1, DataExchColumnDef."Data Type"::Decimal,
+            '<Precision,2:2><Standard Format,2>', PaddedLength, PadChar, DataExchColumnDef.Justification::Left);
+
+        // [WHEN] Export Process is run.
+        PmtExportMgtGenJnlLine.EnableExportToServerTempFile(true, 'txt');
+        PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(PmtGenJnlLine);
+
+        // [THEN] Amount text = "14.7000" in exported file is equal to Amount padded with Pad Character.
+        PaddedAmount := PadStr(Format(PmtGenJnlLine.Amount), PaddedLength, PadChar);
+        Assert.AreEqual(PaddedAmount, GetAmountTextFromFile(PmtExportMgtGenJnlLine.GetServerTempFileName), '');
+    end;
+
     local procedure CreateVendorWithBankAccountAndCountryRegion(var Vendor: Record Vendor; PaymentType: Code[20]; CountryRegionCode: Code[10])
     var
         PaymentMethod: Record "Payment Method";
@@ -556,12 +614,12 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         Vendor.Modify(true);
     end;
 
-    local procedure CreateBankAccountWithExportFormatAndCountryRegion(var BankAcc: Record "Bank Account"; PaymentExportFormat: Code[20]; CountryRegion: Record "Country/Region")
+    local procedure CreateBankAccountWithExportFormatAndCountryRegion(var BankAcc: Record "Bank Account"; PaymentExportFormat: Code[20]; CountryRegionCode: Code[10])
     begin
         LibraryERM.CreateBankAccount(BankAcc);
         BankAcc.IBAN := LibraryUtility.GenerateGUID;
         BankAcc.Validate("Payment Export Format", PaymentExportFormat);
-        BankAcc."Country/Region Code" := CountryRegion.Code;
+        BankAcc."Country/Region Code" := CountryRegionCode;
         BankAcc.Modify(true);
     end;
 
@@ -596,6 +654,12 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         Evaluate(Amount, String);
     end;
 
+    local procedure GetAmountTextFromFile(FilePath: Text) String: Text
+    begin
+        String := ReadFile(FilePath);
+        String := CopyStr(String, 2, StrLen(String) - 2);
+    end;
+
     local procedure CreatePaymentExportFormatWithFullSetupClient(PaymentType: Code[20]): Code[20]
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
@@ -625,7 +689,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         exit(BankExportImportSetup.Code);
     end;
 
-    local procedure DefinePaymentExportFormatForAmount(var DataExchMapping: Record "Data Exch. Mapping")
+    local procedure DefinePaymentExportFormatForAmount(var DataExchMapping: Record "Data Exch. Mapping"; FileType: Option)
     var
         PaymentExportData: Record "Payment Export Data";
         DataExchDef: Record "Data Exch. Def";
@@ -635,13 +699,27 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
           DATABASE::"Payment Export Data", PaymentExportData.FieldNo(Amount));
 
         DataExchDef.Get(DataExchMapping."Data Exch. Def Code");
-        DataExchDef.Validate("File Type", DataExchDef."File Type"::"Variable Text");
+        DataExchDef.Validate("File Type", FileType);
         DataExchDef.Validate("Reading/Writing XMLport", XMLPORT::"Export Generic CSV");
         DataExchDef.Modify(true);
 
         DataExchLineDef.Get(DataExchMapping."Data Exch. Def Code", DataExchMapping."Data Exch. Line Def Code");
         DataExchLineDef.Validate("Column Count", 1);
         DataExchLineDef.Modify(true);
+    end;
+
+    local procedure UpdateDataExchColumnDefToUsePadding(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; DataType: Option; DataFormat: Text;ColumnLength: Integer; PadCharacter: Text[1]; PadJustification: Option)
+    var
+        DataExchColumnDef: Record "Data Exch. Column Def";
+    begin
+        DataExchColumnDef.Get(DataExchDefCode, DataExchLineDefCode, ColumnNo);
+        DataExchColumnDef.Validate("Data Type", DataType);
+        DataExchColumnDef.Validate("Data Format", DataFormat);
+        DataExchColumnDef.Validate(Length, ColumnLength);
+        DataExchColumnDef.Validate("Text Padding Required", true);
+        DataExchColumnDef.Validate("Pad Character", PadCharacter);
+        DataExchColumnDef.Validate(Justification, PadJustification);
+        DataExchColumnDef.Modify(true);
     end;
 
     local procedure CreateVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; Exported: Boolean; VendorCode: Code[20]; BankAccountCode: Code[20]; VendorBankAccountCode: Code[20]; VendorPaymentMethodCode: Code[10]; Currency: Record Currency)

@@ -658,11 +658,11 @@ table 110 "Sales Shipment Header"
         UserSetupMgt: Codeunit "User Setup Management";
         TrackingInternetAddr: Text;
         PostCodeCheck: Codeunit "Post Code Check";
-        DocTxt: Label 'Shipment';
 
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     var
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -672,7 +672,7 @@ table 110 "Sales Shipment Header"
 
         DocumentSendingProfile.Send(
           DummyReportSelections.Usage::"S.Shipment", Rec, "No.", "Sell-to Customer No.",
-          DocTxt, FieldNo("Sell-to Customer No."), FieldNo("No."));
+          ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Sell-to Customer No."), FieldNo("No."));
     end;
 
     procedure PrintRecords(ShowRequestForm: Boolean)
@@ -696,6 +696,7 @@ table 110 "Sales Shipment Header"
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
         IsHandled: Boolean;
     begin
         OnBeforeEmailRecords(Rec, ShowDialog, IsHandled);
@@ -703,7 +704,8 @@ table 110 "Sales Shipment Header"
             exit;
 
         DocumentSendingProfile.TrySendToEMail(
-          DummyReportSelections.Usage::"S.Shipment", Rec, FieldNo("No."), DocTxt, FieldNo("Bill-to Customer No."), ShowDialog);
+          DummyReportSelections.Usage::"S.Shipment", Rec, FieldNo("No."),
+          ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), ShowDialog);
     end;
 
     procedure Navigate()
