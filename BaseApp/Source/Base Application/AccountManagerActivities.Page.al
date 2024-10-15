@@ -126,7 +126,6 @@
                     ToolTip = 'Specifies that the bank reconciliations are ready to post.';
                     Visible = NOT BankReconWithAutoMatch;
                 }
-#pragma warning disable AS0074
 #if not CLEAN21
                 field("Deposits to Post"; Rec."Deposits to Post")
                 {
@@ -139,7 +138,6 @@
                     ObsoleteTag = '21.0';
                 }
 #endif
-#pragma warning restore AS0074
 
                 actions
                 {

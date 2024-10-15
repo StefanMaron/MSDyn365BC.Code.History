@@ -1,4 +1,3 @@
-#pragma warning disable AS0074
 #if not CLEAN21
 page 10141 "Deposit Subform"
 {
@@ -10,7 +9,6 @@ page 10141 "Deposit Subform"
     ObsoleteReason = 'Replaced by new Bank Deposits extension';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
-#pragma warning restore AS0074
     layout
     {
         area(content)

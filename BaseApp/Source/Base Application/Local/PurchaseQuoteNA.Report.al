@@ -543,7 +543,7 @@ report 10123 "Purchase Quote NA"
         BuyFromAddress: array[8] of Text[100];
         ShipToAddress: array[8] of Text[100];
         CopyTxt: Text[10];
-        ItemNumberToPrint: Text[20];
+        ItemNumberToPrint: Text[50];
         PrintCompany: Boolean;
         PrintFooter: Boolean;
         NoCopies: Integer;

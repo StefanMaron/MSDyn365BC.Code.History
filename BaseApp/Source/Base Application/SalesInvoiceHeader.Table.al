@@ -866,6 +866,25 @@
             Caption = 'Date/Time First Req. Sent';
             Editable = false;
         }
+        field(10050; "Foreign Trade"; Boolean)
+        {
+            Caption = 'Foreign Trade';
+        }
+        field(10055; "Transit-to Location"; Code[10])
+        {
+            Caption = 'Transit-to Location';
+            TableRelation = Location WHERE ("Use As In-Transit" = CONST (false));
+        }
+        field(10059; "SAT International Trade Term"; Code[10])
+        {
+            Caption = 'SAT International Trade Term';
+            TableRelation = "SAT International Trade Term";
+        }
+        field(10060; "Exchange Rate USD"; Decimal)
+        {
+            Caption = 'Exchange Rate USD';
+            DecimalPlaces = 0 : 6;
+        }
         field(27000; "CFDI Purpose"; Code[10])
         {
             Caption = 'CFDI Purpose';
@@ -963,7 +982,7 @@
         PostSalesDelete: Codeunit "PostSales-Delete";
     begin
         PostSalesDelete.IsDocumentDeletionAllowed("Posting Date");
-        TestField("No. Printed");
+        CheckNoPrinted();
         LockTable();
         PostSalesDelete.DeleteSalesInvLines(Rec);
 
@@ -994,6 +1013,18 @@
     begin
         CalcFields("Amount Including VAT", "Remaining Amount");
         exit("Amount Including VAT" = "Remaining Amount");
+    end;
+
+    procedure CheckNoPrinted()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckNoPrinted(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Rec.TestField("No. Printed");
     end;
 
     procedure SendRecords()
@@ -1390,6 +1421,11 @@
     procedure GetDefaultEmailDocumentName(): Text[150]
     begin
         exit(DocTxt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoPrinted(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

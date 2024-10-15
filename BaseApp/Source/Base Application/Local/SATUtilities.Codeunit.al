@@ -268,22 +268,28 @@
             repeat
                 case UnitOfMeasure.Code of
                     'DAY':
-                        UnitOfMeasure."SAT UofM Classification" := 'DAY';
+                        UpdateUnitOfMeasure(UnitOfMeasure, 'DAY', '');
                     'GR':
-                        UnitOfMeasure."SAT UofM Classification" := 'GRM';
+                        UpdateUnitOfMeasure(UnitOfMeasure, 'GRM', '02');
                     'HOUR':
-                        UnitOfMeasure."SAT UofM Classification" := 'HUR';
+                        UpdateUnitOfMeasure(UnitOfMeasure, 'HUR', '');
                     'KG':
-                        UnitOfMeasure."SAT UofM Classification" := 'KGM';
+                        UpdateUnitOfMeasure(UnitOfMeasure, 'KGM', '01');
                     'KM':
-                        UnitOfMeasure."SAT UofM Classification" := 'KMT';
+                        UpdateUnitOfMeasure(UnitOfMeasure, 'KMT', '');
                     'L':
-                        UnitOfMeasure."SAT UofM Classification" := 'LTR';
+                        UpdateUnitOfMeasure(UnitOfMeasure, 'LTR', '08');
                     'PCS':
-                        UnitOfMeasure."SAT UofM Classification" := 'EA';
+                        UpdateUnitOfMeasure(UnitOfMeasure, 'EA', '');
                 end;
                 UnitOfMeasure.Modify();
             until UnitOfMeasure.Next() = 0;
+    end;
+
+    local procedure UpdateUnitOfMeasure(var UnitOfMeasure: Record "Unit of Measure"; SATUoMCode: Code[10]; SATCustomsCode: Code[10])
+    begin
+        UnitOfMeasure."SAT UofM Classification" := SATUoMCode;
+        UnitOfMeasure."SAT Customs Unit" := SATCustomsCode;
     end;
 
     [Scope('OnPrem')]
@@ -300,6 +306,8 @@
         CFDICancellationReason: Record "CFDI Cancellation Reason";
         CFDIExportCode: Record "CFDI Export Code";
         CFDISubjectToTax: Record "CFDI Subject to Tax";
+        SATInternationalTradeTerm: Record "SAT International Trade Term";
+        SATCustomsUnit: Record "SAT Customs Unit";
         MediaResources: Record "Media Resources";
         SATFederalMotorTransport: Record "SAT Federal Motor Transport";
         SATTrailerType: Record "SAT Trailer Type";
@@ -322,6 +330,8 @@
         CFDICancellationReasonPort: XMLport "CFDI Cancellation Reason";
         CFDIExportCodePort: XMLport "CFDI Export Code";
         CFDISubjectToTaxPort: XMLport "CFDI Subject to Tax";
+        SATInternationalTradeTermPort: XMLport "SAT International Trade Term";
+        SATCustomsUnitPort: XMLport "SAT Customs Unit";
         SATFederalMotorTransportPort: XMLport "SAT Federal Motor Transport";
         SATTrailerTypePort: XMLport "SAT Trailer Type";
         SATPermissionTypePort: XMLport "SAT Permission Type";
@@ -420,6 +430,22 @@
                 MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
                 CFDISubjectToTaxPort.SetSource(IStr);
                 CFDISubjectToTaxPort.Import();
+            end;
+	    
+        if SATInternationalTradeTerm.IsEmpty() then
+            if MediaResources.Get('SATIncoterms.xml') then begin
+                MediaResources.CalcFields(Blob);
+                MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+                SATInternationalTradeTermPort.SetSource(IStr);
+                SATInternationalTradeTermPort.Import();
+            end;
+
+        if SATCustomsUnit.IsEmpty() then
+            if MediaResources.Get('SATCustomUnits.xml') then begin
+                MediaResources.CalcFields(Blob);
+                MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+                SATCustomsUnitPort.SetSource(IStr);
+                SATCustomsUnitPort.Import();
             end;
 
         if SATFederalMotorTransport.IsEmpty() then

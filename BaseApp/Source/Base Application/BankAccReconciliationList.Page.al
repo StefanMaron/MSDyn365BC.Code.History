@@ -7,6 +7,7 @@ page 388 "Bank Acc. Reconciliation List"
     SourceTable = "Bank Acc. Reconciliation";
     SourceTableTemporary = true;
     UsageCategory = Lists;
+    RefreshOnActivate = true;
 
     layout
     {

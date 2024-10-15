@@ -136,6 +136,8 @@ codeunit 134337 "ERM Purch. Batch Posting"
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
 
+    // Test BatchPostPurchaseInvoiceVATDifferenceAndReplacePostingDate() not used for NA
+
     [Test]
     [HandlerFunctions('RequestPageHandlerBatchPostPurchaseInvoices,MessageHandler')]
     [Scope('OnPrem')]

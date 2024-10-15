@@ -593,10 +593,26 @@ table 79 "Company Information"
         {
             Caption = 'SCT Permission Type';
             TableRelation = "SAT Permission Type";
+            ObsoleteReason = 'Moved to Fixed Asset table';
+#if CLEAN22
+            ObsoleteTag = '25.0';
+            ObsoleteState = Removed;
+#else
+            ObsoleteTag = '22.0';
+            ObsoleteState = Pending;
+#endif
         }
         field(27003; "SCT Permission Number"; Code[20])
         {
             Caption = 'SCT Permission Number';
+            ObsoleteReason = 'Moved to Fixed Asset table';
+#if CLEAN22
+            ObsoleteTag = '25.0';
+            ObsoleteState = Removed;
+#else
+            ObsoleteTag = '22.0';
+            ObsoleteState = Pending;
+#endif
         }
     }
 

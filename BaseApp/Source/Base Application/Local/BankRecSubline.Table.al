@@ -2,7 +2,6 @@ table 10126 "Bank Rec. Sub-line"
 {
     Caption = 'Bank Rec. Sub-line';
     ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
-#pragma warning disable AS0074
 #if not CLEAN21
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
@@ -10,7 +9,6 @@ table 10126 "Bank Rec. Sub-line"
     ObsoleteState = Removed;
     ObsoleteTag = '24.0';
 #endif
-#pragma warning restore AS0074
     fields
     {
         field(1; "Bank Account No."; Code[20])

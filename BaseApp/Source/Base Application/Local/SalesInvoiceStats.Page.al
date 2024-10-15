@@ -259,6 +259,7 @@ page 10041 "Sales Invoice Stats."
                     else
                         TaxPercentage := -1;
                 TotalAdjCostLCY := TotalAdjCostLCY + CostCalcMgt.CalcSalesInvLineCostLCY(SalesInvLine);
+                OnAfterGetRecordOnAfterSalesInvLineLoopIteration(SalesInvLine, Rec, CustAmount, AmountInclTax, InvDiscAmount, CostLCY, TotalAdjCostLCY, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels);
             until SalesInvLine.Next() = 0;
         TaxAmount := AmountInclTax - CustAmount;
         InvDiscAmount := Round(InvDiscAmount, Currency."Amount Rounding Precision");
@@ -375,6 +376,11 @@ page 10041 "Sales Invoice Stats."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateSalesTax(var SalesInvoiceLine: Record "Sales Invoice Line"; var SalesTaxAmountLine: Record "Sales Tax Amount Line"; var SalesTaxAmountLine2: Record "Sales Tax Amount Line"; var SalesTaxCalculationOverridden: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterSalesInvLineLoopIteration(var SalesInvoiceLine: Record "Sales Invoice Line"; SalesInvoiceHeader: Record "Sales Invoice Header"; var CustAmount: Decimal; var AmountInclTax: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
     begin
     end;
 }

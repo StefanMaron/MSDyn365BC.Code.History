@@ -125,6 +125,7 @@ codeunit 1005 "Job Calculate Batches"
                               CalcDate(PeriodLength, JobPlanningLine."Planning Date");
                     JobPlanningLine."Last Date Modified" := Today;
                     JobPlanningLine."User ID" := UserId;
+                    OnChangePlanningDatesOnBeforeJobPlanningLineModify(JobPlanningLine);
                     JobPlanningLine.Modify();
                 end;
             until JobPlanningLine.Next() = 0;
@@ -173,6 +174,7 @@ codeunit 1005 "Job Calculate Batches"
                     JobPlanningLine.Validate("Currency Date");
                     JobPlanningLine."Last Date Modified" := Today;
                     JobPlanningLine."User ID" := UserId;
+                    OnChangeCurrencyDatesOnBeforeJobPlanningLineModify(JobPlanningLine);
                     JobPlanningLine.Modify(true);
                 end;
             until JobPlanningLine.Next() = 0;
@@ -469,6 +471,16 @@ codeunit 1005 "Job Calculate Batches"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateJTOnBeforeAssigneJobDiffBuffer2(var JobDiffBuffer: array[2] of Record "Job Difference Buffer" temporary; JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnChangeCurrencyDatesOnBeforeJobPlanningLineModify(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnChangePlanningDatesOnBeforeJobPlanningLineModify(var JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 

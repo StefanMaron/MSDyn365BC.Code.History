@@ -463,6 +463,9 @@
             column(ExternalDocumentNo_Lbl; FieldCaption("External Document No."))
             {
             }
+            column(DisplayAssemblyLines; DisplayAssemblyInformation)
+            {
+            }
             dataitem(Line; "Sales Invoice Line")
             {
                 DataItemLink = "Document No." = FIELD("No.");
@@ -882,6 +885,9 @@
                 {
                 }
                 column(Description_VATClauseLine; VATClauseText)
+                {
+                }
+                column(Description2_VATClauseLine; VATClause."Description 2")
                 {
                 }
                 column(VATAmount_VATClauseLine; "VAT Amount")
@@ -1779,7 +1785,7 @@
     local procedure OnBeforeFormatLineValues(SalesInvoiceLine: Record "Sales Invoice Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text; var IsHandled: Boolean)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateSalesTax(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesInvoiceLine: Record "Sales Invoice Line"; var TotalAmount: Decimal; var TotalAmountVAT: Decimal; var TotalAmountInclVAT: Decimal)
     begin

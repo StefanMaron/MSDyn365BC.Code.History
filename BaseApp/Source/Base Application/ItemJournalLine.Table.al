@@ -542,7 +542,7 @@
         field(23; "Salespers./Purch. Code"; Code[20])
         {
             Caption = 'Salespers./Purch. Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             begin
@@ -571,6 +571,7 @@
                 ItemTrackingLines: Page "Item Tracking Lines";
                 ShowTrackingExistsError: Boolean;
                 IsHandled: Boolean;
+                ShouldCheckItemLedgEntryFieldsForOutput: Boolean;
             begin
                 IsHandled := false;
                 OnBeforeValidateAppliesToEntry(Rec, CurrFieldNo, IsHandled);
@@ -606,7 +607,9 @@
                         if not ItemLedgEntry.Open then
                             Message(Text032, "Applies-to Entry");
 
-                        if "Entry Type" = "Entry Type"::Output then begin
+                        ShouldCheckItemLedgEntryFieldsForOutput := "Entry Type" = "Entry Type"::Output;
+                        OnValidateAppliestoEntryOnAfterCalcShouldCheckItemLedgEntryFieldsForOutput(Rec, ItemLedgEntry, ShouldCheckItemLedgEntryFieldsForOutput);
+                        if ShouldCheckItemLedgEntryFieldsForOutput then begin
                             ItemLedgEntry.TestField("Order Type", "Order Type"::Production);
                             ItemLedgEntry.TestField("Order No.", "Order No.");
                             ItemLedgEntry.TestField("Order Line No.", "Order Line No.");
@@ -1920,6 +1923,7 @@
             trigger OnValidate()
             var
                 ProdOrderRtngLine: Record "Prod. Order Routing Line";
+                IsHandled: Boolean;
             begin
                 if Type <> Type::Resource then begin
                     "Qty. per Cap. Unit of Measure" :=
@@ -1939,9 +1943,10 @@
                             begin
                                 GetProdOrderRtngLine(ProdOrderRtngLine);
                                 "Unit Cost" := ProdOrderRtngLine."Unit Cost per";
-
-                                CostCalcMgt.RoutingCostPerUnit(
-                                  Type, "No.", "Unit Amount", "Indirect Cost %", "Overhead Rate", "Unit Cost", "Unit Cost Calculation");
+                                OnValidateCapUnitofMeasureCodeOnBeforeRoutingCostPerUnit(Rec, ProdOrderRtngLine, IsHandled);
+                                if not IsHandled then
+                                    CostCalcMgt.RoutingCostPerUnit(
+                                      Type, "No.", "Unit Amount", "Indirect Cost %", "Overhead Rate", "Unit Cost", "Unit Cost Calculation");
                             end;
                         "Order Type"::Assembly:
                             CostCalcMgt.ResourceCostPerUnit("No.", "Unit Amount", "Indirect Cost %", "Overhead Rate", "Unit Cost");
@@ -2052,7 +2057,8 @@
                 if IsHandled then
                     exit;
 
-                TestField(Type, Type::"Machine Center");
+                if not (Type in [Type::"Work Center", Type::"Machine Center"]) then
+                    Error(ScrapCodeTypeErr);
             end;
         }
         field(5898; "Work Center Group Code"; Code[10])
@@ -2316,6 +2322,7 @@
         BlockedErr: Label 'You cannot choose item number %1 because the Blocked check box is selected on its item card.', Comment = '%1 - Item No.';
         SerialNoRequiredErr: Label 'You must assign a serial number for item %1.', Comment = '%1 - Item No.';
         LotNoRequiredErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
+        ScrapCodeTypeErr: Label 'When using Scrap Code, Type must be Work Center or Machine Center.';
 
     protected var
         ItemJnlLine: Record "Item Journal Line";
@@ -3882,10 +3889,16 @@
         exit(not PostedATOLink.IsEmpty);
     end;
 
-    local procedure RevaluationPerEntryAllowed(ItemNo: Code[20]): Boolean
+    local procedure RevaluationPerEntryAllowed(ItemNo: Code[20]) Result: Boolean
     var
         ValueEntry: Record "Value Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRevaluationPerEntryAllowed(Rec, ItemNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         GetItem();
         if Item."Costing Method" <> Item."Costing Method"::Average then
             exit(true);
@@ -4023,15 +4036,14 @@
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
     end;
 
-    procedure SubcontractingWorkCenterUsed(): Boolean
+    procedure SubcontractingWorkCenterUsed() Result: Boolean
     var
         WorkCenter: Record "Work Center";
     begin
         if Type = Type::"Work Center" then
             if WorkCenter.Get("Work Center No.") then
-                exit(WorkCenter."Subcontractor No." <> '');
-
-        exit(false);
+                Result := WorkCenter."Subcontractor No." <> '';
+        OnAfterSubcontractingWorkCenterUsed(Rec, WorkCenter, Result);
     end;
 
     procedure CheckItemJournalLineRestriction()
@@ -4229,6 +4241,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewLine(var ItemJournalLine: Record "Item Journal Line"; var LastItemJournalLine: Record "Item Journal Line"; ItemJournalTemplate: Record "Item Journal Template"; ItemJnlBatch: Record "Item Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSubcontractingWorkCenterUsed(ItemJournalLine: Record "Item Journal Line"; WorkCenter: Record "Work Center"; var Result: Boolean)
     begin
     end;
 
@@ -4495,6 +4512,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRevaluationPerEntryAllowed(ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSelectItemEntry(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer)
     begin
     end;
@@ -4621,12 +4643,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateCapUnitofMeasureCodeOnBeforeRoutingCostPerUnit(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateAppliesfromEntryOnBeforeCheckTrackingExistsError(ItemJournalLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterGetItem(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAppliestoEntryOnAfterCalcShouldCheckItemLedgEntryFieldsForOutput(var ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; var ShouldCheckItemLedgEntryFieldsForOutput: Boolean)
     begin
     end;
 

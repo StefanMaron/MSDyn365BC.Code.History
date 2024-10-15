@@ -482,7 +482,8 @@ codeunit 5940 ServContractManagement
             ServHeader2."Posting Date", ServHeader2."Currency Code");
         ServHeader2.Validate("Payment Terms Code", ServContract2."Payment Terms Code");
         ServHeader2.Validate("Payment Method Code", ServContract2."Payment Method Code");
-        ServHeader2.Validate("Direct Debit Mandate ID", ServContract2."Direct Debit Mandate ID");
+        if ServContract2."Direct Debit Mandate ID" <> '' then
+            ServHeader2.Validate("Direct Debit Mandate ID", ServContract2."Direct Debit Mandate ID");
 
         ServHeader2."Your Reference" := ServContract2."Your Reference";
         SetSalespersonCode(ServContract2."Salesperson Code", ServHeader2."Salesperson Code");

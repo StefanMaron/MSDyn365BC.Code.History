@@ -192,7 +192,6 @@ table 9054 "Finance Cue"
             Caption = 'Bank Acc. Reconciliations';
             FieldClass = FlowField;
         }
-#pragma warning disable AS0074
         field(10140; "Deposits to Post"; Integer)
         {
             CalcFormula = Count("Deposit Header" WHERE("Total Deposit Lines" = FILTER(<> 0)));
@@ -206,7 +205,6 @@ table 9054 "Finance Cue"
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
 #endif
-#pragma warning restore AS0074
         }
     }
 

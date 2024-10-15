@@ -1,4 +1,3 @@
-#pragma warning disable AS0074
 #if not CLEAN21
 page 10120 "Bank Rec. Worksheet"
 {
@@ -9,7 +8,6 @@ page 10120 "Bank Rec. Worksheet"
     ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
-#pragma warning restore AS0074
 
     layout
     {

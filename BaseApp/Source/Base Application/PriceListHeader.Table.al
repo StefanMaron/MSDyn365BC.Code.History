@@ -50,7 +50,7 @@ table 7000 "Price List Header"
         field(5; "Source No."; Code[20])
         {
             DataClassification = CustomerContent;
-            Caption = 'Assign-to No.';
+            Caption = 'Assign-to No. (custom)';
             trigger OnValidate()
             begin
                 if xRec."Source No." = "Source No." then
@@ -74,7 +74,7 @@ table 7000 "Price List Header"
         field(6; "Parent Source No."; Code[20])
         {
             DataClassification = CustomerContent;
-            Caption = 'Assign-to Parent No.';
+            Caption = 'Assign-to Parent No. (jobs)';
             trigger OnValidate()
             begin
                 if xRec."Parent Source No." = "Parent Source No." then
@@ -612,7 +612,13 @@ table 7000 "Price List Header"
         PriceListLine: Record "Price List Line";
         ConfirmManagement: Codeunit "Confirm Management";
         PriceListManagement: Codeunit "Price List Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateStatus(Rec, Updated, IsHandled);
+        if IsHandled then
+            exit(Updated);
+
         if Status = Status::Active then
             VerifySource();
 
@@ -673,6 +679,11 @@ table 7000 "Price List Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHasDraftLines(var PriceListLine: Record "Price List Line"; var Result: Boolean; var IsHandled: Boolean; var PriceListHeader: Record "Price List Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateStatus(var PriceListHeader: Record "Price List Header"; var Updated: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

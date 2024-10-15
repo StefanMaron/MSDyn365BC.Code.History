@@ -144,7 +144,7 @@ table 1381 "Customer Templ."
         field(29; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
         }
         field(30; "Shipment Method Code"; Code[10])
         {

@@ -387,6 +387,16 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = FixedAssets, BasicMX;
                     ToolTip = 'Specifies the subtype of trailer or semi-trailers that are used with the motor carrier for the transfer of goods or merchandise.';
                 }
+                field("SCT Permission Type"; Rec."SCT Permission Type")
+                {
+                    ApplicationArea = FixedAssets, BasicMX;
+                    ToolTip = 'Specifies the type of permission provided by Secretarfa de Comunicaciones y Transportes which must correspond to the type of motor transport used for the transfer of goods or merchandise.';
+                }
+                field("SCT Permission Number"; Rec."SCT Permission Number")
+                {
+                    ApplicationArea = FixedAssets, BasicMX;
+                    ToolTip = 'Specifies the permission number as defined by the Secretarfa de Comunicaciones y Transportes that must correspond to the type of motor transport that is used for the transfer of goods or merchandise.';
+                }
             }
         }
         area(factboxes)

@@ -95,6 +95,7 @@ codeunit 10090 "Export Payments (ACH)"
                     i := i + 1;
                 "Last ACH File ID Modifier" := ModifierValues[i];
             end;
+            OnStartExportFileOnBeforeBankAccountModify(BankAccount);
             Modify();
 
             if Exists(FileName) then
@@ -157,7 +158,13 @@ codeunit 10090 "Export Payments (ACH)"
     procedure StartExportBatch(ServiceClassCode: Code[10]; EntryClassCode: Code[10]; SourceCode: Code[10]; SettleDate: Date)
     var
         BatchHeaderRec: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeStartExportBatch(ServiceClassCode, EntryClassCode, SourceCode, SettleDate, IsHandled);
+        if IsHandled then
+            exit;
+
         if not FileIsInProcess then
             Error(ExportFileNotStartedErr);
         if BatchIsInProcess then
@@ -187,10 +194,16 @@ codeunit 10090 "Export Payments (ACH)"
         ExportPrnString(BatchHeaderRec);
     end;
 
-    procedure ExportOffSettingDebit(): Code[30]
+    procedure ExportOffSettingDebit() Result: Code[30]
     var
         DetailRec: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExportOffSettingDebit(TraceNo, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if not FileIsInProcess then
             Error(ExportDetailsFileNotStartedErr);
         if not BatchIsInProcess then
@@ -311,6 +324,7 @@ codeunit 10090 "Export Payments (ACH)"
             AddToPrnString(DetailRec, GenerateTraceNoCode(TraceNo), 86, 15, Justification::Left, ' ');  // Trace Number
 
             ExportPrnString(DetailRec);
+            OnExportElectronicPaymentOnAfterExportPrnString(VendorBankAcct, DetailRec, ExportFile, NoOfRec, RecordLength);
             EntryAddendaCount := EntryAddendaCount + 1;
             if DemandCredit then
                 TotalBatchCredit := TotalBatchCredit + PaymentAmount
@@ -340,7 +354,13 @@ codeunit 10090 "Export Payments (ACH)"
     procedure EndExportBatch(ServiceClassCode: Code[10])
     var
         BatchControlRec: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeEndExportBatch(ServiceClassCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if not FileIsInProcess then
             Error(ExportBatchFileNotStartedErr);
         if not BatchIsInProcess then
@@ -662,6 +682,31 @@ codeunit 10090 "Export Payments (ACH)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddTransactionCodeToDetailRec(CustomerBankAccount: Record "Customer Bank Account"; VendorBankAccount: Record "Vendor Bank Account"; AcctType: Text[1]; DemandCredit: Boolean; var DetailRec: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportOffSettingDebit(var TraceNo: Integer; var Result: Code[30]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEndExportBatch(ServiceClassCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStartExportBatch(ServiceClassCode: Code[10]; EntryClassCode: Code[10]; SourceCode: Code[10]; SettleDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportElectronicPaymentOnAfterExportPrnString(VendorBankAccount: Record "Vendor Bank Account"; var DetailRec: Text[250]; var ExportFile: File; var NoOfRec: Integer; RecordLength: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStartExportFileOnBeforeBankAccountModify(var BankAccount: Record "Bank Account")
     begin
     end;
 }

@@ -1,4 +1,3 @@
-#pragma warning disable AS0074
 #if not CLEAN21
 codeunit 10122 "Bank Rec.-Post + Print"
 {
@@ -32,4 +31,3 @@ codeunit 10122 "Bank Rec.-Post + Print"
 }
 
 #endif
-#pragma warning restore AS0074

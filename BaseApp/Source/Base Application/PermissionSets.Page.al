@@ -633,6 +633,17 @@ page 9802 "Permission Sets"
     end;
 #endif
 
+    internal procedure GetSelectedRecords(var CurrSelectedRecords: Record "Permission Set Buffer")
+    begin
+        CurrPage.SetSelectionFilter(Rec);
+
+        if Rec.FindSet() then
+            repeat
+                CurrSelectedRecords.Copy(Rec);
+                CurrSelectedRecords.Insert();
+            until Rec.Next() = 0;
+    end;
+
     var
         PermissionManager: Codeunit "Permission Manager";
         UsePermissionSetsFromExtensions: Boolean;

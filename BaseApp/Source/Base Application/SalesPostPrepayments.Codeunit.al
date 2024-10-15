@@ -117,6 +117,7 @@
         TempVATAmountLine0: Record "VAT Amount Line" temporary;
         TempVATAmountLine1: Record "VAT Amount Line" temporary;
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        DocumentTotals: Codeunit "Document Totals";
         Window: Dialog;
         GenJnlLineDocNo: Code[20];
         GenJnlLineExtDocNo: Code[35];
@@ -139,6 +140,10 @@
         GLSetup.GetRecordOnce();
         SalesSetup.Get();
         with SalesHeader do begin
+
+            if (SalesSetup."Calc. Inv. Discount" and (Status = Status::Open)) then
+                DocumentTotals.SalesRedistributeInvoiceDiscountAmountsOnDocument(SalesHeader);
+
             CheckPrepmtDoc(SalesHeader, DocumentType);
 
             UpdateDocNos(SalesHeader, DocumentType, GenJnlLineDocNo, PostingNoSeriesCode, ModifyHeader);

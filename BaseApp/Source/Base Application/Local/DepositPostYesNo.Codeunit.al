@@ -1,4 +1,3 @@
-#pragma warning disable AS0074
 #if not CLEAN21
 codeunit 10141 "Deposit-Post (Yes/No)"
 {
@@ -25,4 +24,3 @@ codeunit 10141 "Deposit-Post (Yes/No)"
 }
 
 #endif
-#pragma warning restore AS0074

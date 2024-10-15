@@ -1462,9 +1462,6 @@ codeunit 137212 "SCM Copy Document Mgt."
         CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
         CreateItemChargeAssignment(SalesHeader);
         DimensionSetID := SalesHeader."Dimension Set ID";
-        SalesHeader."Dimension Set ID" := UpdateDimensionSet(SalesHeader."Dimension Set ID");
-        if not RecalculateLines then
-            DimensionSetID := SalesHeader."Dimension Set ID";
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         CreateEmptySalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
@@ -1483,10 +1480,8 @@ codeunit 137212 "SCM Copy Document Mgt."
         CopyDocumentMgt.SetProperties(true, RecalculateLines, false, false, true, false, false);
 
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
-        DimensionSetID := PurchaseHeader."Dimension Set ID";
         PurchaseHeader."Dimension Set ID" := UpdateDimensionSet(PurchaseHeader."Dimension Set ID");
-        if not RecalculateLines then
-            DimensionSetID := PurchaseHeader."Dimension Set ID";
+        DimensionSetID := PurchaseHeader."Dimension Set ID";
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         CreateEmptyPurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
