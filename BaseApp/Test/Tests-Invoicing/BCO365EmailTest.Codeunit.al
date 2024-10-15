@@ -222,8 +222,8 @@ codeunit 138960 "BC O365 Email Test"
         O365EmailSetup: Record "O365 Email Setup";
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
     begin
-        O365EmailSetup.Reset;
-        O365EmailSetup.DeleteAll;
+        O365EmailSetup.Reset();
+        O365EmailSetup.DeleteAll();
 
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');

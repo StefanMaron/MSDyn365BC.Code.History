@@ -156,7 +156,7 @@ page 11603 "BAS Calc. Schedule List"
 
                     trigger OnAction()
                     begin
-                        BASCalcSheet.Reset;
+                        BASCalcSheet.Reset();
                         BASCalcSheet.SetRange(A1, A1);
                         BASCalcSheet.SetRange("BAS Version", "BAS Version");
                         REPORT.RunModal(REPORT::"Calculate GST Settlement", true, false, BASCalcSheet);

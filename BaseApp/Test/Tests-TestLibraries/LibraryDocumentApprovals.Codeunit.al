@@ -49,7 +49,7 @@ codeunit 131352 "Library - Document Approvals"
         UserSetup."Purchase Amount Approval Limit" := 0;
         UserSetup."Request Amount Approval Limit" := 0;
         UserSetup."E-Mail" := 'someone@example.com';
-        UserSetup.Insert;
+        UserSetup.Insert();
     end;
 
     procedure CreateUser(UserName: Code[50]; WindowsUserName: Text[208])
@@ -92,7 +92,7 @@ codeunit 131352 "Library - Document Approvals"
     begin
         GetUser(User, WindowsUserName);
         UserSetup.SetRange("User ID", User."User Name");
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
     end;
 
     procedure GetUser(var User: Record User; WindowsUserName: Text[208]): Boolean

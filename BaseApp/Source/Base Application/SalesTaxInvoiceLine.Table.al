@@ -209,11 +209,9 @@ table 28072 "Sales Tax Invoice Line"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(78; "Transaction Type"; Code[10])
         {
@@ -556,11 +554,11 @@ table 28072 "Sales Tax Invoice Line"
     [Scope('OnPrem')]
     procedure CalcVATAmountLines(var SalesInvHeader: Record "Sales Invoice Header"; var VATAmountLine: Record "VAT Amount Line")
     begin
-        VATAmountLine.DeleteAll;
+        VATAmountLine.DeleteAll();
         SetRange("Document No.", SalesInvHeader."No.");
         if Find('-') then
             repeat
-                VATAmountLine.Init;
+                VATAmountLine.Init();
                 VATAmountLine."VAT Identifier" := "VAT Identifier";
                 VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                 VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -592,7 +590,7 @@ table 28072 "Sales Tax Invoice Line"
         SalesInvHeader: Record "Sales Invoice Header";
     begin
         if not SalesInvHeader.Get("Document No.") then
-            SalesInvHeader.Init;
+            SalesInvHeader.Init();
         if SalesInvHeader."Prices Including VAT" then
             exit('2,1,' + GetFieldCaption(FieldNumber));
 
@@ -613,7 +611,7 @@ table 28072 "Sales Tax Invoice Line"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        SalesInvoiceHeader.Reset;
+        SalesInvoiceHeader.Reset();
         SalesInvoiceHeader.SetRange("No.", "External Document No.");
         if SalesInvoiceHeader.FindFirst then
             PAGE.RunModal(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);

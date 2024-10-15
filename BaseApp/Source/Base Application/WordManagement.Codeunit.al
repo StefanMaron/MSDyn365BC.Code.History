@@ -192,7 +192,7 @@ codeunit 5054 WordManagement
         TempDeliverySorter.SetCurrentKey(
           "Attachment No.", "Correspondence Type", Subject, "Send Word Docs. as Attmt.");
         TempDeliverySorter.SetFilter("Correspondence Type", '<>0');
-        NoOfRecords := TempDeliverySorter.Count;
+        NoOfRecords := TempDeliverySorter.Count();
         TempDeliverySorter.Find('-');
 
         Activate(WordApplicationHandler, 505403);
@@ -215,13 +215,13 @@ codeunit 5054 WordManagement
                 (TempDeliverySorter."Send Word Docs. as Attmt." <> LastSendWordDocsAsAttmt))
             then begin
                 ExecuteMerge(WordApplication, TempDeliverySorter2);
-                TempDeliverySorter2.DeleteAll;
+                TempDeliverySorter2.DeleteAll();
                 if TempDeliverySorter."Attachment No." <> LastAttachmentNo then
                     ImportMergeSourceFile(LastAttachmentNo)
             end;
 
             TempDeliverySorter2 := TempDeliverySorter;
-            TempDeliverySorter2.Insert;
+            TempDeliverySorter2.Insert();
             LastAttachmentNo := TempDeliverySorter."Attachment No.";
             LastCorrType := TempDeliverySorter."Correspondence Type";
             LastSubject := TempDeliverySorter.Subject;
@@ -284,7 +284,7 @@ codeunit 5054 WordManagement
             Format(TempDeliverySorter."Correspondence Type")));
 
         if TempDeliverySorter.Find('-') then
-            NoOfRecords := TempDeliverySorter.Count;
+            NoOfRecords := TempDeliverySorter.Count();
 
         Attachment.Get(TempDeliverySorter."Attachment No.");
         Attachment.CalcFields("Attachment File");
@@ -337,8 +337,10 @@ codeunit 5054 WordManagement
                         FaxMailToValue := AttachmentManagement.InteractionFax(InteractLogEntry);
                     TempDeliverySorter."Correspondence Type"::Email:
                         FaxMailToValue := AttachmentManagement.InteractionEMail(InteractLogEntry);
-                    else
+                    TempDeliverySorter."Correspondence Type"::"Hard Copy":
                         FaxMailToValue := '';
+                    else
+                        OnExecuteMergeFaxMailToValueCaseElse(TempDeliverySorter, FaxMailToValue);
                 end;
 
                 OnBeforeAddFieldsToMergeSource(TempSegLine, TempDeliverySorter);
@@ -398,11 +400,13 @@ codeunit 5054 WordManagement
                     WordHelper.CallMailMergeExecute(WordDocument);
                     WordHelper.CallPrintOut(WordHelper.GetActiveDocument(WordApplication));
                 end;
+            else
+                OnExecuteMergeWordDocumentCaseElse(TempDeliverySorter);
         end;
 
         // Update delivery status on Interaction Log Entry
         if TempDeliverySorter.Find('-') then begin
-            InteractLogEntry.LockTable;
+            InteractLogEntry.LockTable();
             repeat
                 with InteractLogEntry do begin
                     Get(TempDeliverySorter."No.");
@@ -410,7 +414,7 @@ codeunit 5054 WordManagement
                     Modify;
                 end;
             until TempDeliverySorter.Next = 0;
-            Commit;
+            Commit();
         end;
 
         ParamBln := false;
@@ -454,11 +458,11 @@ codeunit 5054 WordManagement
 
         // Create HTML Header source
         with TempNameValueBuffer do begin
-            DeleteAll;
+            DeleteAll();
             MainLanguage := GlobalLanguage;
 
             if LanguageCode = '' then begin
-                RMSetup.Get;
+                RMSetup.Get();
                 if RMSetup."Mergefield Language ID" <> 0 then
                     GlobalLanguage := RMSetup."Mergefield Language ID";
             end else
@@ -689,10 +693,10 @@ codeunit 5054 WordManagement
                     CorrespondenceType::Fax:
                         MergeFile.Write('<td>' + AttachmentManagement.InteractionFax(InteractLogEntry) + '</td>');
                     CorrespondenceType::Email:
-                        MergeFile.Write('<td>' + AttachmentManagement.InteractionEMail(InteractLogEntry) + '</td>')
-                    else
-                        MergeFile.Write('<td></td>')
-                end
+                        MergeFile.Write('<td>' + AttachmentManagement.InteractionEMail(InteractLogEntry) + '</td>');
+                    CorrespondenceType::"Hard Copy":
+                        MergeFile.Write('<td></td>');
+                end;
             end;
             MergeFile.Write(NewLine);
         end;
@@ -733,7 +737,7 @@ codeunit 5054 WordManagement
             LanguageCode := InteractLogEntry."Interaction Language Code";
         end;
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if not Country2.Get(CompanyInfo."Country/Region Code") then
             Clear(Country2);
 
@@ -750,7 +754,7 @@ codeunit 5054 WordManagement
         BarCode := FormatAddr.PrintBarCode(0);
         DataFieldsCount := 2;
 
-        TempNameValueBuffer.DeleteAll;
+        TempNameValueBuffer.DeleteAll();
         with TempNameValueBuffer do begin
             AddNewEntry(Contact."No.", '');
             AddNewEntry(Contact."Company Name", '');
@@ -863,7 +867,7 @@ codeunit 5054 WordManagement
             MergeSourceBufferFile.Write('</html>');
             MergeSourceBufferFile.Close;
             Attachment."Merge Source".Import(MergeSourceBufferFileName);
-            Attachment.Modify;
+            Attachment.Modify();
             DeleteFile(MergeSourceBufferFileName);
             MergeSourceBufferFileName := ''
         end
@@ -931,21 +935,29 @@ codeunit 5054 WordManagement
         InteractLogEntry: Record "Interaction Log Entry";
         Contact: Record Contact;
         Mail: Codeunit Mail;
+        Handled: Boolean;
     begin
         with InteractLogEntry do
             repeat
-                LockTable;
+                LockTable();
                 Get(DeliverySorter."No.");
-                if DeliverySorter."Correspondence Type" = DeliverySorter."Correspondence Type"::Email then begin
-                    Contact.Get("Contact No.");
-                    Mail.NewMessage(
-                      AttachmentManagement.InteractionEMail(InteractLogEntry), '', '',
-                      DeliverySorter.Subject, '', MainFileName, false);
-                end else
-                    WordHelper.CallPrintOut(WordDocument);
+                case DeliverySorter."Correspondence Type" of
+                    DeliverySorter."Correspondence Type"::Email:
+                        begin
+                            Contact.Get("Contact No.");
+                            Mail.NewMessage(
+                              AttachmentManagement.InteractionEMail(InteractLogEntry), '', '',
+                              DeliverySorter.Subject, '', MainFileName, false);
+                        end;
+                    DeliverySorter."Correspondence Type"::"Hard Copy",
+                    DeliverySorter."Correspondence Type"::Fax:
+                        WordHelper.CallPrintOut(WordDocument);
+                    else
+                        OnHandleWordDocumentWithoutMergeCorrespondenceTypeCaseElse(InteractLogEntry, DeliverySorter);
+                end;
                 "Delivery Status" := "Delivery Status"::" ";
                 Modify;
-                Commit;
+                Commit();
             until DeliverySorter.Next = 0;
     end;
 
@@ -972,6 +984,8 @@ codeunit 5054 WordManagement
                     HandleWordDocumentWithoutMerge(WordDocument, TempDeliverySorter, FileName);
                     DeleteFile(FileName);
                 end;
+            else
+                OnSendAttachmentWithoutMergeFieldsCorrespondenceTypeCaseElse(Attachment, TempDeliverySorter);
         end;
     end;
 
@@ -1152,6 +1166,26 @@ codeunit 5054 WordManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnDeactivate(HandlerID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExecuteMergeFaxMailToValueCaseElse(var v: Record "Delivery Sorter"; var FaxMailToValue: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExecuteMergeWordDocumentCaseElse(var v: Record "Delivery Sorter")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleWordDocumentWithoutMergeCorrespondenceTypeCaseElse(var InteractionLogEntry: Record "Interaction Log Entry"; var DeliverySorter: Record "Delivery Sorter")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendAttachmentWithoutMergeFieldsCorrespondenceTypeCaseElse(var Attachment: Record Attachment; var DeliverySorter: Record "Delivery Sorter")
     begin
     end;
 }

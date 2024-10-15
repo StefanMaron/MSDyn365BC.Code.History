@@ -37,22 +37,22 @@ codeunit 134156 "Service Table Fields UT"
 
     local procedure MockServiceCrMemoHeader(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     begin
-        ServiceCrMemoHeader.Init;
+        ServiceCrMemoHeader.Init();
         ServiceCrMemoHeader."No." :=
           LibraryUtility.GenerateRandomCode20(ServiceCrMemoHeader.FieldNo("No."), DATABASE::"Service Cr.Memo Header");
-        ServiceCrMemoHeader.Insert;
+        ServiceCrMemoHeader.Insert();
     end;
 
     local procedure MockServiceCrMemoLine(var ServiceCrMemoLine: Record "Service Cr.Memo Line"; ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     begin
-        ServiceCrMemoLine.Init;
+        ServiceCrMemoLine.Init();
         ServiceCrMemoLine."Document No." := ServiceCrMemoHeader."No.";
         ServiceCrMemoLine."Line No." :=
           LibraryUtility.GetNewRecNo(ServiceCrMemoLine, ServiceCrMemoLine.FieldNo("Line No."));
-        ServiceCrMemoLine.Insert;
+        ServiceCrMemoLine.Insert();
         ServiceCrMemoLine.Amount := LibraryRandom.RandIntInRange(10, 20);
         ServiceCrMemoLine."Amount Including VAT" := LibraryRandom.RandIntInRange(10, 20);
-        ServiceCrMemoLine.Modify;
+        ServiceCrMemoLine.Modify();
     end;
 }
 

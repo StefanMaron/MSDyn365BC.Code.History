@@ -68,7 +68,6 @@ page 11611 "BAS - XML Field IDs"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Copy from Setup';
-                    Image = copy;
                     Promoted = true;
                     PromotedCategory = Process;
                     ToolTip = 'Specifies if you want to copy the value from the BAS XML Field ID Setup window.';
@@ -78,11 +77,11 @@ page 11611 "BAS - XML Field IDs"
                         if PAGE.RunModal(0, BASSetupName) = ACTION::LookupOK then begin
                             BasXMLFieldIDSetup.SetRange("Setup Name", BASSetupName.Name);
                             if BasXMLFieldIDSetup.Find('-') then begin
-                                BasXMLFieldID.DeleteAll;
+                                BasXMLFieldID.DeleteAll();
                                 repeat
-                                    BasXMLFieldID.Init;
+                                    BasXMLFieldID.Init();
                                     BasXMLFieldID.TransferFields(BasXMLFieldIDSetup);
-                                    BasXMLFieldID.Insert;
+                                    BasXMLFieldID.Insert();
                                 until BasXMLFieldIDSetup.Next = 0;
                             end;
                         end;
@@ -92,7 +91,6 @@ page 11611 "BAS - XML Field IDs"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Copy to Setup';
-                    Image = copy;
                     Promoted = true;
                     PromotedCategory = Process;
                     ToolTip = 'Specifies if you want to copy the value to the BAS XML Field ID Setup window.';
@@ -102,15 +100,15 @@ page 11611 "BAS - XML Field IDs"
                         if PAGE.RunModal(0, BASSetupName) = ACTION::LookupOK then begin
                             BasXMLFieldIDSetup.SetRange("Setup Name", BASSetupName.Name);
                             if BasXMLFieldID.Find('-') and BasXMLFieldIDSetup.Find('-') then
-                                BasXMLFieldIDSetup.DeleteAll;
+                                BasXMLFieldIDSetup.DeleteAll();
                             repeat
                                 if LineNo = 0 then
                                     LineNo := 10000;
-                                BasXMLFieldIDSetup.Init;
+                                BasXMLFieldIDSetup.Init();
                                 BasXMLFieldIDSetup.TransferFields(BasXMLFieldID);
                                 BasXMLFieldIDSetup."Setup Name" := BASSetupName.Name;
                                 BasXMLFieldIDSetup."Line No." := LineNo;
-                                BasXMLFieldIDSetup.Insert;
+                                BasXMLFieldIDSetup.Insert();
                                 LineNo := LineNo + 10000;
                             until BasXMLFieldID.Next = 0;
                         end;
@@ -129,7 +127,7 @@ page 11611 "BAS - XML Field IDs"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Enable GST (Australia)", true);
     end;
 

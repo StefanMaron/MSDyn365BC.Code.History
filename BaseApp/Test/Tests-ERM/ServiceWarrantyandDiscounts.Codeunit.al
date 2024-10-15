@@ -35,7 +35,7 @@ codeunit 136120 "Service Warranty and Discounts"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        Commit;
+        Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Warranty and Discounts");
     end;
@@ -421,7 +421,7 @@ codeunit 136120 "Service Warranty and Discounts"
 
         SignServContractDoc.SignContract(ServiceContractHeader);
         LockOpenServContract.LockServContract(ServiceContractHeader);
-        Commit;
+        Commit();
 
         asserterror LibraryService.CreateContractServiceDiscount(
             ContractServiceDiscount[2], ServiceContractHeader,
@@ -481,9 +481,9 @@ codeunit 136120 "Service Warranty and Discounts"
     begin
         if FromServiceLine.FindSet then
             repeat
-                ToTempServiceLine.Init;
+                ToTempServiceLine.Init();
                 ToTempServiceLine := FromServiceLine;
-                ToTempServiceLine.Insert;
+                ToTempServiceLine.Insert();
             until FromServiceLine.Next = 0
     end;
 

@@ -25,9 +25,6 @@ report 28161 Journals
             column(STRSUBSTNO_Text006_USERID_; StrSubstNo(Text006, UserId))
             {
             }
-            column(STRSUBSTNO_Text007_CurrReport_PAGENO_; StrSubstNo(Text007, CurrReport.PageNo))
-            {
-            }
             column(GLEntry2_TABLECAPTION__________Filter; GLEntry2.TableCaption + ': ' + Filter)
             {
             }
@@ -199,7 +196,7 @@ report 28161 Journals
                     trigger OnPreDataItem()
                     begin
                         if not DisplayEntries then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         if DisplayEntries then
                             case SortingBy of
@@ -289,7 +286,7 @@ report 28161 Journals
                     trigger OnPreDataItem()
                     begin
                         if not DisplayCentral then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
 
@@ -307,7 +304,7 @@ report 28161 Journals
                     YearString := ' ' + Format(Year);
                 end;
                 if Finished then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
 
             trigger OnPreDataItem()

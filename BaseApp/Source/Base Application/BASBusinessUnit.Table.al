@@ -73,13 +73,13 @@ table 11603 "BAS Business Unit"
 
     trigger OnInsert()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("BAS Group Company", true);
     end;
 
     trigger OnModify()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("BAS Group Company", true);
     end;
 

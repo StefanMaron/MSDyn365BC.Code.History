@@ -2,6 +2,9 @@ report 7053 "Implement Price Change"
 {
     Caption = 'Implement Price Change';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     dataset
     {
@@ -18,7 +21,7 @@ report 7053 "Implement Price Change"
                 Window.Update(4, "Currency Code");
                 Window.Update(5, "Starting Date");
 
-                SalesPrice.Init;
+                SalesPrice.Init();
                 SalesPrice.Validate("Item No.", "Item No.");
                 SalesPrice.Validate("Sales Type", "Sales Type");
                 SalesPrice.Validate("Sales Code", "Sales Code");
@@ -43,12 +46,12 @@ report 7053 "Implement Price Change"
             var
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
-                Commit;
+                Commit();
                 if not DeleteWhstLine then
                     DeleteWhstLine := ConfirmManagement.GetResponseOrDefault(Text005, true);
                 if DeleteWhstLine then
-                    DeleteAll;
-                Commit;
+                    DeleteAll();
+                Commit();
                 if SalesPrice.FindFirst then;
             end;
 

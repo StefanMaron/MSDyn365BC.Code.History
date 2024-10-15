@@ -651,7 +651,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         LibraryInvoicingApp.SetupEmail;
         EventSubscriberInvoicingApp.Clear;
         LibraryVariableStorage.AssertEmpty;
-        O365DocumentSentHistory.DeleteAll;
+        O365DocumentSentHistory.DeleteAll();
         TaxDetail.ModifyAll("Tax Below Maximum", 5.0, true);
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
@@ -860,7 +860,7 @@ codeunit 138958 "O365 Doc. Sent History Tests"
         asserterror TheNotification.AddAction('Action', CODEUNIT::"O365 Document Send Mgt", 'ResendDocumentFromNotification');
 
         O365DocumentSendMgt.ResendDocumentFromNotification(TheNotification);
-        O365DocumentSentHistory.DeleteAll;
+        O365DocumentSentHistory.DeleteAll();
     end;
 
     [SendNotificationHandler(true)]

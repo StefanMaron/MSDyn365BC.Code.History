@@ -33,7 +33,7 @@ codeunit 137303 "SCM Order Reports"
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
         // Exercise : Generate the Work Order report.
-        Commit;
+        Commit();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeader.SetRange("No.", SalesHeader."No.");
         REPORT.Run(REPORT::"Work Order", true, false, SalesHeader);
@@ -55,7 +55,7 @@ codeunit 137303 "SCM Order Reports"
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order");
 
         // Exercise : Generate the Return Order Confirmation report.
-        Commit;
+        Commit();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeader.SetRange("No.", SalesHeader."No.");
         REPORT.Run(REPORT::"Return Order Confirmation", true, false, SalesHeader);
@@ -77,7 +77,7 @@ codeunit 137303 "SCM Order Reports"
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order");
 
         // Exercise : Generate the Return Order report.
-        Commit;
+        Commit();
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
         REPORT.Run(REPORT::"Return Order", true, false, PurchaseHeader);
@@ -98,7 +98,7 @@ codeunit 137303 "SCM Order Reports"
         CreateBinCreationWorksheetLine(BinCreationWorksheetLine);
 
         // Exercise : Generate the Bin Creation Worksheet Report.
-        Commit;
+        Commit();
         BinCreationWorksheetLine.SetRange("Worksheet Template Name", BinCreationWorksheetLine."Worksheet Template Name");
         BinCreationWorksheetLine.SetRange(Name, BinCreationWorksheetLine.Name);
         BinCreationWorksheetLine.SetRange("Line No.", BinCreationWorksheetLine."Line No.");
@@ -192,7 +192,7 @@ codeunit 137303 "SCM Order Reports"
         CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, Item."No.", EntryType);
 
         // Exercise : Generate the Inventory Movement Report.
-        Commit;
+        Commit();
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalLine."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalLine."Journal Batch Name");
         LibraryVariableStorage.Enqueue(ActivityType);
@@ -223,7 +223,7 @@ codeunit 137303 "SCM Order Reports"
         // Exercise : Create Two Production BOM with Item array. Generate Compare List Report.
         CreateProductionBOMAndLine(Item, 1);
         CreateProductionBOMAndLine(Item, 2);
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(Item[1]."No.");
         LibraryVariableStorage.Enqueue(Item[2]."No.");
         LibraryVariableStorage.Enqueue(WorkDate);
@@ -250,7 +250,7 @@ codeunit 137303 "SCM Order Reports"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Order Reports");
     end;
 
@@ -355,7 +355,7 @@ codeunit 137303 "SCM Order Reports"
     [Normal]
     local procedure GeneratePhysicalInventory(var ItemJournalLine: Record "Item Journal Line"; ShowQtyCalculated: Boolean)
     begin
-        Commit;
+        Commit();
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalLine."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalLine."Journal Batch Name");
         LibraryVariableStorage.Enqueue(ShowQtyCalculated);

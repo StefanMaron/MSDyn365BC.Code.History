@@ -138,7 +138,7 @@ table 7500 "Item Attribute"
     begin
         if (ItemAttributeTranslation."Attribute ID" <> ID) or (ItemAttributeTranslation."Language Code" <> LanguageCode) then
             if not ItemAttributeTranslation.Get(ID, LanguageCode) then begin
-                ItemAttributeTranslation.Init;
+                ItemAttributeTranslation.Init();
                 ItemAttributeTranslation."Attribute ID" := ID;
                 ItemAttributeTranslation."Language Code" := LanguageCode;
                 ItemAttributeTranslation.Name := Name;
@@ -179,7 +179,7 @@ table 7500 "Item Attribute"
         if ItemAttributeValue.FindSet then
             repeat
                 if not ItemAttributeValue.HasBeenUsed then
-                    ItemAttributeValue.Delete;
+                    ItemAttributeValue.Delete();
             until ItemAttributeValue.Next = 0;
     end;
 
@@ -231,16 +231,16 @@ table 7500 "Item Attribute"
         ItemAttrValueTranslation: Record "Item Attr. Value Translation";
     begin
         ItemAttributeValueMapping.SetRange("Item Attribute ID", ID);
-        ItemAttributeValueMapping.DeleteAll;
+        ItemAttributeValueMapping.DeleteAll();
 
         ItemAttributeValue.SetRange("Attribute ID", ID);
-        ItemAttributeValue.DeleteAll;
+        ItemAttributeValue.DeleteAll();
 
         ItemAttributeTranslation.SetRange("Attribute ID", ID);
-        ItemAttributeTranslation.DeleteAll;
+        ItemAttributeTranslation.DeleteAll();
 
         ItemAttrValueTranslation.SetRange("Attribute ID", ID);
-        ItemAttrValueTranslation.DeleteAll;
+        ItemAttrValueTranslation.DeleteAll();
     end;
 
     [IntegrationEvent(false, false)]

@@ -198,7 +198,7 @@ report 14310 "WHT Report - PND 53"
                     WHTEntry2.SetRange("Document Type", WHTEntry2."Document Type"::Payment);
                     WHTEntry2.SetRange("WHT Report", WHTEntry2."WHT Report"::"Por Ngor Dor 53");
                     if WHTEntry2.Find('-') then begin
-                        Count1 := WHTEntry2.Count;
+                        Count1 := WHTEntry2.Count();
                         repeat
                             WHTAmountLCY := WHTAmountLCY + Abs(WHTEntry2."Amount (LCY)");
                             WHTBaseLCY := WHTBaseLCY + Abs(WHTEntry2."Base (LCY)");
@@ -211,14 +211,14 @@ report 14310 "WHT Report - PND 53"
                     TotalAmountLCY := TotalAmountLCY + WHTAmountLCY;
                     TotalBaseLCY := TotalBaseLCY + WHTBaseLCY;
                     if WHTAmountLCY = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
                 if LastSlipNo = "WHT Certificate No." then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if "Transaction Type" = "Transaction Type"::Purchase then begin
                     if "Actual Vendor No." <> '' then
@@ -246,7 +246,7 @@ report 14310 "WHT Report - PND 53"
             begin
                 LastFieldNo := FieldNo("WHT Certificate No.");
                 LastSlipNo := '';
-                CompanyInfo.Get;
+                CompanyInfo.Get();
             end;
         }
     }

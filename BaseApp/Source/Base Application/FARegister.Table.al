@@ -87,5 +87,20 @@ table 5617 "FA Register"
     fieldgroups
     {
     }
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("No.")))
+    end;
+
+    procedure GetLastGLRegisterNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("G/L Register No.")))
+    end;
+
 }
 

@@ -18,9 +18,6 @@ report 28025 "Income Statement"
             column(LongText_1____LongText_2____LongText_3____LongText_4_; LongText[1] + LongText[2] + LongText[3] + LongText[4])
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -200,7 +197,7 @@ report 28025 "Income Statement"
                        (LastYrCurrPeriodNetChange = 0) and (LastYTDNetChange = 0) and
                        ("Account Type" = "Account Type"::Posting)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end else begin
                     SetRange("Date Filter", CurrentPeriodStart, CurrentPeriodEnd);
                     CalcFields("Additional-Currency Net Change");
@@ -226,7 +223,7 @@ report 28025 "Income Statement"
                        (LastYrCurrPeriodNetChange = 0) and (LastYTDNetChange = 0) and
                        ("Account Type" = "Account Type"::Posting)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
                 PageGroupNo := NextPageGroupNo;
                 ShowAccType := "G/L Account"."Account Type";
@@ -244,7 +241,7 @@ report 28025 "Income Statement"
                     'Period: %1..%2 versus %3..%4',
                     CurrentPeriodStart, CurrentPeriodEnd, LastYearCurrentPeriodStart, LastYearCurrentPeriodEnd) + '' + '' + '';
 
-                GLSetupNNC.Get;
+                GLSetupNNC.Get();
                 if AddCurr then
                     TotalHeaderText := StrSubstNo(Text1450000, GLSetupNNC."Additional Reporting Currency")
                 else begin
@@ -315,7 +312,7 @@ report 28025 "Income Statement"
         if CurrentPeriodEnd <> NormalDate(CurrentPeriodEnd) then
             LastYearCurrentPeriodEnd := ClosingDate(LastYearCurrentPeriodEnd);
 
-        AccPeriod.Reset;
+        AccPeriod.Reset();
         AccPeriod.SetRange("New Fiscal Year", true, true);
         AccPeriod.SetFilter("Starting Date", '..%1', CurrentPeriodEnd);
         AccPeriod.FindLast;

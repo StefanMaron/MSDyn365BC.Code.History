@@ -5,7 +5,7 @@ codeunit 5349 "Auto Create Sales Orders"
     trigger OnRun()
     begin
         CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
-        Commit;
+        Commit();
         CreateNAVSalesOrdersFromSubmittedCRMSalesorders;
     end;
 
@@ -18,7 +18,7 @@ codeunit 5349 "Auto Create Sales Orders"
         if CRMSalesorder.FindSet(true) then
             repeat
                 if CODEUNIT.Run(CODEUNIT::"CRM Sales Order to Sales Order", CRMSalesorder) then
-                    Commit;
+                    Commit();
             until CRMSalesorder.Next = 0;
     end;
 }

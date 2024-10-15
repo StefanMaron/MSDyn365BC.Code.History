@@ -101,7 +101,7 @@ report 718 "Inventory - Sales Back Orders"
                 trigger OnAfterGetRecord()
                 begin
                     if "Shipment Date" >= WorkDate then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     Cust.Get("Bill-to Customer No.");
 
                     SalesOrderLine.SetRange("Bill-to Customer No.", Cust."No.");

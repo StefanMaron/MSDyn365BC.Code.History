@@ -27,7 +27,7 @@ page 6000 "Dispatch Board"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        Res.Reset;
+                        Res.Reset();
                         if PAGE.RunModal(0, Res) = ACTION::LookupOK then begin
                             Text := Res."No.";
                             exit(true);
@@ -48,7 +48,7 @@ page 6000 "Dispatch Board"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        ResourceGroup.Reset;
+                        ResourceGroup.Reset();
                         if PAGE.RunModal(0, ResourceGroup) = ACTION::LookupOK then begin
                             Text := ResourceGroup."No.";
                             exit(true);
@@ -107,7 +107,7 @@ page 6000 "Dispatch Board"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        ServHeader.Reset;
+                        ServHeader.Reset();
                         SetDocFilter(ServHeader);
                         if PAGE.RunModal(0, ServHeader) = ACTION::LookupOK then begin
                             Text := ServHeader."No.";
@@ -142,7 +142,7 @@ page 6000 "Dispatch Board"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        Cust.Reset;
+                        Cust.Reset();
                         if PAGE.RunModal(0, Cust) = ACTION::LookupOK then begin
                             Text := Cust."No.";
                             exit(true);
@@ -163,7 +163,7 @@ page 6000 "Dispatch Board"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        ServiceContract.Reset;
+                        ServiceContract.Reset();
                         ServiceContract.SetRange("Contract Type", ServiceContract."Contract Type"::Contract);
                         if PAGE.RunModal(0, ServiceContract) = ACTION::LookupOK then begin
                             Text := ServiceContract."Contract No.";
@@ -185,7 +185,7 @@ page 6000 "Dispatch Board"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        ServiceZones.Reset;
+                        ServiceZones.Reset();
                         if PAGE.RunModal(0, ServiceZones) = ACTION::LookupOK then begin
                             Text := ServiceZones.Code;
                             exit(true);

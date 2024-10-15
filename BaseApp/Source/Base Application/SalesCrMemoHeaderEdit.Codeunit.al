@@ -8,12 +8,12 @@ codeunit 28065 "Sales Cr.Memo Header - Edit"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         SalesCrMemoHeader := Rec;
-        SalesCrMemoHeader.LockTable;
+        SalesCrMemoHeader.LockTable();
         SalesCrMemoHeader.Find;
         SalesCrMemoHeader."Adjustment Applies-to" := "Adjustment Applies-to";
         SalesCrMemoHeader."Reason Code" := "Reason Code";
         SalesCrMemoHeader.TestField("No.", "No.");
-        SalesCrMemoHeader.Modify;
+        SalesCrMemoHeader.Modify();
         Rec := SalesCrMemoHeader;
     end;
 }

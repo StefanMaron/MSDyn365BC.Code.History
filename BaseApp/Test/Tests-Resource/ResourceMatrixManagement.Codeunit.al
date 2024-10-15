@@ -49,7 +49,7 @@ codeunit 136404 "Resource Matrix Management"
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
         EmplAbsencesByCategories.Trap;
         EmployeeCard."Absences by Ca&tegories".Invoke;
-        Commit;
+        Commit();
         EmplAbsencesByCategories.ShowMatrix.Invoke;
 
         // 3. Verify: Verify value on Employee Absences by Category Matrix performed on Employee Absences by Category Matrix page handler.
@@ -109,7 +109,7 @@ codeunit 136404 "Resource Matrix Management"
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
         MiscArticlesOverview.Trap;
         EmployeeCard."Misc. Articles &Overview".Invoke;
-        Commit;
+        Commit();
         MiscArticlesOverview.ShowMatrix.Invoke;
 
         // 3. Verify: Verify value on Miscellaneous Articles Overview Matrix performed on Miscellaneous Articles Overview Matrix
@@ -141,7 +141,7 @@ codeunit 136404 "Resource Matrix Management"
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
         ConfidentialInfoOverview.Trap;
         EmployeeCard."Co&nfidential Info. Overview".Invoke;
-        Commit;
+        Commit();
         ConfidentialInfoOverview.ShowMatrix.Invoke;
 
         // 3. Verify: Verify value on Confidential Information Overview Matrix performed on Confidential Information Overview Matrix
@@ -175,7 +175,7 @@ codeunit 136404 "Resource Matrix Management"
         AbsenceRegistration.FILTER.SetFilter("Employee No.", Employee."No.");
         AbsenceOverviewByPeriods.Trap;
         AbsenceRegistration."Overview by &Periods".Invoke;
-        Commit;
+        Commit();
         AbsenceOverviewByPeriods."Cause Of Absence Filter".SetValue(EmployeeAbsence."Cause of Absence Code");
         AbsenceOverviewByPeriods.ShowMatrix.Invoke;
 
@@ -205,7 +205,7 @@ codeunit 136404 "Resource Matrix Management"
         EmployeeQualifications.FILTER.SetFilter("Qualification Code", QualificationCode);
         QualificationOverview.Trap;
         EmployeeQualifications."Q&ualification Overview".Invoke;
-        Commit;
+        Commit();
         QualificationOverview.ShowMatrix.Invoke;
 
         // 3. Verify: Verify value on Qualification Overview Matrix performed on Qualification Overview Matrix page handler.
@@ -235,7 +235,7 @@ codeunit 136404 "Resource Matrix Management"
         AbsenceRegistration.FILTER.SetFilter("Employee No.", Employee."No.");
         AbsenceOverviewByCategories.Trap;
         AbsenceRegistration."Overview by &Categories".Invoke;
-        Commit;
+        Commit();
         AbsenceOverviewByCategories.EmployeeNoFilter.SetValue(Employee."No.");
         AbsenceOverviewByCategories.ShowMatrix.Invoke;
 
@@ -263,7 +263,7 @@ codeunit 136404 "Resource Matrix Management"
         ResourceCard.FILTER.SetFilter("No.", Resource."No.");
         ResourceAllocatedPerJob.Trap;
         ResourceCard."Resource &Allocated per Job".Invoke;
-        Commit;
+        Commit();
         ResourceAllocatedPerJob.ShowMatrix.Invoke;
 
         // 3. Verify: Verify the value on Resource Allocated Per Job Matrix in Resource Allocated Per Job Matrix Handler.
@@ -293,7 +293,7 @@ codeunit 136404 "Resource Matrix Management"
         ResourceGroups.FILTER.SetFilter("No.", ResourceGroup."No.");
         ResGrAllocatedPerJob.Trap;
         ResourceGroups."Res. Group All&ocated per Job".Invoke;
-        Commit;
+        Commit();
         ResGrAllocatedPerJob.ShowMatrix.Invoke;
 
         // 3. Verify: Verify the value on Resource Group Allocated Per Job Matrix in Resource Group Allocated Per Job Matrix Handler.
@@ -330,7 +330,7 @@ codeunit 136404 "Resource Matrix Management"
         ResourceCard.FILTER.SetFilter("No.", Resource."No.");
         ResAllocPerServiceOrder.Trap;
         ResourceCard."Resource Allocated per Service &Order".Invoke;
-        Commit;
+        Commit();
         ResAllocPerServiceOrder.ShowMatrix.Invoke;
 
         // 3. Verify: Verify the value on Resource Allocated Per Service Order Matrix in Resource Allocated Per Service Order Matrix Handler.
@@ -369,7 +369,7 @@ codeunit 136404 "Resource Matrix Management"
         ResourceGroups.FILTER.SetFilter("No.", ResourceGroup."No.");
         ResGrAllocPerServOrder.Trap;
         ResourceGroups."Res. Group Allocated per Service &Order".Invoke;
-        Commit;
+        Commit();
         ResGrAllocPerServOrder.ShowMatrix.Invoke;
 
         // 3. Verify: Verify the value on Resource Group Allocated Per Service Order Matrix in Resource Group Allocated Per Service Order Matrix Handler.
@@ -724,7 +724,7 @@ codeunit 136404 "Resource Matrix Management"
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", 0);
 
         // Tear down
-        BaseCalendarChange.Delete;
+        BaseCalendarChange.Delete();
     end;
 
     [Test]
@@ -761,7 +761,7 @@ codeunit 136404 "Resource Matrix Management"
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", 0);
 
         // Tear down
-        BaseCalendarChange.Delete;
+        BaseCalendarChange.Delete();
     end;
 
     [Test]
@@ -801,7 +801,7 @@ codeunit 136404 "Resource Matrix Management"
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", 0);
 
         // Tear down
-        BaseCalendarChange.Delete;
+        BaseCalendarChange.Delete();
     end;
 
     [Test]
@@ -845,7 +845,7 @@ codeunit 136404 "Resource Matrix Management"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Resource Matrix Management");
     end;
 

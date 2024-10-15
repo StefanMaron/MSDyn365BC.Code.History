@@ -391,7 +391,7 @@ report 112 "Sales Statistics"
                         PrintCust := true;
                 end;
                 if not PrintCust then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 RoundingNO := Rounding;
                 RoundingText := ReportMgmnt.RoundDescription(Rounding);

@@ -58,7 +58,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets Reports - II");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets Reports - II");
     end;
 
@@ -160,7 +160,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
 
         // Using the Random Number for the Day.
         MaintenanceNextService.InitializeRequest(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), WorkDate);
-        Commit;
+        Commit();
         asserterror MaintenanceNextService.Run;
 
         // 3. Verify: Verify that System generates an error when Starting Date is later than the Ending Date.
@@ -188,7 +188,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
 
         // Using the Random Number for the Day.
         MaintenanceNextService.InitializeRequest(WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
-        Commit;
+        Commit();
         MaintenanceNextService.Run;
 
         // 3. Verify: Verify values on Maintenance Next Service Report.
@@ -344,7 +344,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(WorkDate);
         LibraryVariableStorage.Enqueue(WorkDate);
-        Commit;
+        Commit();
         asserterror FixedAssetProjectedValue.Run;
 
         // 3. Verify: Verify that System generates an error without Depreciation Book Code.
@@ -369,7 +369,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         LibraryVariableStorage.Enqueue(0D);
         LibraryVariableStorage.Enqueue(0D);
         FixedAssetProjectedValue.GetFASetup;
-        Commit;
+        Commit();
         asserterror FixedAssetProjectedValue.Run;
 
         // 3. Verify: Verify that System generates an error without Starting Date and Ending Date.
@@ -629,7 +629,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         // 2. Exercise: Run Fixed Asset Projected Value Report with new Accounting Period Starting Date value.
         ModifyAccountingPeriod(NewAccPeriodDate, NoOfDays);
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        Commit;
+        Commit();
 
         RunFAProjectedValueMultiLines(FixedAsset, GroupTotals::" ", true, false, GLBudgetName.Name, false);
 
@@ -657,7 +657,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         Initialize;
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
         UpdateGlobalDimension1Code(FixedAsset, DimensionValue.Code);
         UpdateGlobalDimension1Code(FixedAsset2, DimensionValue.Code);
@@ -836,7 +836,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         // 2.Exercise: Run Fixed Asset Projected Value Report with Budget and Insert Balance Account as True.
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         LibraryFixedAsset.CreateGLBudgetName(GLBudgetName);
-        Commit;
+        Commit();
         RunFixedAssetProjectedValue(FixedAsset, GroupTotals, false, false, GLBudgetName.Name, true);
 
         // 3.Verify: Verify values on Report and G/L Budget Entry.
@@ -1329,7 +1329,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         Initialize;
         CreateTwoFixedAsset(FixedAsset);
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         UpdateGlobalDimension1Code(FixedAsset[1], DimensionValue.Code);
         UpdateGlobalDimension1Code(FixedAsset[2], DimensionValue.Code);
@@ -1366,7 +1366,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         Initialize;
         CreateTwoFixedAsset(FixedAsset);
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
         UpdateGlobalDimension2Code(FixedAsset[1], DimensionValue.Code);
         UpdateGlobalDimension2Code(FixedAsset[2], DimensionValue.Code);
@@ -1483,7 +1483,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         // Fixed Asset Journal Line, Post Journal Line.
         Initialize;
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Shortcut Dimension 3 Code");
         UpdateDimension3Code(FixedAsset, GeneralLedgerSetup."Shortcut Dimension 3 Code", DimensionValue.Code);
 
@@ -1497,7 +1497,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         FixedAsset.SetRange("No.", FixedAsset."No.");
         LibraryFixedAsset.CreateGLBudgetName(GLBudgetName);
         UpdateBudgetDimensionCode(GLBudgetName, GeneralLedgerSetup."Shortcut Dimension 3 Code");
-        Commit;
+        Commit();
         RunFixedAssetProjectedValue(FixedAsset, GroupTotals::"Global Dimension 1", false, false, GLBudgetName.Name, false);
 
         // 3. Verify: Verify values on G/L Budget Entries generated with Shortcut Dimension 3 Code.
@@ -1527,7 +1527,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         // 2.Exercise: Run Fixed Asset Projected Value Report with Budget.
         FixedAsset.SetRange("No.", FixedAsset."No.");
         LibraryFixedAsset.CreateGLBudgetName(GLBudgetName);
-        Commit;
+        Commit();
         RunFixedAssetProjectedValue(FixedAsset, GroupTotals, false, false, GLBudgetName.Name, true);
 
         // 3.Verify: Verify G/L Budget Entry.
@@ -1816,7 +1816,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         LibraryDimension: Codeunit "Library - Dimension";
     begin
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         UpdateGlobalDimension1Code(FixedAsset, DimensionValue.Code);
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
@@ -1987,7 +1987,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         LibraryVariableStorage.Enqueue(Period);
         LibraryVariableStorage.Enqueue(GroupTotals);
         LibraryVariableStorage.Enqueue(OnlySoldAssets);
-        Commit;
+        Commit();
         FixedAssetGLAnalysis.Run;
     end;
 
@@ -2007,7 +2007,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         LibraryVariableStorage.Enqueue(PrintDetails);
         LibraryVariableStorage.Enqueue(SalesReport);
         FixedAssetGLAnalysis.GetFASetup;
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Fixed Asset - G/L Analysis", true, false, FixedAsset);
     end;
 
@@ -2083,7 +2083,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         OldDefaultDeprBook := FASetup."Default Depr. Book";
         FASetup.Validate("Default Depr. Book", DefaultDeprBook);
         FASetup.Modify(true);
@@ -2155,7 +2155,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     local procedure UpdateBudgetDimensionCode(var GLBudgetName: Record "G/L Budget Name"; BudgetDimension1Code: Code[20])
     begin
         GLBudgetName.Validate("Budget Dimension 1 Code", BudgetDimension1Code);
-        GLBudgetName.Modify;
+        GLBudgetName.Modify();
     end;
 
     local procedure ModifyAccountingPeriod(var NewDate: Date; var NoOfDays: Integer)
@@ -2172,7 +2172,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
             Validate("Starting Date", NewDate);
             if not Get("Starting Date") then
                 Insert(true);
-            Commit;
+            Commit();
             Next(-1);
             NoOfDays := NewDate - "Starting Date";
         end;
@@ -2320,7 +2320,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('NumberOfDays', NoOfDays);
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.AssertElementWithValueExists('FormatUntilDate', Format(CalcDate('<CM+1M>', NewPeriodDate)));
     end;
 

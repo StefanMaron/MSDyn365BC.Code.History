@@ -345,7 +345,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryInventory.NoSeriesSetup(InventorySetup);
         UpdateCustPostingGrp;
-        Commit;
+        Commit();
     end;
 
     [MessageHandler]

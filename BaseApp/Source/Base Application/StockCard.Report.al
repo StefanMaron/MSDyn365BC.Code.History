@@ -162,9 +162,9 @@ report 14311 "Stock Card"
                 trigger OnAfterGetRecord()
                 begin
                     if "Item Ledger Entry".Quantity > 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if (Item."Costing Method" = Item."Costing Method"::Average) or (Item."Costing Method" = Item."Costing Method"::Standard) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     ShowOutput2 := true;
                     IssuedQty := 0;
@@ -222,7 +222,7 @@ report 14311 "Stock Card"
                     OpeningStockAmount := 0;
                     ItemTotalQty := 0;
                     ItemTotalBalance := 0;
-                    ItemLedgEntry1.Reset;
+                    ItemLedgEntry1.Reset();
                     ItemLedgEntry1.SetCurrentKey("Item No.", "Location Code");
                     ItemLedgEntry1.SetRange("Item No.", "Item Ledger Entry"."Item No.");
                     ItemLedgEntry1.SetRange("Location Code", "Item Ledger Entry"."Location Code");
@@ -244,7 +244,7 @@ report 14311 "Stock Card"
                         OpeningStock := 0;
                         OpeningStockAmount := 0;
                         OpeningCost := 0;
-                        ItemLedgEntry1.Reset;
+                        ItemLedgEntry1.Reset();
                         ItemLedgEntry1.SetCurrentKey("Item No.", "Location Code", "Posting Date");
                         ItemLedgEntry1.SetRange("Item No.", "Item Ledger Entry"."Item No.");
                         ItemLedgEntry1.SetRange("Location Code", "Item Ledger Entry"."Location Code");
@@ -272,7 +272,7 @@ report 14311 "Stock Card"
                     OpeningStock := 0;
                     OpeningStockAmount := 0;
                     LocationBalance := 0;
-                    ItemLedgEntry1.Reset;
+                    ItemLedgEntry1.Reset();
                     ItemLedgEntry1.SetCurrentKey("Item No.", "Location Code");
                     ItemLedgEntry1.SetRange("Item No.", "Item Ledger Entry"."Item No.");
                     ItemLedgEntry1.SetRange("Location Code", "Item Ledger Entry"."Location Code");
@@ -294,7 +294,7 @@ report 14311 "Stock Card"
                         OpeningStock := 0;
                         OpeningStockAmount := 0;
                         OpeningCost := 0;
-                        ItemLedgEntry1.Reset;
+                        ItemLedgEntry1.Reset();
                         ItemLedgEntry1.SetCurrentKey("Item No.", "Location Code", "Posting Date");
                         ItemLedgEntry1.SetRange("Item No.", "Item Ledger Entry"."Item No.");
                         ItemLedgEntry1.SetRange("Location Code", "Item Ledger Entry"."Location Code");
@@ -325,7 +325,7 @@ report 14311 "Stock Card"
                         ValueEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
                         ValueEntry.SetFilter("Invoiced Quantity", '<>0');
                         if not ValueEntry.FindFirst then
-                            ValueEntry.Init;
+                            ValueEntry.Init();
                         ReceivedQty := ValueEntry."Invoiced Quantity";
                         ReceivedCost := ValueEntry."Cost per Unit";
                         Amount := ReceivedQty * ReceivedCost;
@@ -352,7 +352,7 @@ report 14311 "Stock Card"
                         ValueEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
                         ValueEntry.SetFilter("Invoiced Quantity", '<>0');
                         if not ValueEntry.FindFirst then
-                            ValueEntry.Init;
+                            ValueEntry.Init();
                         ReceivedQty := ValueEntry."Invoiced Quantity";
                         ReceivedCost := ValueEntry."Cost per Unit";
                         Amount := ReceivedQty * ReceivedCost;
@@ -463,7 +463,7 @@ report 14311 "Stock Card"
 
     trigger OnInitReport()
     begin
-        Previous.Reset;
+        Previous.Reset();
     end;
 
     trigger OnPreReport()

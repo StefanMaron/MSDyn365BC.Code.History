@@ -18,9 +18,6 @@ report 28026 "Financial Analysis Report"
             column(LongText; LongText)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -205,7 +202,7 @@ report 28026 "Financial Analysis Report"
                 FilterGLAccount("G/L Account");
 
                 GroupNo := 1;
-                GLSetup.Get;
+                GLSetup.Get();
                 if AddCurr then
                     HeaderText := StrSubstNo(Text1450013, GLSetup."Additional Reporting Currency")
                 else begin
@@ -279,7 +276,7 @@ report 28026 "Financial Analysis Report"
         if CurrentPeriodEnd <> NormalDate(CurrentPeriodEnd) then
             LastYearCurrentPeriodEnd := ClosingDate(LastYearCurrentPeriodEnd);
 
-        AccPeriod.Reset;
+        AccPeriod.Reset();
         AccPeriod.SetRange("New Fiscal Year", true, true);
         AccPeriod.SetFilter("Starting Date", '..%1', CurrentPeriodEnd);
         AccPeriod.FindLast;

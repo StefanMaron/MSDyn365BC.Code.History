@@ -15,10 +15,10 @@ report 99001020 "Carry Out Action Msg. - Plan."
                 WindowUpdate;
 
                 if not "Accept Action Message" then
-                    CurrReport.Skip;
-                LockTable;
+                    CurrReport.Skip();
+                LockTable();
 
-                Commit;
+                Commit();
                 case "Ref. Order Type" of
                     "Ref. Order Type"::"Prod. Order":
                         if ProdOrderChoice <> ProdOrderChoice::" " then
@@ -35,9 +35,9 @@ report 99001020 "Carry Out Action Msg. - Plan."
                         if AsmOrderChoice <> AsmOrderChoice::" " then
                             CarryOutActions(3, AsmOrderChoice, '', '');
                     else
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
-                Commit;
+                Commit();
             end;
 
             trigger OnPostDataItem()
@@ -82,7 +82,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
             trigger OnPreDataItem()
             begin
-                LockTable;
+                LockTable();
 
                 SetReqLineFilters;
                 if not Find('-') then

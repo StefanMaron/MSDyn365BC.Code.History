@@ -8,7 +8,7 @@ codeunit 5520 "Get Unplanned Demand"
 
     trigger OnRun()
     begin
-        DeleteAll;
+        DeleteAll();
         SalesLine.SetFilter("Document Type", '%1|%2', SalesLine."Document Type"::Order, SalesLine."Document Type"::"Return Order");
         ProdOrderComp.SetFilter(
           Status, '%1|%2|%3', ProdOrderComp.Status::Planned, ProdOrderComp.Status::"Firm Planned", ProdOrderComp.Status::Released);
@@ -217,7 +217,7 @@ codeunit 5520 "Get Unplanned Demand"
     local procedure GetJobPlanningLineNeededQty(JobPlanningLine: Record "Job Planning Line"): Decimal
     begin
         with JobPlanningLine do begin
-            if Planned or ("No." = '') or (Type <> Type::Item) or IsNonInventoriableItem() then
+            if Planned or ("No." = '') or (Type <> Type::Item) or IsNonInventoriableItem then
                 exit(0);
 
             CalcFields("Reserved Qty. (Base)");
@@ -333,7 +333,7 @@ codeunit 5520 "Get Unplanned Demand"
         ForceIncludeDemand: Boolean;
     begin
         with TempUnplannedDemand do begin
-            UnplannedDemand.Reset;
+            UnplannedDemand.Reset();
             MoveUnplannedDemand(UnplannedDemand, TempUnplannedDemand);
 
             SetCurrentKey("Demand Date", Level);
@@ -360,7 +360,7 @@ codeunit 5520 "Get Unplanned Demand"
                     if ForceIncludeDemand or
                        (IncludeMetDemandForSpecificSalesOrderNo = '') and (UnplannedDemand."Needed Qty. (Base)" > 0)
                     then begin
-                        UnplannedDemand.Insert;
+                        UnplannedDemand.Insert();
                         if not HeaderExists then begin
                             InsertUnplannedDemandHeader(TempUnplannedDemand, UnplannedDemand);
                             HeaderExists := true;
@@ -405,11 +405,11 @@ codeunit 5520 "Get Unplanned Demand"
     local procedure MoveUnplannedDemand(var FromUnplannedDemand: Record "Unplanned Demand"; var ToUnplannedDemand: Record "Unplanned Demand")
     begin
         with FromUnplannedDemand do begin
-            ToUnplannedDemand.DeleteAll;
+            ToUnplannedDemand.DeleteAll();
             if Find('-') then
                 repeat
                     ToUnplannedDemand := FromUnplannedDemand;
-                    ToUnplannedDemand.Insert;
+                    ToUnplannedDemand.Insert();
                     Delete;
                 until Next = 0;
         end;
@@ -430,7 +430,7 @@ codeunit 5520 "Get Unplanned Demand"
             Find('-');
             ToUnplannedDemand := FromUnplannedDemand;
             ToUnplannedDemand."Demand Date" := UnplannedDemand2."Demand Date";
-            ToUnplannedDemand.Insert;
+            ToUnplannedDemand.Insert();
         end;
 
         FromUnplannedDemand.Copy(UnplannedDemand2);

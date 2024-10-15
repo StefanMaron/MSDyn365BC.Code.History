@@ -1,4 +1,4 @@
-﻿page 370 "Bank Account Card"
+page 370 "Bank Account Card"
 {
     Caption = 'Bank Account Card';
     PageType = Card;

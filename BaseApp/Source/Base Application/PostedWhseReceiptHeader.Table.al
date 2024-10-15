@@ -112,7 +112,7 @@ table 7318 "Posted Whse. Receipt Header"
     var
         IsHandled: Boolean;
     begin
-        WhseSetup.Get;
+        WhseSetup.Get();
         if "No." = '' then begin
             IsHandled := false;
             OnInsertOnBeforeTestWhseReceiptNos(WhseSetup, IsHandled);
@@ -171,20 +171,20 @@ table 7318 "Posted Whse. Receipt Header"
 
         WhsePutAwayRequest.SetRange("Document Type", WhsePutAwayRequest."Document Type"::Receipt);
         WhsePutAwayRequest.SetRange("Document No.", "No.");
-        WhsePutAwayRequest.DeleteAll;
+        WhsePutAwayRequest.DeleteAll();
 
         PostedWhseRcptLine.SetRange("No.", "No.");
-        PostedWhseRcptLine.DeleteAll;
+        PostedWhseRcptLine.DeleteAll();
 
         WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Posted Whse. Receipt");
         WhseCommentLine.SetRange(Type, WhseCommentLine.Type::" ");
         WhseCommentLine.SetRange("No.", "No.");
-        WhseCommentLine.DeleteAll;
+        WhseCommentLine.DeleteAll();
     end;
 
     procedure LookupPostedWhseRcptHeader(var PostedWhseRcptHeader: Record "Posted Whse. Receipt Header")
     begin
-        Commit;
+        Commit();
         if UserId <> '' then begin
             PostedWhseRcptHeader.FilterGroup := 2;
             PostedWhseRcptHeader.SetRange("Location Code");

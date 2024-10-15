@@ -304,10 +304,10 @@ report 412 "Purchase Prepmt. Doc. - Test"
                     begin
                         if Number = 1 then begin
                             if not DimSetEntry.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if not Continue then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         DimText := '';
                         Continue := false;
@@ -321,7 +321,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ShowDim then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(HeaderErrorCounter; "Integer")
@@ -355,7 +355,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(PurchLineLoop; "Integer")
@@ -440,10 +440,10 @@ report 412 "Purchase Prepmt. Doc. - Test"
                         begin
                             if Number = 1 then begin
                                 if not TempPurchLine.Find('-') then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if TempPurchLine.Next = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             "Purchase Line" := TempPurchLine;
                             CurrentErrorCount := ErrorCounter;
                             with "Purchase Line" do begin
@@ -478,7 +478,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                                 end;
                             end;
 
-                            TempPrepmtInvLineBuf2.Reset;
+                            TempPrepmtInvLineBuf2.Reset();
                             TempPrepmtInvLineBuf2.DeleteAll
                         end;
                     }
@@ -488,11 +488,11 @@ report 412 "Purchase Prepmt. Doc. - Test"
                         GLAcc: Record "G/L Account";
                         TempPurchLineToDeduct: Record "Purchase Line" temporary;
                     begin
-                        TempPurchLine.Reset;
-                        TempPurchLine.DeleteAll;
+                        TempPurchLine.Reset();
+                        TempPurchLine.DeleteAll();
 
                         Clear(PurchPostPrepmt);
-                        TempVATAmountLine.DeleteAll;
+                        TempVATAmountLine.DeleteAll();
                         PurchPostPrepmt.GetPurchLines("Purchase Header", DocumentType, TempPurchLine);
                         if (DocumentType = DocumentType::Invoice) then begin
                             PurchPostPrepmt.GetPurchLinesToDeduct("Purchase Header", TempPurchLineToDeduct);
@@ -503,19 +503,19 @@ report 412 "Purchase Prepmt. Doc. - Test"
                         PurchPostPrepmt.CalcVATAmountLines("Purchase Header", TempPurchLine, TempVATAmountLine, DocumentType);
                         TempVATAmountLine.DeductVATAmountLine(TempVATAmountLineDeduct);
                         PurchPostPrepmt.UpdateVATOnLines("Purchase Header", TempPurchLine, TempVATAmountLine, DocumentType);
-                        GLSetup.Get;
+                        GLSetup.Get();
                         if (GLSetup."Full GST on Prepayment") and ("Purchase Header"."Prepayment %" <> 0) then begin
                             TempVATAmountLine."Line Amount" := 0;
                             TempVATAmountLine."Amount Including VAT" := 0;
                             TempVATAmountLine."VAT Amount" := 0;
                             TempVATAmountLine."VAT Base" := 0;
-                            TempVATAmountLine.Modify;
+                            TempVATAmountLine.Modify();
                             if "Purchase Header"."Currency Code" <> '' then
                                 Currency.Get("Purchase Header"."Currency Code");
                             PrepaymentVATAmount := 0;
                             PrepaymentLineAmountExclVAT := 0;
                             TotalVATAmount := 0;
-                            PurchLineTotal.Reset;
+                            PurchLineTotal.Reset();
                             PurchLineTotal.SetRange("Document No.", "Purchase Header"."No.");
                             if PurchLineTotal.FindSet then
                                 repeat
@@ -540,10 +540,10 @@ report 412 "Purchase Prepmt. Doc. - Test"
                                             TempVATAmountLine."Line Amount" += PrepaymentLineAmountExclVAT + PrepaymentVATAmount;
                                             TempVATAmountLine."Amount Including VAT" += (VatBase * (PurchLineTotal."Prepayment %" / 100)) + TotalVATAmount;
                                         end;
-                                        TempVATAmountLine.Modify;
+                                        TempVATAmountLine.Modify();
                                     end;
                                 until PurchLineTotal.Next = 0;
-                            TempVATAmountLine.Modify;
+                            TempVATAmountLine.Modify();
                         end;
                         VATAmount := TempVATAmountLine.GetTotalVATAmount;
                         VATBaseAmount := TempVATAmountLine.GetTotalVATBase;
@@ -645,7 +645,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(LineDimLoop; "Integer")
@@ -668,10 +668,10 @@ report 412 "Purchase Prepmt. Doc. - Test"
                         begin
                             if Number = 1 then begin
                                 if not LineDimSetEntry.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             DimText := '';
                             Continue := false;
 
@@ -685,7 +685,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                         trigger OnPreDataItem()
                         begin
                             if not ShowDim then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(PrepmtErrorCounter; "Integer")
@@ -716,10 +716,10 @@ report 412 "Purchase Prepmt. Doc. - Test"
                     begin
                         if Number = 1 then begin
                             if not TempPrepmtInvLineBuf.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if TempPrepmtInvLineBuf.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         LineDimSetEntry.SetRange("Dimension Set ID", TempPrepmtInvLineBuf."Dimension Set ID");
 
@@ -739,8 +739,8 @@ report 412 "Purchase Prepmt. Doc. - Test"
 
                     trigger OnPostDataItem()
                     begin
-                        TempPrepmtInvLineBuf.Reset;
-                        TempPrepmtInvLineBuf.DeleteAll;
+                        TempPrepmtInvLineBuf.Reset();
+                        TempPrepmtInvLineBuf.DeleteAll();
                     end;
 
                     trigger OnPreDataItem()
@@ -839,7 +839,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                     trigger OnPreDataItem()
                     begin
                         if VATAmount = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange(Number, 1, TempVATAmountLine.Count);
                     end;
                 }
@@ -888,7 +888,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                         AddError(StrSubstNo(Text010, FieldCaption("Posting Date")));
                 end;
 
-                PurchSetup.Get;
+                PurchSetup.Get();
 
                 case DocumentType of
                     DocumentType::Invoice:
@@ -985,7 +985,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
         else
             PrepmtDocText := Text015;
 
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

@@ -85,8 +85,7 @@ table 5407 "Prod. Order Component"
 
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
                 "Quantity (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
 
                 UpdateUnitCost;
 
@@ -450,11 +449,9 @@ table 5407 "Prod. Order Component"
                 Validate("Calculation Formula");
             end;
         }
-        field(44; "Calculation Formula"; Option)
+        field(44; "Calculation Formula"; Enum "Quantity Calculation Formula")
         {
             Caption = 'Calculation Formula';
-            OptionCaption = ' ,Length,Length * Width,Length * Width * Depth,Weight';
-            OptionMembers = " ",Length,"Length * Width","Length * Width * Depth",Weight;
 
             trigger OnValidate()
             begin
@@ -469,6 +466,8 @@ table 5407 "Prod. Order Component"
                         Quantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision);
                     "Calculation Formula"::Weight:
                         Quantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision);
+                    else
+                        OnValidateCalculationFormulaEnumExtension(Rec);
                 end;
                 OnValidateCalculationFormulaOnAfterSetQuantity(Rec);
                 "Quantity (Base)" := Quantity * "Qty. per Unit of Measure";
@@ -685,8 +684,7 @@ table 5407 "Prod. Order Component"
             trigger OnValidate()
             begin
                 "Qty. Picked (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "Item No.", "Variant Code", "Unit of Measure Code", "Qty. Picked", "Qty. per Unit of Measure");
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Picked", "Qty. per Unit of Measure");
 
                 "Completely Picked" := "Qty. Picked" >= "Expected Quantity";
             end;
@@ -847,7 +845,7 @@ table 5407 "Prod. Order Component"
                         ProdOrderLine.Delete(true);
                     end else begin
                         ProdOrderLine.Validate(Quantity, NewQuantity);
-                        ProdOrderLine.Modify;
+                        ProdOrderLine.Modify();
                         ProdOrderLine.UpdateProdOrderComp(ProdOrderLine."Qty. per Unit of Measure");
                     end;
                 end;
@@ -857,7 +855,7 @@ table 5407 "Prod. Order Component"
         ProdOrderBOMComment.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderBOMComment.SetRange("Prod. Order Line No.", "Prod. Order Line No.");
         ProdOrderBOMComment.SetRange("Prod. Order BOM Line No.", "Line No.");
-        ProdOrderBOMComment.DeleteAll;
+        ProdOrderBOMComment.DeleteAll();
 
         WhseProdRelease.DeleteLine(Rec);
 
@@ -906,7 +904,6 @@ table 5407 "Prod. Order Component"
         Location: Record Location;
         SKU: Record "Stockkeeping Unit";
         ReservMgt: Codeunit "Reservation Management";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         ReserveProdOrderComp: Codeunit "Prod. Order Comp.-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
         DimMgt: Codeunit DimensionManagement;
@@ -953,7 +950,7 @@ table 5407 "Prod. Order Component"
             UpdateDatetime;
         end;
 
-        ProdOrderRtngLine.Reset;
+        ProdOrderRtngLine.Reset();
         ProdOrderRtngLine.SetRange(Status, Status);
         ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
@@ -1040,15 +1037,15 @@ table 5407 "Prod. Order Component"
     begin
         TestField("Item No.");
         Clear(Reservation);
-        Reservation.SetProdOrderComponent(Rec);
-        Reservation.RunModal;
+        Reservation.SetReservSource(Rec);
+        Reservation.RunModal();
     end;
 
     procedure ShowReservationEntries(Modal: Boolean)
     begin
         TestField("Item No.");
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, true);
-        ReserveProdOrderComp.FilterReservFor(ReservEntry, Rec);
+        ReservEntry.InitSortingAndFilters(true);
+        SetReservationFilters(ReservEntry);
         if Modal then
             PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry)
         else
@@ -1202,7 +1199,7 @@ table 5407 "Prod. Order Component"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 
@@ -1269,7 +1266,7 @@ table 5407 "Prod. Order Component"
 
     local procedure FindFirstRtngLine(var ProdOrderRtngLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line"): Boolean
     begin
-        ProdOrderRtngLine.Reset;
+        ProdOrderRtngLine.Reset();
         ProdOrderRtngLine.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
         ProdOrderRtngLine.SetRange(Status, ProdOrderLine.Status);
         ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
@@ -1315,6 +1312,56 @@ table 5407 "Prod. Order Component"
                 BinCode := Location."Open Shop Floor Bin Code";
         end;
         OnAfterGetBinCodeFromLocation(Rec, Location, BinCode);
+    end;
+
+    procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        RemainingQty := "Remaining Quantity" - Abs("Reserved Quantity");
+        RemainingQtyBase := "Remaining Qty. (Base)" - Abs("Reserved Qty. (Base)");
+    end;
+
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal): Decimal
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        QtyReserved := "Reserved Quantity";
+        QtyReservedBase := "Reserved Qty. (Base)";
+        QtyToReserve := "Remaining Quantity";
+        QtyToReserveBase := "Remaining Qty. (Base)";
+        exit("Qty. per Unit of Measure");
+    end;
+
+    procedure GetSourceCaption(): Text
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ProdOrderLine.Get(Status, "Prod. Order No.", "Prod. Order Line No.");
+        exit(StrSubstNo('%1 %2 %3 %4 %5', Status, TableCaption, "Prod. Order No.", "Item No.", ProdOrderLine."Item No."));
+    end;
+
+    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSource(DATABASE::"Prod. Order Component", Status, "Prod. Order No.", "Line No.", '', "Prod. Order Line No.");
+        ReservEntry.SetItemData("Item No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
+        ReservEntry."Expected Receipt Date" := "Due Date";
+        ReservEntry."Shipment Date" := "Due Date";
+    end;
+
+    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSourceFilter(DATABASE::"Prod. Order Component", Status, "Prod. Order No.", "Line No.", false);
+        ReservEntry.SetSourceFilter('', "Prod. Order Line No.");
+
+        OnAfterSetReservationFilters(ReservEntry, Rec);
+    end;
+
+    procedure ReservEntryExist(): Boolean
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservEntry);
+        exit(not ReservEntry.IsEmpty);
     end;
 
     local procedure UpdateBin(var ProdOrderComp: Record "Prod. Order Component"; FieldNo: Integer; FieldCaption: Text[30])
@@ -1376,7 +1423,7 @@ table 5407 "Prod. Order Component"
 
         if "Remaining Qty. (Base)" <> 0 then begin
             TestField("Due Date");
-            ReservMgt.SetProdOrderComponent(Rec);
+            ReservMgt.SetReservSource(Rec);
             ReservMgt.AutoReserve(FullAutoReservation, '', "Due Date", "Remaining Quantity", "Remaining Qty. (Base)");
             CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
             Find;
@@ -1384,7 +1431,7 @@ table 5407 "Prod. Order Component"
                (CurrFieldNo <> 0)
             then
                 if Confirm(Text99000009, true) then begin
-                    Commit;
+                    Commit();
                     ShowReservation;
                     Find;
                 end;
@@ -1473,6 +1520,21 @@ table 5407 "Prod. Order Component"
     begin
         FilterLinesWithItemToPlan(Item, IncludeFirmPlanned);
         exit(not IsEmpty);
+    end;
+
+    procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; NewStatus: Option; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+        Reset;
+        SetCurrentKey(Status, "Item No.", "Variant Code", "Location Code", "Due Date");
+        SetRange(Status, NewStatus);
+        SetRange("Item No.", ReservationEntry."Item No.");
+        SetRange("Variant Code", ReservationEntry."Variant Code");
+        SetRange("Location Code", ReservationEntry."Location Code");
+        SetFilter("Due Date", AvailabilityFilter);
+        if Positive then
+            SetFilter("Remaining Qty. (Base)", '<0')
+        else
+            SetFilter("Remaining Qty. (Base)", '>0');
     end;
 
     procedure ShowDimensions()
@@ -1571,6 +1633,11 @@ table 5407 "Prod. Order Component"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; ProdOrderComponent: Record "Prod. Order Component");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateDateTime(var ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
@@ -1642,6 +1709,11 @@ table 5407 "Prod. Order Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetNeededQtyOnBeforeCalcBasedOn(var ProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCalculationFormulaEnumExtension(var ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
 

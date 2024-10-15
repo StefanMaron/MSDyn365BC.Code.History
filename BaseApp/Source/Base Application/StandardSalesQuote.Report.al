@@ -524,7 +524,7 @@ report 1304 "Standard Sales - Quote"
                     while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                         MoreLines := Next(-1) <> 0;
                     if not MoreLines then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange("Line No.", 0, "Line No.");
                     TransHeaderAmount := 0;
                     PrevLineAmount := 0;
@@ -545,7 +545,7 @@ report 1304 "Standard Sales - Quote"
                 trigger OnAfterGetRecord()
                 begin
                     if WorkDescriptionInstream.EOS then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     WorkDescriptionInstream.ReadText(WorkDescriptionLine);
                 end;
 
@@ -557,7 +557,7 @@ report 1304 "Standard Sales - Quote"
                 trigger OnPreDataItem()
                 begin
                     if not ShowWorkDescription then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     Header."Work Description".CreateInStream(WorkDescriptionInstream, TEXTENCODING::UTF8);
                 end;
@@ -770,8 +770,8 @@ report 1304 "Standard Sales - Quote"
                 FirstLineHasBeenOutput := false;
                 Clear(Line);
                 Clear(SalesPost);
-                VATAmountLine.DeleteAll;
-                Line.DeleteAll;
+                VATAmountLine.DeleteAll();
+                Line.DeleteAll();
                 SalesPost.GetSalesLines(Header, Line, 0);
                 Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
@@ -882,11 +882,11 @@ report 1304 "Standard Sales - Quote"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         CompanyInfo.SetAutoCalcFields(Picture);
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyABNNumber := StrSubstNo('%1 %2', CompanyInfo.FieldCaption(ABN), CompanyInfo.ABN);
-        SalesSetup.Get;
+        SalesSetup.Get();
         CompanyInfo.VerifyAndSetPaymentInfo;
     end;
 
@@ -1062,7 +1062,7 @@ report 1304 "Standard Sales - Quote"
 
     local procedure CreateReportTotalLines()
     begin
-        ReportTotalsLine.DeleteAll;
+        ReportTotalsLine.DeleteAll();
         if (TotalInvDiscAmount <> 0) or (TotalAmountVAT <> 0) then
             ReportTotalsLine.Add(SubtotalLbl, TotalSubTotal, true, false, false);
         if TotalInvDiscAmount <> 0 then begin

@@ -20,9 +20,6 @@ report 28092 "PDC Acknowledgement Receipt"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(Addr_1_; Addr[1])
             {
             }
@@ -132,7 +129,7 @@ report 28092 "PDC Acknowledgement Receipt"
                 if "Currency Code" <> '' then
                     CurrencyCode := "Currency Code"
                 else begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     CurrencyCode := GLSetup."LCY Code";
                 end;
                 RecordNum += 1;

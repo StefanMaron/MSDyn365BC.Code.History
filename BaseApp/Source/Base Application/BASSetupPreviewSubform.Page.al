@@ -117,7 +117,7 @@ page 11610 "BAS Setup Preview Subform"
         case Type of
             Type::"Account Totaling":
                 begin
-                    GLEntry.Reset;
+                    GLEntry.Reset();
                     GLEntry.SetCurrentKey(
                       "G/L Account No.",
                       "BAS Adjustment",
@@ -143,7 +143,7 @@ page 11610 "BAS Setup Preview Subform"
                                     if GLEntry."Posting Date" = NormalDate(GLEntry."Posting Date") then
                                         GLEntry.Mark(true);
                                 end else begin
-                                    BASCalcEntry1.Reset;
+                                    BASCalcEntry1.Reset();
                                     BASCalcEntry1.SetCurrentKey("Company Name", Type, "Entry No.", "BAS Document No.", "BAS Version");
                                     BASCalcEntry1.SetRange("Company Name", CompanyName);
                                     BASCalcEntry1.SetRange(Type, BASCalcEntry1.Type::"G/L Entry");
@@ -164,7 +164,7 @@ page 11610 "BAS Setup Preview Subform"
                 end;
             Type::"GST Entry Totaling":
                 begin
-                    VATEntry.Reset;
+                    VATEntry.Reset();
                     VATEntry.SetCurrentKey(
                       Type,
                       Closed,
@@ -196,7 +196,7 @@ page 11610 "BAS Setup Preview Subform"
                             if not BASCalcSheet.Exported then
                                 VATEntry.Mark(true)
                             else begin
-                                BASCalcEntry1.Reset;
+                                BASCalcEntry1.Reset();
                                 BASCalcEntry1.SetCurrentKey("Company Name", Type, "Entry No.", "BAS Document No.", "BAS Version");
                                 BASCalcEntry1.SetRange("Company Name", CompanyName);
                                 BASCalcEntry1.SetRange(Type, BASCalcEntry1.Type::"GST Entry");

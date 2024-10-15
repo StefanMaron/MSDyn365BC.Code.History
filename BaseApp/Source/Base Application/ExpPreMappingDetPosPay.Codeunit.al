@@ -12,7 +12,7 @@ codeunit 1704 "Exp. Pre-Mapping Det Pos. Pay"
         PreparePosPayDetails(CheckLedgerEntry, "Entry No.", LineNo);
 
         // Reset filters and set it on the Data Exch. Voided Entry No.
-        CheckLedgerEntry.Reset;
+        CheckLedgerEntry.Reset();
         CheckLedgerEntry.SetRange("Data Exch. Voided Entry No.", "Entry No.");
         PreparePosPayDetails(CheckLedgerEntry, "Entry No.", LineNo);
     end;

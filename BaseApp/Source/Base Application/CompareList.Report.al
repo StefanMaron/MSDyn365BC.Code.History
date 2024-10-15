@@ -109,11 +109,11 @@ report 99000758 "Compare List"
             begin
                 if First then begin
                     if not BOMMatrixMgt.FindRecord('-', BOMMatrixList) then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     First := false;
                 end else
                     if BOMMatrixMgt.NextRecord(1, BOMMatrixList) = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                 Qty1 := BOMMatrixMgt.GetComponentNeed(BOMMatrixList."Item No.", BOMMatrixList."Variant Code", Item[1]."No.");
                 Qty2 := BOMMatrixMgt.GetComponentNeed(BOMMatrixList."Item No.", BOMMatrixList."Variant Code", Item[2]."No.");

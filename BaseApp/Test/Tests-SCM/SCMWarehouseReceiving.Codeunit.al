@@ -289,7 +289,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
           PurchaseHeader, LocationWhite2.Code, Item."No.", Quantity + LibraryRandom.RandDec(10, 2), Item."Base Unit of Measure");
         PutAwayWorksheet.OpenEdit;
         PutAwayWorksheet.GetWarehouseDocuments.Invoke;
-        Commit;  // Commit is required here.
+        Commit();  // Commit is required here.
 
         // Exercise: Invoke Create Put-Away from Put-Away Worksheet and handle the Error.
         LibraryVariableStorage.Enqueue(SortActivity);  // Enqueue for WhseSourceCreateDocumentHandler.
@@ -3230,7 +3230,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ConsumptionJournalSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse - Receiving");
     end;
 
@@ -3814,7 +3814,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         DefaultDimension: Record "Default Dimension";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, ItemNo, DimensionValue."Dimension Code", DimensionValue.Code);
     end;
@@ -4707,7 +4707,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ItemTrackingCodeRec.Get(ItemTrackingCode);
         if not ItemTrackingCodeRec."Use Expiration Dates" then begin
             ItemTrackingCodeRec.Validate("Use Expiration Dates", true);
-            ItemTrackingCodeRec.Modify;
+            ItemTrackingCodeRec.Modify();
         end;
     end;
 

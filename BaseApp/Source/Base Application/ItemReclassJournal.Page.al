@@ -1,4 +1,4 @@
-﻿page 393 "Item Reclass. Journal"
+page 393 "Item Reclass. Journal"
 {
     AdditionalSearchTerms = 'change location,change bin,change dimension,change lot number,change serial number';
     ApplicationArea = Basic, Suite;
@@ -731,7 +731,7 @@
     var
         ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
     begin
-        Commit;
+        Commit();
         if not ReserveItemJnlLine.DeleteLineConfirm(Rec) then
             exit(false);
         ReserveItemJnlLine.DeleteLine(Rec);

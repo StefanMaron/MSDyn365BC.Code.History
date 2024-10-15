@@ -40,12 +40,12 @@ codeunit 5550 "Fixed Asset Acquisition Wizard"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         if not GenJournalBatch.Get(SelectFATemplate, GenJournalBatchNameTxt) then begin
-            GenJournalBatch.Init;
+            GenJournalBatch.Init();
             GenJournalBatch."Journal Template Name" := SelectFATemplate;
             GenJournalBatch.Name := GenJournalBatchNameTxt;
             GenJournalBatch.Description := SimpleJnlDescriptionTxt;
             GenJournalBatch.SetupNewBatch;
-            GenJournalBatch.Insert;
+            GenJournalBatch.Insert();
         end;
 
         exit(GenJournalBatch.Name);

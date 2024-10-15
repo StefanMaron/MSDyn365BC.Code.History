@@ -78,9 +78,6 @@ report 28043 "WHT Certificate - Other Copy"
             column(Text1500000; Text1500000Lbl)
             {
             }
-            column(STRSUBSTNO_Text1500001_FORMAT_CurrReport_PAGENO__; StrSubstNo(Text1500001, Format(CurrReport.PageNo)))
-            {
-            }
             column(Vendor__No__; Vendor."No.")
             {
             }
@@ -159,10 +156,10 @@ report 28043 "WHT Certificate - Other Copy"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
-                PurchSetup.Get;
+                GLSetup.Get();
+                PurchSetup.Get();
                 PurchSetup.TestField("WHT Certificate No. Series");
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
                 TotalAmountLCY := 0;
                 TotalBaseLCY := 0;
@@ -199,7 +196,7 @@ report 28043 "WHT Certificate - Other Copy"
             trigger OnAfterGetRecord()
             begin
                 if not "WHT Entry".Find('-') then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 WHTAmountLCY := 0;
                 WHTBaseLCY := 0;
                 WHTDate := 0D;
@@ -221,7 +218,7 @@ report 28043 "WHT Certificate - Other Copy"
 
             trigger OnPreDataItem()
             begin
-                WHTEntry2.Reset;
+                WHTEntry2.Reset();
                 WHTEntry2.SetCurrentKey("Bill-to/Pay-to No.", "Original Document No.", "WHT Revenue Type");
             end;
         }

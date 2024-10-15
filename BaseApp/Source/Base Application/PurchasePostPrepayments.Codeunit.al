@@ -30,7 +30,6 @@
         PurchSetup: Record "Purchases & Payables Setup";
         GenPostingSetup: Record "General Posting Setup";
         TempGlobalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary;
-        TempPurchaseLine: Record "Purchase Line" temporary;
         TempGlobalPrepmtInvLineBufGST: Record "Prepayment Inv. Line Buffer" temporary;
         ErrorMessageMgt: Codeunit "Error Message Management";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
@@ -119,9 +118,9 @@
         OnBeforePostPrepayments(PurchHeader2, DocumentType, SuppressCommit);
 
         PurchHeader := PurchHeader2;
-        GLSetup.Get;
-        PurchSetup.Get;
-        TempGlobalPrepmtInvLineBufGST.DeleteAll;
+        GLSetup.Get();
+        PurchSetup.Get();
+        TempGlobalPrepmtInvLineBufGST.DeleteAll();
         with PurchHeader do begin
             CheckPrepmtDoc(PurchHeader, DocumentType);
 
@@ -130,7 +129,7 @@
             if not PreviewMode and ModifyHeader then begin
                 Modify;
                 if not SuppressCommit then
-                    Commit;
+                    Commit();
             end;
 
             Window.Open(
@@ -141,7 +140,7 @@
               Text006);
             Window.Update(1, StrSubstNo('%1 %2', SelectStr(1 + DocumentType, text019), "No."));
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SrcCode := SourceCodeSetup.Purchases;
             if "Prepmt. Posting Description" <> '' then
                 PostingDescription := "Prepmt. Posting Description"
@@ -185,7 +184,7 @@
             end;
 
             // Create Lines
-            TempPrepmtInvLineBuffer.DeleteAll;
+            TempPrepmtInvLineBuffer.DeleteAll();
             CalcVATAmountLines(PurchHeader, PurchLine, TempVATAmountLine, DocumentType);
             TempVATAmountLine.DeductVATAmountLine(TempVATAmountLineDeduct);
             SavePrepmtAmounts(PurchHeader, PurchLine, DocumentType, TempOriginalPurchLine);
@@ -219,14 +218,6 @@
                   PostedDocTabNo, GenJnlLineDocNo, TempPrepmtInvLineBuffer."G/L Account No.", "Document Date", "Language Code", PrevLineNo);
             until TempPrepmtInvLineBuffer.Next = 0;
 
-            if "Compress Prepayment" then
-                case DocumentType of
-                    DocumentType::Invoice:
-                        CopyLineCommentLinesCompressedPrepayment("No.", DATABASE::"Purch. Inv. Header", PurchInvHeader."No.");
-                    DocumentType::"Credit Memo":
-                        CopyLineCommentLinesCompressedPrepayment("No.", DATABASE::"Purch. Cr. Memo Hdr.", PurchCrMemoHeader."No.");
-                end;
-
             OnAfterCreateLinesOnBeforeGLPosting(PurchHeader, PurchInvHeader, PurchCrMemoHeader, TempPrepmtInvLineBuffer, DocumentType, LineNo);
 
             // G/L Posting
@@ -247,7 +238,7 @@
                     TotalPrepmtInvLineBufferLCY := TotalPrepmtInvLineBuffer;
                 end else
                     AdjustInvLineBuffers(PurchHeader, TempPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, DocumentType);
-                TempPrepmtInvLineBuffer.Modify;
+                TempPrepmtInvLineBuffer.Modify();
             until TempPrepmtInvLineBuffer.Next = 0;
 
             if "Last Prepayment No." = '' then
@@ -256,7 +247,7 @@
                         if DocumentType = DocumentType::Invoice then
                             WHTManagement.InsertVendPrepaymentInvoiceWHT(PurchInvHeader, PurchHeader);
 
-            TempPrepmtInvLineBuffer.Reset;
+            TempPrepmtInvLineBuffer.Reset();
             TempPrepmtInvLineBuffer.SetCurrentKey(Adjustment);
             TempPrepmtInvLineBuffer.Find('+');
             repeat
@@ -280,7 +271,7 @@
                     if WHTEntry.Find('+') then
                         if GLReg.FindLast then begin
                             GLReg."To WHT Entry No." := WHTEntry."Entry No.";
-                            GLReg.Modify;
+                            GLReg.Modify();
                         end;
                 end;
 
@@ -308,10 +299,10 @@
 
             // Update lines & header
             UpdatePurchaseDocument(PurchHeader, PurchLine, DocumentType, GenJnlLineDocNo);
-            if Status <> Status::"Pending Prepayment" then
+            if TestStatusIsNotPendingPrepayment then
                 Status := Status::"Pending Prepayment";
             Modify;
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Enable WHT" then
                 if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then begin
                     if DocumentType = DocumentType::"Credit Memo" then
@@ -320,7 +311,6 @@
         end;
 
         PurchHeader2 := PurchHeader;
-        PurchHeader2.TriggerOnAfterPostPurchaseDoc(GenJnlPostLine, '', '', PurchInvHeader."No.", PurchCrMemoHeader."No.");
 
         if PreviewMode then begin
             Window.Close;
@@ -448,7 +438,7 @@
     var
         CurrExchRate: Record "Currency Exchange Rate";
     begin
-        CurrExchRate.Init;
+        CurrExchRate.Init();
         with PurchHeader do
             exit(
               Round(
@@ -512,9 +502,9 @@
                     PurchLine."Prepmt. Amount Inv. (LCY)" += PrepmtAmountRnded[VAT::Base];
                     PurchLine."Prepmt. VAT Amount Inv. (LCY)" += PrepmtAmountRnded[VAT::Amount];
                 end;
-                PurchLine.Modify;
+                PurchLine.Modify();
             until TempGlobalPrepmtInvLineBuf.Next = 0;
-        TempGlobalPrepmtInvLineBuf.DeleteAll;
+        TempGlobalPrepmtInvLineBuf.DeleteAll();
         ReverseDecArray(VATAdjustment);
     end;
 
@@ -531,7 +521,7 @@
     var
         WHTPostingSetup: Record "WHT Posting Setup";
     begin
-        WHTEntry.Reset;
+        WHTEntry.Reset();
         WHTEntry.SetRange("Document Type", WHTEntry."Document Type"::Invoice);
         WHTEntry.SetRange("Document No.", PurchInvNo);
         WHTEntry.SetRange("Gen. Bus. Posting Group", PrepaymentInvLineBuffer."Gen. Bus. Posting Group");
@@ -654,7 +644,7 @@
 
         with PurchLine do begin
             ApplyFilter(PurchHeader, DocumentType, PurchLine);
-            LockTable;
+            LockTable();
             CalcSums("Prepmt. Line Amount", "Prepmt. Amt. Inv.");
             PrepmtAmtToInvTotal := "Prepmt. Line Amount" - "Prepmt. Amt. Inv.";
             if Find('-') then
@@ -672,8 +662,8 @@
                             OnUpdateVATOnLinesOnAfterGetRemainder(TempVATAmountLineRemainder, RemainderExists);
                             if not RemainderExists then begin
                                 TempVATAmountLineRemainder := VATAmountLine;
-                                TempVATAmountLineRemainder.Init;
-                                TempVATAmountLineRemainder.Insert;
+                                TempVATAmountLineRemainder.Init();
+                                TempVATAmountLineRemainder.Insert();
                             end;
 
                             if PurchHeader."Prices Including VAT" then begin
@@ -803,7 +793,7 @@
                                         TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT +
                                           Round(NewAmount / ("Prepayment %" / 100), Currency."Amount Rounding Precision");
                             TempVATAmountLineRemainder."VAT Difference" := VATDifference - "Prepayment VAT Difference";
-                            TempVATAmountLineRemainder.Modify;
+                            TempVATAmountLineRemainder.Modify();
                         end;
                     end;
                 until Next = 0;
@@ -815,15 +805,15 @@
     [Scope('OnPrem')]
     procedure SavePrepmtAmounts(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; DocumentType: Option Invoice,"Credit Memo",Statistic; var TempOriginalPurchLine: Record "Purchase Line")
     begin
-        TempOriginalPurchLine.Reset;
-        TempOriginalPurchLine.DeleteAll;
+        TempOriginalPurchLine.Reset();
+        TempOriginalPurchLine.DeleteAll();
 
         ApplyFilter(PurchHeader, DocumentType, PurchLine);
         if PurchLine.FindSet then
             repeat
                 if PurchLine."Prepmt. Amt. Inv." <> PurchLine."Prepmt. Line Amount" then begin
                     TempOriginalPurchLine := PurchLine;
-                    TempOriginalPurchLine.Insert;
+                    TempOriginalPurchLine.Insert();
                 end;
             until PurchLine.Next = 0;
     end;
@@ -843,9 +833,9 @@
                         PurchLine."Prepmt. Amt. Incl. VAT" := PurchLine."Prepmt. Amt. Incl. VAT" + "Prepmt. Amt. Incl. VAT";
                         PurchLine."Prepayment Amount" := PurchLine."Prepayment Amount" + "Prepayment Amount";
                     end;
-                    PurchLine.Modify;
+                    PurchLine.Modify();
                 until Next = 0;
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 
@@ -858,10 +848,10 @@
         NewPrepmtVATDiffAmt: Decimal;
         FullGST: Boolean;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         Currency.Initialize(PurchHeader."Currency Code");
 
-        VATAmountLine.DeleteAll;
+        VATAmountLine.DeleteAll();
 
         with PurchLine do begin
             ApplyFilter(PurchHeader, DocumentType, PurchLine);
@@ -893,7 +883,7 @@
                               "Prepmt VAT Diff. Deducted";
                         VATAmountLine."VAT Difference" := VATAmountLine."VAT Difference" + NewPrepmtVATDiffAmt;
                         CalcFullGSTOnLine(PurchLine, VATAmountLine, DocumentType, PurchHeader."Prices Including VAT");
-                        VATAmountLine.Modify;
+                        VATAmountLine.Modify();
                     end;
                 until Next = 0;
         end;
@@ -906,7 +896,7 @@
                        (PrevVatAmountLine."Tax Group Code" <> "Tax Group Code") or
                        (PrevVatAmountLine."Use Tax" <> "Use Tax")
                     then
-                        PrevVatAmountLine.Init;
+                        PrevVatAmountLine.Init();
                     if PurchHeader."Prices Including VAT" then begin
                         case "VAT Calculation Type" of
                             "VAT Calculation Type"::"Normal VAT",
@@ -1074,10 +1064,10 @@
         if FromPurchLine.Find('-') then begin
             repeat
                 ToPurchLine := FromPurchLine;
-                ToPurchLine.Insert;
+                ToPurchLine.Insert();
             until FromPurchLine.Next = 0;
 
-            PurchSetup.Get;
+            PurchSetup.Get();
             if PurchSetup."Invoice Rounding" then begin
                 CalcVATAmountLines(PurchHeader, ToPurchLine, TempVATAmountLine, 2);
                 UpdateVATOnLines(PurchHeader, ToPurchLine, TempVATAmountLine, 2);
@@ -1114,11 +1104,9 @@
         PurchSetup: Record "Purchases & Payables Setup";
     begin
         with PurchHeader do begin
-            TempGlobalPrepmtInvLineBuf.Reset;
-            TempGlobalPrepmtInvLineBuf.DeleteAll;
-            TempPurchaseLine.Reset();
-            TempPurchaseLine.DeleteAll();
-            PurchSetup.Get;
+            TempGlobalPrepmtInvLineBuf.Reset();
+            TempGlobalPrepmtInvLineBuf.DeleteAll();
+            PurchSetup.Get();
             ApplyFilter(PurchHeader, DocumentType, PurchLine);
             if PurchLine.Find('-') then
                 repeat
@@ -1130,8 +1118,6 @@
                         if PurchSetup."Invoice Rounding" then
                             RoundAmounts(
                               PurchHeader, PrepmtInvLineBuf2, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferDummy);
-                        TempPurchaseLine := PurchLine;
-                        TempPurchaseLine.Insert();
                     end;
                 until PurchLine.Next = 0;
             if PurchSetup."Invoice Rounding" then
@@ -1165,7 +1151,7 @@
 
             Amount := PurchLine."Prepayment Amount";
             "VAT Amount" := PurchLine."Prepmt. Amt. Incl. VAT" - PurchLine."Prepayment Amount";
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup.CheckFullGSTonPrepayment(PurchLine."VAT Bus. Posting Group", PurchLine."VAT Prod. Posting Group") then begin
                 if not BASManagement.VendorRegistered(PurchLine."Buy-from Vendor No.") then
                     "VAT Prod. Posting Group" := PurchLine."VAT Prod. Posting Group";
@@ -1348,24 +1334,6 @@
             end;
     end;
 
-    local procedure CopyLineCommentLinesCompressedPrepayment(FromNumber: Code[20]; ToDocType: Integer; ToNumber: Code[20])
-    var
-        PurchCommentLine: Record "Purch. Comment Line";
-    begin
-        if not PurchSetup."Copy Comments Order to Invoice" then
-            exit;
-
-        with PurchCommentLine do
-            case ToDocType of
-                DATABASE::"Purch. Inv. Header":
-                    CopyLineCommentsFromPurchaseLines(
-                      "Document Type"::Order, "Document Type"::"Posted Invoice", FromNumber, ToNumber, TempPurchaseLine);
-                DATABASE::"Purch. Cr. Memo Hdr.":
-                    CopyLineCommentsFromPurchaseLines(
-                      "Document Type"::Order, "Document Type"::"Posted Credit Memo", FromNumber, ToNumber, TempPurchaseLine);
-            end;
-    end;
-
     local procedure InsertExtendedText(TabNo: Integer; DocNo: Code[20]; GLAccNo: Code[20]; DocDate: Date; LanguageCode: Code[10]; var PrevLineNo: Integer)
     var
         TempExtTextLine: Record "Extended Text Line" temporary;
@@ -1381,19 +1349,19 @@
                 case TabNo of
                     DATABASE::"Purch. Inv. Line":
                         begin
-                            PurchInvLine.Init;
+                            PurchInvLine.Init();
                             PurchInvLine."Document No." := DocNo;
                             PurchInvLine."Line No." := NextLineNo;
                             PurchInvLine.Description := TempExtTextLine.Text;
-                            PurchInvLine.Insert;
+                            PurchInvLine.Insert();
                         end;
                     DATABASE::"Purch. Cr. Memo Line":
                         begin
-                            PurchCrMemoLine.Init;
+                            PurchCrMemoLine.Init();
                             PurchCrMemoLine."Document No." := DocNo;
                             PurchCrMemoLine."Line No." := NextLineNo;
                             PurchCrMemoLine.Description := TempExtTextLine.Text;
-                            PurchCrMemoLine.Insert;
+                            PurchCrMemoLine.Insert();
                         end;
                 end;
                 PrevLineNo := NextLineNo;
@@ -1524,7 +1492,7 @@
             SetFilter(Type, '<>%1', Type::" ");
             SetFilter("Line Amount", '<>0');
             SetFilter("Prepayment %", '<>0');
-            LockTable;
+            LockTable();
             if Find('-') then
                 repeat
                     TotalLineAmount := TotalLineAmount + "Line Amount";
@@ -1560,7 +1528,7 @@
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := DATABASE::"Work Center";
         No[1] := PurchLine."Work Center No.";
         TableID[2] := DATABASE::"G/L Account";
@@ -1586,7 +1554,7 @@
             repeat
                 if (PrepmtAmount(PurchLine, 0) <> 0) and (PrepmtAmount(PurchLine, 1) <> 0) then begin
                     PurchLines := PurchLine;
-                    PurchLines.Insert;
+                    PurchLines.Insert();
                 end;
             until PurchLine.Next = 0;
     end;
@@ -1607,7 +1575,7 @@
     local procedure UpdatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocumentType: Option Invoice,"Credit Memo"; GenJnlLineDocNo: Code[20])
     begin
         with PurchaseHeader do begin
-            PurchLine.Reset;
+            PurchLine.Reset();
             PurchLine.SetRange("Document Type", "Document Type");
             PurchLine.SetRange("Document No.", "No.");
             if DocumentType = DocumentType::Invoice then begin
@@ -1623,7 +1591,7 @@
                             PurchLine."Prepmt VAT Diff. to Deduct" :=
                               PurchLine."Prepmt VAT Diff. to Deduct" + PurchLine."Prepayment VAT Difference";
                             PurchLine."Prepayment VAT Difference" := 0;
-                            PurchLine.Modify;
+                            PurchLine.Modify();
                         end;
                     until PurchLine.Next = 0;
             end else begin
@@ -1645,7 +1613,7 @@
                         PurchLine."Prepmt Amt to Deduct" := 0;
                         PurchLine."Prepmt VAT Diff. to Deduct" := 0;
                         PurchLine."Prepayment VAT Difference" := 0;
-                        PurchLine.Modify;
+                        PurchLine.Modify();
                     until PurchLine.Next = 0;
             end;
         end;
@@ -1672,7 +1640,7 @@
                  "G/L Account No.", "Job No.", "Tax Area Code", "Tax Liable", "Tax Group Code",
                  "Invoice Rounding", false, "Line No.", "Dimension Set ID")
             then begin
-                GSTPurchEntry.Init;
+                GSTPurchEntry.Init();
                 GSTPurchEntry."Entry No." := EntryNo;
                 GSTPurchEntry."GST Entry No." := VATEntryNo;
                 GSTPurchEntry."GST Entry Type" := GSTPurchEntry."GST Entry Type"::Purchase;
@@ -1691,7 +1659,7 @@
                         begin
                             GSTPurchEntry."Document Type" := GSTPurchEntry."Document Type"::Invoice;
                             GSTPurchEntry."Document No." := DocumentNo;
-                            PurchInvLine3.Reset;
+                            PurchInvLine3.Reset();
                             PurchInvLine3.SetRange("Document No.", DocumentNo);
                             PurchInvLine3.SetRange("No.", GenPostingSetup.GetPurchPrepmtAccount);
                             if PurchInvLine3.FindFirst then begin
@@ -1705,7 +1673,7 @@
                         begin
                             GSTPurchEntry."Document Type" := GSTPurchEntry."Document Type"::"Credit Memo";
                             GSTPurchEntry."Document No." := DocumentNo;
-                            PurchCrmemoLine3.Reset;
+                            PurchCrmemoLine3.Reset();
                             PurchCrmemoLine3.SetRange("Document No.", DocumentNo);
                             PurchCrmemoLine3.SetRange("No.", GenPostingSetup.GetPurchPrepmtAccount);
                             if PurchCrmemoLine3.FindFirst then begin
@@ -1716,7 +1684,7 @@
                             end;
                         end;
                 end;
-                GSTPurchEntry.Insert;
+                GSTPurchEntry.Insert();
             end;
     end;
 
@@ -1832,7 +1800,7 @@
                     VendorLedgerEntry.FindFirst;
                     PurchInvHeader.Get(DocumentNo);
                     PurchInvHeader."Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
-                    PurchInvHeader.Modify;
+                    PurchInvHeader.Modify();
                 end;
             DocumentType::"Credit Memo":
                 begin
@@ -1841,7 +1809,7 @@
                     VendorLedgerEntry.FindFirst;
                     PurchCrMemoHdr.Get(DocumentNo);
                     PurchCrMemoHdr."Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
-                    PurchCrMemoHdr.Modify;
+                    PurchCrMemoHdr.Modify();
                 end;
         end;
 
@@ -1851,7 +1819,7 @@
     local procedure InsertPurchInvHeader(var PurchInvHeader: Record "Purch. Inv. Header"; PurchHeader: Record "Purchase Header"; PostingDescription: Text[100]; GenJnlLineDocNo: Code[20]; SrcCode: Code[10]; PostingNoSeriesCode: Code[20])
     begin
         with PurchHeader do begin
-            PurchInvHeader.Init;
+            PurchInvHeader.Init();
             PurchInvHeader.TransferFields(PurchHeader);
             PurchInvHeader."Posting Description" := PostingDescription;
             PurchInvHeader."Payment Terms Code" := "Prepmt. Payment Terms Code";
@@ -1867,7 +1835,7 @@
             PurchInvHeader."Prepayment Order No." := "No.";
             PurchInvHeader."No. Series" := PostingNoSeriesCode;
             OnBeforePurchInvHeaderInsert(PurchInvHeader, PurchHeader, SuppressCommit);
-            PurchInvHeader.Insert;
+            PurchInvHeader.Insert();
             CopyHeaderCommentLines("No.", DATABASE::"Purch. Inv. Header", GenJnlLineDocNo);
             OnAfterPurchInvHeaderInsert(PurchInvHeader, PurchHeader, SuppressCommit);
         end;
@@ -1876,7 +1844,7 @@
     local procedure InsertPurchCrMemoHeader(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; PurchHeader: Record "Purchase Header"; PostingDescription: Text[100]; GenJnlLineDocNo: Code[20]; SrcCode: Code[10]; PostingNoSeriesCode: Code[20]; CalcPmtDiscOnCrMemos: Boolean)
     begin
         with PurchHeader do begin
-            PurchCrMemoHdr.Init;
+            PurchCrMemoHdr.Init();
             PurchCrMemoHdr.TransferFields(PurchHeader);
             PurchCrMemoHdr."Payment Terms Code" := "Prepmt. Payment Terms Code";
             PurchCrMemoHdr."Pmt. Discount Date" := "Prepmt. Pmt. Discount Date";
@@ -1897,7 +1865,7 @@
             PurchCrMemoHdr.Correction := GLSetup."Mark Cr. Memos as Corrections";
             PurchCrMemoHdr."No. Series" := PostingNoSeriesCode;
             OnBeforePurchCrMemoHeaderInsert(PurchCrMemoHdr, PurchHeader, SuppressCommit);
-            PurchCrMemoHdr.Insert;
+            PurchCrMemoHdr.Insert();
             CopyHeaderCommentLines("No.", DATABASE::"Purch. Cr. Memo Hdr.", GenJnlLineDocNo);
             OnAfterPurchCrMemoHeaderInsert(PurchCrMemoHdr, PurchHeader, SuppressCommit);
         end;
@@ -1920,7 +1888,7 @@
         Currency: Record Currency;
     begin
         with PrepmtInvLineBuffer do begin
-            PurchInvLine.Init;
+            PurchInvLine.Init();
             PurchInvLine."Document No." := PurchInvHeader."No.";
             PurchInvLine."Line No." := LineNo;
             PurchInvLine."Buy-from Vendor No." := PurchInvHeader."Buy-from Vendor No.";
@@ -1956,7 +1924,7 @@
             if GLSetup.CheckFullGSTonPrepayment("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
                 Currency.Initialize(PurchInvHeader."Currency Code");
                 PurchInvLine."Inv. Discount Amount" := 0;
-                PurchLine2.Reset;
+                PurchLine2.Reset();
                 PurchLine2.SetFilter("Document No.", PurchaseHeader."No.");
                 if PurchLine2.Find('-') then
                     repeat
@@ -1968,10 +1936,9 @@
             PurchInvLine."Job No." := "Job No.";
             PurchInvLine."Job Task No." := "Job Task No.";
             OnBeforePurchInvLineInsert(PurchInvLine, PurchInvHeader, PrepmtInvLineBuffer, SuppressCommit);
-            PurchInvLine.Insert;
-            if not PurchaseHeader."Compress Prepayment" then
-                CopyLineCommentLines(
-                  PurchaseHeader."No.", DATABASE::"Purch. Inv. Header", PurchInvHeader."No.", "Line No.", LineNo);
+            PurchInvLine.Insert();
+            CopyLineCommentLines(
+              PurchaseHeader."No.", DATABASE::"Purch. Inv. Header", PurchInvHeader."No.", "Line No.", LineNo);
             OnAfterPurchInvLineInsert(PurchInvLine, PurchInvHeader, PrepmtInvLineBuffer, SuppressCommit);
         end;
     end;
@@ -1981,7 +1948,7 @@
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
         with PrepmtInvLineBuffer do begin
-            PurchCrMemoLine.Init;
+            PurchCrMemoLine.Init();
             PurchCrMemoLine."Document No." := PurchCrMemoHdr."No.";
             PurchCrMemoLine."Line No." := LineNo;
             PurchCrMemoLine."Buy-from Vendor No." := PurchCrMemoHdr."Buy-from Vendor No.";
@@ -2015,10 +1982,9 @@
             PurchCrMemoLine."Job No." := "Job No.";
             PurchCrMemoLine."Job Task No." := "Job Task No.";
             OnBeforePurchCrMemoLineInsert(PurchCrMemoLine, PurchCrMemoHdr, PrepmtInvLineBuffer, SuppressCommit);
-            PurchCrMemoLine.Insert;
-            if not PurchaseHeader."Compress Prepayment" then
-                CopyLineCommentLines(
-                  PurchaseHeader."No.", DATABASE::"Purch. Cr. Memo Hdr.", PurchCrMemoHdr."No.", "Line No.", LineNo);
+            PurchCrMemoLine.Insert();
+            CopyLineCommentLines(
+              PurchaseHeader."No.", DATABASE::"Purch. Cr. Memo Hdr.", PurchCrMemoHdr."No.", "Line No.", LineNo);
             OnAfterPurchCrMemoLineInsert(PurchCrMemoLine, PurchCrMemoHdr, PrepmtInvLineBuffer, SuppressCommit);
         end;
     end;

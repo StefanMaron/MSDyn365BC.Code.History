@@ -1797,9 +1797,6 @@ End Function</Code>
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="Addr_1_">
           <DataField>Addr_1_</DataField>
         </Field>

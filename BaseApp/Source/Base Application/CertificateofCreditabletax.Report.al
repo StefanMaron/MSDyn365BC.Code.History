@@ -207,7 +207,7 @@ report 16626 "Certificate of Creditable tax"
                 VendAddress := Vend.Address;
                 VendPostCode := Vend."Post Code";
 
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetRange("Entry No.", "Entry No.");
                 WHTEntry1.SetRange("WHT Bus. Posting Group", "WHT Bus. Posting Group");
                 WHTEntry1.SetRange("WHT Prod. Posting Group", "WHT Prod. Posting Group");
@@ -226,7 +226,7 @@ report 16626 "Certificate of Creditable tax"
                     FirstMonth := WHTEntry1."Base (LCY)";
                 end;
 
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetRange("Entry No.", "Entry No.");
                 WHTEntry1.SetRange("WHT Bus. Posting Group", "WHT Bus. Posting Group");
                 WHTEntry1.SetRange("WHT Prod. Posting Group", "WHT Prod. Posting Group");
@@ -244,7 +244,7 @@ report 16626 "Certificate of Creditable tax"
                     end;
                 end;
 
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.SetRange("Entry No.", "Entry No.");
                 WHTEntry1.SetRange("WHT Bus. Posting Group", "WHT Bus. Posting Group");
                 WHTEntry1.SetRange("WHT Prod. Posting Group", "WHT Prod. Posting Group");
@@ -282,7 +282,7 @@ report 16626 "Certificate of Creditable tax"
                         CurrYear := Date2DMY(GetRangeMin("Posting Date"), 3);
                     end;
                 end;
-                CI.Get;
+                CI.Get();
             end;
         }
     }

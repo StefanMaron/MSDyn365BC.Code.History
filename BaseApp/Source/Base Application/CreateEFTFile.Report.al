@@ -55,7 +55,7 @@ report 11608 "Create EFT File"
                 BankAcc.TestField("EFT BSB No.");
                 BankAcc.TestField("EFT Security No.");
 
-                EFTRegister.Insert;
+                EFTRegister.Insert();
                 EFTManagement.CreateFileFromEFTRegister(EFTRegister, EFTFileDescription, BankAcc);
             end;
 
@@ -67,13 +67,13 @@ report 11608 "Create EFT File"
                 SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                 SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
 
-                EFTRegister.Reset;
-                EFTRegister.LockTable;
+                EFTRegister.Reset();
+                EFTRegister.LockTable();
                 if not EFTRegister.FindLast then
                     Clear(EFTRegister."No.");
                 EFTRegister."No." += 1;
 
-                EFTRegister.Init;
+                EFTRegister.Init();
                 EFTRegister."EFT Payment" := true;
                 SetFilter("Account No.", '<>%1', '');
                 SetRange("Account Type", "Account Type"::Vendor);
@@ -81,7 +81,7 @@ report 11608 "Create EFT File"
                 GenJnlLine1.CopyFilters(GenJnlLine);
 
                 ProcessWindow.Open('@1@@@@@@@@@@@@@@@@@@@@@@@@@');
-                NoOfRec := GenJnlLine1.Count;
+                NoOfRec := GenJnlLine1.Count();
             end;
         }
     }

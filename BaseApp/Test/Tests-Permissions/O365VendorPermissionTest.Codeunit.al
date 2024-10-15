@@ -147,48 +147,6 @@ codeunit 139452 "O365 Vendor Permission Test"
         // [THEN] "Posted Return Shpt. - Update" opens.
     end;
 
-    [Test]
-    [HandlerFunctions('PostedPurchCrMemoUpdateOKModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure RunPostedPurchCrMemoUpdateFromCard()
-    var
-        PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
-    begin
-        // [FEATURE] [Purchase Credit Memo]
-        // [SCENARIO 308913] Open "Posted Purch. Cr.Memo - Update" from "Posted Purchase Credit Memo" card with "D365 Sales Doc, Edit".
-        Initialize;
-
-        // [GIVEN] A user with "D365 Purch Doc, Edit" permission set.
-        LibraryLowerPermissions.SetPurchDocsCreate;
-
-        // [WHEN] Open "Posted Purch. Cr.Memo - Update" page from "Posted Purchase Credit Memo" card.
-        PostedPurchaseCreditMemo.OpenView;
-        PostedPurchaseCreditMemo."Update Document".Invoke;
-
-        // [THEN] "Posted Purch. Cr.Memo - Update" opens.
-    end;
-
-    [Test]
-    [HandlerFunctions('PostedPurchCrMemoUpdateOKModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure RunPostedPurchCrMemoUpdateFromList()
-    var
-        PostedPurchaseCreditMemos: TestPage "Posted Purchase Credit Memos";
-    begin
-        // [FEATURE] [Purchase Credit Memo]
-        // [SCENARIO 308913] Open "Posted Purch. Cr.Memo - Update" from "Posted Purchase Credit Memos" list with "D365 Sales Doc, Edit".
-        Initialize;
-
-        // [GIVEN] A user with "D365 Purch Doc, Edit" permission set.
-        LibraryLowerPermissions.SetPurchDocsCreate;
-
-        // [WHEN] Open "Posted Purch. Cr.Memo - Update" page from "Posted Purchase Credit Memos" list.
-        PostedPurchaseCreditMemos.OpenView;
-        PostedPurchaseCreditMemos."Update Document".Invoke;
-
-        // [THEN] "Posted Purch. Cr.Memo - Update" opens.
-    end;
-
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -200,11 +158,11 @@ codeunit 139452 "O365 Vendor Permission Test"
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
 
         // mandatory fields for Vendor creation
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Vendor Nos." := NoSeries.Code;
         PurchasesPayablesSetup.Modify(true);
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup."Contact Nos." := NoSeries.Code;
         MarketingSetup.Modify(true);
     end;
@@ -235,13 +193,6 @@ codeunit 139452 "O365 Vendor Permission Test"
     procedure PostedReturnShptUpdateOKModalPageHandler(var PostedReturnShptUpdate: TestPage "Posted Return Shpt. - Update")
     begin
         PostedReturnShptUpdate.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure PostedPurchCrMemoUpdateOKModalPageHandler(var PostedPurchCrMemoUpdate: TestPage "Posted Purch. Cr.Memo - Update")
-    begin
-        PostedPurchCrMemoUpdate.OK.Invoke;
     end;
 }
 

@@ -25,7 +25,7 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
             if FindSet then
                 repeat
                     DocExchLinks.CheckAndUpdateDocExchInvoiceStatus(SalesInvoiceHeader);
-                    Commit;
+                    Commit();
                 until Next = 0;
         end;
     end;
@@ -41,7 +41,7 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
             if FindSet then
                 repeat
                     DocExchLinks.CheckAndUpdateDocExchCrMemoStatus(SalesCrMemoHeader);
-                    Commit;
+                    Commit();
                 until Next = 0;
         end;
     end;
@@ -57,7 +57,7 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
             if FindSet then
                 repeat
                     DocExchLinks.CheckAndUpdateDocExchServiceInvoiceStatus(ServiceInvoiceHeader);
-                    Commit;
+                    Commit();
                 until Next = 0;
         end;
     end;
@@ -73,7 +73,7 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
             if FindSet then
                 repeat
                     DocExchLinks.CheckAndUpdateDocExchServiceCrMemoStatus(ServiceCrMemoHeader);
-                    Commit;
+                    Commit();
                 until Next = 0;
         end;
     end;

@@ -1536,7 +1536,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     local procedure CreatePurchaseInvoiceForItem(Vendor: Record Vendor; Item: Record Item; Qty: Decimal; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
         LibrarySmallBusiness.CreatePurchaseInvoiceHeader(PurchaseHeader, Vendor);
-        SetReasonCode(PurchaseHeader);
         LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, Qty);
     end;
 
@@ -1548,7 +1547,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CreateItemWithCost(Item, Type, UnitCost);
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
-        SetReasonCode(PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Qty);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
         PurchaseLine.Modify(true);
@@ -1692,15 +1690,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
                     "Warning No." := '';
                     Modify(true);
                 until Next = 0;
-    end;
-
-    local procedure SetReasonCode(var PurchaseHeader: Record "Purchase Header")
-    var
-        ReasonCode: Record "Reason Code";
-    begin
-        LibraryERM.CreateReasonCode(ReasonCode);
-        PurchaseHeader.Validate("Reason Code", ReasonCode.Code);
-        PurchaseHeader.Modify;
     end;
 
     [ConfirmHandler]

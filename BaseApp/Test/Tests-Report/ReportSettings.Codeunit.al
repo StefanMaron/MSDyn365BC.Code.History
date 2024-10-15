@@ -120,8 +120,8 @@ codeunit 136908 "Report Settings"
     var
         ObjectOptions: Record "Object Options";
     begin
-        ObjectOptions.DeleteAll;
-        Commit;
+        ObjectOptions.DeleteAll();
+        Commit();
     end;
 
     [ModalPageHandler]
@@ -135,7 +135,7 @@ codeunit 136908 "Report Settings"
                 begin
                     PickReport.Name.SetValue(LibraryVariableStorage.DequeueText);
                     PickReport."Report ID".SetValue(TestReportID);
-                    Commit;
+                    Commit();
                     PickReport.OK.Invoke;
                 end;
         end;

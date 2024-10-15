@@ -14,7 +14,7 @@ report 28140 "Adjust Settlement Exch. Rates"
 
             trigger OnAfterGetRecord()
             begin
-                CurrExchRate.Reset;
+                CurrExchRate.Reset();
                 CurrExchRate.SetRange("Currency Code", Code);
                 CurrExchRate.SetRange("Starting Date", 0D, StartDate);
                 if CurrExchRate.FindLast then begin
@@ -35,7 +35,7 @@ report 28140 "Adjust Settlement Exch. Rates"
                     end;
                 end;
                 VATCount := 0;
-                CurrExchRate.Reset;
+                CurrExchRate.Reset();
                 CurrExchRate.SetRange("Currency Code", Code);
                 if not UseDailyRate then begin
                     CurrExchRate.SetFilter("Starting Date", '..%1', CalcDate('-1D', StartDate));
@@ -43,8 +43,8 @@ report 28140 "Adjust Settlement Exch. Rates"
                     CurrExchRate.TestField("Settlement Rate Amount");
                     CurrExchRate.TestField("Relational Sett. Rate Amount");
                 end;
-                VATEntry.LockTable;
-                VATEntry.Reset;
+                VATEntry.LockTable();
+                VATEntry.Reset();
                 VATEntry.SetCurrentKey("Document Type", Type, "Currency Code", "Posting Date", Closed);
                 VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
                 VATEntry.SetFilter(Type, '<>%1', VATEntry.Type::Settlement);
@@ -52,10 +52,10 @@ report 28140 "Adjust Settlement Exch. Rates"
                 VATEntry.SetFilter("Posting Date", '%1..%2', StartDate, EndDateReq);
                 VATEntry.SetRange(Closed, false);
                 VATEntry.SetRange("Settlement Adjustment", false);
-                VATCountTotal := VATEntry.Count;
+                VATCountTotal := VATEntry.Count();
                 if VATEntry.FindSet then
                     repeat
-                        VATEntry2.Reset;
+                        VATEntry2.Reset();
                         VATEntry2.Get(VATEntry."Unrealized VAT Entry No.");
                         if VATEntry2."Posting Date" < StartDate then begin
                             if UseDailyRate then begin
@@ -67,7 +67,7 @@ report 28140 "Adjust Settlement Exch. Rates"
                             PaymentTotal := VATEntry.Amount;
                             BaseTotal := VATEntry.Base;
                             if (PaymentTotal <> 0) and (BaseTotal <> 0) then begin
-                                VATEntry4.Reset;
+                                VATEntry4.Reset();
                                 VATEntry4.SetRange("Sett. Payment Entry No.", VATEntry."Entry No.");
                                 if (VATEntry."Sett. Unrealized Amount" <> 0) and (not VATEntry4.FindFirst) then begin
                                     PaymentFactor := PaymentTotal / VATEntry."Sett. Unrealized Amount";
@@ -221,7 +221,7 @@ report 28140 "Adjust Settlement Exch. Rates"
     var
         VATEntryPay: Record "VAT Entry";
     begin
-        VATEntryPay.Reset;
+        VATEntryPay.Reset();
         VATEntryPay.SetCurrentKey("Sett. Payment Entry No.");
         VATEntryPay.SetRange("Sett. Payment Entry No.", VATEntryNo);
         VATEntryPay.CalcSums(Amount);
@@ -233,7 +233,7 @@ report 28140 "Adjust Settlement Exch. Rates"
     var
         VATEntryBase: Record "VAT Entry";
     begin
-        VATEntryBase.Reset;
+        VATEntryBase.Reset();
         VATEntryBase.SetCurrentKey("Sett. Payment Entry No.");
         VATEntryBase.SetRange("Sett. Payment Entry No.", VATEntryNo);
         VATEntryBase.CalcSums(Base);
@@ -249,11 +249,11 @@ report 28140 "Adjust Settlement Exch. Rates"
     begin
         if (VATAmount = 0) and (VATBase = 0) then
             exit;
-        VATEntry2.Reset;
+        VATEntry2.Reset();
         VATEntry2.FindLast;
         EntryNo := VATEntry2."Entry No." + 1;
-        VATEntry3.Reset;
-        VATEntry3.Init;
+        VATEntry3.Reset();
+        VATEntry3.Init();
         VATEntry3.TransferFields(VATEntry);
         VATEntry3."Entry No." := EntryNo;
         VATEntry3.Amount := VATAmount;
@@ -266,12 +266,12 @@ report 28140 "Adjust Settlement Exch. Rates"
         VATEntry3."Remaining Unrealized Base" := 0;
         VATEntry3."Sett. Payment Entry No." := VATEntryNo;
         VATEntry3."Settlement Adjustment" := true;
-        VATEntry3.Insert;
+        VATEntry3.Insert();
 
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
 
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::"G/L Account");
         case VATEntry.Type of
             VATEntry.Type::Sale:

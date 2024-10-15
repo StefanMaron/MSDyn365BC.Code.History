@@ -20,17 +20,17 @@ codeunit 104152 "Copy Line Descr. To G/L Entry"
         // Bug ugprade tag or remove
         IF SalesSetup.GET THEN BEGIN
             SalesSetup."Copy Line Descr. to G/L Entry" := TRUE;
-            SalesSetup.MODIFY;
+            SalesSetup.Modify();
         END;
 
         IF ServiceMgtSetup.GET THEN BEGIN
             ServiceMgtSetup."Copy Line Descr. to G/L Entry" := TRUE;
-            ServiceMgtSetup.MODIFY;
+            ServiceMgtSetup.Modify();
         END;
 
         IF PurchSetup.GET THEN BEGIN
             PurchSetup."Copy Line Descr. to G/L Entry" := TRUE;
-            PurchSetup.MODIFY;
+            PurchSetup.Modify();
         END;
     end;
 }

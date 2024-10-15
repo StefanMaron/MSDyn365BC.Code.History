@@ -18,9 +18,6 @@ report 28070 "Pending Sales Tax Invoice"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }

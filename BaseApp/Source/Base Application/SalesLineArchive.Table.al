@@ -5,11 +5,9 @@ table 5108 "Sales Line Archive"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Sales Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(2; "Sell-to Customer No."; Code[20])
         {
@@ -26,11 +24,9 @@ table 5108 "Sales Line Archive"
         {
             Caption = 'Line No.';
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Sales Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,G/L Account,Item,Resource,Fixed Asset,Charge (Item)';
-            OptionMembers = " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)";
         }
         field(6; "No."; Code[20])
         {
@@ -297,11 +293,9 @@ table 5108 "Sales Line Archive"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(78; "Transaction Type"; Code[10])
         {
@@ -380,12 +374,10 @@ table 5108 "Sales Line Archive"
             AutoFormatType = 1;
             Caption = 'Shipped Not Invoiced (LCY)';
         }
-        field(96; Reserve; Option)
+        field(96; Reserve; Enum "Reserve Method")
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Reserve';
-            OptionCaption = 'Never,Optional,Always';
-            OptionMembers = Never,Optional,Always;
         }
         field(97; "Blanket Order No."; Code[20])
         {
@@ -441,11 +433,9 @@ table 5108 "Sales Line Archive"
         {
             Caption = 'VAT Identifier';
         }
-        field(107; "IC Partner Ref. Type"; Option)
+        field(107; "IC Partner Ref. Type"; Enum "IC Partner Reference Type")
         {
             Caption = 'IC Partner Ref. Type';
-            OptionCaption = ' ,G/L Account,Item,,,Charge (Item),Cross Reference,Common Item No.';
-            OptionMembers = " ","G/L Account",Item,,,"Charge (Item)","Cross Reference","Common Item No.";
         }
         field(108; "IC Partner Reference"; Code[20])
         {
@@ -502,12 +492,10 @@ table 5108 "Sales Line Archive"
             Editable = false;
             MinValue = 0;
         }
-        field(116; "Prepmt. VAT Calc. Type"; Option)
+        field(116; "Prepmt. VAT Calc. Type"; Enum "Tax Calculation Type")
         {
             Caption = 'Prepmt. VAT Calc. Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(117; "Prepayment VAT Identifier"; Code[20])
         {
@@ -947,6 +935,11 @@ table 5108 "Sales Line Archive"
         key(Key5; Type, "No.")
         {
         }
+        key(Key6; "Document No.", "Document Type", "Doc. No. Occurrence", "Version No.")
+        {
+            MaintainSqlIndex = false;
+            SumIndexFields = Amount, "Amount Including VAT", "Outstanding Amount", "Shipped Not Invoiced", "Outstanding Amount (LCY)", "Shipped Not Invoiced (LCY)";
+        }
     }
 
     fieldgroups
@@ -964,7 +957,7 @@ table 5108 "Sales Line Archive"
         SalesCommentLinearch.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
         SalesCommentLinearch.SetRange("Version No.", "Version No.");
         if not SalesCommentLinearch.IsEmpty then
-            SalesCommentLinearch.DeleteAll;
+            SalesCommentLinearch.DeleteAll();
 
         if "Deferral Code" <> '' then
             DeferralHeaderArchive.DeleteHeader(DeferralUtilities.GetSalesDeferralDocType,
@@ -981,7 +974,7 @@ table 5108 "Sales Line Archive"
     begin
         if not SalesHeaderArchive.Get("Document Type", "Document No.", "Doc. No. Occurrence", "Version No.") then begin
             SalesHeaderArchive."No." := '';
-            SalesHeaderArchive.Init;
+            SalesHeaderArchive.Init();
         end;
         if SalesHeaderArchive."Prices Including VAT" then
             exit('2,1,' + GetFieldCaption(FieldNumber));
@@ -1029,7 +1022,7 @@ table 5108 "Sales Line Archive"
     var
         SalesLineArchive: Record "Sales Line Archive";
     begin
-        DeleteAll;
+        DeleteAll();
 
         SalesLineArchive.SetRange("Document Type", SalesHeaderArchive."Document Type");
         SalesLineArchive.SetRange("Document No.", SalesHeaderArchive."No.");
@@ -1040,7 +1033,7 @@ table 5108 "Sales Line Archive"
                 Rec := SalesLineArchive;
                 Insert;
                 TempSalesLine.TransferFields(SalesLineArchive);
-                TempSalesLine.Insert;
+                TempSalesLine.Insert();
             until SalesLineArchive.Next = 0;
     end;
 }

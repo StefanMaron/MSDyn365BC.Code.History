@@ -45,7 +45,7 @@ page 11605 "BAS ATO Receipt"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Enable GST (Australia)", true);
     end;
 }

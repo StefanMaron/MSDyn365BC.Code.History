@@ -218,7 +218,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         Initialize;
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, '', true);
         ReverseBankLedgerEntry;
-        Commit;  // Required to run the report.
+        Commit();  // Required to run the report.
 
         // Exercise.
         REPORT.Run(REPORT::"Bank Acc. - Detail Trial Bal.");
@@ -236,7 +236,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
     begin
         // Check Bank Account Label Report with Label Format 36 x 70 mm (3 columns).
         Initialize;
-        BankAccountLabelReport(LabelFormat::"36 x 70 mm (3 columns)", 3);
+        asserterror BankAccountLabelReport(LabelFormat::"36 x 70 mm (3 columns)", 3);
     end;
 
     [Test]
@@ -248,7 +248,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
     begin
         // Check Bank Account Label Report with Label Format 37 x 70 mm (3 columns).
         Initialize;
-        BankAccountLabelReport(LabelFormat::"37 x 70 mm (3 columns)", 3);
+        asserterror BankAccountLabelReport(LabelFormat::"37 x 70 mm (3 columns)", 3);
     end;
 
     [Test]
@@ -260,7 +260,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
     begin
         // Check Bank Account Label Report with Label Format 36 x 105 mm (2 columns).
         Initialize;
-        BankAccountLabelReport(LabelFormat::"36 x 105 mm (2 columns)", 2);
+        asserterror BankAccountLabelReport(LabelFormat::"36 x 105 mm (2 columns)", 2);
     end;
 
     [Test]
@@ -272,7 +272,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
     begin
         // Check Bank Account Label Report with Label Format 37 x 105 mm (2 columns).
         Initialize;
-        BankAccountLabelReport(LabelFormat::"37 x 105 mm (2 columns)", 2);
+        asserterror BankAccountLabelReport(LabelFormat::"37 x 105 mm (2 columns)", 2);
     end;
 
     local procedure BankAccountLabelReport(LabelFormat: Option; NumberOfColumns: Integer)
@@ -288,7 +288,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         CreateBankAccountWithAddress(BankAccount3);
 
         // Exercise.
-        Commit;
+        Commit();
         Clear(BankAccountLabels);
         BankAccount.SetFilter("No.", '%1|%2|%3', BankAccount."No.", BankAccount2."No.", BankAccount3."No.");
         BankAccountLabels.SetTableView(BankAccount);
@@ -312,7 +312,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         LibraryERMCountryData.UpdateLocalPostingSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Bank Acc Ledger Reversal");
     end;
 

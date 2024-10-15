@@ -68,7 +68,7 @@ table 5103 "Interaction Tmpl. Language"
         if xRec."Language Code" <> "Language Code" then
             if InteractionTemplate."Language Code (Default)" = xRec."Language Code" then begin
                 InteractionTemplate."Language Code (Default)" := "Language Code";
-                InteractionTemplate.Modify;
+                InteractionTemplate.Modify();
             end;
     end;
 
@@ -80,7 +80,6 @@ table 5103 "Interaction Tmpl. Language"
         Text002: Label 'You have canceled the import process.';
         Text005: Label 'Export Attachment';
 
-    [Scope('OnPrem')]
     procedure CreateAttachment()
     var
         Attachment: Record Attachment;
@@ -121,7 +120,7 @@ table 5103 "Interaction Tmpl. Language"
     var
         Attachment: Record Attachment;
     begin
-        Attachment.Init;
+        Attachment.Init();
         Attachment."Storage Type" := Attachment."Storage Type"::Embedded;
         Attachment."File Extension" := 'HTML';
         Attachment.Insert(true);
@@ -129,7 +128,6 @@ table 5103 "Interaction Tmpl. Language"
         exit(Attachment."No.");
     end;
 
-    [Scope('OnPrem')]
     procedure OpenAttachment()
     var
         Attachment: Record Attachment;
@@ -140,7 +138,6 @@ table 5103 "Interaction Tmpl. Language"
         Attachment.OpenAttachment("Interaction Template Code" + ' ' + Description, false, "Language Code");
     end;
 
-    [Scope('OnPrem')]
     procedure CopyFromAttachment()
     var
         InteractTmplLanguage: Record "Interaction Tmpl. Language";
@@ -157,7 +154,7 @@ table 5103 "Interaction Tmpl. Language"
             RemoveAttachment(false);
             "Attachment No." := 0;
             Modify;
-            Commit;
+            Commit();
         end;
 
         InteractTmplLanguage.SetFilter("Attachment No.", '<>%1', 0);
@@ -170,7 +167,6 @@ table 5103 "Interaction Tmpl. Language"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure ImportAttachment()
     var
         Attachment: Record Attachment;
@@ -189,7 +185,6 @@ table 5103 "Interaction Tmpl. Language"
             Error(Text002);
     end;
 
-    [Scope('OnPrem')]
     procedure ExportAttachment()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -199,7 +194,7 @@ table 5103 "Interaction Tmpl. Language"
         FileFilter: Text;
         ExportToFile: Text;
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         ExportToFile := '';
         if not AttachmentRecord.Get("Attachment No.") then
             exit;
@@ -229,7 +224,6 @@ table 5103 "Interaction Tmpl. Language"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure RemoveAttachment(Prompt: Boolean)
     var
         Attachment: Record Attachment;

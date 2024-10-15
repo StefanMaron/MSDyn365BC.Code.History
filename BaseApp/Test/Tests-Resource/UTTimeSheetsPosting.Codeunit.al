@@ -19,6 +19,7 @@ codeunit 136502 "UT Time Sheets Posting"
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         Text016: Label 'Time Sheet field %1 value is incorrect.';
         Text020: Label 'There is no Time Sheet';
         Text021: Label 'Unexpected time sheet searching error.';
@@ -100,7 +101,7 @@ codeunit 136502 "UT Time Sheets Posting"
         // job's responsible person (resource) must have Owner ID filled in
         Resource.Get(Job."Person Responsible");
         Resource."Time Sheet Owner User ID" := UserId;
-        Resource.Modify;
+        Resource.Modify();
 
         // create time sheet line with type Job
         LibraryTimeSheet.CreateTimeSheetLine(
@@ -164,7 +165,7 @@ codeunit 136502 "UT Time Sheets Posting"
         LibraryJob.CreateJobTask(Job, JobTask);
         Resource.Get(TimeSheetHeader."Resource No.");
         Resource."Time Sheet Owner User ID" := UserId;
-        Resource.Modify;
+        Resource.Modify();
 
         LibraryTimeSheet.CreateTimeSheetLine(
           TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Job, Job."No.", JobTask."Job Task No.", '', '');
@@ -207,7 +208,7 @@ codeunit 136502 "UT Time Sheets Posting"
         LibraryTimeSheet.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
 
         ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
 
         // get values from service order
         SavedServiceLine.Copy(ServiceLine);
@@ -263,7 +264,7 @@ codeunit 136502 "UT Time Sheets Posting"
         LibraryTimeSheet.CreateTimeSheetResource(Resource);
         Resource.Validate("Time Sheet Owner User ID", UserSetup."User ID");
         Resource.Validate("Time Sheet Approver User ID", UserId);
-        Resource.Modify;
+        Resource.Modify();
 
         LibraryTimeSheet.CreateServiceOrder(ServiceHeader, WorkDate);
 
@@ -353,7 +354,7 @@ codeunit 136502 "UT Time Sheets Posting"
         Assert.AreEqual(ServiceLineQuantity, ServiceLine.Quantity,
           StrSubstNo(Text016, ServiceLine.FieldCaption(Quantity)));
 
-        ServiceLine.Reset;
+        ServiceLine.Reset();
         ServiceLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
         ServiceLine.FindFirst;
         Assert.AreEqual(TimeSheetLine."Total Quantity", ServiceLine.Quantity,
@@ -419,7 +420,7 @@ codeunit 136502 "UT Time Sheets Posting"
             if ServiceLine.FindSet then
                 repeat
                     ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity / 2);
-                    ServiceLine.Modify;
+                    ServiceLine.Modify();
                 until ServiceLine.Next = 0;
             ServiceHeader.Find;
             LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -445,7 +446,7 @@ codeunit 136502 "UT Time Sheets Posting"
         Initialize;
         LibraryTimeSheet.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
         ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
 
         // get values from service order
         ServiceLineQuantity := ServiceLine."Qty. to Consume";
@@ -459,7 +460,7 @@ codeunit 136502 "UT Time Sheets Posting"
                 repeat
                     ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity / 2);
                     ServiceLine.Validate("Qty. to Invoice", 0);
-                    ServiceLine.Modify;
+                    ServiceLine.Modify();
                 until ServiceLine.Next = 0;
             ServiceHeader.Find;
             LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
@@ -489,7 +490,7 @@ codeunit 136502 "UT Time Sheets Posting"
         JobJnlLine.FindFirst;
         // change quantity to the next higher
         JobJnlLine.Validate(Quantity, TimeSheetLine."Total Quantity" + 10);
-        JobJnlLine.Modify;
+        JobJnlLine.Modify();
 
         asserterror JobJnlPostLine.RunWithCheck(JobJnlLine);
         Assert.IsTrue(StrPos(GetLastErrorText, Text023) > 0, Text021);
@@ -520,7 +521,7 @@ codeunit 136502 "UT Time Sheets Posting"
         ResJnlLine.FindFirst;
         // change quantity to the next higher
         ResJnlLine.Validate(Quantity, TimeSheetLine."Total Quantity" + 10);
-        ResJnlLine.Modify;
+        ResJnlLine.Modify();
 
         asserterror ResJnlPostLine.RunWithCheck(ResJnlLine);
         Assert.IsTrue(StrPos(GetLastErrorText, Text023) > 0, Text021);
@@ -548,7 +549,7 @@ codeunit 136502 "UT Time Sheets Posting"
         ServiceLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
         ServiceLine.FindFirst;
         ServiceLine.Validate(Quantity, TimeSheetLine."Total Quantity" + LibraryTimeSheet.GetRandomDecimal);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
 
         ServiceHeader.Find;
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
@@ -578,7 +579,7 @@ codeunit 136502 "UT Time Sheets Posting"
         ServiceLine.FindFirst;
         ServiceLine.Validate(Quantity, TimeSheetLine."Total Quantity" + LibraryTimeSheet.GetRandomDecimal);
         ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
 
         ServiceHeader.Find;
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
@@ -610,7 +611,7 @@ codeunit 136502 "UT Time Sheets Posting"
         DocumentNo := 'JJL1';
         JobJnlLine.Validate("Document No.", DocumentNo);
         JobJnlLine.Validate(Quantity, Delta);
-        JobJnlLine.Modify;
+        JobJnlLine.Modify();
         JobJnlPostLine.RunWithCheck(JobJnlLine);
         CheckTimeSheetPostingEntry(TimeSheetLine, DocumentNo, Delta);
 
@@ -647,7 +648,7 @@ codeunit 136502 "UT Time Sheets Posting"
         DocumentNo := 'RJL1';
         ResJnlLine.Validate("Document No.", DocumentNo);
         ResJnlLine.Validate(Quantity, Delta);
-        ResJnlLine.Modify;
+        ResJnlLine.Modify();
         ResJnlPostLine.RunWithCheck(ResJnlLine);
         // verifying posted values function
         CheckTimeSheetPostingEntry(TimeSheetLine, DocumentNo, Delta);
@@ -685,7 +686,7 @@ codeunit 136502 "UT Time Sheets Posting"
         ServiceLineNo := ServiceLine."Line No.";
 
         ServiceLine.Validate("Qty. to Ship", Delta);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
         ServiceHeader.Find;
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
@@ -717,12 +718,12 @@ codeunit 136502 "UT Time Sheets Posting"
         // create time sheet line with type Absence
         LibraryHumanResource.CreateEmployee(Employee);
         Employee."Resource No." := TimeSheetHeader."Resource No.";
-        Employee.Modify;
+        Employee.Modify();
 
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Absence, '', '', '',
           GetCauseOfAbsenceCode);
         TimeSheetLine.Chargeable := false;
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
 
         Quantity := LibraryTimeSheet.GetRandomDecimal;
 
@@ -834,7 +835,7 @@ codeunit 136502 "UT Time Sheets Posting"
         AssemblyHeader.SetRange("No.", SavedAssemblyLine."Document No.");
         AssemblyHeader.FindFirst;
         AssemblyHeader.Validate("Quantity to Assemble", Delta);
-        AssemblyHeader.Modify;
+        AssemblyHeader.Modify();
         AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Resource);
@@ -864,6 +865,7 @@ codeunit 136502 "UT Time Sheets Posting"
         TimeSheetLine: Record "Time Sheet Line";
         JobResourcePrice: Record "Job Resource Price";
         JobJnlLine: Record "Job Journal Line";
+        PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Job] [Line Discount]
         // [SCENARIO 371948] Suggest Job Journal Line from Time Sheet with Line Discount %
@@ -876,6 +878,7 @@ codeunit 136502 "UT Time Sheets Posting"
         CreateJobResourcePriceWithLineDiscountPct(
           JobResourcePrice, JobTask."Job No.", JobTask."Job Task No.",
           JobResourcePrice.Type::Resource, TimeSheetHeader."Resource No.");
+        CopyFromToPriceListLine.CopyFrom(JobResourcePrice, PriceListLine);
 
         // [GIVEN] Approved and Submitted Time Sheet with Time Sheet Line for created Job Task
         LibraryTimeSheet.CreateTimeSheetLine(
@@ -910,7 +913,7 @@ codeunit 136502 "UT Time Sheets Posting"
 
         // create current user id setup
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        Commit;
+        Commit();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT Time Sheets Posting");
     end;
@@ -929,7 +932,7 @@ codeunit 136502 "UT Time Sheets Posting"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, ResourceNo);
         ServiceLine.Validate("Service Item Line No.", 10000);
         ServiceLine.Validate(Quantity, Qty);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
     end;
 
     [Normal]

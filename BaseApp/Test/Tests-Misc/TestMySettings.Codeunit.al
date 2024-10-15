@@ -330,7 +330,7 @@ codeunit 139006 "Test My Settings"
         // [FEATURE] [My Notifications] [UT]
         // [SCENARIO 220587] MyNotification.IsEnabledForRecord returns FALSE when the record is out of the filters.
         Initialize;
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
 
         // [GIVEN] Two Customers "C1" and "C2"
         LibrarySales.CreateCustomer(Customer[1]);
@@ -357,7 +357,7 @@ codeunit 139006 "Test My Settings"
         // [FEATURE] [My Notifications] [UT]
         // [SCENARIO 220587] MyNotification.IsEnabledForRecord returns TRUE when the record is within the filter.
         Initialize;
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
 
         // [GIVEN] Customer.
         LibrarySales.CreateCustomer(Customer);
@@ -383,7 +383,7 @@ codeunit 139006 "Test My Settings"
         // [FEATURE] [My Notifications] [UT] [Purchase] [External Document No.] [UI]
         // [SCENARIO 272152] "Purchase document with same external document number already exists." is enabled by default
         Initialize;
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
 
         MyNotificationsPage.OpenView;
 
@@ -401,8 +401,8 @@ codeunit 139006 "Test My Settings"
         Clear(UserPersonalization."Profile ID");
         Clear(UserPersonalization."App ID");
         Clear(UserPersonalization.Scope);
-        UserPersonalization.Modify;
-        MyAccount.DeleteAll;
+        UserPersonalization.Modify();
+        MyAccount.DeleteAll();
     end;
 
     local procedure PrepareTwoGLAccountsWithGLEntries(var GLAccountNo: array[2] of Code[20]; var GLAccountBalance: array[2] of Decimal)
@@ -430,7 +430,7 @@ codeunit 139006 "Test My Settings"
         LibraryERM.CreateGLAccount(TotalingGLAccount);
         TotalingGLAccount."Account Type" := TotalingGLAccount."Account Type"::"End-Total";
         TotalingGLAccount.Totaling := TotalingValue;
-        TotalingGLAccount.Modify;
+        TotalingGLAccount.Modify();
         TotalingGLAccount.CalcFields(Balance);
         TotalingBalance := TotalingGLAccount.Balance;
     end;
@@ -476,7 +476,7 @@ codeunit 139006 "Test My Settings"
         MyNotifications.Enabled := true;
         MyNotifications."Apply to Table Filter".CreateOutStream(FiltersOutStream);
         FiltersOutStream.Write(StrSubstNo(MyNotificationFilterTxt, FilterValue));
-        MyNotifications.Modify;
+        MyNotifications.Modify();
     end;
 
     [ModalPageHandler]

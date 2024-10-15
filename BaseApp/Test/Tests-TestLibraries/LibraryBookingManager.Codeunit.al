@@ -50,7 +50,7 @@ codeunit 131014 "Library - Booking Manager"
         if not CanHandle then
             exit;
 
-        Commit;
+        Commit();
         CODEUNIT.Run(CODEUNIT::"Booking Appointment - Modify", InvoicedBookingItem);
     end;
 

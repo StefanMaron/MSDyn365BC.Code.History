@@ -228,7 +228,7 @@ codeunit 136302 "Job Consumption Purchase"
 
         // Saving the purchase invoice lines
         GetPurchaseLines(InvoicePurchaseHeader, PurchaseLine);
-        TempPurchaseLine.DeleteAll;
+        TempPurchaseLine.DeleteAll();
         LibraryJob.CopyPurchaseLines(PurchaseLine, TempPurchaseLine);
 
         // [THEN] Check that the information related to Job is copied to Purchase Invoice Line after creation of Invoice Lines by using
@@ -469,8 +469,8 @@ codeunit 136302 "Job Consumption Purchase"
 
         PurchaseHeader.Receive := true;
         PurchaseHeader.Invoice := true;
-        PurchaseHeader.Modify;
-        Commit;
+        PurchaseHeader.Modify();
+        Commit();
         LibraryErrorMessage.TrapErrorMessages;
     end;
 
@@ -713,7 +713,7 @@ codeunit 136302 "Job Consumption Purchase"
 
         Initialize;
         // [GIVEN] Inventory Setup, where "Automatic Cost Adjustment" is 'Always'
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateAutomaticCostPosting(true, InventorySetup."Automatic Cost Adjustment"::Always);
         CreatePurchaseDocument(PurchaseHeader, CreateVendorWithSetup(VATPostingSetup));
         GetPurchaseLines(PurchaseHeader, PurchaseLine);
@@ -755,8 +755,8 @@ codeunit 136302 "Job Consumption Purchase"
 
         // Setup.
         Initialize;
-        InventorySetup.Get;
-        PurchasesPayablesSetup.Get;
+        InventorySetup.Get();
+        PurchasesPayablesSetup.Get();
         UpdateAutomaticCostPosting(true, InventorySetup."Automatic Cost Adjustment"::Always);
         UpdateReturnShipmentOnCreditMemo(false);
         CreatePurchaseDocument(PurchaseHeader, CreateVendorWithSetup(VATPostingSetup));
@@ -2087,7 +2087,7 @@ codeunit 136302 "Job Consumption Purchase"
         // [SCENARIO 363738] Post negative Item Ledger Entry for Credit Memo with Job when "Return Shipment on Credit Memo" = No and "Prevent Negative Inventory" = yes
 
         Initialize;
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         // [GIVEN] "Return Shipment on Credit Memo" = No
         UpdateReturnShipmentOnCreditMemo(false);
         // [GIVEN] Posted Purchase Invoice with Job and Item with option "Prevent Negative Inventory" = Yes
@@ -2808,10 +2808,10 @@ codeunit 136302 "Job Consumption Purchase"
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
-        DummyJobsSetup.Modify;
+        DummyJobsSetup.Modify();
 
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Consumption Purchase");
     end;
 
@@ -3795,7 +3795,7 @@ codeunit 136302 "Job Consumption Purchase"
         Currency: Record Currency;
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Currency.SetFilter(Code, '<>%1', GeneralLedgerSetup."LCY Code");
         Currency.SetRange("Amount Rounding Precision", GeneralLedgerSetup."Amount Rounding Precision");
         Currency.Next(LibraryRandom.RandInt(Currency.Count));
@@ -4104,7 +4104,7 @@ codeunit 136302 "Job Consumption Purchase"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
         InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
         InventorySetup.Modify(true);
@@ -4186,7 +4186,7 @@ codeunit 136302 "Job Consumption Purchase"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Return Shipment on Credit Memo", ReturnShipmentOnCreditMemo);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -4367,7 +4367,7 @@ codeunit 136302 "Job Consumption Purchase"
         PurchaseLine: Record "Purchase Line";
     begin
         // prevent roll back
-        Commit;
+        Commit();
         GetPurchaseLines(PurchaseHeader, PurchaseLine);
         repeat
             asserterror PurchaseLine.Validate("Job No.", '');

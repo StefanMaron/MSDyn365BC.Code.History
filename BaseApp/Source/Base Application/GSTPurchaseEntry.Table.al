@@ -21,11 +21,9 @@ table 28160 "GST Purchase Entry"
         {
             Caption = 'Document No.';
         }
-        field(5; "Document Type"; Option)
+        field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(6; "Document Line No."; Integer)
         {
@@ -74,11 +72,9 @@ table 28160 "GST Purchase Entry"
         {
             Caption = 'Amount';
         }
-        field(15; "VAT Calculation Type"; Option)
+        field(15; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(16; "VAT Bus. Posting Group"; Code[20])
         {

@@ -1,4 +1,4 @@
-﻿page 446 "Finance Charge Memo"
+page 446 "Finance Charge Memo"
 {
     Caption = 'Finance Charge Memo';
     PageType = Document;

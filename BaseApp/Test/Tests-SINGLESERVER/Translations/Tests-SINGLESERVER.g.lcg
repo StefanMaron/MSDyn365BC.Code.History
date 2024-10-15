@@ -5,6 +5,15 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 3630496042 - NamedType 3516382779" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You do not have the following permissions]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Assembly Mgmt. Plan-based E2E - NamedType MissingPermissionsErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 330807007 - NamedType 3911743218" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[To continue, you must specify a name for the company.]]></Val>
@@ -473,6 +482,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Double quotations in Item No. - NamedType StockKeepingUnitNotCreatedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3144827255 - NamedType 3696064670" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amt_PurchCrMemoHeader]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Reports III - NamedType AmtPurchCrMemoHeaderLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3144827255 - NamedType 1023872596" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amt_PurchInvHeader]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Reports III - NamedType AmtPurchInvHeaderLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3144827255 - NamedType 2681262809" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[DocEntryTableName]]></Val>
@@ -534,6 +561,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Reports III - NamedType AssignedQuantityErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3144827255 - NamedType 2190867965" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[PstDate_PurchInvHeader]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Reports III - NamedType PstDatePurchInvHeaderLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3144827255 - NamedType 1381414091" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[PstDate_PurchCrMemoHeader]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Reports III - NamedType PstDatePurchCrMemoHeaderLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3144827255 - NamedType 2895079328" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1139,6 +1184,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM User Personalization - NamedType NotDefaultRoleCenterIDErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 630621805 - NamedType 188336940" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You are logged in as a Team Member role, so you cannot complete this task.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Prepayments Plan-based E2E - NamedType TeamMemberErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2511659471 - NamedType 2202893579" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Sorry, you can't create a %1 from this device.]]></Val>
@@ -1398,6 +1452,96 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UserRenameTest - NamedType NewUserNameNotFound)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 1255942961" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[New permission set, %1, has been created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[New permission set, D365 Basic Set, has been created.]D;]A;(LookupHint=Codeunit UserRoleTest - NamedType CopySuccessMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 1640382967" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Failed to find  %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit UserRoleTest - NamedType FailedPermissionFilterErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 188587028" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Missing Expected error message: %1. \ Actual error recieved: %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit UserRoleTest - NamedType ErrorStringCom001Err)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 4178972386" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[User %1 is not in Window Login table.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit UserRoleTest - NamedType UserNotFound001Err)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 2366907793" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected LicenseType %1 but got %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit UserRoleTest - NamedType LicenseTypeIsWrongErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 1987302815" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The row does not exist on the TestPage.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UserRoleTest - NamedType RowNotfound001Err)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 4130519749" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The validation error count is not as expected. Actual: %1 Expected %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit UserRoleTest - NamedType ErrorStringCom002Err)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 2643354537" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Yes]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UserRoleTest - NamedType YesTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 2871260926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Indirect]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UserRoleTest - NamedType IndirectTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3058317973 - NamedType 1418745497" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There should be at least one enabled 'SUPER' user.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UserRoleTest - NamedType SUPERPermissionErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2997012308 - NamedType 3295940436" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

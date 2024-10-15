@@ -18,9 +18,6 @@ report 28023 "Deposit Slip"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(Gen__Journal_Line__Gen__Journal_Line___Account_Type_; "Gen. Journal Line"."Account Type")
             {
             }
@@ -180,11 +177,11 @@ report 28023 "Deposit Slip"
 
             trigger OnAfterGetRecord()
             begin
-                GenJnlBatch.Reset;
+                GenJnlBatch.Reset();
                 GenJnlBatch.SetRange("Bal. Account Type", "Gen. Journal Line"."Account Type"::"Bank Account");
                 GenJnlBatch.SetRange(Name, "Gen. Journal Line"."Journal Batch Name");
                 if GenJnlBatch.FindFirst then begin
-                    BankAccount.Reset;
+                    BankAccount.Reset();
                     BankAccount.SetRange("No.", GenJnlBatch."Bal. Account No.");
                     if BankAccount.FindFirst then;
                 end;
@@ -217,7 +214,7 @@ report 28023 "Deposit Slip"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAddress.Company(Addr, CompanyInfo);
     end;
 

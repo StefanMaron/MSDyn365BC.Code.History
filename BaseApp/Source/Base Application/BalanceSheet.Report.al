@@ -18,9 +18,6 @@ report 28024 "Balance Sheet"
             column(LongText; LongText)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -239,7 +236,7 @@ report 28024 "Balance Sheet"
         if CurrentPeriodEnd <> NormalDate(CurrentPeriodEnd) then
             LastYearCurrentPeriodEnd := ClosingDate(LastYearCurrentPeriodEnd);
 
-        AccPeriod.Reset;
+        AccPeriod.Reset();
         AccPeriod.SetRange("New Fiscal Year", true, true);
         AccPeriod.SetFilter("Starting Date", '..%1', CurrentPeriodEnd);
         AccPeriod.FindLast;

@@ -156,7 +156,7 @@ report 5607 "Fixed Asset - Projected Value"
                     if "Part of Book Value" then
                         BookValue := BookValue + Amount;
                     if "FA Posting Date" < IncludePostedFrom then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     EntryPrinted := true;
                 end;
 
@@ -166,7 +166,7 @@ report 5607 "Fixed Asset - Projected Value"
                     SetRange("Depreciation Book Code", DeprBookCode);
                     BookValue := 0;
                     if (IncludePostedFrom = 0D) or not PrintDetails then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem(ProjectedDepreciation; "Integer")
@@ -251,7 +251,7 @@ report 5607 "Fixed Asset - Projected Value"
                 trigger OnAfterGetRecord()
                 begin
                     if UntilDate >= EndingDate then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if Number = 1 then begin
                         CalculateFirstDeprAmount(Done);
                         if FADeprBook."Book Value" <> 0 then
@@ -303,9 +303,9 @@ report 5607 "Fixed Asset - Projected Value"
                 end;
 
                 if not FADeprBook.Get("No.", DeprBookCode) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if SkipRecord then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if GroupTotals = GroupTotals::"FA Posting Group" then
                     if "FA Posting Group" <> FADeprBook."FA Posting Group" then
@@ -445,17 +445,17 @@ report 5607 "Fixed Asset - Projected Value"
             begin
                 if Number = 1 then begin
                     if not TempFABufferProjection.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if TempFABufferProjection.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
             end;
 
             trigger OnPreDataItem()
             begin
                 if not PrintAmountsPerDate then
-                    CurrReport.Break;
-                TempFABufferProjection.Reset;
+                    CurrReport.Break();
+                TempFABufferProjection.Reset();
             end;
         }
     }
@@ -1104,7 +1104,7 @@ report 5607 "Fixed Asset - Projected Value"
     procedure GetFASetup()
     begin
         if DeprBookCode = '' then begin
-            FASetup.Get;
+            FASetup.Get();
             DeprBookCode := FASetup."Default Depr. Book";
         end;
         UpdateReqForm;

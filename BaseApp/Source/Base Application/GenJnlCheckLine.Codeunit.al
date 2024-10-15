@@ -45,7 +45,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
     begin
         OnBeforeRunCheck(GenJnlLine);
 
-        GLSetup.Get;
+        GLSetup.Get();
         with GenJnlLine do begin
             if EmptyLine then
                 exit;
@@ -58,7 +58,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
             CheckDates(GenJnlLine);
             ValidateSalesPersonPurchaserCode(GenJnlLine);
 
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Force Payment With Invoice" = true then
                 if (("Document Type" in ["Document Type"::Payment, "Document Type"::" "]) and
                     (GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor)) then

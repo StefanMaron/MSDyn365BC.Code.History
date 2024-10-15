@@ -32,12 +32,10 @@ table 254 "VAT Entry"
             Caption = 'Document No.';
             Editable = false;
         }
-        field(6; "Document Type"; Option)
+        field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(7; Type; Option)
         {
@@ -64,12 +62,10 @@ table 254 "VAT Entry"
             Caption = 'Amount';
             Editable = false;
         }
-        field(10; "VAT Calculation Type"; Option)
+        field(10; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(12; "Bill-to/Pay-to No."; Code[20])
         {
@@ -561,10 +557,17 @@ table 254 "VAT Entry"
         GLSetup: Record "General Ledger Setup";
         GLSetupRead: Boolean;
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     local procedure GetCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
         exit(GLSetup."Additional Reporting Currency");
@@ -670,7 +673,7 @@ table 254 "VAT Entry"
                 case UnrealizedVATType of
                     UnrealizedVATType::Percentage:
                         begin
-                            GLSetup.Get;
+                            GLSetup.Get();
                             if GLSetup."Manual Sales WHT Calc." then begin
                                 if Abs(SettledAmount) < Abs(Full) then begin
                                     if GenJnlLine."Posting Date" <= CustLedgEntry."Pmt. Discount Date" then begin
@@ -758,14 +761,14 @@ table 254 "VAT Entry"
         SalesCrMemoHeader.SetRange("Applies-to Doc. No.", DocumentNo);
         if SalesCrMemoHeader.FindFirst then begin
             WHTAmount1 := 0;
-            WHTEntry.Reset;
+            WHTEntry.Reset();
             WHTEntry.SetRange("Document No.", SalesCrMemoHeader."No.");
             WHTEntry.SetRange("Applies-to Entry No.", 0);
             if WHTEntry.Find('-') then
                 repeat
                     WHTAmount1 += WHTEntry."Unrealized Amount (LCY)";
                 until WHTEntry.Next = 0;
-            GLSetup.Get;
+            GLSetup.Get();
         end;
         WHTAmount := WHTAmount - WHTAmount1;
     end;

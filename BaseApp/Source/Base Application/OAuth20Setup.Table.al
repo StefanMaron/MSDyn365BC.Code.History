@@ -239,6 +239,7 @@ table 1140 "OAuth 2.0 Setup"
             Result := OAuth20Mgt.RefreshAndSaveAccessToken(Rec, MessageText);
     end;
 
+    [NonDebuggable]
     procedure InvokeRequest(RequestJSON: Text; var ResponseJSON: Text; var HttpError: Text; RetryOnCredentialsFailure: Boolean) Result: Boolean
     var
         Processed: Boolean;

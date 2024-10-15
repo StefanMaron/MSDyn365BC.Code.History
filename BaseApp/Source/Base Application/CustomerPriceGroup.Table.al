@@ -19,7 +19,7 @@ table 6 "Customer Price Group"
                 SalesSetup: Record "Sales & Receivables Setup";
             begin
                 if "Price Includes VAT" then begin
-                    SalesSetup.Get;
+                    SalesSetup.Get();
                     if SalesSetup."VAT Bus. Posting Gr. (Price)" <> '' then
                         Validate("VAT Bus. Posting Gr. (Price)", SalesSetup."VAT Bus. Posting Gr. (Price)");
                 end;
@@ -38,6 +38,10 @@ table 6 "Customer Price Group"
         field(10; Description; Text[100])
         {
             Caption = 'Description';
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
         }
         field(7001; "Allow Line Disc."; Boolean)
         {
@@ -71,6 +75,7 @@ table 6 "Customer Price Group"
         UpdateSalesPrices(true);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     local procedure UpdateSalesPrices(CreateNewSalesPrice: Boolean)
     var
         SalesPrice: Record "Sales Price";

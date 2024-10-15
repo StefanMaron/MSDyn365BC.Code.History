@@ -83,7 +83,7 @@ codeunit 232 "Gen. Jnl.-Post+Print"
                     Message(JournalsScheduledMsg);
             end else begin
                 CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
-                Commit;
+                Commit();
                 OnAfterPostJournalBatch(GenJnlLine);
 
                 RecRefToPrint.GetTable(GenJnlLine);

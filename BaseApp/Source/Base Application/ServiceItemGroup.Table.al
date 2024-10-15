@@ -59,9 +59,9 @@ table 5904 "Service Item Group"
         ResSkillMgt: Codeunit "Resource Skill Mgt.";
         DimMgt: Codeunit DimensionManagement;
     begin
-        StdServItemGrCode.Reset;
+        StdServItemGrCode.Reset();
         StdServItemGrCode.SetRange("Service Item Group Code", Code);
-        StdServItemGrCode.DeleteAll;
+        StdServItemGrCode.DeleteAll();
 
         ResSkillMgt.DeleteServItemGrResSkills(Code);
         DimMgt.DeleteDefaultDim(DATABASE::"Service Item Group", Code);

@@ -1993,9 +1993,6 @@ End Function
         <Field Name="Text1500000">
           <DataField>Text1500000</DataField>
         </Field>
-        <Field Name="STRSUBSTNO_Text1500001_FORMAT_CurrReport_PAGENO__">
-          <DataField>STRSUBSTNO_Text1500001_FORMAT_CurrReport_PAGENO__</DataField>
-        </Field>
         <Field Name="Vendor__No__">
           <DataField>Vendor__No__</DataField>
         </Field>
@@ -2079,9 +2076,6 @@ End Function
         </Field>
         <Field Name="Text1500000_Control1500079">
           <DataField>Text1500000_Control1500079</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text1500001_FORMAT_CurrReport_PAGENO___Control1500080">
-          <DataField>STRSUBSTNO_Text1500001_FORMAT_CurrReport_PAGENO___Control1500080</DataField>
         </Field>
         <Field Name="Customer__No__">
           <DataField>Customer__No__</DataField>

@@ -38,7 +38,7 @@ codeunit 134628 "Test Graph Cont. Bus. Relation"
         BindSubscription(GraphBackgroundSyncSubscr);
         LibraryGraphSync.CreateGraphWebhookSubscription(DATABASE::Contact);
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -188,7 +188,7 @@ codeunit 134628 "Test Graph Cont. Bus. Relation"
         LibraryGraphSync.GraphContactAddIsContactTrue(GraphContact);
         GraphContact.ChangeKey :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(GraphContact.ChangeKey)), 1, MaxStrLen(GraphContact.ChangeKey));
-        GraphContact.Modify;
+        GraphContact.Modify();
         RunGraphSyncFromIntegrationTable(GraphContact);
 
         // Verify

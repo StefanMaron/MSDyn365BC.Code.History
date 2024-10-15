@@ -27,7 +27,7 @@ report 16630 "E-Filing"
                     WHTEntry1.SetRange("Bill-to/Pay-to No.", "Bill-to/Pay-to No.");
                     WHTEntry1.SetRange("WHT Revenue Type", "WHT Revenue Type");
                     if WHTEntry1.Find('-') then
-                        rcount := WHTEntry1.Count;
+                        rcount := WHTEntry1.Count();
                     if rcount = 0 then
                         rcount := 1;
                     repeat
@@ -40,7 +40,7 @@ report 16630 "E-Filing"
                         TempWHTEntry."Entry No." := TempWHTEntry."Entry No." + 1
                     else
                         TempWHTEntry."Entry No." := 1;
-                    TempWHTEntry.Init;
+                    TempWHTEntry.Init();
                     TempWHTEntry."Bill-to/Pay-to No." := "Bill-to/Pay-to No.";
                     TempWHTEntry.TransferFields("WHT Entry");
                     TempWHTEntry."WHT Bus. Posting Group" := "WHT Bus. Posting Group";
@@ -50,7 +50,7 @@ report 16630 "E-Filing"
                     TempWHTEntry."Amount (LCY)" := WHTAmount;
                     TempWHTEntry."WHT Revenue Type" := "WHT Revenue Type";
                     TempWHTEntry."Base (LCY)" := TotAmt;
-                    TempWHTEntry.Insert;
+                    TempWHTEntry.Insert();
                     VendNo := "Bill-to/Pay-to No.";
                     WHTBusGrp := "WHT Bus. Posting Group";
                     WHTProdGrp := "WHT Prod. Posting Group";
@@ -62,7 +62,7 @@ report 16630 "E-Filing"
             begin
                 LastFieldNo := FieldNo("WHT Revenue Type");
                 if TempWHTEntry.FindFirst then
-                    TempWHTEntry.Delete;
+                    TempWHTEntry.Delete();
             end;
         }
     }

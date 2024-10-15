@@ -19,9 +19,6 @@ report 11600 "Withholding Summary"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -128,7 +125,7 @@ report 11600 "Withholding Summary"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Enable GST (Australia)", true);
     end;
 

@@ -16,9 +16,6 @@ report 16627 "Monthly Remittance Return  WHT"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_USERID_; Format(UserId))
             {
             }
@@ -157,11 +154,11 @@ report 16627 "Monthly Remittance Return  WHT"
 
             trigger OnAfterGetRecord()
             begin
-                WHTEntry1.Reset;
+                WHTEntry1.Reset();
                 WHTEntry1.Copy("WHT Entry");
                 WHTEntry1.SetRange("WHT Revenue Type", "WHT Revenue Type");
                 if WHTEntry1.FindFirst then
-                    rcount := WHTEntry1.Count;
+                    rcount := WHTEntry1.Count();
                 if rcount = 0 then
                     rcount := 1;
             end;
@@ -200,7 +197,7 @@ report 16627 "Monthly Remittance Return  WHT"
                         MonthName := 'December';
                 end;
 
-                CI.Get;
+                CI.Get();
             end;
         }
     }

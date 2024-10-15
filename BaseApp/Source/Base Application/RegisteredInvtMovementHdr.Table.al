@@ -100,11 +100,9 @@ table 7344 "Registered Invt. Movement Hdr."
             OptionCaption = '0,1,2,3,4,5,6,7,8,9,10';
             OptionMembers = "0","1","2","3","4","5","6","7","8","9","10";
         }
-        field(7310; "Destination Type"; Option)
+        field(7310; "Destination Type"; enum "Warehouse Destination Type")
         {
             Caption = 'Destination Type';
-            OptionCaption = ' ,Customer,Vendor,Location,Item,Family,Sales Order';
-            OptionMembers = " ",Customer,Vendor,Location,Item,Family,"Sales Order";
         }
         field(7311; "Destination No."; Code[20])
         {

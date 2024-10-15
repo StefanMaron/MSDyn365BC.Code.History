@@ -184,11 +184,9 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         {
             Caption = 'On Hold';
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -528,14 +526,14 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
 
     trigger OnDelete()
     begin
-        PurchTaxCrMemoLine.Reset;
+        PurchTaxCrMemoLine.Reset();
         PurchTaxCrMemoLine.SetRange("Document No.", "No.");
-        PurchTaxCrMemoLine.DeleteAll;
+        PurchTaxCrMemoLine.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         if "No." = '' then begin
             if TaxInvoiceManagement.CheckTaxableNoSeries("Buy-from Vendor No.", 0) then begin
                 PurchSetup.TestField("Posted Non Tax Credit Memo Nos");

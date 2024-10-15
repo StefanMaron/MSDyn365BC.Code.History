@@ -1,0 +1,14 @@
+{
+    "id":  "3e66e11e-b732-462d-ab82-09a8f710504c",
+    "name":  "Library - No Transactions",
+    "brief":  "Used for testing that no transactions are invoked",
+    "description":  "This app is used for testing that the transactions are not executed. If any transaction is detected with this extension published we will throw an error.",
+    "publisher":  "Microsoft",
+    "version":  "16.0.11240.12076",
+    "platform":  "16.0.0.0",
+    "dependencies":  [
+
+                     ],
+    "target":  "OnPrem",
+    "showMyCode":  true
+}

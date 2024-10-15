@@ -36,7 +36,7 @@ codeunit 5932 "Service-Get Shipment"
         with ServiceShptLine2 do begin
             SetFilter("Qty. Shipped Not Invoiced", '<>0');
             if Find('-') then begin
-                ServiceLine.LockTable;
+                ServiceLine.LockTable();
                 ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
                 ServiceLine.SetRange("Document No.", ServiceHeader."No.");
                 ServiceLine."Document Type" := ServiceHeader."Document Type";

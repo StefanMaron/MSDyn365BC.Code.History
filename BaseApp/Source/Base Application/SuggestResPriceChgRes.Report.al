@@ -2,6 +2,9 @@ report 1191 "Suggest Res. Price Chg. (Res.)"
 {
     Caption = 'Suggest Res. Price Chg. (Res.)';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     dataset
     {

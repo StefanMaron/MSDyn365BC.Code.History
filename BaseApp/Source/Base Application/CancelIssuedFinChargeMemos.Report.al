@@ -18,7 +18,7 @@ report 1395 "Cancel Issued Fin.Charge Memos"
                 if CancelIssuedFinChargeMemo.Run("Issued Fin. Charge Memo Header") then begin
                     if CancelIssuedFinChargeMemo.GetErrorMessages(TempErrorMessage) then
                         AddIssuedFinChargeMemoHeaderToErrorBuffer;
-                    Commit;
+                    Commit();
                 end else begin
                     if NoOfRecords > 1 then begin
                         TempErrorMessage.LogLastError;
@@ -128,7 +128,7 @@ report 1395 "Cancel Issued Fin.Charge Memos"
     local procedure AddIssuedFinChargeMemoHeaderToErrorBuffer()
     begin
         TempIssuedFinChargeMemoHeader := "Issued Fin. Charge Memo Header";
-        TempIssuedFinChargeMemoHeader.Insert;
+        TempIssuedFinChargeMemoHeader.Insert();
     end;
 }
 

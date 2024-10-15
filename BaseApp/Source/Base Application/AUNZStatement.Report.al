@@ -54,9 +54,6 @@ report 17110 "AU/NZ Statement"
                 column(Customer__No__; Customer."No.")
                 {
                 }
-                column(CurrReport_PAGENO; CurrReport.PageNo)
-                {
-                }
                 column(CurrencyLabel; CurrencyLabel)
                 {
                 }
@@ -181,7 +178,7 @@ report 17110 "AU/NZ Statement"
                     trigger OnPreDataItem()
                     begin
                         if (AgingMethod = AgingMethod::None) and (StatementStyle = StatementStyle::Balance) then
-                            CurrReport.Break;    // Optimization
+                            CurrReport.Break();    // Optimization
                         // Find ledger entries which are open and posted before the statement date.
                         LedgEntryLast := 0;
                         if StatementStyle = StatementStyle::"Open Item" then
@@ -211,7 +208,7 @@ report 17110 "AU/NZ Statement"
                     trigger OnAfterGetRecord()
                     begin
                         if StatementStyle <> StatementStyle::Balance then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(CustLedgerEntry3; "Cust. Ledger Entry")
@@ -300,7 +297,7 @@ report 17110 "AU/NZ Statement"
                     trigger OnPreDataItem()
                     begin
                         if StatementStyle = StatementStyle::Balance then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange("Posting Date", 0D, ToDate);
                         SetRange("Date Filter", 0D, ToDate);
                     end;
@@ -318,70 +315,70 @@ report 17110 "AU/NZ Statement"
                             AgingMethod::"Due Date":
                                 begin
                                     if ("Due Date" >= Periodstartdate[1]) and ("Due Date" <= PeriodEndingDate[1]) then begin
-                                        TempCustLedgerEntry1.Init;
+                                        TempCustLedgerEntry1.Init();
                                         TempCustLedgerEntry1 := "AgingCust. Ledger Entry";
-                                        TempCustLedgerEntry1.Insert;
+                                        TempCustLedgerEntry1.Insert();
                                     end;
                                     if ("Due Date" >= Periodstartdate[2]) and ("Due Date" <= PeriodEndingDate[2]) then begin
-                                        TempCustLedgerEntry2.Init;
+                                        TempCustLedgerEntry2.Init();
                                         TempCustLedgerEntry2 := "AgingCust. Ledger Entry";
-                                        TempCustLedgerEntry2.Insert;
+                                        TempCustLedgerEntry2.Insert();
                                     end;
                                     if ("Due Date" >= Periodstartdate[3]) and ("Due Date" <= PeriodEndingDate[3]) then begin
-                                        TempCustLedgerEntry3.Init;
+                                        TempCustLedgerEntry3.Init();
                                         TempCustLedgerEntry3 := "AgingCust. Ledger Entry";
-                                        TempCustLedgerEntry3.Insert;
+                                        TempCustLedgerEntry3.Insert();
                                     end;
                                     if ("Due Date" >= Periodstartdate[4]) and ("Due Date" <= PeriodEndingDate[4]) then begin
-                                        TempCustLedgerEntry4.Init;
+                                        TempCustLedgerEntry4.Init();
                                         TempCustLedgerEntry4 := "AgingCust. Ledger Entry";
-                                        TempCustLedgerEntry4.Insert;
+                                        TempCustLedgerEntry4.Insert();
                                     end;
                                 end;
                             AgingMethod::"Trans Date", AgingMethod::None:
                                 begin
                                     if ("Posting Date" >= Periodstartdate[1]) and ("Posting Date" <= PeriodEndingDate[1]) then begin
-                                        TempCustLedgerEntry1.Init;
+                                        TempCustLedgerEntry1.Init();
                                         TempCustLedgerEntry1 := "AgingCust. Ledger Entry";
-                                        TempCustLedgerEntry1.Insert;
+                                        TempCustLedgerEntry1.Insert();
                                     end;
                                     if ("Posting Date" >= Periodstartdate[2]) and ("Posting Date" <= PeriodEndingDate[2]) then begin
-                                        TempCustLedgerEntry2.Init;
+                                        TempCustLedgerEntry2.Init();
                                         TempCustLedgerEntry2 := "AgingCust. Ledger Entry";
-                                        TempCustLedgerEntry2.Insert;
+                                        TempCustLedgerEntry2.Insert();
                                     end;
                                     if ("Posting Date" >= Periodstartdate[3]) and ("Posting Date" <= PeriodEndingDate[3]) then begin
-                                        TempCustLedgerEntry3.Init;
+                                        TempCustLedgerEntry3.Init();
                                         TempCustLedgerEntry3 := "AgingCust. Ledger Entry";
-                                        TempCustLedgerEntry3.Insert;
+                                        TempCustLedgerEntry3.Insert();
                                     end;
                                     if ("Posting Date" >= Periodstartdate[4]) and ("Posting Date" <= PeriodEndingDate[4]) then begin
-                                        TempCustLedgerEntry4.Init;
+                                        TempCustLedgerEntry4.Init();
                                         TempCustLedgerEntry4 := "AgingCust. Ledger Entry";
-                                        TempCustLedgerEntry4.Insert;
+                                        TempCustLedgerEntry4.Insert();
                                     end;
                                 end;
                             AgingMethod::"Doc Date":
                                 begin
                                     if ("Document Date" >= Periodstartdate[1]) and ("Document Date" <= PeriodEndingDate[1]) then begin
-                                        TempCustLedgerEntry1.Init;
+                                        TempCustLedgerEntry1.Init();
                                         TempCustLedgerEntry1 := "AgingCust. Ledger Entry";
-                                        TempCustLedgerEntry1.Insert;
+                                        TempCustLedgerEntry1.Insert();
                                     end;
                                     if ("Document Date" >= Periodstartdate[2]) and ("Document Date" <= PeriodEndingDate[2]) then begin
-                                        TempCustLedgerEntry2.Init;
+                                        TempCustLedgerEntry2.Init();
                                         TempCustLedgerEntry2 := "AgingCust. Ledger Entry";
-                                        TempCustLedgerEntry2.Insert;
+                                        TempCustLedgerEntry2.Insert();
                                     end;
                                     if ("Document Date" >= Periodstartdate[3]) and ("Document Date" <= PeriodEndingDate[3]) then begin
-                                        TempCustLedgerEntry3.Init;
+                                        TempCustLedgerEntry3.Init();
                                         TempCustLedgerEntry3 := "AgingCust. Ledger Entry";
-                                        TempCustLedgerEntry3.Insert;
+                                        TempCustLedgerEntry3.Insert();
                                     end;
                                     if ("Document Date" >= Periodstartdate[4]) and ("Document Date" <= PeriodEndingDate[4]) then begin
-                                        TempCustLedgerEntry4.Init;
+                                        TempCustLedgerEntry4.Init();
                                         TempCustLedgerEntry4 := "AgingCust. Ledger Entry";
-                                        TempCustLedgerEntry4.Insert;
+                                        TempCustLedgerEntry4.Insert();
                                     end;
                                 end;
                         end;
@@ -471,7 +468,7 @@ report 17110 "AU/NZ Statement"
                     trigger OnPreDataItem()
                     begin
                         if StatementStyle <> StatementStyle::Balance then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange("Posting Date", FromDate, ToDate);
                     end;
                 }
@@ -489,8 +486,8 @@ report 17110 "AU/NZ Statement"
                     begin
                         StatementComplete := true;
                         if UpdateNumbers and (not CurrReport.Preview) then begin
-                            Customer.Modify; // just update the Last Statement No
-                            Commit;
+                            Customer.Modify(); // just update the Last Statement No
+                            Commit();
                         end;
 
                         CalcOpenLedgEntry;
@@ -581,7 +578,7 @@ report 17110 "AU/NZ Statement"
                     Print := "Net Change" <> 0;
                 end;
                 if (not Print) and AllHavingEntries then begin
-                    "Cust. Ledger Entry".Reset;
+                    "Cust. Ledger Entry".Reset();
                     if StatementStyle = StatementStyle::Balance then begin
                         "Cust. Ledger Entry".SetCurrentKey("Customer No.", "Posting Date");
                         "Cust. Ledger Entry".SetRange("Posting Date", FromDate, ToDate);
@@ -595,7 +592,7 @@ report 17110 "AU/NZ Statement"
                 end;
 
                 if not Print then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if StatementStyle = StatementStyle::Balance then begin
                     SetRange("Date Filter", 0D, FromDate - 1);
                     CalcFields("Net Change", "Net Change (LCY)");
@@ -616,7 +613,6 @@ report 17110 "AU/NZ Statement"
                     "Last Statement No." := 1
                 else
                     "Last Statement No." := "Last Statement No." + 1;
-                CurrReport.PageNo := 1;
 
                 FormatAddress.Customer(CustomerAddress, Customer);
                 LedgEntryLast := 0;
@@ -913,7 +909,7 @@ report 17110 "AU/NZ Statement"
     begin
         Clear(AgingAmount);
         if not PrintLCY then begin
-            TempCustLedgerEntry1.Reset;
+            TempCustLedgerEntry1.Reset();
             TempCustLedgerEntry1.SetRange("Customer No.", "AgingCust. Ledger Entry"."Customer No.");
             TempCustLedgerEntry1.SetRange("Date Filter", 0D, ToDate);
             TempCustLedgerEntry1.SetRange("Posting Date", 0D, ToDate);
@@ -923,7 +919,7 @@ report 17110 "AU/NZ Statement"
                     AgingAmount[1] += TempCustLedgerEntry1."Remaining Amount";
                 until TempCustLedgerEntry1.Next = 0;
         end else begin
-            TempCustLedgerEntry1.Reset;
+            TempCustLedgerEntry1.Reset();
             TempCustLedgerEntry1.SetRange("Customer No.", "AgingCust. Ledger Entry"."Customer No.");
             TempCustLedgerEntry1.SetRange("Date Filter", 0D, ToDate);
             TempCustLedgerEntry1.SetRange("Posting Date", 0D, ToDate);
@@ -934,7 +930,7 @@ report 17110 "AU/NZ Statement"
                 until TempCustLedgerEntry1.Next = 0;
         end;
         if not PrintLCY then begin
-            TempCustLedgerEntry2.Reset;
+            TempCustLedgerEntry2.Reset();
             TempCustLedgerEntry2.SetRange("Customer No.", "AgingCust. Ledger Entry"."Customer No.");
             TempCustLedgerEntry2.SetRange("Date Filter", 0D, ToDate);
             TempCustLedgerEntry2.SetRange("Posting Date", 0D, ToDate);
@@ -944,7 +940,7 @@ report 17110 "AU/NZ Statement"
                     AgingAmount[2] += TempCustLedgerEntry2."Remaining Amount";
                 until TempCustLedgerEntry2.Next = 0;
         end else begin
-            TempCustLedgerEntry2.Reset;
+            TempCustLedgerEntry2.Reset();
             TempCustLedgerEntry2.SetRange("Customer No.", "AgingCust. Ledger Entry"."Customer No.");
             TempCustLedgerEntry2.SetRange("Date Filter", 0D, ToDate);
             TempCustLedgerEntry2.SetRange("Posting Date", 0D, ToDate);
@@ -955,7 +951,7 @@ report 17110 "AU/NZ Statement"
                 until TempCustLedgerEntry2.Next = 0;
         end;
         if not PrintLCY then begin
-            TempCustLedgerEntry3.Reset;
+            TempCustLedgerEntry3.Reset();
             TempCustLedgerEntry3.SetRange("Customer No.", "AgingCust. Ledger Entry"."Customer No.");
             TempCustLedgerEntry3.SetRange("Date Filter", 0D, ToDate);
             TempCustLedgerEntry3.SetRange("Posting Date", 0D, ToDate);
@@ -965,7 +961,7 @@ report 17110 "AU/NZ Statement"
                     AgingAmount[3] += TempCustLedgerEntry3."Remaining Amount";
                 until TempCustLedgerEntry3.Next = 0;
         end else begin
-            TempCustLedgerEntry3.Reset;
+            TempCustLedgerEntry3.Reset();
             TempCustLedgerEntry3.SetRange("Customer No.", "AgingCust. Ledger Entry"."Customer No.");
             TempCustLedgerEntry3.SetRange("Date Filter", 0D, ToDate);
             TempCustLedgerEntry3.SetRange("Posting Date", 0D, ToDate);
@@ -976,7 +972,7 @@ report 17110 "AU/NZ Statement"
                 until TempCustLedgerEntry3.Next = 0;
         end;
         if not PrintLCY then begin
-            TempCustLedgerEntry4.Reset;
+            TempCustLedgerEntry4.Reset();
             TempCustLedgerEntry4.SetRange("Customer No.", "AgingCust. Ledger Entry"."Customer No.");
             TempCustLedgerEntry4.SetRange("Date Filter", 0D, ToDate);
             TempCustLedgerEntry4.SetRange("Posting Date", 0D, ToDate);
@@ -986,7 +982,7 @@ report 17110 "AU/NZ Statement"
                     AgingAmount[4] += TempCustLedgerEntry4."Remaining Amount";
                 until TempCustLedgerEntry4.Next = 0;
         end else begin
-            TempCustLedgerEntry4.Reset;
+            TempCustLedgerEntry4.Reset();
             TempCustLedgerEntry4.SetRange("Customer No.", "AgingCust. Ledger Entry"."Customer No.");
             TempCustLedgerEntry4.SetRange("Date Filter", 0D, ToDate);
             TempCustLedgerEntry4.SetRange("Posting Date", 0D, ToDate);

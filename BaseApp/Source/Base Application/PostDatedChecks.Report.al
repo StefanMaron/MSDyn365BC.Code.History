@@ -22,9 +22,6 @@ report 28090 "Post Dated Checks"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(Post_Dated_Check_Line_2__Account_Type_; "Account Type")
             {
             }

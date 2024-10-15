@@ -85,7 +85,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
         // [GIVEN] the CRM product got new "Name"
         Item.Description := LibraryUtility.GenerateGUID;
-        Item.Modify;
+        Item.Modify();
         MockRecordNeedsSync(Item.RecordId); // to avoid adding SLEEP
         // [GIVEN] Active recurring job 'ITEM-PRODUCT' is executed
         FindJobQueueEntryForMapping(JobQueueEntry, DATABASE::Item, JobQueueEntry.Status::Ready, 1);
@@ -111,17 +111,17 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         Initialize;
         // [GIVEN] The Item
         Item."No." := LibraryUtility.GenerateGUID;
-        Item.Insert;
+        Item.Insert();
         // [GIVEN] Job 'ITEM', where Status "On Hold with Inactivity period"
         FindJobQueueEntryForMapping(JobQueueEntry[1], DATABASE::Item, JobQueueEntry[1].Status::"On Hold with Inactivity Timeout", 1);
         JobQueueEntry[1]."Last Ready State" := CurrentDateTime - 60000 * JobQueueEntry[1]."No. of Minutes between Runs";
-        JobQueueEntry[1].Modify;
+        JobQueueEntry[1].Modify();
         // [GIVEN] Job 'CUSTOMER', where Status "On Hold with Inactivity period"
         FindJobQueueEntryForMapping(JobQueueEntry[2], DATABASE::Customer, JobQueueEntry[2].Status::"On Hold with Inactivity Timeout", 1);
 
         // [WHEN] Item is modified.
         CurrDT := CurrentDateTime;
-        Item.Modify; // calls COD1.OnDatabaseInsert -> COD5150.InsertUpdateIntegrationRecord
+        Item.Modify(); // calls COD1.OnDatabaseInsert -> COD5150.InsertUpdateIntegrationRecord
 
         // [THEN] Job 'ITEM' gets Status "Ready", new "Earliest Start Date/Time" is about 1 second from now
         JobQueueEntry[1].Find;
@@ -161,11 +161,11 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         // [GIVEN] Job 'E', where Status "Error", "User ID" = USERID
         FindJobQueueEntryForMapping(JobQueueEntry[5], DATABASE::"Unit of Measure", JobQueueEntry[5].Status::Error, 0);
         JobQueueEntry[5]."User ID" := UserId;
-        JobQueueEntry[5].Modify;
+        JobQueueEntry[5].Modify();
 
         // [GIVEN] the CRM Product is modified
         CRMProduct.ModifiedOn := CurrentDateTime;
-        CRMProduct.Modify;
+        CRMProduct.Modify();
 
         // [WHEN] Open company (run codeunit "Job Queue User Handler")
         CODEUNIT.Run(CODEUNIT::"Job Queue User Handler");
@@ -183,7 +183,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         // [THEN] Job 'D' is rescheduled
         Assert.AreEqual(JobQueueEntry[4].Status::Ready, JobQueueEntry[4].Status, 'Job D Status');
         // [THEN] Job 'E' is not changed
-        Assert.AreEqual(JobQueueEntry[5].Status::Error,JobQueueEntry[5].Status,'Job E Status');
+        Assert.AreEqual(JobQueueEntry[5].Status::Error, JobQueueEntry[5].Status, 'Job E Status');
     end;
 
     [Test]
@@ -202,12 +202,12 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         JobQueueEntry.FindFirst;
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold with Inactivity Timeout";
         JobQueueEntry."System Task ID" := CreateGuid; // As if TASKSCHEDULER defined it
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
 
         // [GIVEN] "Last Update Invoice Entry No." is 72 in CRM Connection Setup, while the last detailed entry is 73
         CRMSynchStatus.UpdateLastUpdateInvoiceEntryNo;
         CRMSynchStatus."Last Update Invoice Entry No." -= 1;
-        CRMSynchStatus.Modify;
+        CRMSynchStatus.Modify();
 
         // [WHEN] Open company (run codeunit "Job Queue User Handler")
         CurrDT := CurrentDateTime;
@@ -241,16 +241,16 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         JobQueueEntry.FindFirst;
         JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
         JobQueueEntry.Validate("Inactivity Timeout Period", 10);
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
         // [GIVEN] CRM Statistics job is executed once
         CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
         // [GIVEN] "Last Update Invoice Entry No." is set to the last detailed entry
         CRMSynchStatus.UpdateLastUpdateInvoiceEntryNo;
 
         // [WHEN] Run CRM Statistics job again
-        IntegrationSynchJob[1].DeleteAll;
+        IntegrationSynchJob[1].DeleteAll();
         JobQueueEntry."System Task ID" := CreateGuid;
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
         JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
         CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
 
@@ -273,18 +273,22 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
     local procedure Initialize()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CRMOrganization: Record "CRM Organization";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
         LibraryCRMIntegration.InitializeCRMSynchStatus;
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         LibraryCRMIntegration.CreateCRMOrganization;
         CRMOrganization.FindFirst;
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
     end;
 
@@ -295,13 +299,13 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         IntegrationTableMapping.SetRange("Table ID", TableNo);
         IntegrationTableMapping.FindFirst;
         IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := CurrentDateTime - 10000L;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
         JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
         JobQueueEntry.FindFirst;
         JobQueueEntry.Status := JobStatus;
         JobQueueEntry."Inactivity Timeout Period" := InactivityPeriod;
         JobQueueEntry."System Task ID" := CreateGuid; // As if TASKSCHEDULER defined it
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
     end;
 
     local procedure MockRecordNeedsSync(RecID: RecordID)
@@ -311,7 +315,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         CRMIntegrationRecord.FindByRecordID(RecID);
         Clear(CRMIntegrationRecord."Last Synch. Modified On");
         Clear(CRMIntegrationRecord."Last Synch. CRM Modified On");
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
     end;
 
     local procedure VerifyJobQueueEntryUnchanged(ExpectedJobQueueEntry: Record "Job Queue Entry")

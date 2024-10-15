@@ -176,8 +176,8 @@ table 1234 "CSV Buffer"
     var
         TempCSVBuffer: Record "CSV Buffer" temporary;
     begin
-        TempResultCSVBuffer.Reset;
-        TempResultCSVBuffer.DeleteAll;
+        TempResultCSVBuffer.Reset();
+        TempResultCSVBuffer.DeleteAll();
         TempCSVBuffer.Copy(Rec, true);
         SetRange("Field No.", FilterFieldNo);
         SetRange(Value, FilterValue);
@@ -187,7 +187,7 @@ table 1234 "CSV Buffer"
                 TempCSVBuffer.FindSet;
                 repeat
                     TempResultCSVBuffer := TempCSVBuffer;
-                    TempResultCSVBuffer.Insert;
+                    TempResultCSVBuffer.Insert();
                 until TempCSVBuffer.Next = 0;
             until Next = 0;
         TempResultCSVBuffer.SetRange("Field No.", 1);

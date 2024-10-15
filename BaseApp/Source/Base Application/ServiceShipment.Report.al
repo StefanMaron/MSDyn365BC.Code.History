@@ -189,7 +189,7 @@ report 5913 "Service - Shipment"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             FindDimTxt("Service Shipment Header"."Dimension Set ID");
                             SetRange(Number, 1, DimTxtArrLength);
                         end;
@@ -325,7 +325,7 @@ report 5913 "Service - Shipment"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 FindDimTxt("Service Shipment Line"."Dimension Set ID");
                                 SetRange(Number, 1, DimTxtArrLength);
                             end;
@@ -334,7 +334,7 @@ report 5913 "Service - Shipment"
                         trigger OnAfterGetRecord()
                         begin
                             if not ShowCorrectionLines and Correction then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end;
 
                         trigger OnPostDataItem()
@@ -351,7 +351,7 @@ report 5913 "Service - Shipment"
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
                         end;
                     }
@@ -399,7 +399,7 @@ report 5913 "Service - Shipment"
                         trigger OnPreDataItem()
                         begin
                             if not ShowCustAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(ItemTrackingLine; "Integer")
@@ -454,7 +454,7 @@ report 5913 "Service - Shipment"
                                 TrackingSpecBuffer.Next;
 
                             if not ShowCorrectionLines and TrackingSpecBuffer.Correction then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             if TrackingSpecBuffer.Correction then
                                 TrackingSpecBuffer."Quantity (Base)" := -TrackingSpecBuffer."Quantity (Base)";
 
@@ -477,7 +477,7 @@ report 5913 "Service - Shipment"
                         trigger OnPreDataItem()
                         begin
                             if TrackingSpecCount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, TrackingSpecCount);
                             TrackingSpecBuffer.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",
                               "Source Prod. Order Line", "Source Ref. No.");
@@ -579,8 +579,8 @@ report 5913 "Service - Shipment"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
-        ServiceSetup.Get;
+        CompanyInfo.Get();
+        ServiceSetup.Get();
         FormatDocument.SetLogoPosition(ServiceSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
     end;
 

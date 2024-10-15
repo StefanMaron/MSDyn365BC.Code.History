@@ -204,7 +204,7 @@ codeunit 134375 "ERM Reminders With Min Amount"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reminders With Min Amount");
     end;
 

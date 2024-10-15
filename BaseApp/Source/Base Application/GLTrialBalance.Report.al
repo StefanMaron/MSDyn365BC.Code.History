@@ -24,9 +24,6 @@ report 28162 "G/L Trial Balance"
             column(STRSUBSTNO_Text004_PreviousStartDate_; StrSubstNo(Text004, PreviousStartDate))
             {
             }
-            column(STRSUBSTNO_Text005_CurrReport_PAGENO_; StrSubstNo(Text005, CurrReport.PageNo))
-            {
-            }
             column(PageCaption; StrSubstNo(Text005, ''))
             {
             }
@@ -154,7 +151,7 @@ report 28162 "G/L Trial Balance"
                    (GLAccount2."Credit Amount" = 0) and
                    ("Credit Amount" = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TLAccountType := "G/L Account"."Account Type";
             end;

@@ -1,4 +1,4 @@
-﻿page 519 "Item Journal Lines"
+page 519 "Item Journal Lines"
 {
     Caption = 'Item Journal Lines';
     Editable = false;
@@ -54,6 +54,13 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item on the journal line.';
+                }
+                field("Price Calculation Method"; "Price Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the method that will be used for price calculation in the item journal line.';
                 }
                 field("Variant Code"; "Variant Code")
                 {

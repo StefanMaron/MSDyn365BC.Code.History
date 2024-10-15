@@ -329,10 +329,8 @@ page 5330 "CRM Connection Setup"
                 trigger OnAction()
                 var
                     AssistedSetup: Codeunit "Assisted Setup";
-                    Info: ModuleInfo;
                 begin
-                    NavApp.GetCurrentModuleInfo(Info);
-                    AssistedSetup.Run(Info.Id(), Page::"CRM Connection Setup Wizard");
+                    AssistedSetup.Run(Page::"CRM Connection Setup Wizard");
                     CurrPage.Update(false);
                 end;
             }
@@ -350,6 +348,36 @@ page 5330 "CRM Connection Setup"
                     PerformTestConnection;
                 end;
             }
+            action(IntegrationTableMappings)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Integration Table Mappings';
+                Enabled = "Is Enabled";
+                Image = MapAccounts;
+                Promoted = true;
+                PromotedCategory = "Report";
+                ToolTip = 'Opens the integration table mapping list.';
+
+                trigger OnAction()
+                begin
+                    Page.Run(Page::"Integration Table Mapping List");
+                end;
+            }
+            action("Redeploy Solution")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Redeploy Integration Solution';
+                Image = Setup;
+                Promoted = true;
+                PromotedCategory = Report;
+                Enabled = IsEditable;
+                ToolTip = 'Redeploy and reconfigure the base integration solution.';
+
+                trigger OnAction()
+                begin
+                    DeployCRMSolution(true);
+                end;
+            }
             action(ResetConfiguration)
             {
                 ApplicationArea = Suite;
@@ -362,6 +390,7 @@ page 5330 "CRM Connection Setup"
                 var
                     CRMSetupDefaults: Codeunit "CRM Setup Defaults";
                 begin
+                    EnsureCDSConnectionIsEnabled();
                     if Confirm(ResetIntegrationTableMappingConfirmQst, false, CRMProductName.SHORT) then begin
                         CRMSetupDefaults.ResetConfiguration(Rec);
                         Message(SetupSuccessfulMsg, CRMProductName.SHORT);
@@ -519,8 +548,6 @@ page 5330 "CRM Connection Setup"
 
     trigger OnAfterGetRecord()
     begin
-        if HasPassword then
-            CRMPassword := '*';
         RefreshData;
     end;
 
@@ -528,20 +555,31 @@ page 5330 "CRM Connection Setup"
     var
         EnvironmentInfo: Codeunit "Environment Information";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         ApplicationAreaMgmtFacade.CheckAppAreaOnlyBasic;
         SoftwareAsAService := EnvironmentInfo.IsSaaS;
+        CRMIntegrationManagement.RegisterAssistedSetup();
     end;
 
     trigger OnOpenPage()
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
+        EnsureCDSConnectionIsEnabled();
+
         if not Get then begin
             Init;
             InitializeDefaultProxyVersion;
             Insert;
+            LoadConnectionStringElementsFromCDSConnectionSetup();
+            UpdateConnectionString();
         end else begin
+            CRMPassword := GetPassword();
+            if not "Is Enabled" then begin
+                LoadConnectionStringElementsFromCDSConnectionSetup();
+                UpdateConnectionString();
+            end;
             ConnectionString := GetConnectionString;
             UnregisterConnection;
             if "Proxy Version" = 0 then begin
@@ -659,8 +697,9 @@ page 5330 "CRM Connection Setup"
     local procedure UpdateEnableFlags()
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
     begin
-        IsEditable := not "Is Enabled";
+        IsEditable := not "Is Enabled" and not CDSIntegrationImpl.IsIntegrationEnabled();
         IsWebCliResetEnabled := "Is CRM Solution Installed" and "Is Enabled For User";
         WebServiceEnabled := CRMIntegrationManagement.IsItemAvailabilityWebServiceEnabled;
     end;

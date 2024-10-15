@@ -196,7 +196,7 @@ codeunit 134927 "ERM Budget UI"
         // [GIVEN] Opened Budget page with "Show as Lines" = ADM (dimension), "Income Balance G/L Account Filter" = "Income Statement", "G/L Account Category Filter" = Income, "Date Filter" = "02.04.2017..27.04.2017"
         Budget.OpenEdit;
         Budget.BudgetName.SetValue(GLBudgetName.Name);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Budget.LineDimCode.SetValue(UpperCase(GeneralLedgerSetup."Global Dimension 1 Code"));
         Budget.IncomeBalGLAccFilter.SetValue('Income Statement');
         Budget.GLAccCategory.SetValue('Income');
@@ -243,7 +243,7 @@ codeunit 134927 "ERM Budget UI"
         // [GIVEN] Opened Budget page with "Show as Lines" = ADM (dimension), "Income Balance G/L Account Filter" = "Income Statement", "G/L Account Category Filter" = Income, "Date Filter" = "02.04.2017..30.04.2017"
         Budget.OpenEdit;
         Budget.BudgetName.SetValue(GLBudgetName.Name);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Budget.LineDimCode.SetValue(UpperCase(GeneralLedgerSetup."Global Dimension 1 Code"));
         Budget.IncomeBalGLAccFilter.SetValue('Income Statement');
         Budget.GLAccCategory.SetValue('Income');
@@ -489,7 +489,7 @@ codeunit 134927 "ERM Budget UI"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Budget UI");
     end;
 
@@ -516,7 +516,7 @@ codeunit 134927 "ERM Budget UI"
         DimensionValue2: Record "Dimension Value";
         ExpectedDate: Date;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.CreateDimensionValue(DimensionValue2, GeneralLedgerSetup."Global Dimension 1 Code");
         MockGLBudgetEntry(GLAccNo, GLBudgetName, WorkDate, DimensionValue.Code, LibraryRandom.RandDec(100, 2));
@@ -552,7 +552,7 @@ codeunit 134927 "ERM Budget UI"
 
     local procedure FindGLAccountByType(var GLAccount: Record "G/L Account"; AccountCategory: Option; IncomeBalance: Option)
     begin
-        GLAccount.Reset;
+        GLAccount.Reset();
         GLAccount.SetRange("Account Category", AccountCategory);
         GLAccount.SetRange("Income/Balance", IncomeBalance);
         GLAccount.FindFirst;

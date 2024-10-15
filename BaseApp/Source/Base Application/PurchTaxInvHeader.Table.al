@@ -192,11 +192,9 @@ table 28075 "Purch. Tax Inv. Header"
         {
             Caption = 'On Hold';
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -549,14 +547,14 @@ table 28075 "Purch. Tax Inv. Header"
 
     trigger OnDelete()
     begin
-        PurchTaxInvLine.Reset;
+        PurchTaxInvLine.Reset();
         PurchTaxInvLine.SetRange("Document No.", "No.");
-        PurchTaxInvLine.DeleteAll;
+        PurchTaxInvLine.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         if "No." = '' then begin
             if TaxInvoiceManagement.CheckTaxableNoSeries("Buy-from Vendor No.", 0) then begin
                 PurchSetup.TestField("Posted Non Tax Invoice Nos.");

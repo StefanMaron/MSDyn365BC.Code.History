@@ -9,7 +9,7 @@ codeunit 103 "Cust. Entry-Edit"
         OnBeforeOnRun(Rec, CustLedgEntry, DtldCustLedgEntry);
 
         CustLedgEntry := Rec;
-        CustLedgEntry.LockTable;
+        CustLedgEntry.LockTable();
         CustLedgEntry.Find;
         CustLedgEntry."On Hold" := "On Hold";
         if CustLedgEntry.Open then begin
@@ -34,7 +34,7 @@ codeunit 103 "Cust. Entry-Edit"
         CustLedgEntry.Validate("Exported to Payment File", "Exported to Payment File");
         OnBeforeCustLedgEntryModify(CustLedgEntry, Rec);
         CustLedgEntry.TestField("Entry No.", "Entry No.");
-        CustLedgEntry.Modify;
+        CustLedgEntry.Modify();
         Rec := CustLedgEntry;
     end;
 
@@ -56,7 +56,7 @@ codeunit 103 "Cust. Entry-Edit"
         Clear(ApplyCustEntries);
         with CurrentSalesHeader do begin
             CalcFields(Amount);
-            CustLedgEntry.Reset;
+            CustLedgEntry.Reset();
             CustLedgEntry.SetCurrentKey("Customer No.", Positive, "Applies-to Doc. Type", "Applies-to Doc. No.", "Due Date");
             CustLedgEntry.SetRange("Customer No.", "Bill-to Customer No.");
             if "Applies-to Doc. No." <> '' then begin
@@ -94,7 +94,7 @@ codeunit 103 "Cust. Entry-Edit"
 
                 if "Applies-to Doc. No." = '' then
                     CustLedgEntry."Amount to Apply" := 0;
-                CustLedgEntry.Modify;
+                CustLedgEntry.Modify();
             end;
         end;
         Clear(ApplyCustEntries);

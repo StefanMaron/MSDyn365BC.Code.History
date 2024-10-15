@@ -18,7 +18,7 @@ codeunit 12200 "Tax Invoice Renaming Subscr."
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ThresholdAmount := GeneralLedgerSetup."Tax Invoice Renaming Threshold";
         exit(ThresholdAmount > 0);
     end;

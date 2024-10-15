@@ -33,7 +33,7 @@ codeunit 139166 "Integration Record Synch. Test"
         // [WHEN] Run IntegrationRecordSynch for the source row and the destination row
         IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping);
         IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, false);
-        Commit;
+        Commit();
         Assert.IsTrue(IntegrationRecordSynch.Run, 'Expected the transfer to return true');
         // [THEN] Field values are copied and WasModified flags is true
         Assert.IsTrue(IntegrationRecordSynch.GetWasModified, 'Expected the modified flag to be set');
@@ -59,17 +59,17 @@ codeunit 139166 "Integration Record Synch. Test"
         CreateComparisonTypeRowTempIntegrationFieldMapping(TempIntegrationFieldMapping, true);
         IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping);
         IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, false);
-        Commit;
+        Commit();
         Assert.IsTrue(IntegrationRecordSynch.Run, 'Expected the first transfer to succeed');
         Assert.IsTrue(IntegrationRecordSynch.GetWasModified, 'Expected first transfer to set the modified flag to true');
 
         // Re-create the fieldmapping without the primary key default. If we do not the all transfers will reset the primary key to default value.
-        TempIntegrationFieldMapping.DeleteAll;
+        TempIntegrationFieldMapping.DeleteAll();
         CreateComparisonTypeRowTempIntegrationFieldMapping(TempIntegrationFieldMapping, false);
 
         // [GIVEN] Destination row has already been synchronized
         IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, true);
-        Commit;
+        Commit();
         // [WHEN] Run IntegrationRecordSynch, where "Copy Only Modified" is 'true'
         Assert.IsTrue(IntegrationRecordSynch.Run, 'Expected the second transfer to succeed');
         // [THEN] WasModified flag will be 'false'
@@ -78,8 +78,8 @@ codeunit 139166 "Integration Record Synch. Test"
         // [GIVEN] Destination row has already been synchronized but one value has changed.
         SourceFieldRef := SourceTableRecRef.Field(12);
         SourceFieldRef.Value := 'This is another text';
-        SourceTableRecRef.Modify;
-        Commit;
+        SourceTableRecRef.Modify();
+        Commit();
         // [WHEN] Run IntegrationRecordSynch, where "Copy Only Modified" is 'true'
         IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, true);
         Assert.IsTrue(IntegrationRecordSynch.Run, 'Expected the third transfer to succeed');
@@ -87,7 +87,7 @@ codeunit 139166 "Integration Record Synch. Test"
         Assert.IsTrue(IntegrationRecordSynch.GetWasModified, 'Expected third transfer to set the modified flag to true');
 
         IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, false);
-        Commit;
+        Commit();
         // [WHEN] Run IntegrationRecordSynch, where "Copy Only Modified" is 'false'
         Assert.IsTrue(IntegrationRecordSynch.Run, 'Expected the fourth transfer to succeed');
         // [THEN] All fields should be copied and WasModified flags should be 'true'
@@ -105,7 +105,7 @@ codeunit 139166 "Integration Record Synch. Test"
     begin
         // [SCENARIO] Synchronize Integration Table with Nav Table if parameters are not defined correctly
         Initialize;
-        Commit;
+        Commit();
         // [GIVEN] Process parameters has not been set
         // [WHEN] Copying source row fields to Destination row
         // [THEN] Processing should not succeed
@@ -161,7 +161,7 @@ codeunit 139166 "Integration Record Synch. Test"
         // [SCENARIO] IntegrationRecordSynch should sync the value of calculated flowfield
         Initialize;
         // [GIVEN] Destination row is empty
-        ComparisonType.Init;
+        ComparisonType.Init();
         DestinationRecordRef.GetTable(ComparisonType);
         // [GIVEN] Source record has a calculated flowfield
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -209,7 +209,7 @@ codeunit 139166 "Integration Record Synch. Test"
         // [WHEN] Run IntegrationRecordSynch, where "Copy Only Modified" is 'false'
         IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping);
         IntegrationRecordSynch.SetParameters(SourceRecordRef, DestinationRecordRef, false);
-        Commit;
+        Commit();
         Assert.IsTrue(IntegrationRecordSynch.Run, 'Expected the transfer to succeed');
 
         // [THEN] Calculated flowfield value will be transfered.
@@ -222,7 +222,7 @@ codeunit 139166 "Integration Record Synch. Test"
         ComparisonType: Record "Comparison Type";
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        ComparisonType.DeleteAll;
+        ComparisonType.DeleteAll();
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"On Hold with Inactivity Timeout");
         JobQueueEntry.ModifyAll(Status, JobQueueEntry.Status::"On Hold", false);
     end;
@@ -290,8 +290,8 @@ codeunit 139166 "Integration Record Synch. Test"
         CreateComparisonTypeRow(SourceComparisonType);
         SourceTableRecRef.GetTable(SourceComparisonType);
 
-        DestinationComparisonType.Reset;
-        DestinationComparisonType.Init;
+        DestinationComparisonType.Reset();
+        DestinationComparisonType.Init();
         DestinationTableRecRef.GetTable(DestinationComparisonType);
     end;
 

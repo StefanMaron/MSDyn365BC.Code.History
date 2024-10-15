@@ -4,7 +4,7 @@ codeunit 1101 "CA Jnl.-Check Line"
 
     trigger OnRun()
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         RunCheck(Rec);
     end;
 
@@ -29,7 +29,7 @@ codeunit 1101 "CA Jnl.-Check Line"
             TestField("Posting Date");
             TestField("Document No.");
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             TestField(Amount);
 
             if ("Cost Type No." = '') and ("Bal. Cost Type No." = '') then

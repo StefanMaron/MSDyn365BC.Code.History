@@ -25,10 +25,10 @@ codeunit 138073 "O365 Role Center Notifications"
         RoleCenterNotifications: Record "Role Center Notifications";
     begin
         if RoleCenterNotifications.FindFirst then
-            RoleCenterNotifications.DeleteAll;
+            RoleCenterNotifications.DeleteAll();
 
         if UserPreference.FindFirst then
-            UserPreference.DeleteAll;
+            UserPreference.DeleteAll();
 
         if IsInitialized then
             exit;
@@ -46,7 +46,7 @@ codeunit 138073 "O365 Role Center Notifications"
             RoleCenterNotifications.Get(UserSecurityId);
             RoleCenterNotifications."First Session ID" := -2;
             RoleCenterNotifications."Last Session ID" := -1;
-            RoleCenterNotifications.Modify;
+            RoleCenterNotifications.Modify();
         end;
     end;
 
@@ -74,10 +74,10 @@ codeunit 138073 "O365 Role Center Notifications"
         TenantLicenseState.SetRange(State, State);
         if TenantLicenseState.FindLast and not (TenantLicenseState.State = TenantLicenseState.State::Trial) then
             exit;
-        TenantLicenseState.Init;
+        TenantLicenseState.Init();
         TenantLicenseState."Start Date" := StartDate;
         TenantLicenseState.State := State;
-        TenantLicenseState.Insert;
+        TenantLicenseState.Insert();
     end;
 
     [Test]

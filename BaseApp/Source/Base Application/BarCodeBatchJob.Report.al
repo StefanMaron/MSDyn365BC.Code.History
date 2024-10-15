@@ -58,10 +58,10 @@ report 28001 "BarCode Batch Job"
                 GLSetup: Record "General Ledger Setup";
                 Text1240001: Label 'You must specify an %1 in %2.';
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if GLSetup."AMAS Software" = 0 then
                     Error(Text1240001, GLSetup.FieldCaption("AMAS Software"), GLSetup.TableCaption);
-                AddressID.LockTable;
+                AddressID.LockTable();
             end;
         }
     }
@@ -138,7 +138,7 @@ report 28001 "BarCode Batch Job"
         Window.Update(1, TableNo);
         Window.Update(2, AddressType);
         RecordRef.Open(TableNo);
-        TotalRec := RecordRef.Count;
+        TotalRec := RecordRef.Count();
         CurrentRec := 1;
         AddressFieldRef := RecordRef.Field(AddressFieldNo);
         Address2FieldRef := RecordRef.Field(Address2FieldNo);

@@ -192,11 +192,9 @@ table 28078 "Purch. Tax Cr. Memo Line"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(78; "Transaction Type"; Code[10])
         {
@@ -532,11 +530,11 @@ table 28078 "Purch. Tax Cr. Memo Line"
     [Scope('OnPrem')]
     procedure CalcVATAmountLines(var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var VATAmountLine: Record "VAT Amount Line")
     begin
-        VATAmountLine.DeleteAll;
+        VATAmountLine.DeleteAll();
         SetRange("Document No.", PurchCrMemoHeader."No.");
         if Find('-') then
             repeat
-                VATAmountLine.Init;
+                VATAmountLine.Init();
                 VATAmountLine."VAT Identifier" := "VAT Identifier";
                 VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                 VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -569,7 +567,7 @@ table 28078 "Purch. Tax Cr. Memo Line"
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
     begin
         if not PurchCrMemoHeader.Get("Document No.") then
-            PurchCrMemoHeader.Init;
+            PurchCrMemoHeader.Init();
         if PurchCrMemoHeader."Prices Including VAT" then
             exit('2,1,' + GetFieldCaption(FieldNumber));
 
@@ -590,7 +588,7 @@ table 28078 "Purch. Tax Cr. Memo Line"
     var
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
     begin
-        PurchCrMemoHeader.Reset;
+        PurchCrMemoHeader.Reset();
         PurchCrMemoHeader.SetRange("No.", "External Document No.");
         if PurchCrMemoHeader.FindFirst then
             PAGE.RunModal(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHeader);

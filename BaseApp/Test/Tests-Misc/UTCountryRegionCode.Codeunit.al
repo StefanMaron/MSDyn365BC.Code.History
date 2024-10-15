@@ -301,7 +301,7 @@ codeunit 134995 "UT Country/Region Code"
         PostCode: Code[20];
     begin
         // [FEATURE] [Post Code]
-        // [SCENARIO 235201] If there are two cities in different countries with the same "Post Code", then when set Customer's "Post Code" and GUI is not allowed, City must be blank
+        // [SCENARIO 235201] If there are two cities in different countries with the same "Post Code", then when set Customer's "Post Code", City must be picked according to Customer's "Country/Region Code"
         CountryCode[1] := LibraryUTUtility.GetNewCode10;
         CountryCode[2] := LibraryUTUtility.GetNewCode10;
 
@@ -311,7 +311,7 @@ codeunit 134995 "UT Country/Region Code"
         CityName := 'Z' + LibraryUTUtility.GetNewCode;
         InitPostCode(CountryCode[1], CityName, PostCode);
 
-        Customer.Init;
+        Customer.Init();
         Customer.Validate(Name, LibraryUTUtility.GetNewCode);
         Customer.Validate("Country/Region Code", CountryCode[1]);
         Customer.Insert(true);
@@ -321,7 +321,7 @@ codeunit 134995 "UT Country/Region Code"
         Customer.Modify(true);
 
         Customer.TestField("Country/Region Code", CountryCode[1]);
-        Customer.TestField(City, ''); // dropped by local CU 28000
+        Customer.TestField(City, CityName);
     end;
 
     [Test]
@@ -334,7 +334,7 @@ codeunit 134995 "UT Country/Region Code"
         PostCode: Code[20];
     begin
         // [FEATURE] [Post Code]
-        // [SCENARIO 235201] If there are two cities in different countries with the same name, then when set Customer's "City" and GUI is not allowed, "Post Code" must be blank
+        // [SCENARIO 235201] If there are two cities in different countries with the same name, then when set Customer's "City", "Post Code" must be picked according to Customer's "Country/Region Code"
         CountryCode[1] := 'B';
         CountryCode[2] := 'A';
         InitTwoCountries(CountryCode);
@@ -344,7 +344,7 @@ codeunit 134995 "UT Country/Region Code"
         PostCode := LibraryUTUtility.GetNewCode10;
         InitPostCode(CountryCode[1], CityName, PostCode);
 
-        Customer.Init;
+        Customer.Init();
         Customer.Validate(Name, LibraryUTUtility.GetNewCode);
         Customer.Validate("Country/Region Code", CountryCode[1]);
         Customer.Insert(true);
@@ -353,7 +353,6 @@ codeunit 134995 "UT Country/Region Code"
         Customer.Validate(City, CityName);
         Customer.Modify(true);
 
-        // [THEN] Post Code was filled during validation 
         Customer.TestField("Country/Region Code", CountryCode[1]);
         Customer.TestField("Post Code", PostCode);
     end;
@@ -467,7 +466,7 @@ codeunit 134995 "UT Country/Region Code"
         CountyFieldRef.Value := NewCode;
         CountryRegionFieldRef := RecRef.Field(CountryRegionCode);
         CountryRegionFieldRef.Value := LibraryUTUtility.GetNewCode10;
-        RecRef.Insert;
+        RecRef.Insert();
 
         // Exercise: Validate Country/Region Code as blank.
         CountryRegionFieldRef.Validate('');
@@ -498,7 +497,7 @@ codeunit 134995 "UT Country/Region Code"
         CountyFieldRef.Value := NewCode;
         CountryRegionFieldRef := RecRef.Field(CountryRegionCode);
         CountryRegionFieldRef.Value := LibraryUTUtility.GetNewCode10;
-        RecRef.Insert;
+        RecRef.Insert();
 
         // Exercise: Validate Country/Region Code as blank.
         CountryRegionFieldRef.Validate('');
@@ -513,7 +512,7 @@ codeunit 134995 "UT Country/Region Code"
     var
         CountryRegion: Record "Country/Region";
     begin
-        CountryRegion.Init;
+        CountryRegion.Init();
         CountryRegion.Code := CountryCode;
         CountryRegion.Insert(true);
     end;
@@ -528,19 +527,19 @@ codeunit 134995 "UT Country/Region Code"
     begin
         LibraryERM.CreateCountryRegion(CountryWithoutCounty);
         CountryWithoutCounty."Address Format" := CountryWithCounty."Address Format"::"City+Post Code";
-        CountryWithoutCounty.Modify;
+        CountryWithoutCounty.Modify();
 
         LibraryERM.CreateCountryRegion(CountryWithCounty);
         CountryWithCounty."Address Format" := CountryWithCounty."Address Format"::"City+County+Post Code";
-        CountryWithCounty.Modify;
+        CountryWithCounty.Modify();
     end;
 
     local procedure InitPostCode(CountryCode: Code[10]; CityName: Text[30]; PostCodeValue: Code[20])
     var
         PostCode: Record "Post Code";
     begin
-        PostCode.Reset;
-        PostCode.Init;
+        PostCode.Reset();
+        PostCode.Init();
         PostCode.Validate(Code, PostCodeValue);
         PostCode.Validate(City, CityName);
         PostCode.Validate("Country/Region Code", CountryCode);

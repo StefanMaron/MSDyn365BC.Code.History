@@ -518,7 +518,7 @@ page 303 "Vendor Entry Statistics"
                     TotalRemainAmountLCY[j] := TotalRemainAmountLCY[j] + VendLedgEntry2."Remaining Amt. (LCY)";
                 end;
             until VendLedgEntry2.Next(-1) = 0;
-        VendLedgEntry2.Reset;
+        VendLedgEntry2.Reset();
 
         DateFilterCalc.CreateAccountingPeriodFilter(VendDateFilter[1], VendDateName[1], WorkDate, 0);
         DateFilterCalc.CreateFiscalYearFilter(VendDateFilter[2], VendDateName[2], WorkDate, 0);

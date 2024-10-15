@@ -91,7 +91,7 @@ report 114 "Salesperson - Sales Statistics"
                             AdjProfit += CustLedgEntry."Profit (LCY)"
                     until CustLedgEntry.Next = 0
                 else
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 SalesLCY := ReportMgmnt.RoundAmount(SalesLCY, Rounding);
                 ProfitLCY := ReportMgmnt.RoundAmount(ProfitLCY, Rounding);

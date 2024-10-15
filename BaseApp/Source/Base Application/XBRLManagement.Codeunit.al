@@ -70,7 +70,7 @@ codeunit 420 "XBRL Management"
             SetRange("XBRL Taxonomy Line No.", XBRLTaxonomyLine."Line No.");
             if Find('-') then
                 repeat
-                    GLEntry.Reset;
+                    GLEntry.Reset();
                     GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
                     GLEntry.SetFilter("G/L Account No.", "G/L Account Filter");
                     if ((XBRLTaxonomyLine.GetFilter("Business Unit Filter") <> '') or
@@ -232,7 +232,7 @@ codeunit 420 "XBRL Management"
     begin
         // Setup all the parameters
         if CompanyInformation.Name = '' then
-            CompanyInformation.Get;
+            CompanyInformation.Get();
         Clear(Parameters);
         Parameters[1] := Format(PeriodEndDate, 0, '<Day>');
         Parameters[2] := Format(PeriodEndDate, 0, '<Day,2>');

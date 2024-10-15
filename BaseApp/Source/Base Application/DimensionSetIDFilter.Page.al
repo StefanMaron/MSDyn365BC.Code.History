@@ -83,9 +83,9 @@ page 481 "Dimension Set ID Filter"
 
                 trigger OnAction()
                 begin
-                    TempDimensionSetIDFilterLine.Reset;
-                    TempDimensionSetIDFilterLine.DeleteAll;
-                    DeleteAll;
+                    TempDimensionSetIDFilterLine.Reset();
+                    TempDimensionSetIDFilterLine.DeleteAll();
+                    DeleteAll();
                 end;
             }
         }
@@ -98,10 +98,10 @@ page 481 "Dimension Set ID Filter"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        TempDimensionSetIDFilterLine.Reset;
+        TempDimensionSetIDFilterLine.Reset();
         TempDimensionSetIDFilterLine.SetRange(Code, '');
         TempDimensionSetIDFilterLine.SetRange("Dimension Code", Code);
-        TempDimensionSetIDFilterLine.DeleteAll;
+        TempDimensionSetIDFilterLine.DeleteAll();
         Delete;
         CurrPage.Update(false);
         exit(false);
@@ -145,7 +145,7 @@ page 481 "Dimension Set ID Filter"
         DimSetIDFilterPage.Editable(true);
         DimSetIDFilterPage.RunModal;
         DimSetIDFilterPage.GetTempDimensionSetIDFilterLine(TempDimensionSetIDFilterLine);
-        TempDimensionSetIDFilterLine.Reset;
+        TempDimensionSetIDFilterLine.Reset();
         if not TempDimensionSetIDFilterLine.IsEmpty then begin
             GetDimSetIDsForFilter(DimensionMgt);
             DimFilter := DimensionMgt.GetDimSetFilter;
@@ -158,7 +158,7 @@ page 481 "Dimension Set ID Filter"
 
     local procedure GetDimSetIDsForFilter(var DimensionMgt: Codeunit DimensionManagement)
     begin
-        TempDimensionSetIDFilterLine.Reset;
+        TempDimensionSetIDFilterLine.Reset();
         TempDimensionSetIDFilterLine.SetRange(Code, '');
         TempDimensionSetIDFilterLine.SetRange("Line No.", 1);
         if TempDimensionSetIDFilterLine.FindSet then
@@ -181,7 +181,7 @@ page 481 "Dimension Set ID Filter"
 
     local procedure GetNotificationMessage() MessageTxt: Text
     begin
-        TempDimensionSetIDFilterLine.Reset;
+        TempDimensionSetIDFilterLine.Reset();
         TempDimensionSetIDFilterLine.SetRange(Code, '');
         TempDimensionSetIDFilterLine.SetRange("Line No.", 1);
         if TempDimensionSetIDFilterLine.FindSet then begin

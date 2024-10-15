@@ -24,9 +24,6 @@ report 28163 "G/L Detail Trial Balance"
             column(STRSUBSTNO_Text004_PreviousStartDate_; StrSubstNo(Text004, PreviousStartDate))
             {
             }
-            column(STRSUBSTNO_Text005_CurrReport_PAGENO_; StrSubstNo(Text005, CurrReport.PageNo))
-            {
-            }
             column(PageCaption; StrSubstNo(Text005, ' '))
             {
             }
@@ -276,7 +273,7 @@ report 28163 "G/L Detail Trial Balance"
                         if ("Debit Amount" = 0) and
                            ("Credit Amount" = 0)
                         then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         Solde := Solde + "Debit Amount" - "Credit Amount";
                     end;
 
@@ -312,7 +309,7 @@ report 28163 "G/L Detail Trial Balance"
                     SetRange("Date Filter", 0D, EndDate);
                 CalcFields("Debit Amount", "Credit Amount");
                 if ("Debit Amount" = 0) and ("Credit Amount" = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 ShowBodyGLAccount := ((GLAccount2."Debit Amount" = "Debit Amount") and (GLAccount2."Credit Amount" = "Credit Amount"))
                   or ("Account Type" <> 0);

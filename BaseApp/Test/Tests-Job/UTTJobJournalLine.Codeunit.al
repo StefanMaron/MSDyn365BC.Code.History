@@ -80,21 +80,21 @@ codeunit 136351 "UT T Job Journal Line"
         SetUp(JobTask, JobPlanningLine, JobJournalLine);
 
         // Verify that you cannot set a Job Planning Line with a wrong Job No., Job Task No., Type or No. (Test of one is enough).
-        TestJobPlanningLine.Init;
+        TestJobPlanningLine.Init();
         TestJobPlanningLine."Job No." := JobJournalLine."Job No.";
         TestJobPlanningLine."Job Task No." := JobJournalLine."Job Task No.";
         TestJobPlanningLine."Line No." := 1;
         TestJobPlanningLine.Type := JobJournalLine.Type;
         TestJobPlanningLine."No." := JobJournalLine."No.";
         TestJobPlanningLine."Usage Link" := true;
-        TestJobPlanningLine.Insert;
+        TestJobPlanningLine.Insert();
 
         JobJournalLine.Validate("Job Planning Line No.", TestJobPlanningLine."Line No."); // Prove that it works.
         JobJournalLine.Validate("Job Planning Line No.", 0);
 
         TestJobPlanningLine.Get(JobTask."Job No.", JobTask."Job Task No.", 1);
         TestJobPlanningLine."No." := 'TEST';
-        TestJobPlanningLine.Modify;
+        TestJobPlanningLine.Modify();
         asserterror JobJournalLine.Validate("Job Planning Line No.", TestJobPlanningLine."Line No.");
         // Prove that it does not work anymore.
 
@@ -117,13 +117,13 @@ codeunit 136351 "UT T Job Journal Line"
 
         // Validate that function does not throw message when no Job Planning Line is linked before linking.
         JobJournalLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
-        JobJournalLine.Modify;
+        JobJournalLine.Modify();
 
         // Validate that function throws a message when another Job Planning Line is linked before linking.
         LibraryJob.CreateJobJournalLine(JobJournalLine2."Line Type"::Budget, JobTask, JobJournalLine2);
         JobJournalLine2.Validate(Type, JobPlanningLine.Type);
         JobJournalLine2.Validate("No.", JobPlanningLine."No.");
-        JobJournalLine2.Modify;
+        JobJournalLine2.Modify();
 
         asserterror JobJournalLine2.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
 
@@ -201,7 +201,7 @@ codeunit 136351 "UT T Job Journal Line"
         JobLinkUsage.ApplyUsage(JobLedgEntry, JobJournalLine);
 
         // [THEN] No Job Planning Lines are created
-        JobPlanningLine.Init;
+        JobPlanningLine.Init();
         JobPlanningLine.SetRange("Job No.", Job."No.");
         Assert.RecordIsEmpty(JobPlanningLine);
     end;
@@ -232,12 +232,12 @@ codeunit 136351 "UT T Job Journal Line"
         // [GIVEN] Job Planning Line with Item: "Usage Link" = TRUE, Quantity = 1,  "Unit Cost" = 100, "Unit Price" = 200.
         JobPlanningLine.Validate("Unit Cost (LCY)", PlanLineUnitCost);
         JobPlanningLine.Validate("Unit Price", PlanLineUnitPrice);
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
 
         // [WHEN] Post Job Journal Line linked to Planning Line and Quantity = 2.
         JobJournalLine.Validate(Quantity, JobPlanningLine.Quantity * 2);
         JobJournalLine."Job Planning Line No." := JobPlanningLine."Line No.";
-        JobLedgerEntry.Init;
+        JobLedgerEntry.Init();
         JobLedgerEntry.Validate("Job No.", JobTask."Job No.");
         JobLedgerEntry.Validate("Job Task No.", JobTask."Job Task No.");
         JobLinkUsage.ApplyUsage(JobLedgerEntry, JobJournalLine);
@@ -389,11 +389,11 @@ codeunit 136351 "UT T Job Journal Line"
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
         JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(1000));
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
         LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::Budget, JobTask, JobJournalLine);
         JobJournalLine.Validate(Type, JobPlanningLine.Type);
         JobJournalLine.Validate("No.", JobPlanningLine."No.");
-        JobJournalLine.Modify;
+        JobJournalLine.Modify();
     end;
 
     local procedure TearDown(var JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line"; var JobJournalLine: Record "Job Journal Line")
@@ -402,26 +402,26 @@ codeunit 136351 "UT T Job Journal Line"
     begin
         JobJournalLine.SetRange("Job No.", Job."No.");
         JobJournalLine.DeleteAll(true);
-        JobJournalLine.Reset;
+        JobJournalLine.Reset();
 
         JobPlanningLine.SetRange("Job No.", Job."No.");
         JobPlanningLine.DeleteAll(true);
-        JobPlanningLine.Reset;
+        JobPlanningLine.Reset();
 
         JobTask.SetRange("Job No.", Job."No.");
         JobTask.DeleteAll(true);
-        JobTask.Reset;
+        JobTask.Reset();
 
         Job.SetRange("No.", JobTask."Job No.");
         Job.DeleteAll(true);
-        Job.Reset;
+        Job.Reset();
     end;
 
     local procedure CreateJobWithApplyUsageLink(var Job: Record Job)
     begin
         LibraryJob.CreateJob(Job);
         Job.Validate("Apply Usage Link", true);
-        Job.Modify;
+        Job.Modify();
     end;
 
     local procedure CreateJobLedgEntry(var JobLedgEntry: Record "Job Ledger Entry"; JobTask: Record "Job Task")
@@ -444,11 +444,11 @@ codeunit 136351 "UT T Job Journal Line"
     begin
         LibraryPurchase.SetDefaultPostingDateNoDate();
 
-        PurchHeader.Init;
+        PurchHeader.Init();
         PurchHeader."Document Type" := PurchHeader."Document Type"::Invoice;
         PurchHeader.Insert(true);
 
-        PurchLine.Init;
+        PurchLine.Init();
         PurchLine."Document Type" := PurchHeader."Document Type";
         PurchLine."Document No." := PurchHeader."No.";
         PurchLine."Line No." := LibraryUtility.GetNewRecNo(PurchLine, PurchLine.FieldNo("Line No."));
@@ -462,7 +462,7 @@ codeunit 136351 "UT T Job Journal Line"
         PurchLine."Job Line Amount (LCY)" := LibraryRandom.RandDec(200, 2);
         PurchLine."Job Line Discount %" := LibraryRandom.RandInt(100);
         PurchLine."Job Line Disc. Amount (LCY)" := LibraryRandom.RandDec(200, 2);
-        PurchLine.Insert;
+        PurchLine.Insert();
     end;
 
     [ConfirmHandler]

@@ -1,4 +1,4 @@
-﻿page 286 "Recurring Item Jnl."
+page 286 "Recurring Item Jnl."
 {
     ApplicationArea = Suite;
     AutoSplitKey = true;
@@ -700,7 +700,7 @@
     var
         ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
     begin
-        Commit;
+        Commit();
         if not ReserveItemJnlLine.DeleteLineConfirm(Rec) then
             exit(false);
         ReserveItemJnlLine.DeleteLine(Rec);

@@ -19,9 +19,6 @@ report 28022 "Stock Movement"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -163,16 +160,6 @@ report 28022 "Stock Movement"
                         OpeningBalance2 := OpeningBalance;
                         SetFilter("Date Filter", ItemDateFilter);
                     end;
-
-                if not FooterPrinted then
-                    LastFieldNo := CurrReport.TotalsCausedBy;
-                CurrReport.ShowOutput(not FooterPrinted);
-                FooterPrinted := true;
-            end;
-
-            trigger OnPreDataItem()
-            begin
-                LastFieldNo := FieldNo("No.");
             end;
         }
     }
@@ -199,8 +186,6 @@ report 28022 "Stock Movement"
     end;
 
     var
-        LastFieldNo: Integer;
-        FooterPrinted: Boolean;
         Pos: Decimal;
         Neg: Decimal;
         OpeningBalance: Decimal;

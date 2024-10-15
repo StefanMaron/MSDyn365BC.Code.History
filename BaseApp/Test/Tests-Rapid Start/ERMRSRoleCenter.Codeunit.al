@@ -194,7 +194,7 @@ codeunit 136605 "ERM RS Role Center"
         if LineType = LineType::Table then begin
             ConfigLine.Status := Status;
             ConfigLine."Promoted Table" := Promoted;
-            ConfigLine.Modify;
+            ConfigLine.Modify();
         end;
     end;
 
@@ -286,8 +286,8 @@ codeunit 136605 "ERM RS Role Center"
     local procedure GetRapidStartCue(var RapidStartServicesCue: Record "RapidStart Services Cue")
     begin
         if not RapidStartServicesCue.Get then begin
-            RapidStartServicesCue.Init;
-            RapidStartServicesCue.Insert;
+            RapidStartServicesCue.Init();
+            RapidStartServicesCue.Insert();
         end;
     end;
 }

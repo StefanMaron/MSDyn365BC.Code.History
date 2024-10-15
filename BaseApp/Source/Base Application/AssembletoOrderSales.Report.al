@@ -41,16 +41,16 @@ report 915 "Assemble to Order - Sales"
             trigger OnAfterGetRecord()
             begin
                 if not FindNextRecord(TempATOSalesBuffer, Number) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if TempVisitedAsmHeader.Get(TempVisitedAsmHeader."Document Type"::Order, TempATOSalesBuffer."Order No.") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 TempVisitedAsmHeader."Document Type" := TempVisitedAsmHeader."Document Type"::Order;
                 TempVisitedAsmHeader."No." := TempATOSalesBuffer."Order No.";
-                TempVisitedAsmHeader.Insert;
+                TempVisitedAsmHeader.Insert();
 
                 if TempATOSalesBuffer."Order No." <> '' then begin
-                    TempATOSalesBuffer.Delete;
+                    TempATOSalesBuffer.Delete();
                     FetchAsmComponents(TempCompATOSalesBuffer, TempATOSalesBuffer."Order No.");
                     ConvertAsmComponentsToSale(TempATOSalesBuffer, TempCompATOSalesBuffer, TempATOSalesBuffer."Profit %");
                 end;
@@ -58,7 +58,7 @@ report 915 "Assemble to Order - Sales"
 
             trigger OnPreDataItem()
             begin
-                TempATOSalesBuffer.Reset;
+                TempATOSalesBuffer.Reset();
 
                 TempATOSalesBuffer.SetRange(Type, TempATOSalesBuffer.Type::Sale);
             end;
@@ -122,7 +122,7 @@ report 915 "Assemble to Order - Sales"
                     Item: Record Item;
                 begin
                     if not FindNextRecord(TempATOSalesBuffer, Number) then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if TempATOSalesBuffer."Parent Item No." <> '' then begin
                         Item.Get(TempATOSalesBuffer."Parent Item No.");
                         TempATOSalesBuffer."Parent Description" := Item.Description;
@@ -132,22 +132,22 @@ report 915 "Assemble to Order - Sales"
 
             trigger OnAfterGetRecord()
             begin
-                TempATOSalesBuffer.Reset;
+                TempATOSalesBuffer.Reset();
                 TempATOSalesBuffer.SetRange("Item No.", "No.");
                 TempATOSalesBuffer.SetRange(Quantity, 0);
-                TempATOSalesBuffer.DeleteAll;
+                TempATOSalesBuffer.DeleteAll();
                 TempATOSalesBuffer.SetRange(Quantity);
                 if TempATOSalesBuffer.IsEmpty then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TempATOSalesBuffer.SetRange(Type, TempATOSalesBuffer.Type::Assembly);
 
                 ItemHasAsmDetails := not TempATOSalesBuffer.IsEmpty;
                 if not ShowAsmDetails then
-                    TempATOSalesBuffer.DeleteAll;
+                    TempATOSalesBuffer.DeleteAll();
 
                 if not (ItemHasAsmDetails or IsInBOMComp("No.")) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TempATOSalesBuffer.SetRange(Type);
             end;
@@ -207,8 +207,8 @@ report 915 "Assemble to Order - Sales"
 
     trigger OnPreReport()
     begin
-        TempATOSalesBuffer.Reset;
-        TempATOSalesBuffer.DeleteAll;
+        TempATOSalesBuffer.Reset();
+        TempATOSalesBuffer.DeleteAll();
     end;
 
     var
@@ -249,7 +249,7 @@ report 915 "Assemble to Order - Sales"
         CopyOfATOSalesBuffer: Record "ATO Sales Buffer";
     begin
         CopyOfATOSalesBuffer.Copy(ToATOSalesBuffer);
-        ToATOSalesBuffer.Reset;
+        ToATOSalesBuffer.Reset();
 
         with FromCompATOSalesBuffer do begin
             Reset;
@@ -258,7 +258,7 @@ report 915 "Assemble to Order - Sales"
                     ToATOSalesBuffer.UpdateBufferWithComp(FromCompATOSalesBuffer, ProfitPct, false);
                     ToATOSalesBuffer.UpdateBufferWithComp(FromCompATOSalesBuffer, ProfitPct, true);
                 until Next = 0;
-            DeleteAll;
+            DeleteAll();
         end;
 
         ToATOSalesBuffer.Copy(CopyOfATOSalesBuffer);

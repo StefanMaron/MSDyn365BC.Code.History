@@ -3,6 +3,9 @@ table 1014 "Job G/L Account Price"
     Caption = 'Job G/L Account Price';
     DrillDownPageID = "Job G/L Account Prices";
     LookupPageID = "Job G/L Account Prices";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     fields
     {
@@ -101,7 +104,7 @@ table 1014 "Job G/L Account Price"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         Job.Get("Job No.");
         TestField("G/L Account No.");
     end;

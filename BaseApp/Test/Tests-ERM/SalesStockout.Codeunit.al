@@ -42,13 +42,13 @@ codeunit 136132 "Sales Stockout"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Sales Stockout");
 
-        SalesAndReceivablesSetup.Get;
+        SalesAndReceivablesSetup.Get();
         SalesAndReceivablesSetup.Validate("Stockout Warning", true);
-        SalesAndReceivablesSetup.Modify;
+        SalesAndReceivablesSetup.Modify();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Sales Stockout");
     end;
 
@@ -88,7 +88,7 @@ codeunit 136132 "Sales Stockout"
 
         // WHEN we decrease the quantity so the item is available (0 items ordered)
         NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
-        NbNotifs := TempNotificationContext.Count;
+        NbNotifs := TempNotificationContext.Count();
         EditSalesOrderQuantity(SalesOrderNo, 0);
 
         // THEN the item availability notification is recalled
@@ -353,7 +353,7 @@ codeunit 136132 "Sales Stockout"
         PurchaseLine.Validate(Quantity, Quantity);
         PurchaseLine.Validate("Location Code", LocationCode);
         PurchaseLine.Validate("Expected Receipt Date", ReceiptDate);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         exit(PurchaseHeader."No.");
     end;
 
@@ -391,7 +391,7 @@ codeunit 136132 "Sales Stockout"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         SalesLine.Validate("Location Code", LocationCode);
         SalesLine.Validate("Shipment Date", ShipDate);
-        SalesLine.Modify;
+        SalesLine.Modify();
         exit(SalesHeader."No.");
     end;
 

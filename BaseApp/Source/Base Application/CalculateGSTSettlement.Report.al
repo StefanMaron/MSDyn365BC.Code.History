@@ -21,9 +21,6 @@ report 11603 "Calculate GST Settlement"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(BAS_Calculation_Sheet_A1; A1)
             {
             }
@@ -211,19 +208,19 @@ report 11603 "Calculate GST Settlement"
 
                         if Post then
                             if not InvPostBuffer.Get(0, 0, ClearingAccNo) then begin
-                                InvPostBuffer.Init;
+                                InvPostBuffer.Init();
                                 InvPostBuffer."G/L Account" := ClearingAccNo;
                                 if Type = Type::"G/L Entry" then
                                     InvPostBuffer.Amount := ClearingAmount
                                 else
                                     InvPostBuffer.Amount := ClearingVATAmount;
-                                InvPostBuffer.Insert;
+                                InvPostBuffer.Insert();
                             end else begin
                                 if Type = Type::"G/L Entry" then
                                     InvPostBuffer.Amount := InvPostBuffer.Amount + ClearingAmount
                                 else
                                     InvPostBuffer.Amount := InvPostBuffer.Amount + ClearingVATAmount;
-                                InvPostBuffer.Modify;
+                                InvPostBuffer.Modify();
                             end;
                     end;
 
@@ -233,7 +230,7 @@ report 11603 "Calculate GST Settlement"
                         SetRange("Field Label No.", CurrFieldID);
                         TotalClearingAmount := 0;
                         TotalClearingVATAmount := 0;
-                        InvPostBuffer.DeleteAll;
+                        InvPostBuffer.DeleteAll();
                     end;
                 }
                 dataitem(PostSettlementLoop; "Integer")
@@ -253,8 +250,6 @@ report 11603 "Calculate GST Settlement"
                     }
                     column(GenJnlLine_2___Account_Type_; GenJnlLine[2]."Account Type")
                     {
-                        OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-                        OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
                     }
                     column(FORMAT_GenJnlLine_2___Posting_Date__; Format(GenJnlLine[2]."Posting Date"))
                     {
@@ -270,8 +265,6 @@ report 11603 "Calculate GST Settlement"
                     }
                     column(GenJnlLine1__Account_Type_; GenJnlLine1."Account Type")
                     {
-                        OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-                        OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
                     }
                     column(FORMAT_GenJnlLine1__Posting_Date__; Format(GenJnlLine1."Posting Date"))
                     {
@@ -287,8 +280,6 @@ report 11603 "Calculate GST Settlement"
                     }
                     column(GenJnlLine_3___Account_Type_; GenJnlLine[3]."Account Type")
                     {
-                        OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-                        OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
                     }
                     column(FORMAT_GenJnlLine_3___Posting_Date__; Format(GenJnlLine[3]."Posting Date"))
                     {
@@ -333,7 +324,7 @@ report 11603 "Calculate GST Settlement"
                     trigger OnAfterGetRecord()
                     begin
                         if not Post then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         if InvPostBuffer.Find('-') then begin
                             // Post clearing accounts
@@ -415,7 +406,7 @@ report 11603 "Calculate GST Settlement"
                                     GenJnlLine[2]."Source Code" := SourceCodeSetup."VAT Settlement";
                                     // GenJnlLine[2].GetDefaultDim(JournalLineDimension[2]);
                                     GenJnlPostLine.Run(GenJnlLine[2]);
-                                    VATEntry2.Reset;
+                                    VATEntry2.Reset();
                                     VATEntry2.SetRange("Posting Date", PostDate);
                                     VATEntry2.SetRange("Document No.", DocNo);
                                     VATEntry2.SetFilter(Amount, '<%1', 0);
@@ -514,16 +505,16 @@ report 11603 "Calculate GST Settlement"
                         15:
                             SetFieldID("BAS Calculation Sheet".FieldName("7D"), "BAS Calculation Sheet"."7D");
                         else
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
 
                     if Post then
                         Window.Update(3, StrSubstNo('Field %1', CurrFieldID));
 
                     if CurrAmt = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
-                    VATEntry1.Reset;
+                    VATEntry1.Reset();
                     VATEntry1.SetRange("BAS Doc. No.", "BAS Calculation Sheet".A1);
                     VATEntry1.SetRange("BAS Version", "BAS Calculation Sheet"."BAS Version");
                     VATEntry1.SetRange(Closed, false);
@@ -533,7 +524,7 @@ report 11603 "Calculate GST Settlement"
                 begin
                     if Post then begin
                         "BAS Calculation Sheet".Settled := true;
-                        "BAS Calculation Sheet".Modify;
+                        "BAS Calculation Sheet".Modify();
                     end;
                 end;
             }
@@ -684,7 +675,7 @@ report 11603 "Calculate GST Settlement"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Enable GST (Australia)", true);
     end;
 

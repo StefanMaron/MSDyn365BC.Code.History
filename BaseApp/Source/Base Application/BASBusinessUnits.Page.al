@@ -51,7 +51,7 @@ page 11604 "BAS Business Units"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Enable GST (Australia)", true);
     end;
 }

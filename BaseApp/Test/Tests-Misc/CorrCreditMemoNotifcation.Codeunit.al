@@ -369,7 +369,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
           AccountType, AccountNo, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, PaymentAmount);
         GenJournalLine."Applies-to Doc. Type" := GenJournalLine."Applies-to Doc. Type"::Invoice;
         GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
     end;

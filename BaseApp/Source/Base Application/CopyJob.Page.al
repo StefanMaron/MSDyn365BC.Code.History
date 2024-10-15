@@ -224,7 +224,7 @@ page 1040 "Copy Job"
         if (SourceJobNo = '') or not SourceJob.Get(SourceJob."No.") then
             Error(Text004, SourceJob.TableCaption);
 
-        JobsSetup.Get;
+        JobsSetup.Get();
         JobsSetup.TestField("Job Nos.");
         if TargetJobNo = '' then begin
             TargetJobNo := NoSeriesManagement.GetNextNo(JobsSetup."Job Nos.", 0D, true);

@@ -7,9 +7,6 @@ codeunit 131305 "Library - ERM Country Data"
     begin
     end;
 
-    var
-        LibraryERM: Codeunit "Library - ERM";
-
     procedure InitializeCountry()
     begin
         exit;
@@ -17,7 +14,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure CreateVATData()
     begin
-        CreateVATSetup;
+        exit;
     end;
 
     procedure GetVATCalculationType(): Integer
@@ -102,7 +99,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralLedgerSetup()
     begin
-        DisableFullGSTOnPrepayment;
+        exit;
     end;
 
     procedure UpdatePrepaymentAccounts()
@@ -170,14 +167,6 @@ codeunit 131305 "Library - ERM Country Data"
         exit;
     end;
 
-    local procedure CreateGLAccount(): Code[20]
-    var
-        GLAccount: Record "G/L Account";
-    begin
-        LibraryERM.CreateGLAccount(GLAccount);
-        exit(GLAccount."No.");
-    end;
-
     procedure RemoveBlankGenJournalTemplate()
     begin
         exit;
@@ -198,9 +187,9 @@ codeunit 131305 "Library - ERM Country Data"
         CompanyInformation: Record "Company Information";
         LibraryERM: Codeunit "Library - ERM";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
     end;
 
     procedure AmountOnBankAccountLedgerEntriesPage(var BankAccountLedgerEntries: TestPage "Bank Account Ledger Entries"): Decimal
@@ -213,31 +202,6 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure InsertRecordsToProtectedTables()
     begin
-    end;
-
-    local procedure CreateVATSetup()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        LibraryRandom: Codeunit "Library - Random";
-    begin
-        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-        if VATPostingSetup.Count = 0 then begin
-            LibraryERM.CreateVATPostingSetupWithAccounts(
-              VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandInt(15));
-            VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", CreateGLAccount);
-            VATPostingSetup.Modify(true);
-        end;
-    end;
-
-    local procedure DisableFullGSTOnPrepayment()
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        with GLSetup do begin
-            Get;
-            Validate("Full GST on Prepayment", false);
-            Modify(true);
-        end;
     end;
 }
 

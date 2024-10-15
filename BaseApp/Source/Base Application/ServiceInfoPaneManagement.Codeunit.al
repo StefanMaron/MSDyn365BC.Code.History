@@ -1,4 +1,4 @@
-﻿codeunit 5972 "Service Info-Pane Management"
+codeunit 5972 "Service Info-Pane Management"
 {
 
     trigger OnRun()
@@ -8,7 +8,6 @@
     var
         Item: Record Item;
         ServHeader: Record "Service Header";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
 
     procedure CalcAvailability(var ServLine: Record "Service Line"): Decimal
     var
@@ -25,7 +24,7 @@
             else
                 AvailabilityDate := WorkDate;
 
-            Item.Reset;
+            Item.Reset();
             Item.SetRange("Date Filter", 0D, AvailabilityDate);
             Item.SetRange("Variant Filter", ServLine."Variant Code");
             Item.SetRange("Location Filter", ServLine."Location Code");
@@ -53,18 +52,14 @@
 
     procedure CalcNoOfSalesPrices(var ServLine: Record "Service Line"): Integer
     begin
-        if GetItem(ServLine) then begin
-            GetServHeader(ServLine);
-            exit(SalesPriceCalcMgt.NoOfServLinePrice(ServHeader, ServLine, true));
-        end;
+        if GetItem(ServLine) then
+            exit(ServLine.CountPrice(true));
     end;
 
     procedure CalcNoOfSalesLineDisc(var ServLine: Record "Service Line"): Integer
     begin
-        if GetItem(ServLine) then begin
-            GetServHeader(ServLine);
-            exit(SalesPriceCalcMgt.NoOfServLineLineDisc(ServHeader, ServLine, true));
-        end;
+        if GetItem(ServLine) then
+            exit(ServLine.CountDiscount(true));
     end;
 
     local procedure GetItem(var ServLine: Record "Service Line"): Boolean
@@ -100,7 +95,7 @@
             exit(ResultValue);
 
         if ServItem.Get(ServItemLine."Service Item No.") then begin
-            ServItemComponent.Reset;
+            ServItemComponent.Reset();
             ServItemComponent.SetRange(Active, true);
             ServItemComponent.SetRange("Parent Service Item No.", ServItemLine."Service Item No.");
             exit(ServItemComponent.Count);
@@ -151,7 +146,7 @@
             exit(0);
 
         if ServItem.Get(ServItemLine."Service Item No.") then begin
-            Res.Reset;
+            Res.Reset();
             if Res.Find('-') then
                 repeat
                     if ServOrderAllocMgt.ResourceQualified(Res."No.", ResourceSkillType::"Service Item", ServItem."No.") then
@@ -167,7 +162,7 @@
         ServItemComponent: Record "Service Item Component";
     begin
         if ServItem.Get(ServItemLine."Service Item No.") then begin
-            ServItemComponent.Reset;
+            ServItemComponent.Reset();
             ServItemComponent.SetRange(Active, true);
             ServItemComponent.SetRange("Parent Service Item No.", ServItemLine."Service Item No.");
             PAGE.RunModal(PAGE::"Service Item Component List", ServItemComponent);
@@ -180,7 +175,7 @@
         TroubleshootingSetup: Record "Troubleshooting Setup";
     begin
         if ServItem.Get(ServItemLine."Service Item No.") then begin
-            TroubleshootingSetup.Reset;
+            TroubleshootingSetup.Reset();
             TroubleshootingSetup.SetRange(Type, TroubleshootingSetup.Type::"Service Item");
             TroubleshootingSetup.SetRange("No.", ServItemLine."Service Item No.");
             PAGE.RunModal(PAGE::"Troubleshooting Setup", TroubleshootingSetup);

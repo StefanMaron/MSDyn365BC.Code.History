@@ -28,7 +28,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM CETAF Sales-Purchase");
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
 
         if IsInitialized then
             exit;
@@ -40,14 +40,14 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := false;
         InventorySetup."Automatic Cost Adjustment" := InventorySetup."Automatic Cost Adjustment"::Never;
         InventorySetup."Average Cost Calc. Type" := InventorySetup."Average Cost Calc. Type"::Item;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM CETAF Sales-Purchase");
     end;
 
@@ -72,7 +72,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         Adjust(Item);
 
         // Validate
-        Commit;
+        Commit();
         GetEntries(Item, ItemLedgerEntry, ValueEntry);
 
         ValidateValueEntry_StandardInbound(Item, ItemLedgerEntry, ValueEntry, TempItemJournalLine);
@@ -863,7 +863,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     local procedure Adjust(var Item: Record Item)
     begin
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
-        Commit;
+        Commit();
     end;
 
     local procedure GetSalesHeader(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
@@ -925,7 +925,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
             repeat
                 ItemJnlLine.Validate(
                   "Inventory Value (Revalued)", Round(ItemJnlLine."Inventory Value (Revalued)" * Factor, LibraryERM.GetAmountRoundingPrecision));
-                ItemJnlLine.Modify;
+                ItemJnlLine.Modify();
             until (ItemJnlLine.Next = 0);
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
     end;
@@ -1108,9 +1108,9 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         Initialize;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Automatic Cost Adjustment" := InventorySetup."Automatic Cost Adjustment"::Always;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
 
         IsInitialized := false;
 

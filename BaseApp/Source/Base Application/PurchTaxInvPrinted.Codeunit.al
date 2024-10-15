@@ -8,7 +8,7 @@ codeunit 28071 "Purch. Tax Inv.-Printed"
         Find;
         "No. Printed" := "No. Printed" + 1;
         Modify;
-        Commit;
+        Commit();
     end;
 }
 

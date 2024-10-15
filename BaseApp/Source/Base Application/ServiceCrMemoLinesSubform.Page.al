@@ -192,7 +192,7 @@ page 6039 "Service Cr. Memo Lines Subform"
     var
         ServCrMemoLine: Record "Service Cr.Memo Line";
     begin
-        TempServCrMemoLine.Reset;
+        TempServCrMemoLine.Reset();
         TempServCrMemoLine.CopyFilters(Rec);
         TempServCrMemoLine.SetRange("Document No.", "Document No.");
         if not TempServCrMemoLine.FindFirst then begin
@@ -201,7 +201,7 @@ page 6039 "Service Cr. Memo Lines Subform"
             if not ServCrMemoLine.FindFirst then
                 exit(false);
             TempServCrMemoLine := ServCrMemoLine;
-            TempServCrMemoLine.Insert;
+            TempServCrMemoLine.Insert();
         end;
         exit("Line No." = TempServCrMemoLine."Line No.");
     end;

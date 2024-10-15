@@ -1,4 +1,4 @@
-﻿page 643 "Handled IC Outbox Purch. Lines"
+page 643 "Handled IC Outbox Purch. Lines"
 {
     Caption = 'Lines';
     DeleteAllowed = false;

@@ -259,8 +259,8 @@ page 2150 "O365 Sales Email Dialog"
         if ReportSelections.GetEmailBodyCustomText(TempEmailItem."Body File Path", ReportUsage, DocumentHeaderRecordVariant,
              CustomerNo, SendTo, TempEmailItem.GetBodyText)
         then
-            TempEmailItem.Modify;
-        Commit;
+            TempEmailItem.Modify();
+        Commit();
     end;
 
     local procedure GetSalesHeader(DocVariant: Variant; var SalesHeader: Record "Sales Header"): Boolean

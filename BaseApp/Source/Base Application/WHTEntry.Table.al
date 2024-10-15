@@ -33,12 +33,10 @@ table 28044 "WHT Entry"
             Caption = 'Document No.';
             Editable = false;
         }
-        field(6; "Document Type"; Option)
+        field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(8; Base; Decimal)
         {
@@ -269,11 +267,9 @@ table 28044 "WHT Entry"
             OptionCaption = ' ,Por Ngor Dor 1,Por Ngor Dor 2,Por Ngor Dor 3,Por Ngor Dor 53,Por Ngor Dor 54';
             OptionMembers = " ","Por Ngor Dor 1","Por Ngor Dor 2","Por Ngor Dor 3","Por Ngor Dor 53","Por Ngor Dor 54";
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -435,10 +431,17 @@ table 28044 "WHT Entry"
     procedure GetCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
         exit(GLSetup."Additional Reporting Currency");
+    end;
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 }
 

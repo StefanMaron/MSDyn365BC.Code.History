@@ -1,4 +1,4 @@
-﻿page 6053 "Service Contract Quote"
+page 6053 "Service Contract Quote"
 {
     Caption = 'Service Contract Quote';
     PageType = Document;
@@ -686,7 +686,7 @@
 
                     trigger OnAction()
                     begin
-                        ServContractLine.Reset;
+                        ServContractLine.Reset();
                         ServContractLine.SetRange("Contract Type", "Contract Type");
                         ServContractLine.SetRange("Contract No.", "Contract No.");
                         REPORT.RunModal(REPORT::"Upd. Disc.% on Contract", true, true, ServContractLine);

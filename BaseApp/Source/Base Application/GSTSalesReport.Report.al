@@ -202,7 +202,7 @@ report 28165 "GST Sales Report"
                 Linestotal := 0;
 
                 if ExportToExcel then begin
-                    TempExcelBuffer.DeleteAll;
+                    TempExcelBuffer.DeleteAll();
                     RowNo := 0;
                     ColumnNo := 0;
 
@@ -438,7 +438,7 @@ report 28165 "GST Sales Report"
     [Scope('OnPrem')]
     procedure EnterCell(CellValue: Text[250]; Bold: Boolean; Italic: Boolean; Underline: Boolean; CellType: Option)
     begin
-        TempExcelBuffer.Init;
+        TempExcelBuffer.Init();
         TempExcelBuffer.Validate("Row No.", RowNo);
         TempExcelBuffer.Validate("Column No.", ColumnNo);
         TempExcelBuffer."Cell Value as Text" := CellValue;
@@ -447,7 +447,7 @@ report 28165 "GST Sales Report"
         TempExcelBuffer.Italic := Italic;
         TempExcelBuffer.Underline := Underline;
         TempExcelBuffer."Cell Type" := CellType;
-        TempExcelBuffer.Insert;
+        TempExcelBuffer.Insert();
     end;
 }
 

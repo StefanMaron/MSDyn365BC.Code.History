@@ -16,9 +16,6 @@ report 28021 "Bank Account Reconciliation"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }

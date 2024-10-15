@@ -174,7 +174,7 @@ codeunit 134212 "WF Demo Item Approval"
 
         // [WHEN] Item card is opened.
         LibraryInventory.CreateItem(Item);
-        Commit;
+        Commit();
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(Item);
 
@@ -245,7 +245,7 @@ codeunit 134212 "WF Demo Item Approval"
 
         // [WHEN] Item card is opened.
         LibraryInventory.CreateItem(Item);
-        Commit;
+        Commit();
         ItemList.OpenEdit;
         ItemList.GotoRecord(Item);
 
@@ -432,7 +432,7 @@ codeunit 134212 "WF Demo Item Approval"
     var
         ApprovalCommentLine: Record "Approval Comment Line";
     begin
-        ApprovalCommentLine.Init;
+        ApprovalCommentLine.Init();
         ApprovalCommentLine.SetRange("Table ID", ApprovalEntry."Table ID");
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
         ApprovalCommentLine.SetRange("Workflow Step Instance ID", ApprovalEntry."Workflow Step Instance ID");
@@ -456,7 +456,7 @@ codeunit 134212 "WF Demo Item Approval"
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         if IsInitialized then
             exit;
         IsInitialized := true;

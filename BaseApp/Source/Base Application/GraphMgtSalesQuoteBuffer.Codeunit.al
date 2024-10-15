@@ -42,7 +42,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
 
         if not SalesQuoteEntityBuffer.Get(Rec."No.") then
             exit;
-        SalesQuoteEntityBuffer.Delete;
+        SalesQuoteEntityBuffer.Delete();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 56, 'OnAfterResetRecalculateInvoiceDisc', '', false, false)]
@@ -202,7 +202,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
         RecordExists: Boolean;
     begin
-        SalesQuoteEntityBuffer.LockTable;
+        SalesQuoteEntityBuffer.LockTable();
         RecordExists := SalesQuoteEntityBuffer.Get(SalesHeader."No.");
 
         SalesQuoteEntityBuffer.TransferFields(SalesHeader, true);
@@ -236,7 +236,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         SalesHeader: Record "Sales Header";
         TargetFieldRef: FieldRef;
     begin
-        TempFieldBuffer.Reset;
+        TempFieldBuffer.Reset();
         TempFieldBuffer.SetRange("Field ID", SalesQuoteEntityBuffer.FieldNo(Status));
         if not TempFieldBuffer.FindFirst then
             exit;
@@ -318,7 +318,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
 
         SalesQuoteEntityBuffer.Amount := 0;
         SalesQuoteEntityBuffer."Amount Including VAT" := 0;
-        SalesQuoteEntityBuffer.Modify;
+        SalesQuoteEntityBuffer.Modify();
     end;
 
     local procedure CheckValidRecord(var SalesHeader: Record "Sales Header"): Boolean

@@ -2449,9 +2449,6 @@ End Function
         <Field Name="STRSUBSTNO_Text004_PreviousStartDate_">
           <DataField>STRSUBSTNO_Text004_PreviousStartDate_</DataField>
         </Field>
-        <Field Name="STRSUBSTNO_Text005_CurrReport_PAGENO_">
-          <DataField>STRSUBSTNO_Text005_CurrReport_PAGENO_</DataField>
-        </Field>
         <Field Name="PageCaption">
           <DataField>PageCaption</DataField>
         </Field>

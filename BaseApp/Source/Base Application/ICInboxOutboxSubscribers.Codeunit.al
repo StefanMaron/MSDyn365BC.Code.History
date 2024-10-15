@@ -20,7 +20,7 @@ codeunit 790 "IC Inbox Outbox Subscribers"
         CompanyInformation: Record "Company Information";
         ICPartner: Record "IC Partner";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ICPartner.ChangeCompany(PartnerCompanyName);
 
         if not ICPartner.Get(CompanyInformation."IC Partner Code") then

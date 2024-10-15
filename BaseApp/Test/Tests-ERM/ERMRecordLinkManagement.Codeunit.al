@@ -317,17 +317,17 @@ codeunit 134074 "ERM Record Link Management"
         RecordLink.FindFirst;
         RecordLink.Notify := NewNotification;
         RecordLink."To User ID" := UserId;
-        RecordLink.Modify;
+        RecordLink.Modify();
     end;
 
     local procedure UpdateServiceMgtSetup(CopyCommentsToInvoice: Boolean; CopyCommentsToShipment: Boolean)
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup."Copy Comments Order to Invoice" := CopyCommentsToInvoice;
         ServiceMgtSetup."Copy Comments Order to Shpt." := CopyCommentsToShipment;
-        ServiceMgtSetup.Modify;
+        ServiceMgtSetup.Modify();
     end;
 
     local procedure VerifyNotificationOnRecordLink(RecVar: Variant; ExpectedNotification: Boolean)

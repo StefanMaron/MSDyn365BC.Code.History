@@ -13,7 +13,7 @@ codeunit 760 "Trailing Sales Orders Mgt."
     begin
         with TrailingSalesOrdersSetup do
             if not Get(UserId) then begin
-                LockTable;
+                LockTable();
                 "User ID" := UserId;
                 "Use Work Date as Base" := true;
                 "Period Length" := "Period Length"::Month;

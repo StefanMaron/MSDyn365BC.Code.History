@@ -1,4 +1,4 @@
-﻿page 610 "IC General Journal"
+page 610 "IC General Journal"
 {
     ApplicationArea = Intercompany;
     AutoSplitKey = true;
@@ -666,7 +666,7 @@
                         CheckAdjustmentAppliesto;
                         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", Rec);
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
-                        Commit;
+                        Commit();
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
                     end;
@@ -703,7 +703,7 @@
                         CheckAdjustmentAppliesto;
                         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", Rec);
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
-                        Commit;
+                        Commit();
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
                     end;

@@ -22,11 +22,11 @@ codeunit 28000 "Post Code Check"
         case Country."Address Validation" of
             Country."Address Validation"::"Post Code & City":
                 begin
-                    PostCodeRec.Reset;
+                    PostCodeRec.Reset();
                     PostCodeRec.SetCurrentKey("Search City");
                     PostCodeRec.SetFilter("Search City", UpperCase(City));
                     PostCodeRec.FindFirst;
-                    RecCount := PostCodeRec.Count;
+                    RecCount := PostCodeRec.Count();
                     case true of
                         RecCount = 1:
                             begin
@@ -68,10 +68,10 @@ codeunit 28000 "Post Code Check"
         case Country."Address Validation" of
             Country."Address Validation"::"Post Code & City":
                 begin
-                    PostCodeRec.Reset;
+                    PostCodeRec.Reset();
                     PostCodeRec.SetFilter(Code, PostCode);
                     PostCodeRec.FindFirst;
-                    RecCount := PostCodeRec.Count;
+                    RecCount := PostCodeRec.Count();
                     case true of
                         RecCount = 1:
                             begin
@@ -112,7 +112,7 @@ codeunit 28000 "Post Code Check"
         case Country."Address Validation" of
             Country."Address Validation"::"Post Code & City":
                 begin
-                    PostCodeRec.Reset;
+                    PostCodeRec.Reset();
                     PostCodeRec.SetCurrentKey("Search City");
                     PostCodeRec."Search City" := UpperCase(City);
                     if (PAGE.RunModal(
@@ -142,7 +142,7 @@ codeunit 28000 "Post Code Check"
         case Country."Address Validation" of
             Country."Address Validation"::"Post Code & City":
                 begin
-                    PostCodeRec.Reset;
+                    PostCodeRec.Reset();
                     PostCodeRec.Code := PostCode;
                     if (PAGE.RunModal(
                           PAGE::"Post Codes", PostCodeRec, PostCodeRec.Code) = ACTION::LookupOK) and ReturnValues
@@ -181,7 +181,7 @@ codeunit 28000 "Post Code Check"
         TempAddressBuffer: Record "Address Buffer" temporary;
     begin
         Country.TestField("AMAS Software");
-        TempAddressBuffer.Init;
+        TempAddressBuffer.Init();
         TempAddressBuffer.Name := Name;
         TempAddressBuffer."Name 2" := Name2;
         TempAddressBuffer.Contact := Contact;
@@ -192,14 +192,14 @@ codeunit 28000 "Post Code Check"
         TempAddressBuffer.County := County;
         TempAddressBuffer."Country/Region Code" := CountryCode;
         TempAddressBuffer."Validation Type" := ValidationType;
-        TempAddressBuffer.Insert;
+        TempAddressBuffer.Insert();
         CODEUNIT.Run(Country."AMAS Software", TempAddressBuffer);
         if (TempAddressBuffer."Address ID" <> '') or
            (TempAddressBuffer."Bar Code" <> '') or
            (TempAddressBuffer."Error Flag No." <> '')
         then begin
             if not AddressID.Get(TableNo, TableKey, AddressType) then begin
-                AddressID.Init;
+                AddressID.Init();
                 AddressID."Table No." := TableNo;
                 AddressID."Table Key" := TableKey;
                 AddressID."Address Type" := AddressType;
@@ -207,13 +207,13 @@ codeunit 28000 "Post Code Check"
                 AddressID."Address Sort Plan" := TempAddressBuffer."Address Sort Plan";
                 AddressID."Error Flag No." := TempAddressBuffer."Error Flag No.";
                 AddressID."Bar Code System" := TempAddressBuffer."Bar Code System";
-                AddressID.Insert;
+                AddressID.Insert();
             end else begin
                 AddressID.Validate("Address ID", TempAddressBuffer."Address ID");
                 AddressID."Address Sort Plan" := TempAddressBuffer."Address Sort Plan";
                 AddressID."Error Flag No." := TempAddressBuffer."Error Flag No.";
                 AddressID."Bar Code System" := TempAddressBuffer."Bar Code System";
-                AddressID.Modify;
+                AddressID.Modify();
             end;
         end;
         if Country."Address Validation" =
@@ -239,7 +239,7 @@ codeunit 28000 "Post Code Check"
         AddressID.SetRange("Table No.", TableNo);
         AddressID.SetRange("Table Key", TableKey);
         AddressID.SetRange("Address Type", AddressType);
-        AddressID.DeleteAll;
+        AddressID.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -249,7 +249,7 @@ codeunit 28000 "Post Code Check"
     begin
         AddressID.SetRange("Table No.", TableNo);
         AddressID.SetRange("Table Key", TableKey);
-        AddressID.DeleteAll;
+        AddressID.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -260,12 +260,12 @@ codeunit 28000 "Post Code Check"
     begin
         if FromAddressID.Get(FromTableNo, FromTableKey, FromAddressType) then begin
             if not ToAddressID.Get(ToTableNo, ToTableKey, ToAddressType) then begin
-                ToAddressID.Init;
+                ToAddressID.Init();
                 ToAddressID := FromAddressID;
                 ToAddressID."Table No." := ToTableNo;
                 ToAddressID."Table Key" := ToTableKey;
                 ToAddressID."Address Type" := ToAddressType;
-                ToAddressID.Insert;
+                ToAddressID.Insert();
             end else begin
                 ToAddressID."Address ID" := FromAddressID."Address ID";
                 ToAddressID."Address Sort Plan" := FromAddressID."Address Sort Plan";
@@ -273,11 +273,11 @@ codeunit 28000 "Post Code Check"
                 ToAddressID."Bar Code System" := FromAddressID."Bar Code System";
                 ToAddressID."Error Flag No." := FromAddressID."Error Flag No.";
                 ToAddressID."Address ID Check Date" := FromAddressID."Address ID Check Date";
-                ToAddressID.Modify;
+                ToAddressID.Modify();
             end;
         end else
             if ToAddressID.Get(ToTableNo, ToTableKey, ToAddressType) then
-                ToAddressID.Delete;
+                ToAddressID.Delete();
     end;
 
     [Scope('OnPrem')]
@@ -290,14 +290,14 @@ codeunit 28000 "Post Code Check"
         FromAddressID.SetRange("Table Key", FromTableKey);
         ToAddressID.SetRange("Table No.", ToTableNo);
         ToAddressID.SetRange("Table Key", ToTableKey);
-        ToAddressID.DeleteAll;
+        ToAddressID.DeleteAll();
         if FromAddressID.Find('-') then
             repeat
-                ToAddressID.Init;
+                ToAddressID.Init();
                 ToAddressID := FromAddressID;
                 ToAddressID."Table No." := ToTableNo;
                 ToAddressID."Table Key" := ToTableKey;
-                ToAddressID.Insert;
+                ToAddressID.Insert();
             until FromAddressID.Next = 0;
     end;
 
@@ -309,23 +309,23 @@ codeunit 28000 "Post Code Check"
     begin
         if FromAddressID.Get(FromTableNo, FromTableKey, FromAddressType) then begin
             if not ToAddressID.Get(ToTableNo, ToTableKey, ToAddressType) then begin
-                ToAddressID.Init;
+                ToAddressID.Init();
                 ToAddressID := FromAddressID;
                 ToAddressID."Table No." := ToTableNo;
                 ToAddressID."Table Key" := ToTableKey;
                 ToAddressID."Address Type" := ToAddressType;
-                ToAddressID.Insert;
+                ToAddressID.Insert();
             end else begin
                 ToAddressID := FromAddressID;
                 ToAddressID."Table No." := ToTableNo;
                 ToAddressID."Table Key" := ToTableKey;
                 ToAddressID."Address Type" := ToAddressType;
-                ToAddressID.Modify;
+                ToAddressID.Modify();
             end;
-            FromAddressID.Delete;
+            FromAddressID.Delete();
         end else
             if ToAddressID.Get(ToTableNo, ToTableKey, ToAddressType) then
-                ToAddressID.Delete;
+                ToAddressID.Delete();
     end;
 
     [Scope('OnPrem')]
@@ -338,17 +338,17 @@ codeunit 28000 "Post Code Check"
         FromAddressID.SetRange("Table Key", FromTableKey);
         ToAddressID.SetRange("Table No.", ToTableNo);
         ToAddressID.SetRange("Table Key", ToTableKey);
-        ToAddressID.DeleteAll;
+        ToAddressID.DeleteAll();
         if FromAddressID.Find('-') then
             repeat
-                ToAddressID.Init;
+                ToAddressID.Init();
                 ToAddressID := FromAddressID;
                 ToAddressID."Table No." := ToTableNo;
                 ToAddressID."Table Key" := ToTableKey;
-                ToAddressID.Insert;
+                ToAddressID.Insert();
             until FromAddressID.Next = 0;
 
-        FromAddressID.DeleteAll;
+        FromAddressID.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -390,7 +390,7 @@ codeunit 28000 "Post Code Check"
     local procedure GetGLSetup()
     begin
         if not HadGLSetup then begin
-            GLSetup.Get;
+            GLSetup.Get();
             HadGLSetup := true;
         end;
     end;

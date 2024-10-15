@@ -30,8 +30,8 @@ report 5899 "Calculate Inventory Value"
                         Error(Text011, "No.", PostingDate, CalendarPeriod."Period End");
                 end;
 
-                ValJnlBuffer.Reset;
-                ValJnlBuffer.DeleteAll;
+                ValJnlBuffer.Reset();
+                ValJnlBuffer.DeleteAll();
                 IncludeExpectedCost := ("Costing Method" = "Costing Method"::Standard) and (CalculatePer = CalculatePer::Item);
                 ItemLedgEntry.SetRange("Item No.", "No.");
                 ItemLedgEntry.SetRange(Positive, true);
@@ -102,7 +102,7 @@ report 5899 "Calculate Inventory Value"
                             ItemVariant.SetRange("Item No.", "No.");
                             CopyFilter("Variant Filter", ItemVariant.Code);
                             if ItemVariant.Find('-') then begin
-                                ValJnlBuffer.Reset;
+                                ValJnlBuffer.Reset();
                                 ValJnlBuffer.SetCurrentKey("Item No.", "Variant Code");
                                 ValJnlBuffer.SetRange("Item No.", "No.");
                                 repeat
@@ -114,7 +114,7 @@ report 5899 "Calculate Inventory Value"
                             ValJnlBuffer.SetRange("Variant Code", '');
                             Calculate(Item, '', '');
                         end else begin
-                            ValJnlBuffer.Reset;
+                            ValJnlBuffer.Reset();
                             ValJnlBuffer.SetCurrentKey("Item No.");
                             ValJnlBuffer.SetRange("Item No.", "No.");
                             Calculate(Item, '', '');
@@ -145,7 +145,7 @@ report 5899 "Calculate Inventory Value"
                             repeat
                                 if not UpdatedStdCostSKU.Get(SKU."Location Code", NewStdCostItem."No.", SKU."Variant Code") then begin
                                     SKU.Validate("Standard Cost", NewStdCostItem."Standard Cost");
-                                    SKU.Modify;
+                                    SKU.Modify();
                                 end;
                             until SKU.Next = 0;
                     until NewStdCostItem.Next = 0;
@@ -165,7 +165,7 @@ report 5899 "Calculate Inventory Value"
                         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
                         if not ItemJnlLine.FindFirst then
                             NextDocNo := NoSeriesMgt.GetNextNo(ItemJnlBatch."No. Series", PostingDate, false);
-                        ItemJnlLine.Init;
+                        ItemJnlLine.Init();
                     end;
                     if NextDocNo = '' then
                         Error(Text003);
@@ -181,8 +181,8 @@ report 5899 "Calculate Inventory Value"
                 if ShowDialog then
                     Window.Open(Text010, "No.");
 
-                GLSetup.Get;
-                SourceCodeSetup.Get;
+                GLSetup.Get();
+                SourceCodeSetup.Get();
 
                 if CalcBase in [CalcBase::"Standard Cost - Assembly List", CalcBase::"Standard Cost - Manufacturing"] then begin
                     CalculateStdCost.SetProperties(PostingDate, true, CalcBase = CalcBase::"Standard Cost - Assembly List", false, '', true);
@@ -376,7 +376,7 @@ report 5899 "Calculate Inventory Value"
 
     local procedure InsertValJnlBuffer(ItemNo2: Code[20]; VariantCode2: Code[10]; LocationCode2: Code[10]; Quantity2: Decimal; Amount2: Decimal)
     begin
-        ValJnlBuffer.Reset;
+        ValJnlBuffer.Reset();
         ValJnlBuffer.SetCurrentKey("Item No.", "Location Code", "Variant Code");
         ValJnlBuffer.SetRange("Item No.", ItemNo2);
         ValJnlBuffer.SetRange("Location Code", LocationCode2);
@@ -385,18 +385,18 @@ report 5899 "Calculate Inventory Value"
             ValJnlBuffer.Quantity := ValJnlBuffer.Quantity + Quantity2;
             ValJnlBuffer."Inventory Value (Calculated)" :=
               ValJnlBuffer."Inventory Value (Calculated)" + Amount2;
-            ValJnlBuffer.Modify;
+            ValJnlBuffer.Modify();
         end else
             if Quantity2 <> 0 then begin
                 NextLineNo2 := NextLineNo2 + 10000;
-                ValJnlBuffer.Init;
+                ValJnlBuffer.Init();
                 ValJnlBuffer."Line No." := NextLineNo2;
                 ValJnlBuffer."Item No." := ItemNo2;
                 ValJnlBuffer."Variant Code" := VariantCode2;
                 ValJnlBuffer."Location Code" := LocationCode2;
                 ValJnlBuffer.Quantity := Quantity2;
                 ValJnlBuffer."Inventory Value (Calculated)" := Amount2;
-                ValJnlBuffer.Insert;
+                ValJnlBuffer.Insert();
             end;
     end;
 
@@ -544,7 +544,7 @@ report 5899 "Calculate Inventory Value"
                             UpdatedStdCostSKU."Item No." := ItemNo2;
                             UpdatedStdCostSKU."Location Code" := LocationCode2;
                             UpdatedStdCostSKU."Variant Code" := VariantCode2;
-                            if UpdatedStdCostSKU.Insert then;
+                            if UpdatedStdCostSKU.Insert() then;
                         end else
                             Validate("Inventory Value (Revalued)", "Inventory Value (Calculated)");
                     end;
@@ -572,6 +572,9 @@ report 5899 "Calculate Inventory Value"
             Init;
             "Line No." := NextLineNo;
             "Value Entry Type" := "Value Entry Type"::Revaluation;
+
+            OnInitItemJnlLineOnBeforeValidateFields(ItemJnlLine);
+
             Validate("Posting Date", PostingDate);
             Validate("Entry Type", EntryType2);
             Validate("Document No.", NextDocNo);
