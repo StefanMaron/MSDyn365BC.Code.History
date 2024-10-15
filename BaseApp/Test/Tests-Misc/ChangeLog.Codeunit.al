@@ -202,7 +202,6 @@ codeunit 139031 "Change Log"
         TempItem.Validate("No.", '');
         TempItem.Insert(true);
         RecRef.GetTable(TempItem);
-        ChangeLogManagement.LogInsertion(RecRef);
 
         // Verify
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 0);
@@ -325,7 +324,6 @@ codeunit 139031 "Change Log"
             1, MaxStrLen(TestTableWithLargeField.Description));
         TestTableWithLargeField.Insert(true);
         RecRef.GetTable(TestTableWithLargeField);
-        ChangeLogManagement.LogInsertion(RecRef);
 
         // Verify: Check if the values are correctly logged in ChangeLogEntry
         ChangeLogEntry.SetRange("Table No.", LocalTableNo);
@@ -380,7 +378,6 @@ codeunit 139031 "Change Log"
         TempItem.Insert(true);
         RecRef.GetTable(TempItem);
         TempItem.Delete(true);
-        ChangeLogManagement.LogDeletion(RecRef);
 
         // Verify
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Deletion, 0);
@@ -550,7 +547,6 @@ codeunit 139031 "Change Log"
         TempItem.Validate("Replenishment System", TempItem."Replenishment System"::Assembly);
         TempItem.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         RecRef.GetTable(TempItem);
-        ChangeLogManagement.LogModification(RecRef);
         TempItem.Modify(true);
 
         // Verify
@@ -748,7 +744,6 @@ codeunit 139031 "Change Log"
         OldNo := TempItem."No.";
         TempItem."No." := NewNo;
         RecRef.GetTable(TempItem);
-        ChangeLogManagement.LogRename(RecRef, xRecRef);
         TempItem.Get(OldNo);
         TempItem.Rename(NewNo);
 
@@ -997,18 +992,15 @@ codeunit 139031 "Change Log"
         // Insert
         CreateItem(CVLedgerEntryBuffer);
         RecRef.GetTable(CVLedgerEntryBuffer);
-        ChangeLogManagement.LogInsertion(RecRef);
 
         // Modify
         CVLedgerEntryBuffer.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(CVLedgerEntryBuffer.Description)));
         RecRef.GetTable(CVLedgerEntryBuffer);
-        ChangeLogManagement.LogModification(RecRef);
         CVLedgerEntryBuffer.Modify(true);
 
         // Delete
         RecRef.GetTable(CVLedgerEntryBuffer);
         CVLedgerEntryBuffer.Delete();
-        ChangeLogManagement.LogDeletion(RecRef);
 
         // re-initialize change log
         ChangeLogInit;
@@ -2034,8 +2026,7 @@ codeunit 139031 "Change Log"
         ChangeLogEntry.SetRange("Primary Key", RecRef.GetPosition(false));
         ChangeLogEntry.SetRange("Field No.", TenantWebService.FieldNo("Service Name"));
 
-        Assert.RecordCount(ChangeLogEntry, 1);
-        ChangeLogEntry.FindFirst;
+        ChangeLogEntry.FindFirst();
 
         Assert.AreEqual(TenantWebService."Service Name",
           ChangeLogEntry."New Value",

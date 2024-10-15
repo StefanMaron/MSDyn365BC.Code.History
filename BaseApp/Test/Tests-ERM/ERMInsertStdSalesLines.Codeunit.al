@@ -1051,6 +1051,46 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         Assert.RecordIsEmpty(StdSalesCode);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketOrderToOrderAutomaticSalesOrderNoRecurringLines()
+    var
+        SalesHeaderBlanketOrder: Record "Sales Header";
+        SalesHeaderOrder: Record "Sales Header";
+        SalesLineBlanketOrder: Record "Sales Line";
+        SalesLineOrder: Record "Sales Line";
+        BlanketSalesOrdertoOrder: Codeunit "Blanket Sales Order to Order";
+    begin
+        // [FEATURE] [Automatic mode] [Blanket Order] [Blanket Order or Order]
+        // [SCENARIO 424805] Recurring purchase lines are NOT added on Quote to Order convert when Insert Rec. Lines On Orders = Automatic
+        Initialize();
+
+        // [GIVEN] Create new sales quote for customer with standard sales code where Insert Rec. Lines On Orders = Automatic
+        LibrarySales.CreateSalesHeader(
+            SalesHeaderBlanketOrder, SalesHeaderBlanketOrder."Document Type"::"Blanket Order",
+            GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::Automatic));
+
+        // [GIVEN] Sales Line exists on Sales quote
+        LibrarySales.CreateSalesLine(
+            SalesLineBlanketOrder, SalesHeaderBlanketOrder, SalesLineBlanketOrder.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLineBlanketOrder.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLineBlanketOrder.Modify(true);
+
+        // [WHEN] Run Sales-Quote to Order codeunit on this quote
+        BlanketSalesOrdertoOrder.Run(SalesHeaderBlanketOrder);
+
+        // [THEN] Order created with no errors
+        BlanketSalesOrdertoOrder.GetSalesOrderHeader(SalesHeaderOrder);
+
+        // [THEN] Line from Quote exists on this Order
+        FilterOnSalesLine(SalesLineOrder, SalesHeaderOrder);
+        SalesLineOrder.SetRange("No.", SalesLineBlanketOrder."No.");
+        Assert.RecordIsNotEmpty(SalesLineOrder);
+
+        // [THEN] No other lines were added
+        SalesLineOrder.SetFilter("No.", '<>%1', SalesLineBlanketOrder."No.");
+        Assert.RecordIsEmpty(SalesLineOrder);
+    end;
 
     local procedure Initialize()
     var

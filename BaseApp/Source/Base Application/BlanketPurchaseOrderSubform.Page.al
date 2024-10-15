@@ -53,6 +53,7 @@
                     begin
                         Rec.CrossReferenceNoLookUp();
                         InsertExtendedText(false);
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -75,6 +76,7 @@
                     begin
                         ItemReferenceMgt.PurchaseReferenceNoLookup(Rec);
                         InsertExtendedText(false);
+                        DeltaUpdateTotals();
                         OnItemReferenceNoOnLookup(Rec);
                     end;
 

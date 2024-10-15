@@ -15,6 +15,8 @@ codeunit 142082 "UT REP Purchase Payables"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryERM: Codeunit "Library - ERM";
+        AmountsAreInLbl: Label 'Amounts are in %1', Comment = '%1=currency code';
 
     [Test]
     [HandlerFunctions('AgedAccountsPayableRequestPageHandler')]
@@ -137,6 +139,37 @@ codeunit 142082 "UT REP Purchase Payables"
         LibraryReportDataset.AssertElementWithValueExists('GrandTotalBalanceDue_', 0);
     end;
 
+    [Test]
+    [HandlerFunctions('AgedAccountsPayablePrintAmountsInVendorsCurrencyRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure AgedAccountsPayableNAPrinsAmountsAreInCurrency()
+    var
+        Vendor: Record Vendor;
+        Currency: Record Currency;
+    begin
+        // [SCENARIO 431080] Report "Aged Accounts Payable NA" prints proper caption "Amounts are in ..." for currency
+        Initialize();
+
+        // [GIVEN] Create currency "XXX" with description "Canadian dollar"
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
+        Currency.Description := LibraryRandom.RandText(MaxStrLen(Currency.Description));
+        Currency.Modify();
+        // [GIVEN] Created Vendor with currency "XXX"
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", Currency.Code);
+        Vendor.Modify();
+        Commit();
+
+        // [WHEN] Save Aged Accounts Payable NA Report with option "Print Amounts in Vendor Currency" = Yes
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        Report.Run(Report::"Aged Accounts Payable NA");
+
+        // [THEN] Report prints "Amounts are in Canadian dollar"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('Control1020000Caption', StrSubstNo(AmountsAreInLbl, Currency.Description));
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -226,6 +259,17 @@ codeunit 142082 "UT REP Purchase Payables"
         AgedAccountsPayable.PrintDetailControl.SetValue(false);
         AgedAccountsPayable.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         AgedAccountsPayable.AgingMethodControl.SetValue(0);
+        AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AgedAccountsPayablePrintAmountsInVendorsCurrencyRequestPageHandler(var AgedAccountsPayable: TestRequestPage "Aged Accounts Payable NA")
+    begin
+        AgedAccountsPayable.AgedAsOf.SetValue(LibraryVariableStorage.DequeueDate());
+        AgedAccountsPayable.PrintDetailControl.SetValue(true);
+        AgedAccountsPayable.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        AgedAccountsPayable.PrintAmountsInVendorsCurrency.SetValue(true);
         AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }

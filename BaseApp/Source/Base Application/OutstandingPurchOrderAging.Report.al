@@ -404,7 +404,7 @@ report 10095 "Outstanding Purch. Order Aging"
                 exit('101,1,' + Text001);
 
             GetCurrencyRecord(Currency, CurrencyCode);
-            exit('101,4,' + StrSubstNo(Text001, Currency.Description));
+            exit(StrSubstNo(Text001, Currency.Description));
         end;
         exit('');
     end;

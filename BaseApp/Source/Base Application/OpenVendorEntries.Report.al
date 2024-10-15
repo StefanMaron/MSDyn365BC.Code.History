@@ -371,7 +371,7 @@ report 10093 "Open Vendor Entries"
                 exit('101,1,' + Text003);
 
             GetCurrencyRecord(Currency, CurrencyCode);
-            exit('101,4,' + StrSubstNo(Text003, Currency.Description));
+            exit(StrSubstNo(Text003, Currency.Description));
         end;
         exit('');
     end;

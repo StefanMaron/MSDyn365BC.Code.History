@@ -88,6 +88,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetItemTemplatesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetAzureADSetupFixTag());
         PerCompanyUpgradeTags.Add(GetDataExchOCRVendorNoTag());
+        PerCompanyUpgradeTags.Add(GetUseCustomLookupUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -758,6 +759,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetDataExchOCRVendorNoTag(): Code[250]
     begin
         exit('MS-415627-DataExchOCRVendorNo-20211111');
+    end;
+
+    internal procedure GetUseCustomLookupUpgradeTag(): Code[250]
+    begin
+        exit('MS-426799-GetUseCustomLookupUpgradeTag-20220406');
     end;
 }
 
