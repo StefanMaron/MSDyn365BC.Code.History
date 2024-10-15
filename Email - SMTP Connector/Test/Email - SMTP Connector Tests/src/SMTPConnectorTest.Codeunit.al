@@ -80,7 +80,7 @@ codeunit 139760 "SMTP Connector Test"
         EmailMessage: Codeunit "Email Message";
         SMTPClientMock: Codeunit "SMTP Client Mock";
         SMTPMessageMock: Codeunit "SMTP Message Mock";
-        SMTPMessage: Codeunit "SMTP Message";
+        SMTPMessage: Codeunit "Connector SMTP Message";
         SMTPConnectorImpl: Codeunit "SMTP Connector Impl.";
         SMTPClient: Interface "SMTP Client";
     begin

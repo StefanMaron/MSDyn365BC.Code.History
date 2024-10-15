@@ -296,7 +296,7 @@ codeunit 6710 ODataUtility
         TenantWebServiceFilter.SetRange(TenantWebServiceID, TenantWebService.RecordId());
         if TenantWebServiceFilter.Find('-') then begin
             repeat
-                FilterText := WebServiceManagement.GetTenantWebServiceFilter(TenantWebServiceFilter);
+                FilterText := WebServiceManagement.RetrieveTenantWebServiceFilter(TenantWebServiceFilter);
                 if StrLen(FilterText) > 0 then
                     TableItemFilterTextDictionaryParam.Add(TenantWebServiceFilter."Data Item", FilterText);
             until TenantWebServiceFilter.Next() = 0;

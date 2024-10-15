@@ -699,6 +699,7 @@ page 143 "Posted Sales Invoices"
     begin
         HasFilters := GetFilters <> '';
         SetSecurityFilterOnRespCenter;
+        OnOpenPageOnAfterSetFilters(Rec);
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         if HasFilters and not Find() then
             if FindFirst() then;
@@ -724,6 +725,11 @@ page 143 "Posted Sales Invoices"
         DocExchStatusVisible: Boolean;
         IsOfficeAddin: Boolean;
         HasPostedSalesInvoices: Boolean;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOpenPageOnAfterSetFilters(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
 }
 
 #endif

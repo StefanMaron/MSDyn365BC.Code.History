@@ -1591,7 +1591,7 @@ codeunit 134451 "ERM Fixed Assets"
         asserterror FAPostingGroup.GetWriteDownAccount;
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(
-            LibraryErrorMessage.GetMissingAccountErrorMessage(FAPostingGroup.FieldCaption("Write-Down Account"), FAPostingGroup.TableCaption()));
+            LibraryErrorMessage.GetMissingAccountErrorMessage(FAPostingGroup.FieldCaption("Write-Down Account"), FAPostingGroup));
     end;
 
     [Test]
@@ -2329,7 +2329,7 @@ codeunit 134451 "ERM Fixed Assets"
             Description,
             LibraryErrorMessage.GetMissingAccountErrorMessage(
                 FAPostingGroup.FieldCaption("Depreciation Expense Acc."),
-                FAPostingGroup.TableCaption()));
+                FAPostingGroup));
     end;
 
     local procedure Initialize()

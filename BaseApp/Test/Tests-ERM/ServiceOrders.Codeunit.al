@@ -4661,6 +4661,43 @@
         Assert.ExpectedError(RoundingBalanceErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceItemLineWith100PctLineDiscount()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ServiceItemLineNo: Integer;
+    begin
+        // [SCENARIO 426011] Service order with 100% line discount can be posted
+        Initialize();
+
+        // [GIVEN] Customer "C" with "Payment Method Code" = "GIRO"
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Payment Method Code", FindPaymentMethodWithBalanceAccount);
+        Customer.Modify();
+
+        // [GIVEN] Service Order for customer "C"
+        ServiceItemLineNo := CreateServiceOrder(ServiceHeader, Customer."No.");
+        LibraryService.CreateServiceLine(
+          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        UpdateServiceLineWithRandomQtyAndPrice(ServiceLine, ServiceItemLineNo);
+        // [GIVEN] Sales line has 100% line discount
+        ServiceLine.Validate("Line Discount %", 100);
+        ServiceLine.Modify(true);
+
+        // [WHEN] Post ship and invoice service order
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Service order posted
+        CustLedgerEntry.SetRange("Customer No.", Customer."No.");
+        CustLedgerEntry.SetRange("Document Type", "Gen. Journal Document Type"::Invoice);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.TestField(Amount, 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -29,7 +29,9 @@ pageextension 31200 "Vendor Stat. FactBox CZZ" extends "Vendor Statistics FactBo
                 ApplicationArea = Basic, Suite;
                 Caption = 'Advances';
                 ToolTip = 'Specifies the number of opened advance letters.';
+#if not CLEAN19
                 Visible = AdvancePaymentsEnabledCZZ;
+#endif
 
                 trigger OnDrillDown()
                 var
@@ -44,11 +46,12 @@ pageextension 31200 "Vendor Stat. FactBox CZZ" extends "Vendor Statistics FactBo
             }
         }
     }
-
+#if not CLEAN19
     trigger OnOpenPage()
     begin
         AdvancePaymentsEnabledCZZ := AdvancePaymentsMgtCZZ.IsEnabled();
     end;
+#endif
 
     trigger OnAfterGetCurrRecord()
     var
@@ -71,9 +74,11 @@ pageextension 31200 "Vendor Stat. FactBox CZZ" extends "Vendor Statistics FactBo
     end;
 
     var
+#if not CLEAN19    
         AdvancePaymentsMgtCZZ: Codeunit "Advance Payments Mgt. CZZ";
-        CurrVendorNoCZZ: Code[20];
         AdvancePaymentsEnabledCZZ: Boolean;
+#endif
+        CurrVendorNoCZZ: Code[20];
         AdvancesCZZ: Integer;
         TaskIdCalculateCueCZZ: Integer;
 

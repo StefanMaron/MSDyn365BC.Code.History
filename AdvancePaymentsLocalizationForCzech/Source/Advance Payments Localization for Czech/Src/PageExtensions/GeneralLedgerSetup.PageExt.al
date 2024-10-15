@@ -21,7 +21,7 @@ pageextension 31022 "General Ledger Setup CZZ" extends "General Ledger Setup"
 #pragma warning restore AL0432
 #endif
     }
-
+#if not CLEAN19
     var
         AdvancePaymentsMgtCZZ: Codeunit "Advance Payments Mgt. CZZ";
         AdvancePaymentsEnabledCZZ: Boolean;
@@ -30,4 +30,5 @@ pageextension 31022 "General Ledger Setup CZZ" extends "General Ledger Setup"
     begin
         AdvancePaymentsEnabledCZZ := AdvancePaymentsMgtCZZ.IsEnabled();
     end;
+#endif
 }

@@ -142,7 +142,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                                         repeat
                                             if PhysInvtRecordLine."Quantity (Base)" <> 0 then
                                                 UpdateBufferRecordedQty(
-                                                  PhysInvtRecordLine."Serial No.", PhysInvtRecordLine."Lot No.", PhysInvtRecordLine."Quantity (Base)");
+                                                  PhysInvtRecordLine."Serial No.", PhysInvtRecordLine."Lot No.", PhysInvtRecordLine."Quantity (Base)", PhysInvtOrderLine2."Line No.");
                                             OnCodeOnAfterUpdateFromPhysInvtRecordLine(TempPhysInvtTrackingBuffer, PhysInvtRecordLine);
                                         until PhysInvtRecordLine.Next() = 0;
                                 until PhysInvtOrderLine2.Next() = 0;
@@ -224,7 +224,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             repeat
                 if PhysInvtRecordLine."Quantity (Base)" <> 0 then
                     UpdateBufferRecordedQty(
-                      PhysInvtRecordLine."Serial No.", PhysInvtRecordLine."Lot No.", PhysInvtRecordLine."Quantity (Base)");
+                      PhysInvtRecordLine."Serial No.", PhysInvtRecordLine."Lot No.", PhysInvtRecordLine."Quantity (Base)", LineNo);
                 OnCreateTrackingBufferLinesFromPhysInvtRecordLine(TempPhysInvtTrackingBuffer, PhysInvtRecordLine);
             until PhysInvtRecordLine.Next() = 0;
 
@@ -234,7 +234,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
         if ExpPhysInvtTracking.Find('-') then
             repeat
                 UpdateBufferExpectedQty(
-                  ExpPhysInvtTracking."Serial No.", ExpPhysInvtTracking."Lot No.", ExpPhysInvtTracking."Quantity (Base)");
+                  ExpPhysInvtTracking."Serial No.", ExpPhysInvtTracking."Lot No.", ExpPhysInvtTracking."Quantity (Base)", LineNo);
                 OnCreateTrackingBufferLinesFromExpPhysInvtTracking(TempPhysInvtTrackingBuffer, ExpPhysInvtTracking);
             until ExpPhysInvtTracking.Next() = 0;
 
@@ -276,7 +276,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                     ReservEntry.Validate("Lot No.", TempPhysInvtTrackingBuffer."Lot No");
                     ReservEntry.Validate("Source Type", DATABASE::"Phys. Invt. Order Line");
                     ReservEntry.Validate("Source ID", DocNo);
-                    ReservEntry.Validate("Source Ref. No.", LineNo);
+                    ReservEntry.Validate("Source Ref. No.", TempPhysInvtTrackingBuffer."Line No.");
                     ReservEntry.Validate(Quantity, QtyToTransfer);
                     ReservEntry."Qty. per Unit of Measure" := 1;
                     ReservEntry."Quantity (Base)" := ReservEntry.Quantity;
@@ -299,7 +299,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                 TempPhysInvtTrackingBuffer."Outstanding Quantity" -= QtyToTransfer;
                 TempPhysInvtTrackingBuffer.Open := TempPhysInvtTrackingBuffer."Outstanding Quantity" <> 0;
                 TempPhysInvtTrackingBuffer.Modify();
-                OnCreateReservEntriesOnAfterTempPhysInvtTrackingBufferModify(AllBufferLines, MaxQtyToTransfer, QtyToTransfer)
+                OnCreateReservEntriesOnAfterTempPhysInvtTrackingBufferModify(AllBufferLines, MaxQtyToTransfer, QtyToTransfer);
             until TempPhysInvtTrackingBuffer.Next() = 0;
         end;
     end;
@@ -341,13 +341,13 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             SetRange("Posting Date", 0D, PhysInvtOrderHeader."Posting Date");
             if Find('-') then
                 repeat
-                    UpdateBufferExpectedQty("Serial No.", "Lot No.", Quantity);
+                    UpdateBufferExpectedQty("Serial No.", "Lot No.", Quantity, PhysInvtOrderLine."Line No.");
                     OnUpdateBufferFromItemLedgerEntriesOnAfterUpdateExpectedQty(TempPhysInvtTrackingBuffer, ItemLedgEntry);
                 until Next() = 0;
         end;
     end;
 
-    local procedure UpdateBufferExpectedQty(SerialNo: Code[50]; LotNo: Code[50]; QtyBase: Decimal)
+    local procedure UpdateBufferExpectedQty(SerialNo: Code[50]; LotNo: Code[50]; QtyBase: Decimal; LineNo: Integer)
     begin
         with TempPhysInvtTrackingBuffer do
             if not Get(SerialNo, LotNo) then begin
@@ -355,6 +355,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                 "Serial No." := SerialNo;
                 "Lot No" := LotNo;
                 "Qty. Expected (Base)" := QtyBase;
+                "Line No." := LineNo;
                 Insert;
             end else begin
                 "Qty. Expected (Base)" += QtyBase;
@@ -362,7 +363,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             end;
     end;
 
-    local procedure UpdateBufferRecordedQty(SerialNo: Code[50]; LotNo: Code[50]; QtyBase: Decimal)
+    local procedure UpdateBufferRecordedQty(SerialNo: Code[50]; LotNo: Code[50]; QtyBase: Decimal; LineNo: Integer)
     begin
         with TempPhysInvtTrackingBuffer do
             if not Get(SerialNo, LotNo) then begin
@@ -370,6 +371,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                 "Serial No." := SerialNo;
                 "Lot No" := LotNo;
                 "Qty. Recorded (Base)" := QtyBase;
+                "Line No." := LineNo;
                 Insert;
             end else begin
                 "Qty. Recorded (Base)" += QtyBase;

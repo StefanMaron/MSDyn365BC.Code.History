@@ -1666,7 +1666,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [GIVEN] Created Sales Quote
         CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), LibraryRandom.RandInt(5));  // Take Randon value for Number of lines.
         // [GIVEN] Created comment for quote
-        CreateSalesQuoteComments(SalesHeader);
+        CreateSalesQuoteComments(SalesHeader, SalesLine."Line No.");
         SalesCommentLine.SetRange("Document Type", "Sales Comment Document Type"::Quote);
         SalesCommentLine.SetRange("No.", SalesHeader."No.");
         Assert.RecordIsNotEmpty(SalesCommentLine);
@@ -1676,6 +1676,52 @@ codeunit 134379 "ERM Sales Quotes"
 
         // [THEN] Sales quote comments deleted
         Assert.RecordIsEmpty(SalesCommentLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceFromSalesQuoteDeleteComments()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCommentLine: Record "Sales Comment Line";
+        xSalesCommentLine: Record "Sales Comment Line" temporary;
+        QuoteNo: Code[20];
+    begin
+        // [FEATURE] [Invoice]
+        // [SCENARIO 426021] Sales quote comments deleted on Sales Invoice from Sales Quote action
+        Initialize();
+
+        // [GIVEN] Created Sales Quote
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer(), LibraryRandom.RandInt(5));  // Take Randon value for Number of lines.
+        QuoteNo := SalesHeader."No.";
+        // [GIVEN] Created comment for quote
+        CreateSalesQuoteComments(SalesHeader, SalesLine."Line No.");
+        SalesCommentLine.SetRange("Document Type", "Sales Comment Document Type"::Quote);
+        SalesCommentLine.SetRange("No.", SalesHeader."No.");
+        Assert.RecordIsNotEmpty(SalesCommentLine);
+        if SalesCommentLine.FindSet() then
+            repeat
+                xSalesCommentLine := SalesCommentLine;
+                xSalesCommentLine.Insert();
+            until SalesCommentLine.Next() = 0;
+
+        // [WHEN] Create Sales Invoice from Sales Quote.
+        Codeunit.Run(Codeunit::"Sales-Quote to Invoice", SalesHeader);
+
+        // [THEN] Sales quote comments deleted
+        Assert.RecordIsEmpty(SalesCommentLine);
+        // [THEN] Quote comments are copied to Invoice comments
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.SetRange("Quote No.", QuoteNo);
+        SalesHeader.FindFirst();
+        SalesCommentLine.SetRange("Document Type", "Sales Comment Document Type"::Invoice);
+        SalesCommentLine.SetRange("No.", SalesHeader."No.");
+        if SalesCommentLine.FindSet() then
+            repeat
+                xSalesCommentLine.SetRange(Comment, SalesCommentLine.Comment);
+                Assert.IsTrue(xSalesCommentLine.FindFirst(), 'not found comment on invoice');
+            until SalesCommentLine.Next() = 0;
     end;
 
     local procedure Initialize()
@@ -1738,13 +1784,19 @@ codeunit 134379 "ERM Sales Quotes"
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreateSalesQuoteComments(SalesHeader: Record "Sales Header")
+    local procedure CreateSalesQuoteComments(SalesHeader: Record "Sales Header"; DocLineNo: Integer)
     var
         SalesCommentLine: Record "Sales Comment Line";
     begin
         SalesCommentLine."Document Type" := "Sales Comment Document Type"::Quote;
         SalesCommentLine."No." := SalesHeader."No.";
         SalesCommentLine."Line No." := 10000;
+        SalesCommentLine.Comment := LibraryUtility.GenerateGUID();
+        SalesCommentLine.Insert();
+
+        SalesCommentLine."Line No." := 20000;
+        SalesCommentLine."Document Line No." := DocLineNo;
+        SalesCommentLine.Comment := LibraryUtility.GenerateGUID();
         SalesCommentLine.Insert();
     end;
 

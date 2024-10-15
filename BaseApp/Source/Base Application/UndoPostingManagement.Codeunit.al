@@ -712,12 +712,8 @@
 
             ItemJnlPostLine.xSetExtLotSN(true);
             ItemJnlPostLine.RunWithCheck(ItemJnlLine);
+            ItemJnlPostLine.CollectItemEntryRelation(TempItemEntryRelation);
 
-            TempItemEntryRelation."Item Entry No." := ItemJnlLine."Item Shpt. Entry No." + 1;
-            TempItemEntryRelation."Serial No." := ItemJnlLine."Serial No.";
-            TempItemEntryRelation."Lot No." := ItemJnlLine."Lot No.";
-            TempItemEntryRelation.Undo := true;
-            TempItemEntryRelation.Insert();
             TempItemLedgEntry := TempApplyToItemLedgEntry;
             TempItemLedgEntry.Insert();
         until TempApplyToItemLedgEntry.Next() = 0;

@@ -205,6 +205,8 @@ page 95 "Sales Quote Subform"
                     begin
                         CurrPage.SaveRecord();
                         QuantityOnAfterValidate();
+                        if SalesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Qty. to Assemble to Order"; "Qty. to Assemble to Order")

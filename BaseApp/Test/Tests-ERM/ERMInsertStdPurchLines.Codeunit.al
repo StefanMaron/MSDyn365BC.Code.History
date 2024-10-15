@@ -1131,6 +1131,45 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         Assert.RecordIsEmpty(StdPurchCode);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketOrderToOrderAutomaticPurchaseOrderNoRecurringLines()
+    var
+        PurchaseHeaderBlanketOrder: Record "Purchase Header";
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineBlanketOrder: Record "Purchase Line";
+        PurchaseLineOrder: Record "Purchase Line";
+        BlanketPurchOrdertoOrder: Codeunit "Blanket Purch. Order to Order";
+    begin
+        // [FEATURE] [Automatic mode] [Blanket Order] [Blanket Order or Order]
+        // [SCENARIO 424805] Recurring purchase lines are NOT added on Quote to Order convert when Insert Rec. Lines On Orders = Automatic
+        Initialize();
+
+        // [GIVEN] Create new purchase quote for vendor with standard purch code where Insert Rec. Lines On Orders = Automatic 
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeaderBlanketOrder, PurchaseHeaderBlanketOrder."Document Type"::"Blanket Order",
+            GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::Automatic));
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLineBlanketOrder, PurchaseHeaderBlanketOrder, PurchaseLineBlanketOrder.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLineBlanketOrder.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLineBlanketOrder.Modify(true);
+
+        // [WHEN] Run Purch.-Quote to Order codeunit on this quote
+        BlanketPurchOrdertoOrder.Run(PurchaseHeaderBlanketOrder);
+
+        // [THEN] Order created with no errors
+        BlanketPurchOrdertoOrder.GetPurchOrderHeader(PurchaseHeaderOrder);
+
+        // [THEN] Line from Quote exists on this Order
+        FilterOnPurchaseLine(PurchaseLineOrder, PurchaseHeaderOrder);
+        PurchaseLineOrder.SetRange("No.", PurchaseLineBlanketOrder."No.");
+        Assert.RecordIsNotEmpty(PurchaseLineOrder);
+
+        // [THEN] No other lines were added
+        PurchaseLineOrder.SetFilter("No.", '<>%1', PurchaseLineBlanketOrder."No.");
+        Assert.RecordIsEmpty(PurchaseLineOrder);
+    end;
 
     local procedure Initialize()
     var

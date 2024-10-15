@@ -225,7 +225,6 @@ page 130451 "AL Test Tool"
                         TestMethodLine.Copy(Rec);
                         CurrPage.SetSelectionFilter(TestMethodLine);
                         TestSuiteMgt.RunSelectedTests(TestMethodLine);
-                        CurrPage.Update(true);
                     end;
                 }
             }

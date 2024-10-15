@@ -1635,7 +1635,7 @@
 
         Clear(Vend);
         Vend.SetInsertFromContact(true);
-        OnBeforeVendorInsert(Vend, Rec);
+        OnBeforeVendorInsert(Vend, Rec, VendorTemplateCode);
         Vend.Insert(true);
         Vend.SetInsertFromContact(false);
         VendorNo := Vend."No.";
@@ -3482,7 +3482,7 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeVendorInsert(var Vend: Record Vendor; var Contact: Record Contact)
+    local procedure OnBeforeVendorInsert(var Vend: Record Vendor; var Contact: Record Contact; VendorTemplateCode: Code[20])
     begin
     end;
 

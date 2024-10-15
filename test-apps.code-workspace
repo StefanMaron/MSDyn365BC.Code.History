@@ -169,6 +169,9 @@
       "path": "./CompanyHub/Test/Company Hub Tests"
     },
     {
+      "path": "./EmailLogging/Test/_Exclude_Email Logging Using Graph API Tests"
+    },
+    {
       "path": "./paypalpaymentsstandard/test/PayPal Payments Standard Tests"
     },
     {
@@ -182,6 +185,12 @@
     },
     {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
+    },
+    {
+      "path": "./Email - SMTP API/Test Library/Email - SMTP API Test Library"
+    },
+    {
+      "path": "./Email - SMTP API/Test/Email - SMTP API Tests"
     },
     {
       "path": "./APIV1/Test/_Exclude_APIV1_ Tests"

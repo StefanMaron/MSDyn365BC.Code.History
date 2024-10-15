@@ -949,7 +949,6 @@ codeunit 1521 "Workflow Response Handling"
         ApprovalEntry: Record "Approval Entry";
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
         GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
         ItemJournalBatch: Record "Item Journal Batch";
         FAJournalBatch: Record "FA Journal Batch";
         RecordRestrictionMgt: Codeunit "Record Restriction Mgt.";
@@ -975,17 +974,6 @@ codeunit 1521 "Workflow Response Handling"
                 begin
                     RecRef.SetTable(GenJournalBatch);
                     RecordRestrictionMgt.AllowGenJournalBatchUsage(GenJournalBatch);
-                    GenJournalBatch.Find();
-                    GenJournalBatch."Pending Approval" := false;
-                    GenJournalBatch.Modify();
-                end;
-            DATABASE::"Gen. Journal Line":
-                begin
-                    AllowRecordUsageDefault(Variant);
-                    RecRef.SetTable(GenJournalLine);
-                    GenJournalLine.Find();
-                    GenJournalLine."Pending Approval" := false;
-                    GenJournalLine.Modify();
                 end;
             DATABASE::"Item Journal Batch":
                 begin

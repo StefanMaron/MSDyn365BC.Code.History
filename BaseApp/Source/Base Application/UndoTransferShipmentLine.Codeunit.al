@@ -40,6 +40,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
         InvtAdjmt: Codeunit "Inventory Adjustment";
         HideDialog: Boolean;
         NextLineNo: Integer;
+        CorrectionLineNo: Integer;
         UndoShptLinesQst: Label 'Do you really want to undo the selected Shipment lines?';
         UndoQtyPostingMsg: Label 'Undo quantity posting...';
         NotEnoughSpaceErr: Label 'There is not enough space to insert correction lines.';
@@ -90,6 +91,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
                 if not HideDialog then
                     Window.Open(UndoQtyPostingMsg);
 
+                CorrectionLineNo := GetNextTransferShipmentLineNo(TransShptLineGlob);
                 PostedWhseShptLineFound :=
                   WhseUndoQty.FindPostedWhseShptLine(
                     PostedWhseShptLine,
@@ -170,8 +172,10 @@ codeunit 31070 "Undo Transfer Shipment Line"
             ItemJnlLine."Document Date" := TransShptHeader."Posting Date";
             ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::"Transfer Shipment";
             ItemJnlLine."Document No." := TransShptHeader."No.";
+            ItemJnlLine."Document Line No." := CorrectionLineNo;
             ItemJnlLine."Order Type" := ItemJnlLine."Order Type"::Transfer;
             ItemJnlLine."Order No." := TransShptHeader."Transfer Order No.";
+            ItemJnlLine."Order Line No." := "Transfer Order Line No.";
             ItemJnlLine."External Document No." := TransShptHeader."External Document No.";
             ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Transfer;
             ItemJnlLine."Item No." := "Item No.";
@@ -235,25 +239,12 @@ codeunit 31070 "Undo Transfer Shipment Line"
     local procedure InsertNewShipmentLine(OldTransShptLine: Record "Transfer Shipment Line"; ItemShptEntryNo: Integer)
     var
         NewTransShptLine: Record "Transfer Shipment Line";
-        LineSpacing: Integer;
     begin
         with OldTransShptLine do begin
-            NewTransShptLine.SetRange("Document No.", "Document No.");
-            NewTransShptLine."Document No." := "Document No.";
-            NewTransShptLine."Line No." := "Line No.";
-            NewTransShptLine.Find('=');
-
-            if NewTransShptLine.Find('>') then begin
-                LineSpacing := (NewTransShptLine."Line No." - "Line No.") div 2;
-                if LineSpacing = 0 then
-                    Error(NotEnoughSpaceErr);
-            end else
-                LineSpacing := 10000;
-
             NewTransShptLine.Reset();
             NewTransShptLine.Init();
             NewTransShptLine.Copy(OldTransShptLine);
-            NewTransShptLine."Line No." := "Line No." + LineSpacing;
+            NewTransShptLine."Line No." := CorrectionLineNo;
             NewTransShptLine."Item Shpt. Entry No." := ItemShptEntryNo;
             NewTransShptLine.Quantity := -Quantity;
             NewTransShptLine."Quantity (Base)" := -"Quantity (Base)";
@@ -262,6 +253,26 @@ codeunit 31070 "Undo Transfer Shipment Line"
 
             InsertItemEntryRelation(TempGlobalItemEntryRelation, NewTransShptLine);
         end;
+    end;
+
+    local procedure GetNextTransferShipmentLineNo(TransferShipmentLine: Record "Transfer Shipment Line"): Integer
+    var
+        NextTransferShipmentLine: Record "Transfer Shipment Line";
+        LineSpacing: Integer;
+    begin
+        NextTransferShipmentLine.SetRange("Document No.", TransferShipmentLine."Document No.");
+        NextTransferShipmentLine."Document No." := TransferShipmentLine."Document No.";
+        NextTransferShipmentLine."Line No." := TransferShipmentLine."Line No.";
+        NextTransferShipmentLine.Find('=');
+
+        if NextTransferShipmentLine.Next() = 1 then begin
+            LineSpacing := (NextTransferShipmentLine."Line No." - TransferShipmentLine."Line No.") div 2;
+            if LineSpacing = 0 then
+                Error(NotEnoughSpaceErr);
+        end else
+            LineSpacing := 10000;
+
+        exit(TransferShipmentLine."Line No." + LineSpacing);
     end;
 
     local procedure UpdateTransLine(TransShptLine: Record "Transfer Shipment Line")

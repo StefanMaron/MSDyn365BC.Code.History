@@ -863,6 +863,7 @@ page 510 "Blanket Purchase Order Subform"
         DimVisible7: Boolean;
         DimVisible8: Boolean;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
         [InDataSet]
         ItemReferenceVisible: Boolean;
@@ -1030,7 +1031,8 @@ page 510 "Blanket Purchase Order Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertExtendedText(var PurchaseLine: Record "Purchase Line")
-    begin
+  
+  begin
     end;
 
     [IntegrationEvent(false, false)]
