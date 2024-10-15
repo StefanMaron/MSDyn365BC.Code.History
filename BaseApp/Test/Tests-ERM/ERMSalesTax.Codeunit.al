@@ -152,6 +152,109 @@ codeunit 134388 "ERM Sales Tax"
           TaxDetail[3]."Tax Jurisdiction Code", 0, 0, 0, -VATEntry[4].Base, 3);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateTaxSetupWithNonTaxableGroup()
+    var
+        TaxSetup: Record "Tax Setup";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        TaxDetail: Record "Tax Detail";
+    begin
+        // [FEATURE] [UT] [Tax Detail]
+        // [SCENARIO 378632] ValidateTaxSetup with Non-Taxable Group Code
+        Initialize();
+
+        // [GIVEN] Tax Detail line for Tax Jurisdiction with Tax Group = blank
+        TaxSetup.Get;
+        CreateTaxJurisditionWithTaxArea(TaxJurisdiction, TaxArea);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, '', TaxDetail."Tax Type"::"Sales Tax", 0D);
+
+        // [GIVEN] Set up "Non-Taxable Tax Group Code" = "NT" in Tax Setup
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        UpdateTaxSetupWithNonTaxGroup(TaxGroup.Code);
+
+        // [WHEN] Run ValidateTaxSetup for "NT" Tax Group
+        TaxDetail.ValidateTaxSetup(TaxArea.Code, TaxGroup.Code, 0D);
+
+        // [THEN] Tax Detail line is created for "NT" Tax Group
+        TaxDetail.Reset();
+        TaxDetail.SetRange("Tax Jurisdiction Code", TaxJurisdiction.Code);
+        TaxDetail.SetRange("Tax Group Code", TaxGroup.Code);
+        Assert.RecordIsNotEmpty(TaxDetail);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateTaxSetupWithNewTaxGroupWhenBlankTaxDetailExists()
+    var
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        TaxDetail: Record "Tax Detail";
+    begin
+        // [FEATURE] [UT] [Tax Detail]
+        // [SCENARIO 378632] ValidateTaxSetup with new Tax Group when Tax Detail with blank Tax Group exists
+        Initialize();
+
+        // [GIVEN] Tax Detail line for Tax Jurisdiction with Tax Group = blank
+        CreateTaxJurisditionWithTaxArea(TaxJurisdiction, TaxArea);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, '', TaxDetail."Tax Type"::"Sales Tax", 0D);
+
+        // [GIVEN] Set up "Non-Taxable Tax Group Code" = "NT" in Tax Setup
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        UpdateTaxSetupWithNonTaxGroup(TaxGroup.Code);
+
+        // [GIVEN] Tax Group "Gr"
+        LibraryERM.CreateTaxGroup(TaxGroup);
+
+        // [WHEN] Run ValidateTaxSetup for "Gr" Tax Group
+        TaxDetail.ValidateTaxSetup(TaxArea.Code, TaxGroup.Code, 0D);
+
+        // [THEN] No new Tax Detail line created for "Gr" Tax Group
+        TaxDetail.Reset();
+        TaxDetail.SetRange("Tax Jurisdiction Code", TaxJurisdiction.Code);
+        TaxDetail.SetRange("Tax Group Code", TaxGroup.Code);
+        Assert.RecordIsEmpty(TaxDetail);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateTaxSetupWithNewTaxGroupWhenNoBlankTaxDetailExists()
+    var
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        TaxDetail: Record "Tax Detail";
+    begin
+        // [FEATURE] [UT] [Tax Detail]
+        // [SCENARIO 378632] ValidateTaxSetup with new Tax Group when no Tax Detail with blank Tax Group
+        Initialize();
+
+        // [GIVEN] Tax Jurisdiction with Tax Area Line
+        CreateTaxJurisditionWithTaxArea(TaxJurisdiction, TaxArea);
+        TaxDetail.SetRange("Tax Jurisdiction Code", TaxJurisdiction.Code);
+        TaxDetail.DeleteAll();
+
+        // [GIVEN] Set up "Non-Taxable Tax Group Code" = "NT" in Tax Setup with Tax Detail Line
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        UpdateTaxSetupWithNonTaxGroup(TaxGroup.Code);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax", 0D);
+
+        // [GIVEN] Tax Group "Gr"
+        LibraryERM.CreateTaxGroup(TaxGroup);
+
+        // [WHEN] Run ValidateTaxSetup for "Gr" Tax Group
+        TaxDetail.ValidateTaxSetup(TaxArea.Code, TaxGroup.Code, 0D);
+
+        // [THEN] New Tax Detail line is created for "Gr" Tax Group
+        TaxDetail.Reset();
+        TaxDetail.SetRange("Tax Jurisdiction Code", TaxJurisdiction.Code);
+        TaxDetail.SetRange("Tax Group Code", TaxGroup.Code);
+        Assert.RecordIsNotEmpty(TaxDetail);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -193,6 +296,15 @@ codeunit 134388 "ERM Sales Tax"
         LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax", WorkDate);
     end;
 
+    local procedure CreateTaxJurisditionWithTaxArea(var TaxJurisdiction: Record "Tax Jurisdiction"; var TaxArea: Record "Tax Area")
+    var
+        TaxAreaLine: Record "Tax Area Line";
+    begin
+        LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
+        LibraryERM.CreateTaxArea(TaxArea);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxJurisdiction.Code);
+    end;
+
     local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; TaxDetail: Record "Tax Detail"; TaxAmount: Decimal; TaxLiable: Boolean)
     begin
         VATEntry.Init();
@@ -206,6 +318,15 @@ codeunit 134388 "ERM Sales Tax"
         VATEntry.Base := LibraryRandom.RandDecInRange(100, 200, 2);
         VATEntry.Amount := TaxAmount;
         VATEntry.Insert();
+    end;
+
+    local procedure UpdateTaxSetupWithNonTaxGroup(TaxGroupCode: Code[20])
+    var
+        TaxSetup: Record "Tax Setup";
+    begin
+        TaxSetup.Get();
+        TaxSetup.Validate("Non-Taxable Tax Group Code", TaxGroupCode);
+        TaxSetup.Modify(true);
     end;
 
     local procedure VerifyTaxDetail(TaxDetail: Record "Tax Detail")

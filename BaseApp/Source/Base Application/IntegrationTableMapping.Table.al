@@ -124,7 +124,7 @@ table 5335 "Integration Table Mapping"
         }
         field(24; "CDS Rec Page Id"; Integer)
         {
-            Caption = 'The Id of the Common Data Service Record Page';
+            Caption = 'The Id of the Dataverse Record Page';
         }
         field(25; "Deletion-Conflict Resolution"; Enum "Integration Deletion Conflict Resolution")
         {

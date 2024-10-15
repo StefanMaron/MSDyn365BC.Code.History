@@ -267,7 +267,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         VerifyValuesOnItemsReceivedAndNotInvoicedReport(
           PurchaseLine."Quantity Invoiced", PurchaseLine."Quantity Received", PurchaseLine."Qty. Rcd. Not Invoiced",
-          PurchaseLine."Amt. Rcd. Not Invoiced");
+          Round(PurchaseLine.Amount * PurchaseLine."Qty. Rcd. Not Invoiced" / PurchaseLine.Quantity, LibraryERM.GetAmountRoundingPrecision()));
 
         // Cleanup
         VendorCard.Close();
@@ -489,6 +489,65 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemsReceivedNotInvoicedRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemsReceivedNotInvoicedReportPrintsAmountWithoutVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 380733] Run report "Items Received & Not Invoiced" for received and not invoiced "Purchase Order"
+        Initialize();
+
+        // [GIVEN] Created Purchase Order and post Recieve without Invoice
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        PurchaseHeader.CalcFields(Amount, "Amount Including VAT");
+
+        // [WHEN] Run report "Items Received & Not Invoiced" for created Purchase Order
+        PurchaseHeader.SetRecFilter();
+        REPORT.Run(REPORT::"Items Received & Not Invoiced", true, false, PurchaseHeader);
+
+        // [THEN] The "Amount Rcd. not Invoiced" is printed without VAT.
+        // [THEN] Amount is not equal to "Amount Incl. VAT"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('Purchase_Line__Amt__Rcd__Not_Invoiced_', PurchaseHeader.Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Purchase_Line__Amt__Rcd__Not_Invoiced__Control33', PurchaseHeader.Amount);
+        Assert.AreNotEqual(PurchaseHeader.Amount, PurchaseHeader."Amount Including VAT", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemsReceivedNotInvoicedRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemsReceivedNotInvoicedReportPrintsAmountWithoutVATWhenCurrencyIsChosenForPurchaseHeader()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 380733] Run report "Items Received & Not Invoiced" for received and not invoiced "Purchase Order" with currency rounding
+        Initialize();
+
+        // [GIVEN] Created Purchase Order with currency rounding and post Recieve without Invoice
+        LibraryPurchase.CreateFCYPurchaseDocumentWithItem(
+            PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(),
+            LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WORKDATE, LibraryERM.CreateCurrencyWithRounding());
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(50, 100, 3));
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        PurchaseHeader.CalcFields(Amount, "Amount Including VAT");
+
+        // [WHEN] Run report "Items Received & Not Invoiced" for created Purchase Order
+        PurchaseHeader.SetRecFilter();
+        REPORT.Run(REPORT::"Items Received & Not Invoiced", true, false, PurchaseHeader);
+
+        // [THEN] The "Amount Rcd. not Invoiced" is printed without VAT.
+        // [THEN] Amount is not equal to "Amount Incl. VAT"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('Purchase_Line__Amt__Rcd__Not_Invoiced_', PurchaseHeader.Amount);
+        LibraryReportDataset.AssertElementWithValueExists('Purchase_Line__Amt__Rcd__Not_Invoiced__Control33', PurchaseHeader.Amount);
+        Assert.AreNotEqual(PurchaseHeader.Amount, PurchaseHeader."Amount Including VAT", '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -579,7 +638,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         LibraryReportDataset.LoadDataSetFile;
         VerifyValuesOnItemsReceivedAndNotInvoicedReport(
           PurchaseLine."Quantity Invoiced", PurchaseLine."Quantity Received", PurchaseLine."Qty. Rcd. Not Invoiced",
-          PurchaseLine."Amt. Rcd. Not Invoiced");
+          Round(PurchaseLine.Amount * PurchaseLine."Qty. Rcd. Not Invoiced" / PurchaseLine.Quantity, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     local procedure RunStockCardReport(ItemNo: Code[20])
@@ -761,6 +820,13 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
     begin
         IncomeStatement.AmountsInWhole.SetValue(LibraryVariableStorage.DequeueInteger);
         IncomeStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemsReceivedNotInvoicedRequestPageHandler(var ItemsReceivedNotInvoiced: TestRequestPage "Items Received & Not Invoiced")
+    begin
+        ItemsReceivedNotInvoiced.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

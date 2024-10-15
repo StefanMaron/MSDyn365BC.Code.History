@@ -636,6 +636,10 @@ table 121 "Purch. Rcpt. Line"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
+        field(8000; "Document Id"; Guid)
+        {
+            Caption = 'Document Id';
+        }
         field(8509; "Over-Receipt Quantity"; Decimal)
         {
             Caption = 'Over-Receipt Quantity';
@@ -1146,6 +1150,24 @@ table 121 "Purch. Rcpt. Line"
     begin
         "Over-Receipt Code 2" := PurchLine."Over-Receipt Code";
         ClearPurchaseLineOverReceiptCode(PurchLine);
+    end;
+
+    local procedure UpdateDocumentId()
+    begin
+        if "Document No." = '' then begin
+            Clear("Document Id");
+            exit;
+        end;
+
+        if not PurchRcptHeader.Get("Document No.") then
+            exit;
+
+        "Document Id" := PurchRcptHeader.SystemId;
+    end;
+
+    procedure UpdateReferencedIds()
+    begin
+        UpdateDocumentId();
     end;
 
     [Obsolete('Required to avoid overflow error on transferfields, will be removed together with the "Over-Receipt Code" field.', '17.0')]

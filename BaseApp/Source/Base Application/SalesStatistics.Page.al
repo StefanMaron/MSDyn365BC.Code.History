@@ -1,4 +1,4 @@
-page 160 "Sales Statistics"
+﻿page 160 "Sales Statistics"
 {
     Caption = 'Sales Statistics';
     DeleteAllowed = false;
@@ -56,7 +56,7 @@ page 160 "Sales Statistics"
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = "Currency Code";
                     AutoFormatType = 1;
-                    CaptionClass = Format(VATAmountText);
+                    CaptionClass = '3,' + Format(VATAmountText);
                     Caption = 'VAT Amount';
                     Editable = false;
                     ToolTip = 'Specifies the total VAT amount that has been calculated for all the lines in the sales document.';
@@ -437,6 +437,7 @@ page 160 "Sales Statistics"
         Clear(SalesPost);
 
         SalesPost.GetSalesLines(Rec, TempSalesLine, 0);
+        OnCalculateTotalsOnAfterGetSalesLines(Rec, TempSalesLine);
         Clear(SalesPost);
         SalesPost.SumSalesLinesTemp(
           Rec, TempSalesLine, 0, TotalSalesLine, TotalSalesLineLCY,
@@ -484,6 +485,11 @@ page 160 "Sales Statistics"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateHeaderInfo(TotalSalesLineLCY: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterGetSalesLines(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
 

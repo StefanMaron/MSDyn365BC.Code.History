@@ -1,4 +1,4 @@
-codeunit 5522 "Order Planning Mgt."
+﻿codeunit 5522 "Order Planning Mgt."
 {
     trigger OnRun()
     begin
@@ -489,6 +489,7 @@ codeunit 5522 "Order Planning Mgt."
             Location.SetFilter(Code, '<>%1', ReqLine."Location Code")
         else
             Location.SetFilter(Code, '<>''''');
+        OnAvailQtyOnOtherLocationsOnAfterLocationSetFilters(ReqLine, Location);
         if Location.Find('-') then
             repeat
                 AvailableQtyBase :=
@@ -506,6 +507,11 @@ codeunit 5522 "Order Planning Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransformUnplannedDemandToRequisitionLines(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAvailQtyOnOtherLocationsOnAfterLocationSetFilters(RequisitionLine: Record "Requisition Line"; var Location: Record Location)
     begin
     end;
 

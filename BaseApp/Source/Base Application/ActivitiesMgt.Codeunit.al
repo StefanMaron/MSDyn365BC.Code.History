@@ -57,7 +57,14 @@ codeunit 1311 "Activities Mgt."
 
     [Scope('OnPrem')]
     procedure SetFilterOverdueSalesInvoice(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalledFromWebService: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetFilterOverdueSalesInvoice(CustLedgerEntry, CalledFromWebService, IsHandled);
+        if IsHandled then
+            exit;
+
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange(Open, true);
         if CalledFromWebService then
@@ -70,7 +77,13 @@ codeunit 1311 "Activities Mgt."
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDrillDownCalcOverdueSalesInvoiceAmount(CustLedgerEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         SetFilterOverdueSalesInvoice(CustLedgerEntry, false);
         CustLedgerEntry.SetFilter("Remaining Amt. (LCY)", '<>0');
         CustLedgerEntry.SetCurrentKey("Remaining Amt. (LCY)");
@@ -393,6 +406,16 @@ codeunit 1311 "Activities Mgt."
         end;
         // Remove the last |
         exit(DelChr(FilterTxt, '>', FilterOperand));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDrillDownCalcOverdueSalesInvoiceAmount(var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetFilterOverdueSalesInvoice(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalledFromWebService: Boolean; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

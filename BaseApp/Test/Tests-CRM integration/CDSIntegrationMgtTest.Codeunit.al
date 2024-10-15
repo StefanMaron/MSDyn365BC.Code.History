@@ -21,7 +21,7 @@ codeunit 139195 "CDS Integration Mgt Test"
         AdminUserPasswordWrongErr: Label 'Enter valid administrator credentials.';
         EmptyUserNameErr: Label 'Enter user name.';
         EmptyPasswordErr: Label 'Enter password.';
-        UserNotFoundErr: Label 'There is no user with ID %1 in CDS.', Comment = '%1 = system user ID';
+        UserNotFoundErr: Label 'There is no user with ID %1 in Dataverse.', Comment = '%1 = system user ID';
         TestServerAddressTok: Label '@@test@@', Locked = true;
 
     [Test]
@@ -689,10 +689,10 @@ codeunit 139195 "CDS Integration Mgt Test"
         CDSIntegrationImpl.GetCDSCompany(ResultCDSCompany);
 
         // [THEN] Correct CDS company is returned
-        Assert.AreEqual(CDSCompany.SystemId, ResultCDSCompany.SystemId, 'Unexpected CDS Company SystemId.');
-        Assert.AreEqual(CDSCompany.ExternalId, ResultCDSCompany.ExternalId, 'Unexpected CDS Company ExternalId.');
-        Assert.AreEqual(CDSCompany.Name, ResultCDSCompany.Name, 'Unexpected CDS Company Name.');
-        Assert.AreEqual(CDSCompany.OwningBusinessUnit, ResultCDSCompany.OwningBusinessUnit, 'Unexpected CDS Company OwningBusinessUnit.');
+        Assert.AreEqual(CDSCompany.SystemId, ResultCDSCompany.SystemId, 'Unexpected Dataverse Company SystemId.');
+        Assert.AreEqual(CDSCompany.ExternalId, ResultCDSCompany.ExternalId, 'Unexpected Dataverse Company ExternalId.');
+        Assert.AreEqual(CDSCompany.Name, ResultCDSCompany.Name, 'Unexpected Dataverse Company Name.');
+        Assert.AreEqual(CDSCompany.OwningBusinessUnit, ResultCDSCompany.OwningBusinessUnit, 'Unexpected Dataverse Company OwningBusinessUnit.');
     end;
 
     [Test]
@@ -1193,10 +1193,10 @@ codeunit 139195 "CDS Integration Mgt Test"
         ResetDefaultCDSSetupConfiguration();
 
         // [THEN] Job queue entries with respective No. of Minutes between Runs & Inactivity Timeout Period
-        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' CUSTOMER - Common Data Service synchronization job.');
-        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' VENDOR - Common Data Service synchronization job.');
-        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' CONTACT - Common Data Service synchronization job.');
-        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' CURRENCY - Common Data Service synchronization job.');
+        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' CUSTOMER - Dataverse synchronization job.');
+        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' VENDOR - Dataverse synchronization job.');
+        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' CONTACT - Dataverse synchronization job.');
+        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' CURRENCY - Dataverse synchronization job.');
     end;
 
     [Test]
@@ -1218,11 +1218,11 @@ codeunit 139195 "CDS Integration Mgt Test"
         ResetDefaultCDSSetupConfiguration();
 
         // [THEN] Job queue entries with respective No. of Minutes between Runs & Inactivity Timeout Period
-        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' CUSTOMER - Common Data Service synchronization job.');
-        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' VENDOR - Common Data Service synchronization job.');
-        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' CONTACT - Common Data Service synchronization job.');
-        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' CURRENCY - Common Data Service synchronization job.');
-        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440, ' SALESPEOPLE - Common Data Service synchronization job.');
+        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' CUSTOMER - Dataverse synchronization job.');
+        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' VENDOR - Dataverse synchronization job.');
+        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' CONTACT - Dataverse synchronization job.');
+        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720, ' CURRENCY - Dataverse synchronization job.');
+        VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440, ' SALESPEOPLE - Dataverse synchronization job.');
     end;
 
     local procedure Initialize()

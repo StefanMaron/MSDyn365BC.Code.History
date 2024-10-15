@@ -92,6 +92,7 @@ codeunit 5060 DuplicateManagement
             ContactRecRef, DuplContSearchString."Field No.",
             DuplSearchStringSetup."Part of Field", DuplSearchStringSetup.Length);
 
+        OnInsDuplContIndexOnBeforeDuplContSearchStringInsert(Cont, DuplContSearchString, DuplSearchStringSetup);
         if DuplContSearchString."Search String" <> '' then
             DuplContSearchString.Insert();
     end;
@@ -112,6 +113,7 @@ codeunit 5060 DuplicateManagement
                 DuplContSearchString2.SetRange("Part of Field", DuplContSearchString."Part of Field");
                 DuplContSearchString2.SetRange("Search String", DuplContSearchString."Search String");
                 DuplContSearchString2.SetFilter("Contact Company No.", '<>%1', DuplContSearchString."Contact Company No.");
+                OnInsDuplContOnAfterDuplContSearchString2SetFilters(DuplContSearchString, DuplContSearchString2);
                 if DuplContSearchString2.Find('-') then
                     repeat
                         if DuplCont.Get(DuplContSearchString."Contact Company No.", DuplContSearchString2."Contact Company No.") then begin
@@ -130,6 +132,7 @@ codeunit 5060 DuplicateManagement
             until DuplContSearchString.Next = 0;
 
         DuplCont.SetFilter("No. of Matching Strings", '>=%1', Round(DuplSearchStringSetup.Count * HitRatio / 100, 1, '>'));
+        OnInsDuplContOnAfterDuplContSetFilters(DuplCont, DuplContSearchString);
         if DuplCont.Find('-') then begin
             repeat
                 DuplCont2 := DuplCont;
@@ -177,6 +180,21 @@ codeunit 5060 DuplicateManagement
     procedure RunModalContactDuplicates(Notification: Notification)
     begin
         PAGE.RunModal(PAGE::"Contact Duplicates");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsDuplContIndexOnBeforeDuplContSearchStringInsert(var Contact: Record Contact; var DuplContSearchString: Record "Cont. Duplicate Search String"; DuplSearchStringSetup: Record "Duplicate Search String Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsDuplContOnAfterDuplContSearchString2SetFilters(var DuplContSearchString: Record "Cont. Duplicate Search String"; var DuplContSearchString2: Record "Cont. Duplicate Search String")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsDuplContOnAfterDuplContSetFilters(var TempDuplCont: Record "Contact Duplicate" temporary; var DuplContSearchString: Record "Cont. Duplicate Search String")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -161,6 +161,81 @@ codeunit 1389 "Template Feature Event Handler"
         ItemTemplate.UpdateItemsFromTemplate(Item);
     end;
 
+    local procedure SaveCustomerAsTemplate(Customer: Record Customer; var IsHandled: Boolean)
+    var
+        MiniCustomerTemplate: Record "Mini Customer Template";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+    begin
+        if CustomerTemplMgt.IsEnabled() then
+            exit;
+
+        IsHandled := true;
+        MiniCustomerTemplate.SaveAsTemplate(Customer);
+    end;
+
+    local procedure SaveVendorAsTemplate(Vendor: Record Vendor; var IsHandled: Boolean)
+    var
+        MiniVendorTemplate: Record "Mini Vendor Template";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+    begin
+        if VendorTemplMgt.IsEnabled() then
+            exit;
+
+        IsHandled := true;
+        MiniVendorTemplate.SaveAsTemplate(Vendor);
+    end;
+
+    local procedure SaveItemAsTemplate(Item: Record Item; var IsHandled: Boolean)
+    var
+        ItemTemplate: Record "Item Template";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        if ItemTemplMgt.IsEnabled() then
+            exit;
+
+        IsHandled := true;
+        ItemTemplate.SaveAsTemplate(Item);
+    end;
+
+    local procedure ShowCustomerTemplList(var IsHandled: Boolean)
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+    begin
+        if CustomerTemplMgt.IsEnabled() then
+            exit;
+
+        IsHandled := true;
+        ConfigTemplateHeader.SetRange("Table ID", Database::Customer);
+        Page.Run(Page::"Config Templates", ConfigTemplateHeader);
+    end;
+
+    local procedure ShowVendorTemplList(var IsHandled: Boolean)
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+    begin
+        if VendorTemplMgt.IsEnabled() then
+            exit;
+
+        IsHandled := true;
+        ConfigTemplateHeader.SetRange("Table ID", Database::Vendor);
+        Page.Run(Page::"Config Templates", ConfigTemplateHeader);
+    end;
+
+    local procedure ShowItemTemplList(var IsHandled: Boolean)
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        if ItemTemplMgt.IsEnabled() then
+            exit;
+
+        IsHandled := true;
+        ConfigTemplateHeader.SetRange("Table ID", Database::Item);
+        Page.Run(Page::"Config Templates", ConfigTemplateHeader);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vendor Templ. Mgt.", 'OnInsertVendorFromTemplate', '', false, false)]
     local procedure OnInsertVendorFromTemplateHandler(var Vendor: Record Vendor; var Result: Boolean; var IsHandled: Boolean)
     begin
@@ -269,4 +344,57 @@ codeunit 1389 "Template Feature Event Handler"
         UpdateItemsFromConfigTemplate(Item, IsHandled);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Templ. Mgt.", 'OnSaveAsTemplate', '', false, false)]
+    local procedure OnSaveCustomerAsTemplateHandler(Customer: Record Customer; var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        SaveCustomerAsTemplate(Customer, IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vendor Templ. Mgt.", 'OnSaveAsTemplate', '', false, false)]
+    local procedure OnSaveVendorAsTemplateHandler(Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        SaveVendorAsTemplate(Vendor, IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnSaveAsTemplate', '', false, false)]
+    local procedure OnSaveItemAsTemplateHandler(Item: Record Item; var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        SaveItemAsTemplate(Item, IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Templ. Mgt.", 'OnShowTemplates', '', false, false)]
+    local procedure OnShowCustomerTemplatesHandler(var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        ShowCustomerTemplList(IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vendor Templ. Mgt.", 'OnShowTemplates', '', false, false)]
+    local procedure OnShowVendorTemplatesHandler(var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        ShowVendorTemplList(IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnShowTemplates', '', false, false)]
+    local procedure OnShowItemTemplatesHandler(var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        ShowItemTemplList(IsHandled);
+    end;
 }

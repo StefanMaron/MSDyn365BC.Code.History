@@ -554,22 +554,24 @@ report 852 "Cash Flow Dimensions - Detail"
         DimVal.SetRange("Dimension Value Type", DimVal."Dimension Value Type"::Standard);
         if TempSelectedDim.Find('-') then
             repeat
-                TempDimVal.Init();
-                TempDimVal.Code := '';
-                TempDimVal."Dimension Code" := CopyStr(TempSelectedDim."Dimension Code", 1, 20);
-                TempDimVal.Name := Text003;
-                TempDimVal.Insert();
-                DimVal.SetRange("Dimension Code", TempSelectedDim."Dimension Code");
-                if TempSelectedDim."Dimension Value Filter" <> '' then
-                    DimVal.SetFilter(Code, TempSelectedDim."Dimension Value Filter")
-                else
-                    DimVal.SetRange(Code);
-                if DimVal.Find('-') then
-                    repeat
-                        TempDimVal.Init();
-                        TempDimVal := DimVal;
-                        TempDimVal.Insert();
-                    until DimVal.Next = 0;
+                if StrLen(TempSelectedDim."Dimension Code") <= MaxStrLen(DimVal."Dimension Code") then begin
+                    TempDimVal.Init();
+                    TempDimVal.Code := '';
+                    TempDimVal."Dimension Code" := CopyStr(TempSelectedDim."Dimension Code", 1, 20);
+                    TempDimVal.Name := Text003;
+                    TempDimVal.Insert();
+                    DimVal.SetRange("Dimension Code", TempSelectedDim."Dimension Code");
+                    if TempSelectedDim."Dimension Value Filter" <> '' then
+                        DimVal.SetFilter(Code, TempSelectedDim."Dimension Value Filter")
+                    else
+                        DimVal.SetRange(Code);
+                    if DimVal.Find('-') then
+                        repeat
+                            TempDimVal.Init();
+                            TempDimVal := DimVal;
+                            TempDimVal.Insert();
+                        until DimVal.Next = 0;
+                end;
             until TempSelectedDim.Next = 0;
     end;
 

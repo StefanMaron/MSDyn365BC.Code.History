@@ -364,6 +364,12 @@ page 21 "Customer Card"
                         VATRegistrationLogMgt.AssistEditCustomerVATReg(Rec);
                     end;
                 }
+                field("EORI Number"; "EORI Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
+                    Visible = false;
+                }
                 field(GLN; GLN)
                 {
                     ApplicationArea = Basic, Suite;
@@ -810,7 +816,6 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     SubPageLink = "No." = FIELD("No.");
-                    Visible = ShowCharts;
                 }
             }
             part(PriceAndLineDisc; "Sales Pr. & Line Disc. Part")
@@ -1118,7 +1123,7 @@ page 21 "Customer Card"
             }
             group(ActionGroupCRM)
             {
-                Caption = 'Common Data Service';
+                Caption = 'Dataverse';
                 Enabled = (BlockedFilterApplied and (Blocked = Blocked::" ")) or not BlockedFilterApplied;
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 action(CRMGotoAccount)
@@ -1126,7 +1131,7 @@ page 21 "Customer Card"
                     ApplicationArea = Suite;
                     Caption = 'Account';
                     Image = CoupledCustomer;
-                    ToolTip = 'Open the coupled Common Data Service account.';
+                    ToolTip = 'Open the coupled Dataverse account.';
                     Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                     trigger OnAction()
@@ -1144,7 +1149,7 @@ page 21 "Customer Card"
                     Image = Refresh;
                     Promoted = true;
                     PromotedCategory = Process;
-                    ToolTip = 'Send or get updated data to or from Common Data Service.';
+                    ToolTip = 'Send or get updated data to or from Dataverse.';
                     Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                     trigger OnAction()
@@ -1160,7 +1165,7 @@ page 21 "Customer Card"
                     Caption = 'Update Account Statistics';
                     Enabled = CRMIsCoupledToRecord;
                     Image = UpdateXML;
-                    ToolTip = 'Send customer statistics data to Common Data Service to update the Account Statistics FactBox.';
+                    ToolTip = 'Send customer statistics data to Dataverse to update the Account Statistics FactBox.';
                     Visible = CRMIntegrationEnabled;
 
                     trigger OnAction()
@@ -1174,7 +1179,7 @@ page 21 "Customer Card"
                 {
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Common Data Service record.';
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dataverse row.';
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
@@ -1183,7 +1188,7 @@ page 21 "Customer Card"
                         Image = LinkAccount;
                         Promoted = true;
                         PromotedCategory = Category9;
-                        ToolTip = 'Create or modify the coupling to a Common Data Service account.';
+                        ToolTip = 'Create or modify the coupling to a Dataverse account.';
                         Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                         trigger OnAction()
@@ -1200,7 +1205,7 @@ page 21 "Customer Card"
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Common Data Service account.';
+                        ToolTip = 'Delete the coupling to a Dataverse account.';
                         Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                         trigger OnAction()
@@ -2040,9 +2045,14 @@ page 21 "Customer Card"
                     Image = Template;
                     //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedIsBig = true;
-                    RunObject = Page "Config Templates";
-                    RunPageLink = "Table ID" = CONST(18);
                     ToolTip = 'View or edit customer templates.';
+
+                    trigger OnAction()
+                    var
+                        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+                    begin
+                        CustomerTemplMgt.ShowTemplates();
+                    end;
                 }
                 action(ApplyTemplate)
                 {
@@ -2081,9 +2091,9 @@ page 21 "Customer Card"
 
                     trigger OnAction()
                     var
-                        TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
+                        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
                     begin
-                        TempMiniCustomerTemplate.SaveAsTemplate(Rec);
+                        CustomerTemplMgt.SaveAsTemplate(Rec);
                     end;
                 }
                 action(MergeDuplicate)
@@ -2436,8 +2446,6 @@ page 21 "Customer Card"
         StyleTxt: Text;
         [InDataSet]
         ContactEditable: Boolean;
-        [InDataSet]
-        ShowCharts: Boolean;
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         BlockedFilterApplied: Boolean;

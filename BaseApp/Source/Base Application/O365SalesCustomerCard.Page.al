@@ -22,7 +22,6 @@ page 2107 "O365 Sales Customer Card"
                 field("Contact Type"; "Contact Type")
                 {
                     ApplicationArea = Basic, Suite, Invoicing;
-                    OptionCaption = 'Company contact,Person';
                     ShowCaption = false;
                     ToolTip = 'Specifies if the contact is a company or a person.';
 

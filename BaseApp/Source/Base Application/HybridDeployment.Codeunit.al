@@ -14,6 +14,9 @@ codeunit 6060 "Hybrid Deployment"
         FailedToProcessRequestErr: Label 'The request could not be processed due to an unexpected error.';
         FailedCreatingIRErr: Label 'Failed to create your integration runtime.';
         FailedDisableReplicationErr: Label 'Failed to disable replication.';
+        CloudMigrationFailedContinueTxt: Label 'The request to remove the integration runtime failed. \Do you want to continue with disabling the replication?\\Error:';
+        CloudMigrationFailedContinueQst: Label '%1\%2', Locked = true, Comment = '%1 question to user, %2 error message';
+        TelemetryContinuedWithMigrationMsg: Label 'Decided to continue with disabling the replication. Error: %1', Locked = true, Comment = '%1 error message';
         FailedDisableDataLakeMigrationErr: Label 'Failed to disable the Azure Data Lake migration.';
         FailedEnableReplicationErr: Label 'Failed to enable your replication.\\Make sure your integration runtime is successfully connected and try again.';
         FailedGettingStatusErr: Label 'Failed to retrieve the replication run status.';
@@ -69,11 +72,23 @@ codeunit 6060 "Hybrid Deployment"
     var
         InstanceId: Text;
         Output: Text;
+        DisableReplicationFailed: Boolean;
     begin
-        if not TryDisableReplication(InstanceId) then
-            Error(FailedDisableReplicationErr);
+        DisableReplicationFailed := not TryDisableReplication(InstanceId);
+        if DisableReplicationFailed then begin
+            Sleep(2000);
+            DisableReplicationFailed := not TryDisableReplication(InstanceId);
+        end;
 
-        RetryGetStatus(InstanceId, FailedDisableReplicationErr, Output);
+        if DisableReplicationFailed then begin
+            if not GuiAllowed() then
+                Error(FailedDisableReplicationErr);
+
+            if not Confirm(StrSubstNo(CloudMigrationFailedContinueQst, CloudMigrationFailedContinueTxt, GetLastErrorText())) then
+                Error(FailedDisableReplicationErr);
+        end;
+
+        RetryGetStatus(InstanceId, FailedDisableReplicationErr, Output, true);
 
         EnableIntelligentCloud(false);
 
@@ -312,9 +327,15 @@ codeunit 6060 "Hybrid Deployment"
         end;
     end;
 
-    local procedure RetryGetStatus(InstanceId: Text; GenericErrorMessage: Text; var JsonOutput: Text) Status: Text
+    local procedure RetryGetStatus(InstanceId: Text; GenericErrorMessage: Text; var JsonOutput: Text)
+    begin
+        RetryGetStatus(InstanceId, GenericErrorMessage, JsonOutput, false);
+    end;
+
+    local procedure RetryGetStatus(InstanceId: Text; GenericErrorMessage: Text; var JsonOutput: Text; AllowContinue: Boolean)
     var
         Message: Text;
+        Status: Text;
     begin
         if InstanceId = '' then
             exit;
@@ -327,10 +348,16 @@ codeunit 6060 "Hybrid Deployment"
         if Status = FailedTxt then begin
             Message := GetErrorMessage(JsonOutput);
 
-            if Message <> '' then
-                Error(Message);
+            if AllowContinue and GuiAllowed() then
+                if Confirm(StrSubstNo(CloudMigrationFailedContinueQst, CloudMigrationFailedContinueTxt, Message)) then begin
+                    Session.LogMessage('0000E9N', StrSubstNo(TelemetryContinuedWithMigrationMsg, Message), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', 'IntelligentCloud');
+                    exit;
+                end;
 
-            Error(GenericErrorMessage)
+            if Message = '' then
+                Message := GenericErrorMessage;
+
+            Error(Message);
         end;
     end;
 
