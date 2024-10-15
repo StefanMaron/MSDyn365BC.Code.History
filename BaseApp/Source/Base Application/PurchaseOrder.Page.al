@@ -1,4 +1,4 @@
-page 50 "Purchase Order"
+﻿page 50 "Purchase Order"
 {
     Caption = 'Purchase Order';
     PageType = Document;
@@ -1911,11 +1911,14 @@ page 50 "Purchase Order"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
+        ShowConfirmCloseUnposted: Boolean;
     begin
         if ShowReleaseNotification then
             if not InstructionMgt.ShowConfirmUnreleased then
                 exit(false);
-        if not DocumentIsPosted then
+        ShowConfirmCloseUnposted := not DocumentIsPosted;
+        OnQueryClosePageOnAfterCalcShowConfirmCloseUnposted(Rec, ShowConfirmCloseUnposted);
+        if ShowConfirmCloseUnposted then
             exit(ConfirmCloseUnposted);
     end;
 
@@ -2196,6 +2199,11 @@ page 50 "Purchase Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDocumentOnBeforePurchaseHeaderInsert(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnQueryClosePageOnAfterCalcShowConfirmCloseUnposted(var PurchaseHeader: Record "Purchase Header"; var ShowConfirmCloseUnposted: Boolean)
     begin
     end;
 }

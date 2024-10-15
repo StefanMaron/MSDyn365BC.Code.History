@@ -17,7 +17,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         SyncRestoredMsg: Label 'The record has been restored for synchronization.';
         SyncMultipleRestoredMsg: Label '2 records have been restored for synchronization.';
         SyncRestoredAllMsg: Label '3 records have been restored for synchronization.';
-        MustBeCoupledErr: Label 'Salesperson Code %1 must be coupled to a record in Common Data Service.', Comment = '%1 - salespersom code';
+        MustBeCoupledErr: Label 'Salesperson Code %1 must be coupled to a record in Dataverse.', Comment = '%1 - salespersom code';
         NotFoundErr: Label 'could not be found in Salesperson/Purchaser.';
         SkippedRecMsg: Label 'The record will be skipped for further synchronization';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";

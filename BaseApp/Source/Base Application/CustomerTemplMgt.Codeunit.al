@@ -44,7 +44,7 @@
         Customer.SetInsertFromContact(false);
 
         ApplyTemplate(Customer, CustomerTempl);
-        InsertDimensions(Customer."No.", CustomerTempl.Code);
+        InsertDimensions(Customer."No.", CustomerTempl.Code, Database::Customer, Database::"Customer Templ.");
 
         exit(true);
     end;
@@ -52,11 +52,18 @@
     procedure ApplyCustomerTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
     begin
         ApplyTemplate(Customer, CustomerTempl);
-        InsertDimensions(Customer."No.", CustomerTempl.Code);
+        InsertDimensions(Customer."No.", CustomerTempl.Code, Database::Customer, Database::"Customer Templ.");
     end;
 
     local procedure ApplyTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeApplyTemplate(Customer, CustomerTempl, IsHandled);
+        if IsHandled then
+            exit;
+
         Customer.City := CustomerTempl.City;
         Customer."Customer Posting Group" := CustomerTempl."Customer Posting Group";
         Customer."Currency Code" := CustomerTempl."Currency Code";
@@ -77,6 +84,10 @@
         Customer."Validate EU Vat Reg. No." := CustomerTempl."Validate EU Vat Reg. No.";
         Customer.Blocked := CustomerTempl.Blocked;
         Customer."Shipment Method Code" := CustomerTempl."Shipment Method Code";
+        Customer."Reminder Terms Code" := CustomerTempl."Reminder Terms Code";
+        Customer."Print Statements" := CustomerTempl."Print Statements";
+        Customer."Customer Price Group" := CustomerTempl."Customer Price Group";
+        Customer."Customer Disc. Group" := CustomerTempl."Customer Disc. Group";
         OnApplyTemplateOnBeforeCustomerModify(Customer, CustomerTempl);
         Customer.Modify(true);
     end;
@@ -108,18 +119,18 @@
         exit(false);
     end;
 
-    local procedure InsertDimensions(CustomerNo: Code[20]; CustomerTemplCode: Code[20])
+    local procedure InsertDimensions(DestNo: Code[20]; SourceNo: Code[20]; DestTableId: Integer; SourceTableId: Integer)
     var
         SourceDefaultDimension: Record "Default Dimension";
         DestDefaultDimension: Record "Default Dimension";
     begin
-        SourceDefaultDimension.SetRange("Table ID", Database::"Customer Templ.");
-        SourceDefaultDimension.SetRange("No.", CustomerTemplCode);
+        SourceDefaultDimension.SetRange("Table ID", SourceTableId);
+        SourceDefaultDimension.SetRange("No.", SourceNo);
         if SourceDefaultDimension.FindSet() then
             repeat
                 DestDefaultDimension.Init();
-                DestDefaultDimension.Validate("Table ID", Database::Customer);
-                DestDefaultDimension.Validate("No.", CustomerNo);
+                DestDefaultDimension.Validate("Table ID", DestTableId);
+                DestDefaultDimension.Validate("No.", DestNo);
                 DestDefaultDimension.Validate("Dimension Code", SourceDefaultDimension."Dimension Code");
                 DestDefaultDimension.Validate("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
                 DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
@@ -213,6 +224,107 @@
         exit(true);
     end;
 
+    procedure SaveAsTemplate(Customer: Record Customer)
+    var
+        IsHandled: Boolean;
+    begin
+        OnSaveAsTemplate(Customer, IsHandled);
+    end;
+
+    procedure CreateTemplateFromCustomer(Customer: Record Customer; var IsHandled: Boolean)
+    var
+        CustomerTempl: Record "Customer Templ.";
+    begin
+        if not IsEnabled() then
+            exit;
+
+        IsHandled := true;
+
+        InsertTemplateFromCustomer(CustomerTempl, Customer);
+        InsertDimensions(CustomerTempl.Code, Customer."No.", Database::"Customer Templ.", Database::Customer);
+        CustomerTempl.Get(CustomerTempl.Code);
+        ShowCustomerTemplCard(CustomerTempl);
+    end;
+
+    local procedure InsertTemplateFromCustomer(var CustomerTempl: Record "Customer Templ."; Customer: Record Customer)
+    begin
+        CustomerTempl.Init();
+        CustomerTempl.Code := GetCustomerTemplCode();
+
+        CustomerTempl.City := Customer.City;
+        CustomerTempl."Customer Posting Group" := Customer."Customer Posting Group";
+        CustomerTempl."Currency Code" := Customer."Currency Code";
+        CustomerTempl."Language Code" := Customer."Language Code";
+        CustomerTempl."Payment Terms Code" := Customer."Payment Terms Code";
+        CustomerTempl."Fin. Charge Terms Code" := Customer."Fin. Charge Terms Code";
+        CustomerTempl."Invoice Disc. Code" := Customer."Invoice Disc. Code";
+        CustomerTempl."Country/Region Code" := Customer."Country/Region Code";
+        CustomerTempl."Bill-to Customer No." := Customer."Bill-to Customer No.";
+        CustomerTempl."Payment Method Code" := Customer."Payment Method Code";
+        CustomerTempl."Application Method" := Customer."Application Method";
+        CustomerTempl."Prices Including VAT" := Customer."Prices Including VAT";
+        CustomerTempl."Gen. Bus. Posting Group" := Customer."Gen. Bus. Posting Group";
+        CustomerTempl."Post Code" := Customer."Post Code";
+        CustomerTempl.County := Customer.County;
+        CustomerTempl."VAT Bus. Posting Group" := Customer."VAT Bus. Posting Group";
+        CustomerTempl."Block Payment Tolerance" := Customer."Block Payment Tolerance";
+        CustomerTempl."Validate EU Vat Reg. No." := Customer."Validate EU Vat Reg. No.";
+        CustomerTempl.Blocked := Customer.Blocked;
+        CustomerTempl."Shipment Method Code" := Customer."Shipment Method Code";
+        CustomerTempl."Reminder Terms Code" := Customer."Reminder Terms Code";
+        CustomerTempl."Print Statements" := Customer."Print Statements";
+        CustomerTempl."Customer Price Group" := Customer."Customer Price Group";
+        CustomerTempl."Customer Disc. Group" := Customer."Customer Disc. Group";
+
+        CustomerTempl.Insert();
+    end;
+
+    local procedure GetCustomerTemplCode() CustomerTemplCode: Code[20]
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+    begin
+        if CustomerTempl.FindLast() and (IncStr(CustomerTempl.Code) <> '') then
+            CustomerTemplCode := CustomerTempl.Code
+        else
+            CustomerTemplCode := CopyStr(Customer.TableCaption, 1, 4) + '000001';
+
+        while CustomerTempl.Get(CustomerTemplCode) do
+            CustomerTemplCode := IncStr(CustomerTemplCode);
+    end;
+
+    local procedure ShowCustomerTemplCard(CustomerTempl: Record "Customer Templ.")
+    var
+        CustomerTemplCard: Page "Customer Templ. Card";
+    begin
+        if not GuiAllowed then
+            exit;
+
+        Commit();
+        CustomerTemplCard.SetRecord(CustomerTempl);
+        CustomerTemplCard.LookupMode := true;
+        if CustomerTemplCard.RunModal() = Action::LookupCancel then begin
+            CustomerTempl.Get(CustomerTempl.Code);
+            CustomerTempl.Delete(true);
+        end;
+    end;
+
+    procedure ShowTemplates()
+    var
+        IsHandled: Boolean;
+    begin
+        OnShowTemplates(IsHandled);
+    end;
+
+    local procedure ShowCustomerTemplList(var IsHandled: Boolean)
+    begin
+        if not IsEnabled() then
+            exit;
+
+        IsHandled := true;
+        Page.Run(Page::"Customer Templ. List");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)
     begin
@@ -220,6 +332,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyTemplateOnBeforeCustomerModify(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ."; var IsHandled: Boolean)
     begin
     end;
 
@@ -240,6 +357,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateCustomersFromTemplate(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveAsTemplate(Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowTemplates(var IsHandled: Boolean)
     begin
     end;
 
@@ -277,5 +404,23 @@
             exit;
 
         UpdateMultipleFromTemplate(Customer, IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Templ. Mgt.", 'OnSaveAsTemplate', '', false, false)]
+    local procedure OnSaveAsTemplateHandler(Customer: Record Customer; var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        CreateTemplateFromCustomer(Customer, IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Templ. Mgt.", 'OnShowTemplates', '', false, false)]
+    local procedure OnShowTemplatesHandler(var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        ShowCustomerTemplList(IsHandled);
     end;
 }

@@ -1,6 +1,6 @@
 page 7202 "CDS Admin Credentials"
 {
-    Caption = 'Common Data Service Administrator Credentials', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+    Caption = 'Dataverse Administrator Credentials', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
     PageType = StandardDialog;
     SourceTable = "Office Admin. Credentials";
     SourceTableTemporary = true;
@@ -31,7 +31,7 @@ page 7202 "CDS Admin Credentials"
             label(InvalidUserMessage)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'The user must exist within Common Data Service with the security roles System Administrator and Solution Customizer.';
+                Caption = 'The user must exist within Dataverse with the security roles System Administrator and Solution Customizer.';
             }
         }
     }

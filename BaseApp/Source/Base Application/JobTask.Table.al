@@ -1,4 +1,4 @@
-table 1001 "Job Task"
+﻿table 1001 "Job Task"
 {
     Caption = 'Job Task';
     DrillDownPageID = "Job Task Lines";
@@ -418,7 +418,13 @@ table 1001 "Job Task"
     var
         Job: Record Job;
         Cust: Record Customer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         LockTable();
         Job.Get("Job No.");
         if Job.Blocked = Job.Blocked::All then
@@ -553,6 +559,11 @@ table 1001 "Job Task"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var JobTask: Record "Job Task"; var xJobTask: Record "Job Task"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var JobTask: Record "Job Task"; var IsHandled: Boolean)
     begin
     end;
 

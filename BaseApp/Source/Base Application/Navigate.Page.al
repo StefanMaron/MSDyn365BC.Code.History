@@ -1,4 +1,4 @@
-page 344 Navigate
+﻿page 344 Navigate
 {
     AdditionalSearchTerms = 'find,search,analyze';
     ApplicationArea = Basic, Suite, FixedAssets, Service, CostAccounting;
@@ -1672,8 +1672,9 @@ page 344 Navigate
             end;
 
         OnAfterNavigateShowRecords(
-          "Table ID", DocNoFilter, PostingDateFilter, ItemTrackingSearch, Rec,
-          SalesInvHeader, SalesCrMemoHeader, PurchInvHeader, PurchCrMemoHeader, ServInvHeader, ServCrMemoHeader);
+          Rec."Table ID", DocNoFilter, PostingDateFilter, ItemTrackingSearch, Rec,
+          SalesInvHeader, SalesCrMemoHeader, PurchInvHeader, PurchCrMemoHeader, ServInvHeader, ServCrMemoHeader,
+          ContactType, ContactNo, ExtDocNo);
     end;
 
     local procedure ShowSalesHeaderRecords()
@@ -2051,7 +2052,7 @@ page 344 Navigate
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterNavigateFindExtRecords(var DocumentEntry: Record "Document Entry"; ContactType: Enum "Navigate Contact Type"; ContactNo: Code[250]; ExtDocNo: Code[250]; var FoundRecords: Boolean)
     begin
     end;
@@ -2067,7 +2068,7 @@ page 344 Navigate
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterNavigateShowRecords(TableID: Integer; DocNoFilter: Text; PostingDateFilter: Text; ItemTrackingSearch: Boolean; var TempDocumentEntry: Record "Document Entry" temporary; SalesInvoiceHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceCrMemoHeader: Record "Service Cr.Memo Header")
+    local procedure OnAfterNavigateShowRecords(TableID: Integer; DocNoFilter: Text; PostingDateFilter: Text; ItemTrackingSearch: Boolean; var TempDocumentEntry: Record "Document Entry" temporary; SalesInvoiceHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceCrMemoHeader: Record "Service Cr.Memo Header"; ContactType: Enum "Navigate Contact Type"; ContactNo: Code[250]; ExtDocNo: Code[250])
     begin
     end;
 

@@ -1,4 +1,4 @@
-page 790 "G/L Account Categories"
+﻿page 790 "G/L Account Categories"
 {
     AccessByPermission = TableData "G/L Account Category" = R;
     AdditionalSearchTerms = 'general ledger account categories';
@@ -193,20 +193,7 @@ page 790 "G/L Account Categories"
                 var
                     GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
                 begin
-                    if GLAccountCategoryMgt.GLSetupAllAccScheduleNamesNotDefined() then begin
-                        Codeunit.Run(Codeunit::"Categ. Generate Acc. Schedules");
-                        exit;
-                    end;
-
-                    case StrMenu(GenerateAccountSchedulesOptionsTxt, 1, OverwriteConfirmationQst) of
-                        1:
-                            begin
-                                GLAccountCategoryMgt.ForceInitializeStandardAccountSchedules();
-                                Codeunit.Run(Codeunit::"Categ. Generate Acc. Schedules");
-                            end;
-                        2:
-                            Codeunit.Run(Codeunit::"Categ. Generate Acc. Schedules");
-                    end;
+                    GLAccountCategoryMgt.ConfirmAndRunGenerateAccountSchedules();
                 end;
             }
         }
@@ -260,8 +247,6 @@ page 790 "G/L Account Categories"
     var
         GLAccTotaling: Code[250];
         PageEditable: Boolean;
-        OverwriteConfirmationQst: Label 'How do you want to generate standard account schedules?';
-        GenerateAccountSchedulesOptionsTxt: Label 'Keep existing account schedules and create new ones.,Overwrite existing account schedules.';
 
     local procedure SetRow(EntryNo: Integer)
     begin

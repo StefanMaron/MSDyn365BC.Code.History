@@ -1,8 +1,8 @@
 table 5126 "Sales Comment Line Archive"
 {
     Caption = 'Sales Comment Line Archive';
-    DrillDownPageID = "Purch. Comment List";
-    LookupPageID = "Purch. Comment List";
+    DrillDownPageID = "Sales Archive Comment Sheet";
+    LookupPageID = "Sales Archive Comment Sheet";
 
     fields
     {
