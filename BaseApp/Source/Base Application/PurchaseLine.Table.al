@@ -6192,7 +6192,7 @@
             SetRange("Document No.", PurchHeader."No.");
             OnUpdateVATOnLinesOnAfterSetFilters(PurchLine, PurchHeader);
             LockTable();
-            if FindSet then
+            if FindSet() then
                 repeat
                     if not ZeroAmountLine(QtyType) and
                        ((PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0) or

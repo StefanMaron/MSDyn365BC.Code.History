@@ -5843,7 +5843,7 @@
             SetRange("Document No.", SalesHeader."No.");
             OnUpdateVATOnLinesOnAfterSalesLineSetFilter(SalesLine);
             LockTable();
-            if FindSet then
+            if FindSet() then
                 repeat
                     if not ZeroAmountLine(QtyType) and
                        ((SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0) or
