@@ -225,8 +225,6 @@ report 7391 "Whse. Get Bin Content"
     end;
 
     local procedure InsertWhseWorksheetLine(BinContent: Record "Bin Content")
-    var
-        ToBinContent: Record "Bin Content";
     begin
         with WhseWorksheetLine do begin
             Init();
@@ -237,13 +235,6 @@ report 7391 "Whse. Get Bin Content"
             Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
             Validate("From Bin Code", BinContent."Bin Code");
             "From Zone Code" := BinContent."Zone Code";
-            ToBinContent.SetRange("Location Code", BinContent."Location Code");
-            ToBinContent.SetRange("Item No.", BinContent."Item No.");
-            ToBinContent.SetRange(Default, true);
-            if ToBinContent.FindFirst() then begin
-                Validate("To Bin Code", ToBinContent."Bin Code");
-                "To Zone Code" := ToBinContent."Zone Code";
-            end;
             Validate("From Unit of Measure Code", BinContent."Unit of Measure Code");
             Validate(Quantity, CalcQtyUOM(QtyToEmptyBase, "Qty. per From Unit of Measure"));
             if QtyToEmptyBase <> (Quantity * "Qty. per From Unit of Measure") then begin

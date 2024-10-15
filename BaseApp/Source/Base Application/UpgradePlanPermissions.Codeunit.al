@@ -30,6 +30,8 @@ codeunit 104030 "Upgrade Plan Permissions"
         LoginTok: Label 'LOGIN', Locked = true;
         CannotCreatePermissionSetLbl: Label 'Permission Set %1 is missing from this environment and cannot be created.', Locked = true;
         CouldNotInsertAccessControlTelemetryErr: Label 'Could not insert Access Control with App ID %1', Locked = true;
+        BaseApplicationAppIdTok: Label '{437dbf0e-84ff-417a-965d-ed2bb9650972}', Locked = true;
+        SystemApplicationAppIdTok: Label '{63ca2fa4-4f03-4f2b-a480-172fef340d3f}', Locked = true;
 
 
     trigger OnUpgradePerDatabase()
@@ -53,6 +55,7 @@ codeunit 104030 "Upgrade Plan Permissions"
         SetMonitorSensitiveFieldPermissions();
         AddFeatureDataUpdatePermissions();
         CreateMicrosoft365Permissions();
+        CreateD365EssentialAttachPermissions();
     end;
 
     local procedure AddFeatureDataUpdatePermissions()
@@ -262,6 +265,16 @@ codeunit 104030 "Upgrade Plan Permissions"
 
         // User Group Access Control needs to be updated explicitly in v25+
         AddUserGroupPermissionSet(UserGroupCode, PermissionSetId, AggregatePermissionSet."App Id", UserGroupPermissionSet.Scope::System);
+    end;
+
+    local procedure AddPermissionSetToPlan(PlanId: Guid; RoleId: Code[20]; AppId: Guid)
+    var
+        AggregatePermissionSet: Record "Aggregate Permission Set";
+        PlanConfiguration: Codeunit "Plan Configuration";
+        Scope: Option System,Tenant;
+    begin
+        if AggregatePermissionSet.Get(Scope::System, AppId, RoleId) then
+            PlanConfiguration.AddDefaultPermissionSetToPlan(PlanId, RoleId, AppId, Scope::System);
     end;
 
     local procedure AddUserGroupToPlan(UserGroupCode: Code[20]; PlanId: Guid)
@@ -498,6 +511,31 @@ codeunit 104030 "Upgrade Plan Permissions"
         end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetTeamsUsersUserGroupUpgradeTag());
+    end;
+
+    local procedure CreateD365EssentialAttachPermissions()
+    var
+        UserGroup: Record "User Group";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        PlanIds: Codeunit "Plan Ids";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetEssentialAttachUserGroupUpgradeTag()) then
+            exit;
+
+        if UserGroup.IsEmpty() then begin
+            AddPermissionSetToPlan(PlanIDs.GetEssentialAttachPlanId(), 'AUTOMATE - EXEC', SystemApplicationAppIdTok);
+            AddPermissionSetToPlan(PlanIDs.GetEssentialAttachPlanId(), 'D365 BUS FULL ACCESS', BaseApplicationAppIdTok);
+            AddPermissionSetToPlan(PlanIDs.GetEssentialAttachPlanId(), 'EXCEL EXPORT ACTION', SystemApplicationAppIdTok);
+            AddPermissionSetToPlan(PlanIDs.GetEssentialAttachPlanId(), 'LOCAL', BaseApplicationAppIdTok);
+            AddPermissionSetToPlan(PlanIDs.GetEssentialAttachPlanId(), 'LOGIN', SystemApplicationAppIdTok);
+        end else begin
+            AddUserGroupToPlan(AutomateActionUserGroupTok, PlanIds.GetEssentialAttachPlanId());
+            AddUserGroupToPlan(BusFullTok, PlanIds.GetEssentialAttachPlanId());
+            AddUserGroupToPlan(ExcelExportActionTok, PlanIds.GetEssentialAttachPlanId());
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetEssentialAttachUserGroupUpgradeTag());
     end;
 
     local procedure UpdateUserGroupProfile(UserGroupCode: Code[20]; RoleCenterId: Integer)
