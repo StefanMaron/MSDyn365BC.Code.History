@@ -134,6 +134,11 @@ report 698 "Get Sales Orders"
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnInsertReqWkshLineOnBeforeCode(ReqLine, SalesLine, SpecOrder, LineNo, ReqWkshName, GetDim, IsHandled);
+        if IsHandled then
+            exit;
+
         ReqLine.Reset();
         ReqLine.SetCurrentKey(Type, "No.");
         ReqLine.SetRange(Type, "Sales Line".Type);
@@ -255,6 +260,11 @@ report 698 "Get Sales Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertReqWkshLineOnBeforeSetSellToCustomerNo(var ReqLine: Record "Requisition Line"; SalesLine: Record "Sales Line"; SpecOrder: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReqWkshLineOnBeforeCode(var ReqLine: Record "Requisition Line"; SalesLine: Record "Sales Line"; SpecOrder: Integer; LineNo: Integer; ReqWkshName: Record "Requisition Wksh. Name"; GetDim: Option Item,"Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

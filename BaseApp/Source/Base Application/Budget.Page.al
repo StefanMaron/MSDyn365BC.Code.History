@@ -60,6 +60,7 @@ page 113 Budget
                     ApplicationArea = Suite;
                     Caption = 'Show as Lines';
                     ToolTip = 'Specifies which values you want to show as lines in the window. This allows you to see the same matrix window from various perspectives, especially when you use both the Show as Lines field and the Show as Columns field.';
+                    Importance = Promoted;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -92,6 +93,7 @@ page 113 Budget
                     ApplicationArea = Suite;
                     Caption = 'Show as Columns';
                     ToolTip = 'Specifies which values you want to show as columns in the window. This allows you to see the same matrix window from various perspectives, especially when you use both the Show as Lines field and the Show as Columns field.';
+                    Importance = Promoted;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -129,6 +131,7 @@ page 113 Budget
                     Caption = 'View by';
                     Enabled = PeriodTypeEnable;
                     ToolTip = 'Specifies by which period amounts are displayed.';
+                    Importance = Promoted;
 
                     trigger OnValidate()
                     begin
@@ -141,6 +144,7 @@ page 113 Budget
                     ApplicationArea = Suite;
                     Caption = 'Rounding Factor';
                     ToolTip = 'Specifies the factor that is used to round the amounts.';
+                    Importance = Promoted;
 
                     trigger OnValidate()
                     begin
@@ -171,6 +175,7 @@ page 113 Budget
                     ApplicationArea = Suite;
                     Caption = 'Date Filter';
                     ToolTip = 'Specifies the dates that will be used to filter the amounts in the window.';
+                    Importance = Promoted;
 
                     trigger OnValidate()
                     begin
@@ -182,6 +187,7 @@ page 113 Budget
                     ApplicationArea = Suite;
                     Caption = 'G/L Account Filter';
                     ToolTip = 'Specifies the G/L accounts for which you will see information in the window.';
+                    Importance = Promoted;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -205,6 +211,7 @@ page 113 Budget
                     ApplicationArea = Suite;
                     Caption = 'G/L Account Category Filter';
                     ToolTip = 'Specifies the category of the G/L account for which you will see information in the window.';
+                    Importance = Promoted;
 
                     trigger OnValidate()
                     begin
@@ -216,6 +223,7 @@ page 113 Budget
                     ApplicationArea = Suite;
                     Caption = 'Income/Balance G/L Account Filter';
                     ToolTip = 'Specifies the type of the G/L account for which you will see information in the window.';
+                    Importance = Promoted;
 
                     trigger OnValidate()
                     begin
@@ -229,6 +237,7 @@ page 113 Budget
                     Caption = 'Global Dimension 1 Filter';
                     Enabled = GlobalDim1FilterEnable;
                     ToolTip = 'Specifies by which global dimension data is shown. Global dimensions are the dimensions that you analyze most frequently. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
+                    Importance = Promoted;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -249,6 +258,7 @@ page 113 Budget
                     Caption = 'Global Dimension 2 Filter';
                     Enabled = GlobalDim2FilterEnable;
                     ToolTip = 'Specifies by which global dimension data is shown. Global dimensions are the dimensions that you analyze most frequently. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
+                    Importance = Promoted;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -269,6 +279,7 @@ page 113 Budget
                     Caption = 'Budget Dimension 1 Filter';
                     Enabled = BudgetDim1FilterEnable;
                     ToolTip = 'Specifies a filter by a budget dimension. You can specify four additional dimensions on each budget that you create.';
+                    Importance = Promoted;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -289,6 +300,7 @@ page 113 Budget
                     Caption = 'Budget Dimension 2 Filter';
                     Enabled = BudgetDim2FilterEnable;
                     ToolTip = 'Specifies a filter by a budget dimension. You can specify four additional dimensions on each budget that you create.';
+                    Importance = Promoted;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -309,6 +321,7 @@ page 113 Budget
                     Caption = 'Budget Dimension 3 Filter';
                     Enabled = BudgetDim3FilterEnable;
                     ToolTip = 'Specifies a filter by a budget dimension. You can specify four additional dimensions on each budget that you create.';
+                    Importance = Promoted;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -329,6 +342,7 @@ page 113 Budget
                     Caption = 'Budget Dimension 4 Filter';
                     Enabled = BudgetDim4FilterEnable;
                     ToolTip = 'Specifies a filter by a budget dimension. You can specify four additional dimensions on each budget that you create.';
+                    Importance = Promoted;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -878,7 +892,7 @@ page 113 Budget
                     RecRef.GetTable(BusUnit);
                     RecRef.SetTable(BusUnit);
                     if BusUnitFilter <> '' then begin
-                        FieldRef := RecRef.FieldIndex(1);
+                        FieldRef := RecRef.Field(BusUnit.FieldNo(Code));
                         FieldRef.SetFilter(BusUnitFilter);
                     end;
                     MatrixMgt.GenerateMatrixData(
@@ -1184,6 +1198,26 @@ page 113 Budget
     begin
         GLAccFilter := NewGLAccFilter;
         GLAccFilterOnAfterValidate();
+    end;
+
+    procedure SetGLAccountCategoryFilter(NewGLAccCategoryFilter: Enum "G/L Account Category")
+    begin
+        GLAccCategoryFilter := NewGLAccCategoryFilter;
+    end;
+
+    procedure SetIncomeBalanceGLAccFilter(NewIncomeBalanceGLAccFilter: Option)
+    begin
+        IncomeBalanceGLAccFilter := NewIncomeBalanceGLAccFilter;
+    end;
+
+    procedure SetBudgetDimFilters(NewGlobalDim1Filter: Text; NewGlobalDim2Filter: Text; NewBudgetDim1Filter: Text; NewBudgetDim2Filter: Text; NewBudgetDim3Filter: Text; NewBudgetDim4Filter: Text);
+    begin
+        GlobalDim1Filter := NewGlobalDim1Filter;
+        GlobalDim2Filter := NewGlobalDim2Filter;
+        BudgetDim1Filter := NewBudgetDim1Filter;
+        BudgetDim2Filter := NewBudgetDim2Filter;
+        BudgetDim3Filter := NewBudgetDim3Filter;
+        BudgetDim4Filter := NewBudgetDim4Filter;
     end;
 
     protected procedure UpdateMatrixSubform()

@@ -7,8 +7,8 @@ table 746 "VAT Reports Configuration"
         field(1; "VAT Report Type"; Option)
         {
             Caption = 'VAT Report Type';
-            OptionCaption = 'EC Sales List,VAT Return,Intrastat Report';
-            OptionMembers = "EC Sales List","VAT Return","Intrastat Report";
+            OptionCaption = 'EC Sales List,VAT Return,Intrastat Report,Service Declaration';
+            OptionMembers = "EC Sales List","VAT Return","Intrastat Report","Service Declaration";
         }
         field(2; "VAT Report Version"; Code[10])
         {

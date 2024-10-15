@@ -144,9 +144,9 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
                 "Net Cust/Vend Balances Order"::"Invoices First":
                     CalcPartNetAmount(VendLedgEntry, CustLedgEntry, VendDocNetAmount, CustDocNetAmount, "Gen. Journal Document Type"::Invoice);
                 else begin
-                        GlobalVendLedgEntry.SetCurrentKey("Entry No.");
-                        GlobalCustLedgEntry.SetCurrentKey("Entry No.");
-                    end;
+                    GlobalVendLedgEntry.SetCurrentKey("Entry No.");
+                    GlobalCustLedgEntry.SetCurrentKey("Entry No.");
+                end;
             end;
 
             if NetAmount < VendDocNetAmount then
@@ -221,12 +221,12 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
                                 end;
                             end;
                         else begin
-                                SmallerNetAmount := VendDocNetAmount;
-                                NetBalances(VendLedgEntry, CustLedgEntry, VendorRemainingAmount, CustomerRemainingAmount, SmallerNetAmount);
-                                SmallerNetAmount := MinDec(VendNetAmount, CustNetAmount);
-                                if SmallerNetAmount > 0 then
-                                    NetBalances(GlobalVendLedgEntry, GlobalCustLedgEntry, VendorRemainingAmount, CustomerRemainingAmount, SmallerNetAmount);
-                            end;
+                            SmallerNetAmount := VendDocNetAmount;
+                            NetBalances(VendLedgEntry, CustLedgEntry, VendorRemainingAmount, CustomerRemainingAmount, SmallerNetAmount);
+                            SmallerNetAmount := MinDec(VendNetAmount, CustNetAmount);
+                            if SmallerNetAmount > 0 then
+                                NetBalances(GlobalVendLedgEntry, GlobalCustLedgEntry, VendorRemainingAmount, CustomerRemainingAmount, SmallerNetAmount);
+                        end;
                     end;
             end;
         end;
@@ -236,9 +236,9 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
     begin
         InitGenJnlLine(GenJnlLine, VendLedgEntry);
         if ForVLE then
-            FillGenJnlLineFrom(GenJnlLine, VendLedgEntry)
+            FillGenJnlLineFromVendLedgEntry(GenJnlLine, VendLedgEntry)
         else
-            FillGenJnlLineFrom(GenJnlLine, CustLedgEntry);
+            FillGenJnlLineFromCustledgEntry(GenJnlLine, CustLedgEntry);
         FailIfDuplicateLineExists(GenJnlLine);
         GenJnlLine.Insert();
     end;
@@ -337,7 +337,7 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
             until CustLedgEntry.Next() = 0;
     end;
 
-    local procedure FillGenJnlLineFrom(var GenJnlLine: Record "Gen. Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry")
+    local procedure FillGenJnlLineFromVendLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
         GenJnlLine."External Document No." := VendLedgEntry."External Document No.";
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
@@ -355,9 +355,11 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
         GenJnlLine."Applies-to Doc. Type" := VendLedgEntry."Document Type";
         GenJnlLine."Applies-to Doc. No." := VendLedgEntry."Document No.";
         GenJnlLine."Dimension Set ID" := VendLedgEntry."Dimension Set ID";
+
+        OnAfterFillGenJnlLineFromVendLedgEntry(GenJnlLine, VendLedgEntry);
     end;
 
-    local procedure FillGenJnlLineFrom(var GenJnlLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry")
+    local procedure FillGenJnlLineFromCustledgEntry(var GenJnlLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
         GenJnlLine."External Document No." := CustLedgEntry."Document No.";
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
@@ -375,6 +377,8 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
         GenJnlLine."Applies-to Doc. Type" := CustLedgEntry."Document Type";
         GenJnlLine."Applies-to Doc. No." := CustLedgEntry."Document No.";
         GenJnlLine."Dimension Set ID" := CustLedgEntry."Dimension Set ID";
+
+        OnAfterFillGenJnlLineFromCustLedgEntry(GenJnlLine, CustLedgEntry);
     end;
 
     local procedure InitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry")
@@ -396,6 +400,8 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
         GenJnlLine."Source Code" := GenJnlTemplate."Source Code";
         GenJnlLine."Reason Code" := GenJnlBatch."Reason Code";
         GenJnlLine."On Hold" := NetBalancesParameters."On Hold";
+
+        OnAfterInitGenJnlLine(GenJnlLine, VendLedgEntry);
     end;
 
     local procedure SetOnHold(var CustLedgEntry: Record "Cust. Ledger Entry")
@@ -461,5 +467,20 @@ codeunit 108 "Net Cust/Vend Balances Mgt."
         VendLedgEntry.SetRange("Posting Date", 0D, NetBalancesParameters."Posting Date");
         VendLedgEntry.SetFilter("On Hold", '%1|%2', '', NetBalancesParameters."On Hold");
         exit(VendLedgEntry.FindSet());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillGenJnlLineFromCustLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillGenJnlLineFromVendLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry");
+    begin
     end;
 }

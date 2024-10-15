@@ -95,7 +95,7 @@ codeunit 1203 "Import XML File to Data Exch."
                     CurrentNodeID := IncreaseNodeID(NodeID, CurrentIndex);
                     CurrentIndex += 1;
                     InnerText := XmlNodeList.ItemOf(I - 1).InnerText;
-                    OnParseParentChildLineOnBeforeInsertColumn(InnerText, XmlNodeList.ItemOf(I - 1).InnerXml);
+                    OnParseParentChildLineOnBeforeInsertColumn(InnerText, XmlNodeList.ItemOf(I - 1).InnerXml, XmlNodeList.ItemOf(I - 1).OuterXML, DataExchColumnDef);
                     InsertColumn(
                       DataExchColumnDef."Column No.", CurrentLineNo, CurrentNodeID, ParentNodeID, XmlNodeList.ItemOf(I - 1).Name,
                       InnerText, CurrentDataExchLineDef, EntryNo);
@@ -195,10 +195,10 @@ codeunit 1203 "Import XML File to Data Exch."
                     exit(StrSubstNo('*[local-name() = ''%1'']', XPath));
                 end;
             else begin
-                    FirstXPathElement := DelStr(XPath, PositionOfFirstSlash);
-                    RestOfXPath := CopyStr(XPath, PositionOfFirstSlash);
-                    exit(EscapeMissingNamespacePrefix(FirstXPathElement) + EscapeMissingNamespacePrefix(RestOfXPath));
-                end;
+                FirstXPathElement := DelStr(XPath, PositionOfFirstSlash);
+                RestOfXPath := CopyStr(XPath, PositionOfFirstSlash);
+                exit(EscapeMissingNamespacePrefix(FirstXPathElement) + EscapeMissingNamespacePrefix(RestOfXPath));
+            end;
         end;
     end;
 
@@ -228,7 +228,7 @@ codeunit 1203 "Import XML File to Data Exch."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnParseParentChildLineOnBeforeInsertColumn(var InnerText: Text; InnerXML: Text)
+    local procedure OnParseParentChildLineOnBeforeInsertColumn(var InnerText: Text; InnerXML: Text; OuterXML: Text; DataExchColumnDef: Record "Data Exch. Column Def")
     begin
     end;
 }

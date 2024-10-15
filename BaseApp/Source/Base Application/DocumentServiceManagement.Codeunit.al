@@ -621,7 +621,7 @@ codeunit 9510 "Document Service Management"
         Folders: List of [Text];
         Folder: Text;
     begin
-        // From: https://docs.microsoft.com/en-us/onedrive/developer/rest-api/?view=odsp-graph-online#path-based-addressing-within-a-drive
+        // From: https://go.microsoft.com/fwlink/?linkid=2206172
         // A driveItem can be addressed by either a unique identifier or where that item exists in the drive's hierarchy (i.e. user path).
         // Within an API request, a colon can be used to shift between API path space and user path space.
         // Ensure user data within the URL follows the addressing and path encoding requirements.

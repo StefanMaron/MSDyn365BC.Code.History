@@ -15,6 +15,7 @@ codeunit 243 "Item Jnl.-B.Post"
         ItemJnlLine: Record "Item Journal Line";
         ItemJnlPostBatch: Codeunit "Item Jnl.-Post Batch";
         JnlWithErrors: Boolean;
+        IsHandled: Boolean;
 
         Text000: Label 'Do you want to post the journals?';
         Text001: Label 'The journals were successfully posted.';
@@ -23,42 +24,61 @@ codeunit 243 "Item Jnl.-B.Post"
 
     local procedure "Code"()
     begin
-        with ItemJnlBatch do begin
-            ItemJnlTemplate.Get("Journal Template Name");
-            ItemJnlTemplate.TestField("Force Posting Report", false);
+        ItemJnlTemplate.Get(ItemJnlBatch."Journal Template Name");
+        ItemJnlTemplate.TestField("Force Posting Report", false);
 
+        IsHandled := false;
+        OnCodeOnBeforeConfirm(IsHandled);
+        if not IsHandled then
             if not Confirm(Text000, false) then
                 exit;
 
-            Find('-');
-            repeat
-                ItemJnlLine."Journal Template Name" := "Journal Template Name";
-                ItemJnlLine."Journal Batch Name" := Name;
-                ItemJnlLine."Line No." := 1;
-                Clear(ItemJnlPostBatch);
-                if ItemJnlPostBatch.Run(ItemJnlLine) then
-                    Mark(false)
-                else begin
-                    Mark(true);
-                    JnlWithErrors := true;
-                end;
-            until Next() = 0;
+        ItemJnlBatch.Find('-');
+        repeat
+            ItemJnlLine."Journal Template Name" := ItemJnlBatch."Journal Template Name";
+            ItemJnlLine."Journal Batch Name" := ItemJnlBatch.Name;
+            ItemJnlLine."Line No." := 1;
+            Clear(ItemJnlPostBatch);
+            if ItemJnlPostBatch.Run(ItemJnlLine) then
+                ItemJnlBatch.Mark(false)
+            else begin
+                ItemJnlBatch.Mark(true);
+                JnlWithErrors := true;
+            end;
+        until ItemJnlBatch.Next() = 0;
 
+        IsHandled := false;
+        OnCodeOnBeforeMessage(IsHandled);
+        if not IsHandled then
             if not JnlWithErrors then
                 Message(Text001)
             else
-                Message(
-                  Text002 +
-                  Text003);
+                Message(Text002 + Text003);
 
-            if not Find('=><') then begin
-                Reset();
-                FilterGroup(2);
-                SetRange("Journal Template Name", "Journal Template Name");
-                FilterGroup(0);
-                Name := '';
-            end;
+        if not ItemJnlBatch.Find('=><') then begin
+            ItemJnlBatch.Reset();
+            ItemJnlBatch.FilterGroup(2);
+            ItemJnlBatch.SetRange("Journal Template Name", ItemJnlBatch."Journal Template Name");
+            ItemJnlBatch.FilterGroup(0);
+            ItemJnlBatch.Name := '';
         end;
+
+        OnAfterCode(JnlWithErrors);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(JnlWithErrors: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeConfirm(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeMessage(var IsHandled: Boolean)
+    begin
     end;
 }
 

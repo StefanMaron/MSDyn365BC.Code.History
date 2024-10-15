@@ -106,6 +106,11 @@ page 321 "ECSL Report"
                         ECSLVATReportLine.ClearLines(Rec);
                     end;
                 }
+                field("Date Type"; Rec."Date Type")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Type of date used to filter selected period.';
+                }
                 field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = BasicEU;

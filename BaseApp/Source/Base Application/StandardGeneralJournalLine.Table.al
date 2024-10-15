@@ -1298,6 +1298,8 @@
 
     procedure ShowDimensions()
     begin
+        OnBeforeShowDimensions(Rec, xRec);
+
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
             Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Standard Journal Code", "Line No."),
@@ -1423,9 +1425,9 @@
                     "Source No." := "Bal. Account No.";
                 end;
             else begin
-                    "Source Type" := "Source Type"::" ";
-                    "Source No." := '';
-                end;
+                "Source Type" := "Source Type"::" ";
+                "Source No." := '';
+            end;
         end;
     end;
 
@@ -1906,6 +1908,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupShortcutDimCode(var StandardGenJnlLine: Record "Standard General Journal Line"; xStandardGenJnlLine: Record "Standard General Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDimensions(var StandardGeneralJournalLine: Record "Standard General Journal Line"; xStandardGeneralJournalLine: Record "Standard General Journal Line")
     begin
     end;
 
