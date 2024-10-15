@@ -1261,7 +1261,7 @@ codeunit 398 "Sales Tax Calculate"
                           FieldCaption("Calculation Order"), TaxArea.TableCaption, "Tax Area Code",
                           TaxDetail.FieldCaption("Calculate Tax on Tax"), CalculationOrderViolation);
                     SalesTaxAmountLine2.Copy(TempSalesTaxLine);
-                    if "Tax Type" = "Tax Type"::"Excise Tax" then
+                    if ("Tax Type" = "Tax Type"::"Excise Tax") and not TaxDetail."Calculate Tax on Tax" then
                         SalesTaxAmountLine2."Tax %" := 0
                     else
                         if "Tax Base Amount" <> 0 then
