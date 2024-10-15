@@ -4187,7 +4187,7 @@
         SalesOrder.OpenEdit;
         SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
         SalesOrder."Sell-to Customer Name".SetValue(NewName);
-        
+
         // [WHEN] Bill-to = "Custom Address"
         SalesOrder.BillToOptions.SetValue(BillToOptions::"Custom Address");
 
@@ -4532,21 +4532,8 @@
     end;
 
     local procedure FillSalesHeaderExcludedFieldList(var FieldListToExclude: List of [Text])
-    var
-        SalesHeaderRef: Record "Sales Header";
     begin
-        FieldListToExclude.Add(SalesHeaderRef.FieldName("Document Type"));
-        FieldListToExclude.Add(SalesHeaderRef.FieldName("Quote No."));
-        FieldListToExclude.Add(SalesHeaderRef.FieldName("No."));
-        FieldListToExclude.Add(SalesHeaderRef.FieldName("Posting Date"));
-        FieldListToExclude.Add(SalesHeaderRef.FieldName("Posting Description"));
-        FieldListToExclude.Add(SalesHeaderRef.FieldName("No. Series"));
-        FieldListToExclude.Add(SalesHeaderRef.FieldName("Prepayment No. Series"));
-        FieldListToExclude.Add(SalesHeaderRef.FieldName("Prepmt. Cr. Memo No. Series"));
-        FieldListToExclude.Add(SalesHeaderRef.FieldName("Shipping No. Series"));
-        FieldListToExclude.Add(SalesHeaderRef.FieldName(Id));
-
-        OnAfterFillSalesHeaderExcludedFieldList(FieldListToExclude);
+        LibraryERM.FillSalesHeaderExcludedFieldList(FieldListToExclude);
     end;
 
     local procedure FillSalesLineExcludedFieldList(var FieldListToExclude: List of [Text])
@@ -5816,11 +5803,6 @@
         ItemVendorCatalog.FILTER.SetFilter("Vendor No.", VendorNo);
         ItemVendorCatalog.Last;
         ItemVendorCatalog.OK.Invoke;
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterFillSalesHeaderExcludedFieldList(var FieldListToExclude: List of [Text])
-    begin
     end;
 
     [IntegrationEvent(false, false)]

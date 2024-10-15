@@ -1992,7 +1992,7 @@
 
         Vendor.SetFilter(Name, '''@' + VendorWithoutQuote + '''');
         OnGetVendorNoOpenCardOnAfterSetVendorWithoutQuote(Vendor);
-        if Vendor.FindFirst() then
+        if Vendor.FindFirst() and (Vendor.Count() = 1) then
             exit(Vendor."No.");
         Vendor.SetRange(Name);
 

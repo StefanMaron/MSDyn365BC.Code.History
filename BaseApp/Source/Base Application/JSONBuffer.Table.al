@@ -75,6 +75,7 @@ table 1236 "JSON Buffer"
         JSONTextReader: DotNet JsonTextReader;
         StringReader: DotNet StringReader;
         TokenType: Integer;
+        FormatValue: Integer;
     begin
         if not IsTemporary then
             Error(DevMsgNotTemporaryErr);
@@ -89,8 +90,14 @@ table 1236 "JSON Buffer"
                 "Token type" := TokenType;
                 if IsNull(JSONTextReader.Value) then
                     Value := ''
-                else
-                    SetValueWithoutModifying(Format(JSONTextReader.Value));
+                else begin
+                    if JSONTextReader.ValueType.ToString() = 'System.DateTime' then
+                        FormatValue := 1
+                    else
+                        FormatValue := 0;
+                    SetValueWithoutModifying(Format(JSONTextReader.Value, 0, FormatValue));
+                end;
+
                 if IsNull(JSONTextReader.ValueType) then
                     "Value Type" := ''
                 else

@@ -6197,6 +6197,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Job Queue Status - NamedType UnsupportedDocTypeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3062479862 - NamedType 179986896" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Contact Business Relation should be Multiple]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Merge Duplicates - NamedType BussRelationErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3062479862 - NamedType 1955155014" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Are you sure you want to merge the two records? This step cannot be undone.]]></Val>
@@ -7086,6 +7095,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 1710557762)(LookupHint=EnumExtension Mock Sales Line Type - Custom - EnumValue Test_Custom2 - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";EnumExtension 1891076778 - EnumValue 1230801577 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Value 2 Caption]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 3068241891)(LookupHint=EnumExtension SignupContextTestValue2 - EnumValue Test Value 2 - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

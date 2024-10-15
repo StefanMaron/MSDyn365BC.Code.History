@@ -4023,6 +4023,77 @@ codeunit 137079 "SCM Production Order III"
     end;
 
     [Test]
+    procedure ItemRdngPrecisionOnMultipleCalcConsumptionAfterPickInConsumptionJnl()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ItemJournalLine: Record "Item Journal Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Consumption] [Pick] [Consumption Journal]
+        // [BUG 439491] Dealing with rounding precision 1, and calc. consumption using "actual output" option, rounding is consistant. 
+        Initialize();
+
+        // [GIVEN] Component item "C"
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Production item "P" with component "C".
+        CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem, 100.6);
+        CreateProductionItem(ProdItem, ProductionBOMHeader."No.");
+
+        // [GIVEN] Create and Post 200 pcs of "C".
+        CreateAndPostItemJournal(ItemJournalLine."Entry Type"::"Positive Adjmt.", CompItem."No.", 200);
+
+        // [GIVEN] Released production order for 1 pcs of "P".
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItem."No.", 1, '', '');
+
+        // [GIVEN] Open output journal and explode routing for the production order.
+        // [GIVEN] Set the output quantity.
+        CreateOutputJournalWithExplodeRouting(ItemJournalLine, ProductionOrder."No.");
+        ItemJournalLine.Validate("Output Quantity", ProductionOrder.Quantity);
+        ItemJournalLine.Modify(true);
+
+        // [WHEN] Post the output journal.
+        LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
+
+        // [WHEN] Calculate consumption in consumption journal.
+        LibraryInventory.ClearItemJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
+
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+
+        LibraryManufacturing.CalculateConsumptionForJournal(
+          ProductionOrder, ProdOrderComponent, WorkDate(), true);
+
+        // [THEN] A consumption journal line for 101 pcs of item "C" is created. With default rounding precision 1
+        SelectItemJournalLine(ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+        ItemJournalLine.TestField("Item No.", CompItem."No.");
+        ItemJournalLine.TestField(Quantity, 101);
+
+        // [THEN] The consumption journal line has item tracking and can be successfully posted.
+        LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+
+        // [WHEN] Second time Calculate consumption in consumption journal
+        LibraryInventory.ClearItemJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
+
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+
+        LibraryManufacturing.CalculateConsumptionForJournal(
+          ProductionOrder, ProdOrderComponent, WorkDate(), true);
+
+        // [THEN] A consumption journal line is not created since 0 pcs of item "C" is avalible.
+        asserterror SelectItemJournalLine(ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+        Assert.ExpectedError(ItemJournalLineExistErr);
+    end;
+
+    [Test]
     [HandlerFunctions('ProductionJournalModalHandler,ConfirmHandler,MessageHandlerWithoutValidation')]
     procedure RoundingIsIgnoredOnNonLastLineOnProductionJournal()
     var
@@ -7235,6 +7306,27 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderComponent.Validate("Item No.", Item."No.");
         ProdOrderComponent.Validate("Unit of Measure Code", UoM.Code);
         ProdOrderComponent.Modify(true);
+    end;
+
+    local procedure CreateAndPostItemJournal(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // Create Item Journal to populate Item Quantity.
+        ClearJournal(ItemJournalBatch);  // Clear Item Journal Template and Journal Batch.
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure ClearJournal(ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        Clear(ItemJournalLine);
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.DeleteAll();
     end;
 
     [MessageHandler]

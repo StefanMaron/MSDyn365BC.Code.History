@@ -2477,12 +2477,15 @@
             trigger OnValidate()
             var
                 ReturnReason: Record "Return Reason";
+                ShouldValidateLocationCode: Boolean;
             begin
                 if "Return Reason Code" = '' then
                     PlanPriceCalcByField(FieldNo("Return Reason Code"));
 
                 if ReturnReason.Get("Return Reason Code") then begin
-                    if (ReturnReason."Default Location Code" <> '') and (not IsNonInventoriableItem) then
+                    ShouldValidateLocationCode := ((ReturnReason."Default Location Code" <> '') and (not IsNonInventoriableItem));
+                    OnValidateReturnReasonCodeOnBeforeValidateLocationCode(Rec, ReturnReason, ShouldValidateLocationCode);
+                    if ShouldValidateLocationCode then
                         Validate("Location Code", ReturnReason."Default Location Code");
                     if ReturnReason."Inventory Value Zero" then begin
                         Validate("Unit Cost (LCY)", 0);
@@ -4601,20 +4604,20 @@
                                             VATAmountLine.Quantity += GetAbsMin("Qty. to Consume (Base)", "Qty. Shipped Not Invd. (Base)");
                                         end;
                                     else begin
-                                            QtyFactor := "Qty. to Consume" / Quantity;
-                                            VATAmountLine.Quantity += "Qty. to Consume (Base)";
-                                        end;
+                                        QtyFactor := "Qty. to Consume" / Quantity;
+                                        VATAmountLine.Quantity += "Qty. to Consume (Base)";
+                                    end;
                                 end;
                             end
                         else begin
-                                VATAmountLine.Quantity += "Quantity (Base)";
-                                VATAmountLine."Line Amount" += "Line Amount";
-                                if "Allow Invoice Disc." then
-                                    VATAmountLine."Inv. Disc. Base Amount" += "Line Amount";
-                                VATAmountLine."Invoice Discount Amount" += "Inv. Discount Amount";
-                                VATAmountLine."VAT Difference" += "VAT Difference";
-                                VATAmountLine.Modify();
-                            end;
+                            VATAmountLine.Quantity += "Quantity (Base)";
+                            VATAmountLine."Line Amount" += "Line Amount";
+                            if "Allow Invoice Disc." then
+                                VATAmountLine."Inv. Disc. Base Amount" += "Line Amount";
+                            VATAmountLine."Invoice Discount Amount" += "Inv. Discount Amount";
+                            VATAmountLine."VAT Difference" += "VAT Difference";
+                            VATAmountLine.Modify();
+                        end;
                     end;
                     TotalVATAmount += "Amount Including VAT" - Amount + "VAT Difference";
                     OnCalcVATAmountLinesOnAfterCalcLineTotals(VATAmountLine, ServHeader, ServiceLine, Currency, QtyType, TotalVATAmount);
@@ -5442,9 +5445,9 @@
     var
         Location: Record Location;
     begin
-        if ("Document Type" <> "Document Type"::Order) or IsNonInventoriableItem() then
-            exit(false);
-        exit(Location.RequireReceive("Location Code") or Location.RequireShipment("Location Code"));
+        if ("Document Type" = "Document Type"::Order) and IsInventoriableItem() then
+            exit(Location.RequireReceive("Location Code") or Location.RequireShipment("Location Code"));
+        exit(false);
     end;
 
     local procedure DisplayConflictError(ErrTxt: Text[500])
@@ -5504,7 +5507,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckIfCanBeModified(Rec, IsHandled);
+        OnBeforeCheckIfCanBeModified(Rec, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -6384,7 +6387,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckIfCanBeModified(ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckIfCanBeModified(ServiceLine: Record "Service Line"; var IsHandled: Boolean; xServiceLine: Record "Service Line")
     begin
     end;
 
@@ -6460,6 +6463,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateApplToItemEntryOnBeforeShowNotOpenItemLedgerEntryMessage(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateReturnReasonCodeOnBeforeValidateLocationCode(var ServiceLine: Record "Service Line"; ReturnReason: Record "Return Reason"; var ShouldValidateLocationCode: Boolean)
     begin
     end;
 }

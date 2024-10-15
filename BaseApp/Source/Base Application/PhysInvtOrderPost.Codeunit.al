@@ -203,7 +203,10 @@ codeunit 5884 "Phys. Invt. Order-Post"
     begin
         PhysInvtOrderLine.CheckLine();
         Item.Get(PhysInvtOrderLine."Item No.");
-        Item.TestField(Blocked, false);
+        IsHandled := false;
+        OnCheckOrderLineOnBeforeTestFieldItemBlocked(Item, IsHandled);
+        if not IsHandled then
+            Item.TestField(Blocked, false);
 
         IsHandled := false;
         OnCheckOrderLineOnBeforeGetSamePhysInvtOrderLine(PhysInvtOrderHeader, PhysInvtOrderLine, PhysInvtOrderLine2, ErrorText, IsHandled);
@@ -298,7 +301,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
         ItemJnlLine."Phys Invt Counting Period Type" := PhysInvtOrderLine."Phys Invt Counting Period Type";
         PhysInvtTrackingMgt.TransferResEntryToItemJnlLine(PhysInvtOrderLine, ItemJnlLine, Qty, Positive);
 
-        OnBeforeItemJnlPostLine(ItemJnlLine, PhysInvtOrderLine);
+        OnBeforeItemJnlPostLine(ItemJnlLine, PhysInvtOrderLine, ItemJnlPostLine, Positive);
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
 
@@ -603,7 +606,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeItemJnlPostLine(var ItemJournalLine: Record "Item Journal Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line");
+    local procedure OnBeforeItemJnlPostLine(var ItemJournalLine: Record "Item Journal Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; Positive: Boolean);
     begin
     end;
 
@@ -684,6 +687,11 @@ codeunit 5884 "Phys. Invt. Order-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnThrowDifferenceError(PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var ErrorMsg: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckOrderLineOnBeforeTestFieldItemBlocked(Item: Record "Item"; var IsHandled: Boolean)
     begin
     end;
 }
