@@ -906,6 +906,8 @@ page 392 "Phys. Inventory Journal"
         ShowAllLinesEnabled := true;
         SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
         ItemJournalErrorsMgt.SetFullBatchCheck(true);
+
+        OnAfterSetControlAppearanceFromBatch(ItemJournalBatch);
     end;
 
     local procedure ShowPreview()
@@ -922,6 +924,11 @@ page 392 "Phys. Inventory Journal"
 
     [IntegrationEvent(false, false)]
     local procedure OnReferenceNoOnAfterLookup(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetControlAppearanceFromBatch(ItemJournalBatch: Record "Item Journal Batch")
     begin
     end;
 }

@@ -1850,7 +1850,7 @@
         exit(not ReservEntry.IsEmpty);
     end;
 
-    local procedure UpdateAllAmounts()
+    procedure UpdateAllAmounts()
     var
         IsHandled: Boolean;
     begin
@@ -2013,6 +2013,7 @@
                 "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
                 "Direct Unit Cost (LCY)" := ConvertAmountToLCY("Direct Unit Cost (LCY)", UnitAmountRoundingPrecision);
             end;
+            OnAfterFindPriceAndDiscount(Rec, xRec, CalledByFieldNo);
         end;
     end;
 
@@ -2747,7 +2748,13 @@
     local procedure FindBin() NewBinCode: Code[20]
     var
         WMSManagement: Codeunit "WMS Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindBin(Rec, NewBinCode, IsHandled);
+        if IsHandled then
+            exit(NewBinCode);
+
         if (Rec."No." <> '') and (Rec."Location Code" <> '') then begin
             GetLocation(Rec."Location Code");
             if Location."To-Job Bin Code" <> '' then
@@ -3142,6 +3149,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnControlUsageLinkOnAfterSetFilterJobUsageLink(var JobPlanningLine: Record "Job Planning Line"; var JobUsageLink: Record "Job Usage Link"; Job: Record Job; CallingFieldNo: Integer; var IsHandling: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindBin(var JobPlanningLine: Record "Job Planning Line"; var NewBinCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindPriceAndDiscount(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; CalledByFieldNo: Integer)
     begin
     end;
 }

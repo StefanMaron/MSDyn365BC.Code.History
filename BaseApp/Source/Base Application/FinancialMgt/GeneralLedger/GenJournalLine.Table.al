@@ -194,6 +194,10 @@
                     ValidateCurrencyCode();
                 end;
                 TestField("Posting Date");
+                GLSetup.Get();
+                GLSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
+                Validate("VAT Reporting Date");
+
                 ValidateDocumentDateFromPostingDate();
 
                 OnValidatePostingDateOnAfterValidateCurrencyCode(Rec, xRec);
@@ -210,10 +214,6 @@
 
                 if "Deferral Code" <> '' then
                     Validate("Deferral Code");
-
-                GLSetup.Get();
-                GLSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
-                Validate("VAT Reporting Date");
             end;
         }
         field(6; "Document Type"; Enum "Gen. Journal Document Type")
@@ -1584,12 +1584,11 @@
 
             trigger OnValidate()
             begin
-                Validate("Payment Terms Code");
-
-
                 GLSetup.Get();
                 GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
                 Validate("VAT Reporting Date");
+
+                Validate("Payment Terms Code");
             end;
         }
         field(77; "External Document No."; Code[35])
@@ -5076,8 +5075,9 @@
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
     end;
 
-    procedure ShowDimensions()
+    procedure ShowDimensions() IsChanged: Boolean
     var
+        OldDimSetID: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -5085,10 +5085,13 @@
         if IsHandled then
             exit;
 
+        OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
             Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        IsChanged := OldDimSetID <> "Dimension Set ID";
     end;
 
     procedure SwitchLinesWithErrorsFilter(var ShowAllLinesEnabled: Boolean)
@@ -5943,7 +5946,13 @@
         ConfirmManagement: Codeunit "Confirm Management";
         FromCurrencyCode: Code[10];
         ToCurrencyCode: Code[10];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateCurrencyCode(Rec, NewCurrencyCode, IsHandled);
+        if IsHandled then
+            exit;
+
         FromCurrencyCode := GetShowCurrencyCode("Currency Code");
         ToCurrencyCode := GetShowCurrencyCode(NewCurrencyCode);
         if not ConfirmManagement.GetResponseOrDefault(
@@ -7536,9 +7545,11 @@ then
     begin
         if Amount = 0 then
             UpdateCurrencyCode(CustVendLedgEntryCurrencyCode)
-        else
+        else begin
+            OnCheckModifyCurrencyCodeOnBeforeCheckAgainstApplnCurrency(Rec, VendLedgEntry, CustLedgEntry, AccountType);
             GenJnlApply.CheckAgainstApplnCurrency(
               "Currency Code", CustVendLedgEntryCurrencyCode, AccountType, true);
+        end;
     end;
 
     protected procedure SetAmountWithRemaining(CalcPmtDisc: Boolean; AmountToApply: Decimal; RemainingAmount: Decimal; RemainingPmtDiscPossible: Decimal)
@@ -10217,6 +10228,16 @@ then
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyClearAppliedGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; NewCurrencyCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckModifyCurrencyCodeOnBeforeCheckAgainstApplnCurrency(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; AccountType: Enum "Gen. Journal Account Type")
     begin
     end;
 }

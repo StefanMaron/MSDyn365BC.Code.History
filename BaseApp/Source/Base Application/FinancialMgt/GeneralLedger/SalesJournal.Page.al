@@ -1216,7 +1216,7 @@
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch();
 
-        OnAfterOpenPage();
+        OnAfterOpenPage(CurrentJnlBatchName);
     end;
 
     var
@@ -1369,7 +1369,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterOpenPage()
+    local procedure OnAfterOpenPage(var CurrentJnlBatchName: Code[10])
     begin
     end;
 

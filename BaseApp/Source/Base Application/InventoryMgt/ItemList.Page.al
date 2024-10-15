@@ -32,6 +32,12 @@ page 31 "Item List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a default text to describe the item on related documents such as orders or invoices. You can translate the descriptions so that they show up in the language of the customer or vendor.';
                 }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;

@@ -226,7 +226,9 @@
                   tabledata "Document Print Buffer" = Rimd,
                   tabledata "Document Search Result" = RIMD,
                   tabledata "Document Sending Profile" = RIMD,
+#if not CLEAN23
                   tabledata "Document Service Cache" = Rimd,
+#endif
                   tabledata "Document Signature" = RIMD,
                   tabledata "Drop Shpt. Post. Buffer" = RIMD,
                   tabledata "ECSL VAT Report Line" = RIMD,

@@ -1,4 +1,4 @@
-codeunit 312 "Cust-Check Cr. Limit"
+﻿codeunit 312 "Cust-Check Cr. Limit"
 {
     Permissions = TableData "My Notifications" = rimd;
 
@@ -60,6 +60,7 @@ codeunit 312 "Cust-Check Cr. Limit"
         if GuiAllowed then begin
             OnNewCheckRemoveCustomerNotifications(SalesHeader.RecordId, true);
 
+            OnSalesHeaderCheckOnBeforeShowWarning(CustCheckCreditLimit);
             if not CustCheckCreditLimit.SalesHeaderShowWarningAndGetCause(SalesHeader, AdditionalContextId) then
                 SalesHeader.CustomerCreditLimitNotExceeded()
             else begin
@@ -90,6 +91,7 @@ codeunit 312 "Cust-Check Cr. Limit"
         if GuiAllowed then
             OnNewCheckRemoveCustomerNotifications(SalesHeader.RecordId, false);
 
+        OnSalesLineCheckOnBeforeShowWarning(CustCheckCreditLimit);
         if not CustCheckCreditLimit.SalesLineShowWarningAndGetCause(SalesLine, AdditionalContextId) then
             SalesHeader.CustomerCreditLimitNotExceeded()
         else begin
@@ -118,6 +120,7 @@ codeunit 312 "Cust-Check Cr. Limit"
 
         OnNewCheckRemoveCustomerNotifications(ServiceHeader.RecordId, true);
 
+        OnServiceHeaderCheckOnBeforeShowWarning(CustCheckCreditLimit);
         if CustCheckCreditLimit.ServiceHeaderShowWarningAndGetCause(ServiceHeader, AdditionalContextId) then
             CreateAndSendNotification(ServiceHeader.RecordId, AdditionalContextId, '');
     end;
@@ -134,6 +137,7 @@ codeunit 312 "Cust-Check Cr. Limit"
             ServiceHeader.Init();
         OnNewCheckRemoveCustomerNotifications(ServiceHeader.RecordId, false);
 
+        OnServiceLineCheckOnBeforeShowWarning(CustCheckCreditLimit);
         if CustCheckCreditLimit.ServiceLineShowWarningAndGetCause(ServiceLine, AdditionalContextId) then
             CreateAndSendNotification(ServiceHeader.RecordId, AdditionalContextId, '');
     end;
@@ -147,6 +151,7 @@ codeunit 312 "Cust-Check Cr. Limit"
 
         OnNewCheckRemoveCustomerNotifications(ServiceContractHeader.RecordId, true);
 
+        OnServiceContractHeaderCheckOnBeforeShowWarning(CustCheckCreditLimit);
         if CustCheckCreditLimit.ServiceContractHeaderShowWarningAndGetCause(ServiceContractHeader, AdditionalContextId) then
             CreateAndSendNotification(ServiceContractHeader.RecordId, AdditionalContextId, '');
     end;
@@ -165,6 +170,7 @@ codeunit 312 "Cust-Check Cr. Limit"
 
         OnNewCheckRemoveCustomerNotifications(SalesOrderHeader.RecordId, true);
 
+        OnBlanketSalesOrderToOrderCheckOnBeforeSalesHeaderShowWarning(CustCheckCreditLimit);
         if CustCheckCreditLimit.SalesHeaderShowWarningAndGetCause(SalesOrderHeader, AdditionalContextId) then
             CreateAndSendNotification(SalesOrderHeader.RecordId, AdditionalContextId, '');
     end;
@@ -294,6 +300,36 @@ codeunit 312 "Cust-Check Cr. Limit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesLineCheck(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesHeaderCheckOnBeforeShowWarning(var CustCheckCreditLimit: Page "Check Credit Limit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesLineCheckOnBeforeShowWarning(var CustCheckCreditLimit: Page "Check Credit Limit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServiceHeaderCheckOnBeforeShowWarning(var CustCheckCreditLimit: Page "Check Credit Limit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServiceLineCheckOnBeforeShowWarning(var CustCheckCreditLimit: Page "Check Credit Limit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServiceContractHeaderCheckOnBeforeShowWarning(var CustCheckCreditLimit: Page "Check Credit Limit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBlanketSalesOrderToOrderCheckOnBeforeSalesHeaderShowWarning(var CustCheckCreditLimit: Page "Check Credit Limit")
     begin
     end;
 }

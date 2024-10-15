@@ -1593,7 +1593,7 @@ table 7302 "Bin Content"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcQtyWithBlockedItemTracking(BinContent: Record "Bin Content"; var QtyWithBlockedItemTracking: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeCalcQtyWithBlockedItemTracking(var BinContent: Record "Bin Content"; var QtyWithBlockedItemTracking: Decimal; var IsHandled: Boolean)
     begin
     end;
 

@@ -477,7 +477,9 @@
                   tabledata "Document Entry" = R,
                   tabledata "Document Search Result" = R,
                   tabledata "Document Sending Profile" = R,
+#if not CLEAN23
                   tabledata "Document Service Cache" = R,
+#endif
                   tabledata "Drop Shpt. Post. Buffer" = R,
                   tabledata "Dtld. Price Calculation Setup" = R,
                   tabledata "Duplicate Price Line" = R,

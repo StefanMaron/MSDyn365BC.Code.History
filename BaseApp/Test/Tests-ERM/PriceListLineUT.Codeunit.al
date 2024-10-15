@@ -54,6 +54,7 @@ codeunit 134123 "Price List Line UT"
         SourceNoErr: Label 'Invalid Source No.';
         AssignToNoErr: Label 'Invalid Assign-to No.';
         VATProdPostingGroupErr: Label 'VAT Product Posting Group are not equal.';
+        AmountTypeNotAllowedForSourceTypeErr: Label '%1 is not allowed for %2.', Comment = '%1 - Price or Discount, %2 - Source Type';
 
     [Test]
     [HandlerFunctions('ItemUOMModalHandler')]
@@ -3690,6 +3691,75 @@ codeunit 134123 "Price List Line UT"
 
         // [VERIFY] Verify VAT Prod. Posting Group has been updated from Item
         Assert.AreEqual(Item."VAT Prod. Posting Group", PriceListLine."VAT Prod. Posting Group", VATProdPostingGroupErr);
+    end;
+
+    [Test]
+    procedure VerifyAmountTypeAnyIsNotAllowedForCustomerPriceGroupInPriceList()
+    var
+        PriceListHeader: Record "Price List Header";
+        CustomerPriceGroup: Record "Customer Price Group";
+    begin
+        // [SCENARIO 473523] Verify that the customer won't be able to choose Price & Discount if Assign-to Type is Customer Price Group.
+        Initialize();
+
+        // [GIVEN] Create a Customer Price Group.
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+
+        // [GIVEN] Create a Price Header.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader,
+            "Price Type"::Sale,
+            "Price Source Type"::"Customer Price Group",
+            CustomerPriceGroup.Code);
+
+        // [GIVEN] Set Allow Updating Defaults to true in the Price List Header.
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify(true);
+
+        // [WHEN] Not allowed to validate Amount Type "Price & Discount" for Customer Price Group.
+        asserterror PriceListHeader.Validate("Amount Type", PriceListHeader."Amount Type"::Any);
+
+        // [VERIFY] Verify: Amount Type "Price & Discount" is not allowed if the Assign-to Type is Customer Price Group. 
+        Assert.ExpectedError(
+            StrSubstNo(
+                AmountTypeNotAllowedForSourceTypeErr,
+                PriceListHeader."Amount Type"::Any,
+                PriceListHeader."Source Type"));
+    end;
+
+    [Test]
+    procedure VerifyAmountTypeAnyIsNotAllowedForCustomerDiscGroupInPriceList()
+    var
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        CustomerDiscountGroup: Record "Customer Discount Group";
+    begin
+        // [SCENARIO 473523] Verify that the customer won't be able to choose Price & Discount if Assign-to Type is Customer Discount Group.
+        Initialize();
+
+        // [GIVEN] Create a Customer Discount Group.
+        LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup);
+
+        // [GIVEN] Create a Price Header.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader,
+            "Price Type"::Sale,
+            "Price Source Type"::"Customer Disc. Group",
+            CustomerDiscountGroup.Code);
+
+        // [GIVEN] Set Allow Updating Defaults to true in the Price List Header.
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify(true);
+
+        // [WHEN] Not allowed to validate Amount Type "Price & Discount" for Customer Discount Group.
+        asserterror PriceListHeader.Validate("Amount Type", PriceListHeader."Amount Type"::Any);
+
+        // [VERIFY] Verify: Amount Type "Price & Discount" is not allowed if the Assign-to Type is Customer Discount Group. 
+        Assert.ExpectedError(
+            StrSubstNo(
+                AmountTypeNotAllowedForSourceTypeErr,
+                PriceListHeader."Amount Type"::Any,
+                PriceListHeader."Source Type"));
     end;
 
     local procedure Initialize()

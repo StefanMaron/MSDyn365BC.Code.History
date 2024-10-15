@@ -66,19 +66,20 @@
 
             PurchLine.Reset();
 
-            OnBeforeCalcInvDiscount(PurchaseHeader, PreviewMode, LinesWereModified);
-
+            IsHandled := false;
+            OnBeforeCalcInvDiscount(PurchaseHeader, PreviewMode, LinesWereModified, IsHandled);
             PurchSetup.Get();
-            if PurchSetup."Calc. Inv. Discount" then begin
-                PostingDate := "Posting Date";
-                PrintPostedDocuments := "Print Posted Documents";
-                CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
-                LinesWereModified := true;
-                Get("Document Type", "No.");
-                "Print Posted Documents" := PrintPostedDocuments;
-                if PostingDate <> "Posting Date" then
-                    Validate("Posting Date", PostingDate);
-            end;
+            if not IsHandled then
+                if PurchSetup."Calc. Inv. Discount" then begin
+                    PostingDate := "Posting Date";
+                    PrintPostedDocuments := "Print Posted Documents";
+                    CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
+                    LinesWereModified := true;
+                    Get("Document Type", "No.");
+                    "Print Posted Documents" := PrintPostedDocuments;
+                    if PostingDate <> "Posting Date" then
+                        Validate("Posting Date", PostingDate);
+                end;
 
             IsHandled := false;
             OnBeforeModifyPurchDoc(PurchaseHeader, PreviewMode, IsHandled);
@@ -122,9 +123,11 @@
         PurchLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchLine.SetFilter(Type, '>0');
         PurchLine.SetFilter(Quantity, '<>0');
-        OnCodeOnAfterPurchLineSetFilters(PurchaseHeader, PurchLine);
-        if not PurchLine.Find('-') then
-            Error(Text001, PurchaseHeader."Document Type", PurchaseHeader."No.");
+        IsHandled := false;
+        OnCodeOnAfterPurchLineSetFilters(PurchaseHeader, PurchLine, IsHandled);
+        if not IsHandled then
+            if not PurchLine.Find('-') then
+                Error(Text001, PurchaseHeader."Document Type", PurchaseHeader."No.");
 
         CheckMandatoryFields(PurchLine);
     end;
@@ -221,6 +224,8 @@
             exit;
 
         CODEUNIT.Run(CODEUNIT::"Release Purchase Document", PurchHeader);
+
+        OnAfterPerformManualCheckAndRelease(PurchHeader);
     end;
 
     local procedure CheckPurchaseHeaderPendingApproval(var PurchHeader: Record "Purchase Header")
@@ -298,7 +303,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcInvDiscount(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var LinesWereModified: Boolean)
+    local procedure OnBeforeCalcInvDiscount(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var LinesWereModified: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -373,7 +378,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterPurchLineSetFilters(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    local procedure OnCodeOnAfterPurchLineSetFilters(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -414,6 +419,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnReopenOnBeforePurchaseHeaderModify(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPerformManualCheckAndRelease(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

@@ -193,7 +193,7 @@
                   tabledata "Cash Flow Manual Expense" = R,
                   tabledata "Cash Flow Manual Revenue" = R,
                   tabledata "Cash Flow Report Selection" = R,
-                  tabledata "Cash Flow Setup" = R,
+                  tabledata "Cash Flow Setup" = Ri,
                   tabledata "Cash Flow Worksheet Line" = R,
                   tabledata "Cause of Absence" = R,
                   tabledata "Cause of Inactivity" = R,
@@ -444,7 +444,9 @@
                   tabledata "Document Entry" = R,
                   tabledata "Document Search Result" = R,
                   tabledata "Document Sending Profile" = R,
+#if not CLEAN23
                   tabledata "Document Service Cache" = R,
+#endif
                   tabledata "Drop Shpt. Post. Buffer" = R,
                   tabledata "Dtld. Price Calculation Setup" = R,
                   tabledata "Duplicate Price Line" = R,

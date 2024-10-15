@@ -29,6 +29,7 @@ report 5854 "Roll Up Standard Cost"
                 TempItem.SetFilter("Replenishment System", '%1|%2',
                   TempItem."Replenishment System"::"Prod. Order",
                   TempItem."Replenishment System"::Assembly);
+                OnPreDataItemOnAfterSetTempItemFilter(TempItem);
                 if TempItem.Find('-') then
                     repeat
                         UpdateStdCostWksh();
@@ -148,6 +149,11 @@ report 5854 "Roll Up Standard Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateStdCostWkshOnAfterFieldsPopulated(var StdCostWksh: Record "Standard Cost Worksheet"; TempItem: Record Item temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreDataItemOnAfterSetTempItemFilter(var TempItem: Record Item temporary)
     begin
     end;
 }

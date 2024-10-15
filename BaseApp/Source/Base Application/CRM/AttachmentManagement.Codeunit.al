@@ -6,10 +6,10 @@ codeunit 5052 AttachmentManagement
     end;
 
     var
-        Text000: Label 'Send attachments...\\';
-        Text001: Label 'Preparing';
-        Text002: Label 'Deliver misc.';
-        Text008: Label 'You must select an interaction template with an attachment.';
+        Text000Msg: Label 'Send attachments...\\';
+        Text001Msg: Label 'Preparing';
+        Text002Msg: Label 'Deliver misc.';
+        Text008Msg: Label 'You must select an interaction template with an attachment.';
         AttachmentTok: Label 'Attachment';
 
     [Scope('OnPrem')]
@@ -40,7 +40,7 @@ codeunit 5052 AttachmentManagement
         TempDeliverySorterHtml: Record "Delivery Sorter" temporary;
         TempDeliverySorterWord: Record "Delivery Sorter" temporary;
         TempDeliverySorterOther: Record "Delivery Sorter" temporary;
-        InteractLogEntry: Record "Interaction Log Entry";
+        InteractionLogEntry: Record "Interaction Log Entry";
         WordTemplateInteractions: Codeunit "Word Template Interactions";
         IsHandled: Boolean;
     begin
@@ -53,14 +53,14 @@ codeunit 5052 AttachmentManagement
             WordTemplateInteractions.Merge(TempDeliverySorterWord);
 
         if TempDeliverySorterHtml.FindFirst() then
-            DeliverHTMLEmail(TempDeliverySorterHtml, InteractLogEntry);
+            DeliverHTMLEmail(TempDeliverySorterHtml, InteractionLogEntry);
 
         if TempDeliverySorterOther.FindFirst() then
-            DeliverEmailWithAttachment(TempDeliverySorterOther, InteractLogEntry);
+            DeliverEmailWithAttachment(TempDeliverySorterOther, InteractionLogEntry);
 
         OnAfterSend(
           DeliverySorter, TempDeliverySorterHtml, TempDeliverySorterWord,
-          TempDeliverySorterOther, InteractLogEntry);
+          TempDeliverySorterOther, InteractionLogEntry);
     end;
 
     [Scope('OnPrem')]
@@ -69,7 +69,7 @@ codeunit 5052 AttachmentManagement
         TempDeliverySorterHtml: Record "Delivery Sorter" temporary;
         TempDeliverySorterWord: Record "Delivery Sorter" temporary;
         TempDeliverySorterOther: Record "Delivery Sorter" temporary;
-        InteractLogEntry: Record "Interaction Log Entry";
+        InteractionLogEntry: Record "Interaction Log Entry";
         WordTemplateInteractions: Codeunit "Word Template Interactions";
         ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
     begin
@@ -80,15 +80,15 @@ codeunit 5052 AttachmentManagement
 
         InitializeExchange(ExchangeWebServicesServer);
         if TempDeliverySorterHtml.FindFirst() then
-            DeliverHTMLEmailViaExchange(ExchangeWebServicesServer, TempDeliverySorterHtml, InteractLogEntry);
+            DeliverHTMLEmailViaExchange(ExchangeWebServicesServer, TempDeliverySorterHtml, InteractionLogEntry);
 
         if TempDeliverySorterOther.FindFirst() then
-            DeliverEmailWithAttachmentViaExchange(ExchangeWebServicesServer, TempDeliverySorterOther, InteractLogEntry);
+            DeliverEmailWithAttachmentViaExchange(ExchangeWebServicesServer, TempDeliverySorterOther, InteractionLogEntry);
     end;
 
     local procedure TransferAttachment(FromAttachment: Record Attachment; var ToAttachment: Record Attachment)
     var
-        RMSetup: Record "Marketing Setup";
+        RMarketingSetup: Record "Marketing Setup";
         FileName: Text;
     begin
         // Transfer attachments of different types
@@ -98,60 +98,59 @@ codeunit 5052 AttachmentManagement
         then begin
             FileName := ToAttachment.ConstDiskFileName();
             FromAttachment.ExportAttachmentToServerFile(FileName); // Export blob to UNC location
-            with ToAttachment do begin
-                Clear("Attachment File");
-                RMSetup.Get();
-                RMSetup.TestField("Attachment Storage Location");
-                "Storage Pointer" := RMSetup."Attachment Storage Location";
-                Modify();
-            end;
+            Clear(ToAttachment."Attachment File");
+            RMarketingSetup.Get();
+            RMarketingSetup.TestField("Attachment Storage Location");
+            ToAttachment."Storage Pointer" := RMarketingSetup."Attachment Storage Location";
+            ToAttachment.Modify();
         end;
 
         if (FromAttachment."Storage Type" = FromAttachment."Storage Type"::"Disk File") and
            (ToAttachment."Storage Type" = ToAttachment."Storage Type"::"Disk File")
         then begin
             // Copy external attachment (to new storage)
-            RMSetup.Get();
-            RMSetup.TestField("Attachment Storage Location");
-            ToAttachment."Storage Pointer" := RMSetup."Attachment Storage Location";
+            RMarketingSetup.Get();
+            RMarketingSetup.TestField("Attachment Storage Location");
+            ToAttachment."Storage Pointer" := RMarketingSetup."Attachment Storage Location";
             ToAttachment.Modify();
             FILE.Copy(FromAttachment.ConstDiskFileName(), ToAttachment.ConstDiskFileName());
         end;
 
         if (FromAttachment."Storage Type" = FromAttachment."Storage Type"::"Disk File") and
            (ToAttachment."Storage Type" = ToAttachment."Storage Type"::Embedded)
-        then
+        then begin
             // Transfer External to Embedded attachment
-            with ToAttachment do begin
-                ImportAttachmentFromServerFile(FromAttachment.ConstDiskFileName(), true, false); // Import file from UNC location
-                "File Extension" := FromAttachment."File Extension";
-                "Storage Pointer" := '';
-                Modify();
-            end;
+            ToAttachment.ImportAttachmentFromServerFile(FromAttachment.ConstDiskFileName(), true, false); // Import file from UNC location
+            ToAttachment."File Extension" := FromAttachment."File Extension";
+            ToAttachment."Storage Pointer" := '';
+            ToAttachment.Modify();
+        end;
     end;
 
-    procedure InteractionEMail(var InteractLogEntry: Record "Interaction Log Entry") EMailAddress: Text[80]
+    procedure InteractionEMail(var InteractionLogEntry: Record "Interaction Log Entry") EMailAddress: Text[80]
     var
-        Cont: Record Contact;
-        ContAltAddr: Record "Contact Alt. Address";
+        Contact: Record Contact;
+        ContactAltAddress: Record "Contact Alt. Address";
         IsHandled: Boolean;
     begin
-        OnBeforeInteractionEMail(InteractLogEntry, EMailAddress, IsHandled);
+        OnBeforeInteractionEMail(InteractionLogEntry, EMailAddress, IsHandled);
         if IsHandled then
             exit(EMailAddress);
 
-        if InteractLogEntry."Contact Alt. Address Code" = '' then begin
-            Cont.Get(InteractLogEntry."Contact No.");
-            exit(Cont."E-Mail");
+        if InteractionLogEntry."Contact Alt. Address Code" = '' then begin
+            Contact.Get(InteractionLogEntry."Contact No.");
+            exit(Contact."E-Mail");
         end;
-        ContAltAddr.Get(InteractLogEntry."Contact No.", InteractLogEntry."Contact Alt. Address Code");
-        if ContAltAddr."E-Mail" <> '' then
-            exit(ContAltAddr."E-Mail");
+        ContactAltAddress.Get(InteractionLogEntry."Contact No.", InteractionLogEntry."Contact Alt. Address Code");
+        if ContactAltAddress."E-Mail" <> '' then
+            exit(ContactAltAddress."E-Mail");
 
-        Cont.Get(InteractLogEntry."Contact No.");
-        exit(Cont."E-Mail");
+        Contact.Get(InteractionLogEntry."Contact No.");
+        exit(Contact."E-Mail");
     end;
 
+#if not CLEAN23
+    [Obsolete('Fax is not supported anymore.', '23.0')]
     procedure InteractionFax(var InteractLogEntry: Record "Interaction Log Entry") FaxNo: Text[30]
     var
         Cont: Record Contact;
@@ -173,6 +172,7 @@ codeunit 5052 AttachmentManagement
         Cont.Get(InteractLogEntry."Contact No.");
         exit(Cont."Fax No.");
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure GenerateHTMLContent(var Attachment: Record Attachment; SegmentLine: Record "Segment Line"): Boolean
@@ -237,12 +237,12 @@ codeunit 5052 AttachmentManagement
     var
         ReportLayoutSelection: Record "Report Layout Selection";
         EmailMerge: Report "Email Merge";
-        FileMgt: Codeunit "File Management";
+        FileManagement: Codeunit "File Management";
         ContentBodyText: Text;
         CustomLayoutNo: Code[20];
     begin
         Clear(EmailMerge);
-        FileName := FileMgt.ServerTempFileName('html');
+        FileName := FileManagement.ServerTempFileName('html');
         if FileName = '' then
             exit;
 
@@ -288,18 +288,18 @@ codeunit 5052 AttachmentManagement
         ExchangeWebServicesServer.SetImpersonatedIdentity(AuthenticationEmail);
     end;
 
-    local procedure GetSenderSalesPersonEmail(var InteractLogEntry: Record "Interaction Log Entry"): Text
+    local procedure GetSenderSalesPersonEmail(var InteractionLogEntry: Record "Interaction Log Entry"): Text
     var
         SalesPersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        SalesPersonPurchaser.Get(InteractLogEntry."Salesperson Code");
+        SalesPersonPurchaser.Get(InteractionLogEntry."Salesperson Code");
         exit(SalesPersonPurchaser."E-Mail");
     end;
 
     local procedure DeliverHTMLEmail(var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var InteractLogEntry: Record "Interaction Log Entry")
     var
         Attachment: Record Attachment;
-        FileMgt: Codeunit "File Management";
+        FileManagement: Codeunit "File Management";
         EmailBodyFilePath: Text;
         IsHandled: Boolean;
     begin
@@ -313,7 +313,7 @@ codeunit 5052 AttachmentManagement
 
             if TempDeliverySorterHtml."Correspondence Type" = TempDeliverySorterHtml."Correspondence Type"::Email then begin
                 GetAttachment(Attachment, TempDeliverySorterHtml."Attachment No.", false);
-                EmailBodyFilePath := FileMgt.ServerTempFileName('HTML');
+                EmailBodyFilePath := FileManagement.ServerTempFileName('HTML');
                 Attachment.ExportAttachmentToServerFile(EmailBodyFilePath);
                 OnDeliverHTMLEmailOnBeforeSendEmail(
                   TempDeliverySorterHtml, Attachment, InteractLogEntry, EmailBodyFilePath);
@@ -322,7 +322,7 @@ codeunit 5052 AttachmentManagement
                 SendHTMLEmail(
                   TempDeliverySorterHtml, InteractLogEntry, EmailBodyFilePath);
                 // Clean up
-                FileMgt.DeleteServerFile(EmailBodyFilePath)
+                FileManagement.DeleteServerFile(EmailBodyFilePath)
             end else
                 SetDeliveryState(InteractLogEntry, false);
         until TempDeliverySorterHtml.Next() = 0;
@@ -331,7 +331,7 @@ codeunit 5052 AttachmentManagement
     local procedure DeliverHTMLEmailViaExchange(var ExchangeWebServicesServer: Codeunit "Exchange Web Services Server"; var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var InteractLogEntry: Record "Interaction Log Entry")
     var
         Attachment: Record Attachment;
-        FileMgt: Codeunit "File Management";
+        FileManagement: Codeunit "File Management";
         EmailBodyFilePath: Text;
     begin
         InteractLogEntry.LockTable();
@@ -340,14 +340,14 @@ codeunit 5052 AttachmentManagement
 
             if TempDeliverySorterHtml."Correspondence Type" = TempDeliverySorterHtml."Correspondence Type"::Email then begin
                 GetAttachment(Attachment, TempDeliverySorterHtml."Attachment No.", false);
-                EmailBodyFilePath := FileMgt.ServerTempFileName('HTML');
+                EmailBodyFilePath := FileManagement.ServerTempFileName('HTML');
                 Attachment.ExportAttachmentToServerFile(EmailBodyFilePath);
 
                 Commit();
                 SendHTMLEmailViaExchange(
                   ExchangeWebServicesServer, TempDeliverySorterHtml, InteractLogEntry, Attachment);
                 // Clean up
-                FileMgt.DeleteServerFile(EmailBodyFilePath)
+                FileManagement.DeleteServerFile(EmailBodyFilePath)
             end else
                 SetDeliveryState(InteractLogEntry, false);
         until TempDeliverySorterHtml.Next() = 0;
@@ -355,7 +355,7 @@ codeunit 5052 AttachmentManagement
 
     local procedure DeliverEmailWithAttachment(var TempDeliverySorterOther: Record "Delivery Sorter" temporary; var InteractLogEntry: Record "Interaction Log Entry")
     var
-        FileMgt: Codeunit "File Management";
+        FileManagement: Codeunit "File Management";
         AttachmentFileFullName: Text;
         EmailBodyFilePath: Text;
         IsHandled: Boolean;
@@ -378,8 +378,8 @@ codeunit 5052 AttachmentManagement
                 SendEmailWithAttachment(
                   TempDeliverySorterOther, InteractLogEntry, AttachmentFileFullName, EmailBodyFilePath);
                 // Clean up
-                FileMgt.DeleteServerFile(AttachmentFileFullName);
-                FileMgt.DeleteServerFile(EmailBodyFilePath);
+                FileManagement.DeleteServerFile(AttachmentFileFullName);
+                FileManagement.DeleteServerFile(EmailBodyFilePath);
             end else
                 SetDeliveryState(InteractLogEntry, false);
         until TempDeliverySorterOther.Next() = 0;
@@ -388,20 +388,20 @@ codeunit 5052 AttachmentManagement
     local procedure DeliverEmailWithAttachmentViaExchange(var ExchangeWebServicesServer: Codeunit "Exchange Web Services Server"; var TempDeliverySorterOther: Record "Delivery Sorter" temporary; var InteractLogEntry: Record "Interaction Log Entry")
     var
         Contact: Record Contact;
-        FileMgt: Codeunit "File Management";
-        Window: Dialog;
+        FileManagement: Codeunit "File Management";
+        WindowDialog: Dialog;
         I: Integer;
         NoOfAttachments: Integer;
         AttachmentFileFullName: Text;
     begin
-        Window.Open(
-          Text000 +
+        WindowDialog.Open(
+          Text000Msg +
           '#1############ @2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\' +
           '#3############ @4@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 
-        Window.Update(1, Text001);
-        Window.Update(2, 10000);
-        Window.Update(3, Text002);
+        WindowDialog.Update(1, Text001Msg);
+        WindowDialog.Update(2, 10000);
+        WindowDialog.Update(3, Text002Msg);
         I := 0;
         NoOfAttachments := TempDeliverySorterOther.Count();
         repeat
@@ -417,13 +417,13 @@ codeunit 5052 AttachmentManagement
                 SendEmailWithAttachmentViaExchange(
                   ExchangeWebServicesServer, TempDeliverySorterOther, InteractLogEntry, AttachmentFileFullName);
                 // Clean up
-                FileMgt.DeleteServerFile(AttachmentFileFullName);
+                FileManagement.DeleteServerFile(AttachmentFileFullName);
             end else
                 SetDeliveryState(InteractLogEntry, false);
             I := I + 1;
-            Window.Update(4, Round(I / NoOfAttachments * 10000, 1));
+            WindowDialog.Update(4, Round(I / NoOfAttachments * 10000, 1));
         until TempDeliverySorterOther.Next() = 0;
-        Window.Close();
+        WindowDialog.Close();
     end;
 
     local procedure SendHTMLEmail(var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var InteractLogEntry: Record "Interaction Log Entry"; EmailBodyFilePath: Text)
@@ -431,12 +431,12 @@ codeunit 5052 AttachmentManagement
         Contact: Record Contact;
         DocumentMailing: Codeunit "Document-Mailing";
         TempBlob: Codeunit "Temp Blob";
-        AttachmentStream: Instream;
+        AttachmentInStream: Instream;
         IsSent: Boolean;
         SourceTableIDs, SourceRelationTypes : List of [Integer];
         SourceIDs: List of [Guid];
     begin
-        TempBlob.CreateInStream(AttachmentStream);
+        TempBlob.CreateInStream(AttachmentInStream);
 
         SourceTableIDs.Add(Database::"Interaction Log Entry");
         SourceIDs.Add(InteractLogEntry.SystemId);
@@ -449,7 +449,7 @@ codeunit 5052 AttachmentManagement
         end;
 
         IsSent := DocumentMailing.EmailFile(
-            AttachmentStream, '', EmailBodyFilePath,
+            AttachmentInStream, '', EmailBodyFilePath,
             TempDeliverySorterHtml.Subject, InteractionEMail(InteractLogEntry), false, Enum::"Email Scenario"::Default, SourceTableIDs, SourceIDs, SourceRelationTypes);
 
         SetDeliveryState(InteractLogEntry, IsSent);
@@ -548,12 +548,12 @@ codeunit 5052 AttachmentManagement
         I: Integer;
     begin
         Window.Open(
-          Text000 +
+          Text000Msg +
           '#1############ @2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\' +
           '#3############ @4@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 
-        Window.Update(1, Text001);
-        Window.Update(3, Text002);
+        Window.Update(1, Text001Msg);
+        Window.Update(3, Text002Msg);
 
         I := 0;
         if DeliverySorter.Find('-') then begin
@@ -561,7 +561,7 @@ codeunit 5052 AttachmentManagement
             repeat
                 DeliverySorter.TestField("Correspondence Type");
                 if not (Attachment.Get(DeliverySorter."Attachment No.")) and (DeliverySorter."Word Template Code" = '') then
-                    Error(Text008);
+                    Error(Text008Msg);
                 case true of
                     not (DeliverySorter."Word Template Code" = ''):
                         begin
@@ -603,15 +603,15 @@ codeunit 5052 AttachmentManagement
 
     local procedure PrepareDummyEmailBody(): Text
     var
-        FileMgt: Codeunit "File Management";
-        OStream: OutStream;
+        FileManagement: Codeunit "File Management";
+        OutStream: OutStream;
         EmailBodyFile: File;
         EmailBodyFilePath: Text;
     begin
-        EmailBodyFilePath := FileMgt.ServerTempFileName('HTML');
+        EmailBodyFilePath := FileManagement.ServerTempFileName('HTML');
         EmailBodyFile.Create(EmailBodyFilePath);
-        EmailBodyFile.CreateOutStream(OStream);
-        OStream.WriteText('<html><body></body></html>');
+        EmailBodyFile.CreateOutStream(OutStream);
+        OutStream.WriteText('<html><body></body></html>');
         EmailBodyFile.Close();
         exit(EmailBodyFilePath);
     end;
@@ -624,7 +624,12 @@ codeunit 5052 AttachmentManagement
         exit(AttachmentTok + '.' + Attachment."File Extension");
     end;
 
+#if not CLEAN23
+    [Obsolete('Correspondence Type Fax is obsolete and will be removed.', '23.0')]
     procedure ConvertCorrespondenceType(CorrespondenceType: Option "Same as Entry","Hard Copy",Email,Fax) ReturnType: Enum "Correspondence Type"
+#else
+    procedure ConvertCorrespondenceType(CorrespondenceType: Option "Same as Entry","Hard Copy",Email) ReturnType: Enum "Correspondence Type"
+#endif
     var
         IsHandled: Boolean;
     begin
@@ -633,8 +638,10 @@ codeunit 5052 AttachmentManagement
                 exit("Correspondence Type"::"Hard Copy");
             CorrespondenceType::Email:
                 exit("Correspondence Type"::Email);
+#if not CLEAN23
             CorrespondenceType::Fax:
                 exit("Correspondence Type"::Fax);
+#endif
             else begin
                 OnConvertCorrespondenceTypeElse(CorrespondenceType, ReturnType, IsHandled);
                 if IsHandled then
@@ -663,10 +670,13 @@ codeunit 5052 AttachmentManagement
     begin
     end;
 
+#if not CLEAN23
     [IntegrationEvent(false, false)]
+    [Obsolete('Correspondence Type Fax is obsolete and will be removed.', '23.0')]
     local procedure OnBeforeInteractionFax(var InteractionLogEntry: Record "Interaction Log Entry"; var FaxNo: Text[30]; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSend(var DeliverySorter: Record "Delivery Sorter"; var IsHandled: Boolean)

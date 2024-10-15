@@ -2234,6 +2234,84 @@ codeunit 134151 "ERM Intercompany"
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyICPartnerCodeInGLEntriesWithSameDocumentNoAndDifferentICPartner()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        ICGLAccount: Record "IC G/L Account";
+        ICPartner1: Record "IC Partner";
+        ICPartner2: Record "IC Partner";
+        GLEntry: Record "G/L Entry";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 474187] Verify the IC Partner Code in GL Entries With the Same Document No. and Different ICPartner.
+        Initialize();
+
+        // [GIVEN] Create an IC Partner with Inbox Type.
+        CreateICPartnerWithInboxType(ICPartner1, "IC Partner Inbox Type"::"No IC Transfer");
+
+        // [GIVEN] Create another IC Partner with Inbox Type.
+        CreateICPartnerWithInboxType(ICPartner2, "IC Partner Inbox Type"::"No IC Transfer");
+
+        // [GIVEN] Create a GL Account and an IC GL Account.
+        CreateICGLAccount(ICGLAccount);
+
+        // [GIVEN] Update a default IC Partner GL Acc. No. in GL Account.
+        UpdateDefaultICPartnerInGLAccount(ICGLAccount);
+
+        // [GIVEN] Create an IC Journal Batch.
+        CreateICJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create a General Journal Line with "Account Type" IC Partner.
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine."Document Type"::" ",
+            GenJournalLine."Account Type"::"IC Partner",
+            ICPartner1.Code,
+            LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Update Bal. Account Type and Bal. Account No. in the General Journal Line.
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", ICGLAccount."Map-to G/L Acc. No.");
+        GenJournalLine.Modify();
+
+        // [GIVEN] Save the Document No.
+        DocumentNo := GenJournalLine."Document No.";
+
+        // [GIVEN] Create another General Journal Line with the "Account Type" IC Partner.
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine."Document Type"::" ",
+            GenJournalLine."Account Type"::"IC Partner",
+            ICPartner2.Code,
+            LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Update Document No., Bal. Account Type and Bal. Account No. in the General Journal Line.
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", ICGLAccount."Map-to G/L Acc. No.");
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Post the General Journal Line with the same Document No. and Posting Date with a different IC Partner Code.
+        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [VERIFY] Verify that the IC Partner Code must exist in the GL Entry with the same document number.
+        GLEntry.SetRange("IC Partner Code", ICPartner1.Code);
+        Assert.RecordIsNotEmpty(GLEntry);
+
+        // [VERIFY] Verify that another IC Partner Code must exist in the GL Entry with the same document number.
+        GLEntry.SetRange("IC Partner Code", ICPartner2.Code);
+        Assert.RecordIsNotEmpty(GLEntry);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2813,6 +2891,25 @@ codeunit 134151 "ERM Intercompany"
         LibraryERM.CreateICDimensionValue(ICDimensionValue, ICDimensionCode);
         ICDimensionValue."Dimension Value Type" := ICDimensionValueType;
         ICDimensionValue.Modify();
+    end;
+
+    local procedure UpdateDefaultICPartnerInGLAccount(ICGLAccount: Record "IC G/L Account")
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.Get(ICGLAccount."Map-to G/L Acc. No.");
+        GLAccount.Validate("Default IC Partner G/L Acc. No", ICGLAccount."No.");
+        GLAccount.Modify();
+    end;
+
+    local procedure CreateICPartnerWithInboxType(
+        var ICPartner: Record "IC Partner";
+        ICPartnerInboxType: Enum "IC Partner Inbox Type")
+    begin
+        LibraryERM.CreateICPartner(ICPartner);
+
+        ICPartner.Validate("Inbox Type", ICPartnerInboxType);
+        ICPartner.Modify();
     end;
 
     [ModalPageHandler]

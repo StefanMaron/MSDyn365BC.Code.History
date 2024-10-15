@@ -205,6 +205,7 @@ codeunit 7312 "Create Pick"
         QtytoPickBase: Decimal;
         QtyAvailableBase: Decimal;
         IsHandled: Boolean;
+        FirstBinCode: Code[20];
     begin
         GetLocation(LocationCode);
         if Location."Bin Mandatory" then begin
@@ -258,8 +259,10 @@ codeunit 7312 "Create Pick"
                     QtyPerUnitofMeasure, QtytoPick, QtytoPickBase,
                     TotalQtytoPick, TotalQtytoPickBase);
 
+                FirstBinCode := '';
+                OnBeforeCreateTempActivityLineWithoutBinCode(FirstBinCode);
                 CreateTempActivityLine(
-                    LocationCode, '', UnitofMeasureCode, QtyPerUnitofMeasure, QtytoPick, QtytoPickBase, 1, 0, QtyRoundingPrecision, QtyRoundingPrecisionBase);
+                    LocationCode, FirstBinCode, UnitofMeasureCode, QtyPerUnitofMeasure, QtytoPick, QtytoPickBase, 1, 0, QtyRoundingPrecision, QtyRoundingPrecisionBase);
                 CreateTempActivityLine(
                     LocationCode, ToBinCode, UnitofMeasureCode, QtyPerUnitofMeasure, QtytoPick, QtytoPickBase, 2, 0, QtyRoundingPrecision, QtyRoundingPrecisionBase);
             end;
@@ -471,6 +474,8 @@ codeunit 7312 "Create Pick"
                     AddToFilterText(BinCodeFilterText, '&', '<>', Location."Receipt Bin Code");
                 if ToBinCode <> '' then
                     AddToFilterText(BinCodeFilterText, '&', '<>', ToBinCode);
+
+                OnFindBWPickBinOnBeforeApplyBinCodeFilter(BinCodeFilterText);
                 if BinCodeFilterText <> '' then
                     SetFilter("Bin Code", BinCodeFilterText);
                 if WhseItemTrkgExists then begin
@@ -4034,6 +4039,16 @@ codeunit 7312 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyOutstandingBaseAfterSetFilters(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindBWPickBinOnBeforeApplyBinCodeFilter(var BinCodeFilterText: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTempActivityLineWithoutBinCode(var BinCode: Code[20])
     begin
     end;
 }

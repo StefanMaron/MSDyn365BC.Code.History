@@ -1478,7 +1478,7 @@
         end else
             QtyToPost := ProdOrderComp.GetNeededQty(CalcBasedOn::"Expected Output", true);
         QtyToPost := UOMMgt.RoundToItemRndPrecision(QtyToPost, CompItem."Rounding Precision");
-        OnPostFlushedConsumpOnAfterCalcQtyToPost(ProdOrder, ProdOrderLine, ProdOrderComp, OutputQtyBase, QtyToPost, OldItemJnlLine);
+        OnPostFlushedConsumpOnAfterCalcQtyToPost(ProdOrder, ProdOrderLine, ProdOrderComp, OutputQtyBase, QtyToPost, OldItemJnlLine, ProdOrderRoutingLine);
         if QtyToPost = 0 then
             exit;
 
@@ -1526,7 +1526,7 @@
 
             PrepareItem(ItemJnlLine);
             TrackingSpecExists := ItemTrackingMgt.RetrieveItemTracking(ItemJnlLine, TempTrackingSpecification);
-            OnPostFlushedConsumpOnBeforeSetupSplitJnlLine(ItemJnlLine);
+            OnPostFlushedConsumpOnBeforeSetupSplitJnlLine(ItemJnlLine, ProdOrder, ProdOrderLine, ProdOrderComp, TempTrackingSpecification, TrackingSpecExists);
             PostItemJnlLine := SetupSplitJnlLine(ItemJnlLine, TrackingSpecExists);
 
             while SplitItemJnlLine(ItemJnlLine, PostItemJnlLine) do begin
@@ -1930,6 +1930,7 @@
                         FirstApplication := false;
                         OldItemLedgEntry.Get(ItemLedgEntry."Applies-to Entry");
                         TestFirstApplyItemLedgEntry(OldItemLedgEntry, ItemLedgEntry);
+                        OnApplyItemLedgEntryOnAfterTestFirstApplyItemLedgEntry(OldItemLedgEntry, ItemLedgEntry);
                     end else
                         exit;
                 end else begin
@@ -2606,7 +2607,7 @@
     begin
         with ValueEntry do begin
             IsHandled := false;
-            OnBeforePostInventoryToGL(ValueEntry, IsHandled, ItemJnlLine, PostToGL);
+            OnBeforePostInventoryToGL(ValueEntry, IsHandled, ItemJnlLine, PostToGL, CalledFromAdjustment);
             if IsHandled then
                 exit;
 
@@ -2766,7 +2767,7 @@
         end;
     end;
 
-    local procedure InitValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry")
+    local procedure InitValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
     var
         CalcUnitCost: Boolean;
         InvoicedQuantityNotEmpty: Boolean;
@@ -2777,286 +2778,285 @@
 
         ValueEntryNo := ValueEntryNo + 1;
 
-        with ItemJnlLine do begin
-            ValueEntry.Init();
-            ValueEntry."Entry No." := ValueEntryNo;
-            if "Value Entry Type" = "Value Entry Type"::Variance then
-                ValueEntry."Variance Type" := "Variance Type";
-            ValueEntry."Item Ledger Entry No." := ItemLedgEntry."Entry No.";
-            ValueEntry."Item No." := "Item No.";
-            ValueEntry."Item Charge No." := "Item Charge No.";
-            ValueEntry."Order Type" := ItemLedgEntry."Order Type";
-            ValueEntry."Order No." := ItemLedgEntry."Order No.";
-            ValueEntry."Order Line No." := ItemLedgEntry."Order Line No.";
-            ValueEntry."Item Ledger Entry Type" := "Entry Type";
-            ValueEntry.Type := Type;
-            ValueEntry."Posting Date" := "Posting Date";
-            if ItemLedgEntry."FA No." <> '' then begin
-                ValueEntry."FA No." := ItemLedgEntry."FA No.";
-                ValueEntry."Depreciation Book Code" := ItemLedgEntry."Depreciation Book Code";
-                ValueEntry."FA Entry No." := ModifyFAEntryFromItemLedgEntry(ValueEntry);
-            end;
-            ValueEntry."VAT Reporting Date" := "VAT Reporting Date";
-            if "Partial Revaluation" then
-                ValueEntry."Partial Revaluation" := true;
+        ValueEntry.Init();
+        ValueEntry."Entry No." := ValueEntryNo;
+        if ItemJnlLine."Value Entry Type" = "Cost Entry Type"::Variance then
+            ValueEntry."Variance Type" := ItemJnlLine."Variance Type";
+        ValueEntry."Item Ledger Entry No." := ItemLedgerEntry."Entry No.";
+        ValueEntry."Item No." := ItemJnlLine."Item No.";
+        ValueEntry."Item Charge No." := ItemJnlLine."Item Charge No.";
+        ValueEntry."Order Type" := ItemLedgerEntry."Order Type";
+        ValueEntry."Order No." := ItemLedgerEntry."Order No.";
+        ValueEntry."Order Line No." := ItemLedgerEntry."Order Line No.";
+        ValueEntry."Item Ledger Entry Type" := ItemJnlLine."Entry Type";
+        ValueEntry.Type := ItemJnlLine.Type;
+        ValueEntry."Posting Date" := ItemJnlLine."Posting Date";
+        if ItemLedgerEntry."FA No." <> '' then begin
+            ValueEntry."FA No." := ItemLedgerEntry."FA No.";
+            ValueEntry."Depreciation Book Code" := ItemLedgerEntry."Depreciation Book Code";
+            ValueEntry."FA Entry No." := ModifyFAEntryFromItemLedgEntry(ValueEntry);
+        end;
+        ValueEntry."VAT Reporting Date" := ItemJnlLine."VAT Reporting Date";
+        if ItemJnlLine."Partial Revaluation" then
+            ValueEntry."Partial Revaluation" := true;
 
-            OnInitValueEntryOnAfterAssignFields(ValueEntry, ItemLedgEntry, ItemJnlLine);
+        OnInitValueEntryOnAfterAssignFields(ValueEntry, ItemLedgerEntry, ItemJnlLine);
 
-            if (ItemLedgEntry.Quantity > 0) or
-               (ItemLedgEntry."Invoiced Quantity" > 0) or
-               (("Value Entry Type" = "Value Entry Type"::"Direct Cost") and ("Item Charge No." = '')) or
-               ("Entry Type" in ["Entry Type"::Output, "Entry Type"::"Assembly Output"]) or
-               Adjustment
-            then
-                ValueEntry.Inventoriable := Item.Type = Item.Type::Inventory;
+        if (ItemLedgerEntry.Quantity > 0) or
+            (ItemLedgerEntry."Invoiced Quantity" > 0) or
+            ((ItemJnlLine."Value Entry Type" = "Cost Entry Type"::"Direct Cost") and (ItemJnlLine."Item Charge No." = '')) or
+            (ItemJnlLine."Entry Type" in ["Item Ledger Entry Type"::Output, "Item Ledger Entry Type"::"Assembly Output"]) or
+            ItemJnlLine.Adjustment
+        then
+            ValueEntry.Inventoriable := Item.Type = Item.Type::Inventory;
 
-            OnInitValueEntryOnAfterSetValueEntryInventoriable(ValueEntry, ItemJnlLine);
+        OnInitValueEntryOnAfterSetValueEntryInventoriable(ValueEntry, ItemJnlLine);
 
-            if ((Quantity = 0) and ("Invoiced Quantity" <> 0)) or
-               ("Value Entry Type" <> "Value Entry Type"::"Direct Cost") or
-               ("Item Charge No." <> '') or Adjustment
-            then begin
-                GetLastDirectCostValEntry(ValueEntry."Item Ledger Entry No.");
-                if ValueEntry.Inventoriable and ("Item Charge No." = '') then
-                    ValueEntry."Valued By Average Cost" := DirCostValueEntry."Valued By Average Cost";
-            end;
+        if ((ItemJnlLine.Quantity = 0) and (ItemJnlLine."Invoiced Quantity" <> 0)) or
+            (ItemJnlLine."Value Entry Type" <> "Cost Entry Type"::"Direct Cost") or
+            (ItemJnlLine."Item Charge No." <> '') or ItemJnlLine.Adjustment
+        then begin
+            GetLastDirectCostValEntry(ValueEntry."Item Ledger Entry No.");
+            if ValueEntry.Inventoriable and (ItemJnlLine."Item Charge No." = '') then
+                ValueEntry."Valued By Average Cost" := DirCostValueEntry."Valued By Average Cost";
+        end;
 
-            case true of
-                ((Quantity = 0) and ("Invoiced Quantity" <> 0)) or
-              (("Value Entry Type" = "Value Entry Type"::"Direct Cost") and ("Item Charge No." <> '')) or
-              Adjustment or ("Value Entry Type" = "Value Entry Type"::Rounding):
-                    ValueEntry."Valuation Date" := DirCostValueEntry."Valuation Date";
-                ("Value Entry Type" = "Value Entry Type"::Revaluation):
-                    if "Posting Date" < DirCostValueEntry."Valuation Date" then
-                        ValueEntry."Valuation Date" := DirCostValueEntry."Valuation Date"
-                    else
-                        ValueEntry."Valuation Date" := "Posting Date";
-                (ItemLedgEntry.Quantity > 0) and ("Applies-from Entry" <> 0):
-                    GetAppliedFromValues(ValueEntry);
+        case true of
+            ((ItemJnlLine.Quantity = 0) and (ItemJnlLine."Invoiced Quantity" <> 0)) or
+            ((ItemJnlLine."Value Entry Type" = "Cost Entry Type"::"Direct Cost") and (ItemJnlLine."Item Charge No." <> '')) or
+            ItemJnlLine.Adjustment or (ItemJnlLine."Value Entry Type" = "Cost Entry Type"::Rounding):
+                ValueEntry."Valuation Date" := DirCostValueEntry."Valuation Date";
+            (ItemJnlLine."Value Entry Type" = "Cost Entry Type"::Revaluation):
+                if ItemJnlLine."Posting Date" < DirCostValueEntry."Valuation Date" then
+                    ValueEntry."Valuation Date" := DirCostValueEntry."Valuation Date"
                 else
-                    ValueEntry."Valuation Date" := "Posting Date";
-            end;
-
-            GetInvtSetup();
-            if (Description = Item.Description) and not InvtSetup."Copy Item Descr. to Entries" then
-                ValueEntry.Description := ''
+                    ValueEntry."Valuation Date" := ItemJnlLine."Posting Date";
+            (ItemLedgerEntry.Quantity > 0) and (ItemJnlLine."Applies-from Entry" <> 0):
+                GetAppliedFromValues(ValueEntry);
             else
-                ValueEntry.Description := Description;
+                ValueEntry."Valuation Date" := ItemJnlLine."Posting Date";
+        end;
 
-            SetValueEntrySourceFieldsFromItemJnlLine(ValueEntry, ItemJnlLine);
-            if ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and ("Item Charge No." = '') then
-                ValueEntry."Inventory Posting Group" := "Inventory Posting Group"
-            else
-                ValueEntry."Inventory Posting Group" := DirCostValueEntry."Inventory Posting Group";
-            ValueEntry."Source Posting Group" := "Source Posting Group";
-            ValueEntry."Salespers./Purch. Code" := "Salespers./Purch. Code";
-            ValueEntry."Location Code" := ItemLedgEntry."Location Code";
-            ValueEntry."Variant Code" := ItemLedgEntry."Variant Code";
-            ValueEntry."Journal Batch Name" := "Journal Batch Name";
-            ValueEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(ValueEntry."User ID"));
-            ValueEntry."Drop Shipment" := "Drop Shipment";
-            ValueEntry."Reason Code" := "Reason Code";
-            ValueEntry."Return Reason Code" := "Return Reason Code";
-            ValueEntry."External Document No." := "External Document No.";
-            ValueEntry."Document Date" := "Document Date";
-            ValueEntry."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
-            ValueEntry."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
-            ValueEntry."Discount Amount" := "Discount Amount";
-            ValueEntry."Entry Type" := "Value Entry Type";
-            if "Job No." <> '' then begin
-                ValueEntry."Job No." := "Job No.";
-                ValueEntry."Job Task No." := "Job Task No.";
-            end;
-            InvoicedQuantityNotEmpty := "Invoiced Quantity" <> 0;
-            OnInitValueEntryOnAfterCalcInvoicedQuantityNotEmpty(ItemJnlLine, InvoicedQuantityNotEmpty);
-            if InvoicedQuantityNotEmpty then begin
-                ValueEntry."Valued Quantity" := "Invoiced Quantity";
-                if ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and
-                   ("Item Charge No." = '')
+        GetInvtSetup();
+        if (ItemJnlLine.Description = Item.Description) and not InvtSetup."Copy Item Descr. to Entries" then
+            ValueEntry.Description := ''
+        else
+            ValueEntry.Description := ItemJnlLine.Description;
+
+        SetValueEntrySourceFieldsFromItemJnlLine(ValueEntry, ItemJnlLine);
+        if (ItemJnlLine."Value Entry Type" = "Cost Entry Type"::"Direct Cost") and (ItemJnlLine."Item Charge No." = '') then
+            ValueEntry."Inventory Posting Group" := ItemJnlLine."Inventory Posting Group"
+        else
+            ValueEntry."Inventory Posting Group" := DirCostValueEntry."Inventory Posting Group";
+        ValueEntry."Source Posting Group" := ItemJnlLine."Source Posting Group";
+        ValueEntry."Salespers./Purch. Code" := ItemJnlLine."Salespers./Purch. Code";
+        ValueEntry."Location Code" := ItemLedgerEntry."Location Code";
+        ValueEntry."Variant Code" := ItemLedgerEntry."Variant Code";
+        ValueEntry."Journal Batch Name" := ItemJnlLine."Journal Batch Name";
+        ValueEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(ValueEntry."User ID"));
+        ValueEntry."Drop Shipment" := ItemJnlLine."Drop Shipment";
+        ValueEntry."Reason Code" := ItemJnlLine."Reason Code";
+        ValueEntry."Return Reason Code" := ItemJnlLine."Return Reason Code";
+        ValueEntry."External Document No." := ItemJnlLine."External Document No.";
+        ValueEntry."Document Date" := ItemJnlLine."Document Date";
+        ValueEntry."Gen. Bus. Posting Group" := ItemJnlLine."Gen. Bus. Posting Group";
+        ValueEntry."Gen. Prod. Posting Group" := ItemJnlLine."Gen. Prod. Posting Group";
+        ValueEntry."Discount Amount" := ItemJnlLine."Discount Amount";
+        ValueEntry."Entry Type" := ItemJnlLine."Value Entry Type";
+        if ItemJnlLine."Job No." <> '' then begin
+            ValueEntry."Job No." := ItemJnlLine."Job No.";
+            ValueEntry."Job Task No." := ItemJnlLine."Job Task No.";
+        end;
+        InvoicedQuantityNotEmpty := ItemJnlLine."Invoiced Quantity" <> 0;
+        OnInitValueEntryOnAfterCalcInvoicedQuantityNotEmpty(ItemJnlLine, InvoicedQuantityNotEmpty);
+        if InvoicedQuantityNotEmpty then begin
+            ValueEntry."Valued Quantity" := ItemJnlLine."Invoiced Quantity";
+            if (ItemJnlLine."Value Entry Type" = "Cost Entry Type"::"Direct Cost") and
+                (ItemJnlLine."Item Charge No." = '')
+            then
+                if (ItemJnlLine."Entry Type" <> "Item Ledger Entry Type"::Output) or
+                    (ItemLedgerEntry."Invoiced Quantity" = 0)
                 then
-                    if ("Entry Type" <> "Entry Type"::Output) or
-                       (ItemLedgEntry."Invoiced Quantity" = 0)
-                    then
-                        ValueEntry."Invoiced Quantity" := "Invoiced Quantity";
-                ValueEntry."Expected Cost" := false;
+                    ValueEntry."Invoiced Quantity" := ItemJnlLine."Invoiced Quantity";
+            ValueEntry."Expected Cost" := false;
+        end else begin
+            ValueEntry."Valued Quantity" := ItemJnlLine.Quantity;
+            ValueEntry."Expected Cost" := ItemJnlLine."Value Entry Type" <> "Cost Entry Type"::Revaluation;
+        end;
+
+        ValueEntry."Document Type" := ItemJnlLine."Document Type";
+        if ValueEntry."Expected Cost" or (ItemJnlLine."Invoice No." = '') then
+            ValueEntry."Document No." := ItemJnlLine."Document No."
+        else begin
+            ValueEntry."Document No." := ItemJnlLine."Invoice No.";
+            if ItemJnlLine."Document Type" in [
+                                    "Item Ledger Document Type"::"Purchase Receipt", "Item Ledger Document Type"::"Purchase Return Shipment",
+                                    "Item Ledger Document Type"::"Sales Shipment", "Item Ledger Document Type"::"Sales Return Receipt",
+                                    "Item Ledger Document Type"::"Service Shipment"]
+            then
+                ValueEntry."Document Type" := "Item Ledger Document Type".FromInteger(ItemJnlLine."Document Type".AsInteger() + 1);
+        end;
+        OnInitValueEntryOnBeforeSetDocumentLineNo(ItemJnlLine, ItemLedgerEntry, ValueEntry);
+        ValueEntry."Document Line No." := ItemJnlLine."Document Line No.";
+
+        if ItemJnlLine.Adjustment then begin
+            ValueEntry."Invoiced Quantity" := 0;
+            ValueEntry."Applies-to Entry" := ItemJnlLine."Applies-to Value Entry";
+            ValueEntry.Adjustment := true;
+        end;
+
+        if ItemJnlLine."Value Entry Type" <> "Cost Entry Type"::Rounding then begin
+            if (ItemJnlLine."Entry Type" = "Item Ledger Entry Type"::Output) and
+                (ItemJnlLine."Value Entry Type" <> "Cost Entry Type"::Revaluation)
+            then begin
+                CostAmt := ItemJnlLine.Amount;
+                CostAmtACY := ItemJnlLine."Amount (ACY)";
             end else begin
-                ValueEntry."Valued Quantity" := Quantity;
-                ValueEntry."Expected Cost" := "Value Entry Type" <> "Value Entry Type"::Revaluation;
-            end;
+                ValueEntry."Cost per Unit" := RetrieveCostPerUnit(ItemJnlLine, SKU, SKUExists);
+                if GLSetup."Additional Reporting Currency" <> '' then
+                    ValueEntry."Cost per Unit (ACY)" := RetrieveCostPerUnitACY(ValueEntry."Cost per Unit");
 
-            ValueEntry."Document Type" := "Document Type";
-            if ValueEntry."Expected Cost" or ("Invoice No." = '') then
-                ValueEntry."Document No." := "Document No."
-            else begin
-                ValueEntry."Document No." := "Invoice No.";
-                if "Document Type" in [
-                                       "Document Type"::"Purchase Receipt", "Document Type"::"Purchase Return Shipment",
-                                       "Document Type"::"Sales Shipment", "Document Type"::"Sales Return Receipt",
-                                       "Document Type"::"Service Shipment"]
-                then
-                    ValueEntry."Document Type" := "Item Ledger Document Type".FromInteger("Document Type".AsInteger() + 1);
-            end;
-            ValueEntry."Document Line No." := "Document Line No.";
-
-            if Adjustment then begin
-                ValueEntry."Invoiced Quantity" := 0;
-                ValueEntry."Applies-to Entry" := "Applies-to Value Entry";
-                ValueEntry.Adjustment := true;
-            end;
-
-            if "Value Entry Type" <> "Value Entry Type"::Rounding then begin
-                if ("Entry Type" = "Entry Type"::Output) and
-                   ("Value Entry Type" <> "Value Entry Type"::Revaluation)
+                if (ValueEntry."Valued Quantity" > 0) and
+                    (ValueEntry."Item Ledger Entry Type" in [ValueEntry."Item Ledger Entry Type"::Purchase,
+                                                            ValueEntry."Item Ledger Entry Type"::"Assembly Output"]) and
+                    (ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost") and
+                    not ItemJnlLine.Adjustment
                 then begin
-                    CostAmt := Amount;
-                    CostAmtACY := "Amount (ACY)";
-                end else begin
-                    ValueEntry."Cost per Unit" := RetrieveCostPerUnit(ItemJnlLine, SKU, SKUExists);
-                    if GLSetup."Additional Reporting Currency" <> '' then
-                        ValueEntry."Cost per Unit (ACY)" := RetrieveCostPerUnitACY(ValueEntry."Cost per Unit");
-
-                    if (ValueEntry."Valued Quantity" > 0) and
-                       (ValueEntry."Item Ledger Entry Type" in [ValueEntry."Item Ledger Entry Type"::Purchase,
-                                                                ValueEntry."Item Ledger Entry Type"::"Assembly Output"]) and
-                       (ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost") and
-                       not Adjustment
+                    if Item."Costing Method" = Item."Costing Method"::Standard then
+                        ItemJnlLine."Unit Cost" := ValueEntry."Cost per Unit";
+                    CalcPosShares(
+                        CostAmt, OverheadAmount, VarianceAmount, CostAmtACY, OverheadAmountACY, VarianceAmountACY,
+                        CalcUnitCost, (Item."Costing Method" = Item."Costing Method"::Standard) and
+                        (not ValueEntry."Expected Cost"), ValueEntry."Expected Cost");
+                    if (OverheadAmount <> 0) or
+                        (Round(VarianceAmount, GLSetup."Amount Rounding Precision") <> 0) or
+                        CalcUnitCost or ValueEntry."Expected Cost"
                     then begin
-                        if Item."Costing Method" = Item."Costing Method"::Standard then
-                            "Unit Cost" := ValueEntry."Cost per Unit";
-                        CalcPosShares(
-                          CostAmt, OverheadAmount, VarianceAmount, CostAmtACY, OverheadAmountACY, VarianceAmountACY,
-                          CalcUnitCost, (Item."Costing Method" = Item."Costing Method"::Standard) and
-                          (not ValueEntry."Expected Cost"), ValueEntry."Expected Cost");
-                        if (OverheadAmount <> 0) or
-                           (Round(VarianceAmount, GLSetup."Amount Rounding Precision") <> 0) or
-                           CalcUnitCost or ValueEntry."Expected Cost"
-                        then begin
-                            ValueEntry."Cost per Unit" :=
-                              CalcCostPerUnit(CostAmt, ValueEntry."Valued Quantity", false);
+                        ValueEntry."Cost per Unit" :=
+                            CalcCostPerUnit(CostAmt, ValueEntry."Valued Quantity", false);
 
-                            if GLSetup."Additional Reporting Currency" <> '' then
-                                ValueEntry."Cost per Unit (ACY)" :=
-                                  CalcCostPerUnit(CostAmtACY, ValueEntry."Valued Quantity", true);
-                        end;
-                    end else
-                        if not Adjustment and ("Item Charge No." = '') then
-                            CalcOutboundCostAmt(ValueEntry, CostAmt, CostAmtACY)
-                        else begin
-                            CostAmt := Amount;
-                            CostAmtACY := "Amount (ACY)";
-                        end;
-
-                    if ("Invoiced Quantity" < 0) and ("Applies-to Entry" <> 0) and
-                       ("Entry Type" = "Entry Type"::Purchase) and ("Item Charge No." = '') and
-                       (ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost")
-                    then begin
-                        CalcPurchCorrShares(OverheadAmount, OverheadAmountACY, VarianceAmount, VarianceAmountACY);
-                        OnAfterCalcPurchCorrShares(
-                          ValueEntry, ItemJnlLine, OverheadAmount, OverheadAmountACY, VarianceAmount, VarianceAmountACY);
+                        if GLSetup."Additional Reporting Currency" <> '' then
+                            ValueEntry."Cost per Unit (ACY)" :=
+                                CalcCostPerUnit(CostAmtACY, ValueEntry."Valued Quantity", true);
                     end;
+                end else
+                    if not ItemJnlLine.Adjustment then
+                        CalcOutboundCostAmt(ValueEntry, CostAmt, CostAmtACY)
+                    else begin
+                        CostAmt := ItemJnlLine.Amount;
+                        CostAmtACY := ItemJnlLine."Amount (ACY)";
+                    end;
+
+                if (ItemJnlLine."Invoiced Quantity" < 0) and (ItemJnlLine."Applies-to Entry" <> 0) and
+                    (ItemJnlLine."Entry Type" = "Item Ledger Entry Type"::Purchase) and (ItemJnlLine."Item Charge No." = '') and
+                    (ValueEntry."Entry Type" = "Cost Entry Type"::"Direct Cost")
+                then begin
+                    CalcPurchCorrShares(OverheadAmount, OverheadAmountACY, VarianceAmount, VarianceAmountACY);
+                    OnAfterCalcPurchCorrShares(
+                        ValueEntry, ItemJnlLine, OverheadAmount, OverheadAmountACY, VarianceAmount, VarianceAmountACY);
                 end;
-                OnInitValueEntryOnAfterCalcDirestCost(CostAmt, VarianceAmount, Item, ItemJnlLine, ValueEntry);
-            end else begin
-                CostAmt := "Unit Cost";
-                CostAmtACY := "Unit Cost (ACY)";
+            end;
+            OnInitValueEntryOnAfterCalcDirestCost(CostAmt, VarianceAmount, Item, ItemJnlLine, ValueEntry);
+        end else begin
+            CostAmt := ItemJnlLine."Unit Cost";
+            CostAmtACY := ItemJnlLine."Unit Cost (ACY)";
+        end;
+
+        if (ValueEntry."Entry Type" <> ValueEntry."Entry Type"::Revaluation) and not ItemJnlLine.Adjustment then
+            if (ValueEntry."Item Ledger Entry Type" in
+                [ValueEntry."Item Ledger Entry Type"::Sale,
+                    ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.",
+                    ValueEntry."Item Ledger Entry Type"::Consumption,
+                    ValueEntry."Item Ledger Entry Type"::"Assembly Consumption"]) or
+                ((ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Transfer) and
+                (ItemJnlLine."Value Entry Type" = "Cost Entry Type"::"Direct Cost") and (ItemJnlLine."Item Charge No." = ''))
+            then begin
+                ValueEntry."Valued Quantity" := -ValueEntry."Valued Quantity";
+                ValueEntry."Invoiced Quantity" := -ValueEntry."Invoiced Quantity";
+                if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Transfer then
+                    ValueEntry."Discount Amount" := 0
+                else
+                    ValueEntry."Discount Amount" := -ValueEntry."Discount Amount";
+
+                if ItemJnlLine."Value Entry Type" <> "Cost Entry Type"::Rounding then begin
+                    CostAmt := -CostAmt;
+                    CostAmtACY := -CostAmtACY;
+                end;
+            end;
+        if not ItemJnlLine.Adjustment then
+            if Item."Inventory Value Zero" or
+                ((ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer) and
+                (ValueEntry."Valued Quantity" < 0) and not AverageTransfer) or
+                ((ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Sale) and
+                (ItemJnlLine."Item Charge No." <> ''))
+            then begin
+                CostAmt := 0;
+                CostAmtACY := 0;
+                ValueEntry."Cost per Unit" := 0;
+                ValueEntry."Cost per Unit (ACY)" := 0;
+                OnInitValueEntryOnAfterNotAdjustmentCheckClearCostAmount(ValueEntry, ItemJnlLine);
             end;
 
-            if (ValueEntry."Entry Type" <> ValueEntry."Entry Type"::Revaluation) and not Adjustment then
-                if (ValueEntry."Item Ledger Entry Type" in
-                    [ValueEntry."Item Ledger Entry Type"::Sale,
-                     ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.",
-                     ValueEntry."Item Ledger Entry Type"::Consumption,
-                     ValueEntry."Item Ledger Entry Type"::"Assembly Consumption"]) or
-                   ((ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Transfer) and
-                    ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and ("Item Charge No." = ''))
-                then begin
-                    ValueEntry."Valued Quantity" := -ValueEntry."Valued Quantity";
-                    ValueEntry."Invoiced Quantity" := -ValueEntry."Invoiced Quantity";
-                    if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Transfer then
-                        ValueEntry."Discount Amount" := 0
-                    else
-                        ValueEntry."Discount Amount" := -ValueEntry."Discount Amount";
+        case true of
+            (not ValueEntry."Expected Cost") and ValueEntry.Inventoriable and
+            IsInterimRevaluation():
+                begin
+                    ValueEntry."Cost Amount (Expected)" := Round(CostAmt * ItemJnlLine."Applied Amount" / ItemJnlLine.Amount);
+                    ValueEntry."Cost Amount (Expected) (ACY)" := Round(CostAmtACY * ItemJnlLine."Applied Amount" / ItemJnlLine.Amount,
+                        Currency."Amount Rounding Precision");
 
-                    if "Value Entry Type" <> "Value Entry Type"::Rounding then begin
-                        CostAmt := -CostAmt;
-                        CostAmtACY := -CostAmtACY;
-                    end;
+                    CostAmt := Round(CostAmt);
+                    CostAmtACY := Round(CostAmtACY, Currency."Amount Rounding Precision");
+                    ValueEntry."Cost Amount (Actual)" := CostAmt - ValueEntry."Cost Amount (Expected)";
+                    ValueEntry."Cost Amount (Actual) (ACY)" := CostAmtACY - ValueEntry."Cost Amount (Expected) (ACY)";
                 end;
-            if not Adjustment then
-                if Item."Inventory Value Zero" or
-                   (("Entry Type" = "Entry Type"::Transfer) and
-                    (ValueEntry."Valued Quantity" < 0) and not AverageTransfer) or
-                   (("Entry Type" = "Entry Type"::Sale) and
-                    ("Item Charge No." <> ''))
-                then begin
-                    CostAmt := 0;
-                    CostAmtACY := 0;
-                    ValueEntry."Cost per Unit" := 0;
-                    ValueEntry."Cost per Unit (ACY)" := 0;
-                    OnInitValueEntryOnAfterNotAdjustmentCheckClearCostAmount(ValueEntry, ItemJnlLine);
-                end;
-
-            case true of
-                (not ValueEntry."Expected Cost") and ValueEntry.Inventoriable and
-                IsInterimRevaluation():
-                    begin
-                        ValueEntry."Cost Amount (Expected)" := Round(CostAmt * "Applied Amount" / Amount);
-                        ValueEntry."Cost Amount (Expected) (ACY)" := Round(CostAmtACY * "Applied Amount" / Amount,
-                            Currency."Amount Rounding Precision");
-
-                        CostAmt := Round(CostAmt);
-                        CostAmtACY := Round(CostAmtACY, Currency."Amount Rounding Precision");
-                        ValueEntry."Cost Amount (Actual)" := CostAmt - ValueEntry."Cost Amount (Expected)";
-                        ValueEntry."Cost Amount (Actual) (ACY)" := CostAmtACY - ValueEntry."Cost Amount (Expected) (ACY)";
-                    end;
-                (not ValueEntry."Expected Cost") and ValueEntry.Inventoriable:
-                    begin
-                        if not Adjustment and ("Value Entry Type" = "Value Entry Type"::"Direct Cost") then
-                            case "Entry Type" of
-                                "Entry Type"::Sale:
-                                    ValueEntry."Sales Amount (Actual)" := Amount;
-                                "Entry Type"::Purchase:
-                                    ValueEntry."Purchase Amount (Actual)" := Amount;
-                            end;
-                        ValueEntry."Cost Amount (Actual)" := CostAmt;
-                        ValueEntry."Cost Amount (Actual) (ACY)" := CostAmtACY;
-                    end;
-                ValueEntry."Expected Cost" and ValueEntry.Inventoriable:
-                    begin
-                        if not Adjustment then
-                            case "Entry Type" of
-                                "Entry Type"::Sale:
-                                    ValueEntry."Sales Amount (Expected)" := Amount;
-                                "Entry Type"::Purchase:
-                                    ValueEntry."Purchase Amount (Expected)" := Amount;
-                            end;
-                        ValueEntry."Cost Amount (Expected)" := CostAmt;
-                        ValueEntry."Cost Amount (Expected) (ACY)" := CostAmtACY;
-                    end;
-                (not ValueEntry."Expected Cost") and (not ValueEntry.Inventoriable):
-                    if "Entry Type" = "Entry Type"::Sale then begin
-                        ValueEntry."Sales Amount (Actual)" := Amount;
-                        if Item.IsNonInventoriableType() then begin
-                            ValueEntry."Cost Amount (Non-Invtbl.)" := CostAmt;
-                            ValueEntry."Cost Amount (Non-Invtbl.)(ACY)" := CostAmtACY;
-                        end else begin
-                            ValueEntry."Cost per Unit" := 0;
-                            ValueEntry."Cost per Unit (ACY)" := 0;
+            (not ValueEntry."Expected Cost") and ValueEntry.Inventoriable:
+                begin
+                    if not ItemJnlLine.Adjustment and (ItemJnlLine."Value Entry Type" = "Cost Entry Type"::"Direct Cost") then
+                        case ItemJnlLine."Entry Type" of
+                            "Item Ledger Entry Type"::Sale:
+                                ValueEntry."Sales Amount (Actual)" := ItemJnlLine.Amount;
+                            "Item Ledger Entry Type"::Purchase:
+                                ValueEntry."Purchase Amount (Actual)" := ItemJnlLine.Amount;
                         end;
-                    end else begin
-                        if "Entry Type" = "Entry Type"::Purchase then
-                            ValueEntry."Purchase Amount (Actual)" := Amount;
+                    ValueEntry."Cost Amount (Actual)" := CostAmt;
+                    ValueEntry."Cost Amount (Actual) (ACY)" := CostAmtACY;
+                end;
+            ValueEntry."Expected Cost" and ValueEntry.Inventoriable:
+                begin
+                    if not ItemJnlLine.Adjustment then
+                        case ItemJnlLine."Entry Type" of
+                            "Item Ledger Entry Type"::Sale:
+                                ValueEntry."Sales Amount (Expected)" := ItemJnlLine.Amount;
+                            "Item Ledger Entry Type"::Purchase:
+                                ValueEntry."Purchase Amount (Expected)" := ItemJnlLine.Amount;
+                        end;
+                    ValueEntry."Cost Amount (Expected)" := CostAmt;
+                    ValueEntry."Cost Amount (Expected) (ACY)" := CostAmtACY;
+                end;
+            (not ValueEntry."Expected Cost") and (not ValueEntry.Inventoriable):
+                if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Sale then begin
+                    ValueEntry."Sales Amount (Actual)" := ItemJnlLine.Amount;
+                    if Item.IsNonInventoriableType() then begin
                         ValueEntry."Cost Amount (Non-Invtbl.)" := CostAmt;
                         ValueEntry."Cost Amount (Non-Invtbl.)(ACY)" := CostAmtACY;
+                    end else begin
+                        ValueEntry."Cost per Unit" := 0;
+                        ValueEntry."Cost per Unit (ACY)" := 0;
                     end;
-            end;
-
-            OnInitValueEntryOnBeforeRoundAmtValueEntry(ValueEntry, ItemJnlLine);
-
-            RoundAmtValueEntry(ValueEntry);
-
-            OnAfterInitValueEntry(ValueEntry, ItemJnlLine, ValueEntryNo, ItemLedgEntry);
+                end else begin
+                    if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Purchase then
+                        ValueEntry."Purchase Amount (Actual)" := ItemJnlLine.Amount;
+                    ValueEntry."Cost Amount (Non-Invtbl.)" := CostAmt;
+                    ValueEntry."Cost Amount (Non-Invtbl.)(ACY)" := CostAmtACY;
+                end;
         end;
+
+        OnInitValueEntryOnBeforeRoundAmtValueEntry(ValueEntry, ItemJnlLine);
+
+        RoundAmtValueEntry(ValueEntry);
+
+        OnAfterInitValueEntry(ValueEntry, ItemJnlLine, ValueEntryNo, ItemLedgerEntry);
     end;
 
     local procedure SetValueEntrySourceFieldsFromItemJnlLine(var ValueEntry: Record "Value Entry"; var ItemJournalLine: Record "Item Journal Line")
@@ -3174,6 +3174,8 @@
             GetInvtSetup();
             if InvtSetup."Enable Red Storno" then
                 ValueEntry."Red Storno" := ItemJnlLineOrigin."Red Storno";
+
+            UpdateItemLedgerEntryTypeForChargeItemInValueEntry(ValueEntry, ItemLedgEntry);
 
             OnBeforeInsertValueEntry(ValueEntry, ItemJnlLine, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment,
                 OldItemLedgEntry, Item, TransferItem, GlobalValueEntry);
@@ -3627,6 +3629,8 @@
     local procedure UpdateLinkedValuationDate(FromValuationDate: Date; FromItemledgEntryNo: Integer; FromInbound: Boolean)
     var
         ToItemApplnEntry: Record "Item Application Entry";
+        ValuationDate: Date;
+        ValuationDateFound: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3647,8 +3651,12 @@
             if FindSet() then
                 repeat
                     if FromInbound or ("Inbound Item Entry No." <> 0) then begin
-                        GetLastDirectCostValEntry("Inbound Item Entry No.");
-                        if DirCostValueEntry."Valuation Date" < FromValuationDate then begin
+                        if not ValuationDateFound then begin
+                            GetLastDirectCostValEntry("Inbound Item Entry No.");
+                            ValuationDate := DirCostValueEntry."Valuation Date";
+                            ValuationDateFound := true;
+                        end;
+                        if ValuationDate < FromValuationDate then begin
                             UpdateValuationDate(FromValuationDate, "Item Ledger Entry No.", FromInbound);
                             UpdateLinkedValuationDate(FromValuationDate, "Item Ledger Entry No.", not FromInbound);
                         end;
@@ -4196,7 +4204,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertTempSplitItemJnlLine(ItemJnlLine2, IsServUndoConsumption, PostponeReservationHandling, TempSplitItemJnlLine, PostItemJnlLine, IsHandled);
+        OnBeforeInsertTempSplitItemJnlLine(ItemJnlLine2, IsServUndoConsumption, PostponeReservationHandling, TempSplitItemJnlLine, IsHandled, PostItemJnlLine);
         if IsHandled then
             exit;
 
@@ -5247,41 +5255,42 @@
         exit(ValueEntry.IsEmpty());
     end;
 
-    local procedure MoveApplication(var ItemLedgEntry: Record "Item Ledger Entry"; var OldItemLedgEntry: Record "Item Ledger Entry"): Boolean
+    local procedure MoveApplication(var ItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"): Boolean
     var
-        Application: Record "Item Application Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
         Enough: Boolean;
         FixedApplication: Boolean;
     begin
-        OnBeforeMoveApplication(ItemLedgEntry, OldItemLedgEntry);
+        OnBeforeMoveApplication(ItemLedgerEntry, OldItemLedgEntry);
 
-        with ItemLedgEntry do begin
+        with ItemLedgerEntry do begin
             FixedApplication := false;
-            OldItemLedgEntry.TestField(Positive, true);
+            OldItemLedgerEntry.TestField(Positive, true);
 
-            if (OldItemLedgEntry."Remaining Quantity" < Abs(Quantity)) and
-               (OldItemLedgEntry."Remaining Quantity" < OldItemLedgEntry.Quantity)
+            if (OldItemLedgerEntry."Remaining Quantity" < Abs(Quantity)) and
+               (OldItemLedgerEntry."Remaining Quantity" < OldItemLedgerEntry.Quantity)
             then begin
                 Enough := false;
-                Application.Reset();
-                Application.SetCurrentKey("Inbound Item Entry No.");
-                Application.SetRange("Inbound Item Entry No.", "Applies-to Entry");
-                Application.SetFilter("Outbound Item Entry No.", '<>0');
+                ItemApplicationEntry.Reset();
+                ItemApplicationEntry.SetCurrentKey("Inbound Item Entry No.");
+                ItemApplicationEntry.SetRange("Inbound Item Entry No.", "Applies-to Entry");
+                ItemApplicationEntry.SetFilter("Outbound Item Entry No.", '<>0');
 
-                if Application.FindSet() then begin
+                if ItemApplicationEntry.FindSet() then begin
                     repeat
-                        if not Application.Fixed() then begin
-                            UnApply(Application);
-                            OldItemLedgEntry.Get(OldItemLedgEntry."Entry No.");
+                        if not ItemApplicationEntry.Fixed() then begin
+                            UnApply(ItemApplicationEntry);
+                            OldItemLedgEntry.Get(OldItemLedgerEntry."Entry No.");
                             OldItemLedgEntry.CalcReservedQuantity();
                             Enough :=
                               Abs(OldItemLedgEntry."Remaining Quantity" - OldItemLedgEntry."Reserved Quantity") >=
                               Abs("Remaining Quantity");
                         end else
                             FixedApplication := true;
-                    until (Application.Next() = 0) or Enough;
+                    until (ItemApplicationEntry.Next() = 0) or Enough;
                 end else
                     exit(false); // no applications found that could be undone
+                OnAfterMoveApplication(ItemLedgerEntry, OldItemLedgerEntry, Enough);
                 if not Enough and FixedApplication then
                     ShowFixedApplicationError();
                 exit(Enough);
@@ -5599,6 +5608,7 @@
         ValueEntry.SetRange("Order No.", ItemLedgerEntry."Order No.");
         ValueEntry.SetRange("Order Line No.", ItemLedgerEntry."Order Line No.");
         ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Output);
+        OnCorrectOutputValuationDateOnBeforeValueEntryFindSet(ValueEntry);
         if ValueEntry.FindSet() then
             repeat
                 TempValueEntry := ValueEntry;
@@ -7007,7 +7017,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostFlushedConsumpOnAfterCalcQtyToPost(ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComponent: Record "Prod. Order Component"; ActOutputQtyBase: Decimal; var QtyToPost: Decimal; var OldItemJournalLine: Record "Item Journal Line")
+    local procedure OnPostFlushedConsumpOnAfterCalcQtyToPost(ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComponent: Record "Prod. Order Component"; ActOutputQtyBase: Decimal; var QtyToPost: Decimal; var OldItemJournalLine: Record "Item Journal Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
 
@@ -7027,7 +7037,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostFlushedConsumpOnBeforeSetupSplitJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnPostFlushedConsumpOnBeforeSetupSplitJnlLine(var ItemJournalLine: Record "Item Journal Line"; var ProdOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderComp: Record "Prod. Order Component"; var TempTrackingSpecification: Record "Tracking Specification" temporary; var TrackingSpecExists: Boolean)
     begin
     end;
 
@@ -7200,7 +7210,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostInventoryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line"; PostToGL: Boolean)
+    local procedure OnBeforePostInventoryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line"; PostToGL: Boolean; CalledFromAdjustment: Boolean)
     begin
     end;
 
@@ -7513,6 +7523,12 @@
             exit;
 
         Error(Text027);
+    end;
+
+    local procedure UpdateItemLedgerEntryTypeForChargeItemInValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+        if (ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Purchase) and (ItemJnlLine."Item Charge No." <> '') then
+            ValueEntry."Item Ledger Entry Type" := ItemLedgerEntry."Entry Type";
     end;
 
     [IntegrationEvent(false, false)]
@@ -7992,6 +8008,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckItemOnAfterGetItem(Item: Record Item; ItemJnlLine: Record "Item Journal Line"; CalledFromAdjustment: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMoveApplication(var ItemLedgerEntry: Record "Item Ledger Entry"; OldItemLedgerEntry: Record "Item Ledger Entry"; var Enough: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitValueEntryOnBeforeSetDocumentLineNo(ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCorrectOutputValuationDateOnBeforeValueEntryFindSet(var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyItemLedgEntryOnAfterTestFirstApplyItemLedgEntry(OldItemLedgerEntry: Record "Item Ledger Entry"; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 }

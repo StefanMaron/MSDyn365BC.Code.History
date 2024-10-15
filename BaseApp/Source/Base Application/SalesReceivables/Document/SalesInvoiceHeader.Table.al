@@ -1339,7 +1339,7 @@ table 112 "Sales Invoice Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSendProfile(ReportSelections: Record "Report Selections"; SalesInvoiceHeader: Record "Sales Invoice Header"; DocTxt: Text; var IsHandled: Boolean; var DocumentSendingProfile: Record "Document Sending Profile")
+    local procedure OnBeforeSendProfile(var ReportSelections: Record "Report Selections"; var SalesInvoiceHeader: Record "Sales Invoice Header"; DocTxt: Text; var IsHandled: Boolean; var DocumentSendingProfile: Record "Document Sending Profile")
     begin
     end;
 
