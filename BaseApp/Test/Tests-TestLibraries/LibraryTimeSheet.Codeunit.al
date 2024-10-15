@@ -304,7 +304,8 @@ codeunit 131904 "Library - Time Sheet"
     procedure FindJob(var Job: Record Job)
     begin
         Job.SetFilter("Person Responsible", '<>''''');
-        Job.FindFirst;
+        Job.SetFilter(Status, '<>%1', Job.Status::Completed);
+        Job.FindFirst();
     end;
 
     procedure FindJobTask(JobNo: Code[20]; var JobTask: Record "Job Task")
