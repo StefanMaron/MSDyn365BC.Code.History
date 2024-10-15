@@ -688,13 +688,25 @@
                           JobJnlLine."Unit Cost (LCY)",
                           JobJnlLine."Currency Factor"), Currency."Unit-Amount Rounding Precision");
 
-            JobJnlLine."Total Cost" := Round(JobJnlLine."Unit Cost" * JobJnlLine.Quantity, Currency."Amount Rounding Precision");
+
+            if (JobJnlLine."Currency Code" = '') and (PurchLine."Currency Code" <> '') then begin
+                JobJnlLine."Total Cost" += Round(
+                                            CurrencyExchRate.ExchangeAmtFCYToLCY(
+                                                PurchHeader."Posting Date",
+                                                PurchLine."Currency Code",
+                                                NondeductibleVATAmount,
+                                                PurchHeader."Currency Factor"),
+                                            Currency."Amount Rounding Precision");
+                JobJnlLine."Total Cost (LCY)" := JobJnlLine."Total Cost";
+            end else
+                JobJnlLine."Total Cost" := Round(JobJnlLine."Unit Cost" * JobJnlLine.Quantity, Currency."Amount Rounding Precision");
 
             if (Type = Type::Item) and Item."Inventory Value Zero" then
                 JobJnlLine."Total Cost (LCY)" := 0
             else
-                JobJnlLine."Total Cost (LCY)" :=
-                  Round(JobJnlLine."Unit Cost (LCY)" * JobJnlLine.Quantity, LCYCurrency."Amount Rounding Precision");
+                if not ((JobJnlLine."Currency Code" = '') and (PurchLine."Currency Code" <> '')) then
+                    JobJnlLine."Total Cost (LCY)" :=
+                      Round(JobJnlLine."Unit Cost (LCY)" * JobJnlLine.Quantity, LCYCurrency."Amount Rounding Precision");
 
             if "Currency Code" = '' then
                 JobJnlLine."Direct Unit Cost (LCY)" := "Direct Unit Cost" + NondeductibleVATAmtPrUnit

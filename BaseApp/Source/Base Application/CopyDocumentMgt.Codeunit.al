@@ -5416,7 +5416,7 @@
             PurchLine."Line Discount %" / 100,
             Currency."Amount Rounding Precision");
         Amount :=
-          Round(PurchLine."Inv. Discount Amount" / OrgQtyBase * PurchLine."Quantity (Base)", Currency."Amount Rounding Precision");
+          Round(PurchLine."Inv. Discount Amount" / Abs(OrgQtyBase) * PurchLine."Quantity (Base)", Currency."Amount Rounding Precision");
         CalcVAT(
           Amount, PurchLine."VAT %", FromPricesInclVAT, ToPricesInclVAT, Currency."Amount Rounding Precision");
         PurchLine."Inv. Discount Amount" := Amount;
