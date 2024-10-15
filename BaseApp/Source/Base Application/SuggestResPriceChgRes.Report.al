@@ -1,0 +1,198 @@
+report 1191 "Suggest Res. Price Chg. (Res.)"
+{
+    Caption = 'Suggest Res. Price Chg. (Res.)';
+    ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
+
+    dataset
+    {
+        dataitem(Resource; Resource)
+        {
+            DataItemTableView = SORTING("No.");
+            RequestFilterFields = "No.", "Resource Group No.";
+
+            trigger OnAfterGetRecord()
+            begin
+                Window.Update(1, "No.");
+                with ResPriceChg do begin
+                    Type := Type::Resource;
+                    Code := Resource."No.";
+                    "New Unit Price" :=
+                      Round(
+                        CurrExchRate.ExchangeAmtLCYToFCY(
+                          WorkDate, ToCurrency.Code,
+                          Resource."Unit Price",
+                          CurrExchRate.ExchangeRate(
+                            WorkDate, ToCurrency.Code)),
+                        ToCurrency."Unit-Amount Rounding Precision");
+
+                    if "New Unit Price" > PriceLowerLimit then
+                        "New Unit Price" := "New Unit Price" * UnitPriceFactor;
+                    if RoundingMethod.Code <> '' then begin
+                        RoundingMethod."Minimum Amount" := "New Unit Price";
+                        if RoundingMethod.Find('=<') then begin
+                            "New Unit Price" := "New Unit Price" + RoundingMethod."Amount Added Before";
+
+                            if RoundingMethod.Precision > 0 then
+                                "New Unit Price" :=
+                                  Round(
+                                    "New Unit Price",
+                                    RoundingMethod.Precision, CopyStr('=><', RoundingMethod.Type + 1, 1));
+                            "New Unit Price" := "New Unit Price" + RoundingMethod."Amount Added After";
+                        end;
+                    end;
+
+                    ResPrice.SetRange(Type, Type);
+                    ResPrice.SetRange(Code, Code);
+                    ResPrice.SetRange("Currency Code", ToCurrency.Code);
+                    ResPrice.SetRange("Work Type Code", ToWorkType.Code);
+                    if ResPrice.FindLast then begin
+                        "Current Unit Price" := ResPrice."Unit Price";
+                        PriceAlreadyExists := true
+                    end else begin
+                        "Current Unit Price" := 0;
+                        PriceAlreadyExists := false;
+                    end;
+
+                    if PriceAlreadyExists or CreateNewPrices then begin
+                        ResPriceChg2 := ResPriceChg;
+                        if ResPriceChg2.Find('=') then
+                            Modify
+                        else
+                            Insert;
+                    end;
+                end;
+            end;
+
+            trigger OnPreDataItem()
+            begin
+                Window.Open(Text000)
+            end;
+        }
+    }
+
+    requestpage
+    {
+        SaveValues = true;
+
+        layout
+        {
+            area(content)
+            {
+                group(Options)
+                {
+                    Caption = 'Options';
+                    group("Copy to Res. Price Change...")
+                    {
+                        Caption = 'Copy to Res. Price Change...';
+                        field("ToCurrency.Code"; ToCurrency.Code)
+                        {
+                            ApplicationArea = Jobs;
+                            Caption = 'Currency Code';
+                            TableRelation = Currency;
+                            ToolTip = 'Specifies the code for the currency that amounts are shown in.';
+                        }
+                        field("ToWorkType.Code"; ToWorkType.Code)
+                        {
+                            ApplicationArea = Jobs;
+                            Caption = 'Work Type';
+                            TableRelation = "Work Type";
+                            ToolTip = 'Specifies the work types to which the new prices apply. If you want the new price to be calculated for all work types, enter ALL.';
+                        }
+                    }
+                    field(PriceLowerLimit; PriceLowerLimit)
+                    {
+                        ApplicationArea = Jobs;
+                        Caption = 'Only Amounts Above';
+                        DecimalPlaces = 2 : 5;
+                        ToolTip = 'Specifies an amount to determine the lowest unit price that is changed. Only prices that are higher than this are changed. If a price is lower than or equal to this amount, a line for it is created in the Resource Price Changes window, but with the same unit price as on the resource card.';
+                    }
+                    field(UnitPriceFactor; UnitPriceFactor)
+                    {
+                        ApplicationArea = Jobs;
+                        Caption = 'Adjustment Factor';
+                        DecimalPlaces = 0 : 5;
+                        MinValue = 0;
+                        ToolTip = 'Specifies an adjustment factor to multiply the amounts that you want suggested. By entering an adjustment factor, you can increase or decrease the amounts that are suggested.';
+                    }
+                    field("RoundingMethod.Code"; RoundingMethod.Code)
+                    {
+                        ApplicationArea = Jobs;
+                        Caption = 'Rounding Method';
+                        TableRelation = "Rounding Method";
+                        ToolTip = 'Specifies a code for the rounding method that you want to apply to costs or prices that you adjust.';
+                    }
+                    field(CreateNewPrices; CreateNewPrices)
+                    {
+                        ApplicationArea = Jobs;
+                        Caption = 'Create New Prices';
+                        ToolTip = 'Specifies if you want the batch job to create new price suggestions, such as a new combination of currency, job number, or work type. If you only want to adjust existing alternative prices, do not select.';
+                    }
+                }
+            }
+        }
+
+        actions
+        {
+        }
+
+        trigger OnOpenPage()
+        begin
+            if UnitPriceFactor = 0 then
+                UnitPriceFactor := 1;
+        end;
+    }
+
+    labels
+    {
+    }
+
+    trigger OnPreReport()
+    begin
+        RoundingMethod.SetRange(Code, RoundingMethod.Code);
+
+        if ToCurrency.Code = '' then begin
+            ToCurrency.InitRoundingPrecision;
+        end else begin
+            ToCurrency.Find;
+            ToCurrency.TestField("Unit-Amount Rounding Precision");
+        end;
+
+        with ResPriceChg do begin
+            "Currency Code" := ToCurrency.Code;
+            "Work Type Code" := ToWorkType.Code;
+        end;
+    end;
+
+    var
+        Text000: Label 'Processing items  #1##########';
+        RoundingMethod: Record "Rounding Method";
+        ToCurrency: Record Currency;
+        CurrExchRate: Record "Currency Exchange Rate";
+        ToWorkType: Record "Work Type";
+        ResPriceChg2: Record "Resource Price Change";
+        ResPriceChg: Record "Resource Price Change";
+        ResPrice: Record "Resource Price";
+        Window: Dialog;
+        PriceAlreadyExists: Boolean;
+        CreateNewPrices: Boolean;
+        UnitPriceFactor: Decimal;
+        PriceLowerLimit: Decimal;
+
+    procedure InitializeCopyToResPrice(CurrencyCode: Code[10]; WorkTypeCode: Code[10])
+    begin
+        ToCurrency.Code := CurrencyCode;
+        ToWorkType.Code := WorkTypeCode;
+    end;
+
+    procedure InitializeRequest(PriceLowerLimitFrom: Decimal; UnitPriceFactorFrom: Decimal; RoundingMethodCode: Code[10]; CreateNewPricesFrom: Boolean)
+    begin
+        PriceLowerLimit := PriceLowerLimitFrom;
+        UnitPriceFactor := UnitPriceFactorFrom;
+        RoundingMethod.Code := RoundingMethodCode;
+        CreateNewPrices := CreateNewPricesFrom;
+    end;
+}
+
