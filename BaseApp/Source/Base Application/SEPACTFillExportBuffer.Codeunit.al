@@ -28,6 +28,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         CreditTransferEntry: Record "Credit Transfer Entry";
         BankExportImportSetup: Record "Bank Export/Import Setup";
         MessageID: Code[20];
+        IsHandled: Boolean;
     begin
         TempGenJnlLine.CopyFilters(GenJnlLine);
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Prepare Source", TempGenJnlLine);
@@ -96,7 +97,12 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                     else
                         OnFillExportBufferOnSetAsRecipient(GenJnlLine, PaymentExportData, TempGenJnlLine);
                 end;
-                CollectDataFromLocalSource(TempGenJnlLine);
+                IsHandled := false;
+                OnFillExportBufferOnBeforeValidateNormalSEPAInstructionPriority(IsHandled);
+                if IsHandled then
+                    Validate("SEPA Instruction Priority", "SEPA Instruction Priority"::NORMAL)
+                else
+                    CollectDataFromLocalSource(TempGenJnlLine);
 
                 Validate("SEPA Payment Method", "SEPA Payment Method"::TRF);
                 Validate("SEPA Charge Bearer", "SEPA Charge Bearer"::SLEV);
@@ -288,6 +294,11 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnFillExportBufferOnSetAsRecipient(var GenJnlLine: Record "Gen. Journal Line"; var PaymentExportData: Record "Payment Export Data"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillExportBufferOnBeforeValidateNormalSEPAInstructionPriority(var IsHandled: Boolean)
     begin
     end;
 }

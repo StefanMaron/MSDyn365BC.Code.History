@@ -10,6 +10,7 @@ codeunit 144101 "Test SEPA CT v03"
     // 1. The test contain XML validation against XSD schema which is currently located in the root folder. In order to enable this
     // codeunit for SNAP execution this dependency must be resolved
 
+    EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -1461,6 +1462,40 @@ codeunit 144101 "Test SEPA CT v03"
         CheckSEPAISO20022_Scenario(DummyGLSetup."Local Currency"::Other, 'USD', 'USD');
     end;
 
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
+    [Scope('OnPrem')]
+    procedure ExportByXMLPortWithNormalPriority()
+    var
+        BankAccount: Record "Bank Account";
+        VendorBankAccount: Record "Vendor Bank Account";
+        TestSepaCtV03: Codeunit "Test SEPA CT v03";
+        ExportProtocolCode: Code[20];
+        FileName: Text;
+        TotalAmount: Decimal;
+        NoOfDocuments: Integer;
+    begin
+        // [FEATURE] [Normal Instruction Priority]
+        // [SCENARIO 365960] Export SEPA CT using xml port with normal instruction priority
+
+        Initialize();
+        BindSubscription(TestSepaCtV03);
+
+        // [GIVEN] Export protocol with "SEPA CT pain.001.001.03" xml port
+        ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol;
+
+        // [GIVEN] Vendor entry for export
+        SetupForExport(BankAccount, VendorBankAccount, ExportProtocolCode, TotalAmount, NoOfDocuments);
+
+        // [WHEN] Run xml export
+        FileName := GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
+
+        // [THEN] Xml file is exported with InstrPrty = NORM
+        XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace);
+        XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'NORM', 2);
+
+        UnbindSubscription(TestSepaCtV03);
+    end;
     local procedure CheckSEPAISO20022_Scenario(GLSetupLocalCurrency: Option; CurrencyEuro: Code[10]; ProposalLineCurrency: Code[10])
     var
         DummyProposalLine: Record "Proposal Line";
@@ -2420,6 +2455,13 @@ codeunit 144101 "Test SEPA CT v03"
     begin
         ExportBTL91ABNAMRO."Payment History".SetFilter("Run No.", LibraryVariableStorage.DequeueText);
         ExportBTL91ABNAMRO.OK.Invoke;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 1221, 'OnFillExportBufferOnBeforeValidateNormalSEPAInstructionPriority', '', false, false)]
+    [Scope('OnPrem')]
+    procedure OnFillExportBufferOnBeforeValidateNormalSEPAInstructionPriority(var IsHandled: Boolean)
+    begin
+        IsHandled := true;
     end;
 }
 
