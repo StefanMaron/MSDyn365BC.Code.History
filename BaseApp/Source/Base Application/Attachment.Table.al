@@ -1,4 +1,4 @@
-﻿table 5062 Attachment
+table 5062 Attachment
 {
     Caption = 'Attachment';
 
@@ -647,6 +647,24 @@
         Clear("Email Entry ID");
         "Email Entry ID".CreateOutStream(Stream);
         Stream.WriteText(EntryID);
+    end;
+
+    procedure GetEmailMessageUrl() Return: Text
+    var
+        InStream: InStream;
+    begin
+        CalcFields("Email Message Url");
+        "Email Message Url".CreateInStream(InStream);
+        InStream.ReadText(Return);
+    end;
+
+    procedure SetEmailMessageUrl(Url: Text)
+    var
+        OutStream: OutStream;
+    begin
+        Clear("Email Message Url");
+        "Email Message Url".CreateOutStream(OutStream);
+        OutStream.WriteText(url);
     end;
 
     procedure Read() Result: Text

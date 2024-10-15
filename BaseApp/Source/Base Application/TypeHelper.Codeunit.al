@@ -859,6 +859,16 @@ codeunit 10 "Type Helper"
         exit('<Standard Format,9>');
     end;
 
+    procedure IsDigit(ch: Char): Boolean
+    begin
+        exit((ch >= '0') AND (ch <= '9'));
+    end;
+
+    procedure IsUpper(ch: Char): Boolean
+    begin
+        exit((ch >= 'A') AND (ch <= 'Z'));
+    end;
+
     [TryFunction]
     local procedure GetCurrencyStyle(LocaleId: Integer; var CurrencyPositivePattern: Integer)
     var
