@@ -12,6 +12,8 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
     var
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
@@ -777,11 +779,36 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         Assert.RecordCount(SalesLine, 1);
     end;
 
-    local procedure Initialize()
+    [Test]
+    [Scope('OnPrem')]
+    procedure DescriptionOfRoundingAccountInPostedPrepaymentInvoice()
     var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        SalesHeaderOrder: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FETAURE] [Invoice Rounding]
+        // [SCENARIO 397118] System copies "Invoice Rounding" account's description to posted invoice line.
+        Initialize();
+
+        LibraryERM.SetInvRoundingPrecisionLCY(1);
+        LibrarySales.SetInvoiceRounding(true);
+
+        PrepareSalesOrder(SalesHeaderOrder);
+        AddSalesOrderLine(SalesLine, SalesHeaderOrder, 1, 1.1, 100, 0);
+
+        LibraryERMCountryData.UpdateVATPostingSetup();
+
+        PostSalesPrepmtInvoice(SalesHeaderOrder);
+
+        VerifyDescriptionOnPostedInvoiceRoundingLine(SalesHeaderOrder);
+    end;
+
+    local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Full Prepmt Rounding");
+
+        LibrarySetupStorage.Restore();
+
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Full Prepmt Rounding");
@@ -789,7 +816,11 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        LibrarySetupStorage.SaveSalesSetup();
+
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Full Prepmt Rounding");
@@ -1038,6 +1069,16 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         exit(CustomerPostingGroup."Receivables Account");
     end;
 
+    local procedure GetCustomerInvoiceRoundingAccount(var GLAccount: Record "G/L Account"; CustomerNo: Code[20])
+    var
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        Customer.Get(CustomerNo);
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        GLAccount.Get(CustomerPostingGroup."Invoice Rounding Account");
+    end;
+
     local procedure PostSalesPrepmtInvoice(var SalesHeader: Record "Sales Header")
     var
         SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
@@ -1103,9 +1144,10 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroupCode, VATProductPostingGroup.Code);
 
-        CustomerPostingGroup.Validate(
-          "Invoice Rounding Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
+        GLAccount.Validate(Name, LibraryUtility.GenerateGUID());
+        GLAccount.Modify(true);
+        CustomerPostingGroup.Validate("Invoice Rounding Account", GLAccount."No.");
         CustomerPostingGroup.Modify(true);
     end;
 
@@ -1126,6 +1168,23 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesInvoiceHeader);
         SalesInvoice.SalesLines.Last;
+    end;
+
+    local procedure VerifyDescriptionOnPostedInvoiceRoundingLine(SalesHeaderOrder: Record "Sales Header")
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        GLAccountRounding: Record "G/L Account";
+    begin
+        SalesInvoiceHeader.SetRange("Prepayment Order No.", SalesHeaderOrder."No.");
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeaderOrder."Sell-to Customer No.");
+        SalesInvoiceHeader.FindFirst();
+
+        GetCustomerInvoiceRoundingAccount(GLAccountRounding, SalesHeaderOrder."Sell-to Customer No.");
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.SetRange("No.", GLAccountRounding."No.");
+        SalesInvoiceLine.FindFirst();
+        SalesInvoiceLine.TestField(Description, GLAccountRounding.Name);
     end;
 
     local procedure VerifyZeroCustomerAccEntry()

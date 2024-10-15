@@ -67,6 +67,43 @@ codeunit 142087 "ERM Nec Report"
         LibraryReportDataset.AssertElementWithValueExists('GetAmtNEC04', PurchaseLine."Line Amount");
     end;
 
+    [Test]
+    [HandlerFunctions('Vendor1099NecRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure OnlyPositiveValuesGeneratedInMISC2020Report()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        VendNo: Code[20];
+    begin
+        // [SCENARIO 399767] Only positive values are generated in the NEC report
+
+        Initialize();
+
+        // [GIVEN] Vendor "X"
+        VendNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Purchase invoice with "MISC-01" code and amount = 100
+        CreateAndPostPurchDocWithVendorAndIRS1099Code(
+          PurchaseHeader, PurchaseLine[1], PurchaseHeader."Document Type"::Order, VendNo, IRS1099CodeNec01Lbl);
+
+        // [GIVEN] Purchase credit memo with "MISC-04" code and amount = 50
+        CreateAndPostPurchDocWithVendorAndIRS1099Code(
+          PurchaseHeader, PurchaseLine[2], PurchaseHeader."Document Type"::"Credit Memo", VendNo, IRS1099CodeNec04Lbl);
+        LibraryVariableStorage.Enqueue(VendNo);
+
+        // [WHEN] Run Vendor 1099 NEC Report
+        REPORT.Run(REPORT::"Vendor 1099 Nec");
+
+        LibraryReportDataset.LoadDataSetFile();
+        // [THEN] "MISC-01" has value of 100
+        LibraryReportDataset.AssertElementWithValueNotExist('GetAmtNEC01', PurchaseLine[1]."Line Amount");
+        // [THEN] "MISC-50" has value of 50
+        LibraryReportDataset.AssertElementWithValueNotExist('GetAmtNEC04', PurchaseLine[2]."Line Amount");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -82,6 +119,21 @@ codeunit 142087 "ERM Nec Report"
         Item: Record Item;
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorWithNECCode(IRS1099Code));
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandInt(5));
+        PurchaseLine.Validate("VAT %", 0);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(5000, 10000));
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
+    local procedure CreateAndPostPurchDocWithVendorAndIRS1099Code(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocType: Option; VendNo: Code[20]; IRS1099Code: Code[10])
+    var
+        Item: Record Item;
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, VendNo);
+        PurchaseHeader.Validate("IRS 1099 Code", IRS1099Code);
+        PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandInt(5));
         PurchaseLine.Validate("VAT %", 0);

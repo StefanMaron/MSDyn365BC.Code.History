@@ -13,8 +13,10 @@ codeunit 141008 "UT PAG Bank Deposit"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        ValueMustExistMsg: Label 'Value must exist.';
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryUtility: Codeunit "Library - Utility";
+        ValueMustExistMsg: Label 'Value must exist.';
         PostingDateErr: Label 'Validation error for Field: Posting Date,  Message = ''Posting Date must have a value in Deposit Header: No.=%1. It cannot be zero or empty. (Select Refresh to discard errors)''';
 
     [Test]
@@ -30,7 +32,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Purpose of the test is to validate TestReport - OnAction trigger of the Page ID: 36646, Deposits.
         // Setup.
         Initialize;
-        CreateDepositHeader(DepositHeader);
+        CreateDepositHeader(DepositHeader, '');
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::"G/L Account", CreateGLAccount);
         LibraryVariableStorage.Enqueue(DepositHeader."No.");  // Enqueue value for use in DepositTestReportRequestPageHandler.
 
@@ -203,11 +205,11 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Purpose of the test is to validate Dimensions - OnAction trigger of the Page ID: 10141, Deposit Subform.
         // Setup.
         Initialize;
-        CreateDepositHeader(DepositHeader);
+        CreateDepositHeader(DepositHeader, '');
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::Customer, CreateCustomer);
 
         // Exercise: Update the Dimension on Deposit Subform page through EditDimensionSetEntriesPageHandler.
-        OpenDepositSubForm(Deposit, GenJournalLine);
+        OpenDepositSubForm(Deposit, DepositHeader, GenJournalLine);
         Deposit.Subform.Dimensions.Invoke;  // Invokes EditDimensionSetEntriesPageHandler.
         Deposit.Close;
 
@@ -230,12 +232,12 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Purpose of the test is to validate AccountCard - OnAction trigger of the Page ID: 10141, Deposit Subform.
         // Setup.
         Initialize;
-        CreateDepositHeader(DepositHeader);
+        CreateDepositHeader(DepositHeader, '');
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::Customer, CreateCustomer);
         LibraryVariableStorage.Enqueue(GenJournalLine."Account No.");  // Enqueue values for use in CustomerCardPageHandler.
 
         // Exercise: Show Customer Card.
-        OpenDepositSubForm(Deposit, GenJournalLine);
+        OpenDepositSubForm(Deposit, DepositHeader, GenJournalLine);
         CustomerCard.Trap;
         Deposit.Subform.AccountCard.Invoke;
 
@@ -260,14 +262,14 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Purpose of the test is to validate AccountLedgerEntries - OnAction trigger of the Page ID: 10141, Deposit Subform.
         // Setup.
         Initialize;
-        CreateDepositHeader(DepositHeader);
+        CreateDepositHeader(DepositHeader, '');
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::Customer, CreateCustomer);
         CreatePostedSalesInvoiceLine(GenJournalLine."Account No.");
         CreateCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document No.", GenJournalLine."Account No.");
         CreateDetailedCustomerLedgerEntry(CustLedgerEntry."Entry No.", GenJournalLine."Account No.");
 
         // Exercise: Open Customer Ledger Entries
-        OpenDepositSubForm(Deposit, GenJournalLine);
+        OpenDepositSubForm(Deposit, DepositHeader, GenJournalLine);
         CustomerLedgerEntries.Trap;
         Deposit.Subform.AccountLedgerEntries.Invoke;  // Invokes CustomerLedgerEntriesPageHandler.
 
@@ -291,7 +293,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Purpose of the test is to validate ApplyEntries - OnAction trigger of the Page ID: 10141, Deposit Subform.
         // Setup.
         Initialize;
-        CreateDepositHeader(DepositHeader);
+        CreateDepositHeader(DepositHeader, '');
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::Customer, CreateCustomer);
         CreatePostedSalesInvoiceLine(GenJournalLine."Account No.");
         CreateCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document No.", GenJournalLine."Account No.");
@@ -303,7 +305,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Remaining Amount");
 
         // Exercise & Verify: Verify the Apply Customer Entries on Deposit Subform page through ApplyCustomerEntriesPageHandler.
-        OpenDepositSubForm(Deposit, GenJournalLine);
+        OpenDepositSubForm(Deposit, DepositHeader, GenJournalLine);
         Deposit.Subform.ApplyEntries.Invoke;  // Invokes ApplyCustomerEntriesPageHandler.
         Deposit.Close;
     end;
@@ -321,7 +323,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Purpose of the test is to validate Post - OnAction trigger of the Page ID: 10140, Deposit. Transaction model is AutoCommit for explicit commit used in Codeunit ID: 10140, Deposit-Post.
         // Setup.
         Initialize;
-        CreateDepositHeader(DepositHeader);
+        CreateDepositHeader(DepositHeader, '');
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::"G/L Account", CreateGLAccount);
 
         // Exercise.
@@ -344,7 +346,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Purpose of the test is to validate DepositTestReport - OnAction trigger of the Page ID: 10140, Deposit.
         // Setup.
         Initialize;
-        CreateDepositHeader(DepositHeader);
+        CreateDepositHeader(DepositHeader, '');
         LibraryVariableStorage.Enqueue(DepositHeader."No.");  // Enqueue values for use in DepositTestReportRequestPageHandler.
 
         // Exercise & verify: Verify the Deposit Test Report run from Deposit page through DepositTestReportRequestPageHandler.
@@ -366,7 +368,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Purpose of the test is to validate PostAndPrint - OnAction trigger of the Page ID: 10140, Deposit. Transaction model is AutoCommit for explicit commit used in Codeunit ID: 10140, Deposit-Post.
         // Setup.
         Initialize;
-        CreateDepositHeader(DepositHeader);
+        CreateDepositHeader(DepositHeader, '');
         CreateGenJournalLine(GenJournalLine, DepositHeader, GenJournalLine."Account Type"::"G/L Account", CreateGLAccount);
 
         // Exercise.
@@ -389,7 +391,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         // Purpose of the test is to validate Dimensions - OnAction trigger of the Page ID: 10140, Deposit.
         // Setup.
         Initialize;
-        CreateDepositHeader(DepositHeader);
+        CreateDepositHeader(DepositHeader, '');
 
         // Exercise: Update the Dimension on Deposit page through EditDimensionSetEntriesPageHandler.
         OpenDepositPage(Deposit, DepositHeader);
@@ -414,7 +416,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         Initialize;
 
         // [GIVEN] Deposit page is opened with 'Total Deposit Amount' = 100
-        CreateDepositHeader(DepositHeader);
+        CreateDepositHeader(DepositHeader, '');
 
         DepositHeader.Validate("Total Deposit Amount", LibraryRandom.RandDecInRange(100, 200, 2));
         DepositHeader.Modify(true);
@@ -443,7 +445,7 @@ codeunit 141008 "UT PAG Bank Deposit"
         Initialize;
 
         // [GIVEN] Created a Deposit Header and opened its Deposit Card
-        CreateDepositHeader(DepositHeader);
+        CreateDepositHeader(DepositHeader, '');
         OpenDepositPage(Deposit, DepositHeader);
 
         // [WHEN] Try to validate an empty Posting Date
@@ -454,24 +456,158 @@ codeunit 141008 "UT PAG Bank Deposit"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateListPageHandler')]
+    procedure LCYDepositWithTwoLinesChangeBankToFCY()
+    var
+        DepositHeader: Record "Deposit Header";
+        Deposit: TestPage Deposit;
+        CurrencyCode: Code[10];
+        CurrencyFactor: Decimal;
+        Amount: Decimal;
+        AmountLCY: Decimal;
+    begin
+        // [SCENARIO 400406] Deposit lines currency code and factor in case of changing deposit bank account from LCY to FCY
+        Initialize();
+        CurrencyFactor := LibraryRandom.RandDecInRange(10, 20, 2);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), CurrencyFactor, CurrencyFactor);
+        Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        AmountLCY := Round(Amount * CurrencyFactor);
+
+        // [GIVEN] LCY Deposit with two lines
+        CreateDepositHeader(DepositHeader, '');
+        OpenDepositAndAddTwoGLLines(Deposit, DepositHeader, AmountLCY);
+        VerifyCurrencyCodeAndFactor(DepositHeader, '', 0, AmountLCY, AmountLCY);
+
+        // [WHEN] Validate deposit FCY bank account
+        Deposit."Bank Account No.".SetValue(CreateBankAccount(CurrencyCode));
+        Deposit.Close();
+
+        // [THEN] Deposit header and lines are updated with FCY currency code and factor
+        VerifyCurrencyCodeAndFactor(DepositHeader, CurrencyCode, CurrencyFactor, AmountLCY, Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateListPageHandler')]
+    procedure FCYDepositWithTwoLinesChangeBankToLCY()
+    var
+        DepositHeader: Record "Deposit Header";
+        Deposit: TestPage Deposit;
+        CurrencyCode: Code[10];
+        CurrencyFactor: Decimal;
+        Amount: Decimal;
+        AmountLCY: Decimal;
+    begin
+        // [SCENARIO 400406] Deposit lines currency code and factor in case of changing deposit bank account from FCY to LCY
+        Initialize();
+        CurrencyFactor := LibraryRandom.RandDecInRange(10, 20, 2);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), CurrencyFactor, CurrencyFactor);
+        AmountLCY := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        Amount := Round(AmountLCY * CurrencyFactor);
+
+        // [GIVEN] FCY Deposit with two lines
+        CreateDepositHeader(DepositHeader, CurrencyCode);
+        OpenDepositAndAddTwoGLLines(Deposit, DepositHeader, Amount);
+        VerifyCurrencyCodeAndFactor(DepositHeader, CurrencyCode, CurrencyFactor, Amount, AmountLCY);
+
+        // [WHEN] Validate deposit LCY bank account
+        Deposit."Bank Account No.".SetValue(CreateBankAccount(''));
+        Deposit.Close();
+
+        // [THEN] Deposit header and lines are updated with LCY currency code and factor
+        VerifyCurrencyCodeAndFactor(DepositHeader, '', 0, Amount, Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateListPageHandler')]
+    procedure FCYDepositWithTwoLinesChangeBankToFCY2()
+    var
+        DepositHeader: Record "Deposit Header";
+        Deposit: TestPage Deposit;
+        CurrencyCode: array[2] of Code[10];
+        CurrencyFactor: array[2] of Decimal;
+        Amount: Decimal;
+        AmountLCY: Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 400406] Deposit lines currency code and factor in case of changing deposit bank account from FCY1 to FCY2
+        Initialize();
+
+        for i := 1 to ArrayLen(CurrencyCode) do begin
+            CurrencyFactor[i] := LibraryRandom.RandDecInRange(10, 20, 2);
+            CurrencyCode[i] := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), CurrencyFactor[i], CurrencyFactor[i]);
+        end;
+        AmountLCY := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        Amount := Round(AmountLCY * CurrencyFactor[1]);
+
+        // [GIVEN] LCY Deposit with two lines
+        CreateDepositHeader(DepositHeader, CurrencyCode[1]);
+        OpenDepositAndAddTwoGLLines(Deposit, DepositHeader, Amount);
+        VerifyCurrencyCodeAndFactor(DepositHeader, CurrencyCode[1], CurrencyFactor[1], Amount, AmountLCY);
+
+        // [WHEN] Validate deposit FCY2 bank account
+        Deposit."Bank Account No.".SetValue(CreateBankAccount(CurrencyCode[2]));
+        Deposit.Close();
+
+        // [THEN] Deposit header and lines are updated with FCY2 currency code and factor
+        AmountLCY := Round(Amount / CurrencyFactor[2]);
+        VerifyCurrencyCodeAndFactor(DepositHeader, CurrencyCode[2], CurrencyFactor[2], Amount, AmountLCY);
+    end;
+
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateListPageHandler')]
+    procedure FCYDepositWithTwoLinesChangePostingDate()
+    var
+        DepositHeader: Record "Deposit Header";
+        Deposit: TestPage Deposit;
+        CurrencyCode: Code[10];
+        CurrencyFactor: array[2] of Decimal;
+        Amount: Decimal;
+        AmountLCY: Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 400406] Deposit lines currency factor in case of changing deposit posting date
+        Initialize();
+
+        for i := 1 to ArrayLen(CurrencyFactor) do
+            CurrencyFactor[i] := LibraryRandom.RandDecInRange(10, 20, 2);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), CurrencyFactor[1], CurrencyFactor[1]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate() + 1, CurrencyFactor[2], CurrencyFactor[2]);
+        AmountLCY := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        Amount := Round(AmountLCY * CurrencyFactor[1]);
+
+        // [GIVEN] FCY Deposit with two lines
+        CreateDepositHeader(DepositHeader, CurrencyCode);
+        OpenDepositAndAddTwoGLLines(Deposit, DepositHeader, Amount);
+        VerifyCurrencyCodeAndFactor(DepositHeader, CurrencyCode, CurrencyFactor[1], Amount, AmountLCY);
+
+        // [WHEN] Modify deposit posting date
+        Deposit."Posting Date".SetValue(WorkDate() + 1);
+        Deposit.Close();
+
+        // [THEN] Deposit header and lines are updated with a new currency factor
+        AmountLCY := Round(Amount / CurrencyFactor[2]);
+        VerifyCurrencyCodeAndFactor(DepositHeader, CurrencyCode, CurrencyFactor[2], Amount, AmountLCY);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure CreateDepositHeader(var DepositHeader: Record "Deposit Header")
+    local procedure CreateDepositHeader(var DepositHeader: Record "Deposit Header"; CurrencyCode: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalBatch2: Record "Gen. Journal Batch";
     begin
         CreateGenJournalBatch(GenJournalBatch2);  // Create multiple General Journal Template and Batch to open GeneralJournalTemplateListPageHandler.
         CreateGenJournalBatch(GenJournalBatch);
-        DepositHeader."No." := LibraryUTUtility.GetNewCode;
+        DepositHeader."No." := LibraryUtility.GenerateGUID();
         DepositHeader."Journal Template Name" := GenJournalBatch."Journal Template Name";
         DepositHeader."Journal Batch Name" := GenJournalBatch.Name;
         DepositHeader."Posting Date" := WorkDate;
         DepositHeader."Document Date" := WorkDate;
-        DepositHeader."Bank Account No." := CreateBankAccount;
+        DepositHeader.Validate("Bank Account No.", CreateBankAccount(CurrencyCode));
         DepositHeader."Total Deposit Amount" := LibraryRandom.RandDec(10, 2);
         DepositHeader.Insert();
         LibraryVariableStorage.Enqueue(DepositHeader."Journal Template Name");  // Enqueue value in GeneralJournalTemplateListPageHandler.
@@ -479,7 +615,7 @@ codeunit 141008 "UT PAG Bank Deposit"
 
     local procedure CreatePostedDepositForCustomer(var PostedDepositHeader: Record "Posted Deposit Header"; var PostedDepositLine: Record "Posted Deposit Line")
     begin
-        PostedDepositHeader."No." := LibraryUTUtility.GetNewCode;
+        PostedDepositHeader."No." := LibraryUtility.GenerateGUID();
         PostedDepositHeader.Insert();
 
         PostedDepositLine."Deposit No." := PostedDepositHeader."No.";
@@ -494,17 +630,17 @@ codeunit 141008 "UT PAG Bank Deposit"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate.Name := LibraryUtility.GenerateGUID();
         GenJournalTemplate.Type := GenJournalTemplate.Type::Deposits;
         GenJournalTemplate."Page ID" := PAGE::Deposit;
         GenJournalTemplate.Insert();
 
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
-        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalBatch.Name := LibraryUtility.GenerateGUID();
         GenJournalBatch.Insert();
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DepositHeader: Record "Deposit Header"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DepositHeader: Record "Deposit Header"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         GenJournalLine."Journal Template Name" := DepositHeader."Journal Template Name";
         GenJournalLine."Journal Batch Name" := DepositHeader."Journal Batch Name";
@@ -518,25 +654,19 @@ codeunit 141008 "UT PAG Bank Deposit"
         GenJournalLine.Insert();
     end;
 
-    local procedure CreateBankAccount(): Code[20]
+    local procedure CreateBankAccount(CurrencyCode: Code[10]): Code[20]
     var
-        BankAccountPostingGroup: Record "Bank Account Posting Group";
         BankAccount: Record "Bank Account";
     begin
-        BankAccountPostingGroup.FindFirst;
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
-        BankAccount."Bank Acc. Posting Group" := BankAccountPostingGroup.Code;
-        BankAccount.Insert();
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Currency Code", CurrencyCode);
+        BankAccount.Modify(true);
         exit(BankAccount."No.");
     end;
 
     local procedure CreateGLAccount(): Code[20]
-    var
-        GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
-        GLAccount.Insert();
-        exit(GLAccount."No.");
+        exit(LibraryERM.CreateGLAccountNo());
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -614,13 +744,14 @@ codeunit 141008 "UT PAG Bank Deposit"
 
     local procedure OpenDepositPage(var Deposit: TestPage Deposit; DepositHeader: Record "Deposit Header")
     begin
-        Deposit.OpenEdit;
-        Deposit.GotoRecord(DepositHeader);
+        Deposit.Trap();
+        DepositHeader.SetRecFilter();
+        Page.Run(Page::Deposit, DepositHeader);
     end;
 
-    local procedure OpenDepositSubForm(var Deposit: TestPage Deposit; GenJournalLine: Record "Gen. Journal Line")
+    local procedure OpenDepositSubForm(var Deposit: TestPage Deposit; DepositHeader: Record "Deposit Header"; GenJournalLine: Record "Gen. Journal Line")
     begin
-        Deposit.OpenEdit;
+        OpenDepositPage(Deposit, DepositHeader);
         Deposit.Subform.GotoRecord(GenJournalLine);
     end;
 
@@ -630,10 +761,47 @@ codeunit 141008 "UT PAG Bank Deposit"
         PostedDeposit.GotoRecord(PostedDepositHeader);
     end;
 
+    local procedure OpenDepositAndAddTwoGLLines(var Deposit: TestPage Deposit; DepositHeader: Record "Deposit Header"; Amount: Decimal)
+    var
+        GenJournalAccountType: Enum "Gen. Journal Account Type";
+    begin
+        OpenDepositPage(Deposit, DepositHeader);
+        Deposit.Subform."Account Type".SetValue(GenJournalAccountType::"G/L Account");
+        Deposit.Subform."Account No.".SetValue(LibraryERM.CreateGLAccountNo());
+        Deposit.Subform."Credit Amount".SetValue(Amount);
+        Deposit.Subform.Next();
+        Deposit.Subform."Account Type".SetValue(GenJournalAccountType::"G/L Account");
+        Deposit.Subform."Account No.".SetValue(LibraryERM.CreateGLAccountNo());
+        Deposit.Subform."Credit Amount".SetValue(Amount);
+        Deposit.Subform.Next();
+    end;
+
     local procedure UpdateDimensionOnPostedDepositHeader(var PostedDepositHeader: Record "Posted Deposit Header"; DimensionSetID: Integer)
     begin
         PostedDepositHeader."Dimension Set ID" := DimensionSetID;
         PostedDepositHeader.Modify();
+    end;
+
+    local procedure VerifyCurrencyCodeAndFactor(DepositHeader: Record "Deposit Header"; CurrencyCode: Code[10]; CurrencyFactor: Decimal; Amount: Decimal; AmountLCY: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        DepositHeader.Find();
+        DepositHeader.TestField("Currency Code", CurrencyCode);
+        DepositHeader.TestField("Currency Factor", CurrencyFactor);
+
+        GenJournalLine.SetRange("Journal Template Name", DepositHeader."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", DepositHeader."Journal Batch Name");
+        GenJournalLine.SetRange("Posting Date", DepositHeader."Posting Date");
+        GenJournalLine.SetRange("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.SetRange("Bal. Account No.", DepositHeader."Bank Account No.");
+        GenJournalLine.SetRange("Currency Code", CurrencyCode);
+        GenJournalLine.SetRange("Currency Factor", CurrencyFactor);
+        Assert.RecordCount(GenJournalLine, 2);
+
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField(Amount, -Amount);
+        GenJournalLine.TestField("Amount (LCY)", -AmountLCY);
     end;
 
     [ModalPageHandler]
@@ -701,11 +869,8 @@ codeunit 141008 "UT PAG Bank Deposit"
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GeneralJournalTemplateListPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
-    var
-        Name: Variant;
     begin
-        LibraryVariableStorage.Dequeue(Name);
-        GeneralJournalTemplateList.FILTER.SetFilter(Name, Name);
+        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
         GeneralJournalTemplateList.OK.Invoke;
     end;
 

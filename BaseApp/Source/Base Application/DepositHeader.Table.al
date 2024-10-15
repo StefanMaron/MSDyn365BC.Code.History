@@ -27,6 +27,10 @@ table 10140 "Deposit Header"
             trigger OnValidate()
             begin
                 BankAccount.Get("Bank Account No.");
+                GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
+                GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
+                GenJnlLine.ModifyAll("Bal. Account No.", "Bank Account No.", true);
+
                 Validate("Currency Code", BankAccount."Currency Code");
                 "Bank Acc. Posting Group" := BankAccount."Bank Acc. Posting Group";
                 "Language Code" := BankAccount."Language Code";
@@ -46,7 +50,11 @@ table 10140 "Deposit Header"
                 if "Currency Code" <> xRec."Currency Code" then begin
                     GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                     GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-                    GenJnlLine.ModifyAll("Currency Code", "Currency Code", true);
+                    if GenJnlLine.FindSet(true) then
+                        repeat
+                            GenJnlLine.Validate("Currency Code", "Currency Code");
+                            GenJnlLine.Modify(true);
+                        until GenJnlLine.Next() = 0;
                 end;
             end;
         }
@@ -69,7 +77,11 @@ table 10140 "Deposit Header"
                     "Document Date" := "Posting Date";
                 GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                 GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-                GenJnlLine.ModifyAll("Posting Date", "Posting Date", true);
+                if GenJnlLine.FindSet(true) then
+                    repeat
+                        GenJnlLine.Validate("Posting Date", "Posting Date");
+                        GenJnlLine.Modify(true);
+                    until GenJnlLine.Next() = 0;
             end;
         }
         field(6; "Total Deposit Amount"; Decimal)

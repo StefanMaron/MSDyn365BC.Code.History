@@ -2310,6 +2310,65 @@ codeunit 134761 "Test Custom Reports"
           'PmtDiscText', StrSubstNo(PmtDiscTxt, WorkDate, SalesHeader."Payment Discount %"));
     end;
 
+    [Test]
+    [HandlerFunctions('StandardStatementPDFHandler')]
+    procedure PDFPrintForSeveralCustomersWithSameName()
+    var
+        Customer: array[3] of Record Customer;
+        CustomLayoutReporting: Codeunit "Custom Layout Reporting";
+        TestCustomReports: Codeunit "Test Custom Reports";
+        CustRecRef: RecordRef;
+        ReportSelectionsUsage: Enum "Report Selection Usage";
+        FilesList: List of [Text];
+        OutputPath: Text;
+        CustomerName: Text;
+        ReportName: Text;
+        DateText: Text;
+        i: Integer;
+    begin
+        // [SCENARIO 401532] Print PDF for several customers with the same Name produces several files with different names
+        Initialize();
+        OutputPath := GetOutputFolder();
+        ReportName := LibraryUtility.GenerateGUID();
+        CustomerName := LibraryUtility.GenerateGUID();
+        BindSubscription(TestCustomReports);
+
+        // [GIVEN] 3 customers with the same Name = "X"
+        SetStandardStatementSelection();
+        CustomLayoutReporting.SetOutputFileBaseName(ReportName);
+        InitializeCustomLayoutReporting(CustomLayoutReporting, OutputPath, false);
+
+        for i := 1 to ArrayLen(Customer) do begin
+            LibrarySales.CreateCustomer(Customer[i]);
+            Customer[i].Validate(Name, CopyStr(CustomerName, 1, MaxStrLen(Customer[i].Name)));
+            Customer[i].Modify(true);
+            CreateTwoCustomerLedgerEntries(Customer[i]."No.", 1, 1);
+        end;
+        Customer[1].SetFilter("No.", '%1|%2|%3', Customer[1]."No.", Customer[2]."No.", Customer[3]."No.");
+
+        CustRecRef.Open(Database::Customer);
+        CustRecRef.SetView(Customer[1].GetView());
+        LibraryVariableStorage.Enqueue(GetStartDate());
+        CustomLayoutReporting.InitializeData(
+          ReportSelectionsUsage::"C.Statement".AsInteger(), CustRecRef, CustomerFullMod.FieldName("No."),
+          Database::Customer, CustomerFullMod.FieldName("No."), true);
+
+        // [WHEN] Run "Statement" report for 3 selected customers and print as PDF
+        CustomLayoutReporting.ProcessReport();
+
+        // [THEN] zip has been created with 3 files:
+        // [THEN] "Report for X as of 2026-06-06.pdf"
+        // [THEN] "Report for X as of 2026-06-06 (1).pdf"
+        // [THEN] "Report for X as of 2026-06-06 (2).pdf"
+        GetFilesListFromZip(FilesList, OutputPath);
+        Assert.AreEqual(3, FilesList.Count(), '');
+
+        DateText := Format(CalcDate('<CD+5Y>'), 0, 9);
+        Assert.IsTrue(FilesList.Contains(StrSubstNo('%1 for %2 as of %3.pdf', ReportName, CustomerName, DateText)), '');
+        Assert.IsTrue(FilesList.Contains(StrSubstNo('%1 for %2 as of %3 (1).pdf', ReportName, CustomerName, DateText)), '');
+        Assert.IsTrue(FilesList.Contains(StrSubstNo('%1 for %2 as of %3 (2).pdf', ReportName, CustomerName, DateText)), '');
+    end;
+
     [Scope('OnPrem')]
     procedure Initialize()
     var
@@ -2763,6 +2822,26 @@ codeunit 134761 "Test Custom Reports"
     local procedure GetStartDate(): Date
     begin
         exit(CalcDate('<CD-1Y>'));
+    end;
+
+    local procedure GetFilesListFromZip(var FilesList: List of [Text]; OutputPath: Text)
+    var
+        FileManagement: Codeunit "File Management";
+        DataCompression: Codeunit "Data Compression";
+        ZipFile: File;
+        ZipInStream: InStream;
+        ZipPath: Text;
+    begin
+        ZipPath := FileManagement.CombinePath(OutputPath, 'AllReports.zip');
+        Assert.IsTrue(Exists(ZipPath), ExpectedFilesErr);
+        ZipFile.Open(ZipPath);
+        ZipFile.CreateInStream(ZipInStream);
+        DataCompression.OpenZipArchive(ZipInStream, false);
+        DataCompression.GetEntryList(FilesList);
+        DataCompression.CloseZipArchive();
+        ZipFile.Close();
+        if Exists(ZipPath) then
+            Erase(ZipPath);
     end;
 
     local procedure CustomReportSelectionPrint(Document: Variant; Usage: Option; Email: Boolean; ShowRequestPage: Boolean; CustomerNoFieldNo: Integer): Integer
