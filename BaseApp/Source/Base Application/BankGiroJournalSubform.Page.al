@@ -22,11 +22,17 @@ page 11401 "Bank/Giro Journal Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number for the CBG statement line of type Cash.';
+                    Visible = false;
                 }
                 field("Account Type"; "Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of account that the entry on the statement line will be posted to.';
+
+                    trigger OnValidate()
+                    begin
+                        SetAccountName();
+                    end;
                 }
                 field("Account No."; "Account No.")
                 {
@@ -36,7 +42,15 @@ page 11401 "Bank/Giro Journal Subform"
                     trigger OnValidate()
                     begin
                         ShowShortcutDimCode(ShortcutDimcode);
+                        SetAccountName();
                     end;
+                }
+                field(AccountName; AccName)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Account Name';
+                    Editable = false;
+                    ToolTip = 'Specifies the account name that the entry on the statement line will be posted to.';
                 }
                 field("Applies-to Doc. Type"; "Applies-to Doc. Type")
                 {
@@ -48,6 +62,11 @@ page 11401 "Bank/Giro Journal Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the document that will be applied to, if the journal line will be applied to an already-posted sales or purchase document.';
+                }
+                field("Applies-to ID"; "Applies-to ID")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
                 }
                 field(Identification; Identification)
                 {
@@ -119,6 +138,7 @@ page 11401 "Bank/Giro Journal Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = '1,2,3';
+                    Visible = false;
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
@@ -134,6 +154,7 @@ page 11401 "Bank/Giro Journal Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = '1,2,4';
+                    Visible = false;
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
@@ -149,6 +170,7 @@ page 11401 "Bank/Giro Journal Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = '1,2,5';
+                    Visible = false;
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
@@ -164,6 +186,7 @@ page 11401 "Bank/Giro Journal Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = '1,2,6';
+                    Visible = false;
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
@@ -179,6 +202,7 @@ page 11401 "Bank/Giro Journal Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = '1,2,7';
+                    Visible = false;
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
@@ -194,6 +218,7 @@ page 11401 "Bank/Giro Journal Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = '1,2,8';
+                    Visible = false;
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
@@ -355,7 +380,7 @@ page 11401 "Bank/Giro Journal Subform"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    ShortCutKey = 'Shift+Ctrl+D';
+                    ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to journal lines to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
@@ -396,12 +421,14 @@ page 11401 "Bank/Giro Journal Subform"
     begin
         GetHeader;
         ShowShortcutDimCode(ShortcutDimcode);
+        SetAccountName();
         AfterGetCurrentRecord;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Clear(ShortcutDimcode);
+        Clear(AccName);
         GetHeader;
         if CBGStatement."No." <> 0 then
             InitRecord(xRec);
@@ -412,6 +439,7 @@ page 11401 "Bank/Giro Journal Subform"
         Text1000000: Label 'CBI';
         CBGStatement: Record "CBG Statement";
         ShortcutDimcode: array[8] of Code[20];
+        AccName: Text[100];
         [InDataSet]
         VATStatusEnable: Boolean;
         [InDataSet]
@@ -511,6 +539,59 @@ page 11401 "Bank/Giro Journal Subform"
         xRec := Rec;
         VATStatusEnable := "Account Type" = "Account Type"::"G/L Account";
         StatusVATAmountEnable := "Account Type" = "Account Type"::"G/L Account";
+    end;
+
+    local procedure SetAccountName()
+    var
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        GLAcc: Record "G/L Account";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        Cust: Record Customer;
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        Vend: Record Vendor;
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        BankAcc: Record "Bank Account";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        Employee: Record Employee;
+    begin
+        if (Rec."Account Type" <> xRec."Account Type") or
+           (Rec."Account No." <> xRec."Account No.")
+        then begin
+            AccName := '';
+            if "Account No." <> '' then
+                case "Account Type" of
+                    "Account Type"::"G/L Account":
+                        begin
+                            GLAcc.SetLoadFields(Name);
+                            if GLAcc.Get("Account No.") then
+                                AccName := GLAcc.Name;
+                        end;
+                    "Account Type"::Customer:
+                        begin
+                            Cust.SetLoadFields(Name);
+                            if Cust.Get("Account No.") then
+                                AccName := Cust.Name;
+                        end;
+                    "Account Type"::Vendor:
+                        begin
+                            Vend.SetLoadFields(Name);
+                            if Vend.Get("Account No.") then
+                                AccName := Vend.Name;
+                        end;
+                    "Account Type"::"Bank Account":
+                        begin
+                            BankAcc.SetLoadFields(Name);
+                            if BankAcc.Get("Account No.") then
+                                AccName := BankAcc.Name;
+                        end;
+                    "Account Type"::Employee:
+                        begin
+                            Employee.SetLoadFields("First Name", "Middle Name", "Last Name");
+                            if Employee.Get("Account No.") then
+                                AccName := Employee.FullName();
+                        end;
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

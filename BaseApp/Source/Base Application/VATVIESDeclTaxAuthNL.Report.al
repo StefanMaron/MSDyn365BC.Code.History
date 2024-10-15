@@ -4,6 +4,8 @@ report 11409 "VAT- VIES Decl. Tax Auth NL"
     RDLCLayout = './VATVIESDeclTaxAuthNL.rdlc';
     Caption = 'VAT- VIES Declaration Tax Auth';
     UseRequestPage = true;
+    ApplicationArea = Basic, Suite;
+    UsageCategory = ReportsAndAnalysis;
 
     dataset
     {

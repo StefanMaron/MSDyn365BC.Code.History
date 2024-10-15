@@ -723,6 +723,167 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         LibraryNLLocalization.VerifyPaymentHistoryChecksum(BankAccountNo, true, ExportProtocol.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
+    procedure StreetTownAndPostCodeNodesWhenExportSepaIso20022Pain03AndWorldPaymentSet()
+    var
+        BankAccount: Record "Bank Account";
+        Customer: Record Customer;
+        DirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        CustomerBankAccount: Record "Customer Bank Account";
+        TransactionMode: Record "Transaction Mode";
+    begin
+        // [SCENARIO 423641] Street, Town, PostCode nodes in XML when export payment history using "SEPA ISO20022 Pain 01.01.03" report. Transaction Mode has WorldPayment set.
+        Initialize();
+
+        // [GIVEN] Export Protocol "Generic SEPA" with Export ID = 11000012 which is id for "SEPA ISO20022 Pain 01.01.03" report.
+        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
+        CreateExportProtocol(Report::"SEPA ISO20022 Pain 01.01.03");
+
+        // [GIVEN] Transaction Mode "ABN" with Export Protocol "Generic SEPA" and WorldPayment = true.
+        // [GIVEN] Customer with Transaction Mode "ABN" and with Bank Account "B".
+        // [GIVEN] Bank Account "B" has "Account Holder Address" "3 Main Street", "Account Holder Post Code" "127473" and "Account Holder City" "Moscow".
+        SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
+        UpdateWorldPaymentOnTransactionMode(TransactionMode."Account Type"::Customer, Customer."Transaction Mode Code", true);
+
+        // [GIVEN] Posted Sales Invoice. Payment History with one line created from Posted Sales Invoice.
+        CreateAndPostSalesInvoice(Customer."No.", false);
+        GetEntries(BankAccount."No.");
+        ProcessProposals(BankAccount."No.");
+
+        // [WHEN] Export Payment History using "SEPA ISO20022 Pain 01.01.03" report.
+        ExportSEPAFile(BankAccount."No.");
+
+        // [THEN] There are three nodes StrtNm, PstCd, TwnNm under PstlAdr node.
+        // [THEN] StrtNm = "3 Main Street", PstCd = "127473", TwnNm = "Moscow".
+        CustomerBankAccount.Get(Customer."No.", Customer."Preferred Bank Account Code");
+        XMLReadHelper.Initialize(ExportFileName, NameSpace);
+        XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:PstlAdr/ns:StrtNm', CustomerBankAccount."Account Holder Address");
+        XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:PstlAdr/ns:PstCd', CustomerBankAccount."Account Holder Post Code");
+        XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:PstlAdr/ns:TwnNm', CustomerBankAccount."Account Holder City");
+    end;
+
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
+    procedure StreetTownAndPostCodeNodesWhenExportSepaIso20022Pain03AndWorldPaymentSetAndMaxLengthAddress()
+    var
+        BankAccount: Record "Bank Account";
+        Customer: Record Customer;
+        DirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        TransactionMode: Record "Transaction Mode";
+        Address: Text[100];
+        PostCode: Code[20];
+        City: Text[30];
+    begin
+        // [SCENARIO 423641] Street, Town, PostCode nodes in XML when export payment history using "SEPA ISO20022 Pain 01.01.03" report. Transaction Mode has WorldPayment set. Address values has max length.
+        Initialize();
+
+        // [GIVEN] Export Protocol "Generic SEPA" with Export ID = 11000012 which is id for "SEPA ISO20022 Pain 01.01.03" report.
+        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
+        CreateExportProtocol(Report::"SEPA ISO20022 Pain 01.01.03");
+
+        // [GIVEN] Transaction Mode "ABN" with Export Protocol "Generic SEPA" and WorldPayment = true.
+        // [GIVEN] Customer with Transaction Mode "ABN" and with Bank Account "B".
+        SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
+        UpdateWorldPaymentOnTransactionMode(TransactionMode."Account Type"::Customer, Customer."Transaction Mode Code", true);
+
+        // [GIVEN] Bank Account "B" has "Account Holder Address" of lenght 100, "Account Holder Post Code" of lenght 20 and "Account Holder City" of length 30.
+        Address := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(Address)), 1, MaxStrLen(Address));
+        PostCode := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(PostCode)), 1, MaxStrLen(PostCode));
+        City := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(City)), 1, MaxStrLen(City));
+        UpdateAddressPostCodeCityOnCustomerBankAccount(Customer."No.", Customer."Preferred Bank Account Code", Address, PostCode, City);
+
+        // [GIVEN] Posted Sales Invoice. Payment History with one line created from Posted Sales Invoice.
+        CreateAndPostSalesInvoice(Customer."No.", false);
+        GetEntries(BankAccount."No.");
+        ProcessProposals(BankAccount."No.");
+
+        // [WHEN] Export Payment History using "SEPA ISO20022 Pain 01.01.03" report.
+        ExportSEPAFile(BankAccount."No.");
+
+        // [THEN] There are three nodes StrtNm, PstCd, TwnNm under PstlAdr node.
+        // [THEN] StrtNm = first 70 chars of Address, PstCd = first 16 chars of Post Code, TwnNm = City.
+        XMLReadHelper.Initialize(ExportFileName, NameSpace);
+        XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:PstlAdr/ns:StrtNm', CopyStr(Address, 1, 70));
+        XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:PstlAdr/ns:PstCd', CopyStr(PostCode, 1, 16));
+        XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:PstlAdr/ns:TwnNm', CopyStr(City, 1, 35));
+    end;
+
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
+    procedure StreetTownAndPostCodeNodesWhenExportSepaIso20022Pain03AndWorldPaymentNotSet()
+    var
+        BankAccount: Record "Bank Account";
+        Customer: Record Customer;
+        DirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        TransactionMode: Record "Transaction Mode";
+    begin
+        // [SCENARIO 423641] Street, Town, PostCode nodes in XML when export payment history using "SEPA ISO20022 Pain 01.01.03" report. Transaction Mode has WorldPayment not set.
+        Initialize();
+
+        // [GIVEN] Export Protocol "Generic SEPA" with Export ID = 11000012 which is id for "SEPA ISO20022 Pain 01.01.03" report.
+        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
+        CreateExportProtocol(Report::"SEPA ISO20022 Pain 01.01.03");
+
+        // [GIVEN] Transaction Mode "ABN" with Export Protocol "Generic SEPA" and WorldPayment = false.
+        // [GIVEN] Customer with Transaction Mode "ABN" and with Bank Account "B".
+        // [GIVEN] Bank Account "B" has "Account Holder Address" "3 Main Street", "Account Holder Post Code" "127473" and "Account Holder City" "Moscow".
+        SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
+        UpdateWorldPaymentOnTransactionMode(TransactionMode."Account Type"::Customer, Customer."Transaction Mode Code", false);
+
+        // [GIVEN] Posted Sales Invoice. Payment History with one line created from Posted Sales Invoice.
+        CreateAndPostSalesInvoice(Customer."No.", false);
+        GetEntries(BankAccount."No.");
+        ProcessProposals(BankAccount."No.");
+
+        // [WHEN] Export Payment History using "SEPA ISO20022 Pain 01.01.03" report.
+        ExportSEPAFile(BankAccount."No.");
+
+        // [THEN] There are no such nodes as StrtNm, PstCd, TwnNm under PstlAdr node.
+        XMLReadHelper.Initialize(ExportFileName, NameSpace);
+        XMLReadHelper.VerifyNodeAbsence('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:PstlAdr/ns:StrtNm');
+        XMLReadHelper.VerifyNodeAbsence('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:PstlAdr/ns:PstCd');
+        XMLReadHelper.VerifyNodeAbsence('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:PstlAdr/ns:TwnNm');
+    end;
+
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
+    procedure StreetTownAndPostCodeNodesWhenExportSepaIso20022Pain03AndWorldPaymentSetAndBlankAddress()
+    var
+        BankAccount: Record "Bank Account";
+        Customer: Record Customer;
+        DirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        TransactionMode: Record "Transaction Mode";
+    begin
+        // [SCENARIO 423641] Street, Town, PostCode nodes in XML when export payment history using "SEPA ISO20022 Pain 01.01.03" report. Transaction Mode has WorldPayment set. Address values are blank.
+        Initialize();
+
+        // [GIVEN] Export Protocol "Generic SEPA" with Export ID = 11000012 which is id for "SEPA ISO20022 Pain 01.01.03" report.
+        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
+        CreateExportProtocol(Report::"SEPA ISO20022 Pain 01.01.03");
+
+        // [GIVEN] Transaction Mode "ABN" with Export Protocol "Generic SEPA" and WorldPayment = true.
+        // [GIVEN] Customer with Transaction Mode "ABN" and with Bank Account "B".
+        SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
+        UpdateWorldPaymentOnTransactionMode(TransactionMode."Account Type"::Customer, Customer."Transaction Mode Code", true);
+
+        // [GIVEN] Posted Sales Invoice. Payment History with one line created from Posted Sales Invoice.
+        // [GIVEN] Payment History Line has blank "Account Holder Address", "Account Holder Post Code", "Account Holder City".
+        CreateAndPostSalesInvoice(Customer."No.", false);
+        GetEntries(BankAccount."No.");
+        ProcessProposals(BankAccount."No.");
+        BlankPostalAdr(BankAccount."No.");
+
+        // [WHEN] Export Payment History using "SEPA ISO20022 Pain 01.01.03" report.
+        ExportSEPAFile(BankAccount."No.");
+
+        // [THEN] There are no such nodes as StrtNm, PstCd, TwnNm under PstlAdr node.
+        XMLReadHelper.Initialize(ExportFileName, NameSpace);
+        XMLReadHelper.VerifyNodeAbsence('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:PstlAdr/ns:StrtNm');
+        XMLReadHelper.VerifyNodeAbsence('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:PstlAdr/ns:PstCd');
+        XMLReadHelper.VerifyNodeAbsence('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:Cdtr/ns:PstlAdr/ns:TwnNm');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test SEPA PAIN 008.001.02");
@@ -1269,6 +1430,26 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         CustomerBankAccount.SetRange(Code, BankAccountNo);
         CustomerBankAccount.FindFirst;
         CustomerBankAccount.Validate("Direct Debit Mandate ID", MandateId);
+        CustomerBankAccount.Modify(true);
+    end;
+
+    local procedure UpdateWorldPaymentOnTransactionMode(AccountType: Option; TransactionModeCode: Code[20]; WorldPaymentValue: Boolean)
+    var
+        TransactionMode: Record "Transaction Mode";
+    begin
+        TransactionMode.Get(AccountType, TransactionModeCode);
+        TransactionMode.Validate(WorldPayment, WorldPaymentValue);
+        TransactionMode.Modify(true);
+    end;
+
+    local procedure UpdateAddressPostCodeCityOnCustomerBankAccount(CustomerNo: Code[20]; CustBankAccountNo: Code[20]; Address: Text[100]; PostCode: Code[20]; City: Text[30])
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+    begin
+        CustomerBankAccount.Get(CustomerNo, CustBankAccountNo);
+        CustomerBankAccount.Validate("Account Holder Address", Address);
+        CustomerBankAccount.Validate("Account Holder Post Code", PostCode);
+        CustomerBankAccount.Validate("Account Holder City", City);
         CustomerBankAccount.Modify(true);
     end;
 

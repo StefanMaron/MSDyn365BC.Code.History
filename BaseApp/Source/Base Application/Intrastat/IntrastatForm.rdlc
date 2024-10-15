@@ -1401,7 +1401,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!TransactionTypeCaption.Value</Value>
+                                  <Value>=Fields!TransactionSpecificationCaption.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1731,7 +1731,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!TransacType_IntraJnlLine.Value</Value>
+                                  <Value>=Fields!IntraJnlLine_TransactionSpecification.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -3105,6 +3105,12 @@ End Function
         </Field>
         <Field Name="NoOfRecordsCaption">
           <DataField>NoOfRecordsCaption</DataField>
+        </Field>
+        <Field Name="TransactionSpecificationCaption">
+          <DataField>TransactionSpecificationCaption</DataField>
+        </Field>
+        <Field Name="IntraJnlLine_TransactionSpecification">
+          <DataField>IntraJnlLine_TransactionSpecification</DataField>
         </Field>
       </Fields>
       <Query>

@@ -134,34 +134,6 @@ page 11400 "Bank/Giro Journal"
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Create a new payment or collection proposal for the selected bank.';
                 }
-                action(InsertPaymentHistory)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Insert Payment History';
-                    Image = PaymentHistory;
-                    ShortCutKey = 'Ctrl+F11';
-                    ToolTip = 'Select the payment history that you want to process in the journal.';
-
-                    trigger OnAction()
-                    var
-                        TelebankInterface: Codeunit "CBG Journal Telebank Interface";
-                    begin
-                        TestField("No.");
-                        TelebankInterface.InsertPaymentHistory(Rec);
-                    end;
-                }
-                action(Reconciliation)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Reconciliation';
-                    Image = Reconcile;
-                    ToolTip = 'Reconcile entries in your bank account ledger entries with the actual transactions in your bank account, according to the latest bank statement.';
-
-                    trigger OnAction()
-                    begin
-                        "CGB Statement reconciliation".MatchCBGStatement(Rec);
-                    end;
-                }
             }
             group("A&ccount")
             {
@@ -271,6 +243,34 @@ page 11400 "Bank/Giro Journal"
                         CurrPage.Update(false);
                     end;
                 }
+            }
+            action(InsertPaymentHistory)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Insert Payment History';
+                Image = PaymentHistory;
+                ShortCutKey = 'Ctrl+F11';
+                ToolTip = 'Select the payment history that you want to process in the journal.';
+
+                trigger OnAction()
+                var
+                    TelebankInterface: Codeunit "CBG Journal Telebank Interface";
+                begin
+                    TestField("No.");
+                    TelebankInterface.InsertPaymentHistory(Rec);
+                end;
+            }
+            action(Reconciliation)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Reconciliation';
+                Image = Reconcile;
+                ToolTip = 'Reconcile entries in your bank account ledger entries with the actual transactions in your bank account, according to the latest bank statement.';
+
+                trigger OnAction()
+                begin
+                    "CGB Statement reconciliation".MatchCBGStatement(Rec);
+                end;
             }
         }
     }

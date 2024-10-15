@@ -488,105 +488,6 @@ page 11000001 "Telebank Proposal"
                         CurrPage.SaveRecord();
                     end;
                 }
-                separator(Action1000002)
-                {
-                }
-                action(GetEntries)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Get Entries';
-                    Ellipsis = true;
-                    Image = GetEntries;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    ToolTip = 'Generate proposal lines for payments or collections based on vendor or customer ledger entries.';
-
-                    trigger OnAction()
-                    var
-                        TrMode: Record "Transaction Mode";
-                    begin
-                        TrMode.SetRange("Our Bank", BankAccFilter);
-                        REPORT.RunModal(REPORT::"Get Proposal Entries", true, true, TrMode);
-                        if Find('+') then;
-                        CurrPage.Update(false);
-                    end;
-                }
-                separator(Action1000004)
-                {
-                }
-                action(Check)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Check';
-                    Image = Check;
-                    RunPageOnRec = false;
-                    ShortCutKey = 'Shift+F9';
-                    ToolTip = 'Validate the proposal line before you process it.';
-
-                    trigger OnAction()
-                    begin
-                        ProcessingLines.Run(Rec);
-                        ProcessingLines.CheckProposallines;
-                    end;
-                }
-                action(Process)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Process';
-                    Image = Setup;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    ShortCutKey = 'F9';
-                    ToolTip = 'Process the payment or collection proposals. After you processed a proposal, the proposal will be empty and the payments/collections will be posted to the payment history.';
-
-                    trigger OnAction()
-                    begin
-                        ProcessingLines.Run(Rec);
-                        ProcessingLines.ProcessProposallines;
-                    end;
-                }
-                separator(Action1000005)
-                {
-                }
-                action("To Other Bank")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'To Other Bank';
-                    Ellipsis = true;
-                    Image = ExportToBank;
-                    ToolTip = 'Transfer the selected proposal to another bank account from where you want to process it. ';
-
-                    trigger OnAction()
-                    var
-                        BankAcc: Record "Bank Account";
-                        "Bank Account List": Page "Bank Account List";
-                        Propline: Record "Proposal Line";
-                    begin
-                        BankAcc.Get("Our Bank No.");
-                        "Bank Account List".SetRecord(BankAcc);
-                        "Bank Account List".LookupMode(true);
-                        if "Bank Account List".RunModal() = ACTION::LookupOK then begin
-                            "Bank Account List".GetRecord(BankAcc);
-                            if BankAcc."No." <> "Our Bank No." then begin
-                                BankAcc.TestField("Currency Code", "Currency Code");
-                                if Confirm(StrSubstNo(Text1000002, TableCaption, "Our Bank No.", BankAcc."No.")) then
-                                    case StrMenu(Text1000005) of
-                                        1:
-                                            MoveLineToOtherBank(Propline, BankAcc);
-                                        2:
-                                            begin
-                                                if Find('-') then
-                                                    repeat
-                                                        MoveLineToOtherBank(Propline, BankAcc);
-                                                    until Next() = 0;
-                                            end;
-                                        else
-                                            exit;
-                                    end;
-                            end;
-                        end;
-                    end;
-                }
             }
             group("&Line")
             {
@@ -613,7 +514,7 @@ page 11000001 "Telebank Proposal"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Dimensions - Single';
                         Image = Dimensions;
-                        ShortCutKey = 'Shift+Ctrl+D';
+                        ShortCutKey = 'Alt+D';
                         ToolTip = 'View or edit the single set of dimensions that are set up. You can assign dimension codes to transactions to distribute costs and analyze historical information.';
 
                         trigger OnAction()
@@ -733,6 +634,105 @@ page 11000001 "Telebank Proposal"
         }
         area(processing)
         {
+            separator(Action1000002)
+            {
+            }
+            action(GetEntries)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Get Entries';
+                Ellipsis = true;
+                Image = GetEntries;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Generate proposal lines for payments or collections based on vendor or customer ledger entries.';
+
+                trigger OnAction()
+                var
+                    TrMode: Record "Transaction Mode";
+                begin
+                    TrMode.SetRange("Our Bank", BankAccFilter);
+                    REPORT.RunModal(REPORT::"Get Proposal Entries", true, true, TrMode);
+                    if Find('+') then;
+                    CurrPage.Update(false);
+                end;
+            }
+            separator(Action1000004)
+            {
+            }
+            action(Check)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Check';
+                Image = Check;
+                RunPageOnRec = false;
+                ShortCutKey = 'Shift+F9';
+                ToolTip = 'Validate the proposal line before you process it.';
+
+                trigger OnAction()
+                begin
+                    ProcessingLines.Run(Rec);
+                    ProcessingLines.CheckProposallines;
+                end;
+            }
+            action(Process)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Process';
+                Image = Setup;
+                Promoted = true;
+                PromotedCategory = Process;
+                ShortCutKey = 'F9';
+                ToolTip = 'Process the payment or collection proposals. After you processed a proposal, the proposal will be empty and the payments/collections will be posted to the payment history.';
+
+                trigger OnAction()
+                begin
+                    ProcessingLines.Run(Rec);
+                    ProcessingLines.ProcessProposallines;
+                end;
+            }
+            separator(Action1000005)
+            {
+            }
+            action("To Other Bank")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'To Other Bank';
+                Ellipsis = true;
+                Image = ExportToBank;
+                ToolTip = 'Transfer the selected proposal to another bank account from where you want to process it. ';
+
+                trigger OnAction()
+                var
+                    BankAcc: Record "Bank Account";
+                    "Bank Account List": Page "Bank Account List";
+                    Propline: Record "Proposal Line";
+                begin
+                    BankAcc.Get("Our Bank No.");
+                    "Bank Account List".SetRecord(BankAcc);
+                    "Bank Account List".LookupMode(true);
+                    if "Bank Account List".RunModal() = ACTION::LookupOK then begin
+                        "Bank Account List".GetRecord(BankAcc);
+                        if BankAcc."No." <> "Our Bank No." then begin
+                            BankAcc.TestField("Currency Code", "Currency Code");
+                            if Confirm(StrSubstNo(Text1000002, TableCaption, "Our Bank No.", BankAcc."No.")) then
+                                case StrMenu(Text1000005) of
+                                    1:
+                                        MoveLineToOtherBank(Propline, BankAcc);
+                                    2:
+                                        begin
+                                            if Find('-') then
+                                                repeat
+                                                    MoveLineToOtherBank(Propline, BankAcc);
+                                                until Next() = 0;
+                                        end;
+                                    else
+                                        exit;
+                                end;
+                        end;
+                    end;
+                end;
+            }
             action("&Print")
             {
                 ApplicationArea = Basic, Suite;

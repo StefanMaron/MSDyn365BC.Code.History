@@ -427,6 +427,22 @@ codeunit 137263 "SCM Tracking Package Base"
         asserterror ItemTrackingCode.Validate("Package Specific Tracking", true);
     end;
 
+    [Test]
+    procedure IsWarehouseTrackingChecksForPackageWhseTrackingSetting()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 424706] IsWarehouseTracking() function in Item Tracking Code table returns Package Warehouse Tracking value.
+        Initialize();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false, true);
+        Assert.IsFalse(ItemTrackingCode.IsWarehouseTracking(), '');
+
+        ItemTrackingCode."Package Warehouse Tracking" := true;
+        Assert.IsTrue(ItemTrackingCode.IsWarehouseTracking(), '')
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

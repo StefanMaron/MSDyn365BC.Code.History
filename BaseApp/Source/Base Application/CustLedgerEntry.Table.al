@@ -723,6 +723,10 @@ table 21 "Cust. Ledger Entry"
         key(Key24; SystemModifiedAt)
         {
         }
+        key(Key35; "Customer No.", "Posting Date", "Applies-to ID")
+        {
+            IncludedFields = "Currency Code", "Amount to Apply", Open;
+        }
     }
 
     fieldgroups

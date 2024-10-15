@@ -344,6 +344,7 @@ table 11400 "CBG Statement"
     var
         DocumentType: Enum "Gen. Journal Document Type";
     begin
+        OnBeforeMakeGenJournalLine(GenJnlLine, ForEachDocumentNo, ForEachDate, TotAmountVV, TotAmountLV);
         DocumentType := GenJnlLine."Document Type";
         GenJnlLine.Init();
         GenJnlLine."System-Created Entry" := true;
@@ -619,6 +620,11 @@ table 11400 "CBG Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeProcessStatementASGenJournal(var CBGStatement: Record "CBG Statement")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeGenJournalLine(var GenJnlLine: Record "Gen. Journal Line"; ForEachDocumentNo: Code[20]; ForEachDate: Date; TotAmountVV: Decimal; TotAmountLV: Decimal)
     begin
     end;
 
