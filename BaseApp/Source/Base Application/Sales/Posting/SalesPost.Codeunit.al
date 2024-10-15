@@ -283,6 +283,9 @@ codeunit 80 "Sales-Post"
         EmptyIdFoundLbl: Label 'Empty line id found.', Locked = true;
         ItemReservDisruptionLbl: Label 'Confirm Item Reservation Disruption', Locked = true;
         ItemChargeZeroAmountErr: Label 'The amount for item charge %1 cannot be 0.', Comment = '%1 = Item Charge No.';
+#if not CLEAN25        
+        TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
+#endif        
 
     internal procedure RunWithCheck(var SalesHeader2: Record "Sales Header")
     var
@@ -6205,7 +6208,7 @@ codeunit 80 "Sales-Post"
         IsHandled := false;
         OnBeforeUpdateQtyToBeInvoicedForReturnReceipt(
             QtyToBeInvoiced, QtyToBeInvoicedBase, TrackingSpecificationExists, SalesLine, ReturnReceiptLine,
-            InvoicingTrackingSpecification, QtyToBeInvoiced, QtyToBeInvoicedBase, IsHandled);
+            InvoicingTrackingSpecification, RemQtyToBeInvoiced, RemQtyToBeInvoicedBase, IsHandled);
         if IsHandled then
             exit;
 
@@ -6216,6 +6219,8 @@ codeunit 80 "Sales-Post"
             QtyToBeInvoiced := RemQtyToBeInvoiced - SalesLine."Return Qty. to Receive";
             QtyToBeInvoicedBase := RemQtyToBeInvoicedBase - SalesLine."Return Qty. to Receive (Base)";
         end;
+        OnUpdateQtyToBeInvoicedForReturnReceiptOnAfterSetQtyToBeInvoiced(TrackingSpecificationExists, QtyToBeInvoiced, QtyToBeInvoicedBase, RemQtyToBeInvoiced, RemQtyToBeInvoicedBase, SalesLine);
+
         if Abs(QtyToBeInvoiced) >
            Abs(ReturnReceiptLine.Quantity - ReturnReceiptLine."Quantity Invoiced")
         then begin
@@ -8542,6 +8547,7 @@ codeunit 80 "Sales-Post"
     local procedure FillDeferralPostingBuffer(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; InvoicePostBuffer: Record "Invoice Post. Buffer"; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; SalesAccount: Code[20])
     var
         DeferralTemplate: Record "Deferral Template";
+        IsDeferralAmountCheck: boolean;
     begin
         DeferralTemplate.Get(SalesLine."Deferral Code");
 
@@ -8572,6 +8578,12 @@ codeunit 80 "Sales-Post"
                 if TempDeferralLine.FindSet() then
                     repeat
                         if (TempDeferralLine."Amount (LCY)" <> 0) or (TempDeferralLine.Amount <> 0) then begin
+
+                            if not IsDeferralAmountCheck then begin
+                                CheckDeferralAmount(TempDeferralLine);
+                                IsDeferralAmountCheck := true;
+                            end;
+
                             DeferralPostBuffer.PrepareSales(SalesLine, GenJnlLineDocNo);
                             DeferralPostBuffer.InitFromDeferralLine(TempDeferralLine);
                             if not SalesLine.IsCreditDocType() then
@@ -9862,12 +9874,12 @@ codeunit 80 "Sales-Post"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePostItemTrackingCheckReturnReceipt(SalesLine: Record "Sales Line"; RemQtyToBeInvoiced: Decimal; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePostItemTrackingCheckShipment(SalesLine: Record "Sales Line"; RemQtyToBeInvoiced: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -10159,7 +10171,7 @@ codeunit 80 "Sales-Post"
             SalesHeader.TestPostingDate(PostingDateExists);
 
         OnValidatePostingAndDocumentDateOnBeforeSalesHeaderModify(SalesHeader, ModifyHeader);
-	
+
         if ModifyHeader then
             SalesHeader.Modify();
 
@@ -10542,6 +10554,27 @@ codeunit 80 "Sales-Post"
         then
             exit(true);
     end;
+
+#if not CLEAN25 
+    local procedure CheckDeferralAmount(DeferralLine: Record "Deferral Line")
+    var
+        DeferralHeader: Record "Deferral Header";
+    begin
+        if not DeferralHeader.Get(
+            DeferralLine."Deferral Doc. Type",
+            DeferralLine."Gen. Jnl. Template Name",
+            DeferralLine."Gen. Jnl. Batch Name",
+            DeferralLine."Document Type",
+            DeferralLine."Document No.",
+            DeferralLine."Line No.")
+        then
+            exit;
+
+        DeferralHeader.CalcFields("Schedule Line Total");
+        if DeferralHeader."Schedule Line Total" <> DeferralHeader."Amount to Defer" then
+            Error(TotalToDeferErr);
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnArchivePurchaseOrdersOnBeforePurchOrderLineModify(var PurchOrderLine: Record "Purchase Line"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
@@ -12137,6 +12170,11 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemTrackingForShipmentOnBeforeTestLineFields(var SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateQtyToBeInvoicedForReturnReceiptOnAfterSetQtyToBeInvoiced(TrackingSpecificationExists: Boolean; var QtyToBeInvoiced: Decimal; var QtyToBeInvoicedBase: Decimal; RemQtyToBeInvoiced: Decimal; RemQtyToBeInvoicedBase: Decimal; var SalesLine: Record "Sales Line")
     begin
     end;
 }

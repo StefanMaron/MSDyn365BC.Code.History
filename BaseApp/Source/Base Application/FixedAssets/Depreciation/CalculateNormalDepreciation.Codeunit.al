@@ -101,7 +101,6 @@ codeunit 5611 "Calculate Normal Depreciation"
         DateFromProjection := DateFromProjection2;
         DaysInPeriod := DaysInPeriod2;
 
-        FALedgEntry.LockTable();
         if DaysInPeriod > 0 then
             if DeprBook."Periodic Depr. Date Calc." <> DeprBook."Periodic Depr. Date Calc."::"Last Entry" then begin
                 DeprBook."Periodic Depr. Date Calc." := DeprBook."Periodic Depr. Date Calc."::"Last Entry";

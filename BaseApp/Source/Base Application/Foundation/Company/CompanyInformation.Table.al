@@ -557,8 +557,9 @@ table 79 "Company Information"
 
             trigger OnValidate()
             begin
-                if StrLen("Branch Number") < MaxStrLen("Branch Number") then
-                    FieldError("Branch Number", StrSubstNo(Text10500, MaxStrLen("Branch Number")));
+                if "Branch Number" <> '' then
+                    if StrLen("Branch Number") < MaxStrLen("Branch Number") then
+                        FieldError("Branch Number", StrSubstNo(Text10500, MaxStrLen("Branch Number")));
             end;
         }
         field(10508; "Contact Name"; Text[35])

@@ -1067,6 +1067,7 @@ codeunit 1535 "Approvals Mgmt."
           TempAmount[1], VAtText, TempAmount[2], TempAmount[3], TempAmount[4]);
         ApprovalAmount := TotalSalesLine.Amount;
         ApprovalAmountLCY := TotalSalesLineLCY.Amount;
+        OnAfterCalcSalesDocAmount(SalesHeader, TotalSalesLine, TotalSalesLineLCY, ApprovalAmount, ApprovalAmountLCY);
     end;
 
     procedure PopulateApprovalEntryArgument(RecRef: RecordRef; WorkflowStepInstance: Record "Workflow Step Instance"; var ApprovalEntryArgument: Record "Approval Entry")
@@ -3128,5 +3129,12 @@ codeunit 1535 "Approvals Mgmt."
     local procedure OnCalcPurchaseDocAmountOnAfterPurchPostGetPurchLines(var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcSalesDocAmount(SalesHeader: Record "Sales Header"; TotalSalesLine: Record "Sales Line"; TotalSalesLineLCY: Record "Sales Line"; var ApprovalAmount: Decimal; var ApprovalAmountLCY: Decimal)
+    begin
+    end;
+
+
 }
 

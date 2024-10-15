@@ -1673,7 +1673,7 @@ codeunit 7302 "WMS Management"
         end;
     end;
 
-    procedure GetDestinationEntityName(DestinationType: Enum "Warehouse Destination Type"; DestNo: Code[20]): Text[100]
+    procedure GetDestinationEntityName(DestinationType: Enum "Warehouse Destination Type"; DestNo: Code[20]) DestinationEntityName: Text[100]
     var
         Vendor: Record Vendor;
         Customer: Record Customer;
@@ -1681,8 +1681,13 @@ codeunit 7302 "WMS Management"
         Item2: Record Item;
         Family: Record Family;
         SalesHeader: Record "Sales Header";
-        DestinationEntityName: Text[100];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDestinationEntityName(DestinationType, DestNo, DestinationEntityName, IsHandled);
+        if IsHandled then
+            exit(DestinationEntityName);
+
         case DestinationType of
             DestinationType::Customer:
                 if Customer.Get(DestNo) then
@@ -2357,6 +2362,11 @@ codeunit 7302 "WMS Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDestinationEntityName(DestinationType: Enum "Warehouse Destination Type"; DestNo: Code[20]; var DestinationName: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDestinationEntityName(DestinationType: Enum "Warehouse Destination Type"; DestinationNo: Code[20]; var DestinationName: Text[100]; var IsHandled: Boolean)
     begin
     end;
 }

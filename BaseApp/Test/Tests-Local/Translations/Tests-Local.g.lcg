@@ -23,6 +23,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Purch Documents - NamedType ReverseChargeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3726053622 - NamedType 1447595616" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Purch Documents - NamedType TotalToDeferErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3382378424 - NamedType 762284302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There are one or more errors. For details, see the journal error FactBox.]]></Val>

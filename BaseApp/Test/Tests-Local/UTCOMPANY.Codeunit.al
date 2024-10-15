@@ -37,6 +37,7 @@ codeunit 144011 "UT COMPANY"
     var
         Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryRandom: Codeunit "Library - Random";
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -201,6 +202,25 @@ codeunit 144011 "UT COMPANY"
         // Verify: Verify that Registered City field is populated correctly when validate the Registered Post Code on Company Information Table.
         CompanyInformation.Get();
         CompanyInformation.TestField("Registered City", PostCode.City);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure OnValidateBranchNumberThreeDigitNumericAndEmptyCompanyInformationTable()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        // Purpose of the test is to validate the On Validate trigger of the Branch Number field on Company Information Table.
+
+        // Enter three digit value in Branch Number
+        CompanyInformation.Validate("Branch Number", Format(LibraryRandom.RandIntInRange(100, 999)));
+        CompanyInformation.Modify();
+
+        // Verify: Verify that Branch Number field is able to blank on Company Information Table.
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Branch Number", '');
+        CompanyInformation.Modify();
     end;
 }
 

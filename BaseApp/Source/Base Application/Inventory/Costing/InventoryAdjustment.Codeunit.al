@@ -2741,7 +2741,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        ItemLedgerEntry.CollectItemLedgerEntryTypesUsed(ItemLedgerEntryTypesUsed, ItemNo);
+        ItemLedgerEntry.CollectItemLedgerEntryTypesUsed(ItemLedgerEntryTypesUsed, StrSubstNo('''%1''', ItemNo));
     end;
 
     local procedure ItemLedgerEntryTypeIsUsed(ItemLedgerEntryType: Enum "Item Ledger Entry Type"): Boolean

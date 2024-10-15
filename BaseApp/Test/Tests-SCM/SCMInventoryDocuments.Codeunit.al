@@ -35,6 +35,8 @@ codeunit 137140 "SCM Inventory Documents"
         DimensionErr: Label 'Expected dimension should be %1.', Comment = '%1=Value';
         SourceCodeErr: Label 'Source Code should not be blank in %1.', Comment = '%1=TableCaption()';
         DimensionValueErr: Label 'Dimension Value must match with %1', Comment = '%1= Dimension Value';
+        ReorderingPolicyShouldBeVisibleErr: Label 'Reordering Policy should be visible.';
+        SpecialEquipmentCodeShouldBeVisibleErr: Label 'Special Equipment Code should be visible.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1672,6 +1674,40 @@ codeunit 137140 "SCM Inventory Documents"
 
         // [VERIFY] Posted Invt. Document Line has Dimesnion Value same as defined.
         VerifyInvtDocumentLineWithDimensionValue(DimensionValue.Code, InvtDocumentHeader);
+    end;
+
+    [Test]
+    procedure PlanningAndWarehouseTabsVisibleForTypeInventorySKUCardAfterItemInsert()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        StocKkeepingUnitCard: TestPage "Stockkeeping Unit Card";
+    begin
+        // [SCENARIO 524116] When creating new stockkeeping unit card initially only General, Invoicing and Replenishment are visible, and Planning and Warehouse are not.
+        Initialize();
+
+        // [GIVEN] Create an Item and Validate Type as Inventory.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Type, Item.Type::Inventory);
+        Item.Modify(true);
+
+        // [GIVEN] Create a Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [WHEN] Open Stockkeeping Unit Card page.
+        StocKkeepingUnitCard.OpenNew();
+        StocKkeepingUnitCard."Item No.".SetValue(Item."No.");
+        StocKkeepingUnitCard."Location Code".SetValue(Location.Code);
+
+        // [THEN] Verify Planning tab is visible.
+        Assert.IsTrue(
+            StocKkeepingUnitCard."Reordering Policy".Visible(),
+            ReorderingPolicyShouldBeVisibleErr);
+
+        // [THEN] Verify Warehouse tab is visible.
+        Assert.IsTrue(
+            StocKkeepingUnitCard."Special Equipment Code".Visible(),
+            SpecialEquipmentCodeShouldBeVisibleErr);
     end;
 
     local procedure Initialize()

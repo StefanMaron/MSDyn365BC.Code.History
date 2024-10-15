@@ -332,6 +332,8 @@ table 6214 "Sustainability Jnl. Line"
         Validate("Reason Code", SustainabilityJnlBatch."Reason Code");
         Validate("Source Code", SustainabilityJnlBatch."Source Code");
         Validate("Document No.", SustainabilityJournalMgt.GetDocumentNo(IsPreviousLineValid, SustainabilityJnlBatch, PreviousLine."Document No.", "Posting Date"));
+
+        OnAfterSetupNewLine(Rec, SustainabilityJnlBatch, PreviousLine);
     end;
 
     local procedure GetDefaultDimensionsFromAccount()
@@ -355,5 +357,10 @@ table 6214 "Sustainability Jnl. Line"
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         IsChanged := OldDimSetID <> "Dimension Set ID";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetupNewLine(var SustainabilityJnlLine: Record "Sustainability Jnl. Line"; SustainabilityJnlBatch: Record "Sustainability Jnl. Batch"; PreviousSustainabilityJnlLine: Record "Sustainability Jnl. Line")
+    begin
     end;
 }

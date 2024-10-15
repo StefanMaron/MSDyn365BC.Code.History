@@ -206,6 +206,7 @@ codeunit 240 ItemJnlManagement
         ItemJnlLine.FilterGroup := 2;
         ItemJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
         ItemJnlLine.FilterGroup := 0;
+        OnSetNameOnAfterAppliesFilterOnItemJnlLine(ItemJnlLine, CurrentJnlBatchName);
         if ItemJnlLine.Find('-') then;
     end;
 
@@ -221,7 +222,7 @@ codeunit 240 ItemJnlManagement
         ItemJnlBatch.SetRange("Journal Template Name", ItemJnlBatch."Journal Template Name");
         ItemJnlBatch.FilterGroup(0);
         IsHandled := false;
-        OnBeforeLookupName(ItemJnlBatch, IsHandled);
+        OnBeforeLookupName(ItemJnlBatch, IsHandled, CurrentJnlBatchName, ItemJnlLine);
         if not IsHandled then
             if PAGE.RunModal(0, ItemJnlBatch) = ACTION::LookupOK then begin
                 CurrentJnlBatchName := ItemJnlBatch.Name;
@@ -316,7 +317,7 @@ codeunit 240 ItemJnlManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupName(var ItemJnlBatch: Record "Item Journal Batch"; var IsHandled: Boolean)
+    local procedure OnBeforeLookupName(var ItemJnlBatch: Record "Item Journal Batch"; var IsHandled: Boolean; var CurrentJnlBatchName: Code[10]; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -337,6 +338,11 @@ codeunit 240 ItemJnlManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetItem(Item: Record Item; var ItemDescription: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetNameOnAfterAppliesFilterOnItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; CurrentJnlBatchName: Code[10])
     begin
     end;
 }
