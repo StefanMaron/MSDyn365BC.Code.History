@@ -504,6 +504,8 @@ report 394 "Suggest Employee Payments"
                     TempEmplPaymentBuffer."Payment Reference" := EmployeeLedgerEntry."Payment Reference";
                     TempEmplPaymentBuffer."Exported to Payment File" := EmployeeLedgerEntry."Exported to Payment File";
 
+                    OnCopyEmployeeLedgerEntriesToTempEmplPaymentBufferOnAfterCopyEmployeeLedgerEntryFields(TempEmplPaymentBuffer, EmployeeLedgerEntry);
+
                     SetTempEmplPaymentBufferDims(DimBuf);
 
                     EmployeeLedgerEntry.CalcFields("Remaining Amount");
@@ -617,6 +619,7 @@ report 394 "Suggest Employee Payments"
                     "Exported to Payment File" := TempEmplPaymentBuffer."Exported to Payment File";
                     "Applies-to Ext. Doc. No." := TempEmplPaymentBuffer."Applies-to Ext. Doc. No.";
 
+                    OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(GenJnlLine, TempEmplPaymentBuffer);
                     UpdateDimensions(GenJnlLine);
                     Insert;
                     GenJnlLineInserted := true;
@@ -826,6 +829,16 @@ report 394 "Suggest Employee Payments"
         GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
         GenJnlLine2."Bal. Account Type" := GenJnlBatch."Bal. Account Type";
         GenJnlLine2."Bal. Account No." := GenJnlBatch."Bal. Account No.";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(var GenJournalLine: Record "Gen. Journal Line"; TempEmplPaymentBuffer: Record "Employee Payment Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyEmployeeLedgerEntriesToTempEmplPaymentBufferOnAfterCopyEmployeeLedgerEntryFields(var TempEmplPaymentBuffer: Record "Employee Payment Buffer" temporary; EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
     end;
 }
 

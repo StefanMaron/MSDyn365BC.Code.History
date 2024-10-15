@@ -82,9 +82,10 @@ codeunit 139173 "CRM Synch. Helper Test"
         // [FEATURE] [Currency] [FCY]
         // [SCENARIO] GetCRMLCYToFCYExchangeRate() should return an exchage rate of CRM base currency (LCY) to another currency (FCY)
         // [GIVEN] CRM enabled, CRM base currency is set
-        InitializeCRMIntegration;
+        InitializeCRMIntegration();
+        ResetDefaultCRMSetupConfiguration();
         LibraryCRMIntegration.CreateCRMOrganization;
-        ISOCurrencyCode := LibraryCRMIntegration.GetBaseCRMTestCurrencySymbol;
+        ISOCurrencyCode := LibraryCRMIntegration.GetBaseCRMTestCurrencySymbol();
         LibraryERM.SetLCYCode(ISOCurrencyCode);
         LibraryCRMIntegration.CreateCRMTransactionCurrency(CRMTransactioncurrency, ISOCurrencyCode);
 
@@ -826,6 +827,9 @@ codeunit 139173 "CRM Synch. Helper Test"
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
+        CDSConnectionSetup.Validate("Client Id", 'ClientId');
+        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);

@@ -124,6 +124,7 @@ codeunit 7027 "Std. Item Jnl. Line - Price" implements "Line With Price"
     var
         Item: Record Item;
     begin
+        PriceCalculationBuffer."Price Calculation Method" := StandardItemJournalLine."Price Calculation Method";
         Item.Get(PriceCalculationBuffer."Asset No.");
         PriceCalculationBuffer."VAT Prod. Posting Group" := Item."VAT Prod. Posting Group";
         PriceCalculationBuffer."Variant Code" := StandardItemJournalLine."Variant Code";

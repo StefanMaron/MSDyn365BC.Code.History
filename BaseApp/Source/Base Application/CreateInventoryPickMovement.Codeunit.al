@@ -91,12 +91,18 @@ codeunit 7322 "Create Inventory Pick/Movement"
         end;
 
         if LineCreated then
-            WhseActivHeader.Modify()
+            ModifyWarehouseActivityHeader(WhseActivHeader, WhseRequest)
         else
             if not AutoCreation then
                 Message(Text000 + ExpiredItemMessageText);
 
         OnAfterCreateInventoryPickMovement(WhseRequest, LineCreated, WhseActivHeader);
+    end;
+
+    local procedure ModifyWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseRequest: Record "Warehouse Request")
+    begin
+        OnBeforeModifyWarehouseActivityHeader(WarehouseActivityHeader, WarehouseRequest);
+        WarehouseActivityHeader.Modify();
     end;
 
     local procedure GetWhseRequest(var WhseRequest: Record "Warehouse Request"): Boolean
@@ -1733,6 +1739,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempReservEntryInsert(var ReservationEntry: Record "Reservation Entry"; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseRequest: Record "Warehouse Request")
     begin
     end;
 

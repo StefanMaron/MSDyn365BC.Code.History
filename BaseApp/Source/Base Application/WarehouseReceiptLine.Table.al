@@ -346,14 +346,18 @@ table 7317 "Warehouse Receipt Line"
                 if CurrFieldNo = FieldNo("Over-Receipt Quantity") then
                     if xRec."Over-Receipt Quantity" = "Over-Receipt Quantity" then
                         exit;
-                if "Over-Receipt Code" = '' then begin
-                    PurchaseLine.Get("Source Subtype", "Source No.", "Source Line No.");
-                    "Over-Receipt Code" := OverReceiptMgt.GetDefaultOverReceiptCode(PurchaseLine);
+                if CurrFieldNo <> FieldNo("Over-Receipt Code") then begin
+                    if "Over-Receipt Code" = '' then begin
+                        PurchaseLine.Get("Source Subtype", "Source No.", "Source Line No.");
+                        "Over-Receipt Code" := OverReceiptMgt.GetDefaultOverReceiptCode(PurchaseLine);
+                    end;
+                    TestField("Over-Receipt Code");
                 end;
-                TestField("Over-Receipt Code");
-                if (CurrFieldNo <> FieldNo("Over-Receipt Quantity")) and (CurrFieldNo <> 0) then
+                if (CurrFieldNo <> FieldNo("Over-Receipt Quantity")) and (CurrFieldNo <> 0) and (CurrFieldNo <> FieldNo("Over-Receipt Code")) then
                     "Over-Receipt Quantity" += xRec."Over-Receipt Quantity";
-                if (CurrFieldNo = FieldNo("Over-Receipt Quantity")) or (CurrFieldNo = 0) or (CurrFieldNo = FieldNo("Qty. to Receive")) then
+                if (CurrFieldNo = FieldNo("Over-Receipt Quantity")) or (CurrFieldNo = 0) or (CurrFieldNo = FieldNo("Qty. to Receive")) or
+                   (CurrFieldNo = FieldNo("Over-Receipt Code"))
+                then
                     Validate(Quantity, Quantity - xRec."Over-Receipt Quantity" + "Over-Receipt Quantity");
                 Modify();
                 OverReceiptMgt.UpdatePurchaseLineOverReceiptQuantityFromWarehouseReceiptLine(Rec);
@@ -363,6 +367,12 @@ table 7317 "Warehouse Receipt Line"
         {
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
+
+            trigger OnValidate()
+            begin
+                if ((Rec."Over-Receipt Code" = '') and (xRec."Over-Receipt Code" <> '')) then
+                    Validate("Over-Receipt Quantity", 0);
+            end;
         }
     }
 

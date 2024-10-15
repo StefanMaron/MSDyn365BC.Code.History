@@ -477,7 +477,13 @@ table 273 "Bank Acc. Reconciliation"
         DataExchDef: Record "Data Exch. Def";
         DummyBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         LastStatementNo: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeImportAndProcessToNewStatement(BankAccReconciliation, DataExch, DataExchDef, IsHandled);
+        If IsHandled then
+            exit;
+
         if not SelectBankAccountToUse(BankAccount, true) then
             exit;
         BankAccount.GetDataExchDef(DataExchDef);
@@ -529,8 +535,20 @@ table 273 "Bank Acc. Reconciliation"
         if ConfidenceLevelPermitToPost(BankAccReconciliation) then
             CODEUNIT.Run(CODEUNIT::"Bank Acc. Reconciliation Post", BankAccReconciliation)
         else
-            if GuiAllowed then
-                OpenWorksheet(BankAccReconciliation);
+            OpenWorksheetFromProcessStatement(BankAccReconciliation);
+    end;
+
+    local procedure OpenWorksheetFromProcessStatement(var BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenWorksheetFromProcessStatement(BankAccReconciliation, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GuiAllowed then
+            OpenWorksheet(BankAccReconciliation);
     end;
 
     procedure CreateNewBankPaymentAppBatch(BankAccountNo: Code[20]; var BankAccReconciliation: Record "Bank Acc. Reconciliation")
@@ -724,6 +742,16 @@ table 273 "Bank Acc. Reconciliation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var xBankAccReconciliation: Record "Bank Acc. Reconciliation"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeImportAndProcessToNewStatement(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var DataExch: Record "Data Exch."; var DataExchDef: Record "Data Exch. Def"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenWorksheetFromProcessStatement(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var IsHandled: Boolean)
     begin
     end;
 

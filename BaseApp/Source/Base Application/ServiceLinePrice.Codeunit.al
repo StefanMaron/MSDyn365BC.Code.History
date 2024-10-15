@@ -123,6 +123,7 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
         Resource: Record Resource;
         ServCost: Record "Service Cost";
     begin
+        PriceCalculationBuffer."Price Calculation Method" := ServiceLine."Price Calculation Method";
         case PriceCalculationBuffer."Asset Type" of
             PriceCalculationBuffer."Asset Type"::Item:
                 begin

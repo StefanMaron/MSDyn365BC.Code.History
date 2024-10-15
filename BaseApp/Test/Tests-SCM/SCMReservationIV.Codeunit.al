@@ -2382,6 +2382,57 @@ codeunit 137271 "SCM Reservation IV"
     end;
 
     [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ReservationPageHandler,ItemTrackingListPageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure LotSpecificAutoReservationFromPurchaseLineWithDifferentUoM()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        PurchaseLine: Record "Purchase Line";
+        SalesLine: Record "Sales Line";
+        ReservEntry: Record "Reservation Entry";
+        LotNo: Code[20];
+        Qty: Decimal;
+        QtyPerUOM: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Purchase] [Sales] [Unit of Measure]
+        // [SCENARIO 354060] The reservation engine considers specified lot no. and unit of measure when performing automatic reservation from a purchase line.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+        QtyPerUOM := LibraryRandom.RandIntInRange(5, 10);
+        LotNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Lot-tracked item with base unit of measure "PCS" and alternate UoM "BOX". 1 "BOX" = 5 "PCS.
+        LibraryItemTracking.CreateLotItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", QtyPerUOM);
+
+        // [GIVEN] Set "Sales Unit of Measure" = "BOX" for the item.
+        Item.Validate("Sales Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Sales order for 5 "BOX".
+        // [GIVEN] Assign lot no. "L1" to the sales line.
+        CreateSalesOrderWithManualSetLotNo(SalesLine, Item."No.", '', Qty, LotNo);
+
+        // [GIVEN] Purchase order for 25 "PCS" (= 5 "BOX").
+        // [GIVEN] Assign lot no. "L1" to the purchase line.
+        CreatePurchaseOrderWithManualSetLotNo(PurchaseLine, Item."No.", '', Qty * QtyPerUOM, LotNo);
+
+        // [WHEN] Reserve the purchase line with specific lot no. "L1".
+        LibraryVariableStorage.Enqueue(LibraryInventory.GetReservConfirmText());
+        LibraryVariableStorage.Enqueue(ReservationOption::ReserveFromCurrentLine);
+        PurchaseLine.ShowReservation();
+
+        // [THEN] 25 pcs of lot "L1" are reserved from the purchase.
+        ReservEntry.SetRange("Source Type", DATABASE::"Purchase Line");
+        ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
+        ReservEntry.SetRange("Item No.", Item."No.");
+        ReservEntry.SetRange("Lot No.", LotNo);
+        ReservEntry.CalcSums(Quantity);
+        ReservEntry.TestField(Quantity, Qty * QtyPerUOM);
+    end;
+
+    [Test]
     [HandlerFunctions('ItemTrackingLinesPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure PostingInventoryPickAfterSplitAndAssignedLotAgainstReservation()
@@ -2943,7 +2994,7 @@ codeunit 137271 "SCM Reservation IV"
 
         LibraryVariableStorage.Enqueue(TrackingOption::ManualSetLotNo); // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(LotNo); // Enqueue value for ItemTrackingLinesPageHandler.
-        LibraryVariableStorage.Enqueue(Quantity); // Enqueue value for ItemTrackingLinesPageHandler.
+        LibraryVariableStorage.Enqueue(SalesLine."Quantity (Base)"); // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(AvailabilityWarningMsg); // Enqueue value for ConfirmHandler.
         SalesLine.OpenItemTrackingLines;
     end;

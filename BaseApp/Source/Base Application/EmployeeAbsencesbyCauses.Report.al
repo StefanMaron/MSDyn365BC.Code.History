@@ -83,12 +83,6 @@ report 5205 "Employee - Absences by Causes"
             trigger OnAfterGetRecord()
             begin
                 Employee.Get("Employee No.");
-                TotalAbsence := TotalAbsence + "Quantity (Base)";
-            end;
-
-            trigger OnPreDataItem()
-            begin
-                Clear(TotalAbsence);
             end;
         }
     }

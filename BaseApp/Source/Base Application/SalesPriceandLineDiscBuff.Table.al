@@ -610,6 +610,8 @@ table 1304 "Sales Price and Line Disc Buff"
     begin
         SalesPrice.SetRange("Item No.", "Loaded Item No.");
         SalesPrice.SetFilter("Sales Type", '<> %1', SalesPrice."Sales Type"::Campaign);
+
+        OnAfterSetFiltersOnSalesPrice(Rec);
     end;
 
     local procedure SetFiltersOnSalesLineDiscountItem(var SalesLineDiscount: Record "Sales Line Discount")
@@ -617,6 +619,8 @@ table 1304 "Sales Price and Line Disc Buff"
         SalesLineDiscount.SetRange(Type, SalesLineDiscount.Type::Item);
         SalesLineDiscount.SetRange(Code, "Loaded Item No.");
         SalesLineDiscount.SetFilter("Sales Type", '<> %1', SalesLineDiscount."Sales Type"::Campaign);
+
+        OnAfterSetFiltersOnSalesLineDiscountItem(Rec);
     end;
 
     local procedure SetFiltersOnSalesLineDiscountItemGroup(var SalesLineDiscount: Record "Sales Line Discount")
@@ -624,11 +628,15 @@ table 1304 "Sales Price and Line Disc Buff"
         SalesLineDiscount.SetRange(Type, SalesLineDiscount.Type::"Item Disc. Group");
         SalesLineDiscount.SetRange(Code, "Loaded Disc. Group");
         SalesLineDiscount.SetFilter("Sales Type", '<> %1', SalesLineDiscount."Sales Type"::Campaign);
+
+        OnAfterSetFiltersOnSalesLineDiscountItemGroup(Rec);
     end;
 
     procedure FilterToActualRecords()
     begin
-        SetFilter("Ending Date", '%1|%2..', 0D, Today)
+        SetFilter("Ending Date", '%1|%2..', 0D, Today);
+
+        OnAfterFilterToActualRecords(Rec);
     end;
 
     local procedure DeleteOldRecordVersion()
@@ -889,6 +897,26 @@ table 1304 "Sales Price and Line Disc Buff"
 
     [IntegrationEvent(true, false)]
     local procedure OnValidateTypeCaseElse()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFiltersOnSalesPrice(var SalesPriceandLineDiscBuff: Record "Sales Price and Line Disc Buff")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFiltersOnSalesLineDiscountItem(var SalesPriceandLineDiscBuff: Record "Sales Price and Line Disc Buff")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFiltersOnSalesLineDiscountItemGroup(var SalesPriceandLineDiscBuff: Record "Sales Price and Line Disc Buff")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterToActualRecords(var SalesPriceandLineDiscBuff: Record "Sales Price and Line Disc Buff")
     begin
     end;
 }
