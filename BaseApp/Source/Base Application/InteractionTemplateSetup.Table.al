@@ -154,6 +154,11 @@ table 5122 "Interaction Template Setup"
             Caption = 'E-Mail Draft';
             TableRelation = "Interaction Template" WHERE("Attachment No." = CONST(0));
         }
+        field(40; "Sales Draft Invoices"; Code[10])
+        {
+            Caption = 'Sales Draft Invoices';
+            TableRelation = "Interaction Template" WHERE("Attachment No." = CONST(0));
+        }
     }
 
     keys
