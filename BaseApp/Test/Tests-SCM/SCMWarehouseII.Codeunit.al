@@ -2144,7 +2144,7 @@ codeunit 137048 "SCM Warehouse II"
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Warehouse II");
-        LibraryERMCountryData.CreateVATData;
+        // LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;

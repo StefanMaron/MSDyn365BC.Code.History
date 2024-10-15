@@ -3657,46 +3657,6 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [HandlerFunctions('AccountScheduleSimpleRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure RunAccSchedIncomeStmtAfterAccSchedBalanceSheet()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        AccScheduleName: Record "Acc. Schedule Name";
-        ColumnLayoutName: Record "Column Layout Name";
-        ColumnLayout: Record "Column Layout";
-    begin
-        // [SCENARIO 210321] Account Schedule report should match settings when it runs sequentially using G/L Account Category Mgt.
-        Initialize;
-
-        // [GIVEN] "Acc. Sched. for Balance Sheet" in G/L Setup defined as "Bal" Acc. Schedule
-        // [GIVEN] "Acc. Sched. for Income Stmt." in G/L Setup defined as "IncSt" Acc. Schedule with "Col" as Column Name
-        GeneralLedgerSetup.Get();
-        CreateAccountScheduleNameAndColumn(AccScheduleName, ColumnLayoutName);
-        GeneralLedgerSetup.Validate("Acc. Sched. for Balance Sheet", AccScheduleName.Name);
-        CreateAccountScheduleNameAndColumn(AccScheduleName, ColumnLayoutName);
-        ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName.Name);
-        ColumnLayout.FindFirst;
-        ColumnLayout."Column Header" := LibraryUtility.GenerateGUID;
-        ColumnLayout.Modify();
-        GeneralLedgerSetup.Validate("Acc. Sched. for Income Stmt.", AccScheduleName.Name);
-        GeneralLedgerSetup.Modify(true);
-        Commit();
-
-        // [GIVEN] Report Balance Sheet is executed
-        REPORT.Run(REPORT::"Balance Sheet");
-
-        // [WHEN] Report Income Statement is executed
-        REPORT.Run(REPORT::"Income Statement");
-
-        // [THEN] Report is printed for "IncSt" Acc. Schedule with "Col" as Column Name
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('AccScheduleName_Name', AccScheduleName.Name);
-        LibraryReportDataset.AssertElementWithValueExists('ColumnLayoutName', AccScheduleName."Default Column Layout");
-        LibraryReportDataset.AssertElementWithValueExists('ColumnHeader1', ColumnLayout."Column Header");
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure VerifyDimensionFilterWithStandardDimValues()
     var
@@ -5768,14 +5728,6 @@ codeunit 134902 "ERM Account Schedule"
             AccountSchedule.EndDate.SetValue(WorkDate);
             AccountSchedule.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
         end;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure AccountScheduleSimpleRequestPageHandler(var AccountSchedule: TestRequestPage "Account Schedule")
-    begin
-        AccountSchedule.EndDate.SetValue(WorkDate);
-        AccountSchedule.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

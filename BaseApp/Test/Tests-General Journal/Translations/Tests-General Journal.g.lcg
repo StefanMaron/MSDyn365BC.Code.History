@@ -167,24 +167,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType GenJournalBatchFromGenJournalLineErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1464927296 - Method 4284678588 - NamedType 1499092998" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Journal lines have been scheduled for posting.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - Method PostJournalLinesWithJobQueue - NamedType JournalsScheduledMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1464927296 - Method 2143925646 - NamedType 1499092998" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Journal lines have been scheduled for posting.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - Method PostAndPrintJournalLinesWithJobQueue - NamedType JournalsScheduledMsg)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1464927296 - Method 1360691929 - NamedType 1499092998" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Journals have been scheduled for posting.]]></Val>

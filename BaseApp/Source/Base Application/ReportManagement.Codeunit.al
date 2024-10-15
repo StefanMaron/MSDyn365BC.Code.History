@@ -84,9 +84,15 @@ codeunit 44 ReportManagement
     local procedure MergeDocument(ObjectType: Option "Report","Page"; ObjectID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; XmlData: InStream; FileName: Text; var DocumentStream: OutStream)
     var
         DocumentReportMgt: Codeunit "Document Report Mgt.";
+        IsHandled: Boolean;
     begin
         if ObjectType <> ObjectType::Report then
             Error(NotSupportedErr);
+
+        IsHandled := false;
+        OnMergeDocumentReport(ObjectType, ObjectID, ReportAction, XmlData, FileName, DocumentStream, IsHandled);
+        if (IsHandled) then
+            exit;
 
         DocumentReportMgt.MergeWordLayout(ObjectID, ReportAction, XmlData, FileName, DocumentStream);
     end;
@@ -147,6 +153,21 @@ codeunit 44 ReportManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetupPrinters(var Printers: Dictionary of [Text[250], JsonObject]);
+    begin
+    end;
+
+    /// <summary>
+    /// Invoke the MergeDocument trigger.
+    /// </summary>
+    /// <param name="ObjectType">The object type for which the document will be rendered (Report).</param>
+    /// <param name="ObjectId">The object id.</param>
+    /// <param name="ReportAction">The report action, which can be one of SaveAsPdf, SaveAsWord, SaveAsExcel, Preview, Print or SaveAsHtml.</param>
+    /// <param name="XmlData">The xml data set in an input stream</param>
+    /// <param name="FileName">The file path where the output is to be stored. This parameter will contain the printer name if the print action is chosen.</param>
+    /// <param name="printDocumentStream">Output stream that will contain printed documents for cloud printers</param>
+    /// <param name="IsHandled">Will be set to true if the procedure call handled the merge.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnMergeDocumentReport(ObjectType: Option "Report","Page"; ObjectID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; XmlData: InStream; FileName: Text; var printDocumentStream: OutStream; var IsHandled: Boolean)
     begin
     end;
 }

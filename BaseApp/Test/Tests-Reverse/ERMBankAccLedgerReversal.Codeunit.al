@@ -236,7 +236,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
     begin
         // Check Bank Account Label Report with Label Format 36 x 70 mm (3 columns).
         Initialize;
-        asserterror BankAccountLabelReport(LabelFormat::"36 x 70 mm (3 columns)", 3);
+        BankAccountLabelReport(LabelFormat::"36 x 70 mm (3 columns)", 3);
     end;
 
     [Test]
@@ -248,7 +248,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
     begin
         // Check Bank Account Label Report with Label Format 37 x 70 mm (3 columns).
         Initialize;
-        asserterror BankAccountLabelReport(LabelFormat::"37 x 70 mm (3 columns)", 3);
+        BankAccountLabelReport(LabelFormat::"37 x 70 mm (3 columns)", 3);
     end;
 
     [Test]
@@ -260,7 +260,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
     begin
         // Check Bank Account Label Report with Label Format 36 x 105 mm (2 columns).
         Initialize;
-        asserterror BankAccountLabelReport(LabelFormat::"36 x 105 mm (2 columns)", 2);
+        BankAccountLabelReport(LabelFormat::"36 x 105 mm (2 columns)", 2);
     end;
 
     [Test]
@@ -272,7 +272,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
     begin
         // Check Bank Account Label Report with Label Format 37 x 105 mm (2 columns).
         Initialize;
-        asserterror BankAccountLabelReport(LabelFormat::"37 x 105 mm (2 columns)", 2);
+        BankAccountLabelReport(LabelFormat::"37 x 105 mm (2 columns)", 2);
     end;
 
     local procedure BankAccountLabelReport(LabelFormat: Option; NumberOfColumns: Integer)

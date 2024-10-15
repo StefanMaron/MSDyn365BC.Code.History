@@ -72,15 +72,18 @@ page 9177 "Allowed Companies"
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        CompanyInformationMgt: Codeunit "Company Information Mgt.";
     begin
-        CompanyDisplayName := GetCompanyDisplayNameDefaulted(Rec);
+        CompanyDisplayName := CompanyInformationMgt.GetCompanyDisplayNameDefaulted(Rec);
     end;
 
     trigger OnAfterGetRecord()
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
+        CompanyInformationMgt: Codeunit "Company Information Mgt.";
     begin
-        CompanyDisplayName := GetCompanyDisplayNameDefaulted(Rec);
+        CompanyDisplayName := CompanyInformationMgt.GetCompanyDisplayNameDefaulted(Rec);
         SetupStatus := AssistedCompanySetupStatus.GetCompanySetupStatus(Name);
         if SetupStatus = SetupStatus::"In Progress" then
             NameStyleExpr := 'Subordinate'
@@ -108,11 +111,12 @@ page 9177 "Allowed Companies"
         AssistedCompanySetup.GetAllowedCompaniesForCurrnetUser(Rec);
     end;
 
+    [Obsolete('Function moved to codeunit Company Information Management', '17.0')]
     procedure GetCompanyDisplayNameDefaulted(Company: Record Company): Text[250]
+    var
+        CompanyInformationMgt: Codeunit "Company Information Mgt.";
     begin
-        if Company."Display Name" <> '' then
-            exit(Company."Display Name");
-        exit(Company.Name)
+        Exit(CompanyInformationMgt.GetCompanyDisplayNameDefaulted(Company));
     end;
 }
 

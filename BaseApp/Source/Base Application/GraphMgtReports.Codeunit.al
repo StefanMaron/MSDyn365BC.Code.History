@@ -6,12 +6,8 @@ codeunit 5488 "Graph Mgt - Reports"
     end;
 
     var
-        BalanceSchedNameTxt: Label 'M-BALANCE', Comment = 'Max 10 char';
         BalanceColumnNameTxt: Label 'M-BALANCE', Comment = 'Max 10 char';
-        CashFlowSchedNameTxt: Label 'M-CASHFLOW', Comment = 'Max 10 char';
         NetChangeColumnNameTxt: Label 'M-NETCHANG', Comment = 'Max 10 char';
-        IncomeSchedNameTxt: Label 'M-INCOME', Comment = 'Max 10 char';
-        RetainedEarningSchedNameTxt: Label 'M-RETAIND', Comment = 'Max 10 char';
         RecordNotProvidedErr: Label 'A record must be provided for this report API.';
         HeaderLineTypeTxt: Label 'header', Locked = true;
         DetailLineTypeTxt: Label 'detail', Locked = true;
@@ -61,6 +57,7 @@ codeunit 5488 "Graph Mgt - Reports"
 
     local procedure SetUpAccountScheduleBaseAPIData(var BalanceSheetBuffer: Record "Balance Sheet Buffer"; var AccScheduleLineEntity: Record "Acc. Schedule Line Entity"; ReportType: Option "Balance Sheet","Income Statement","Trial Balance","CashFlow Statement","Aged Accounts Payable","Aged Accounts Receivable","Retained Earnings"; DateFilter: Text)
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
         AccScheduleLine: Record "Acc. Schedule Line";
         TempColumnLayout: Record "Column Layout" temporary;
         AccSchedName: Record "Acc. Schedule Name";
@@ -75,25 +72,30 @@ codeunit 5488 "Graph Mgt - Reports"
         ColumnValues: array[12] of Decimal;
         DummyUseAmtsInAddCurr: Boolean;
     begin
+        GeneralLedgerSetup.Get();
         case ReportType of
             ReportType::"Balance Sheet":
                 begin
-                    CurrentSchedName := BalanceSchedNameTxt;
+                    GeneralLedgerSetup.TestField("Acc. Sched. for Balance Sheet");
+                    CurrentSchedName := GeneralLedgerSetup."Acc. Sched. for Balance Sheet";
                     CurrentColumnName := BalanceColumnNameTxt;
                 end;
             ReportType::"CashFlow Statement":
                 begin
-                    CurrentSchedName := CashFlowSchedNameTxt;
+                    GeneralLedgerSetup.TestField("Acc. Sched. for Cash Flow Stmt");
+                    CurrentSchedName := GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt";
                     CurrentColumnName := NetChangeColumnNameTxt;
                 end;
             ReportType::"Income Statement":
                 begin
-                    CurrentSchedName := IncomeSchedNameTxt;
+                    GeneralLedgerSetup.TestField("Acc. Sched. for Income Stmt.");
+                    CurrentSchedName := GeneralLedgerSetup."Acc. Sched. for Income Stmt.";
                     CurrentColumnName := NetChangeColumnNameTxt;
                 end;
             ReportType::"Retained Earnings":
                 begin
-                    CurrentSchedName := RetainedEarningSchedNameTxt;
+                    GeneralLedgerSetup.TestField("Acc. Sched. for Retained Earn.");
+                    CurrentSchedName := GeneralLedgerSetup."Acc. Sched. for Retained Earn.";
                     CurrentColumnName := NetChangeColumnNameTxt;
                 end;
         end;

@@ -83,14 +83,14 @@ codeunit 138500 "Common Demodata"
         // [SCENARIO] There are 12 VAT posting setup entries: 2 - "Reverse Charge VAT", none - "Full VAT" and 'Sales Tax'
         with VATPostingSetup do begin
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
-            Assert.RecordCount(VATPostingSetup, 2);
+            Assert.RecordCount(VATPostingSetup, 0);
 
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Full VAT", "VAT Calculation Type"::"Sales Tax");
             Assert.RecordCount(VATPostingSetup, 0);
 
             Reset;
             SetRange("EU Service", true);
-            Assert.RecordCount(VATPostingSetup, 1);
+            Assert.RecordCount(VATPostingSetup, 0);
         end;
     end;
 
@@ -184,6 +184,17 @@ codeunit 138500 "Common Demodata"
         CustomReportLayout.SetRange("Report ID", REPORT::"Standard Sales - Pro Forma Inv");
         CustomReportLayout.FindFirst;
         CustomReportLayout.TestField(Type, CustomReportLayout.Type::Word);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATPostingSetupRates()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [SCENARIO] There should not be other rates except 15, 9 and 0 % in VAT Posting Setup
+        VATPostingSetup.SetFilter("VAT %", '<>%1&<>%2&<>%3', 15, 9, 0);
+        Assert.RecordCount(VATPostingSetup, 0);
     end;
 
     [Test]

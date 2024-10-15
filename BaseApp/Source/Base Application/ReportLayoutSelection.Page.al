@@ -229,16 +229,28 @@ page 9652 "Report Layout Selection"
     begin
         if not Get("Report ID", '') then
             exit;
-        if not ReportLayoutSelection.Get("Report ID", SelectedCompany) then begin
-            ReportLayoutSelection.Init();
-            ReportLayoutSelection.Type := GetDefaultType("Report ID");
-        end;
-        Type := ReportLayoutSelection.Type;
-        "Custom Report Layout Code" := ReportLayoutSelection."Custom Report Layout Code";
-        CalcFields("Report Layout Description");
-        CustomLayoutDescription := "Report Layout Description";
+
+        UpdateTempRec();
+
         OnGetRecOnBeforeModify(Rec, SelectedCompany);
         Modify;
+    end;
+
+    local procedure UpdateTempRec()
+    var
+        FromRecord: Record "Report Layout Selection";
+    begin
+        // Update the temporary record's field with the values from the actual record
+
+        if not FromRecord.Get(Rec."Report ID", SelectedCompany) then begin
+            FromRecord.Init();
+            FromRecord.Type := Rec.GetDefaultType(Rec."Report ID");
+        end;
+
+        Rec.Type := FromRecord.Type;
+        Rec."Custom Report Layout Code" := FromRecord."Custom Report Layout Code";
+        Rec.CalcFields("Report Layout Description");
+        CustomLayoutDescription := Rec."Report Layout Description";
     end;
 
     local procedure LookupCustomLayout()
@@ -294,13 +306,21 @@ page 9652 "Report Layout Selection"
         ReportMetadata.SetRange(ProcessingOnly, false);
         if ReportMetadata.FindSet then
             repeat
-                Init;
+                Init();
                 "Report ID" := ReportMetadata.ID;
                 "Report Name" := ReportMetadata.Caption;
-                Insert;
+
+                UpdateTempRec();
+
+                Insert();
             until ReportMetadata.Next = 0;
         if FindFirst then;
         IsInitialized := true;
+    end;
+
+    procedure GetSelectedCompanyName(): Text[30]
+    begin
+        Exit(SelectedCompany);
     end;
 
     [IntegrationEvent(false, false)]

@@ -77,16 +77,7 @@ table 5740 "Transfer Header"
                                   "Transfer-from Code", "Transfer-to Code",
                                   "Shipping Agent Code", "Shipping Agent Service Code",
                                   "Shipping Time");
-                                TransferRoute.CalcReceiptDate(
-                                  "Shipment Date",
-                                  "Receipt Date",
-                                  "Shipping Time",
-                                  "Outbound Whse. Handling Time",
-                                  "Inbound Whse. Handling Time",
-                                  "Transfer-from Code",
-                                  "Transfer-to Code",
-                                  "Shipping Agent Code",
-                                  "Shipping Agent Service Code");
+                                CalcReceiptDate();
                             end;
                             TransLine.LockTable();
                             TransLine.SetRange("Document No.", "No.");
@@ -228,15 +219,7 @@ table 5740 "Transfer Header"
                         Confirmed := Confirm(Text002, false, FieldCaption("Transfer-to Code"));
                     if Confirmed then begin
                         if Location.Get("Transfer-to Code") then begin
-                            "Transfer-to Name" := Location.Name;
-                            "Transfer-to Name 2" := Location."Name 2";
-                            "Transfer-to Address" := Location.Address;
-                            "Transfer-to Address 2" := Location."Address 2";
-                            "Transfer-to Post Code" := Location."Post Code";
-                            "Transfer-to City" := Location.City;
-                            "Transfer-to County" := Location.County;
-                            "Trsf.-to Country/Region Code" := Location."Country/Region Code";
-                            "Transfer-to Contact" := Location.Contact;
+                            InitFromTransferToLocation(Location);
                             PostCodeCheck.CopyAddressID(
                               DATABASE::Location, Location.GetPosition, 0,
                               DATABASE::"Transfer Header", GetPosition, 7);
@@ -250,16 +233,7 @@ table 5740 "Transfer Header"
                                   "Transfer-from Code", "Transfer-to Code",
                                   "Shipping Agent Code", "Shipping Agent Service Code",
                                   "Shipping Time");
-                                TransferRoute.CalcReceiptDate(
-                                  "Shipment Date",
-                                  "Receipt Date",
-                                  "Shipping Time",
-                                  "Outbound Whse. Handling Time",
-                                  "Inbound Whse. Handling Time",
-                                  "Transfer-from Code",
-                                  "Transfer-to Code",
-                                  "Shipping Agent Code",
-                                  "Shipping Agent Service Code");
+                                CalcReceiptDate();
                             end;
                             TransLine.LockTable();
                             TransLine.SetRange("Document No.", "No.");
@@ -378,18 +352,16 @@ table 5740 "Transfer Header"
             Caption = 'Shipment Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 TestStatusOpen;
-                TransferRoute.CalcReceiptDate(
-                  "Shipment Date",
-                  "Receipt Date",
-                  "Shipping Time",
-                  "Outbound Whse. Handling Time",
-                  "Inbound Whse. Handling Time",
-                  "Transfer-from Code",
-                  "Transfer-to Code",
-                  "Shipping Agent Code",
-                  "Shipping Agent Service Code");
+
+                IsHandled := false;
+                OnValidateShipmentDateOnBeforeCalcReceiptDate(IsHandled);
+                if not IsHandled then
+                    CalcReceiptDate();
+
                 UpdateTransLines(Rec, FieldNo("Shipment Date"));
             end;
         }
@@ -398,18 +370,16 @@ table 5740 "Transfer Header"
             Caption = 'Receipt Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 TestStatusOpen;
-                TransferRoute.CalcShipmentDate(
-                  "Shipment Date",
-                  "Receipt Date",
-                  "Shipping Time",
-                  "Outbound Whse. Handling Time",
-                  "Inbound Whse. Handling Time",
-                  "Transfer-from Code",
-                  "Transfer-to Code",
-                  "Shipping Agent Code",
-                  "Shipping Agent Service Code");
+
+                IsHandled := false;
+                OnValidateReceiptDateOnBeforeCalcShipmentDate(IsHandled);
+                if not IsHandled then
+                    CalcShipmentDate();
+
                 UpdateTransLines(Rec, FieldNo("Receipt Date"));
             end;
         }
@@ -529,16 +499,7 @@ table 5740 "Transfer Header"
                   "Transfer-from Code", "Transfer-to Code",
                   "Shipping Agent Code", "Shipping Agent Service Code",
                   "Shipping Time");
-                TransferRoute.CalcReceiptDate(
-                  "Shipment Date",
-                  "Receipt Date",
-                  "Shipping Time",
-                  "Outbound Whse. Handling Time",
-                  "Inbound Whse. Handling Time",
-                  "Transfer-from Code",
-                  "Transfer-to Code",
-                  "Shipping Agent Code",
-                  "Shipping Agent Service Code");
+                CalcReceiptDate();
 
                 UpdateTransLines(Rec, FieldNo("Shipping Agent Service Code"));
             end;
@@ -551,16 +512,7 @@ table 5740 "Transfer Header"
             trigger OnValidate()
             begin
                 TestStatusOpen;
-                TransferRoute.CalcReceiptDate(
-                  "Shipment Date",
-                  "Receipt Date",
-                  "Shipping Time",
-                  "Outbound Whse. Handling Time",
-                  "Inbound Whse. Handling Time",
-                  "Transfer-from Code",
-                  "Transfer-to Code",
-                  "Shipping Agent Code",
-                  "Shipping Agent Service Code");
+                CalcReceiptDate();
 
                 UpdateTransLines(Rec, FieldNo("Shipping Time"));
             end;
@@ -676,16 +628,7 @@ table 5740 "Transfer Header"
             trigger OnValidate()
             begin
                 TestStatusOpen;
-                TransferRoute.CalcReceiptDate(
-                  "Shipment Date",
-                  "Receipt Date",
-                  "Shipping Time",
-                  "Outbound Whse. Handling Time",
-                  "Inbound Whse. Handling Time",
-                  "Transfer-from Code",
-                  "Transfer-to Code",
-                  "Shipping Agent Code",
-                  "Shipping Agent Service Code");
+                CalcReceiptDate();
 
                 UpdateTransLines(Rec, FieldNo("Outbound Whse. Handling Time"));
             end;
@@ -697,16 +640,7 @@ table 5740 "Transfer Header"
             trigger OnValidate()
             begin
                 TestStatusOpen;
-                TransferRoute.CalcReceiptDate(
-                  "Shipment Date",
-                  "Receipt Date",
-                  "Shipping Time",
-                  "Outbound Whse. Handling Time",
-                  "Inbound Whse. Handling Time",
-                  "Transfer-from Code",
-                  "Transfer-to Code",
-                  "Shipping Agent Code",
-                  "Shipping Agent Service Code");
+                CalcReceiptDate();
 
                 UpdateTransLines(Rec, FieldNo("Inbound Whse. Handling Time"));
             end;
@@ -748,7 +682,6 @@ table 5740 "Transfer Header"
 
     trigger OnDelete()
     var
-        TransLine: Record "Transfer Line";
         InvtCommentLine: Record "Inventory Comment Line";
         ReservMgt: Codeunit "Reservation Management";
     begin
@@ -761,8 +694,7 @@ table 5740 "Transfer Header"
 
         ReservMgt.DeleteDocumentReservation(DATABASE::"Transfer Line", 0, "No.", HideValidationDialog);
 
-        TransLine.SetRange("Document No.", "No.");
-        TransLine.DeleteAll(true);
+        DeleteTransferLines();
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Transfer Order");
         InvtCommentLine.SetRange("No.", "No.");
@@ -815,6 +747,21 @@ table 5740 "Transfer Header"
         OnAfterInitRecord(Rec);
     end;
 
+    local procedure InitFromTransferToLocation(Location: Record Location)
+    begin
+        "Transfer-to Name" := Location.Name;
+        "Transfer-to Name 2" := Location."Name 2";
+        "Transfer-to Address" := Location.Address;
+        "Transfer-to Address 2" := Location."Address 2";
+        "Transfer-to Post Code" := Location."Post Code";
+        "Transfer-to City" := Location.City;
+        "Transfer-to County" := Location.County;
+        "Trsf.-to Country/Region Code" := Location."Country/Region Code";
+        "Transfer-to Contact" := Location.Contact;
+
+        OnAfterInitFromTransferToLocation(Rec, Location);
+    end;
+
     procedure AssistEdit(OldTransHeader: Record "Transfer Header"): Boolean
     begin
         with TransHeader do begin
@@ -827,6 +774,47 @@ table 5740 "Transfer Header"
                 exit(true);
             end;
         end;
+    end;
+
+    local procedure CalcReceiptDate()
+    begin
+        TransferRoute.CalcReceiptDate(
+            "Shipment Date",
+            "Receipt Date",
+            "Shipping Time",
+            "Outbound Whse. Handling Time",
+            "Inbound Whse. Handling Time",
+            "Transfer-from Code",
+            "Transfer-to Code",
+            "Shipping Agent Code",
+            "Shipping Agent Service Code");
+    end;
+
+    local procedure CalcShipmentDate()
+    begin
+        TransferRoute.CalcShipmentDate(
+            "Shipment Date",
+            "Receipt Date",
+            "Shipping Time",
+            "Outbound Whse. Handling Time",
+            "Inbound Whse. Handling Time",
+            "Transfer-from Code",
+            "Transfer-to Code",
+            "Shipping Agent Code",
+            "Shipping Agent Service Code");
+    end;
+
+    local procedure DeleteTransferLines()
+    var
+        TransLine: Record "Transfer Line";
+        IsHandled: Boolean;
+    begin
+        OnBeforeDeleteTransferLines(IsHandled);
+        if IsHandled then
+            exit;
+
+        TransLine.SetRange("Document No.", "No.");
+        TransLine.DeleteAll(true);
     end;
 
     local procedure TestNoSeries()
@@ -1140,7 +1128,13 @@ table 5740 "Transfer Header"
     procedure CheckInvtPostingSetup()
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckInvtPostingSetup(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         InventoryPostingSetup.SetRange("Location Code", "Transfer-from Code");
         InventoryPostingSetup.FindFirst;
         InventoryPostingSetup.SetRange("Location Code", "Transfer-to Code");
@@ -1304,7 +1298,22 @@ table 5740 "Transfer Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromTransferToLocation(var TransferHeader: Record "Transfer Header"; Location: Record Location)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var TransferHeader: Record "Transfer Header"; var xTransferHeader: Record "Transfer Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckInvtPostingSetup(TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteTransferLines(var IsHandled: Boolean)
     begin
     end;
 
@@ -1335,6 +1344,16 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateTransferToCode(var TransferHeader: Record "Transfer Header"; var xTransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateReceiptDateOnBeforeCalcShipmentDate(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateShipmentDateOnBeforeCalcReceiptDate(var IsHandled: Boolean)
     begin
     end;
 }

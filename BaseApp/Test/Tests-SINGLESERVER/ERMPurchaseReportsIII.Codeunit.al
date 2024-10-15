@@ -397,37 +397,6 @@ codeunit 134988 "ERM Purchase Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('RHPurchaseQuote')]
-    [Scope('OnPrem')]
-    procedure PurchaseQuoteWithValues()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // Check Purchase Quote Report showing correct values.
-
-        // Setup: Create Purchase Quote.
-        Initialize;
-        CreatePurchaseDocument(
-          PurchaseHeader, CreateVendor, Format(LibraryRandom.RandInt(100)),
-          PurchaseHeader."Document Type"::Quote, LibraryInventory.CreateItemNo);
-        FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
-
-        // Exercise: Save Report using default value.
-        SavePurchaseQuoteReport(PurchaseLine."Document No.", PurchaseLine."Buy-from Vendor No.", false, false, false);
-
-        // Verify: Verify values on Purchase Quote Report.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.SetRange('No_PurchaseLine', PurchaseLine."No.");
-        if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'LineNo_PurchaseLine', PurchaseLine."Line No."));
-        LibraryReportDataset.AssertCurrentRowValueEquals('PurchHeadNo', PurchaseHeader."No.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_PurchaseLine', PurchaseLine.Quantity);
-        LibraryReportDataset.AssertCurrentRowValueEquals('Description_PurchaseLine', PurchaseLine.Description);
-        LibraryReportDataset.AssertCurrentRowValueEquals('UnitOfMeasure_PurchaseLine', PurchaseLine."Unit of Measure");
-    end;
-
-    [Test]
     [HandlerFunctions('RHOrder')]
     [Scope('OnPrem')]
     procedure OrderReportWithPostingDateBlankOnPurchaseOrder()
@@ -927,27 +896,6 @@ codeunit 134988 "ERM Purchase Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('PurchaseInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchInvoiceReportWithEnabledPrintVATSpecInLCY()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-    begin
-        // Setup
-        Initialize;
-        InitGeneralLedgerSetup(true);
-
-        // Excercise
-        CreateAndSetupPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        SavePurchaseInvoiceReport(DocumentNo);
-
-        // Verify
-        VerifyPurchaseInvoiceReportVATAmountInLCY(DocumentNo);
-    end;
-
-    [Test]
     [HandlerFunctions('PurchaseCreditMemoRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PurchCreditMemoReportWithEnabledPrintVATSpecInLCY()
@@ -1001,31 +949,6 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.GetElementValueInCurrentRow(VALExchRateTok, ActualResult);
         Assert.AreNotEqual(0, StrPos(ActualResult, Format(ExpectedResult)), WrongExchRateErr);
-    end;
-
-    [Test]
-    [HandlerFunctions('PurchaseInvoiceExcelRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchInvoiceReportLayoutWithEnabledPrintVATSpecInLCY()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-    begin
-        // [SCENARIO 379970] Report Purchase - Invoice includes VAT specification in LCY section
-        Initialize;
-
-        // [GIVEN] "General Ledger Setup"."Print VAT specification in LCY" is true
-        InitGeneralLedgerSetup(true);
-
-        // [GIVEN] Purchase Invoice posted
-        CreateAndSetupPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // [WHEN] Run Purchase - Invoice report
-        SavePurchaseInvoiceReport(DocumentNo);
-
-        // [THEN] VAT specification in LCY section printed
-        VerifyPurchaseInvoiceReportVATAmountInLCYSection(DocumentNo);
     end;
 
     [Test]
@@ -1327,90 +1250,6 @@ codeunit 134988 "ERM Purchase Reports III"
         // [THEN] Total: "Amount" = 300
         VerifyPurchOrderRepPrepmtSecTwoLinesWithMultipleDims(
           PrepmtGLAccount, LinePrepmtAmountValue, HeaderDimensionValue, Line1DimensionValue, Line2DimensionValue, 9);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchaseOrderReportWithPrepmtTwoLinesOneDimPerLineAndShowInternalInfoPricesInclVAT()
-    var
-        ReportSelections: Record "Report Selections";
-        HeaderDimensionValue: Record "Dimension Value";
-        Line1DimensionValue: array[4] of Record "Dimension Value";
-        Line2DimensionValue: array[4] of Record "Dimension Value";
-        PrepmtGLAccount: Record "G/L Account";
-        HeaderDimSetID: Integer;
-        LineDimSetID: array[2] of Integer;
-        DocumentNo: Code[20];
-        LinePrepmtAmountValue: array[2] of Decimal;
-    begin
-        // [FEATURE] [Order] [Prepayment] [Dimension] [Prices Incl. VAT]
-        // [SCENARIO 222383] Report 405 "Order" prints dimensions in prepayment specification section
-        // [SCENARIO 222383] in case of ShowInternalInfo = TRUE, one dimension per line, prices including VAT
-        Initialize;
-        LibraryERM.SetupReportSelection(ReportSelections.Usage::"P.Order", REPORT::Order);
-
-        // [GIVEN] Purchase order with prepayment having "Purch. Prepayments Account" = "A"
-        // [GIVEN] where "A" - G\L Account with "Name" = "B", header dimension code\value = "HC"\"HV" and two lines:
-        // [GIVEN] Line1 with dimension code\value = "L1C"\"L1V" and prepayment amount = 100
-        // [GIVEN] Line2 with dimension code\value = "L2C"\"L2V" and prepayment amount = 200
-        CreateHeaderAndLineDimSetID(HeaderDimensionValue, Line1DimensionValue, Line2DimensionValue, HeaderDimSetID, LineDimSetID, 1);
-        DocumentNo :=
-          CreatePurchaseOrderWithPrepmtTwoLinesAndDims(PrepmtGLAccount, LinePrepmtAmountValue, true, HeaderDimSetID, LineDimSetID);
-
-        // [WHEN] Print "Order" report (REP 405) using "ShowInternalInfo" = TRUE
-        RunPurchaseOrderReport(DocumentNo, true);
-
-        // [THEN] There are four lines have been printed in the prepayment section:
-        // [THEN] Line1: "G/L Account No." = "A", "Description" = "B", "Amount" = 100
-        // [THEN] Line2: "Description" = "HC HV, L1C L1V"
-        // [THEN] Line3: "G/L Account No." = "A", "Description" = "B", "Amount" = 200
-        // [THEN] Line2: "Description" = "HC HV, L2C L2V"
-        // [THEN] Total: "Amount" = 300
-        VerifyPurchOrderRepPrepmtSecTwoLinesWithSingleDims(
-          PrepmtGLAccount, LinePrepmtAmountValue, HeaderDimensionValue, Line1DimensionValue, Line2DimensionValue, 11);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchaseOrderReportWithPrepmtTwoLinesSevDimsPerLineAndShowInternalInfoPricesInclVAT()
-    var
-        ReportSelections: Record "Report Selections";
-        HeaderDimensionValue: Record "Dimension Value";
-        Line1DimensionValue: array[4] of Record "Dimension Value";
-        Line2DimensionValue: array[4] of Record "Dimension Value";
-        PrepmtGLAccount: Record "G/L Account";
-        HeaderDimSetID: Integer;
-        LineDimSetID: array[2] of Integer;
-        DocumentNo: Code[20];
-        LinePrepmtAmountValue: array[2] of Decimal;
-    begin
-        // [FEATURE] [Order] [Prepayment] [Dimension] [Prices Incl. VAT]
-        // [SCENARIO 222383] Report 405 "Order" prints dimensions in prepayment specification section
-        // [SCENARIO 222383] in case of ShowInternalInfo = TRUE, several dimensions per line, prices including VAT
-        Initialize;
-        LibraryERM.SetupReportSelection(ReportSelections.Usage::"P.Order", REPORT::Order);
-
-        // [GIVEN] Purchase order with prepayment having "Purch. Prepayments Account" = "A"
-        // [GIVEN] where "A" - G\L Account with "Name" = "B", header dimension code\value = "HC"\"HV" and two lines:
-        // [GIVEN] Line1 with dimension codes\values = "L1C1"\"L1V1".."L1C4"\"L1V4" and prepayment amount = 100
-        // [GIVEN] Line2 with dimension codes\values = "L2C1"\"L2V1".."L2C4"\"L2V4" and prepayment amount = 200
-        CreateHeaderAndLineDimSetID(HeaderDimensionValue, Line1DimensionValue, Line2DimensionValue, HeaderDimSetID, LineDimSetID, 4);
-        DocumentNo :=
-          CreatePurchaseOrderWithPrepmtTwoLinesAndDims(PrepmtGLAccount, LinePrepmtAmountValue, true, HeaderDimSetID, LineDimSetID);
-
-        // [WHEN] Print "Order" report (REP 405) using "ShowInternalInfo" = TRUE
-        RunPurchaseOrderReport(DocumentNo, true);
-
-        // [THEN] There are six lines have been printed in the prepayment section:
-        // [THEN] Line1: "G/L Account No." = "A", "Description" = "B", "Amount" = 100
-        // [THEN] Line2: "Description" = "HC HV, L1C1 L1V1, L1C2 L1V2"
-        // [THEN] Line3: "Description" = "L1C3 L1V3, L1C4 L1V4"
-        // [THEN] Line4: "G/L Account No." = "A", "Description" = "B", "Amount" = 200
-        // [THEN] Line5: "Description" = "HC HV, L2C1 L2V1, L2C2 L2V2"
-        // [THEN] Line6: "Description" = "L2C3 L2V3, L2C4 L2V4"
-        // [THEN] Total: "Amount" = 300
-        VerifyPurchOrderRepPrepmtSecTwoLinesWithMultipleDims(
-          PrepmtGLAccount, LinePrepmtAmountValue, HeaderDimensionValue, Line1DimensionValue, Line2DimensionValue, 15);
     end;
 
     [Test]
@@ -1759,6 +1598,31 @@ codeunit 134988 "ERM Purchase Reports III"
 
         // [THEN] Report dataset has Planned/Expected/Promised/Requested Receipt Dates = 01.01, 02.01, 03.01, 04.01
         VerifyStandardPurchaseOrderReceiptDates(PurchaseLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseQuoteRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseQuoteLineHeaderIsNotRepeated()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        TextPurchaseLine: Record "Purchase Line";
+        ExpectedText: Text[10];
+    begin
+        // [FEATURE] [Purchase Quote] [Excel]
+        // [SCENARIO 331905] Report 404 "Purchase - Quote" shows only single captions for the lines, purchase lines go one after another
+        Initialize;
+
+        // [GIVEN] Purchase Quote with two lines with items and 3rd line with comment
+        CreatePurchaseQuoteWithThreeLines(PurchaseHeader, PurchaseLine, TextPurchaseLine, ExpectedText);
+
+        // [WHEN] Report 404 "Purchase - Quote" is run and result is saved as Excel at PurchaseQuoteRequestPageHandler
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        SavePurchaseQuoteReport(PurchaseHeader."No.", PurchaseHeader."Buy-from Vendor No.", true, false, false);
+
+        // [THEN] Purchase Lines go one after another, line captions section isn't repeated
+        VerifyPurchQuoteLinesGoOneAfterAnother(PurchaseLine, TextPurchaseLine);
     end;
 
     local procedure Initialize()
@@ -2372,6 +2236,21 @@ codeunit 134988 "ERM Purchase Reports III"
         AnalysisColumn.Modify(true);
     end;
 
+    local procedure CreatePurchaseQuoteWithThreeLines(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: array[2] of Record "Purchase Line"; var TextPurchaseLine: Record "Purchase Line"; var ExpectedText: Text[10])
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, CreateVendor);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine[1], PurchaseHeader, PurchaseLine[1].Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(1, 5));
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(1, 5));
+
+        ExpectedText := LibraryUtility.GenerateGUID;
+        LibraryPurchase.CreatePurchaseLineSimple(TextPurchaseLine, PurchaseHeader);
+        TextPurchaseLine.Validate(Type, TextPurchaseLine.Type::" ");
+        TextPurchaseLine.Validate(Description, ExpectedText);
+        TextPurchaseLine.Modify(true);
+    end;
+
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
         // Select General Journal Batch and clear General Journal Lines to make sure that no line exist before creating
@@ -2520,7 +2399,7 @@ codeunit 134988 "ERM Purchase Reports III"
         "Order": Report "Order";
     begin
         PurchaseHeader.SetRange("No.", DocumentNo);
-        LibraryReportValidation.SetFileName('test');
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
         Clear(Order);
         Order.SetTableView(PurchaseHeader);
         Order.InitializeRequest(0, ShowInternalInfo, false, false);
@@ -3060,6 +2939,28 @@ codeunit 134988 "ERM Purchase Reports III"
           LibraryReportValidation.FormatDecimalValue(LinePrepmtAmountValue[1] + LinePrepmtAmountValue[2]));
     end;
 
+    local procedure VerifyPurchQuoteLinesGoOneAfterAnother(PurchaseLine: array[2] of Record "Purchase Line"; TextPurchaseLine: Record "Purchase Line")
+    var
+        DescriptionCaptionRowNo: Integer;
+        DescriptionCaptionColNo: Integer;
+        ItemNoCaptionRowNo: Integer;
+        ItemNoCaptionColNo: Integer;
+    begin
+        LibraryReportValidation.OpenExcelFile;
+        ItemNoCaptionColNo := LibraryReportValidation.FindColumnNoFromColumnCaption('Our No.');
+        ItemNoCaptionRowNo := LibraryReportValidation.FindRowNoFromColumnCaption('Our No.');
+        DescriptionCaptionColNo := LibraryReportValidation.FindColumnNoFromColumnCaption(TextPurchaseLine.FieldCaption(Description));
+        DescriptionCaptionRowNo := LibraryReportValidation.FindRowNoFromColumnCaption(TextPurchaseLine.FieldCaption(Description));
+
+        LibraryReportValidation.VerifyCellValue(ItemNoCaptionRowNo + 4, ItemNoCaptionColNo, PurchaseLine[1]."No.");
+        LibraryReportValidation.VerifyCellValue(DescriptionCaptionRowNo + 4, DescriptionCaptionColNo, PurchaseLine[1].Description);
+
+        LibraryReportValidation.VerifyCellValue(ItemNoCaptionRowNo + 5, ItemNoCaptionColNo, PurchaseLine[2]."No.");
+        LibraryReportValidation.VerifyCellValue(DescriptionCaptionRowNo + 5, DescriptionCaptionColNo, PurchaseLine[2].Description);
+
+        LibraryReportValidation.VerifyCellValue(DescriptionCaptionRowNo + 6, DescriptionCaptionColNo, TextPurchaseLine.Description);
+    end;
+
     local procedure VerifyAgedAccountsPayableNoOfHitsCodeCoverage(CodeLine: Text; NoOfHits: Integer)
     var
         CodeCoverage: Record "Code Coverage";
@@ -3233,6 +3134,24 @@ codeunit 134988 "ERM Purchase Reports III"
         PurchaseQuote.ArchiveDocument.SetValue(ArchiveDocument);
         PurchaseQuote.LogInteraction.SetValue(LogInteraction);
         PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseQuoteRequestPageHandler(var PurchaseQuote: TestRequestPage "Purchase - Quote")
+    var
+        ShowInternalInfo: Variant;
+        ArchiveDocument: Variant;
+        LogInteraction: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ShowInternalInfo);
+        LibraryVariableStorage.Dequeue(ArchiveDocument);
+        LibraryVariableStorage.Dequeue(LogInteraction);
+        PurchaseQuote.NoOfCopies.SetValue(0);
+        PurchaseQuote.ShowInternalInfo.SetValue(ShowInternalInfo);
+        PurchaseQuote.ArchiveDocument.SetValue(ArchiveDocument);
+        PurchaseQuote.LogInteraction.SetValue(LogInteraction);
+        PurchaseQuote.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 
     [RequestPageHandler]

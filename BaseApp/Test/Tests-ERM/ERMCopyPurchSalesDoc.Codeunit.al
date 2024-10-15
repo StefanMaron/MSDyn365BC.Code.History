@@ -1061,6 +1061,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
+        ReasonCode: Record "Reason Code";
         ShiptoAddressCode: Code[10];
         PostedSalesDocNo: Code[20];
     begin
@@ -1078,6 +1079,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         RunCopySalesDoc(PostedSalesDocNo, SalesHeader, SalesDocType::"Posted Invoice", true, false);
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
+        LibraryERM.CreateReasonCode(ReasonCode);
+        SalesHeader."Reason Code" := ReasonCode.Code;
         PostedSalesDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [GIVEN] New sales invoice "SI"
@@ -1097,6 +1100,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
+        ReasonCode: Record "Reason Code";
         PostedSalesDocNo: Code[20];
     begin
         // [FEATURE] [Sales][Invoice]
@@ -1113,6 +1117,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         RunCopySalesDoc(PostedSalesDocNo, SalesHeader, SalesDocType::"Posted Invoice", true, false);
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
+        LibraryERM.CreateReasonCode(ReasonCode);
+        SalesHeader."Reason Code" := ReasonCode.Code;
         PostedSalesDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [GIVEN] New sales invoice "SI"

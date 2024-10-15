@@ -19,6 +19,7 @@ codeunit 134186 "WF Demo Overdue Notifications"
         LibraryWorkflow: Codeunit "Library - Workflow";
         NoWorkflowEnabledErr: Label 'There is no workflow enabled for sending overdue approval notifications.';
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
 
     [Test]
@@ -86,14 +87,17 @@ codeunit 134186 "WF Demo Overdue Notifications"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Overdue Notifications");
         LibraryERMCountryData.InitializeCountry;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Overdue Notifications");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WF Demo Overdue Notifications");
     end;
 
     local procedure CreatePurchInvWithLine(var PurchHeader: Record "Purchase Header"; Amount: Decimal)

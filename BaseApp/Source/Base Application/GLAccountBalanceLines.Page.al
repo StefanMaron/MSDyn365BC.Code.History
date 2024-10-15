@@ -115,11 +115,13 @@ page 416 "G/L Account Balance Lines"
 
     var
         AccountingPeriod: Record "Accounting Period";
-        GLAcc: Record "G/L Account";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         GLPeriodLength: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
+
+    protected var
+        GLAcc: Record "G/L Account";
         ClosingEntryFilter: Option Include,Exclude;
         DebitCreditTotals: Boolean;
 
@@ -206,7 +208,7 @@ page 416 "G/L Account Balance Lines"
         "Credit Amount" := GLAcc."Credit Amount";
         "Net Change" := GLAcc."Net Change";
 
-        OnAfterCalcLine(GLAcc, Rec);
+        OnAfterCalcLine(GLAcc, Rec, ClosingEntryFilter, DebitCreditTotals);
     end;
 
     [IntegrationEvent(false, false)]
@@ -215,7 +217,7 @@ page 416 "G/L Account Balance Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcLine(var GLAccount: Record "G/L Account"; var GLAccBalanceBuffer: Record "G/L Acc. Balance Buffer")
+    local procedure OnAfterCalcLine(var GLAccount: Record "G/L Account"; var GLAccBalanceBuffer: Record "G/L Acc. Balance Buffer"; ClosingEntryFilter: Option Include,Exclude; DebitCreditTotals: Boolean)
     begin
     end;
 }

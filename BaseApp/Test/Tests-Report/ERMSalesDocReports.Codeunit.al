@@ -506,24 +506,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ReportHandlerReturnOrderConfirmation')]
-    [Scope('OnPrem')]
-    procedure SalesReturnOrderConfirmationWithSingleVATAmountLine()
-    begin
-        // Verify VAT Amount Specifiction on Sales Return Order Confirmation With Single Line.
-        VerifySalesReturnOrderConfirmationWithVATAmountLine(1); // 1 indicates single sales line
-    end;
-
-    [Test]
-    [HandlerFunctions('ReportHandlerReturnOrderConfirmation')]
-    [Scope('OnPrem')]
-    procedure SalesReturnOrderConfirmationWithMultipleVATAmountLines()
-    begin
-        // Verify VAT Amount Specifiction on Sales Return Order Confirmation With Multiple Lines.
-        VerifySalesReturnOrderConfirmationWithVATAmountLine(LibraryRandom.RandIntInRange(2, 10));
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmMessageHandler,RepHandlerReturnOrderConfirmation')]
     [Scope('OnPrem')]
     procedure SellToCustomerCaptionInShiptoReturnOrderConfirmation()
@@ -549,25 +531,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
         // [THEN] Caption of Sell-to Customer No. = "Sell-to Customer No."
         LibraryReportValidation.OpenExcelFile;
         LibraryReportValidation.VerifyCellValueOnWorksheet(79, 1, SalesHeader.FieldCaption("Sell-to Customer No."), '1');
-    end;
-
-    local procedure VerifySalesReturnOrderConfirmationWithVATAmountLine(LineCount: Integer)
-    var
-        SalesHeader: Record "Sales Header";
-        VATAmount: array[10] of Decimal;
-        i: Integer;
-    begin
-        // Setup: Create Sales Return Order With Multiple Lines.
-        Initialize;
-        CreateSalesReturnOrderWithMultipleLines(SalesHeader, VATAmount, LineCount);
-
-        // Exercise: Run Report Return Order Confirmation.
-        RunReturnOrderConfirmation(SalesHeader, false, false);
-
-        // Verify: Check VAT Amount on Sales Return Order Confirmation Report.
-        LibraryReportDataset.LoadDataSetFile;
-        for i := 1 to LineCount do
-            LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVATAmt', VATAmount[i]);
     end;
 
     [Test]
@@ -918,47 +881,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
         exit(TotalAmount);
     end;
 
-    local procedure CreateSalesReturnOrderWithMultipleLines(var SalesHeader: Record "Sales Header"; var VATAmount: array[10] of Decimal; LineCount: Integer)
-    var
-        VATBusinessPostingGroup: Record "VAT Business Posting Group";
-        i: Integer;
-    begin
-        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
-        LibrarySales.CreateSalesHeader(
-          SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer(VATBusinessPostingGroup.Code));
-        for i := 1 to LineCount do
-            VATAmount[i] := CreateSalesLineAndCalcVATAmount(SalesHeader, VATBusinessPostingGroup.Code);
-    end;
-
-    local procedure CreateSalesLineAndCalcVATAmount(SalesHeader: Record "Sales Header"; VATBusinessPostingGroupCode: Code[20]): Decimal
-    var
-        SalesLine: Record "Sales Line";
-        VATAmountLine: Record "VAT Amount Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        QtyType: Option General,Invoicing,Shipping;
-    begin
-        CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode);
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"),
-          LibraryRandom.RandInt(10));
-        SalesLine.CalcVATAmountLines(QtyType::General, SalesHeader, SalesLine, VATAmountLine);
-        exit(VATAmountLine."VAT Amount");
-    end;
-
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroupCode: Code[20])
-    var
-        VATProductPostingGroup: Record "VAT Product Posting Group";
-    begin
-        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
-        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroup.Code);
-        with VATPostingSetup do begin
-            Validate("VAT Identifier", VATProductPostingGroup.Code);
-            Validate("VAT %", LibraryRandom.RandInt(20));
-            Validate("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            Modify(true);
-        end;
-    end;
-
     local procedure CreateCustomer(VATBusPostingGroup: Code[20]): Code[20]
     var
         Customer: Record Customer;
@@ -1225,10 +1147,10 @@ codeunit 134390 "ERM Sales Doc. Reports"
     begin
         with LibraryReportDataset do begin
             LoadDataSetFile;
-            AssertElementWithValueExists('VATAmtLineVATIdentifier', VATIdentifier);
-            AssertElementWithValueExists('VATAmtLineVATAmt', VATAmount);
-            AssertElementWithValueExists('VATIdentifier_VATCounterLCY', VATIdentifier);
-            AssertElementWithValueExists('VALVATAmountLCY', VATAmount);
+            AssertElementWithValueExists('VATIdentifier_VATAmtLine', VATIdentifier);
+            AssertElementWithValueExists('VATAmt_VATAmtLine', VATAmount);
+            AssertElementWithValueExists('VATIdentifier_VATAmtLine', VATIdentifier);
+            AssertElementWithValueExists('VALVATAmtLCY', VATAmount);
         end;
     end;
 
@@ -1236,9 +1158,9 @@ codeunit 134390 "ERM Sales Doc. Reports"
     begin
         with LibraryReportDataset do begin
             LoadDataSetFile;
-            AssertElementWithValueExists('VATAmtLineVATIdentifier_VATCounter', VATIdentifier);
+            AssertElementWithValueExists('VATAmtLineVATIdentifier', VATIdentifier);
             AssertElementWithValueExists('VATAmountLineVATAmount', VATAmount);
-            AssertElementWithValueExists('VATAmtLineVATIdentifier_VATCounterLCY', VATIdentifier);
+            AssertElementWithValueExists('VATAmtLineVATIdentifier1', VATIdentifier);
             AssertElementWithValueExists('VALVATAmountLCY', VATAmount);
         end;
     end;

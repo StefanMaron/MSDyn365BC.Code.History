@@ -337,6 +337,8 @@ codeunit 130509 "Library - Sales"
     end;
 
     procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; SellToCustomerNo: Code[20])
+    var
+        ReasonCode: Record "Reason Code";
     begin
         DisableWarningOnCloseUnreleasedDoc;
         DisableWarningOnCloseUnpostedDoc;
@@ -351,6 +353,11 @@ codeunit 130509 "Library - Sales"
           "External Document No.",
           CopyStr(LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("External Document No."), DATABASE::"Sales Header"), 1, 20));
         SetCorrDocNoSales(SalesHeader);
+        if ((DocumentType = SalesHeader."Document Type"::"Return Order") or (DocumentType = SalesHeader."Document Type"::"Credit Memo")) then begin
+            if not ReasonCode.FindFirst then
+                LibraryERM.CreateReasonCode(ReasonCode);
+            SalesHeader.Validate("Reason Code", ReasonCode.Code);
+        end;
         SalesHeader.Modify(true);
 
         OnAfterCreateSalesHeader(SalesHeader, DocumentType, SellToCustomerNo);

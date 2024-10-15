@@ -2406,12 +2406,10 @@ codeunit 137262 "SCM Invt Item Tracking III"
         SalesHeader: Record "Sales Header";
         PurchaseLine: Record "Purchase Line";
         DocumentNo: Code[20];
-        OldExactCostReversingMandatory: Boolean;
         TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries,SetLotNo,SetQuantity,AssignSerialLot;
     begin
         // Setup: Create and post Purchase Order, create and post Sales Order, create Sales Return Order using Get Posted Document Lines To Reverse.
         Initialize;
-        OldExactCostReversingMandatory := UpdateSalesReceivablesSetup(true);
         CreateAndPostPurchaseOrderWithIT(
           PurchaseLine, CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode(false, true)), '',
           TrackingOption::AssignLotNo);
@@ -2429,9 +2427,6 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Verify: Verify that Sales Return Order can be posted and verify the Posted Credit Memo.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         VerifyPostedSalesCreditMemo(PurchaseLine."No.", PurchaseLine.Quantity);
-
-        // Tear Down.
-        UpdateSalesReceivablesSetup(OldExactCostReversingMandatory);
     end;
 
     [Test]

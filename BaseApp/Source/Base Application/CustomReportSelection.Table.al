@@ -303,8 +303,10 @@ table 9657 "Custom Report Selection"
                     end;
             until (Contact.Next() = 0) or FieldLenghtExceeded;
         end;
+        EmailList := DelChr(EmailList, '>', ';');
         "Send To Email" := CopyStr(EmailList, 1, MaxStrLen("Send To Email"));
-        FillSelectedContactsFilter(Contact.GetFilter("No."));
+        if "Send To Email" <> '' then
+            FillSelectedContactsFilter(Contact.GetFilter("No."));
         OnGetSendToEmailFromContacts(Rec, Contact, ShowExceededContactsNotification);
 
         if ShowExceededContactsNotification then begin
@@ -391,6 +393,7 @@ table 9657 "Custom Report Selection"
                     end else
                         FieldLenghtExceeded := true;
             until (Contact.Next() = 0) or FieldLenghtExceeded;
+        EmailList := DelChr(EmailList, '>', ';');
         "Send To Email" := CopyStr(EmailList, 1, MaxStrLen("Send To Email"));
     end;
 

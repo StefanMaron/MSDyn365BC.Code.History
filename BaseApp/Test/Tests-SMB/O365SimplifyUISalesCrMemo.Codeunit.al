@@ -11,6 +11,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
     var
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
@@ -388,6 +389,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
     var
         Item: Record Item;
         Customer: Record Customer;
+        ReasonCode: Record "Reason Code";
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         Initialize;
@@ -397,6 +399,8 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
 
         SalesCreditMemo.OpenNew;
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
+        LibraryERM.CreateReasonCode(ReasonCode);
+        SalesCreditMemo."Reason Code".SetValue(ReasonCode.Code);
 
         // Set item on line - if no errors than is ok
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
@@ -417,6 +421,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
     var
         Item: Record Item;
         Customer: Record Customer;
+        ReasonCode: Record "Reason Code";
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         Initialize;
@@ -426,6 +431,8 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
 
         SalesCreditMemo.OpenNew;
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
+        LibraryERM.CreateReasonCode(ReasonCode);
+        SalesCreditMemo."Reason Code".SetValue(ReasonCode.Code);
 
         // Set item as service on line - if no errors than is ok
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");

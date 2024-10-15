@@ -30,6 +30,7 @@ codeunit 134333 "ERM Purchase Prepayments"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase Prepayments");
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LCYCode := '';
         IsInitialized := true;
         Commit();

@@ -196,6 +196,7 @@ page 5850 "Posted Sales Document Lines"
         FromSalesCrMemoLine: Record "Sales Cr.Memo Line";
         FromReturnRcptLine: Record "Return Receipt Line";
         SalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
+        IsHandled: Boolean;
     begin
         OnBeforeCopyLineToDoc(CopyDocMgt);
 
@@ -238,8 +239,11 @@ page 5850 "Posted Sales Document Lines"
         end;
         Clear(CopyDocMgt);
 
-        if LinesNotCopied <> 0 then
-            Message(Text000);
+        IsHandled := false;
+        OnCopyLineToDocOnBeforeMessage(ToSalesHeader, IsHandled);
+        if not IsHandled then
+            if LinesNotCopied <> 0 then
+                Message(Text000);
     end;
 
     local procedure ChangeSubMenu(NewMenuType: Integer)
@@ -361,6 +365,11 @@ page 5850 "Posted Sales Document Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyLineToDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyLineToDocOnBeforeMessage(ToSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

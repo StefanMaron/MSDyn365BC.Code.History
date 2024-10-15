@@ -216,10 +216,13 @@ report 8 Budget
                 for i := 1 to ArrayLen(GLBudgetedAmount) do begin
                     SetRange("Date Filter", PeriodStartDate[i], PeriodStartDate[i + 1] - 1);
                     CalcFields("Budgeted Amount");
-                    "Budgeted Amount" := ReportMgmnt.RoundAmount("Budgeted Amount", Rounding);
                     if InThousands then
                         "Budgeted Amount" := "Budgeted Amount" / 1000;
-                    GLBudgetedAmount[i] := Round("Budgeted Amount", 1);
+                    if (RoundingFromPage) then
+                        GLBudgetedAmount[i] := MatrixMgt.RoundValue("Budgeted Amount", RndFactor)
+                    else
+                        GLBudgetedAmount[i] := ReportMgmnt.RoundAmount("Budgeted Amount", Rounding);
+
                     TotalBudgetAmount += GLBudgetedAmount[i];
                 end;
                 SetRange("Date Filter", PeriodStartDate[1], PeriodStartDate[ArrayLen(PeriodStartDate)] - 1);
@@ -266,6 +269,13 @@ report 8 Budget
                         Caption = 'Amounts in whole';
                         ToolTip = 'Specifies if the amounts in the report are shown in whole 1000s.';
                     }
+                    field(RoundingFactor; RndFactor)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Rounding Factor';
+                        OptionCaption = 'None,1,1000,1000000';
+                        ToolTip = 'Specifies the factor that is used to round the amounts.';
+                    }
                 }
             }
         }
@@ -304,11 +314,15 @@ report 8 Budget
 
         BudgetCaptionTxt := StrSubstNo(BudgetCaptionTok, Format(PeriodStartDate[1], 0, '<Year4>'));
         StartingDateAsText := StrSubstNo(StartingDateTok, PeriodStartDate[1]);
+        if (Rounding = Rounding::" ") and (RndFactor <> RndFactor::None) then
+            RoundingFromPage := True;
     end;
 
     var
+        MatrixMgt: Codeunit "Matrix Management";
         ReportMgmnt: Codeunit "Report Management APAC";
         InThousands: Boolean;
+        RoundingFromPage: Boolean;
         GLFilter: Text;
         GLBudgetFilter: Text[250];
         BudgetCaptionTxt: Text;
@@ -326,15 +340,21 @@ report 8 Budget
         GLAccNameCaptionLbl: Label 'Name';
         RowNumber: Integer;
         GLAccountTypePosting: Boolean;
+        RndFactor: Option "None","1","1000","1000000";
         TotalLbl: Label 'Total';
         StartingDateAsText: Text;
-        StartingDateTok: Label 'Starting Date: %1', Comment='%1 - date';
+        StartingDateTok: Label 'Starting Date: %1', Comment = '%1 - date';
 
     procedure InitializeRequest(NewPeriodStartDate: Date; NewPeriodLength: Text[30]; NewRounding: Option)
     begin
         PeriodStartDate[1] := NewPeriodStartDate;
         Evaluate(PeriodLength, NewPeriodLength);
         Rounding := NewRounding;
+    end;
+
+    procedure SetParameters(NewRoundingFactor: Option "None","1","1000","1000000")
+    begin
+        RndFactor := NewRoundingFactor;
     end;
 }
 

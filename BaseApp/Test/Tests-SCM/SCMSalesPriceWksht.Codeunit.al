@@ -424,7 +424,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(false);
         LibraryInventory.CreateItem(Item);
-        UpdateItem(Item, Item.FieldNo("Unit Price"), LibraryRandom.RandDec(5, 2) + 100);  // Random values not important.
+        UpdateItem(Item, Item.FieldNo("Unit Price"), LibraryRandom.RandDec(5, 2) * 100);  // Random values not important.
         LibrarySales.CreateCustomer(Customer);
     end;
 

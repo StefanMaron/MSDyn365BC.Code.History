@@ -1063,9 +1063,7 @@ page 6630 "Sales Return Order"
 
                     trigger OnAction()
                     begin
-                        CopySalesDoc.SetSalesHeader(Rec);
-                        CopySalesDoc.RunModal;
-                        Clear(CopySalesDoc);
+                        CopyDocument();
                         if Get("Document Type", "No.") then;
                     end;
                 }
@@ -1393,7 +1391,6 @@ page 6630 "Sales Return Order"
     end;
 
     var
-        CopySalesDoc: Report "Copy Sales Document";
         MoveNegSalesLines: Report "Move Negative Sales Lines";
         CreateRetRelDocs: Report "Create Ret.-Related Documents";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";

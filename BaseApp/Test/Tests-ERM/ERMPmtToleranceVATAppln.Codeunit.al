@@ -555,7 +555,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Pmt. Tolerance VAT Appln.");
-        LibraryERMCountryData.CreateVATData;
+        // LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;

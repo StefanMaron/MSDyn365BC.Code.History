@@ -1400,7 +1400,6 @@ codeunit 138015 "O365 Correct Sales Invoice"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGenProdPostingGroup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryApplicationArea.EnableFoundationSetup;
 
         SalesSetup.Get();
@@ -1565,6 +1564,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CreateResourceWithPrice(Resource, UnitPrice);
         LibrarySales.CreateCustomer(Cust);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Cust."No.");
+        SetReasonCode(SalesHeader);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, Resource."No.", Qty);
         LibraryJob.CreateJob(Job);
         SalesLine.Validate("Job No.", Job."No.");
@@ -1582,6 +1582,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
     local procedure CreateSalesInvoiceForItem(Cust: Record Customer; Item: Record Item; Qty: Decimal; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
         LibrarySmallBusiness.CreateSalesInvoiceHeader(SalesHeader, Cust);
+        SetReasonCode(SalesHeader);
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, Qty);
     end;
 
@@ -1743,6 +1744,15 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.SetRange("Bill-to Customer No.", CustNo);
         Assert.IsTrue(SalesHeader.IsEmpty, 'The Credit Memo should not have been created');
+    end;
+
+    local procedure SetReasonCode(var SalesHeader: Record "Sales Header")
+    var
+        ReasonCode: Record "Reason Code";
+    begin
+        LibraryERM.CreateReasonCode(ReasonCode);
+        SalesHeader.Validate("Reason Code", ReasonCode.Code);
+        SalesHeader.Modify();
     end;
 
     [ConfirmHandler]

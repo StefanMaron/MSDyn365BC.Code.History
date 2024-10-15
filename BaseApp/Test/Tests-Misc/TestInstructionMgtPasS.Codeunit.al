@@ -12,6 +12,7 @@ codeunit 139003 "Test Instruction Mgt. PasS"
         Assert: Codeunit Assert;
         LibrarySales: Codeunit "Library - Sales";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
 
     [Test]
@@ -65,6 +66,8 @@ codeunit 139003 "Test Instruction Mgt. PasS"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Test Instruction Mgt. PasS");
+
         BindActiveDirectoryMockEvents;
 
         UserPreference.DeleteAll();

@@ -13,6 +13,9 @@ codeunit 136354 "UT T Job WIP Method"
         LibraryRandom: Codeunit "Library - Random";
         Text003Txt: Label 'You cannot modify this field when %1 is %2.', Comment = '%1 - Caption of field "Recognized Costs", %2 - Caption of value "Recognized Costs"::"Usage (Total Cost)"';
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryJob: Codeunit "Library - Job";
+        WIPMethodQst: Label 'Do you want to set the %1 on every %2 of type %3?', Comment = '%1 = The WIP Method field name; %2 = The name of the Job Task table; %3 = The current job task''s WIP Total type';
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
 
     [Test]
     [Scope('OnPrem')]
@@ -239,6 +242,41 @@ codeunit 136354 "UT T Job WIP Method"
         Assert.ExpectedErrorCode('Dialog');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('Internal')]
+    procedure ChangeWIPMethodInJobWhenJobTaskHasTotalCost()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobWIPMethod: array[2] of Record "Job WIP Method";
+    begin
+        // [SCENARIO 351676] Stan can change the "WIP Method" on Job when there is related Job Task with total cost
+
+        LibraryJob.CreateJob(Job);
+        CreateUserDefinedEntry(JobWIPMethod[1]);
+        Job.Validate("WIP Method", JobWIPMethod[1].Code);
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Total);
+        JobTask.Modify(true);
+
+        CreateJobLedgerEntry(Job."No.");
+        CreateUserDefinedEntry(JobWIPMethod[2]);
+        LibraryVariableStorage.Enqueue(WIPMethodQst);
+
+        Job.Validate("WIP Method", JobWIPMethod[2].Code);
+        Job.Modify(true);
+
+        Job.Find();
+        Job.TestField("WIP Method", JobWIPMethod[2].Code);
+        Job.TestField("Over Budget", true);
+        JobTask.Find();
+        JobTask.TestField("WIP Method", JobWIPMethod[2].Code);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure CreateUserDefinedEntry(var JobWIPMethod: Record "Job WIP Method")
     begin
         with JobWIPMethod do begin
@@ -252,6 +290,26 @@ codeunit 136354 "UT T Job WIP Method"
             Valid := true;
             Insert(true);
         end;
+    end;
+
+    local procedure CreateJobLedgerEntry(JobNo: Code[20])
+    var
+        JobLedgerEntry: Record "Job Ledger Entry";
+    begin
+        JobLedgerEntry.Init;
+        JobLedgerEntry."Entry No." :=
+          LibraryUtility.GetNewRecNo(JobLedgerEntry, JobLedgerEntry.FieldNo("Entry No."));
+        JobLedgerEntry."Job No." := JobNo;
+        JobLedgerEntry."Total Cost (LCY)" := LibraryRandom.RandDec(100, 2);
+        JobLedgerEntry.Insert;
+    end;
+
+    [ConfirmHandler]
+    [Scope('Internal')]
+    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Assert.AreEqual(LibraryVariableStorage.DequeueText, Question, '');
+        Reply := true;
     end;
 }
 

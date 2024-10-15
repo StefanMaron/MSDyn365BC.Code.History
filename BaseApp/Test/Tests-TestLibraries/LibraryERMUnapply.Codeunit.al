@@ -95,7 +95,7 @@ codeunit 131301 "Library - ERM Unapply"
             GenJournalLine.Validate("Source Code", SourceCodeSetup."Unapplied Purch. Entry Appln.");
             GenJournalLine.Validate("Source Currency Code", "Currency Code");
             GenJournalLine.Validate("System-Created Entry", true);
-            GenJnlPostLine.UnapplyVendLedgEntry(GenJournalLine, DetailedVendorLedgEntry);
+            GenJnlPostLine.UnapplyVendLedgEntry(GenJournalLine, DetailedVendorLedgEntry, false);
         end;
     end;
 

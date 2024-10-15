@@ -1796,15 +1796,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ShipmentMethod Entity E2E Test - NamedType DescriptionTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1390857447 - NamedType 2190992549" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 address exists.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Home address exists.]D;]A;(LookupHint=Codeunit Sync Contact Related Tables - NamedType AddressExistsErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 931927151 - NamedType 866661614" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[taxAreas]]></Val>
