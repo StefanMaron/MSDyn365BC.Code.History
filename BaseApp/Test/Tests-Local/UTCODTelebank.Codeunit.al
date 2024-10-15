@@ -23,6 +23,8 @@ codeunit 144057 "UT COD Telebank"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryHumanResource: Codeunit "Library - Human Resource";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -199,6 +201,7 @@ codeunit 144057 "UT COD Telebank"
     local procedure CreateCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; TransactionModeCode: Code[20])
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
+        CustomerBankAccount: Record "Customer Bank Account";
     begin
         if CustLedgerEntry2.FindLast then
             CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1
@@ -207,7 +210,8 @@ codeunit 144057 "UT COD Telebank"
         CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Transaction Mode Code" := TransactionModeCode;
-        CustLedgerEntry."Recipient Bank Account" := LibraryUTUtility.GetNewCode10;
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CustLedgerEntry."Customer No.");
+        CustLedgerEntry."Recipient Bank Account" := CustomerBankAccount.Code;
         CustLedgerEntry.Open := true;
         CustLedgerEntry.Insert();
     end;
@@ -260,6 +264,7 @@ codeunit 144057 "UT COD Telebank"
     local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; TransactionModeCode: Code[20])
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
+        VendorBankAccount: Record "Vendor Bank Account";
     begin
         if VendorLedgerEntry2.FindLast then
             VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1
@@ -268,7 +273,8 @@ codeunit 144057 "UT COD Telebank"
         VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Transaction Mode Code" := TransactionModeCode;
-        VendorLedgerEntry."Recipient Bank Account" := LibraryUTUtility.GetNewCode10;
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorLedgerEntry."Vendor No.");
+        VendorLedgerEntry."Recipient Bank Account" := VendorBankAccount.Code;
         VendorLedgerEntry.Open := true;
         VendorLedgerEntry.Insert();
     end;

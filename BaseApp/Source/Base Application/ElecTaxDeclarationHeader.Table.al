@@ -145,6 +145,10 @@ table 11409 "Elec. Tax Declaration Header"
             DataClassification = EndUserIdentifiableInformation;
             Editable = false;
         }
+        field(93; "Submission Message BLOB"; BLOB)
+        {
+            Caption = 'Submission Message BLOB';
+        }
         field(100; "Date Received"; Date)
         {
             Caption = 'Date Received';
@@ -232,6 +236,9 @@ table 11409 "Elec. Tax Declaration Header"
         Text010: Label 'A declaration for %1 %2 already exists. Do you wish to continue?';
         Text011: Label '%1 must not be bi-monthly if %2 is %3.';
         UnknownDeclTypeErr: Label 'Unknown declaration type: %1.', Comment = '%1 = declaration type';
+        DownloadSubmissionMessageQst: Label 'Do you want to download the submission message?';
+        NoSubmissionMessageAvailableErr: Label 'The submission message of the report is not available.';
+        SubmissionFileNameTxt: Label 'Submission';
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header"): Boolean
@@ -431,6 +438,54 @@ table 11409 "Elec. Tax Declaration Header"
                 exit('Omzetbelasting');
         end;
         Error(UnknownDeclTypeErr, "Declaration Type");
+    end;
+
+    procedure DownloadGeneratedSubmissionMessage()
+    var
+        LocalElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
+        SubmitElecTaxDeclaration: Report "Submit Elec. Tax Declaration";
+        EnvironmentInformation: Codeunit "Environment Information";
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        LocalElecTaxDeclarationHeader := Rec;
+        LocalElecTaxDeclarationHeader.SetRecFilter();
+        SubmitElecTaxDeclaration.SetTableView(LocalElecTaxDeclarationHeader);
+        SubmitElecTaxDeclaration.UseRequestPage(EnvironmentInformation.IsSaaS());
+        SubmitElecTaxDeclaration.SetGenerateSubmissionMessageOnly();
+        SubmitElecTaxDeclaration.RunModal();
+        Find();
+        CalcFields("Submission Message BLOB");
+        if "Submission Message BLOB".HasValue() then
+            if ConfirmManagement.GetResponse(DownloadSubmissionMessageQst, false) then
+                DownloadSubmissionMessage();
+    end;
+
+    procedure DownloadSubmissionMessage()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        ZipTempBlob: Codeunit "Temp Blob";
+        FileManagement: Codeunit "File Management";
+        DataCompression: Codeunit "Data Compression";
+        ServerFileInStream: InStream;
+        ZipOutStream: OutStream;
+        ZipInStream: InStream;
+        ZipFileName: Text;
+    begin
+        if not "Submission Message BLOB".HasValue then
+            Error(NoSubmissionMessageAvailableErr);
+
+        CalcFields("Submission Message BLOB");
+        TempBlob.FromRecord(Rec, Fieldno("Submission Message BLOB"));
+
+        DataCompression.CreateZipArchive();
+        TempBlob.CreateInStream(ServerFileInStream);
+        ZipFileName := SubmissionFileNameTxt + '.xbrl';
+        DataCompression.AddEntry(ServerFileInStream, ZipFileName);
+        ZipTempBlob.CreateOutStream(ZipOutStream);
+        DataCompression.SaveZipArchive(ZipOutStream);
+        DataCompression.CloseZipArchive();
+        ZipTempBlob.CreateInStream(ZipInStream);
+        FileManagement.DownloadFromStreamHandler(ZipInStream, '', '', '', SubmissionFileNameTxt + '.zip');
     end;
 
     [IntegrationEvent(false, false)]

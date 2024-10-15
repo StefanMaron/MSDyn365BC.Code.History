@@ -44,14 +44,21 @@ report 11405 "Submit Elec. Tax Declaration"
                 ClientCertificateInStream: InStream;
                 ServiceCertificateInStream: InStream;
                 PreviewFileStream: OutStream;
+                BlobOutStream: OutStream;
                 PreviewFile: File;
                 UseVATRegNo: Text[20];
             begin
+                "Submission Message BLOB".CreateOutStream(BlobOutStream, TEXTENCODING::UTF8);
+                BlobOutStream.Write(XMLDoc.InnerXml);
                 if SaveToFile <> '' then begin
                     PreviewFile.Create(SaveToFile);
                     PreviewFile.CreateOutStream(PreviewFileStream);
                     PreviewFileStream.Write(XMLDoc.InnerXml);
                     PreviewFile.Close;
+                    exit;
+                end;
+                if GenerateSubmissionMessageOnly then begin
+                    Modify();
                     exit;
                 end;
 
@@ -169,7 +176,8 @@ report 11405 "Submit Elec. Tax Declaration"
                     begin
                         ServiceCertificateFileName :=
                           FileManagement.BLOBImportWithFilter(
-                            ServiceCertificateTempBlob, ImportFileTxt, '', 'CER Files (*.cer)|*.cer|CRT Files (*.crt)|*.crt', '.crt,.cer');
+                            ServiceCertificateTempBlob, ImportFileTxt, '',
+                            'DER Files (*.der)|*.der|CER Files (*.cer)|*.cer|CRT Files (*.crt)|*.crt', '.crt,.cer,.der');
                     end;
                 }
             }
@@ -211,6 +219,7 @@ report 11405 "Submit Elec. Tax Declaration"
         WindowStatusBuildingMsg: Label 'Building document';
         WindowStatusSendMsg: Label 'Transmitting document';
         WindowStatusSaveMsg: Label 'Saving document ID';
+        GenerateSubmissionMessageOnly: Boolean;
         SaveToFile: Text;
         ImportFileTxt: Label 'Select a file to import.';
         ClientCertificateFileName: Text;
@@ -324,6 +333,12 @@ report 11405 "Submit Elec. Tax Declaration"
     procedure PreviewOnly(Filename: Text)
     begin
         SaveToFile := Filename;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetGenerateSubmissionMessageOnly()
+    begin
+        GenerateSubmissionMessageOnly := true;
     end;
 }
 

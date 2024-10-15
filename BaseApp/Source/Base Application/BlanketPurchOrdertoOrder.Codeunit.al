@@ -103,6 +103,8 @@ codeunit 97 "Blanket Purch. Order to Order"
                         PurchBlanketOrderLine.Validate("Qty. to Receive", 0);
                         PurchBlanketOrderLine.Modify();
                     end;
+
+                    OnRunOnAfterPurchBlanketOrderLineLoop(PurchOrderLine);
                 end;
             until PurchBlanketOrderLine.Next = 0;
 
@@ -293,6 +295,11 @@ codeunit 97 "Blanket Purch. Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchOrderLineValidateQuantity(var PurchOrderLine: Record "Purchase Line"; BlanketOrderPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterPurchBlanketOrderLineLoop(var PurchOrderLine: Record "Purchase Line")
     begin
     end;
 }

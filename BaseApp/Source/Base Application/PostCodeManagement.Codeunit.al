@@ -18,7 +18,13 @@ codeunit 11401 "Post Code Management"
         NewCity: Text[50];
         NewPhoneNo: Text[30];
         NewFaxNo: Text[30];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindStreetNameFromAddress(IsHandled);
+        if IsHandled then
+            exit;
+
         NewAddress := DelChr(Address, '<');
 
         case true of
@@ -182,6 +188,11 @@ codeunit 11401 "Post Code Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindStreetNameFromAddress(var Address: Text[100]; var Address2: Text[50]; var PostCode: Code[20]; var City: Text[50]; var CountryCode: Code[10]; var PhoneNo: Text[30]; var FaxNo: Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindStreetNameFromAddress(var IsHandled: Boolean)
     begin
     end;
 }

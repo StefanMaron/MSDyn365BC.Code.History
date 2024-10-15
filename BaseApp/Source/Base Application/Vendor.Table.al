@@ -1704,10 +1704,13 @@
         OfficeContact: Record Contact;
         OfficeMgt: Codeunit "Office Management";
         ConfirmManagement: Codeunit "Confirm Management";
+        ContactPageID: Integer;
     begin
-        if OfficeMgt.GetContact(OfficeContact, "No.") and (OfficeContact.Count = 1) then
-            PAGE.Run(PAGE::"Contact Card", OfficeContact)
-        else begin
+        if OfficeMgt.GetContact(OfficeContact, "No.") and (OfficeContact.Count = 1) then begin
+            ContactPageID := PAGE::"Contact Card";
+            OnShowContactOnBeforeOpenContactCard(OfficeContact, ContactPageID);
+            PAGE.Run(ContactPageID, OfficeContact);
+        end else begin
             if "No." = '' then
                 exit;
 
@@ -1718,13 +1721,15 @@
                 if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text003, TableCaption, "No."), true) then
                     exit;
                 UpdateContFromVend.InsertNewContact(Rec, false);
-                ContBusRel.FindFirst;
+                ContBusRel.FindFirst();
             end;
             Commit();
 
             Cont.FilterGroup(2);
             Cont.SetRange("Company No.", ContBusRel."Contact No.");
-            PAGE.Run(PAGE::"Contact List", Cont);
+            COntactPageID := PAGE::"Contact List";
+            OnShowContactOnBeforeOpenContactList(Cont, ContactPageID);
+            PAGE.Run(ContactPageID, Cont);
         end;
     end;
 
@@ -1859,13 +1864,18 @@
 
     [Scope('OnPrem')]
     procedure UpdateVendorBankAccounts(UseFieldCaption: Text[250])
+    var
+        IsHandled: Boolean;
     begin
         if not GuiAllowed then
             exit;
         VendBankAcc.SetRange("Vendor No.", "No.");
         if VendBankAcc.Find('-') then begin
-            if not Confirm(StrSubstNo(Text11000000, UseFieldCaption)) then
-                exit;
+            IsHandled := false;
+            OnUpdateVendorBankAccountsOnBeforeConfirm(Rec, IsHandled);
+            if not IsHandled then
+                if not Confirm(StrSubstNo(Text11000000, UseFieldCaption)) then
+                    exit;
             repeat
                 VendBankAcc."Account Holder Name" := Name;
                 VendBankAcc."Account Holder Address" := Address;
@@ -1873,8 +1883,8 @@
                 VendBankAcc."Account Holder City" := City;
                 VendBankAcc."Acc. Hold. Country/Region Code" := "Country/Region Code";
                 VendBankAcc.Modify();
-            until VendBankAcc.Next = 0;
-            Modify;
+            until VendBankAcc.Next() = 0;
+            Modify();
         end;
     end;
 
@@ -2474,6 +2484,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnMarkVendorsWithSimilarNameOnBeforeVendorFindSet(var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowContactOnBeforeOpenContactCard(var Contact: Record Contact; var ContactPageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowContactOnBeforeOpenContactList(var Contact: Record Contact; var ContactPageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVendorBankAccountsOnBeforeConfirm(var Vendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
 

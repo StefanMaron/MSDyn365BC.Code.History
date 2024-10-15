@@ -132,14 +132,16 @@ codeunit 6300 "Azure AD Mgt."
     [Scope('OnPrem')]
     procedure GetDefaultRedirectUrl(): Text[150]
     var
+        EnvironmentInformation: Codeunit "Environment Information";
         UriBuilder: DotNet UriBuilder;
         PathString: DotNet String;
         RedirectUrl: Text;
     begin
         // Retrieve the Client URL
         RedirectUrl := GetUrl(ClientType::Web);
-        // Extract the Base Url (domain) from the full CLient URL
-        RedirectUrl := GetBaseUrl(RedirectUrl);
+        // For SaaS Extract the Base Url (domain) from the full CLient URL
+        if EnvironmentInformation.IsSaaS() then
+            RedirectUrl := GetBaseUrl(RedirectUrl);
 
         // Due to a bug in ADAL 2.9, it will not consider URI's to be equal if one URI specified the default port number (ex: 443 for HTTPS)
         // and the other did not. UriBuilder(...).Uri.ToString() is a way to remove any protocol-default port numbers, such as 80 for HTTP
@@ -161,6 +163,19 @@ codeunit 6300 "Azure AD Mgt."
         exit(CopyStr(RedirectUrl, 1, 150));
     end;
 
+    [Scope('OnPrem')]
+    procedure GetRedirectUrl(): Text[150]
+    begin
+        if not IsSaaS and not AzureADAppSetup.IsEmpty then begin
+            // Use existing redirect URL if already in table - necessary for Windows client which would otherwise
+            // generate a different URL for each computer and thus not match the company's Azure application.
+            AzureADAppSetup.FindFirst;
+            exit(AzureADAppSetup."Redirect URL");
+        end;
+
+        exit(GetDefaultRedirectUrl);
+    end;
+
     local procedure GetBaseUrl(RedirectUrl: Text): Text
     var
         BaseIndex: Integer;
@@ -180,19 +195,6 @@ codeunit 6300 "Azure AD Mgt."
 
         Baseurl := CopyStr(Baseurl, 1, EndBaseUrlIndex - 1);
         exit(CopyStr(RedirectUrl, 1, BaseIndex - 1) + Baseurl);
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetRedirectUrl(): Text[150]
-    begin
-        if not IsSaaS and not AzureADAppSetup.IsEmpty then begin
-            // Use existing redirect URL if already in table - necessary for Windows client which would otherwise
-            // generate a different URL for each computer and thus not match the company's Azure application.
-            AzureADAppSetup.FindFirst;
-            exit(AzureADAppSetup."Redirect URL");
-        end;
-
-        exit(GetDefaultRedirectUrl);
     end;
 
     procedure GetO365Resource(): Text
@@ -310,4 +312,3 @@ codeunit 6300 "Azure AD Mgt."
         end;
     end;
 }
-

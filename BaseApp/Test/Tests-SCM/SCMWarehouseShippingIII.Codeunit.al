@@ -1346,6 +1346,64 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         WarehouseActivityLine.TestField(Quantity, Qty);
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure RegisteringPickQtyWithItemTrackingSelectedOnPickAndQtyInShipBin()
+    var
+        Item: Record Item;
+        BinPick: Record Bin;
+        BinShip: Record Bin;
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        PickLotNo: Code[20];
+        PickBinQty: Decimal;
+        ShipBinQty: Decimal;
+    begin
+        // [FEATURE] [Warehouse Shipment] [Pick] [Item Tracking]
+        // [SCENARIO 365391] Registering pick with item tracking selected on the pick line when there is quantity stored in shipment bin.
+        Initialize();
+        PickLotNo := LibraryUtility.GenerateGUID();
+        PickBinQty := LibraryRandom.RandIntInRange(50, 100);
+        ShipBinQty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Lot-tracked item.
+        CreateItemWithLotItemTrackingCode(Item, true, '');
+
+        // [GIVEN] Post 100 pcs into a bin in PICK zone, assign lot no. "L1".
+        FindBinForPickZone(BinPick, LocationWhite.Code, true); // PICK zone
+        CreateWarehouseJournalLine(WarehouseJournalLine, BinPick, Item, PickBinQty, '');
+        LibraryVariableStorage.Enqueue(PickLotNo);
+        LibraryVariableStorage.Enqueue(PickBinQty);
+        WarehouseJournalLine.OpenItemTrackingLines();
+        RegisterWhseJournalLineAndPostItemJournal(Item, BinPick);
+
+        // [GIVEN] Post 10 pcs into a bin in SHIP zone, assign lot no. "L2".
+        FindBinForShipZone(BinShip, LocationWhite.Code); // SHIP zone
+        UpdateAndTrackInventoryUsingWhseJournal(BinShip, Item, ShipBinQty, '', WorkDate());
+
+        // [GIVEN] Create sales order for 110 pcs.
+        // [GIVEN] Release the sales order and create warehouse shipment.
+        // [GIVEN] Create pick from the warehouse shipment.
+        CreatePickFromSalesOrder(SalesHeader, '', Item."No.", PickBinQty + ShipBinQty, LocationWhite.Code, false, 0);
+
+        // [GIVEN] Assign lot no. "L1" to the pick lines. Only quantity stored in PICK zone can be picked.
+        FilterWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.ModifyAll("Lot No.", PickLotNo);
+
+        // [WHEN] Register the pick.
+        RegisterWarehouseActivity(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::Pick);
+
+        // [THEN] 100 pcs have been picked.
+        Item.CalcFields("Qty. Picked");
+        Item.TestField("Qty. Picked", PickBinQty);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2427,6 +2485,14 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         Bin.SetRange("Location Code", LocationCode);
         Bin.SetRange("Zone Code", Zone.Code);
         LibraryWarehouse.FindBin(Bin, LocationCode, Zone.Code, Bin.Count);
+    end;
+
+    local procedure FindBinForShipZone(var Bin: Record Bin; LocationCode: Code[10])
+    var
+        Zone: Record Zone;
+    begin
+        FindZone(Zone, LocationCode, LibraryWarehouse.SelectBinType(false, true, false, false));
+        LibraryWarehouse.FindBin(Bin, LocationCode, Zone.Code, 1);
     end;
 
     local procedure FindReplenishmentBin(var Bin: Record Bin; LocationCode: Code[10])

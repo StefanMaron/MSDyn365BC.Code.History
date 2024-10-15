@@ -410,6 +410,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM EVAT - NamedType AttrBdObTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3742388408 - NamedType 1529524099" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to download the submission message?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM EVAT - NamedType DownloadSubmissionMessageQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3742388408 - NamedType 2268510570" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The submission message of the report is not available.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM EVAT - NamedType NoSubmissionMessageAvailableErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 655594974 - NamedType 1020659264" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Invalid table caption.]]></Val>

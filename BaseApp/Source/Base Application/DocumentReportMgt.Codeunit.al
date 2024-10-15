@@ -319,7 +319,9 @@ codeunit 9651 "Document Report Mgt."
                     FileMgt.BLOBExport(TempBlob, UserFileName(ReportID, FileTypePdfTxt), true);
                 end else
                     PrintWordDocOnServer(TempBlob, PrinterName, Collate);
-                clear(pdfStream); // Nothing is written to the stream when called using the legacy signature
+                // Don't clear the pdfStream as it might have an empty implementation (uninitialized) which can cause an runtime exception to be throw.
+                // Reinsert the clear call when compiler is fixed and emit code like this.pdfStream.Value?.Clear();
+                // clear(pdfStream); // Nothing is written to the stream when called using the legacy signature
             end else begin
                 if not TryConvertWordBlobToPdfOnStream(TempBlob, pdfStream) then
                     Error(UnableToRenderPdfDocument);

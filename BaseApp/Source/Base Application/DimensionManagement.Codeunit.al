@@ -150,7 +150,8 @@
         DimSetEntry.FilterGroup(0);
         EditDimSetEntries.SetTableView(DimSetEntry);
         EditDimSetEntries.SetFormCaption(NewCaption);
-        EditDimSetEntries.RunModal;
+        OnEditDimensionSetOnBeforeEditDimEntries(EditDimSetEntries);
+        EditDimSetEntries.RunModal();
         NewDimSetID := EditDimSetEntries.GetDimensionID;
         exit(NewDimSetID);
     end;
@@ -174,7 +175,8 @@
         DimSetEntry.FilterGroup(0);
         EditDimSetEntries.SetTableView(DimSetEntry);
         EditDimSetEntries.SetFormCaption(NewCaption);
-        EditDimSetEntries.RunModal;
+        OnEditDimensionSetOnBeforeEditDimEntries(EditDimSetEntries);
+        EditDimSetEntries.RunModal();
         NewDimSetID := EditDimSetEntries.GetDimensionID;
         UpdateGlobalDimFromDimSetID(NewDimSetID, GlobalDimVal1, GlobalDimVal2);
         OnAfterEditDimensionSet2(NewDimSetID, GlobalDimVal1, GlobalDimVal2);
@@ -279,6 +281,7 @@
                 end;
             until TempDimSetEntryNew.Next = 0;
 
+        OnBeforeGetDimensionSetID(TempDimSetEntry);
         exit(GetDimensionSetID(TempDimSetEntry));
     end;
 
@@ -903,6 +906,7 @@
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
         DimVal."Dimension Code" := GLSetupShortcutDimCode[FieldNumber];
         DimVal.Code := ShortcutDimCode;
+        OnLookupDimValueCodeOnBeforeDimValRunModal(DimVal);
         if PAGE.RunModal(0, DimVal) = ACTION::LookupOK then begin
             CheckDim(DimVal."Dimension Code");
             CheckDimValue(DimVal."Dimension Code", DimVal.Code);
@@ -1283,7 +1287,7 @@
         IsHandled := false;
         OnBeforeCheckDimValue(DimCode, DimValCode, Result, IsHandled);
         if IsHandled then
-            exit;
+            exit(Result);
 
         if (DimCode <> '') and (DimValCode <> '') then
             if DimVal.Get(DimCode, DimValCode) then begin
@@ -2373,7 +2377,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterDefaultDimObjectNoWithoutGlobalDimsList(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
     begin
     end;
@@ -2535,6 +2539,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTypeToTableID5(Type: Integer; var TableId: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDimensionSetID(var TempDimSetEntry: Record "Dimension Set Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEditDimensionSetOnBeforeEditDimEntries(var EditDimSetEntries: Page "Edit Dimension Set Entries")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupDimValueCodeOnBeforeDimValRunModal(var DimensionValue: Record "Dimension Value")
     begin
     end;
 }

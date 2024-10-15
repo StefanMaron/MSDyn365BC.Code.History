@@ -1,4 +1,4 @@
-table 256 "VAT Statement Line"
+﻿table 256 "VAT Statement Line"
 {
     Caption = 'VAT Statement Line';
 
@@ -41,7 +41,7 @@ table 256 "VAT Statement Line"
                     "Row No." := xRec."Row No.";
                     Description := xRec.Description;
                     Type := TempType;
-                    "Elec. Tax Decl. Category Code" := xRec."Elec. Tax Decl. Category Code";
+                    UpdateElecTaxDeclCategoryCode();
                 end;
             end;
         }
@@ -161,5 +161,22 @@ table 256 "VAT Statement Line"
         Text000: Label 'must not be %1';
         GLAcc: Record "G/L Account";
         TempType: Integer;
+
+    local procedure UpdateElecTaxDeclCategoryCode()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateElecTaxDeclCategoryCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        "Elec. Tax Decl. Category Code" := xRec."Elec. Tax Decl. Category Code";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateElecTaxDeclCategoryCode(var VATStatementLine: Record "VAT Statement Line"; var IsHandled: Boolean)
+    begin
+    end;
 }
 
