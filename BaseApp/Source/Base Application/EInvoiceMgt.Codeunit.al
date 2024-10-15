@@ -2479,7 +2479,9 @@
                     AddAttribute(XMLDoc, XMLCurrNode, 'MaterialPeligroso', 'Sí');
                     AddAttribute(XMLDoc, XMLCurrNode, 'CveMaterialPeligroso', Item."SAT Hazardous Material");
                     AddAttribute(XMLDoc, XMLCurrNode, 'Embalaje', Item."SAT Packaging Type");
-                end;
+                end else
+                    AddAttribute(XMLDoc, XMLCurrNode, 'MaterialPeligroso', 'No');
+
                 AddAttribute(XMLDoc, XMLCurrNode, 'PesoEnKg', FormatDecimal(TempDocumentLine."Gross Weight", 3));
                 AddAttribute(XMLDoc, XMLCurrNode, 'ValorMercancia', '0');
                 AddAttribute(XMLDoc, XMLCurrNode, 'Moneda', 'MXN');
@@ -3103,7 +3105,9 @@
                     WriteOutStr(OutStream, 'Sí|'); // MaterialPeligroso
                     WriteOutStr(OutStream, Item."SAT Hazardous Material" + '|'); // CveMaterialPeligroso
                     WriteOutStr(OutStream, Item."SAT Packaging Type" + '|'); // Embalaje
-                end;
+                end else 
+                    WriteOutStr(OutStream, 'No|');
+
                 WriteOutStr(OutStream, FormatDecimal(TempDocumentLine."Gross Weight", 3) + '|'); // PesoEnKg
                 WriteOutStr(OutStream, '0|'); // ValorMercancia
                 WriteOutStr(OutStream, 'MXN|'); // Moneda

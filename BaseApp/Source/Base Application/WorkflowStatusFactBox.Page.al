@@ -59,9 +59,6 @@ page 1528 "Workflow Status FactBox"
         WorkflowStepInstance: Record "Workflow Step Instance";
         InstanceID: Guid;
     begin
-        if not IsVisible then
-            exit;
-
         DeleteAll();
         WorkflowStepInstance.SetRange("Record ID", WorkflowStepRecID);
         if not WorkflowStepInstance.FindSet then

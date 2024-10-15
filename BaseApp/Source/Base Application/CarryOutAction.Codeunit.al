@@ -43,6 +43,7 @@ codeunit 99000813 "Carry Out Action"
         TempTransHeaderToPrint: Record "Transfer Header" temporary;
         ReservEntry: Record "Reservation Entry";
         TempDocumentEntry: Record "Document Entry" temporary;
+        TempAsmOrderToPrint: Record "Assembly Header" temporary;
         CarryOutAction: Codeunit "Carry Out Action";
         CalcProdOrder: Codeunit "Calculate Prod. Order";
         ReservMgt: Codeunit "Reservation Management";
@@ -407,7 +408,7 @@ codeunit 99000813 "Carry Out Action"
                             PlanningComponent.Delete(true);
                     until PlanningComponent.Next() = 0;
 
-                PrintAsmOrder(AsmHeader);
+                CollectAsmOrderForPrinting(AsmHeader);
             end else begin
                 Message(StrSubstNo(CouldNotChangeSupplyTxt, "Ref. Order No.", "Ref. Line No."));
                 exit(false);
@@ -754,13 +755,25 @@ codeunit 99000813 "Carry Out Action"
 
         OnAfterInsertAsmHeader(ReqLine, AsmHeader);
 
-        PrintAsmOrder(AsmHeader);
+        CollectAsmOrderForPrinting(AsmHeader);
+
         TempDocumentEntry.Init();
         TempDocumentEntry."Table ID" := DATABASE::"Assembly Header";
         TempDocumentEntry."Document Type" := AsmHeader."Document Type"::Order;
         TempDocumentEntry."Document No." := AsmHeader."No.";
         TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
         TempDocumentEntry.Insert();
+    end;
+
+    local procedure CollectAsmOrderForPrinting(var AsmHeader: Record "Assembly Header")
+    begin
+        if PrintOrder then begin
+            TempAsmOrderToPrint.Init();
+            TempAsmOrderToPrint."Document Type" := AsmHeader."Document Type";
+            TempAsmOrderToPrint."No." := AsmHeader."No.";
+            TempAsmOrderToPrint."Item No." := AsmHeader."Item No.";
+            TempAsmOrderToPrint.Insert(false);
+        end;
     end;
 
     local procedure AddResourceComponents(RequisitionLine: Record "Requisition Line"; var AssemblyHeader: Record "Assembly Header")
@@ -1033,6 +1046,37 @@ codeunit 99000813 "Carry Out Action"
             AsmHeader2.SetRecFilter();
             ReportSelections.PrintWithDialogWithCheckForCust(ReportSelections.Usage::"Asm.Order", AsmHeader2, false, 0);
         end;
+    end;
+
+    internal procedure PrintAsmOrders()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        ReportSelections: Record "Report Selections";
+        SelectionFilterMgt: Codeunit SelectionFilterManagement;
+        TempRecRef: RecordRef;
+        RecRef: RecordRef;
+    begin
+        CarryOutAction.GetAllAssemblyOrderForPrinting(TempAsmOrderToPrint);
+        if not TempAsmOrderToPrint.IsEmpty() then begin
+            TempRecRef.GetTable(TempAsmOrderToPrint);
+            RecRef.GetTable(AssemblyHeader);
+            AssemblyHeader.SetFilter("No.", SelectionFilterMgt.CreateFilterFromTempTable(TempRecRef, RecRef, AssemblyHeader.FieldNo("No.")));
+            AssemblyHeader.SetFilter("Item No.", '<>%1', '');
+            ReportSelections.PrintWithDialogWithCheckForCust(ReportSelections.Usage::"Asm.Order", AssemblyHeader, false, 0);
+            TempAsmOrderToPrint.DeleteAll();
+        end;
+    end;
+
+    internal procedure GetAllAssemblyOrderForPrinting(var AllAsmOrders: Record "Assembly Header" temporary)
+    begin
+        if PrintOrder then
+            if TempAsmOrderToPrint.FindSet() then begin
+                repeat
+                    AllAsmOrders := TempAsmOrderToPrint;
+                    if AllAsmOrders.Insert(false) then;
+                until TempAsmOrderToPrint.Next() = 0;
+                TempAsmOrderToPrint.DeleteAll();
+            end;
     end;
 
     local procedure FinalizeOrderHeader(ProdOrder: Record "Production Order")
