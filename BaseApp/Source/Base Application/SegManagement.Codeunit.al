@@ -14,6 +14,7 @@ codeunit 5051 SegManagement
         Text003: Label 'Interaction Template %1 has assigned Interaction Template Language %2.\It is not allowed to have languages assigned to templates used for system document logging.';
         Text004: Label 'Interactions';
         InterTemplateSalesInvoicesNotSpecifiedErr: Label 'The Invoices field on the Sales FastTab in the Interaction Template Setup window must be filled in.';
+        SegmentSendContactEmailFaxMissingErr: Label 'Make sure that the %1 field is specified for either contact no. %2 or the contact alternative address.', Comment = '%1 - Email or Fax No. field caption, %2 - Contact No.';
 
     [Scope('OnPrem')]
     procedure LogSegment(SegmentHeader: Record "Segment Header"; Deliver: Boolean; Followup: Boolean)
@@ -72,7 +73,7 @@ codeunit 5051 SegManagement
             if InteractTemplate.Get(SegmentHeader."Interaction Template Code") then;
             NextInteractLogEntryNo := GetNextInteractionLogEntryNo;
             repeat
-                TestFields(SegmentLine);
+                TestFields(SegmentLine, Deliver);
                 InteractLogEntry.Init();
                 InteractLogEntry."Entry No." := NextInteractLogEntryNo;
                 InteractLogEntry."Logged Segment Entry No." := LoggedSegment."Entry No.";
@@ -150,7 +151,7 @@ codeunit 5051 SegManagement
         OnBeforeLogInteraction(SegmentLine, AttachmentTemp, InterLogEntryCommentLineTmp, Deliver, Postponed);
 
         if not Postponed then
-            TestFields(SegmentLine);
+            TestFields(SegmentLine, Deliver);
         if (SegmentLine."Campaign No." <> '') and (not Postponed) then
             SegmentLine."Campaign Entry No." := GetCampaignEntryNo(SegmentLine, 0);
 
@@ -398,7 +399,7 @@ codeunit 5051 SegManagement
         exit(InteractTmplCode);
     end;
 
-    local procedure TestFields(var SegmentLine: Record "Segment Line")
+    local procedure TestFields(var SegmentLine: Record "Segment Line"; Deliver: Boolean)
     var
         Cont: Record Contact;
         Salesperson: Record "Salesperson/Purchaser";
@@ -420,15 +421,19 @@ codeunit 5051 SegManagement
                 Campaign.Get("Campaign No.");
             case "Correspondence Type" of
                 "Correspondence Type"::Email:
-                    AssignCorrespondenceTypeForEmail(SegmentLine, Cont, ContAltAddr);
+                    AssignCorrespondenceTypeForEmail(SegmentLine, Cont, ContAltAddr, Deliver);
                 "Correspondence Type"::Fax:
                     begin
                         if Cont."Fax No." = '' then
                             "Correspondence Type" := "Correspondence Type"::" ";
 
-                        if ContAltAddr.Get("Contact No.", "Contact Alt. Address Code") then
+                        if ContAltAddr.Get("Contact No.", "Contact Alt. Address Code") then begin
                             if ContAltAddr."Fax No." <> '' then
                                 "Correspondence Type" := "Correspondence Type"::Fax;
+                        end else
+                            if (Deliver and (Cont."Fax No." = '')) then
+                                Error(SegmentSendContactEmailFaxMissingErr, Cont.FieldCaption("Fax No."), Cont."No.")
+
                     end;
                 else
                     OnTestFieldsOnSegmentLineCorrespondenceTypeCaseElse(SegmentLine, Cont);
@@ -436,7 +441,7 @@ codeunit 5051 SegManagement
         end;
     end;
 
-    local procedure AssignCorrespondenceTypeForEmail(var SegmentLine: Record "Segment Line"; var Contact: Record Contact; var ContactAltAddr: Record "Contact Alt. Address")
+    local procedure AssignCorrespondenceTypeForEmail(var SegmentLine: Record "Segment Line"; var Contact: Record Contact; var ContactAltAddr: Record "Contact Alt. Address"; Deliver: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -448,9 +453,12 @@ codeunit 5051 SegManagement
         if Contact."E-Mail" = '' then
             SegmentLine."Correspondence Type" := "Correspondence Type"::" ";
 
-        if ContactAltAddr.Get(SegmentLine."Contact No.", SegmentLine."Contact Alt. Address Code") then
+        if ContactAltAddr.Get(SegmentLine."Contact No.", SegmentLine."Contact Alt. Address Code") then begin
             if ContactAltAddr."E-Mail" <> '' then
                 SegmentLine."Correspondence Type" := "Correspondence Type"::Email;
+        end else
+            if (Deliver and (Contact."E-Mail" = '')) then
+                Error(SegmentSendContactEmailFaxMissingErr, Contact.FieldCaption("E-Mail"), Contact."No.")
     end;
 
     local procedure CopyFieldsToCampaignEntry(var CampaignEntry: Record "Campaign Entry"; var SegmentLine: Record "Segment Line")
