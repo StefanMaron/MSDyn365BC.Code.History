@@ -4,11 +4,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
 
     Subtype = Test;
     TestPermissions = NonRestrictive;
-
-    trigger OnRun()
-    begin
-        IsInitialized := false;
-    end;
+    Permissions = tabledata "VAT Entry" = i;
 
     var
         LibraryUtility: Codeunit "Library - Utility";
@@ -36,7 +32,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check Original Report No. Error comes after doing GetLines when VAT Report Type is Corrective.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Set VAT Report Type to Corrective and run Suggest Lines.
@@ -57,7 +53,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check Status Error comes after doing GetLines when the status is released.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Set Status to Release and run Suggest Lines.
@@ -80,7 +76,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check VAT Report Config. Code Error comes after doing GetLines when VAT Report Config. Code is not set to option 1.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
         CreateVATReportHeader(TempVATReportHeader);
         TempVATReportHeader."VAT Report Config. Code" := 1;  // Assigning First Option Value in Temp Record as needed for Expected Error.
@@ -108,7 +104,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check VAT Report Suggest Lines report gets run after doing GetLines and no lines come on date less than workdate in VAT Report Lines.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Update the start and end date to any date less than workdate and Run Suggest Lines.
@@ -134,7 +130,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check Error comes for Not allowed to reopen after submit when the Modify Submitted Reports is False in VAT Report Setup.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Update status to submitted and Reopen.
@@ -154,7 +150,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check Status gets updated to open after reopen when the earlier status was released.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Update status to Released and Reopen.
@@ -176,7 +172,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check Error comes for No VAT Report Lines when changing the status to release.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Run the Release function.
@@ -199,7 +195,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check Error comes when click on Suggest Lines in VAT Report Header.
 
         // 1. Setup: Create VAT Report Header with Trade type.
-        Initialize;
+        Initialize();
         CreateVATReportHeaderWithTradeType(VATReportHeader, VATReportHeader."Trade Type"::Both);
 
         // 2. Exercise: Run the VAT Report Suggest Lines.
@@ -219,7 +215,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         VATReport: TestPage "VAT Report";
     begin
         // Check that VAT Report Header Status gets changed to released while export when status is open.
-        Initialize;
+        Initialize();
 
         // 1. Setup: Create VAT Report Header.
         CreateVATReportHeaderWithData(VATReportHeader, VATReportHeader."Trade Type"::Sales);
@@ -242,7 +238,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 121626] Verify VAT Report Line is created with Customer info
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Country/Region Code" = CountryCode, "VAT Registration No." = VATRegNo
         CreateCustomer(Customer);
@@ -272,7 +268,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 121626] Verify VAT Report Line is created with Vendor info
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "Country/Region Code" = CountryCode, "VAT Registration No." = VATRegNo
         CreateVendor(Vendor);

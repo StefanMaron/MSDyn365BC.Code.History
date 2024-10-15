@@ -7,7 +7,6 @@
         <DataProvider>SQL</DataProvider>
         <ConnectString />
       </ConnectionProperties>
-      <rd:SecurityType>None</rd:SecurityType>
       <rd:DataSourceID>d56a4d20-e547-49b8-bb8d-f3c0b8b8dab8</rd:DataSourceID>
     </DataSource>
   </DataSources>
@@ -1751,7 +1750,7 @@
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
-                              <Top>5.33755cm</Top>
+                              <Top>11.68755cm</Top>
                               <Left>0.00124in</Left>
                               <Height>0.35278cm</Height>
                               <Width>6.78283in</Width>
@@ -2723,46 +2722,6 @@ Cstr(Fields!PageCaption.Value)
                                           </Textbox>
                                         </CellContents>
                                       </TablixCell>
-                                    </TablixCells>
-                                  </TablixRow>
-                                  <TablixRow>
-                                    <Height>0.35278cm</Height>
-                                    <TablixCells>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox39">
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!Desc_IssuedReminderLine.Value</Value>
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox37</rd:DefaultName>
-                                            <Style>
-                                              <Border />
-                                              <VerticalAlign>Top</VerticalAlign>
-                                              <PaddingRight>5pt</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                          <ColSpan>6</ColSpan>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
@@ -4336,11 +4295,6 @@ Cstr(Fields!PageCaption.Value)
                                         <TablixMembers>
                                           <TablixMember>
                                             <Visibility>
-                                              <Hidden>=IIF((Fields!Type_IssuedReminderLine.Value="0") AND (Fields!LineNo_IssuedReminderLine.Value &gt;= Fields!StartLineNo.Value),FALSE,TRUE)</Hidden>
-                                            </Visibility>
-                                          </TablixMember>
-                                          <TablixMember>
-                                            <Visibility>
                                               <Hidden>=iif(((Fields!Type_IssuedReminderLine.Value="2") AND (Fields!MIREntry_IssuedReminderLine.Value ) AND (Fields!ShowMIRLines.Value)),FALSE,TRUE)</Hidden>
                                             </Visibility>
                                           </TablixMember>
@@ -4433,7 +4387,7 @@ Cstr(Fields!PageCaption.Value)
                               </Filters>
                               <Top>0.6703cm</Top>
                               <Left>0.00124in</Left>
-                              <Height>4.58608cm</Height>
+                              <Height>4.2333cm</Height>
                               <Width>6.78287in</Width>
                               <ZIndex>5</ZIndex>
                               <Style>
@@ -5080,6 +5034,7 @@ Cstr(Fields!PageCaption.Value)
                                               <PaddingRight>5pt</PaddingRight>
                                             </Style>
                                           </Textbox>
+                                          <rd:Selected>true</rd:Selected>
                                         </CellContents>
                                       </TablixCell>
                                     </TablixCells>

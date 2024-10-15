@@ -5,8 +5,8 @@ codeunit 1883 "Sandbox Cleanup local"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sandbox Deploymt. Cleanup", 'OnClearConfiguration', '', false, false)]
-    local procedure OnClearConfiguration(CompanyToBlock: Text)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sandbox Cleanup", 'OnClearCompanyConfiguration', '', false, false)]
+    local procedure OnClearConfiguration(CompanyName: Text)
     begin
     end;
 }
