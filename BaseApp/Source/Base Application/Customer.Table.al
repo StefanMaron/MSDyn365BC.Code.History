@@ -2715,6 +2715,7 @@
 
     local procedure TestNoSeries()
     var
+        Customer: Record Customer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2722,11 +2723,12 @@
         if IsHandled then
             exit;
 
-        if "No." <> xRec."No." then begin
-            SalesSetup.Get();
-            NoSeriesMgt.TestManual(SalesSetup."Customer Nos.");
-            "No. Series" := '';
-        end;
+        if "No." <> xRec."No." then
+            if not Customer.Get(Rec."No.") then begin
+                SalesSetup.Get();
+                NoSeriesMgt.TestManual(SalesSetup."Customer Nos.");
+                "No. Series" := '';
+            end;
     end;
 
     procedure OpenCustomerLedgerEntries(FilterOnDueEntries: Boolean)
