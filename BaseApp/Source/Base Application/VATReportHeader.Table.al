@@ -476,8 +476,15 @@
         Text012: Label 'Deletion is not allowed because the report is marked as %1.';
         ReportTypeChangeErr: Label 'You cannot change this field when the report has existing VAT Report lines.';
 
-    procedure GetNoSeriesCode(): Code[20]
+    procedure GetNoSeriesCode() Result: Code[20]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetNoSeriesCode(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         VATReportSetup.Get();
         VATReportSetup.TestField("No. Series");
         exit(VATReportSetup."No. Series");
@@ -499,6 +506,8 @@
         Validate("Report Year", Date2DMY(WorkDate, 3));
 
         FillCompanyInfo;
+
+        OnAfterInitRecord(Rec);
     end;
 
     procedure CheckEditingAllowed()
@@ -708,6 +717,16 @@
         ECSLVATReportLine.SetRange("Report No.", "No.");
         if not ECSLVATReportLine.IsEmpty() then
             ECSLVATReportLine.DeleteAll(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitRecord(var VATReportHeader: Record "VAT Report Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetNoSeriesCode(var VATReportHeader: Record "VAT Report Header"; var Result: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 }
 

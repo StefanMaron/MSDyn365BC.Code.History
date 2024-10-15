@@ -791,6 +791,7 @@ table 15 "G/L Account"
         GLSetupRead: Boolean;
         Text002: Label 'There is another %1: %2; which refers to the same %3, but with a different %4: %5.';
         NoAccountCategoryMatchErr: Label 'There is no subcategory description for %1 that matches ''%2''.', Comment = '%1=account category value, %2=the user input.';
+        GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
 
     local procedure AsPriceAsset(var PriceAsset: Record "Price Asset")
     begin
@@ -946,6 +947,19 @@ table 15 "G/L Account"
         exit(false);
     end;
 
+    procedure CheckGenProdPostingGroup()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckGenProdPostingGroup(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Gen. Prod. Posting Group" = '' then
+            Error(GenProdPostingGroupErr, FieldCaption("Gen. Prod. Posting Group"), Name, "No.");
+    end;
+
     local procedure SetLastModifiedDateTime()
     begin
         "Last Modified Date Time" := CurrentDateTime;
@@ -974,6 +988,11 @@ table 15 "G/L Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var GLAccount: Record "G/L Account"; var xGLAccount: Record "G/L Account"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGenProdPostingGroup(var GLAccount: Record "G/L Account"; var IsHandled: Boolean)
     begin
     end;
 }

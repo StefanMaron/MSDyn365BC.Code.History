@@ -4336,6 +4336,89 @@ codeunit 137051 "SCM Warehouse - III"
         ReservationEntry.TestField("Lot No.", LotNo);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,MessageHandler')]
+    procedure WhseItemTrackingLinesWhenInvtMovementPostedPartiallyFromAsmWithFEFO()
+    var
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReservationEntry: Record "Reservation Entry";
+        LotNo: Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [FEFO] [Item Tracking] [Inventory Movement] [Assembly]
+        // [SCENARIO 392021] Second inventory movement created for assembly consumption for lot-tracked component has proper quantity.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+
+        // [GIVEN] Location with Pick According To FEFO, Require Pick, Put-away and Bin Mandatory.
+        CreateAndUpdateLocation(Location, true, true, true, false, false, true);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, '', '', '');
+        Location.Validate("To-Assembly Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Lot-tracked item "COMP".
+        CreateTrackedItem(Item, true, false, false, false, true);
+
+        // [GIVEN] Lot "L1" with expiration date = WORKDATE + 1 month.
+        // [GIVEN] Post 20 pcs of "COMP" item to inventory.
+        LotNo := LibraryUtility.GenerateGUID();
+        PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin[1].Code, LotNo, Qty, LibraryRandom.RandDate(30));
+
+        // [GIVEN] Assembly order to make a new item from 20 pcs of "COMP".
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), Location.Code, 1, '');
+        LibraryAssembly.CreateAssemblyLine(
+          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", Qty, Qty, '');
+        LibraryAssembly.ReleaseAO(AssemblyHeader);
+
+        // [GIVEN] Create inventory movement for the assembly.
+        LibraryWarehouse.CreateInvtPutPickMovement(
+          WarehouseActivityHeader."Source Document"::"Assembly Consumption", AssemblyHeader."No.", false, false, true);
+
+        // [GIVEN] Partially register the inventory movement (15 of 20 pcs).
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, DATABASE::"Assembly Line", AssemblyLine."Document Type",
+          AssemblyLine."Document No.", AssemblyLine."Line No.");
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", Qty * 3 / 4);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Delete the inventory movement.
+        WarehouseActivityHeader.Find();
+        WarehouseActivityHeader.Delete(true);
+
+        // [WHEN] Create another inventory movement for the assembly.
+        LibraryWarehouse.CreateInvtPutPickMovement(
+          WarehouseActivityHeader."Source Document"::"Assembly Consumption", AssemblyHeader."No.", false, false, true);
+
+        // [THEN] The inventory movement for 5 pcs has been created.
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, DATABASE::"Assembly Line", AssemblyLine."Document Type",
+          AssemblyLine."Document No.", AssemblyLine."Line No.");
+        WarehouseActivityLine.TestField(Quantity, Qty / 4);
+
+        // [THEN] The inventory movement can be registered.
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] An item tracking line with lot "L1" and quantity = 20 pcs is assigned to the assembly line.
+        ReservationEntry.SetSourceFilter(
+          DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.", false);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.CalcSums(Quantity);
+        ReservationEntry.TestField(Quantity, -Qty);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -1187,7 +1187,7 @@ codeunit 132500 "Error Message Handling"
         ForwardLinks.OpenView;
         ForwardLinks.Load.Invoke;
 
-        // [THEN] 5 records added
+        // [THEN] 6 records added
         Assert.RecordCount(NamedForwardLink, 5);
         // [THEN] 'Allowed Posting Date', 'Working with dims', 'Blocked Item', 'Blocked Customer' links exist
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForAllowedPostingDate);

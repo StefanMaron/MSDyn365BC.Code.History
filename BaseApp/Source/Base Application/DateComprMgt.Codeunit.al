@@ -18,14 +18,8 @@ codeunit 356 DateComprMgt
             exit(Format(Date));
 
         if (Date < FiscYearDate[1]) or (Date > FiscYearDate[2]) then begin
-            AccountingPeriod.SetRange("New Fiscal Year", true);
-            AccountingPeriod."Starting Date" := Date;
-            AccountingPeriod.Find('=<');
-            FiscYearDate[1] := AccountingPeriod."Starting Date";
-            AccountingPeriod."Starting Date" := Date;
-            AccountingPeriod.Find('>');
-            FiscYearDate[2] := AccountingPeriod."Starting Date" - 1;
-            AccountingPeriod.SetRange("New Fiscal Year");
+            FiscYearDate[1] := AccountingPeriod.GetFiscalYearStartDate(Date);
+            FiscYearDate[2] := AccountingPeriod.GetFiscalYearEndDate(AccountingPeriod, Date);
             if CheckFiscYearEnd then
                 AccountingPeriod.TestField("Date Locked", true);
         end;
@@ -38,7 +32,7 @@ codeunit 356 DateComprMgt
         Maximize(Date1, FiscYearDate[1]);
         Minimize(Date2, FiscYearDate[2]);
 
-        Maximize(Date1, CalcDate('<CY+1D-1Y>', Date));
+        Maximize(Date1, CalcDate('<-CY>', Date));
         Minimize(Date2, CalcDate('<CY>', Date));
         if DateComprReg."Period Length" = DateComprReg."Period Length"::Year then
             exit(StrSubstNo('%1..%2', Date1, Date2));
@@ -57,17 +51,17 @@ codeunit 356 DateComprMgt
             exit(StrSubstNo('%1..%2', Date1, Date2));
         end;
 
-        Maximize(Date1, CalcDate('<CQ+1D-1Q>', Date));
+        Maximize(Date1, CalcDate('<-CQ>', Date));
         Minimize(Date2, CalcDate('<CQ>', Date));
         if DateComprReg."Period Length" = DateComprReg."Period Length"::Quarter then
             exit(StrSubstNo('%1..%2', Date1, Date2));
 
-        Maximize(Date1, CalcDate('<CM+1D-1M>', Date));
+        Maximize(Date1, CalcDate('<-CM>', Date));
         Minimize(Date2, CalcDate('<CM>', Date));
         if DateComprReg."Period Length" = DateComprReg."Period Length"::Month then
             exit(StrSubstNo('%1..%2', Date1, Date2));
 
-        Maximize(Date1, CalcDate('<CW+1D-1W>', Date));
+        Maximize(Date1, CalcDate('<-CW>', Date));
         Minimize(Date2, CalcDate('<CW>', Date));
         exit(StrSubstNo('%1..%2', Date1, Date2));
     end;

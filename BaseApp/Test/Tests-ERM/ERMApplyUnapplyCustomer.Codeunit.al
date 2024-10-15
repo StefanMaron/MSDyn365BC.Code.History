@@ -1568,6 +1568,287 @@ codeunit 134006 "ERM Apply Unapply Customer"
         VerifyCustLedgerEntryRemAmtLCYisBalanced(GenJournalLine[3]."Document No.", GenJournalLine[3]."Document Type");
     end;
 
+    [Test]
+    procedure GetAppliedCustLedgerEntriesForInvoiceWithPayment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        CustomerNo: Code[20];
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 391947] Run GetAppliedCustLedgerEntries function of CustEntryApplyPostedEntries on Sales Invoice with applied Payment.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        PostedDocNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate(), CustomerNo, LibraryInventory.CreateItemNo(), SalesLine."Document Type"::Invoice,
+            LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+
+        // [GIVEN] Payment that is applied to Posted Sales Invoice.
+        LibrarySales.CreatePaymentAndApplytoInvoice(GenJournalLine, CustomerNo, PostedDocNo, -SalesLine.Amount);
+
+        // [WHEN] Run GetAppliedCustLedgerEntries function of CustEntryApplyPostedEntries codeunit on Customer Ledger Entry linked to Sales Invoice.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, PostedDocNo);
+        CustEntryApplyPostedEntries.GetAppliedCustLedgerEntries(TempCustLedgerEntry, CustLedgerEntry."Entry No.");
+
+        // [THEN] Function returned temporary Customer Ledger Entry table with Payment.
+        VerifyTempCustLedgerEntry(TempCustLedgerEntry, CustomerNo, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        TempCustLedgerEntry.Reset();
+        Assert.RecordCount(TempCustLedgerEntry, 1);
+    end;
+
+    [Test]
+    procedure GetAppliedCustLedgerEntriesForPaymentWithInvoice()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        CustomerNo: Code[20];
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 391947] Run GetAppliedCustLedgerEntries function of CustEntryApplyPostedEntries on Payment with applied Sales Invoice.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        PostedDocNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate(), CustomerNo, LibraryInventory.CreateItemNo(), SalesLine."Document Type"::Invoice,
+            LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+
+        // [GIVEN] Payment that is applied to Posted Sales Invoice.
+        LibrarySales.CreatePaymentAndApplytoInvoice(GenJournalLine, CustomerNo, PostedDocNo, -SalesLine.Amount);
+
+        // [WHEN] Run GetAppliedCustLedgerEntries function of CustEntryApplyPostedEntries codeunit on Customer Ledger Entry linked to Payment.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        CustEntryApplyPostedEntries.GetAppliedCustLedgerEntries(TempCustLedgerEntry, CustLedgerEntry."Entry No.");
+
+        // [THEN] Function returned temporary Customer Ledger Entry table with Posted Sales Invoice.
+        VerifyTempCustLedgerEntry(TempCustLedgerEntry, CustomerNo, CustLedgerEntry."Document Type"::Invoice, PostedDocNo);
+        TempCustLedgerEntry.Reset();
+        Assert.RecordCount(TempCustLedgerEntry, 1);
+    end;
+
+    [Test]
+    procedure GetAppliedCustLedgerEntriesForInvoiceWithCrMemo()
+    var
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        CustomerNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 391947] Run GetAppliedCustLedgerEntries function of CustEntryApplyPostedEntries on Sales Invoice with applied Sales Credit Memo.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        PostedInvoiceNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate(), CustomerNo, LibraryInventory.CreateItemNo(), SalesLine."Document Type"::Invoice,
+            LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+
+        // [GIVEN] Posted Sales Credit Memo that is applied to Posted Sales Invoice.
+        PostedCrMemoNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate(), CustomerNo, SalesLine."No.", SalesLine."Document Type"::"Credit Memo",
+            LibraryRandom.RandDecInRange(1, 2, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        ApplyAndPostCustomerEntry(PostedInvoiceNo, PostedCrMemoNo, SalesLine.Amount, SalesLine."Document Type"::Invoice, SalesLine."Document Type"::"Credit Memo");
+
+        // [WHEN] Run GetAppliedCustLedgerEntries function of CustEntryApplyPostedEntries codeunit on Customer Ledger Entry linked to Sales Invoice.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, PostedInvoiceNo);
+        CustEntryApplyPostedEntries.GetAppliedCustLedgerEntries(TempCustLedgerEntry, CustLedgerEntry."Entry No.");
+
+        // [THEN] Function returned temporary Customer Ledger Entry table with Sales Credit Memo.
+        VerifyTempCustLedgerEntry(TempCustLedgerEntry, CustomerNo, CustLedgerEntry."Document Type"::"Credit Memo", PostedCrMemoNo);
+        TempCustLedgerEntry.Reset();
+        Assert.RecordCount(TempCustLedgerEntry, 1);
+    end;
+
+    [Test]
+    procedure GetAppliedCustLedgerEntriesForCrMemoWithInvoice()
+    var
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        CustomerNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 391947] Run GetAppliedCustLedgerEntries function of CustEntryApplyPostedEntries on Sales Credit Memo with applied Sales Invoice.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        PostedInvoiceNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate(), CustomerNo, LibraryInventory.CreateItemNo(), SalesLine."Document Type"::Invoice,
+            LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+
+        // [GIVEN] Posted Sales Credit Memo that is applied to Posted Sales Invoice.
+        PostedCrMemoNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate(), CustomerNo, SalesLine."No.", SalesLine."Document Type"::"Credit Memo",
+            LibraryRandom.RandDecInRange(1, 2, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        ApplyAndPostCustomerEntry(PostedInvoiceNo, PostedCrMemoNo, SalesLine.Amount, SalesLine."Document Type"::Invoice, SalesLine."Document Type"::"Credit Memo");
+
+        // [WHEN] Run GetAppliedCustLedgerEntries function of CustEntryApplyPostedEntries codeunit on Customer Ledger Entry linked to Sales Credit Memo.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", PostedCrMemoNo);
+        CustEntryApplyPostedEntries.GetAppliedCustLedgerEntries(TempCustLedgerEntry, CustLedgerEntry."Entry No.");
+
+        // [THEN] Function returned temporary Customer Ledger Entry table with Sales Invoice.
+        VerifyTempCustLedgerEntry(TempCustLedgerEntry, CustomerNo, CustLedgerEntry."Document Type"::Invoice, PostedInvoiceNo);
+        TempCustLedgerEntry.Reset();
+        Assert.RecordCount(TempCustLedgerEntry, 1);
+    end;
+
+    [Test]
+    procedure GetAppliedCustLedgerEntriesForInvoiceWithMultipleCrMemos()
+    var
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        CustomerNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo1: Code[20];
+        PostedCrMemoNo2: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 391947] Run GetAppliedCustLedgerEntries function of CustEntryApplyPostedEntries on Sales Invoice with multiple applied Sales Credit Memos.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        PostedInvoiceNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate(), CustomerNo, LibraryInventory.CreateItemNo(), SalesLine."Document Type"::Invoice,
+            LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+
+        // [GIVEN] Two Posted Sales Credit Memos that are applied to Posted Sales Invoice.
+        PostedCrMemoNo1 :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate(), CustomerNo, SalesLine."No.", SalesLine."Document Type"::"Credit Memo",
+            LibraryRandom.RandDecInRange(1, 2, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        ApplyAndPostCustomerEntry(PostedInvoiceNo, PostedCrMemoNo1, SalesLine.Amount, SalesLine."Document Type"::Invoice, SalesLine."Document Type"::"Credit Memo");
+
+        PostedCrMemoNo2 :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate(), CustomerNo, SalesLine."No.", SalesLine."Document Type"::"Credit Memo",
+            LibraryRandom.RandDecInRange(1, 2, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        ApplyAndPostCustomerEntry(PostedInvoiceNo, PostedCrMemoNo2, SalesLine.Amount, SalesLine."Document Type"::Invoice, SalesLine."Document Type"::"Credit Memo");
+
+        // [WHEN] Run GetAppliedCustLedgerEntries function of CustEntryApplyPostedEntries codeunit on Customer Ledger Entry linked to Sales Invoice.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, PostedInvoiceNo);
+        CustEntryApplyPostedEntries.GetAppliedCustLedgerEntries(TempCustLedgerEntry, CustLedgerEntry."Entry No.");
+
+        // [THEN] Function returned temporary Customer Ledger Entry table with Sales Credit Memo.
+        VerifyTempCustLedgerEntry(TempCustLedgerEntry, CustomerNo, CustLedgerEntry."Document Type"::"Credit Memo", PostedCrMemoNo1);
+        VerifyTempCustLedgerEntry(TempCustLedgerEntry, CustomerNo, CustLedgerEntry."Document Type"::"Credit Memo", PostedCrMemoNo2);
+        TempCustLedgerEntry.Reset();
+        Assert.RecordCount(TempCustLedgerEntry, 2);
+    end;
+
+    [Test]
+    procedure GetAppliedCustLedgerEntriesForCrMemoWhenInvoiceWithMultCrMemos()
+    var
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        CustomerNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo1: Code[20];
+        PostedCrMemoNo2: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 391947] Run GetAppliedCustLedgerEntries function of CustEntryApplyPostedEntries on Sales Credit Memo when multiple Credit Memos applied to Sales Invoice.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        PostedInvoiceNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate(), CustomerNo, LibraryInventory.CreateItemNo(), SalesLine."Document Type"::Invoice,
+            LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+
+        // [GIVEN] Two Posted Sales Credit Memos that are applied to Posted Sales Invoice.
+        PostedCrMemoNo1 :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate(), CustomerNo, SalesLine."No.", SalesLine."Document Type"::"Credit Memo",
+            LibraryRandom.RandDecInRange(1, 2, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        ApplyAndPostCustomerEntry(PostedInvoiceNo, PostedCrMemoNo1, SalesLine.Amount, SalesLine."Document Type"::Invoice, SalesLine."Document Type"::"Credit Memo");
+
+        PostedCrMemoNo2 :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate(), CustomerNo, SalesLine."No.", SalesLine."Document Type"::"Credit Memo",
+            LibraryRandom.RandDecInRange(1, 2, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        ApplyAndPostCustomerEntry(PostedInvoiceNo, PostedCrMemoNo2, SalesLine.Amount, SalesLine."Document Type"::Invoice, SalesLine."Document Type"::"Credit Memo");
+
+        // [WHEN] Run GetAppliedCustLedgerEntries function of CustEntryApplyPostedEntries codeunit on Customer Ledger Entry linked to Sales Credit Memo.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", PostedCrMemoNo1);
+        CustEntryApplyPostedEntries.GetAppliedCustLedgerEntries(TempCustLedgerEntry, CustLedgerEntry."Entry No.");
+
+        // [THEN] Function returned temporary Customer Ledger Entry table with Sales Credit Memo.
+        VerifyTempCustLedgerEntry(TempCustLedgerEntry, CustomerNo, CustLedgerEntry."Document Type"::Invoice, PostedInvoiceNo);
+        TempCustLedgerEntry.Reset();
+        Assert.RecordCount(TempCustLedgerEntry, 1);
+    end;
+
+    [Test]
+    procedure GetAppliedCustLedgerEntriesForInvoiceWithCrMemoAppliedTwice()
+    var
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        CustomerNo: Code[20];
+        PostedInvoiceNo: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 391947] Run GetAppliedCustLedgerEntries function of CustEntryApplyPostedEntries on Sales Invoice when Sales Credit Memo applied to Sales Invoice twice.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        PostedInvoiceNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate(), CustomerNo, LibraryInventory.CreateItemNo(), SalesLine."Document Type"::Invoice,
+            LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+
+        // [GIVEN] Posted Sales Credit Memo that is applied to Posted Sales Invoice two times.
+        PostedCrMemoNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate(), CustomerNo, SalesLine."No.", SalesLine."Document Type"::"Credit Memo",
+            LibraryRandom.RandDecInRange(1, 2, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        ApplyPartiallyAndPostCustomerEntry(PostedInvoiceNo, PostedCrMemoNo, SalesLine.Amount / 4, SalesLine."Document Type"::Invoice, SalesLine."Document Type"::"Credit Memo");
+        ApplyPartiallyAndPostCustomerEntry(PostedInvoiceNo, PostedCrMemoNo, SalesLine.Amount / 4, SalesLine."Document Type"::Invoice, SalesLine."Document Type"::"Credit Memo");
+
+        // [WHEN] Run GetAppliedCustLedgerEntries function of CustEntryApplyPostedEntries codeunit on Customer Ledger Entry linked to Sales Invoice.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, PostedInvoiceNo);
+        CustEntryApplyPostedEntries.GetAppliedCustLedgerEntries(TempCustLedgerEntry, CustLedgerEntry."Entry No.");
+
+        // [THEN] Function returned temporary Customer Ledger Entry table with Sales Credit Memo.
+        VerifyTempCustLedgerEntry(TempCustLedgerEntry, CustomerNo, CustLedgerEntry."Document Type"::"Credit Memo", PostedCrMemoNo);
+        TempCustLedgerEntry.Reset();
+        Assert.RecordCount(TempCustLedgerEntry, 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1613,6 +1894,22 @@ codeunit 134006 "ERM Apply Unapply Customer"
             CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
             CustLedgerEntry2.Modify(true);
         until CustLedgerEntry2.Next = 0;
+
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
+    end;
+
+    local procedure ApplyPartiallyAndPostCustomerEntry(DocumentNo: Code[20]; DocumentNo2: Code[20]; AmountToApply: Decimal; DocumentType: Option; DocumentType2: Option)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntry2: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
+        LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, AmountToApply);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry2, DocumentType2, DocumentNo2);
+        CustLedgerEntry2.FindFirst();
+        CustLedgerEntry2.Validate("Amount to Apply", -AmountToApply);
+        CustLedgerEntry2.Modify(true);
 
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
@@ -2384,6 +2681,14 @@ codeunit 134006 "ERM Apply Unapply Customer"
                 Assert.AreEqual(ExpectedACY, "Additional-Currency Amount", NonzeroACYErr);
             until Next = 0;
         end;
+    end;
+
+    local procedure VerifyTempCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; CustomerNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    begin
+        TempCustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        TempCustLedgerEntry.SetRange("Document Type", DocumentType);
+        TempCustLedgerEntry.SetRange("Document No.", DocumentNo);
+        Assert.RecordIsNotEmpty(TempCustLedgerEntry);
     end;
 
     local procedure ApplyUnapplyCustEntriesWithMiscDimSetIDs(NoOfLines: Integer)

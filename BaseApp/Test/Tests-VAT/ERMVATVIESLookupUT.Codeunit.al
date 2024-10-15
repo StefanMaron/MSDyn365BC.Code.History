@@ -690,6 +690,102 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('DetailsValidationAcceptAllMPH,MessageHandler')]
+    procedure CustomerIsUpdatedOnContactUpdate()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        VATRegistrationLog: Record "VAT Registration Log";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 396853] Customer record is updated when linked contact details are updated from VAT VIES validation
+        Initialize();
+        PrepareContactLog(Contact, VATRegistrationLog);
+        MockCustomer(Customer, '', '', '', '');
+        MockContBusRelation(Contact."No.", ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
+
+        VATRegistrationLog.OpenModifyDetails();
+
+        Assert.ExpectedMessage(ContactUpdatedMsg, LibraryVariableStorage.DequeueText);
+        VerifyCustomer(Customer, Name2Txt, Street2Txt, City2Txt, PostCode2Txt);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('DetailsValidationAcceptAllMPH,MessageHandler')]
+    procedure VendorIsUpdatedOnContactUpdate()
+    var
+        Contact: Record Contact;
+        Vendor: Record Vendor;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        VATRegistrationLog: Record "VAT Registration Log";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 396853] Vendor record is updated when linked contact details are updated from VAT VIES validation
+        Initialize();
+        PrepareContactLog(Contact, VATRegistrationLog);
+        MockVendor(Vendor, '', '', '', '');
+        MockContBusRelation(Contact."No.", ContactBusinessRelation."Link to Table"::Vendor, Vendor."No.");
+
+        VATRegistrationLog.OpenModifyDetails();
+
+        Assert.ExpectedMessage(ContactUpdatedMsg, LibraryVariableStorage.DequeueText);
+        VerifyVendor(Vendor, Name2Txt, Street2Txt, City2Txt, PostCode2Txt);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('DetailsValidationAcceptAllMPH,MessageHandler')]
+    procedure ContactIsUpdatedOnCustomerUpdate()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        VATRegistrationLog: Record "VAT Registration Log";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 342180] Contact record is updated when linked customer details are updated from VAT VIES validation
+        Initialize();
+        PrepareCustomerLog(Customer, VATRegistrationLog);
+        MockContact(Contact, '', '', '', '');
+        MockContBusRelation(Contact."No.", ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
+
+        VATRegistrationLog.OpenModifyDetails();
+
+        Assert.ExpectedMessage(CustomerUpdatedMsg, LibraryVariableStorage.DequeueText);
+        VerifyContact(Contact, Name2Txt, Street2Txt, City2Txt, PostCode2Txt);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('DetailsValidationAcceptAllMPH,MessageHandler')]
+    procedure ContactIsUpdatedOnVendorUpdate()
+    var
+        Vendor: Record Vendor;
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        VATRegistrationLog: Record "VAT Registration Log";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 342180] Contact record is updated when linked vendor details are updated from VAT VIES validation
+        Initialize();
+        PrepareVendorLog(Vendor, VATRegistrationLog);
+        MockContact(Contact, '', '', '', '');
+        MockContBusRelation(Contact."No.", ContactBusinessRelation."Link to Table"::Vendor, Vendor."No.");
+
+        VATRegistrationLog.OpenModifyDetails();
+
+        Assert.ExpectedMessage(VendorUpdatedMsg, LibraryVariableStorage.DequeueText);
+        VerifyContact(Contact, Name2Txt, Street2Txt, City2Txt, PostCode2Txt);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     procedure Initialize()
     var
         VATRegistrationLog: Record "VAT Registration Log";
@@ -838,6 +934,16 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         ValidateField(RecordRef, Customer.FieldNo(City), City);
         ValidateField(RecordRef, Customer.FieldNo("Post Code"), PostCode);
         RecordRef.Insert();
+    end;
+
+    local procedure MockContBusRelation(ContactNo: Code[20]; CVType: Enum "Contact Business Relation Link To Table"; CVNo: Code[20])
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        ContactBusinessRelation."Contact No." := ContactNo;
+        ContactBusinessRelation."Link to Table" := CVType;
+        ContactBusinessRelation."No." := CVNo;
+        ContactBusinessRelation.Insert();
     end;
 
     local procedure ValidateField(var RecordRef: RecordRef; FieldNo: Integer; Value: Text)

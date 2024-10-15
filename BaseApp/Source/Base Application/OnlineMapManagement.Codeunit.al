@@ -24,7 +24,13 @@ codeunit 802 "Online Map Management"
         LocationProvider: DotNet LocationProvider;
         MainMenu: Text;
         Selection: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMakeSelection(MainMenu, TableID, Position, Selection, IsHandled);
+        if IsHandled then
+            exit;
+
         if LocationProvider.IsAvailable then
             MainMenu := StrSubstNo('%1,%2,%3', ThisAddressTxt, DirectionsFromLocationTxt, OtherDirectionsTxt)
         else
@@ -43,6 +49,8 @@ codeunit 802 "Online Map Management"
             3:
                 ShowOtherMenu(TableID, Position);
         end;
+
+        OnAfterMakeSelection(TableID, Position, Selection);
     end;
 
     local procedure ShowOtherMenu(TableID: Integer; Position: Text[1000])
@@ -469,6 +477,11 @@ codeunit 802 "Online Map Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterMakeSelection(TableID: Integer; Position: Text[1000]; Selection: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterProcessWebMap(url: Text[1024]; var IsHandled: Boolean)
     begin
     end;
@@ -480,6 +493,11 @@ codeunit 802 "Online Map Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidAddress(TableID: Integer; var IsValid: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeSelection(var MainMenu: Text; TableID: Integer; Position: Text[1000]; var Selection: Integer; var IsHandled: Boolean)
     begin
     end;
 
