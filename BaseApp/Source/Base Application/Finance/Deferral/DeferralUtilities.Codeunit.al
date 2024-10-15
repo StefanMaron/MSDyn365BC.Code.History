@@ -56,6 +56,7 @@ codeunit 1720 "Deferral Utilities"
         DeferralLineAmount: Dictionary of [RecordId, Decimal];
         AdjustedStartDate: Date;
         AdjustedDeferralAmount: Decimal;
+        TotalDeferralLineAmount: Decimal;
         IsHandled: Boolean;
         RedistributeDeferralSchedule: Boolean;
     begin
@@ -81,7 +82,7 @@ codeunit 1720 "Deferral Utilities"
         if RedistributeDeferralSchedule then
             SaveUserDefinedDeferralLineAmounts(
                 DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType,
-                DocumentNo, LineNo, CalcMethod, DeferralLineAmount);
+                DocumentNo, LineNo, CalcMethod, DeferralLineAmount, TotalDeferralLineAmount);
 
         SetDeferralRecords(
             DeferralHeader, DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo,
@@ -100,11 +101,11 @@ codeunit 1720 "Deferral Utilities"
         end;
 
         if RedistributeDeferralSchedule then
-            RedistributeDeferralLines(DeferralLine, DeferralLineAmount, DeferralHeader);
+            RedistributeDeferralLines(DeferralLine, DeferralLineAmount, DeferralHeader, TotalDeferralLineAmount);
         OnAfterCreateDeferralSchedule(DeferralHeader, DeferralLine, DeferralTemplate, CalcMethod);
     end;
 
-    local procedure SaveUserDefinedDeferralLineAmounts(DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; CalcMethod: Enum "Deferral Calculation Method"; var DeferralLineAmount: Dictionary of [RecordId, Decimal])
+    local procedure SaveUserDefinedDeferralLineAmounts(DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; CalcMethod: Enum "Deferral Calculation Method"; var DeferralLineAmount: Dictionary of [RecordId, Decimal]; var TotalDeferralLineAmount: Decimal)
     var
         DeferralHeader: Record "Deferral Header";
         DeferralLine: Record "Deferral Line";
@@ -122,6 +123,8 @@ codeunit 1720 "Deferral Utilities"
 
         Clear(DeferralLineAmount);
         SaveDeferralLineAmounts(DeferralLine, DeferralLineAmount);
+        DeferralLine.CalcSums(Amount);
+        TotalDeferralLineAmount := DeferralLine.Amount;
     end;
 
     local procedure SaveDeferralLineAmounts(var DeferralLine: Record "Deferral Line"; var DeferralLineAmount: Dictionary of [RecordId, Decimal])
@@ -132,7 +135,7 @@ codeunit 1720 "Deferral Utilities"
             until DeferralLine.Next() = 0;
     end;
 
-    local procedure RedistributeDeferralLines(var DeferralLine: Record "Deferral Line"; DeferralLineAmount: Dictionary of [RecordId, Decimal]; DeferralHeader: Record "Deferral Header")
+    local procedure RedistributeDeferralLines(var DeferralLine: Record "Deferral Line"; DeferralLineAmount: Dictionary of [RecordId, Decimal]; DeferralHeader: Record "Deferral Header"; InitialAmountToDefer: Decimal)
     var
         InitialDeferralLineAmount: Decimal;
         TotalDeferralLineAmount: Decimal;
@@ -145,7 +148,7 @@ codeunit 1720 "Deferral Utilities"
             repeat
                 if DeferralLineAmount.ContainsKey(DeferralLine.RecordId) then begin
                     InitialDeferralLineAmount := DeferralLineAmount.Get(DeferralLine.RecordId);
-                    DeferralLine.Validate(Amount, Round(DeferralHeader."Amount to Defer" / 100 * InitialDeferralLineAmount, AmountRoundingPrecision));
+                    DeferralLine.Validate(Amount, Round(DeferralHeader."Amount to Defer" / InitialAmountToDefer * InitialDeferralLineAmount, AmountRoundingPrecision));
                     DeferralLine.Modify(true);
                     TotalDeferralLineAmount += DeferralLine.Amount;
                 end;

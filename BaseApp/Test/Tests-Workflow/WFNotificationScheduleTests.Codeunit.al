@@ -412,6 +412,64 @@ codeunit 134314 "WF Notification Schedule Tests"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestDailyScheduleWorkDatesInDifferentTimeZone()
+    var
+        NotificationSchedule: Record "Notification Schedule";
+        NotificationEntry: Record "Notification Entry";
+        Approver: Record User;
+        ApprovalEntry: Record "Approval Entry";
+        JobQueueEntry: Record "Job Queue Entry";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryPermissions: Codeunit "Library - Permissions";
+        TypeHelper: Codeunit "Type Helper";
+        TempDateTime: DateTime;
+    begin
+        // [SCENARIO] [Bug 523664] The approver is in a different time zone. The job queue entry should be scheduled in the approver's time zone instead of the requester.
+        Initialize();
+
+        // [GIVEN] An approver in a different time zone with notification setting "daily" at 7:00 A.M. in the approver's time zone
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        LibraryPermissions.CreateUser(Approver, 'Approval', false);
+        LibraryLowerPermissions.SetO365BusFull();
+        SetTimeZone(Approver, 'China Standard Time');
+        AddUserSetup(Approver."User Name");
+
+        // [GIVEN] Calculate the time from the approver's time zone to the client's time zone
+        TempDateTime := CreateDateTime(DMY2Date(8, 5, 2015), 070000T);
+        TempDateTime := TypeHelper.ConvertDateTimeFromInputTimeZoneToClientTimezone(TempDateTime, 'China Standard Time');
+
+        // [GIVEN] The notification setting for this user is "daily", and the time is set as 7:00 A.M. in the Approver's time zone
+        NotificationSchedule.CreateNewRecord(Approver."User Name", "Notification Entry Type"::Approval);
+        NotificationSchedule.Validate(Recurrence, NotificationSchedule.Recurrence::Daily);
+        NotificationSchedule.Validate("Daily Frequency", NotificationSchedule."Daily Frequency"::Weekday);
+        NotificationSchedule.Validate(Time, 070000T);
+        NotificationSchedule.Modify(true);
+
+        // [WHEN] The Job Queue entry is created on a workday at a time later or equal to the schedule time
+        NotificationEntry.CreateNotificationEntry(NotificationEntry.Type::Approval, Approver."User Name", ApprovalEntry, 0, '', '');
+
+        // [THEN] The Job Queue entry is scheduled and the date/time is calculated according to the timezone of the approver (China Standard Time)
+        JobQueueEntry.FindFirst();
+        Assert.AreEqual(1, JobQueueEntry.Count(), 'One Scheduled Job Queue Entry exist');
+        Assert.AreEqual(DT2Time(TempDateTime), DT2Time(JobQueueEntry."Earliest Start Date/Time"), 'Job Queue Entry is scheduled in the wrong time zone');
+    end;
+
+    local procedure SetTimeZone(User: Record User; TimeZone: Text[180])
+    var
+        UserPersonalization: Record "User Personalization";
+    begin
+        if not UserPersonalization.Get(User."User Security ID") then begin
+            UserPersonalization.Validate("User SID", User."User Security ID");
+            UserPersonalization.Insert();
+        end;
+
+        UserPersonalization.Get(User."User Security ID");
+        UserPersonalization.Validate("Time Zone", TimeZone);
+        UserPersonalization.Modify(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure TestDeleteExistingScheduleAndReadSystemEmailFeature()
     var
         NotificationSchedule: Record "Notification Schedule";
