@@ -336,7 +336,6 @@ report 20 "Calc. and Post VAT Settlement"
                                             then begin
                                                 CreateGenJnlLine(GenJnlLine2, "VAT Posting Setup".GetRevChargeAccount(false));
                                                 GenJnlLine2.Amount := VATAmountOfPropDed;
-						SetVatPostingSetupToGenJnlLine(GenJnlLine2, "VAT Posting Setup");
                                                 if PostSettlement then
                                                     PostGenJnlLine(GenJnlLine2);
                                                 VATAmountOfPropDedSettled += VATEntry.Amount - VATAmountOfPropDed;

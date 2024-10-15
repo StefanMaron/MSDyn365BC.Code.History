@@ -53,6 +53,7 @@ codeunit 134976 "ERM Sales Report"
         SalesTaxInvoiceTxt: Label 'Sales - Tax Invoice %1';
         InvoiceTxt: Label 'Invoice';
         TaxInvoiceTxt: Label 'Tax Invoice';
+        EmptyReportDatasetTxt: Label 'There is nothing to print for the selected filters.';
 
     [Test]
     [HandlerFunctions('CustomerTrialBalanceRequestPageHandler')]
@@ -3323,6 +3324,29 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('CustProfitLCY2', Item."Unit Price" - Item."Unit Cost");
         LibraryReportDataset.AssertElementWithValueExists('CustSalProfAdjmtCostLCY2', Item."Unit Cost");
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerItemSalesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CustomerItemSalesEmptyDataset()
+    var
+        Customer: Record Customer;
+    begin
+        // [SCENARIO 364816] Report "Customer/Item Sales" shows message 'There is nothing to print for the selected filters.' when resulting dataset is empty.
+        Initialize();
+
+        // [WHEN] Report "Customer/Item Sales" is run for non-existing Customer.
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandText(MaxStrLen(Customer."No.")));
+        Commit();
+        asserterror REPORT.Run(REPORT::"Customer/Item Sales");
+
+        // [THEN] Report dataset is empty and error 'There is nothing to print for the selected filters.' is shown.
+        Assert.ExpectedError(EmptyReportDatasetTxt);
+        Assert.ExpectedErrorCode('Dialog');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
