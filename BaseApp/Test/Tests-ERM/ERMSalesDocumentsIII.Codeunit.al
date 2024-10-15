@@ -4697,6 +4697,26 @@ codeunit 134387 "ERM Sales Documents III"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestGetTrackingInternetAddrRespectsHttpsInURL()
+    var
+        ShippingAgent: Record "Shipping Agent";
+        InternetAddress: Text;
+        PackageTrackingNo: Text[30];
+    begin
+        // [FEATURE] [Shipping Agent] [UT]
+        // [SCENARIO 386459] GetTrackingInternetAddr doesn't add "http://" if address already contains "https://"
+        Initialize();
+        
+        // [GIVEN] Create Shipping agent with "Internet address" starting with "https://"
+        InternetAddress := 'https://' + InternetURLTxt;
+        CreateShippingAgent(ShippingAgent, InternetAddress, PackageTrackingNo);
+
+        // [THEN] GetTrackingInternetAddr returns "Internet address" without adding "http://" to it
+        Assert.AreEqual(InternetAddress, ShippingAgent.GetTrackingInternetAddr(PackageTrackingNo), InvalidURLErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     [HandlerFunctions('ConfirmHandlerTrue')]
     procedure ChangePriceIncludingVATTrueValueRecalculateAmountCorrectlyForFullVAT()
     var

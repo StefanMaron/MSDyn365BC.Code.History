@@ -1,4 +1,4 @@
-page 29 "Vendor Ledger Entries"
+﻿page 29 "Vendor Ledger Entries"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor Ledger Entries';
@@ -697,8 +697,8 @@ page 29 "Vendor Ledger Entries"
     begin
         SetControlVisibility;
         SetDimVisibility();
-        if GetFilters <> '' then
-            if FindFirst then;
+        if (GetFilters() <> '') and not Find() then
+            if FindFirst() then;
     end;
 
     var

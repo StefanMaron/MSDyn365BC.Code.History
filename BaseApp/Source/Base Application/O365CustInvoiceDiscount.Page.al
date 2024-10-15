@@ -17,7 +17,7 @@ page 2156 "O365 Cust. Invoice Discount"
                     ApplicationArea = Basic, Suite, Invoicing;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
-                    ToolTip = 'Specifies the minimum amount that the invoice must total for the discount to be granted or the service charge levied.';
+                    ToolTip = 'Specifies the minimum amount that the invoice must total for the discount to be granted or the service charge levied. For discounts, only sales lines where the Allow Invoice Disc. field is selected are included in the calculation.';
                 }
                 field("Discount %"; "Discount %")
                 {

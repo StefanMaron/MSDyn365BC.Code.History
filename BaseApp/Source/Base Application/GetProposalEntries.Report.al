@@ -428,25 +428,24 @@ report 11000000 "Get Proposal Entries"
     end;
 
     var
-        Text1000000: Label 'The currency date may not be in the past.';
+        Text1000000: Label 'The currency date cannot be in the past.';
         Text1000001: Label 'CRONUS';
-        Text1000002: Label 'The stated currency date will only be reached in %1 days,';
-        Text1000003: Label ' this means that for this period your bank has to keep your payment orders';
-        Text1000004: Label ' in reservation.\Do you want to proceed?';
+        Text1000002: Label 'The currency date will be reached in %1 days,';
+        Text1000003: Label ' and until then your bank must keep your payment orders';
+        Text1000004: Label ' in reservation.\Do you want to continue?';
         Text1000005: Label 'Output cancelled';
         Text1000006: Label 'Read Entries @1@@@@@@@@@@\';
         Text1000007: Label 'Collect      @2@@@@@@@@@@';
         Text1000008: Label 'and a warning ';
         Text1000009: Label 'and %1 warnings ';
-        Text1000010: Label 'A warning text has been created while generating proposal lines.\';
+        Text1000010: Label 'A warning was created while generating proposal lines.\';
         Text1000011: Label 'A warning per line is shown at the bottom of the screen.';
-        Text1000012: Label 'An error %1 is found while generating proposal lines.\';
-        Text1000013: Label 'You can find this at the bottom of the screen.';
+        Text1000012: Label 'Error %1 was found while generating proposal lines.\';
+        Text1000013: Label 'You can view the error in the lower part of the screen.';
         Text1000014: Label 'There are %1 errors %2found while generating proposal lines.\';
         Text1000015: Label 'Invoice';
         Text1000016: Label 'Collection order, see docket';
-        Text1000017: Label 'Vendor No. %1';
-        Text1000018: Label 'Customer No. %1';
+        Text1000017: Label 'Account No. %1';
         DetailLine: Record "Detail Line";
         ProposalLine: Record "Proposal Line";
         TrMode: Record "Transaction Mode";
@@ -477,7 +476,7 @@ report 11000000 "Get Proposal Entries"
                 DetailLine."Account Type"::Customer:
                     begin
                         Cust.Get(DetailLine."Account No.");
-                        UpdatePropLineDescription(ProposalLine, Cust."Our Account No.", Text1000018);
+                        UpdatePropLineDescription(ProposalLine, Cust."Our Account No.", Text1000017);
                     end;
                 DetailLine."Account Type"::Vendor:
                     begin

@@ -89,7 +89,7 @@ codeunit 9996 "Upgrade Tag Impl."
         FromUpgradeTags: Record "Upgrade Tags";
         ToUpgradeTags: Record "Upgrade Tags";
     begin
-        FromUpgradeTags.SetFilter(Company, FromCompany);
+        FromUpgradeTags.SetRange(Company, FromCompany);
 
         if FromUpgradeTags.FindSet() then
             repeat
