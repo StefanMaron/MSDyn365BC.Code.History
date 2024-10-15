@@ -618,6 +618,9 @@ report 117 Reminder
                     column(TotalRemAmt_IssuedReminderLine; TotalRemAmt)
                     {
                     }
+                    column(FinalTotalInclVAT; NNC_TotalInclVAT)
+                    {
+                    }
 
                     trigger OnPreDataItem()
                     begin

@@ -15,6 +15,7 @@ codeunit 1387 "Employee Templ. Mgt."
             exit(false);
 
         Employee.Init();
+        InitEmployeeNo(Employee, EmployeeTempl);
         Employee.Insert(true);
 
         ApplyEmployeeTemplate(Employee, EmployeeTempl);
@@ -63,18 +64,18 @@ codeunit 1387 "Employee Templ. Mgt."
         exit(false);
     end;
 
-    local procedure InsertDimensions(EmployeeNo: Code[20]; EmployeeTemplCode: Code[20])
+    local procedure InsertDimensions(DestNo: Code[20]; SourceNo: Code[20]; DestTableId: Integer; SourceTableId: Integer)
     var
         SourceDefaultDimension: Record "Default Dimension";
         DestDefaultDimension: Record "Default Dimension";
     begin
-        SourceDefaultDimension.SetRange("Table ID", Database::"Employee Templ.");
-        SourceDefaultDimension.SetRange("No.", EmployeeTemplCode);
+        SourceDefaultDimension.SetRange("Table ID", SourceTableId);
+        SourceDefaultDimension.SetRange("No.", SourceNo);
         if SourceDefaultDimension.FindSet() then
             repeat
                 DestDefaultDimension.Init();
-                DestDefaultDimension.Validate("Table ID", Database::Employee);
-                DestDefaultDimension.Validate("No.", EmployeeNo);
+                DestDefaultDimension.Validate("Table ID", DestTableId);
+                DestDefaultDimension.Validate("No.", DestNo);
                 DestDefaultDimension.Validate("Dimension Code", SourceDefaultDimension."Dimension Code");
                 DestDefaultDimension.Validate("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
                 DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
@@ -96,7 +97,7 @@ codeunit 1387 "Employee Templ. Mgt."
     procedure ApplyEmployeeTemplate(var Employee: Record Employee; EmployeeTempl: Record "Employee Templ.")
     begin
         ApplyTemplate(Employee, EmployeeTempl);
-        InsertDimensions(Employee."No.", EmployeeTempl.Code);
+        InsertDimensions(Employee."No.", EmployeeTempl.Code, Database::Employee, Database::"Employee Templ.");
     end;
 
     [Obsolete('Replaced by ApplyEmployeeTemplate with different set of parameters', '18.0')]
@@ -120,6 +121,127 @@ codeunit 1387 "Employee Templ. Mgt."
         Result := TemplateFeatureMgt.IsEnabled();
 
         OnAfterIsEnabled(Result);
+    end;
+
+    local procedure InitEmployeeNo(var Employee: Record Employee; EmployeeTempl: Record "Employee Templ.")
+    var
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        if EmployeeTempl."No. Series" = '' then
+            exit;
+
+        NoSeriesManagement.InitSeries(EmployeeTempl."No. Series", '', 0D, Employee."No.", Employee."No. Series");
+    end;
+
+    procedure SaveAsTemplate(Employee: Record Employee)
+    begin
+        CreateTemplateFromEmployee(Employee);
+    end;
+
+    local procedure CreateTemplateFromEmployee(Employee: Record Employee)
+    var
+        EmployeeTempl: Record "Employee Templ.";
+    begin
+        if not IsEnabled() then
+            exit;
+
+        InsertTemplateFromEmployee(EmployeeTempl, Employee);
+        InsertDimensions(EmployeeTempl.Code, Employee."No.", Database::"Employee Templ.", Database::Employee);
+        EmployeeTempl.Get(EmployeeTempl.Code);
+        ShowEmployeeTemplCard(EmployeeTempl);
+    end;
+
+    local procedure InsertTemplateFromEmployee(var EmployeeTempl: Record "Employee Templ."; Employee: Record Employee)
+    begin
+        EmployeeTempl.Init();
+        EmployeeTempl.Code := GetEmployeeTemplCode();
+
+        EmployeeTempl.City := Employee.City;
+        EmployeeTempl."Post Code" := Employee."Post Code";
+        EmployeeTempl.County := Employee.County;
+        EmployeeTempl.Gender := Employee.Gender;
+        EmployeeTempl."Country/Region Code" := Employee."Country/Region Code";
+        EmployeeTempl."Statistics Group Code" := Employee."Statistics Group Code";
+        EmployeeTempl."Employee Posting Group" := Employee."Employee Posting Group";
+        EmployeeTempl."Application Method" := Employee."Application Method";
+        EmployeeTempl."Cost Center Code" := Employee."Cost Center Code";
+        EmployeeTempl."Cost Object Code" := Employee."Cost Object Code";
+
+        EmployeeTempl.Insert();
+    end;
+
+    local procedure GetEmployeeTemplCode() EmployeeTemplCode: Code[20]
+    var
+        Employee: Record Employee;
+        EmployeeTempl: Record "Employee Templ.";
+    begin
+        if EmployeeTempl.FindLast() and (IncStr(EmployeeTempl.Code) <> '') then
+            EmployeeTemplCode := EmployeeTempl.Code
+        else
+            EmployeeTemplCode := CopyStr(Employee.TableCaption, 1, 4) + '000001';
+
+        while EmployeeTempl.Get(EmployeeTemplCode) do
+            EmployeeTemplCode := IncStr(EmployeeTemplCode);
+    end;
+
+    local procedure ShowEmployeeTemplCard(EmployeeTempl: Record "Employee Templ.")
+    var
+        EmployeeTemplCard: Page "Employee Templ. Card";
+    begin
+        if not GuiAllowed then
+            exit;
+
+        Commit();
+        EmployeeTemplCard.SetRecord(EmployeeTempl);
+        EmployeeTemplCard.LookupMode := true;
+        if EmployeeTemplCard.RunModal() = Action::LookupCancel then begin
+            EmployeeTempl.Get(EmployeeTempl.Code);
+            EmployeeTempl.Delete(true);
+        end;
+    end;
+
+    procedure UpdateEmployeeFromTemplate(var Employee: Record Employee)
+    begin
+        UpdateFromTemplate(Employee);
+    end;
+
+    local procedure UpdateFromTemplate(var Employee: Record Employee)
+    var
+        EmployeeTempl: Record "Employee Templ.";
+    begin
+        if not CanBeUpdatedFromTemplate(EmployeeTempl) then
+            exit;
+
+        ApplyEmployeeTemplate(Employee, EmployeeTempl);
+    end;
+
+    local procedure CanBeUpdatedFromTemplate(var EmployeeTempl: Record "Employee Templ."): Boolean
+    begin
+        if not IsEnabled() then
+            exit(false);
+
+        if not SelectEmployeeTemplate(EmployeeTempl) then
+            exit(false);
+
+        exit(true);
+    end;
+
+    procedure UpdateEmployeesFromTemplate(var Employee: Record Employee)
+    begin
+        UpdateMultipleFromTemplate(Employee);
+    end;
+
+    local procedure UpdateMultipleFromTemplate(var Employee: Record Employee)
+    var
+        EmployeeTempl: Record "Employee Templ.";
+    begin
+        if not CanBeUpdatedFromTemplate(EmployeeTempl) then
+            exit;
+
+        if Employee.FindSet() then
+            repeat
+                ApplyEmployeeTemplate(Employee, EmployeeTempl);
+            until Employee.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

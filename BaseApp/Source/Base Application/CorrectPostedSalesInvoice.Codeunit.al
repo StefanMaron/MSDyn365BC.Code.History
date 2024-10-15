@@ -809,15 +809,23 @@
 
     local procedure UpdateSalesOrderLinesFromCancelledInvoice(SalesInvoiceHeaderNo: Code[20])
     var
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
         SalesLine: Record "Sales Line";
         SalesInvoiceLine: Record "Sales Invoice Line";
+        UndoPostingManagement: Codeunit "Undo Posting Management";
     begin
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeaderNo);
-        if SalesInvoiceLine.FindSet() then
+        if SalesInvoiceLine.FindSet() then begin
+            FindItemLedgEntries(TempItemLedgerEntry, SalesInvoiceHeaderNo);
             repeat
-                if SalesLine.Get(SalesLine."Document Type"::Order, SalesInvoiceLine."Order No.", SalesInvoiceLine."Order Line No.") then
+                if SalesLine.Get(SalesLine."Document Type"::Order, SalesInvoiceLine."Order No.", SalesInvoiceLine."Order Line No.") then begin
                     UpdateSalesOrderLineInvoicedQuantity(SalesLine, SalesInvoiceLine.Quantity, SalesInvoiceLine."Quantity (Base)");
+                    TempItemLedgerEntry.SetRange("Document Line No.", SalesInvoiceLine."Line No.");
+                    TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
+                    UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, SalesInvoiceLine."Shipment Date", true);
+                end;
             until SalesInvoiceLine.Next() = 0;
+        end;
     end;
 
     local procedure UpdateSalesOrderLineInvoicedQuantity(var SalesLine: Record "Sales Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal)

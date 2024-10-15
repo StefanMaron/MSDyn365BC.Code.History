@@ -222,6 +222,7 @@ table 1294 "Applied Payment Entry"
     end;
 
     var
+        CurrencyExchRate: Record "Currency Exchange Rate";
         CurrencyMismatchErr: Label 'Currency codes on bank account %1 and ledger entry %2 do not match.';
         AmtCannotExceedErr: Label 'The Amount to Apply cannot exceed %1. This is because the Remaining Amount on the entry is %2 and the amount assigned to other statement lines is %3.';
         CannotApplyStmtLineErr: Label 'You cannot apply to %1 %2 because the statement line already contains an application to %3 %4.', Comment = '%1 = Account Type, %2 = Account No., %3 = Account Type, %4 = Account No.';
@@ -479,11 +480,15 @@ table 1294 "Applied Payment Entry"
     local procedure GetCustLedgEntryRemAmt(): Decimal
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
     begin
         CustLedgEntry.Get("Applies-to Entry No.");
         if IsBankLCY and (CustLedgEntry."Currency Code" <> '') then begin
-            CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
-            exit(CustLedgEntry."Remaining Amt. (LCY)");
+            BankAccReconLine.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
+            CustLedgEntry.CalcFields("Remaining Amount");
+            exit(
+                CurrencyExchRate.ExchangeAmount(
+                    CustLedgEntry."Remaining Amount", CustLedgEntry."Currency Code", '', BankAccReconLine."Transaction Date"));
         end;
         CustLedgEntry.CalcFields("Remaining Amount");
         exit(CustLedgEntry."Remaining Amount");
@@ -492,11 +497,15 @@ table 1294 "Applied Payment Entry"
     local procedure GetVendLedgEntryRemAmt(): Decimal
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
     begin
         VendLedgEntry.Get("Applies-to Entry No.");
         if IsBankLCY and (VendLedgEntry."Currency Code" <> '') then begin
-            VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
-            exit(VendLedgEntry."Remaining Amt. (LCY)");
+            BankAccReconLine.Get("Statement Type", "Bank Account No.", "Statement No.", "Statement Line No.");
+            VendLedgEntry.CalcFields("Remaining Amount");
+            exit(
+                CurrencyExchRate.ExchangeAmount(
+                    VendLedgEntry."Remaining Amount", VendLedgEntry."Currency Code", '', BankAccReconLine."Transaction Date"));
         end;
         VendLedgEntry.CalcFields("Remaining Amount");
         exit(VendLedgEntry."Remaining Amount");
