@@ -114,7 +114,7 @@
 
     local procedure ModifyWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseRequest: Record "Warehouse Request")
     begin
-        OnBeforeModifyWarehouseActivityHeader(WarehouseActivityHeader, WarehouseRequest);
+        OnBeforeModifyWarehouseActivityHeader(WarehouseActivityHeader, WarehouseRequest, Location);
         WarehouseActivityHeader.Modify();
     end;
 
@@ -223,7 +223,7 @@
             GetLocation("Location Code");
         end;
 
-        OnAfterUpdateWhseActivHeader(WhseActivHeader, WhseRequest);
+        OnAfterUpdateWhseActivHeader(WhseActivHeader, WhseRequest, Location);
     end;
 
     local procedure CreatePickOrMoveFromPurchase(PurchHeader: Record "Purchase Header")
@@ -382,6 +382,7 @@
                     end;
             until Next() = 0;
         end;
+        OnAfterCreatePickOrMoveFromSales(WhseActivHeader, AutoCreation, HideDialog, LineCreated);
     end;
 
     local procedure SetFilterSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header") Result: Boolean
@@ -804,12 +805,14 @@
             NewWhseActivLine, WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required",
             ReservationExists, RemQtyToPickBase, QtyAvailToPickBase);
         if RemQtyToPickBase > QtyAvailToPickBase then begin
+            OnCreatePickOrMoveLineOnAfterCheckForCompleteShipment(WhseActivHeader, WhseItemTrackingSetup, ReservationExists, RemQtyToPickBase, QtyAvailToPickBase);
             RemQtyToPickBase := QtyAvailToPickBase;
             CompleteShipment := false;
         end;
 
         if RemQtyToPickBase > 0 then begin
             ItemTrackingMgt.GetWhseItemTrkgSetup(NewWhseActivLine."Item No.", WhseItemTrackingSetup);
+            OnCreatePickOrMoveLineOnAfterGetWhseItemTrkgSetup(NewWhseActivLine, WhseItemTrackingSetup);
             if WhseItemTrackingSetup.TrackingRequired() then begin
                 if IsBlankInvtMovement then
                     ItemTrackingMgt.SumUpItemTrackingOnlyInventoryOrATO(TempReservEntry, TempHandlingSpecification, true, true)
@@ -850,7 +853,7 @@
                                     InsertPickOrMoveBinWhseActLine(
                                       NewWhseActivLine, NewWhseActivLine."Bin Code", false, ITQtyToPickBase, WhseItemTrackingSetup);
 
-                                OnCreatePickOrMoveLineOnAfterFindTakeQtyForBinCodeOfSourceLineHandlingSpec(NewWhseActivLine, TempHandlingSpecification, WhseItemTrackingSetup, ITQtyToPickBase);
+                                OnCreatePickOrMoveLineOnAfterFindTakeQtyForBinCodeOfSourceLineHandlingSpec(NewWhseActivLine, TempHandlingSpecification, WhseItemTrackingSetup, ITQtyToPickBase, WhseActivHeader);
 
                                 // Invt. movement without document has to be created
                                 if IsBlankInvtMovement then
@@ -893,8 +896,10 @@
                     InsertPickOrMoveBinWhseActLine(
                       NewWhseActivLine, NewWhseActivLine."Bin Code", false, RemQtyToPickBase, WhseItemTrackingSetup);
 
+#if not CLEAN21
                 OnCreatePickOrMoveLineOnAfterFindTakeQtyForBinCodeOfSourceLine(NewWhseActivLine, WhseItemTrackingSetup, RemQtyToPickBase);
-
+#endif
+                OnCreatePickOrMoveLineOnAfterFindTakeQtyForBinCodeSourceLine(NewWhseActivLine, WhseItemTrackingSetup, RemQtyToPickBase, WhseActivHeader);
                 // Invt. movement without document has to be created
                 if IsBlankInvtMovement then
                     RemQtyToPickBase := 0;
@@ -980,7 +985,7 @@
 
             SetTrackingFilterFromWhseActivityLineIfNotBlank(NewWhseActivLine);
 
-            OnBeforeFindFromBinContent(FromBinContent, NewWhseActivLine, FromBinCode, BinCode, IsInvtMovement, IsBlankInvtMovement);
+            OnBeforeFindFromBinContent(FromBinContent, NewWhseActivLine, FromBinCode, BinCode, IsInvtMovement, IsBlankInvtMovement, DefaultBin, WhseItemTrackingSetup);
             if Find('-') then
                 repeat
                     IsHandled := false;
@@ -1917,6 +1922,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreatePickOrMoveFromSales(var WarehouseActivityHeader: Record "Warehouse Activity Header"; AutoCreation: Boolean; HideDialog: Boolean; var LineCreated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetSourceDocHeader(var WarehouseRequest: Record "Warehouse Request"; var PostingDate: Date; var VendorDocNo: Code[35])
     begin
     end;
@@ -1957,7 +1967,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateWhseActivHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseRequest: Record "Warehouse Request")
+    local procedure OnAfterUpdateWhseActivHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseRequest: Record "Warehouse Request"; Location: Record Location)
     begin
     end;
 
@@ -2087,7 +2097,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindFromBinContent(var FromBinContent: Record "Bin Content"; var WarehouseActivityLine: Record "Warehouse Activity Line"; FromBinCode: Code[20]; BinCode: Code[20]; IsInvtMovement: Boolean; IsBlankInvtMovement: Boolean)
+    local procedure OnBeforeFindFromBinContent(var FromBinContent: Record "Bin Content"; var WarehouseActivityLine: Record "Warehouse Activity Line"; FromBinCode: Code[20]; BinCode: Code[20]; IsInvtMovement: Boolean; IsBlankInvtMovement: Boolean; DefaultBin: Boolean; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 
@@ -2102,7 +2112,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeModifyWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseRequest: Record "Warehouse Request")
+    local procedure OnBeforeModifyWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseRequest: Record "Warehouse Request"; Location: Record Location)
     begin
     end;
 
@@ -2126,18 +2136,35 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePickOrMoveLineOnAfterCheckForCompleteShipment(WarehouseActivityHeader: Record "Warehouse Activity Header"; WhseItemTrackingSetup: Record "Item Tracking Setup"; ReservationExists: Boolean; RemQtyToPickBase: Decimal; QtyAvailToPickBase: Decimal)
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnCreatePickOrMoveLineOnAfterCalcQtyAvailToPickBase(var WarehouseActivityLine: Record "Warehouse Activity Line"; SNRequired: Boolean; LNRequired: Boolean; ReservationExists: Boolean; var RemQtyToPickBase: Decimal; var QtyAvailToPickBase: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreatePickOrMoveLineOnAfterFindTakeQtyForBinCodeOfSourceLineHandlingSpec(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; TempHandlingSpecification: Record "Tracking Specification"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var ITQtyToPickBase: Decimal)
+    local procedure OnCreatePickOrMoveLineOnAfterFindTakeQtyForBinCodeOfSourceLineHandlingSpec(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; TempHandlingSpecification: Record "Tracking Specification"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var ITQtyToPickBase: Decimal; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+#if not CLEAN21
+    [IntegrationEvent(false, false)]
+    [Obsolete('Replaced by OnCreatePickOrMoveLineOnAfterFindTakeQtyForBinCodeSourceLine with correct param name', '21.0')]
+    local procedure OnCreatePickOrMoveLineOnAfterFindTakeQtyForBinCodeOfSourceLine(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var ITQtyToPickBase: Decimal)
+    begin
+    end;
+#endif
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePickOrMoveLineOnAfterFindTakeQtyForBinCodeSourceLine(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var RemQtyToPickBase: Decimal; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreatePickOrMoveLineOnAfterFindTakeQtyForBinCodeOfSourceLine(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var ITQtyToPickBase: Decimal)
+    local procedure OnCreatePickOrMoveLineOnAfterGetWhseItemTrkgSetup(NewWarehouseActivityLine: Record "Warehouse Activity Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

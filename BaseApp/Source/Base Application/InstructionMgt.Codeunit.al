@@ -93,17 +93,17 @@ codeunit 1330 "Instruction Mgt."
 
     procedure ShowPostedConfirmationMessageCode(): Code[50]
     begin
-        exit(UpperCase('ShowPostedConfirmationMessage'));
+        exit('SHOWPOSTEDCONFIRMATIONMESSAGE');
     end;
 
     procedure QueryPostOnCloseCode(): Code[50]
     begin
-        exit(UpperCase('QueryPostOnClose'));
+        exit('QUERYPOSTONCLOSE');
     end;
 
     procedure OfficeUpdateNotificationCode(): Code[50]
     begin
-        exit(UpperCase('OfficeUpdateNotification'));
+        exit('OFFICEUPDATENOTIFICATION');
     end;
 
 #if not CLEAN21
@@ -115,22 +115,22 @@ codeunit 1330 "Instruction Mgt."
 #endif
     procedure PostingAfterWorkingDateNotAllowedCode(): Code[50]
     begin
-        exit(UpperCase('PostingAfterCurrentCalendarDateNotAllowed'));
+        exit('POSTINGAFTERCURRENTCALENDARDATENOTALLOWED');
     end;
 
     procedure ClosingUnreleasedOrdersCode(): Code[50]
     begin
-        exit(UpperCase('ClosingUnreleasedOrders'));
+        exit('CLOSINGUNRELEASEDORDERS');
     end;
 
     procedure MarkBookingAsInvoicedWarningCode(): Code[50]
     begin
-        exit(UpperCase('MarkBookingAsInvoicedWarning'));
+        exit('MARKBOOKINGASINVOICEDWARNING');
     end;
 
     procedure AutomaticLineItemsDialogCode(): Code[50]
     begin
-        exit(UpperCase('AutomaticallyCreateLineItemsFromOutlook'));
+        exit('AUTOMATICALLYCREATELINEITEMSFROMOUTLOOK');
     end;
 
     procedure GetClosingUnpostedDocumentNotificationId(): Guid

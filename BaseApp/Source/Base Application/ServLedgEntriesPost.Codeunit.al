@@ -706,6 +706,8 @@ codeunit 5912 "ServLedgEntries-Post"
         ServDocType: Integer;
         ServDocNo: Code[20];
     begin
+        OnBeforeCreateCreditEntry(ServDocReg, ServLine, ServHeader, ServLedgEntry, GenJnlLineDocNo, ServDocType, PassedNextEntryNo, ServDocNo);
+
         if ServLine."Contract No." = '' then begin
             InsertServLedgEntryCrMemo(PassedNextEntryNo, ServHeader, ServLine, GenJnlLineDocNo);
             InsertServLedgerEntryCrMUsage(PassedNextEntryNo, ServHeader, ServLine, GenJnlLineDocNo);
@@ -764,6 +766,7 @@ codeunit 5912 "ServLedgEntries-Post"
             "User ID" := UserId;
             "Job Line Type" := "Job Line Type"::" ";
 
+            OnCreateCreditEntryOnBeforeServDocRegServiceDocument(ServLedgEntry, ServHeader, ServLine);
             Clear(ServDocReg);
             ServDocReg.ServiceDocument(ServHeader."Document Type".AsInteger(), ServHeader."No.", ServDocType, ServDocNo);
             case ServDocType of
@@ -1059,6 +1062,11 @@ codeunit 5912 "ServLedgEntries-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCreditEntry(var ServiceDocumentRegister: Record "Service Document Register"; var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; var ServiceLedgerEntry: Record "Service Ledger Entry"; var GenJnlLineDocNo: Code[20]; var ServDocType: Integer; var PassedNextEntryNo: Integer; var ServDocNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeServLedgerEntryInsert(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceLine: Record "Service Line"; ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header")
     begin
     end;
@@ -1090,6 +1098,11 @@ codeunit 5912 "ServLedgEntries-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateCreditEntryOnBeforeServLedgEntryInsert(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCreditEntryOnBeforeServDocRegServiceDocument(var ServiceLedgerEntry: Record "Service Ledger Entry"; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
     begin
     end;
 

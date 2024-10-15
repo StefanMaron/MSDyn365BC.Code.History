@@ -69,6 +69,16 @@ table 247 "Intrastat Setup"
         {
             Caption = 'Company VAT No. on File';
         }
+        field(12; "Default Trans. Spec. Code"; Code[10])
+        {
+            Caption = 'Default Trans. Spec. Code';
+            TableRelation = "Transaction Specification";
+        }
+        field(13; "Default Trans. Spec. Ret. Code"; Code[10])
+        {
+            Caption = 'Default Trans. Spec. Returns Code';
+            TableRelation = "Transaction Specification";
+        }
     }
 
     keys

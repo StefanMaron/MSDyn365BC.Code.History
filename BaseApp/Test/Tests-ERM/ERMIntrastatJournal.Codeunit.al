@@ -2130,7 +2130,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Purchase credit memo for vendor of Partner Type = Person
         Vendor.Get(CreateVendorWithVATRegNo(true));
-        Vendor."Partner Type" := Vendor."Partner Type"::Person;
+        Vendor."Intrastat Partner Type" := "Partner Type"::Person;
         Vendor.Modify;
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", WorkDate, Vendor."No.");
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, CreateItem);
@@ -3112,7 +3112,7 @@ codeunit 134150 "ERM Intrastat Journal"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Country/Region Code", CreateCountryRegionWithIntrastatCode(IsEUCountry));
         Customer.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code"));
-        Customer.Validate("Partner Type", Customer."Partner Type"::Person);
+        Customer.Validate("Intrastat Partner Type", "Partner Type"::Person);
         Customer.Modify(true);
         EXIT(Customer."No.");
     end;

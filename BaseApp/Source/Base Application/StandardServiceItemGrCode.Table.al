@@ -1,4 +1,4 @@
-table 5998 "Standard Service Item Gr. Code"
+﻿table 5998 "Standard Service Item Gr. Code"
 {
     Caption = 'Standard Service Item Gr. Code';
     DataCaptionFields = "Service Item Group Code";
@@ -60,7 +60,13 @@ table 5998 "Standard Service Item Gr. Code"
         StdServItemGrCode: Record "Standard Service Item Gr. Code";
         StdServItemGrCodesForm: Page "Standard Serv. Item Gr. Codes";
         Factor: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertServiceLines(ServItemLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ServItemLine.TestField("Line No.");
 
         Clear(StdServItemGrCodesForm);
@@ -173,6 +179,11 @@ table 5998 "Standard Service Item Gr. Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnDelete(var StandardServiceItemGrCode: Record "Standard Service Item Gr. Code"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertServiceLines(ServItemLine: Record "Service Item Line"; var IsHandled: Boolean)
     begin
     end;
 

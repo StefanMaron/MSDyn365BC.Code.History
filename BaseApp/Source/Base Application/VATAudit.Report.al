@@ -417,6 +417,7 @@ report 10512 "VAT Audit"
 
         trigger OnOpenPage()
         begin
+            FeatureTelemetry.LogUptake('0001Q1D', VatTok, Enum::"Feature Uptake Status"::Discovered);
             if CustomerFileName = '' then
                 CustomerFileName := Text1041013;
             if OpenPaymentFileName = '' then
@@ -443,6 +444,7 @@ report 10512 "VAT Audit"
 
     trigger OnPreReport()
     begin
+        FeatureTelemetry.LogUptake('0001Q1C', VatTok, Enum::"Feature Uptake Status"::"Set up");
         if CustomerExport and (CustomerFileName = '') then
             Error(Text1041007);
 
@@ -463,7 +465,15 @@ report 10512 "VAT Audit"
             Error(Text1041012);
     end;
 
+    trigger OnPostReport()
+    begin
+        FeatureTelemetry.LogUptake('0001Q1A', VatTok, Enum::"Feature Uptake Status"::"Used");
+        FeatureTelemetry.LogUsage('0001Q1B', VatTok, 'UK VAT Audit Report Printed');
+    end;
+
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        VatTok: Label 'UK Print VAT Audit Reports', Locked = true;
         Text1041000: Label 'Exporting Customers...#1##################';
         Text1041001: Label 'Exporting Open Payments...#1##################';
         Text1041002: Label 'Payment ';
