@@ -131,6 +131,10 @@
           SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader, WhseShip, WhseReceive, SalesLinesProcessed,
           SuppressCommit, EverythingInvoiced, TempSalesLineGlobal);
         ErrorMessageMgt.Finish(ZeroSalesLineRecID);
+
+        SendICDocument(SalesHeader);
+        UpdateHandledICInboxTransaction(SalesHeader);
+
         if not SalesHeader.IsCreditDocType then begin
             ReverseAmount(TotalSalesLine);
             ReverseAmount(TotalSalesLineLCY);
@@ -616,8 +620,6 @@
                 ArchiveUnpostedOrder(SalesHeader);
 
             CheckICPartnerBlocked(SalesHeader);
-            SendICDocument(SalesHeader, ModifyHeader);
-            UpdateHandledICInboxTransaction(SalesHeader);
 
             LockTables(SalesHeader);
 
@@ -2513,7 +2515,7 @@
 
             OnAfterFinalizePostingOnBeforeCommit(
               SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader, GenJnlPostLine,
-              SuppressCommit, PreviewMode, WhseShip, WhseReceive);
+              SuppressCommit, PreviewMode, WhseShip, WhseReceive, EverythingInvoiced);
 
             if PreviewMode then begin
                 if not HideProgressWindow then
@@ -2529,7 +2531,7 @@
             IsHandled := false;
             OnFinalizePostingOnBeforeCreateOutboxSalesTrans(SalesHeader, IsHandled, EverythingInvoiced);
             if not IsHandled then
-                if Invoice and ("Bill-to IC Partner Code" <> '') then
+                if Invoice and "Send IC Document" then
                     if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then
                         ICInboxOutboxMgt.CreateOutboxSalesInvTrans(SalesInvHeader)
                     else
@@ -2761,11 +2763,16 @@
     local procedure DivideAmount(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; IncludePrepayments: Boolean)
     var
         OriginalDeferralAmount: Decimal;
+        IsHandled: Boolean;
     begin
         if RoundingLineInserted and (RoundingLineNo = SalesLine."Line No.") then
             exit;
 
-        OnBeforeDivideAmount(SalesHeader, SalesLine, QtyType, SalesLineQty, TempVATAmountLine, TempVATAmountLineRemainder);
+        IsHandled := false;
+        OnBeforeDivideAmount(SalesHeader, SalesLine, QtyType, SalesLineQty, TempVATAmountLine, TempVATAmountLineRemainder, IsHandled);
+        if IsHandled then
+            exit;
+
 
         with SalesLine do
             if (SalesLineQty = 0) or ("Unit Price" = 0) then begin
@@ -5610,8 +5617,17 @@
         end;
     end;
 
-    local procedure IsEndLoopForShippedNotInvoiced(RemQtyToBeInvoiced: Decimal; TrackingSpecificationExists: Boolean; var HasATOShippedNotInvoiced: Boolean; var SalesShptLine: Record "Sales Shipment Line"; var InvoicingTrackingSpecification: Record "Tracking Specification"; var ItemLedgEntryNotInvoiced: Record "Item Ledger Entry"; SalesLine: Record "Sales Line"): Boolean
+    local procedure IsEndLoopForShippedNotInvoiced(RemQtyToBeInvoiced: Decimal; TrackingSpecificationExists: Boolean; var HasATOShippedNotInvoiced: Boolean; var SalesShptLine: Record "Sales Shipment Line"; var InvoicingTrackingSpecification: Record "Tracking Specification"; var ItemLedgEntryNotInvoiced: Record "Item Ledger Entry"; SalesLine: Record "Sales Line") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsEndLoopForShippedNotInvoiced(
+            RemQtyToBeInvoiced, TrackingSpecificationExists, HasATOShippedNotInvoiced, SalesShptLine,
+            InvoicingTrackingSpecification, ItemLedgEntryNotInvoiced, SalesLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if TrackingSpecificationExists then
             exit((InvoicingTrackingSpecification.Next() = 0) or (RemQtyToBeInvoiced = 0));
 
@@ -6468,7 +6484,7 @@
             end;
             OnBeforePurchRcptLineInsert(PurchRcptLine, PurchRcptHeader, PurchOrderLine, DropShptPostBuffer, SuppressCommit);
             Insert;
-            OnAfterPurchRcptLineInsert(PurchRcptLine, PurchRcptHeader, PurchOrderLine, DropShptPostBuffer, SuppressCommit);
+            OnAfterPurchRcptLineInsert(PurchRcptLine, PurchRcptHeader, PurchOrderLine, DropShptPostBuffer, SuppressCommit, TempSalesLineGlobal);
         end;
     end;
 
@@ -6626,10 +6642,11 @@
         end;
     end;
 
-    local procedure SendICDocument(var SalesHeader: Record "Sales Header"; var ModifyHeader: Boolean)
+    local procedure SendICDocument(var SalesHeader: Record "Sales Header")
     var
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         IsHandled: Boolean;
+        ModifyHeader: Boolean;
     begin
         IsHandled := false;
         OnBeforeSendICDocument(SalesHeader, ModifyHeader, IsHandled);
@@ -7215,6 +7232,7 @@
         EndLoop: Boolean;
         QtyToBeInvoiced: Decimal;
         QtyToBeInvoicedBase: Decimal;
+        ShouldAdjustQuantityRounding: Boolean;
         IsHandled: Boolean;
     begin
         with SalesHeader do begin
@@ -7260,7 +7278,11 @@
                         TempTrackingSpecification.Modify();
                     end;
 
-                    if TrackingSpecificationExists then
+                    ShouldAdjustQuantityRounding := TrackingSpecificationExists;
+                    OnPostItemTrackingForReceiptOnBeforeAdjustQuantityRounding(
+                        ReturnRcptLine, RemQtyToBeInvoiced, QtyToBeInvoiced, RemQtyToBeInvoicedBase, QtyToBeInvoicedBase,
+                        TrackingSpecificationExists, ShouldAdjustQuantityRounding);
+                    if ShouldAdjustQuantityRounding then
                         ItemTrackingMgt.AdjustQuantityRounding(
                           RemQtyToBeInvoiced, QtyToBeInvoiced,
                           RemQtyToBeInvoicedBase, QtyToBeInvoicedBase);
@@ -7352,6 +7374,7 @@
         RemQtyToInvoiceCurrLineBase: Decimal;
         QtyToBeInvoiced: Decimal;
         QtyToBeInvoicedBase: Decimal;
+        ShouldAdjustQuantityRounding: Boolean;
         IsHandled: Boolean;
     begin
         with SalesHeader do begin
@@ -7407,7 +7430,11 @@
                         TempTrackingSpecification.Modify();
                     end;
 
-                    if TrackingSpecificationExists or HasATOShippedNotInvoiced then
+                    ShouldAdjustQuantityRounding := TrackingSpecificationExists or HasATOShippedNotInvoiced;
+                    OnPostItemTrackingForShipmentOnBeforeAdjustQuantityRounding(
+                        SalesShptLine, RemQtyToInvoiceCurrLine, QtyToBeInvoiced, RemQtyToInvoiceCurrLineBase, QtyToBeInvoicedBase,
+                        TrackingSpecificationExists, HasATOShippedNotInvoiced, ShouldAdjustQuantityRounding);
+                    if ShouldAdjustQuantityRounding then
                         ItemTrackingMgt.AdjustQuantityRounding(
                           RemQtyToInvoiceCurrLine, QtyToBeInvoiced,
                           RemQtyToInvoiceCurrLineBase, QtyToBeInvoicedBase);
@@ -8226,7 +8253,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPurchRcptLineInsert(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchOrderLine: Record "Purchase Line"; DropShptPostBuffer: Record "Drop Shpt. Post. Buffer"; CommitIsSuppressed: Boolean)
+    local procedure OnAfterPurchRcptLineInsert(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchOrderLine: Record "Purchase Line"; DropShptPostBuffer: Record "Drop Shpt. Post. Buffer"; CommitIsSuppressed: Boolean; var TempSalesLineGlobal: Record "Sales Line" temporary)
     begin
     end;
 
@@ -8246,7 +8273,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFinalizePostingOnBeforeCommit(var SalesHeader: Record "Sales Header"; var SalesShipmentHeader: Record "Sales Shipment Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnReceiptHeader: Record "Return Receipt Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; WhseShip: Boolean; WhseReceive: Boolean)
+    local procedure OnAfterFinalizePostingOnBeforeCommit(var SalesHeader: Record "Sales Header"; var SalesShipmentHeader: Record "Sales Shipment Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnReceiptHeader: Record "Return Receipt Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; WhseShip: Boolean; WhseReceive: Boolean; EverythingInvoiced: Boolean)
     begin
     end;
 
@@ -8377,6 +8404,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInvoiceRoundingAmount(SalesHeader: Record "Sales Header"; TotalAmountIncludingVAT: Decimal; UseTempData: Boolean; var InvoiceRoundingAmount: Decimal; CommitIsSuppressed: Boolean; var TotalSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsEndLoopForShippedNotInvoiced(RemQtyToBeInvoiced: Decimal; TrackingSpecificationExists: Boolean; var HasATOShippedNotInvoiced: Boolean; var SalesShptLine: Record "Sales Shipment Line"; var InvoicingTrackingSpecification: Record "Tracking Specification"; var ItemLedgEntryNotInvoiced: Record "Item Ledger Entry"; SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -8738,7 +8770,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDivideAmount(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; var SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
+    local procedure OnBeforeDivideAmount(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; var SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; var IsHandled: Boolean)
     begin
     end;
 
@@ -9315,6 +9347,8 @@
             if SalesSetup."Correct. Doc. No. Mandatory" then
                 SalesHeader.TestField("Corrected Invoice No.")
             else begin
+                if SalesHeader."Correction Type" = SalesHeader."Correction Type"::Removal then
+                    SalesHeader.TestField("Corrected Invoice No.");
                 if SalesHeader."Corrected Invoice No." = '' then
                     if not ConfirmManagement.GetResponseOrDefault(Text1100000, true) then
                         Error(Text1100011);
@@ -9542,7 +9576,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertShipmentLineOnAfterInitQuantityFields(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; SalesShptLine: Record "Sales Shipment Line")
+    local procedure OnInsertShipmentLineOnAfterInitQuantityFields(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; var SalesShptLine: Record "Sales Shipment Line")
     begin
     end;
 
@@ -9666,7 +9700,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnCheckTrackingAndWarehouseForReceiveOnBeforeCheck(var SalesHeader: Record "Sales Header"; var TempWhseShipmentHeader: Record "Warehouse Shipment Header" temporary; var TempWhseReceiptHeader: Record "Warehouse Receipt Header" temporary; var Receive: Boolean)
     begin
     end;
@@ -9877,6 +9911,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostItemTrackingForShipmentOnBeforeAdjustQuantityRounding(SalesShptLine: Record "Sales Shipment Line"; RemQtyToInvoiceCurrLine: Decimal; var QtyToBeInvoiced: Decimal; RemQtyToInvoiceCurrLineBase: Decimal; QtyToBeInvoicedBase: Decimal; TrackingSpecificationExists: Boolean; HasATOShippedNotInvoiced: Boolean; var ShouldAdjustQuantityRounding: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostItemTrackingForShipmentOnBeforeShipmentInvoiceErr(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -10068,6 +10107,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemTrackingForReceiptOnBeforeReturnRcptLineModify(SalesHeader: Record "Sales Header"; var ReturnRcptLine: Record "Return Receipt Line"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemTrackingForReceiptOnBeforeAdjustQuantityRounding(ReturnRcptLine: Record "Return Receipt Line"; RemQtyToInvoiceCurrLine: Decimal; var QtyToBeInvoiced: Decimal; RemQtyToInvoiceCurrLineBase: Decimal; QtyToBeInvoicedBase: Decimal; TrackingSpecificationExists: Boolean; var ShouldAdjustQuantityRounding: Boolean)
     begin
     end;
 

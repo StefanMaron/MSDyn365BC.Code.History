@@ -673,6 +673,8 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     var
         PurchaseHeader: Record "Purchase Header";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ElementValue: Variant;
+        ReportOriginalAmt: Decimal;
         DocumentNo: Code[20];
     begin
         // Check Vendor Balance To Date with Currency.
@@ -688,8 +690,10 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Save and Verify Report Vendor Balance to Date.
         SaveVendorBalanceToDate(PurchaseHeader, true, false, false);
         VerifyVendorBalanceToDate(PurchaseHeader."Buy-from Vendor No.", DocumentNo);
-        with VendorLedgerEntry do
-            LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format("Original Amt. (LCY)"));
+        LibraryReportDataset.MoveToRow(1);
+        LibraryReportDataset.GetElementValueInCurrentRow('OriginalAmt', ElementValue);
+        Evaluate(ReportOriginalAmt, Format(ElementValue));
+        VendorLedgerEntry.TestField("Original Amt. (LCY)", ReportOriginalAmt);
 
         asserterror LibraryReportDataset.AssertElementWithValueExists('', PurchaseHeader."Currency Code");
     end;

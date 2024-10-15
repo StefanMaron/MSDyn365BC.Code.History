@@ -308,6 +308,74 @@ codeunit 133769 "Daily Report Tests"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('DayBookCustLedgerEntryRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure DayBookCustLedgerEntryTaxEntries()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VATEntry1: Record "VAT Entry";
+        VATEntry2: Record "VAT Entry";
+    begin
+        // [FEATURE] [Sales] [Tax]
+        // [SCENARIO 408134] Day Book Cust. Ledger Entry report for Tax Entries
+
+        // [GIVEN] Customer Ledger Entry with VAT Entries
+        LibraryVariableStorage.Clear();
+        DeleteObjectOptionsIfNeeded();
+        CreateCustomerLedgerEntry(CustLedgerEntry, false);
+
+        // [GIVEN] VAT Entries for document with Tax Area has two Tax Jusrisdicions and 2 lines with Amounts = 1000 and 1500.
+        // [GIVEN] Entries for "TJ1": 1. "TaxGroup1" with Base1 = 1000, Amount = 2; 2. "TaxGroup2" with Base2 = 1500 Amount = 3;
+        // [GIVEN] Entries for "TJ2": 3. "TaxGroup1" with Base1 = 1000, Amount = 6; 4. "TaxGroup2" with Base2 = 1500 Amount = 9;
+        CreateVATEntriesWithTaxDetails(
+          VATEntry1, VATEntry2, CustLedgerEntry."Transaction No.", VATEntry1.Type::" ",
+          LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandIntInRange(100, 200), CustLedgerEntry."Customer No.");
+
+        // [WHEN] Run Day Book Cust. Ledger Entry report
+        REPORT.Run(REPORT::"Day Book Cust. Ledger Entry");  // Opens DayBookCustLedgerEntryRequestPageHandler.
+
+        // [THEN] VAT Amount = 20, VAT Base = 2500 in the report
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(VATAmountCapTxt, -(VATEntry1.Amount + VATEntry2.Amount));
+        LibraryReportDataset.AssertElementWithValueExists(VATBaseCapTxt, -(VATEntry1.Base + VATEntry2.Base));
+    end;
+
+    [Test]
+    [HandlerFunctions('DayBookVendorLedgerEntryRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure DayBookVendorLedgerEntryTaxEntries()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VATEntry1: Record "VAT Entry";
+        VATEntry2: Record "VAT Entry";
+    begin
+        // [FEATURE] [Purchase] [Tax]
+        // [SCENARIO 408134] Day Book Vendor Ledger Entry report for Tax Entries
+
+        // [GIVEN] Vendor Ledger Entry with VAT Entries
+        LibraryVariableStorage.Clear();
+        DeleteObjectOptionsIfNeeded();
+        CreateVendorLedgerEntry(VendorLedgerEntry, '', LibraryUTUtility.GetNewCode, false, 0, VendorLedgerEntry."Document Type"::Invoice);
+
+        // [GIVEN] VAT Entries for document with Tax Area has two Tax Jusrisdicions and 2 lines with Amounts = 1000 and 1500.
+        // [GIVEN] Entries for "TJ1": 1. "TaxGroup1" with Base1 = 1000, Amount = 2; 2. "TaxGroup2" with Base2 = 1500 Amount = 3;
+        // [GIVEN] Entries for "TJ2": 3. "TaxGroup1" with Base1 = 1000, Amount = 6; 4. "TaxGroup2" with Base2 = 1500 Amount = 9;
+        CreateVATEntriesWithTaxDetails(
+          VATEntry1, VATEntry2, VendorLedgerEntry."Transaction No.", VATEntry1.Type::" ",
+          LibraryRandom.RandIntInRange(100, 200), LibraryRandom.RandIntInRange(100, 200), VendorLedgerEntry."Vendor No.");
+
+        // [WHEN] Run Day Book Vendor Ledger Entry report
+        REPORT.Run(REPORT::"Day Book Vendor Ledger Entry");  // Opens DayBookVendorLedgerEntryRequestPageHandler.
+
+        // [THEN] VAT Amount = 20, VAT Base = 2500 in the report
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(VATAmountCapTxt, -(VATEntry1.Amount + VATEntry2.Amount));
+        LibraryReportDataset.AssertElementWithValueExists(VATBaseCapTxt, -(VATEntry1.Base + VATEntry2.Base));
+    end;
+
     local procedure InitReports()
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -461,11 +529,9 @@ codeunit 133769 "Daily Report Tests"
     end;
 
     local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; TransactionNo: Integer; Type: Enum "General Posting Type"; Base: Decimal; VATProdPostingSetup: Code[10]; VATBusPostingSetup: Code[10]; BillToPayToNo: Code[20])
-    var
-        VATEntry2: Record "VAT Entry";
     begin
-        VATEntry2.FindLast;
-        VATEntry."Entry No." := VATEntry2."Entry No." + 1;
+        VATEntry.Init;
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
         VATEntry.Type := Type;
         VATEntry."Transaction No." := TransactionNo;
         VATEntry."Bill-to/Pay-to No." := BillToPayToNo;
@@ -478,6 +544,46 @@ codeunit 133769 "Daily Report Tests"
         VATEntry.Amount := LibraryRandom.RandDec(10, 2);
         VATEntry."Posting Date" := WorkDate;
         VATEntry.Insert();
+    end;
+
+    local procedure CreateVATEntriesWithTaxDetails(var VATEntry1: Record "VAT Entry"; var VATEntry2: Record "VAT Entry"; TransactionNo: Integer; Type: Enum "General Posting Type"; Base1: Decimal; Base2: Decimal; BillToPayToNo: Code[20])
+    var
+        TaxAreaCode: Code[20];
+        TaxGroupCode1: Code[20];
+        TaxGroupCode2: Code[20];
+    begin
+        TaxAreaCode := LibraryUtility.GenerateGUID();
+        TaxGroupCode1 := LibraryUtility.GenerateGUID();
+        TaxGroupCode2 := LibraryUtility.GenerateGUID();
+
+        // VAT Entries with Tax Area/ Tax Group/ Tax Jurisdiction:
+        // "TJ1": 1. "TG1" with Base1; 2. "TG2" with Base2;
+        // "TJ2": 3. "TG1" with Base1; 4. "TG2" with Base2
+        CreateVATEntry(VATEntry1, TransactionNo, Type, Base1, '', '', BillToPayToNo);
+        UpdateVATEntryWithTaxDetails(VATEntry1, TaxAreaCode, TaxGroupCode1);
+        CreateVATEntry(VATEntry2, TransactionNo, Type, Base2, '', '', BillToPayToNo);
+        UpdateVATEntryWithTaxDetails(VATEntry2, TaxAreaCode, TaxGroupCode2);
+        CreateVATEntry(VATEntry1, TransactionNo, Type, Base1, '', '', BillToPayToNo);
+        UpdateVATEntryWithTaxDetails(VATEntry1, TaxAreaCode, TaxGroupCode1);
+        CreateVATEntry(VATEntry2, TransactionNo, Type, Base2, '', '', BillToPayToNo);
+        UpdateVATEntryWithTaxDetails(VATEntry2, TaxAreaCode, TaxGroupCode2);
+
+        // Calculate Base and Amount per each Tax Group
+        VATEntry1.SetRange("Tax Group Code", TaxGroupCode1);
+        VATEntry1.FindFirst();
+        VATEntry1.CalcSums(Amount);
+        VATEntry2.SetRange("Tax Group Code", TaxGroupCode2);
+        VATEntry2.FindFirst();
+        VATEntry2.CalcSums(Amount);
+    end;
+
+    local procedure UpdateVATEntryWithTaxDetails(var VATEntry: Record "VAT Entry"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
+    begin
+        VATEntry."Tax Liable" := true;
+        VATEntry."Tax Area Code" := TaxAreaCode;
+        VATEntry."Tax Group Code" := TaxGroupCode;
+        VATEntry."Tax Jurisdiction Code" := LibraryUTUtility.GetNewCode10();
+        VATEntry.Modify();
     end;
 
     local procedure VerifyValuesOnReport(ElementName: Text; ElementName2: Text; ExpectedValue: Variant; ExpectedValue2: Variant)

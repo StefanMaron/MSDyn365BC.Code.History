@@ -54,10 +54,10 @@ report 593 "Intrastat - Make Declaration"
 
                     "Tariff No." := DelChr("Tariff No.");
 #if CLEAN19
-                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Declaration", true);
+                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Declaration", false);
 #else
                     if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Declaration", true)
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Declaration", false)
                     else begin
                         TestField("Tariff No.");
                         TestField("Country/Region Code");
@@ -124,6 +124,12 @@ report 593 "Intrastat - Make Declaration"
 
                 trigger OnPostDataItem()
                 begin
+#if CLEAN19
+                    IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
+#else
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
+#endif
                     "Intrastat Jnl. Batch".Reported := true;
                     "Intrastat Jnl. Batch".Modify();
 

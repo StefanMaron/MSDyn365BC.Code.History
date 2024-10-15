@@ -1252,13 +1252,15 @@ page 132 "Posted Sales Invoice"
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         SIIManagement: Codeunit "SII Management";
     begin
-        HasIncomingDocument := IncomingDocument.PostedDocExists("No.", "Posting Date");
-        DocExchStatusStyle := GetDocExchStatusStyle;
-        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
-        if CRMIntegrationEnabled then begin
-            CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
-            if "No." <> xRec."No." then
-                CRMIntegrationManagement.SendResultNotification(Rec);
+        if GuiAllowed() then begin
+            HasIncomingDocument := IncomingDocument.PostedDocExists("No.", "Posting Date");
+            DocExchStatusStyle := GetDocExchStatusStyle;
+            CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
+            if CRMIntegrationEnabled then begin
+                CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
+                if "No." <> xRec."No." then
+                    CRMIntegrationManagement.SendResultNotification(Rec);
+            end;
         end;
         UpdatePaymentService;
         DocExcStatusVisible := DocExchangeStatusIsSent;

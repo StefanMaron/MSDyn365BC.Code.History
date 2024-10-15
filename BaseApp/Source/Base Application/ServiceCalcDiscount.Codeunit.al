@@ -121,6 +121,7 @@ codeunit 5950 "Service-Calc. Discount"
                         ServiceLine2.Validate("No.", CustPostingGr.GetServiceChargeAccount);
                         ServiceLine2.Description := Text000;
                         ServiceLine2.Validate(Quantity, 1);
+                        OnCalculateInvoiceDiscountOnAfterServiceLine2ValidateQuantity(ServHeader, ServiceLine2, CustInvDisc);
                         if ServHeader."Prices Including VAT" then
                             ServiceLine2.Validate(
                               "Unit Price",
@@ -325,6 +326,11 @@ codeunit 5950 "Service-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcServDiscount(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnAfterServiceLine2ValidateQuantity(var ServiceHeader: Record "Service Header"; var ServiceLine2: Record "Service Line"; var CustInvDisc: Record "Cust. Invoice Disc.")
     begin
     end;
 }

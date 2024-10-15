@@ -227,12 +227,16 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
             PurchaseLine.Validate("Line Discount %")
         else
             PurchaseLine.Validate("Direct Unit Cost");
+
+        OnAfterValidatePrice(PurchaseLine, CurrPriceType, AmountType);
     end;
 
     procedure Update(AmountType: enum "Price Amount Type")
     begin
         if not DiscountIsAllowed then
             PurchaseLine."Line Discount %" := 0;
+
+        OnAfterUpdate(PurchaseLine, CurrPriceType, AmountType);
     end;
 
     [IntegrationEvent(false, false)]
@@ -260,6 +264,16 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPrice(var PurchaseLine: Record "Purchase Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdate(var PurchaseLine: Record "Purchase Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidatePrice(var PurchaseLine: Record "Purchase Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
     begin
     end;
 }

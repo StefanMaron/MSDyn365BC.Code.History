@@ -278,8 +278,12 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         AddCurrChecked: Boolean;
         MaxPostingDate: Date;
         HideProgressWindow: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforePostUnApplyCustomerCommit(HideProgressWindow);
+        IsHandled := false;
+        OnBeforePostUnApplyCustomerCommit(HideProgressWindow, PreviewMode, DtldCustLedgEntry2, DocNo, PostingDate, CommitChanges, IsHandled);
+        if IsHandled then
+            exit;
 
         MaxPostingDate := 0D;
         GLEntry.LockTable();
@@ -702,7 +706,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostUnApplyCustomerCommit(var HideProgressWindow: Boolean);
+    local procedure OnBeforePostUnApplyCustomerCommit(var HideProgressWindow: Boolean; PreviewMode: Boolean; DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; DocNo: Code[20]; PostingDate: Date; CommitChanges: Boolean; var IsHandled: Boolean);
     begin
     end;
 

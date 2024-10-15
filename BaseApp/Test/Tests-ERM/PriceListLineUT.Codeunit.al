@@ -562,7 +562,7 @@ codeunit 134123 "Price List Line UT"
     begin
         // [SCENARIO] OnInsert() does not control data consistency, does not increments "Line No." for the temp record.
         Initialize();
-        // [GIVEN] Price list line, where "Source Type" is 'Customer', "Asset Type" is 'Item', but "Source No." and "Asset No." are blank, 
+        // [GIVEN] Price List Line, where "Source Type" is 'Customer', "Asset Type" is 'Item', but "Source No." and "Asset No." are blank, 
         LineNo := LibraryRandom.RandInt(100);
         TempPriceListLine."Line No." := LineNo;
         TempPriceListLine.Validate("Source Type", "Price Source Type"::Customer);
@@ -769,7 +769,7 @@ codeunit 134123 "Price List Line UT"
         // [FEATURE] [Work Type] [Item]
         // [SCENARIO] "Work Type Code" must not be filled for product type 'Item'
         Initialize();
-        // [GIVEN] Price list line, where "Asset Type" is 'Item' 
+        // [GIVEN] Price List Line, where "Asset Type" is 'Item' 
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
         // [WHEN] Validate "Work Type Code" with a valid code
         asserterror PriceListLine.Validate("Work Type Code", GetWorkTypeCode());
@@ -787,7 +787,7 @@ codeunit 134123 "Price List Line UT"
         // [FEATURE] [Work Type] [Resource]
         // [SCENARIO] "Work Type Code" can be filled for product type 'Resource'
         Initialize();
-        // [GIVEN] Price list line, where "Asset Type" is 'Resource', "Asset No." is 'R'
+        // [GIVEN] Price List Line, where "Asset Type" is 'Resource', "Asset No." is 'R'
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Resource);
         LibraryResource.CreateResource(Resource, '');
         PriceListLine.Validate("Asset No.", Resource."No.");
@@ -815,7 +815,7 @@ codeunit 134123 "Price List Line UT"
         // [FEATURE] [Work Type] [Resource Group]
         // [SCENARIO] "Work Type Code" can be filled for product type 'Resource Group'
         Initialize();
-        // [GIVEN] Price list line, where "Asset Type" is 'Resource', "Asset No." is 'R'
+        // [GIVEN] Price List Line, where "Asset Type" is 'Resource', "Asset No." is 'R'
         PriceListLine.Validate("Asset Type", "Price Asset Type"::"Resource Group");
         LibraryResource.CreateResourceGroup(ResourceGroup);
         PriceListLine.Validate("Asset No.", ResourceGroup."No.");
@@ -843,7 +843,7 @@ codeunit 134123 "Price List Line UT"
         // [FEATURE] [Resource Group] [Unit of Measure]
         // [SCENARIO] "Unit of Measure Code" can be filled for product type 'Resource Group'
         Initialize();
-        // [GIVEN] Price list line, where "Asset Type" is 'Resource', "Asset No." is 'R'
+        // [GIVEN] Price List Line, where "Asset Type" is 'Resource', "Asset No." is 'R'
         PriceListLine.Validate("Asset Type", "Price Asset Type"::"Resource Group");
         LibraryResource.CreateResourceGroup(ResourceGroup);
         PriceListLine.Validate("Asset No.", ResourceGroup."No.");
@@ -867,7 +867,7 @@ codeunit 134123 "Price List Line UT"
         // [FEATURE] [Resource] [Unit of Measure]
         // [SCENARIO] "Unit of Measure Code" can be filled for product type 'Resource'
         Initialize();
-        // [GIVEN] Price list line, where "Asset Type" is 'Resource', "Asset No." is 'R'
+        // [GIVEN] Price List Line, where "Asset Type" is 'Resource', "Asset No." is 'R'
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Resource);
         LibraryResource.CreateResource(Resource, '');
         PriceListLine.Validate("Asset No.", Resource."No.");
@@ -891,7 +891,7 @@ codeunit 134123 "Price List Line UT"
     begin
         // [SCENARIO] "Variant Code" can be filled for product type 'Item'
         Initialize();
-        // [GIVEN] Price list line, where "Asset Type" is 'Item', "Asset No." is 'I' 
+        // [GIVEN] Price List Line, where "Asset Type" is 'Item', "Asset No." is 'I' 
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
         LibraryInventory.CreateItem(Item);
         PriceListLine.Validate("Asset No.", Item."No.");
@@ -911,7 +911,7 @@ codeunit 134123 "Price List Line UT"
     begin
         // [SCENARIO] "Variant Code" cannot be filled for product type 'Item', but blank "Asset No."
         Initialize();
-        // [GIVEN] Price list line, where "Asset Type" is 'Item', "Asset No." is <blank> 
+        // [GIVEN] Price List Line, where "Asset Type" is 'Item', "Asset No." is <blank> 
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
         PriceListLine.Validate("Asset No.", '');
         // [WHEN] Validate "Variant Code" with a valid code 'V'
@@ -929,7 +929,7 @@ codeunit 134123 "Price List Line UT"
     begin
         // [SCENARIO] "Unit Price" cannot be filled if "Asset Type" is blank.
         Initialize();
-        // [GIVEN] Price list line, where "Asset Type" is 'All', "Asset No." is <blank> 
+        // [GIVEN] Price List Line, where "Asset Type" is 'All', "Asset No." is <blank> 
         PriceListLine.Validate("Price Type", "Price Type"::Sale);
         PriceListLine.Validate("Asset Type", "Price Asset Type"::" ");
         // [WHEN] Validate "Unit Price" as 1
@@ -945,7 +945,7 @@ codeunit 134123 "Price List Line UT"
     begin
         // [SCENARIO] "Unit Price" cannot be filled if "Asset Type" is blank.
         Initialize();
-        // [GIVEN] Price list line, where "Asset Type" is 'All', "Asset No." is <blank> 
+        // [GIVEN] Price List Line, where "Asset Type" is 'All', "Asset No." is <blank> 
         PriceListLine.Validate("Price Type", "Price Type"::Purchase);
         PriceListLine.Validate("Asset Type", "Price Asset Type"::" ");
         // [WHEN] Validate "Direct Unit Cost" as 1
@@ -961,7 +961,7 @@ codeunit 134123 "Price List Line UT"
     begin
         // [SCENARIO] "Line Discount %" cannot be filled if "Asset Type" is blank.
         Initialize();
-        // [GIVEN] Price list line, where "Asset Type" is 'All', "Asset No." is <blank> 
+        // [GIVEN] Price List Line, where "Asset Type" is 'All', "Asset No." is <blank> 
         PriceListLine.Validate("Price Type", "Price Type"::Sale);
         PriceListLine.Validate("Asset Type", "Price Asset Type"::" ");
         // [WHEN] Validate "Line Discount %" as 1
@@ -1085,7 +1085,7 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
     begin
-        // [SCENARIO] Price List line should be editable only if Status is 'Draft'.
+        // [SCENARIO] Price List Line should be editable only if Status is 'Draft'.
         Initialize();
 
         PriceListLine.Status := PriceListLine.Status::Draft;
@@ -1104,7 +1104,7 @@ codeunit 134123 "Price List Line UT"
         PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Allow Editing Active Price]
-        // [SCENARIO] Price List line should be editable only if Status is 'Draft' or 'Active' and "Allow Editing Active Price" is on.
+        // [SCENARIO] Price List Line should be editable only if Status is 'Draft' or 'Active' and "Allow Editing Active Price" is on.
         Initialize();
         // [GIVEN] Allow Editing Active Purchase Price
         LibraryPriceCalculation.AllowEditingActivePurchPrice();
@@ -1142,7 +1142,7 @@ codeunit 134123 "Price List Line UT"
         PriceListLine.Insert();
         // [WHEN] Delete line with status Inactive
         // [THEN] line is deleted
-        Assert.IsTrue(PriceListLine.Delete(true), 'Draft line not deleted');
+        Assert.IsTrue(PriceListLine.Delete(true), 'Inactive line not deleted');
 
         // [GIVEN] Price line, where Status is Active
         PriceListLine.Status := PriceListLine.Status::Active;
@@ -1151,7 +1151,7 @@ codeunit 134123 "Price List Line UT"
 
         // [WHEN] Delete line with status Active
         asserterror PriceListLine.Delete(true);
-        // [THEN] Error message: 'Caanot delete active line...'
+        // [THEN] Error message: 'Cannot delete active line...'
         Assert.ExpectedError(StrSubstNo(CannotDeleteActivePriceListLineErr, PriceListLine."Price List Code", PriceListLine."Line No."));
     end;
 
@@ -1322,9 +1322,9 @@ codeunit 134123 "Price List Line UT"
         PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Price Source Type] [Extended]
-        // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to No. is filled.
+        // [SCENARIO] Verify source in the line fails on inconsistent source: Applies-to No. is filled.
         Initialize();
-        // [GIVEN] New price list line, where "Source Type"::"All Locations", "Source No." is 'X'
+        // [GIVEN] New Price List Line, where "Source Type"::"All Locations", "Source No." is 'X'
         PriceListLine."Source Type" := "Price Source Type"::Test_All_Locations;
         PriceListLine."Source No." := 'X';
 
@@ -1341,9 +1341,9 @@ codeunit 134123 "Price List Line UT"
         PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Price Source Type] [Extended]
-        // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to No. is blank.
+        // [SCENARIO] Verify source in the line fails on inconsistent source: Applies-to No. is blank.
         Initialize();
-        // [GIVEN] New price list line, where "Source Type"::"Location", "Parent Source No." is 'X', "Source No." is <blank>
+        // [GIVEN] New Price List Line, where "Source Type"::"Location", "Parent Source No." is 'X', "Source No." is <blank>
         PriceListLine."Source Type" := "Price Source Type"::Test_Location;
         PriceListLine."Parent Source No." := 'X';
         PriceListLine."Source No." := '';
@@ -1361,9 +1361,9 @@ codeunit 134123 "Price List Line UT"
         PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Price Source Type] [Extended]
-        // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to Parent No. is filled.
+        // [SCENARIO] Verify source in the line fails on inconsistent source: Applies-to Parent No. is filled.
         Initialize();
-        // [GIVEN] New price list line, where "Source Type"::"All Locations", "Parent Source No." is 'X'
+        // [GIVEN] New Price List Line, where "Source Type"::"All Locations", "Parent Source No." is 'X'
         PriceListLine."Source Type" := "Price Source Type"::Test_All_Locations;
         PriceListLine."Parent Source No." := 'X';
 
@@ -1380,9 +1380,9 @@ codeunit 134123 "Price List Line UT"
         PriceListLine: Record "Price List Line";
     begin
         // [FEATURE] [Price Source Type] [Extended]
-        // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to Parent No. is blank.
+        // [SCENARIO] Verify source in the line fails on inconsistent source: Applies-to Parent No. is blank.
         Initialize();
-        // [GIVEN] New price list line, where "Source Type"::"Location", "Parent Source No." is <blank>
+        // [GIVEN] New Price List Line, where "Source Type"::"Location", "Parent Source No." is <blank>
         PriceListLine."Source Type" := "Price Source Type"::Test_Location;
         PriceListLine."Parent Source No." := '';
 
@@ -2166,7 +2166,7 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Delete Resource 'A'
         Resource[1].Delete(true);
 
-        // [THEN] Price list lines for Resource 'A' are deleted, for Resource 'B' are not deleted
+        // [THEN] Price List Lines for Resource 'A' are deleted, for Resource 'B' are not deleted
         VerifyDeletedAssetPrices("Price Asset Type"::Resource, Resource[1]."No.", Resource[2]."No.");
     end;
 
@@ -2186,7 +2186,7 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Delete ResourceGroup 'A'
         ResourceGroup[1].Delete(true);
 
-        // [THEN] Price list lines for ResourceGroup 'A' are deleted, for ResourceGroup 'B' are not deleted
+        // [THEN] Price List Lines for ResourceGroup 'A' are deleted, for ResourceGroup 'B' are not deleted
         VerifyDeletedAssetPrices("Price Asset Type"::"Resource Group", ResourceGroup[1]."No.", ResourceGroup[2]."No.");
     end;
 
@@ -2206,7 +2206,7 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Delete Item 'A'
         Item[1].Delete(true);
 
-        // [THEN] Price list lines for Item 'A' are deleted, for Item 'B' are not deleted
+        // [THEN] Price List Lines for Item 'A' are deleted, for Item 'B' are not deleted
         VerifyDeletedAssetPrices("Price Asset Type"::Item, Item[1]."No.", Item[2]."No.");
     end;
 
@@ -2226,7 +2226,7 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Delete "Item Discount Group" 'A'
         ItemDiscountGroup[1].Delete(true);
 
-        // [THEN] Price list lines for "Item Discount Group" 'A' are deleted, for "Item Discount Group" 'B' are not deleted
+        // [THEN] Price List Lines for "Item Discount Group" 'A' are deleted, for "Item Discount Group" 'B' are not deleted
         VerifyDeletedAssetPrices("Price Asset Type"::"Item Discount Group", ItemDiscountGroup[1].Code, ItemDiscountGroup[2].Code);
     end;
 
@@ -2251,7 +2251,7 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Delete G/L Account 'A'
         GLAccount[1].Delete(true);
 
-        // [THEN] Price list lines for G/L Account 'A' are deleted, for G/L Account 'B' are not deleted
+        // [THEN] Price List Lines for G/L Account 'A' are deleted, for G/L Account 'B' are not deleted
         VerifyDeletedAssetPrices("Price Asset Type"::"G/L Account", GLAccount[1]."No.", GLAccount[2]."No.");
     end;
 
@@ -2271,7 +2271,7 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Delete Service Cost 'A'
         ServiceCost[1].Delete(true);
 
-        // [THEN] Price list lines for Service Cost 'A' are deleted, for Service Cost 'B' are not deleted
+        // [THEN] Price List Lines for Service Cost 'A' are deleted, for Service Cost 'B' are not deleted
         VerifyDeletedAssetPrices("Price Asset Type"::"Service Cost", ServiceCost[1].Code, ServiceCost[2].Code);
     end;
 
@@ -2293,7 +2293,7 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Delete Item Variant 'A'
         ItemVariant[1].Delete(true);
 
-        // [THEN] Price list lines for Item Variant 'A' are deleted, for Item Variant 'B' are not deleted
+        // [THEN] Price List Lines for Item Variant 'A' are deleted, for Item Variant 'B' are not deleted
         VerifyDeletedAssetPrices(Item."No.", ItemVariant[1].Code, ItemVariant[2].Code);
     end;
 
@@ -2315,7 +2315,7 @@ codeunit 134123 "Price List Line UT"
         OldNo := Resource[1]."No.";
         Resource[1].Rename(LibraryUtility.GenerateGUID());
 
-        // [THEN] Price list lines for Resource 'A' are modified to 'X', for Resource 'B' are not deleted
+        // [THEN] Price List Lines for Resource 'A' are modified to 'X', for Resource 'B' are not deleted
         VerifyRenamedAssetPrices("Price Asset Type"::Resource, Resource[1]."No.", Resource[2]."No.", OldNo);
     end;
 
@@ -2337,7 +2337,7 @@ codeunit 134123 "Price List Line UT"
         OldNo := ResourceGroup[1]."No.";
         ResourceGroup[1].Rename(LibraryUtility.GenerateGUID());
 
-        // [THEN] Price list lines for ResourceGroup 'A' are modified to 'X', for ResourceGroup 'B' are not deleted
+        // [THEN] Price List Lines for ResourceGroup 'A' are modified to 'X', for ResourceGroup 'B' are not deleted
         VerifyRenamedAssetPrices("Price Asset Type"::"Resource Group", ResourceGroup[1]."No.", ResourceGroup[2]."No.", OldNo);
     end;
 
@@ -2359,7 +2359,7 @@ codeunit 134123 "Price List Line UT"
         OldNo := Item[1]."No.";
         Item[1].Rename(LibraryUtility.GenerateGUID());
 
-        // [THEN] Price list lines for Item 'A' are modified to 'X', for Item 'B' are not deleted
+        // [THEN] Price List Lines for Item 'A' are modified to 'X', for Item 'B' are not deleted
         VerifyRenamedAssetPrices("Price Asset Type"::Item, Item[1]."No.", Item[2]."No.", OldNo);
     end;
 
@@ -2381,7 +2381,7 @@ codeunit 134123 "Price List Line UT"
         OldNo := ItemDiscountGroup[1].Code;
         ItemDiscountGroup[1].Rename(LibraryUtility.GenerateGUID());
 
-        // [THEN] Price list lines for "Item Discount Group" 'A' are modified to 'X', for "Item Discount Group" 'B' are not deleted
+        // [THEN] Price List Lines for "Item Discount Group" 'A' are modified to 'X', for "Item Discount Group" 'B' are not deleted
         VerifyRenamedAssetPrices("Price Asset Type"::"Item Discount Group", ItemDiscountGroup[1].Code, ItemDiscountGroup[2].Code, OldNo);
     end;
 
@@ -2403,7 +2403,7 @@ codeunit 134123 "Price List Line UT"
         OldNo := GLAccount[1]."No.";
         GLAccount[1].Rename(LibraryUtility.GenerateGUID());
 
-        // [THEN] Price list lines for GLAccount 'A' are modified to 'X', for GLAccount 'B' are not deleted
+        // [THEN] Price List Lines for GLAccount 'A' are modified to 'X', for GLAccount 'B' are not deleted
         VerifyRenamedAssetPrices("Price Asset Type"::"G/L Account", GLAccount[1]."No.", GLAccount[2]."No.", OldNo);
     end;
 
@@ -2425,7 +2425,7 @@ codeunit 134123 "Price List Line UT"
         OldNo := ServiceCost[1].Code;
         ServiceCost[1].Rename(LibraryUtility.GenerateGUID());
 
-        // [THEN] Price list lines for "Service Cost" 'A' are modified to 'X', for "Service Cost" 'B' are not deleted
+        // [THEN] Price List Lines for "Service Cost" 'A' are modified to 'X', for "Service Cost" 'B' are not deleted
         VerifyRenamedAssetPrices("Price Asset Type"::"Service Cost", ServiceCost[1].Code, ServiceCost[2].Code, OldNo);
     end;
 
@@ -2449,8 +2449,30 @@ codeunit 134123 "Price List Line UT"
         OldNo := ItemVariant[1].Code;
         ItemVariant[1].Rename(Item."No.", LibraryUtility.GenerateGUID());
 
-        // [THEN] Price list lines for Item Variant 'A' are modified to 'X', for Item Variant 'B' are not deleted
+        // [THEN] Price List Lines for Item Variant 'A' are modified to 'X', for Item Variant 'B' are not deleted
         VerifyRenamedAssetPrices(Item."No.", ItemVariant[1].Code, ItemVariant[2].Code, OldNo);
+    end;
+
+    [Test]
+    procedure T137_ModifyPricesOnUnitOfMeasureRename()
+    var
+        PriceListLine: Record "Price List Line";
+        UnitOfMeasure: Array[2] of Record "Unit Of Measure";
+        OldNo: Code[20];
+    begin
+        // [FEATURE] [Unit of Measure]
+        Initialize();
+        // [GIVEN] Two "Unit of Measure" 'A' and 'B' have related price lines
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[1]);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[2]);
+        CreatePriceLinesWithUOM(UnitOfMeasure[1].Code, UnitOfMeasure[2].Code);
+
+        // [WHEN] Rename "Unit Of Measure" 'A' to 'X'
+        OldNo := UnitOfMeasure[1].Code;
+        UnitOfMeasure[1].Rename(LibraryUtility.GenerateGUID());
+
+        // [THEN] Price List Lines for "Unit Of Measure" 'A' are modified to 'X', for "Unit Of Measure" 'B' are not deleted
+        VerifyRenamedUOMs(UnitOfMeasure[1].Code, UnitOfMeasure[2].Code, OldNo);
     end;
 
     [Test]
@@ -2978,6 +3000,22 @@ codeunit 134123 "Price List Line UT"
             PriceListLine, '', "Price Source Type"::"All Customers", '', AssetType, AssetNo2);
     end;
 
+    local procedure CreatePriceLinesWithUOM(UOM1: Code[20]; UOM2: Code[20])
+    var
+        GLAccount: Record "G/L Account";
+        PriceListLine: Record "Price List Line";
+    begin
+        PriceListLine.DeleteAll();
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", GLAccount."No.");
+        PriceListLine."Unit of Measure Code" := UOM1;
+        PriceListLine.Modify();
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", GLAccount."No.");
+        PriceListLine."Unit of Measure Code" := UOM2;
+        PriceListLine.Modify();
+    end;
+
     local procedure CreateAssetPriceLines(ItemNo: Code[20]; VariantCode1: Code[10]; VariantCode2: Code[10])
     var
         PriceListLine: Record "Price List Line";
@@ -3048,6 +3086,18 @@ codeunit 134123 "Price List Line UT"
         PriceListLine.SetRange("Variant Code", VariantCode2);
         Assert.RecordCount(PriceListLine, 1);
         PriceListLine.SetRange("Variant Code", OldVariantCode);
+        Assert.RecordIsEmpty(PriceListLine);
+    end;
+
+    local procedure VerifyRenamedUOMs(UOM1: Code[20]; UOM2: Code[20]; OldUOM: Code[20])
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        PriceListLine.SetRange("Unit of Measure Code", UOM1);
+        Assert.RecordCount(PriceListLine, 1);
+        PriceListLine.SetRange("Unit of Measure Code", UOM2);
+        Assert.RecordCount(PriceListLine, 1);
+        PriceListLine.SetRange("Unit of Measure Code", OldUOM);
         Assert.RecordIsEmpty(PriceListLine);
     end;
 

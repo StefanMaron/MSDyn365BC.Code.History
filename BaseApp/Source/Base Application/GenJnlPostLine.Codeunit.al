@@ -2442,7 +2442,7 @@
             TempVATEntry."Add.-Currency Unrealized Amt." := 0;
             TempVATEntry."Add.-Currency Unrealized Base" := 0;
         end;
-        OnBeforeInsertTempVATEntry(TempVATEntry, GenJnlLine, VATEntry2);
+        OnBeforeInsertTempVATEntry(TempVATEntry, GenJnlLine, VATEntry2, VATAmount, VATBase);
         TempVATEntry.Insert();
     end;
 
@@ -6747,6 +6747,7 @@
             until PurchLine2.Next() = 0;
         end;
 
+        OnVendFindVATSetupOnBeforeErrorMessage(ErrorMessage, ExistsVATNoReal);
         if ErrorMessage then
             Error(Text1100003);
         exit(ExistsVATNoReal);
@@ -6838,6 +6839,7 @@
             until SalesLine2.Next() = 0;
         end;
 
+        OnCustFindVATSetupOnBeforeErrorMessage(ErrorMessage, ExistsVATNoReal);
         if ErrorMessage then
             Error(Text1100003);
         exit(ExistsVATNoReal);
@@ -8098,7 +8100,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertTempVATEntry(var TempVATEntry: Record "VAT Entry" temporary; GenJournalLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry")
+    local procedure OnBeforeInsertTempVATEntry(var TempVATEntry: Record "VAT Entry" temporary; GenJournalLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry"; VATAmount: Decimal; VATBase: Decimal)
     begin
     end;
 
@@ -9316,6 +9318,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterVendPostApplyVendLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; GLReg: Record "G/L Register")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCustFindVATSetupOnBeforeErrorMessage(var ErrorMessage: Boolean; var ExistsVATNoReal: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVendFindVATSetupOnBeforeErrorMessage(var ErrorMessage: Boolean; var ExistsVATNoReal: Boolean)
     begin
     end;
 

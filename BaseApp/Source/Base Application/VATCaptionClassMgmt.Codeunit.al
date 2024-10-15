@@ -16,22 +16,19 @@ codeunit 341 "VAT CaptionClass Mgmt"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Caption Class", 'OnResolveCaptionClass', '', true, true)]
     local procedure ResolveCaptionClass(CaptionArea: Text; CaptionExpr: Text; Language: Integer; var Caption: Text; var Resolved: Boolean)
     begin
-        if CaptionArea = '2' then begin
-            Caption := VATCaptionClassTranslate(CaptionArea, CaptionExpr, Language);
-            Resolved := true;
-        end;
+        if CaptionArea = '2' then
+            Caption := VATCaptionClassTranslate(CaptionArea, CaptionExpr, Language, Resolved);
     end;
 
-    local procedure VATCaptionClassTranslate(CaptionArea: Text; CaptionExpr: Text; Language: Integer): Text
+    local procedure VATCaptionClassTranslate(CaptionArea: Text; CaptionExpr: Text; Language: Integer; var Resolved: Boolean): Text
     var
         VATCaptionType: Text;
         VATCaptionRef: Text;
         CommaPosition: Integer;
         Caption: Text;
-        IsHandled: Boolean;
     begin
-        OnBeforeVATCaptionClassTranslate(CaptionArea, CaptionExpr, Language, Caption, IsHandled);
-        if IsHandled then
+        OnBeforeVATCaptionClassTranslate(CaptionArea, CaptionExpr, Language, Caption, Resolved);
+        if Resolved then
             exit(Caption);
 
         // VATCAPTIONTYPE
@@ -46,6 +43,7 @@ codeunit 341 "VAT CaptionClass Mgmt"
 
         CommaPosition := StrPos(CaptionExpr, ',');
         if CommaPosition > 0 then begin
+            Resolved := true;
             VATCaptionType := CopyStr(CaptionExpr, 1, CommaPosition - 1);
             VATCaptionRef := CopyStr(CaptionExpr, CommaPosition + 1);
             case VATCaptionType of
@@ -61,6 +59,7 @@ codeunit 341 "VAT CaptionClass Mgmt"
                     exit(AmountInclVATECTxt);
             end;
         end;
+        Resolved := false;
         exit('');
     end;
 

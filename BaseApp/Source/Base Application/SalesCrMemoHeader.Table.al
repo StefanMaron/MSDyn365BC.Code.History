@@ -632,19 +632,10 @@ table 114 "Sales Cr.Memo Header"
 
             trigger OnLookup()
             var
-                PostedSalesInvoices: Page "Posted Sales Invoices";
                 SalesInvoiceHeader: Record "Sales Invoice Header";
             begin
-                SalesInvoiceHeader.SetCurrentKey("No.");
-                SalesInvoiceHeader.SetRange("Bill-to Customer No.", "Bill-to Customer No.");
-                SalesInvoiceHeader.SetRange("No.", "Corrected Invoice No.");
-
-                PostedSalesInvoices.SetTableView(SalesInvoiceHeader);
-                PostedSalesInvoices.SetRecord(SalesInvoiceHeader);
-                PostedSalesInvoices.LookupMode(true);
-                if PostedSalesInvoices.RunModal = ACTION::LookupOK then
-                    PostedSalesInvoices.GetRecord(SalesInvoiceHeader);
-                Clear(PostedSalesInvoices);
+                if SalesInvoiceHeader.LookupInvoice("Bill-to Customer No.") then
+                    Validate("Corrected Invoice No.", SalesInvoiceHeader."No.");
             end;
         }
         field(10706; "SII Status"; Option)

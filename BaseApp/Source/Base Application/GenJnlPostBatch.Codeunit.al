@@ -1478,7 +1478,7 @@
             until GenJnlLine.Next() = 0;
     end;
 
-    local procedure PostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CurrGenJnlLine: Record "Gen. Journal Line"; CurrentICPartner: Code[20]; ICTransactionNo: Integer; var IsBillFromJournal: Boolean): Boolean
+    local procedure PostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CurrGenJnlLine: Record "Gen. Journal Line"; CurrentICPartner: Code[20]; ICTransactionNo: Integer; var IsBillFromJournal: Boolean) Result: Boolean
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         CustLedgEntry2: Record "Cust. Ledger Entry";
@@ -1582,6 +1582,7 @@
                 SavedPostingDate := "Posting Date";
                 "Posting Date" := CalcReversePostingDate(GenJournalLine);
                 "Document Date" := "Posting Date";
+                "Due Date" := "Posting Date";
                 MultiplyAmounts(GenJournalLine, -1);
                 TempGenJnlLine4 := GenJournalLine;
                 TempGenJnlLine4."Reversing Entry" := true;
@@ -1589,10 +1590,12 @@
                 NoOfReversingRecords := NoOfReversingRecords + 1;
                 "Posting Date" := SavedPostingDate;
                 "Document Date" := "Posting Date";
+                "Due Date" := "Posting Date";
             end;
             PostAllocations(GenJournalLine, CurrGenJnlLine, false);
         end;
-        exit(true);
+        Result := true;
+        OnAfterPostGenJournalLine(GenJournalLine, Result);
     end;
 
     local procedure CheckLine(var GenJnlLine: Record "Gen. Journal Line"; var PostingAfterCurrentFiscalYearConfirmed: Boolean)
@@ -1937,6 +1940,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CommitIsSuppressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean)
     begin
     end;
 

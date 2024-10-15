@@ -1,4 +1,4 @@
-report 6653 "Combine Return Receipts"
+﻿report 6653 "Combine Return Receipts"
 {
     ApplicationArea = SalesReturnOrder, PurchReturnOrder;
     Caption = 'Combine Return Receipts';
@@ -232,6 +232,8 @@ report 6653 "Combine Return Receipts"
             Modify;
             Commit();
         end;
+
+        OnAfterInsertSalesInvHeader(SalesHeader, "Return Receipt Header");
     end;
 
     procedure InitializeRequest(NewPostingDate: Date; NewDocumentDate: Date; NewCalcInvDisc: Boolean; NewPostCreditMemo: Boolean)
@@ -251,6 +253,11 @@ report 6653 "Combine Return Receipts"
 
         OnAfterShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, Finalize, ReturnReceiptLine);
         exit(Finalize);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertSalesInvHeader(var SalesHeader: Record "Sales Header"; var ReturnReceiptHeader: Record "Return Receipt Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

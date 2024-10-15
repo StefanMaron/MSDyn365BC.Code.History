@@ -1343,6 +1343,62 @@ codeunit 134100 "ERM Prepayment"
 
     [Test]
     [Scope('OnPrem')]
+    procedure SalesPrpmtInvoiceWithCompressPrpmtManyLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PrepmtAccNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Compress Prepayment]
+        // [SCENARIO 409617] Int overfow by Prepayment Invoice with Compress Prepayment False in Sales Order with 655 lines.
+
+        // [GIVEN] Change the Posted Prepmt Inv Nos and Posted Prepmt Cr Memo Nos in Sales and Receivable Setup, create Payment Terms,
+        Initialize;
+
+        // [GIVEN] create Sales Order of 655+ lines with created payment terms
+        PrepmtAccNo := CreateSalesDocument(SalesHeader, SalesLine, 666);
+        CompressPrepaymentInSalesOrder(SalesHeader);
+
+        // [WHEN] Post the Prepayment Invoice.
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [THEN] Check the GL Entries.
+        VerifyGLEntries(SalesHeader."No.", PrepmtAccNo);
+
+        // Tear down
+        TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchPrpmtInvoiceWithCompressPrpmtManyLines()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PrepmtAccNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Compress Prepayment]
+        // [SCENARIO 409617] Int overfow by Prepayment Invoice with Compress Prepayment False in Purch Order with 655 lines.
+
+        // [GIVEN] Change the Posted Prepmt Inv Nos and Posted Prepmt Cr Memo Nos in Purch Setup, create Payment Terms,
+        Initialize;
+
+        // [GIVEN] create Purchase Order of 655+ lines with created payment terms
+        PrepmtAccNo := CreatePurchDocument(PurchHeader, PurchaseLine, 666);
+        CompressPrepaymentInPurchOrder(PurchHeader);
+
+        // [WHEN] Post the Prepayment Invoice.
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchHeader);
+
+        // [THEN] Check the GL Entries.
+        VerifyPurchGLEntries(PurchHeader."No.", PrepmtAccNo);
+
+        // Tear down
+        TearDownVATPostingSetup(PurchHeader."VAT Bus. Posting Group");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure AddDecimalPrepaymentPercent()
     begin
         // [FEATURE] [Sales] [Prepayment %]
@@ -3532,6 +3588,12 @@ codeunit 134100 "ERM Prepayment"
         SalesHeader.Modify(true);
     end;
 
+    local procedure CompressPrepaymentInPurchOrder(var PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseHeader.Validate("Compress Prepayment", false);
+        PurchaseHeader.Modify(true);
+    end;
+
     local procedure CopyDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocType: Enum "Sales Document Type From")
     var
         CopySalesDocument: Report "Copy Sales Document";
@@ -3837,7 +3899,35 @@ codeunit 134100 "ERM Prepayment"
         PurchaseHeader.Modify(true);
     end;
 
+    local procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; NoOfLines: Integer) PrepmtGLAccountNo: Code[20]
+    var
+        LineGLAccount: Record "G/L Account";
+        Counter: Integer;
+    begin
+        PrepmtGLAccountNo := CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Purchase);
+
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorWithPostingSetup(LineGLAccount));
+
+        for Counter := 1 to NoOfLines do begin  // According to the test case we have to create only 3 Sales Line.
+                                                // Using Random Number Generator for Random Quantity.
+            LibraryPurchase.CreatePurchaseLine(
+              PurchaseLine,
+              PurchaseHeader,
+              PurchaseLine.Type::Item,
+              CreateItemWithPostingSetup(LineGLAccount), LibraryRandom.RandInt(10));
+            PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+            PurchaseLine.Modify();
+        end;
+        exit(PrepmtGLAccountNo);
+    end;
+
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line") PrepmtGLAccountNo: Code[20]
+    begin
+        exit(CreateSalesDocument(SalesHeader, SalesLine, 3));
+    end;
+
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; NoOfLines: Integer) PrepmtGLAccountNo: Code[20]
     var
         LineGLAccount: Record "G/L Account";
         Counter: Integer;
@@ -3847,8 +3937,8 @@ codeunit 134100 "ERM Prepayment"
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithPostingSetup(LineGLAccount));
 
-        for Counter := 1 to 3 do   // According to the test case we have to create only 3 Sales Line.
-                                   // Using Random Number Generator for Random Quantity.
+        for Counter := 1 to NoOfLines do   // According to the test case we have to create only 3 Sales Line.
+                                           // Using Random Number Generator for Random Quantity.
             LibrarySales.CreateSalesLine(
               SalesLine,
               SalesHeader,
@@ -4984,6 +5074,19 @@ codeunit 134100 "ERM Prepayment"
 
         FindGLEntryForGLAccount(GLEntry, FindSalesPrepmtInvoiceNo(OrderNo), PrepmtAccountNo);
         Assert.AreEqual(SalesLine."Prepmt. Line Amount", -GLEntry.Amount, GLEntryAmountErr);
+    end;
+
+    local procedure VerifyPurchGLEntries(OrderNo: Code[20]; PrepmtAccountNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Document No.", OrderNo);
+        PurchaseLine.CalcSums("Prepmt. Line Amount");
+
+        FindGLEntryForGLAccount(GLEntry, FindPurchPrepmtInvoiceNo(OrderNo), PrepmtAccountNo);
+        Assert.AreEqual(PurchaseLine."Prepmt. Line Amount", GLEntry.Amount, GLEntryAmountErr);
     end;
 
     local procedure VerifyLedgerEntries(OrderNo: Code[20]; PrepmtLineAmount: Decimal; PostingDate: Date)
