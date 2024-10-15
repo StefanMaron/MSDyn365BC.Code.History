@@ -51,13 +51,13 @@ page 9047 "Machine Operator Activities"
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Prod. Order Routing";
-                    ToolTip = 'Specifies the number of production order routings in queue that are displayed in the Manufacturing Cue on the Role Center. The documents are filtered by today''s date.';
+                    ToolTip = 'Specifies how many production order routing lines are in queue. The documents are filtered by today''s date. Finished production orders are excluded.';
                 }
                 field("Prod. Orders Routings-in Prog."; "Prod. Orders Routings-in Prog.")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Prod. Order Routing";
-                    ToolTip = 'Specifies the number of inactive service orders that are displayed in the Service Cue on the Role Center. The documents are filtered by today''s date.';
+                    ToolTip = 'Specifies how many production order routing lines are in progress. The documents are filtered by today''s date. Only released production orders are included.';
                 }
 
                 actions
