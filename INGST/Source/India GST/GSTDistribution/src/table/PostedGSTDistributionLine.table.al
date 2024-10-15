@@ -8,7 +8,7 @@ table 18208 "Posted GST Distribution Line"
         {
             Caption = 'Distribution No.';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; "Line No."; Integer)
         {
@@ -19,31 +19,31 @@ table 18208 "Posted GST Distribution Line"
         field(6; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(17; "From GSTIN No."; Code[20])
         {
             Caption = 'GSTIN No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
             TableRelation = "GST Registration Nos." where("Input Service Distributor" = filter(true));
         }
-        field(19; "Rcpt. GST Credit Type"; Enum "GST Distribution Credit Type")
+        field(19; "Rcpt. GST Credit Type"; Enum "GST Credit")
         {
             Caption = 'Rcpt. GST Credit Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(20; "From Location Code"; Code[10])
         {
             Caption = 'From Location Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(21; "To Location Code"; Code[10])
         {
             Caption = 'To Location Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = Location where("GST Input Service Distributor" = filter(false));
 
             trigger OnValidate()
@@ -54,24 +54,24 @@ table 18208 "Posted GST Distribution Line"
         field(22; "To GSTIN No."; Code[20])
         {
             Caption = 'To GSTIN No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(23; "Distribution Jurisdiction"; Enum "GST Jurisdiction Type")
         {
             Caption = 'Distribution Jurisdiction';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(24; "Distribution %"; Decimal)
         {
             Caption = 'Distribution %';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(25; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
 
             trigger OnValidate()
@@ -82,7 +82,7 @@ table 18208 "Posted GST Distribution Line"
         field(26; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Shortcut Dimension 2 Code';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
 
@@ -94,14 +94,12 @@ table 18208 "Posted GST Distribution Line"
         field(27; "Distribution Amount"; Decimal)
         {
             Caption = 'Distribution Amount';
-            DataClassification = EndUserIdentifiableInformation;
-
+            DataClassification = CustomerContent;
         }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
-            DataClassification = EndUserIdentifiableInformation;
-
+            DataClassification = SystemMetadata;
             Editable = false;
             TableRelation = "Dimension Set Entry";
 
@@ -119,6 +117,10 @@ table 18208 "Posted GST Distribution Line"
             Clustered = true;
         }
     }
+
+    var
+        DimMgt: Codeunit DimensionManagement;
+        DistributionMsg: Label '%1,%2', Comment = '%1 =Distribution No., %2= Line No.';
 
     local procedure ShowDimensions()
     begin
@@ -152,10 +154,4 @@ table 18208 "Posted GST Distribution Line"
         else
             "Distribution Jurisdiction" := "Distribution Jurisdiction"::Interstate;
     end;
-
-
-    var
-        DimMgt: Codeunit DimensionManagement;
-        DistributionMsg: Label '%1,%2', Comment = '%1 =Distribution No., %2= Line No.';
 }
-

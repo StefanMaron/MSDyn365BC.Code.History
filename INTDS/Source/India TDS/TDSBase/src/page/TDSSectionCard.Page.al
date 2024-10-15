@@ -10,17 +10,17 @@ page 18694 "TDS Section Card"
         {
             group(General)
             {
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specify the section codes under which tax has been deducted.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specify the description of nature of payment.';
                 }
-                field(ecode; ecode)
+                field(ecode; Rec.ecode)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'eTDS';

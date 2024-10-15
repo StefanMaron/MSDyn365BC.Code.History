@@ -1,4 +1,4 @@
-﻿codeunit 5639 "FA Get Journal"
+codeunit 5639 "FA Get Journal"
 {
 
     trigger OnRun()

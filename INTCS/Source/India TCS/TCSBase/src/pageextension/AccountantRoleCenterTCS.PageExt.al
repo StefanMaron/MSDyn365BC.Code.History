@@ -9,6 +9,7 @@ pageextension 18814 "Accountant Role Center TCS" extends "Accountant Role Center
                 group("Auto Configuration TCS")
                 {
                     Caption = 'Auto Configuration';
+
                     action("TCS Nature of Collection")
                     {
                         ApplicationArea = Basic, Suite;
@@ -22,6 +23,7 @@ pageextension 18814 "Accountant Role Center TCS" extends "Accountant Role Center
                 group("User Configuration TCS")
                 {
                     Caption = 'User Configuration';
+
                     action("TCS Posting Setup")
                     {
                         ApplicationArea = Basic, Suite;
@@ -51,6 +53,36 @@ pageextension 18814 "Accountant Role Center TCS" extends "Accountant Role Center
                         RunPageLink = "Tax Type" = const('TCS');
                         RunPageMode = Edit;
                         ToolTip = 'Specifies the TCS rates for each NOC and assessee type in the TCS rates window.';
+                    }
+                }
+                group("Periodic Activities")
+                {
+                    action("Update TCS Register")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Update TCS Register';
+                        Promoted = false;
+                        Image = EditList;
+                        RunObject = Page "Update TCS Register";
+                        ToolTip = 'TCS Update is a register maintained to keep track of all the TCS payments made to the government with relevant challan details.';
+                    }
+                    action("TCS Challan Register")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'TCS Challan Register';
+                        Promoted = false;
+                        Image = EditList;
+                        RunObject = Page "TCS Challan Register";
+                        ToolTip = 'TCS Challan Register is a register maintained to keep track of Interest and Penalties paid to the Income Tax Department with TCS amount through challan.';
+                    }
+                    action("TCS Adjustment Journal")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'TCS Adjustment Journal';
+                        Promoted = false;
+                        Image = EditList;
+                        RunObject = Page "TCS Adjustment Journal";
+                        ToolTip = 'TCS Adjustment Journals are used for correction of the TCS amount/TCS Base amount already deducted but not paid to the government.';
                     }
                 }
             }

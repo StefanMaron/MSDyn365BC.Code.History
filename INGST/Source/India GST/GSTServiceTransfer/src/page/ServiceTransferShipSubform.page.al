@@ -23,6 +23,14 @@ page 18360 "Service Transfer Ship Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of service shipped.';
+
+                    trigger OnValidate()
+                    var
+                        TaxCaseExecution: Codeunit "Use Case Execution";
+                    begin
+                        CurrPage.SaveRecord();
+                        TaxCaseExecution.HandleEvent('OnAfterTransferPrireUpdate', Rec, '', 0);
+                    end;
                 }
                 field(Shipped; Rec.Shipped)
                 {
@@ -64,7 +72,7 @@ page 18360 "Service Transfer Ship Subform"
                 Caption = 'Line';
                 action(Dimensions)
                 {
-                    AccessByPermission = TableData 348 = R;
+                    AccessByPermission = TableData "Dimension" = R;
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     ShortCutKey = 'Shift+Ctrl+D';

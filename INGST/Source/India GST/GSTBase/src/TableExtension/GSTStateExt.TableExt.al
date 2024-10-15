@@ -5,7 +5,7 @@ tableextension 18013 "GST State Ext." extends State
         field(18000; "State Code (GST Reg. No.)"; code[10])
         {
             Caption = 'State Code (GST Reg. No.)';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Numeric = true;
         }
     }

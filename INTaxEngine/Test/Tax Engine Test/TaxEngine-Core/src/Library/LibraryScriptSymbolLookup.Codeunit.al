@@ -85,7 +85,6 @@ codeunit 136705 "Library - Script Symbol Lookup"
 
     procedure SetContextWithoutTaxType(var ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.")
     var
-        TaxType: Code[20];
         CaseID: Guid;
         ScriptID: Guid;
     begin

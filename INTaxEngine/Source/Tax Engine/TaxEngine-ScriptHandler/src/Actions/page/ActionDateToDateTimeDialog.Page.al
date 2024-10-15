@@ -1,6 +1,6 @@
 page 20160 "Action Date To DateTime Dialog"
 {
-    Caption = 'Date Calculation Dialog';
+    Caption = 'Date To DateTime Calculation Dialog';
     PageType = StandardDialog;
     DataCaptionExpression = '';
     SourceTable = "Action Date To DateTime";

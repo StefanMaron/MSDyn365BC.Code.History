@@ -11,6 +11,7 @@ codeunit 139167 "Integration Record Mgmt. Test"
     var
         Assert: Codeunit Assert;
         IntegrationRecordManagement: Codeunit "Integration Record Management";
+        LibrarySales: Codeunit "Library - Sales";
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
 
 
@@ -19,7 +20,6 @@ codeunit 139167 "Integration Record Mgmt. Test"
     procedure CannotFindRecordIdByIntegrationTableUid()
     var
         Customer: Record Customer;
-        IntegrationRecord: Record "Integration Record";
         CustomerRecordId: RecordID;
         IntegrationTableUid: Guid;
     begin
@@ -27,7 +27,7 @@ codeunit 139167 "Integration Record Mgmt. Test"
 
         // Setup customer, integration record but no crm integration record
         IntegrationTableUid := CreateGuid;
-        LibraryCRMIntegration.CreateCustomerAndEnsureIntegrationRecord(Customer, IntegrationRecord);
+        LibrarySales.CreateCustomer(Customer);
 
         // Execute
         IntegrationRecordManagement.FindRecordIdByIntegrationTableUid(
@@ -43,7 +43,6 @@ codeunit 139167 "Integration Record Mgmt. Test"
     procedure CannotFindIntegrationTableUidByRecordId()
     var
         Customer: Record Customer;
-        IntegrationRecord: Record "Integration Record";
         CustomerIntegrationTableUidVariant: Variant;
         IntegrationTableUid: Guid;
         CustomerIntegrationTableUid: Guid;
@@ -52,7 +51,7 @@ codeunit 139167 "Integration Record Mgmt. Test"
 
         // Setup customer, integration record but no crm integration record
         IntegrationTableUid := CreateGuid;
-        LibraryCRMIntegration.CreateCustomerAndEnsureIntegrationRecord(Customer, IntegrationRecord);
+        LibrarySales.CreateCustomer(Customer);
 
         // Execute
         IntegrationRecordManagement.FindIntegrationTableUIdByRecordId(TABLECONNECTIONTYPE::CRM,

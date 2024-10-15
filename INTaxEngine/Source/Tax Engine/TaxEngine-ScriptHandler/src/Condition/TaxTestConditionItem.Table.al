@@ -8,17 +8,17 @@ table 20191 "Tax Test Condition Item"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; "Condition ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Condition ID';
             TableRelation = "Tax Test Condition".ID where("Case ID" = field("Case ID"));
         }
@@ -35,7 +35,7 @@ table 20191 "Tax Test Condition Item"
         }
         field(6; "LHS Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'LHS Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
@@ -61,7 +61,7 @@ table 20191 "Tax Test Condition Item"
         }
         field(11; "RHS Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'RHS Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
@@ -117,5 +117,4 @@ table 20191 "Tax Test Condition Item"
         LookupEntityMgmt: Codeunit "Lookup Entity Mgmt.";
         ScriptDataTypeMgmt: Codeunit "Script Data Type Mgmt.";
         LookupMgmt: Codeunit "Lookup Mgmt.";
-        EmptyGUID: Guid;
 }

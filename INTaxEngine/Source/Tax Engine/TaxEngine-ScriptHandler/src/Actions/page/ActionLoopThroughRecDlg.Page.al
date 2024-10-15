@@ -76,34 +76,6 @@ page 20171 "Action Loop Through Rec. Dlg"
                         CounterVisible := not Distinct;
                     end;
                 }
-                field(RecordVariable; RecordVariable2)
-                {
-                    Caption = 'Record Variable';
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether record variable which can store the value of the record in iteration.';
-                    trigger OnValidate();
-                    begin
-                        ScriptSymbolsMgmt.SearchSymbolOfType(
-                            "Symbol Type"::Variable,
-                            "Symbol Data Type"::RECORD,
-                            "Record Variable",
-                            RecordVariable2);
-
-                        Validate("Record Variable");
-                    end;
-
-                    trigger OnLookup(var Text: Text): Boolean;
-                    begin
-                        ScriptSymbolsMgmt.OpenSymbolsLookupOfType(
-                            "Symbol Type"::Variable,
-                            Text,
-                            "Symbol Data Type"::RECORD,
-                            "Record Variable",
-                            RecordVariable2);
-
-                        Validate("Record Variable");
-                    end;
-                }
             }
             group(Counters)
             {
@@ -211,7 +183,6 @@ page 20171 "Action Loop Through Rec. Dlg"
 
         IndexVariable2 := ScriptSymbolsMgmt.GetSymbolName("Symbol Type"::Variable, "Index Variable");
         CountVariable2 := ScriptSymbolsMgmt.GetSymbolName("Symbol Type"::Variable, "Count Variable");
-        RecordVariable2 := ScriptSymbolsMgmt.GetSymbolName("Symbol Type"::Variable, "Record Variable");
         CounterVisible := not Distinct;
     end;
 
@@ -251,10 +222,8 @@ page 20171 "Action Loop Through Rec. Dlg"
         FromTableName: Text[30];
         TableFilters: Text;
         TableSorting2: Text;
-        EmptyGuid: Guid;
         IndexVariable2: Text[30];
         CountVariable2: Text[30];
-        RecordVariable2: Text[30];
         [InDataSet]
         CounterVisible: Boolean;
 }

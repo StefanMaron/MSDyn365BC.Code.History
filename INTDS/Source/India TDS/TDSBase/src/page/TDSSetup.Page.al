@@ -13,18 +13,18 @@ page 18696 "TDS Setup"
         {
             group(General)
             {
-                field("Tax Type"; "Tax Type")
+                field("Tax Type"; Rec."Tax Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the tax type. Tax type can be TDS, TCS and GST.';
                 }
-                field("TDS Nil Challan Nos."; "TDS Nil Challan Nos.")
+                field("TDS Nil Challan Nos."; Rec."TDS Nil Challan Nos.")
                 {
                     Caption = 'TDS Nil Challan Nos.';
                     ToolTip = 'Specifies the code linked to entries that are posted from a challan register.';
                     ApplicationArea = Basic, Suite;
                 }
-                field("Nil Pay TDS Document Nos."; "Nil Pay TDS Document Nos.")
+                field("Nil Pay TDS Document Nos."; Rec."Nil Pay TDS Document Nos.")
                 {
                     Caption = 'Nil Pay TDS Document Nos.';
                     ToolTip = 'Specifies the code linked to entries that are posted from a challan register.';
@@ -33,12 +33,13 @@ page 18696 "TDS Setup"
             }
         }
     }
+
     trigger OnOpenPage()
     begin
-        Reset();
-        if not Get() THEN begin
-            Init();
-            Insert();
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
     end;
 }

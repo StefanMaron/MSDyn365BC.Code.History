@@ -1,9 +1,8 @@
 enum 18283 Matched
 {
-    Extensible = true;
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; "Rec Matched")
     {

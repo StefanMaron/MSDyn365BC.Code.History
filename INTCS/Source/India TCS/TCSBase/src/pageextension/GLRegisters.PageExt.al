@@ -9,11 +9,12 @@ pageextension 18810 "G/L Registers" extends "G/L Registers"
                 ApplicationArea = Basic, Suite;
                 Image = CollectedTax;
                 ToolTip = 'TCS entries shows the invoice wise details for TCS amount.';
+
                 trigger OnAction()
                 var
                     TCSManagement: Codeunit "TCS Management";
                 begin
-                    TCSManagement.OpenTCSEntries("From Entry No.", "To Entry No.");
+                    TCSManagement.OpenTCSEntries(Rec."From Entry No.", Rec."To Entry No.");
                 end;
             }
         }

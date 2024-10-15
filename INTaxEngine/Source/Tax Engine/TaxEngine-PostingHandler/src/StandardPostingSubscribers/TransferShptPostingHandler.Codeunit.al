@@ -7,7 +7,6 @@ codeunit 20338 "Transfer Shpt Posting Handler"
     var
         TempTaxTransactionValue: Record "Tax Transaction Value" temporary;
         TaxDocumentGLPosting: Codeunit "Tax Document GL Posting";
-        TaxPostingBufferMgmt: Codeunit "Tax Posting Buffer Mgmt.";
     begin
         // Prepares Transaction value based on Quantity and and Qty to Invoice
         TaxDocumentGLPosting.PrepareTransactionValueToPost(

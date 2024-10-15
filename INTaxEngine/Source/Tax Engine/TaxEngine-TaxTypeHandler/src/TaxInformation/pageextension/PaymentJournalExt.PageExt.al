@@ -2,7 +2,7 @@ pageextension 20242 "Payment Journal Ext" extends "Payment Journal"
 {
     layout
     {
-        addbefore(IncomingDocAttachFactBox)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

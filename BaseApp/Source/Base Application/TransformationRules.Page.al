@@ -71,7 +71,7 @@ page 1237 "Transformation Rules"
 
     trigger OnOpenPage()
     begin
-        if IsEmpty then
+        if IsEmpty() then
             CreateDefaultTransformations;
         OnCreateTransformationRules;
     end;

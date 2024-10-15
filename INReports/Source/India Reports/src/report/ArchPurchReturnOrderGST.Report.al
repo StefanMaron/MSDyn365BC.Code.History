@@ -2,7 +2,7 @@ report 18004 "Arch.Purch. Return Order GST"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './rdlc/ArchPurchReturnOrder.rdl';
-    Caption = 'Arch.Purch. Return Order';
+    Caption = 'Arch. Purch. Return Order';
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = Basic, Suite;
 
@@ -39,13 +39,10 @@ report 18004 "Arch.Purch. Return Order GST"
                     column(STRSUBSTNO_Text004_CopyText_; StrSubstNo(PurchReturnOrderLbl, CopyText))
                     {
                     }
-                    column(STRSUBSTNO_Text005_FORMAT_CurrReport_PAGENO__; StrSubstNo(PageLbl, FORMAT(CurrReport.PageNo())))
-                    {
-                    }
                     column(CompanyRegistrationLbl; CompanyRegistrationLbl)
                     {
                     }
-                    column(CompanyInfo_GST_RegistrationNo; CompanyInfo."GST Registration No.")
+                    column(CompanyInfo_GST_RegistrationNo; CompanyInformation."GST Registration No.")
                     {
                     }
                     column(VendorRegistrationLbl; VendorRegistrationLbl)
@@ -66,25 +63,25 @@ report 18004 "Arch.Purch. Return Order GST"
                     column(CompanyAddr_4_; CompanyAddr[4])
                     {
                     }
-                    column(CompanyInfo__Phone_No__; CompanyInfo."Phone No.")
+                    column(CompanyInfo__Phone_No__; CompanyInformation."Phone No.")
                     {
                     }
-                    column(CompanyInfo__Fax_No__; CompanyInfo."Fax No.")
+                    column(CompanyInfo__Fax_No__; CompanyInformation."Fax No.")
                     {
                     }
-                    column(CompanyInfo__VAT_Registration_No__; CompanyInfo."VAT Registration No.")
+                    column(CompanyInfo__VAT_Registration_No__; CompanyInformation."VAT Registration No.")
                     {
                     }
-                    column(CompanyInfo__Giro_No__; CompanyInfo."Giro No.")
+                    column(CompanyInfo__Giro_No__; CompanyInformation."Giro No.")
                     {
                     }
-                    column(CompanyInfo__Bank_Name_; CompanyInfo."Bank Name")
+                    column(CompanyInfo__Bank_Name_; CompanyInformation."Bank Name")
                     {
                     }
-                    column(CompanyInfo__Bank_Account_No__; CompanyInfo."Bank Account No.")
+                    column(CompanyInfo__Bank_Account_No__; CompanyInformation."Bank Account No.")
                     {
                     }
-                    column(FORMAT__Purchase_Header_Archive___Document_Date__0_4_; FORMAT("Purchase Header Archive"."Document Date", 0, 4))
+                    column(FORMAT__Purchase_Header_Archive___Document_Date__0_4_; Format("Purchase Header Archive"."Document Date", 0, 4))
                     {
                     }
                     column(VATNoText; VATNoText)
@@ -213,30 +210,9 @@ report 18004 "Arch.Purch. Return Order GST"
 
                         trigger OnAfterGetRecord()
                         begin
-                            if Number = 1 then begin
-                                if not DimSetEntry1.FindSet() then
-                                    CurrReport.Break();
-                            end else
-                                if not Continue then
-                                    CurrReport.Break();
-
-                            Clear(DimText);
-                            Continue := false;
-                            repeat
-                                OldDimText := CopyStr((DimText), 1, 75);
-                                if DimText = '' then
-                                    DimText := StrSubstNo('%1 %2', DimSetEntry1."Dimension Code", DimSetEntry1."Dimension Value Code")
-                                else
-                                    DimText :=
-                                      CopyStr((StrSubstNo(
-                                        '%1, %2 %3', DimText,
-                                        DimSetEntry1."Dimension Code", DimSetEntry1."Dimension Value Code")), 1, 120);
-                                if StrLen(DimText) > MaxStrLen(OldDimText) then begin
-                                    DimText := OldDimText;
-                                    Continue := true;
-                                    exit;
-                                end;
-                            until DimSetEntry1.Next() = 0;
+                            DimText := GetDimensionText(DimSetEntry1, Number, Continue);
+                            if not Continue then
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Purchase Line Archive"; "Purchase Line Archive")
@@ -258,7 +234,7 @@ report 18004 "Arch.Purch. Return Order GST"
                     {
                         DataItemTableView = sorting(Number);
 
-                        column(PurchLineArch__Line_Amount_; PurchLineArch."Line Amount")
+                        column(PurchLineArch__Line_Amount_; TempPurchLineArch."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Line Archive"."Currency Code";
                             AutoFormatType = 1;
@@ -306,17 +282,17 @@ report 18004 "Arch.Purch. Return Order GST"
                         column(Purchase_Line_Archive___VAT_Identifier_; "Purchase Line Archive"."VAT Identifier")
                         {
                         }
-                        column(PurchLineArch__Line_Amount__Control77; PurchLineArch."Line Amount")
+                        column(PurchLineArch__Line_Amount__Control77; TempPurchLineArch."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PurchLineArch__Inv__Discount_Amount_; -PurchLineArch."Inv. Discount Amount")
+                        column(PurchLineArch__Inv__Discount_Amount_; -TempPurchLineArch."Inv. Discount Amount")
                         {
                             AutoFormatExpression = "Purchase Line Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PurchLineArch__Line_Amount__Control109; PurchLineArch."Line Amount")
+                        column(PurchLineArch__Line_Amount__Control109; TempPurchLineArch."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
@@ -324,7 +300,7 @@ report 18004 "Arch.Purch. Return Order GST"
                         column(TotalText; TotalText)
                         {
                         }
-                        column(PurchLineArch__Line_Amount__PurchLineArch__Inv__Discount_Amount_; PurchLineArch."Line Amount" - PurchLineArch."Inv. Discount Amount")
+                        column(PurchLineArch__Line_Amount__PurchLineArch__Inv__Discount_Amount_; TempPurchLineArch."Line Amount" - TempPurchLineArch."Inv. Discount Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
@@ -332,7 +308,7 @@ report 18004 "Arch.Purch. Return Order GST"
                         column(TotalInclVATText; TotalInclVATText)
                         {
                         }
-                        column(VATAmountLine_VATAmountText; VATAmountLine.VATAmountText())
+                        column(VATAmountLine_VATAmountText; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(VATAmount; VATAmount)
@@ -340,7 +316,7 @@ report 18004 "Arch.Purch. Return Order GST"
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PurchLineArch__Line_Amount__PurchLineArch__Inv__Discount_Amount____VATAmount; PurchLineArch."Line Amount" - PurchLineArch."Inv. Discount Amount")
+                        column(PurchLineArch__Line_Amount__PurchLineArch__Inv__Discount_Amount____VATAmount; TempPurchLineArch."Line Amount" - TempPurchLineArch."Inv. Discount Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
@@ -348,7 +324,7 @@ report 18004 "Arch.Purch. Return Order GST"
                         column(TotalExclVATText; TotalExclVATText)
                         {
                         }
-                        column(PurchLineArch__Line_Amount__PurchLineArch__Inv__Discount_Amount__Control147; PurchLineArch."Line Amount" - PurchLineArch."Inv. Discount Amount")
+                        column(PurchLineArch__Line_Amount__PurchLineArch__Inv__Discount_Amount__Control147; TempPurchLineArch."Line Amount" - TempPurchLineArch."Inv. Discount Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
@@ -358,7 +334,7 @@ report 18004 "Arch.Purch. Return Order GST"
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine_VATAmountText_Control32; VATAmountLine.VATAmountText())
+                        column(VATAmountLine_VATAmountText_Control32; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(TotalExclVATText_Control51; TotalExclVATText)
@@ -459,30 +435,9 @@ report 18004 "Arch.Purch. Return Order GST"
 
                             trigger OnAfterGetRecord()
                             begin
-                                if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet() then
-                                        CurrReport.Break();
-                                end else
-                                    if not Continue then
-                                        CurrReport.Break();
-
-                                Clear(DimText);
-                                Continue := false;
-                                repeat
-                                    OldDimText := CopyStr((DimText), 1, 75);
-                                    if DimText = '' then
-                                        DimText := StrSubstNo('%1 %2', DimSetEntry2."Dimension Code", DimSetEntry2."Dimension Value Code")
-                                    else
-                                        DimText :=
-                                          CopyStr(StrSubstNo(
-                                            '%1, %2 %3', DimText,
-                                            DimSetEntry2."Dimension Code", DimSetEntry2."Dimension Value Code"), 1, 120);
-                                    if StrLen(DimText) > MaxStrLen(OldDimText) then begin
-                                        DimText := OldDimText;
-                                        Continue := true;
-                                        exit;
-                                    end;
-                                until DimSetEntry2.Next() = 0;
+                                DimText := GetDimensionText(DimSetEntry2, Number, Continue);
+                                if not Continue then
+                                    CurrReport.Break();
                             end;
 
                             trigger OnPreDataItem()
@@ -497,20 +452,20 @@ report 18004 "Arch.Purch. Return Order GST"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then
-                                PurchLineArch.Find('-')
+                                TempPurchLineArch.FindFirst()
                             else
-                                PurchLineArch.Next();
-                            "Purchase Line Archive" := PurchLineArch;
+                                TempPurchLineArch.Next();
+                            "Purchase Line Archive" := TempPurchLineArch;
 
                             if not "Purchase Header Archive"."Prices Including VAT" and
-                               (PurchLineArch."VAT Calculation Type" = PurchLineArch."VAT Calculation Type"::"Full VAT")
+                               (TempPurchLineArch."VAT Calculation Type" = TempPurchLineArch."VAT Calculation Type"::"Full VAT")
                             then
-                                PurchLineArch."Line Amount" := 0;
+                                TempPurchLineArch."Line Amount" := 0;
 
-                            if (PurchLineArch.Type = PurchLineArch.Type::"G/L Account") and (not ShowInternalInfo) then
+                            if (TempPurchLineArch.Type = TempPurchLineArch.Type::"G/L Account") and (not ShowInternalInfo) then
                                 "Purchase Line Archive"."No." := '';
                             AllowInvDisctxt := Format("Purchase Line Archive"."Allow Invoice Disc.");
-                            PurchaseLineArchiveType := "Purchase Line Archive".Type;
+                            PurchaseLineArchiveType := "Purchase Line Archive".Type.AsInteger();
 
                             TotalSubTotal += "Purchase Line Archive"."Line Amount";
                             TotalInvoiceDiscountAmount -= "Purchase Line Archive"."Inv. Discount Amount";
@@ -519,134 +474,136 @@ report 18004 "Arch.Purch. Return Order GST"
 
                         trigger OnPostDataItem()
                         begin
-                            PurchLineArch.DeleteAll();
+                            TempPurchLineArch.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            MoreLines := PurchLineArch.Find('+');
+                            MoreLines := TempPurchLineArch.FindLast();
 
-                            while MoreLines and (PurchLineArch.Description = '') and (PurchLineArch."Description 2" = '') and
-                                  (PurchLineArch."No." = '') and (PurchLineArch.Quantity = 0) and
-                                  (PurchLineArch.Amount = 0)
+                            while MoreLines and
+                                (TempPurchLineArch.Description = '') and
+                                (TempPurchLineArch."Description 2" = '') and
+                                (TempPurchLineArch."No." = '') and
+                                (TempPurchLineArch.Quantity = 0) and
+                                (TempPurchLineArch.Amount = 0)
                             do
-                                MoreLines := PurchLineArch.Next(-1) <> 0;
+                                MoreLines := TempPurchLineArch.Next(-1) <> 0;
 
                             if not MoreLines then
                                 CurrReport.Break();
 
-                            PurchLineArch.SetRange("Line No.", 0, PurchLineArch."Line No.");
-                            SetRange(Number, 1, PurchLineArch.Count);
-                            //CurrReport.CREATETOTALS(PurchLineArch."Line Amount", PurchLineArch."Inv. Discount Amount");
+                            TempPurchLineArch.SetRange("Line No.", 0, TempPurchLineArch."Line No.");
+                            SetRange(Number, 1, TempPurchLineArch.Count);
                         end;
                     }
                     dataitem(VATCounter; Integer)
                     {
                         DataItemTableView = sorting(Number);
 
-                        column(VATAmountLine__VAT_Base_; VATAmountLine."VAT Base")
+                        column(VATAmountLine__VAT_Base_; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Amount_; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__VAT_Amount_; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Line_Amount_; VATAmountLine."Line Amount")
+                        column(VATAmountLine__Line_Amount_; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Inv__Disc__Base_Amount_; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmountLine__Inv__Disc__Base_Amount_; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Invoice_Discount_Amount_; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmountLine__Invoice_Discount_Amount_; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT___; VATAmountLine."VAT %")
+                        column(VATAmountLine__VAT___; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmountLine__VAT_Base__Control99; VATAmountLine."VAT Base")
+                        column(VATAmountLine__VAT_Base__Control99; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Amount__Control100; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__VAT_Amount__Control100; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Identifier_; VATAmountLine."VAT Identifier")
+                        column(VATAmountLine__VAT_Identifier_; TempVATAmountLine."VAT Identifier")
                         {
                         }
-                        column(VATAmountLine__Line_Amount__Control131; VATAmountLine."Line Amount")
-                        {
-                            AutoFormatExpression = "Purchase Header Archive"."Currency Code";
-                            AutoFormatType = 1;
-                        }
-                        column(VATAmountLine__Inv__Disc__Base_Amount__Control132; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmountLine__Line_Amount__Control131; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Invoice_Discount_Amount__Control133; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmountLine__Inv__Disc__Base_Amount__Control132; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Base__Control103; VATAmountLine."VAT Base")
+                        column(VATAmountLine__Invoice_Discount_Amount__Control133; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Amount__Control104; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__VAT_Base__Control103; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Line_Amount__Control56; VATAmountLine."Line Amount")
+                        column(VATAmountLine__VAT_Amount__Control104; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Inv__Disc__Base_Amount__Control57; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmountLine__Line_Amount__Control56; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Invoice_Discount_Amount__Control58; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmountLine__Inv__Disc__Base_Amount__Control57; TempVATAmountLine."Inv. Disc. Base Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Base__Control107; VATAmountLine."VAT Base")
+                        column(VATAmountLine__Invoice_Discount_Amount__Control58; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT_Amount__Control108; VATAmountLine."VAT Amount")
+                        column(VATAmountLine__VAT_Base__Control107; TempVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Line_Amount__Control59; VATAmountLine."Line Amount")
+                        column(VATAmountLine__VAT_Amount__Control108; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Inv__Disc__Base_Amount__Control60; VATAmountLine."Inv. Disc. Base Amount")
+                        column(VATAmountLine__Line_Amount__Control59; TempVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__Invoice_Discount_Amount__Control61; VATAmountLine."Invoice Discount Amount")
+                        column(VATAmountLine__Inv__Disc__Base_Amount__Control60; TempVATAmountLine."Inv. Disc. Base Amount")
+                        {
+                            AutoFormatExpression = "Purchase Header Archive"."Currency Code";
+                            AutoFormatType = 1;
+                        }
+                        column(VATAmountLine__Invoice_Discount_Amount__Control61; TempVATAmountLine."Invoice Discount Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
@@ -690,17 +647,15 @@ report 18004 "Arch.Purch. Return Order GST"
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
+                            TempVATAmountLine.GetLine(Number);
                         end;
 
                         trigger OnPreDataItem()
                         begin
                             if VATAmount = 0 then
                                 CurrReport.Break();
-                            SetRange(Number, 1, VATAmountLine.Count);
-                            // CurrReport.CREATETOTALS(
-                            //   VATAmountLine."Line Amount", VATAmountLine."Inv. Disc. Base Amount",
-                            //   VATAmountLine."Invoice Discount Amount", VATAmountLine."VAT Base", VATAmountLine."VAT Amount");
+
+                            SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
                     dataitem(VATCounterLCY; Integer)
@@ -729,11 +684,11 @@ report 18004 "Arch.Purch. Return Order GST"
                         {
                             AutoFormatType = 1;
                         }
-                        column(VATAmountLine__VAT____Control160; VATAmountLine."VAT %")
+                        column(VATAmountLine__VAT____Control160; TempVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(VATAmountLine__VAT_Identifier__Control161; VATAmountLine."VAT Identifier")
+                        column(VATAmountLine__VAT_Identifier__Control161; TempVATAmountLine."VAT Identifier")
                         {
                         }
                         column(VALVATAmountLCY_Control162; VALVATAmountLCY)
@@ -779,35 +734,37 @@ report 18004 "Arch.Purch. Return Order GST"
 
                         trigger OnAfterGetRecord()
                         begin
-                            VATAmountLine.GetLine(Number);
-                            VALVATBaseLCY :=
-                              VATAmountLine.GetBaseLCY(
-                                "Purchase Header Archive"."Posting Date", "Purchase Header Archive"."Currency Code",
+                            TempVATAmountLine.GetLine(Number);
+                            VALVATBaseLCY := TempVATAmountLine.GetBaseLCY(
+                                "Purchase Header Archive"."Posting Date",
+                                "Purchase Header Archive"."Currency Code",
                                 "Purchase Header Archive"."Currency Factor");
-                            VALVATAmountLCY :=
-                              VATAmountLine.GetAmountLCY(
-                                "Purchase Header Archive"."Posting Date", "Purchase Header Archive"."Currency Code",
+                            VALVATAmountLCY := TempVATAmountLine.GetAmountLCY(
+                                "Purchase Header Archive"."Posting Date",
+                                "Purchase Header Archive"."Currency Code",
                                 "Purchase Header Archive"."Currency Factor");
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            if (not GLSetup."Print VAT specification in LCY") or
+                            if (not GeneralLedgerSetup."Print VAT specification in LCY") or
                                ("Purchase Header Archive"."Currency Code" = '') or
-                               (VATAmountLine.GetTotalVATAmount() = 0)
+                               (TempVATAmountLine.GetTotalVATAmount() = 0)
                             then
                                 CurrReport.Break();
 
-                            SetRange(Number, 1, VATAmountLine.Count);
-                            //CurrReport.CREATETOTALS(VALVATBaseLCY, VALVATAmountLCY);
+                            SetRange(Number, 1, TempVATAmountLine.Count);
 
-                            if GLSetup."LCY Code" = '' then
+                            if GeneralLedgerSetup."LCY Code" = '' then
                                 VALSpecLCYHeader := VATAMtLbl + LocalCurLbl
                             else
-                                VALSpecLCYHeader := VATAMtLbl + Format(GLSetup."LCY Code");
+                                VALSpecLCYHeader := VATAMtLbl + Format(GeneralLedgerSetup."LCY Code");
 
                             CurrExchRate.FindCurrency("Purchase Header Archive"."Posting Date", "Purchase Header Archive"."Currency Code", 1);
-                            VALExchRate := StrSubstNo(ExchrateLbl, CurrExchRate."Relational Exch. Rate Amount", CurrExchRate."Exchange Rate Amount");
+                            VALExchRate := StrSubstNo(
+                                ExchrateLbl,
+                                CurrExchRate."Relational Exch. Rate Amount",
+                                CurrExchRate."Exchange Rate Amount");
                         end;
                     }
                     dataitem(Total; Integer)
@@ -937,14 +894,14 @@ report 18004 "Arch.Purch. Return Order GST"
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtInvBuf__G_L_Account_No__; PrepmtInvBuf."G/L Account No.")
+                        column(PrepmtInvBuf__G_L_Account_No__; TempPrepmtInvBuf."G/L Account No.")
                         {
                         }
                         column(PrepmtLineAmount_Control173; PrepmtLineAmount)
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                         }
-                        column(PrepmtInvBuf_Description; PrepmtInvBuf.Description)
+                        column(PrepmtInvBuf_Description; TempPrepmtInvBuf.Description)
                         {
                         }
                         column(PrepmtLineAmount_Control177; PrepmtLineAmount)
@@ -955,12 +912,12 @@ report 18004 "Arch.Purch. Return Order GST"
                         column(TotalExclVATText_Control182; TotalExclVATText)
                         {
                         }
-                        column(PrepmtInvBuf_Amount; PrepmtInvBuf.Amount)
+                        column(PrepmtInvBuf_Amount; TempPrepmtInvBuf.Amount)
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtVATAmountLine_VATAmountText; PrepmtVATAmountLine.VATAmountText())
+                        column(PrepmtVATAmountLine_VATAmountText; TempPrepmtVATAmountLine.VATAmountText())
                         {
                         }
                         column(PrepmtVATAmount; PrepmtVATAmount)
@@ -971,7 +928,7 @@ report 18004 "Arch.Purch. Return Order GST"
                         column(TotalInclVATText_Control186; TotalInclVATText)
                         {
                         }
-                        column(PrepmtInvBuf_Amount___PrepmtVATAmount; PrepmtInvBuf.Amount)
+                        column(PrepmtInvBuf_Amount___PrepmtVATAmount; TempPrepmtInvBuf.Amount)
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
@@ -979,7 +936,7 @@ report 18004 "Arch.Purch. Return Order GST"
                         column(TotalInclVATText_Control188; TotalInclVATText)
                         {
                         }
-                        column(VATAmountLine_VATAmountText_Control189; VATAmountLine.VATAmountText())
+                        column(VATAmountLine_VATAmountText_Control189; TempVATAmountLine.VATAmountText())
                         {
                         }
                         column(PrepmtVATAmount_Control190; PrepmtVATAmount)
@@ -1041,135 +998,105 @@ report 18004 "Arch.Purch. Return Order GST"
 
                             trigger OnAfterGetRecord()
                             begin
-                                if Number = 1 then begin
-                                    if not PrepmtDimSetEntry.FindSet() then
-                                        CurrReport.Break();
-                                end else
-                                    if not Continue then
-                                        CurrReport.Break();
-
-                                Clear(DimText);
-                                Continue := false;
-                                repeat
-                                    OldDimText := CopyStr(DimText, 1, 75);
-                                    if DimText = '' then
-                                        DimText := StrSubstNo('%1 %2', PrepmtDimSetEntry."Dimension Code", PrepmtDimSetEntry."Dimension Value Code")
-                                    else
-                                        DimText :=
-                                          CopyStr(StrSubstNo(
-                                            '%1, %2 %3', DimText,
-                                            PrepmtDimSetEntry."Dimension Code", PrepmtDimSetEntry."Dimension Value Code"), 1, 120);
-                                    if StrLen(DimText) > MaxStrLen(OldDimText) then begin
-                                        DimText := OldDimText;
-                                        Continue := true;
-                                        exit;
-                                    end;
-                                until PrepmtDimSetEntry.Next() = 0;
+                                DimText := GetDimensionText(PrepmtDimSetEntry, Number, Continue);
+                                if not Continue then
+                                    CurrReport.Break();
                             end;
                         }
 
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not PrepmtInvBuf.Find('-') then
+                                if not TempPrepmtInvBuf.Find('-') then
                                     CurrReport.Break();
                             end else
-                                if PrepmtInvBuf.Next() = 0 then
+                                if TempPrepmtInvBuf.Next() = 0 then
                                     CurrReport.Break();
 
                             if ShowInternalInfo then
-                                PrepmtDimSetEntry.SetRange("Dimension Set ID", PrepmtInvBuf."Dimension Set ID");
+                                PrepmtDimSetEntry.SetRange("Dimension Set ID", TempPrepmtInvBuf."Dimension Set ID");
 
                             if "Purchase Header Archive"."Prices Including VAT" then
-                                PrepmtLineAmount := PrepmtInvBuf."Amount Incl. VAT"
+                                PrepmtLineAmount := TempPrepmtInvBuf."Amount Incl. VAT"
                             else
-                                PrepmtLineAmount := PrepmtInvBuf.Amount;
-                        end;
-
-                        trigger OnPreDataItem()
-                        begin
-                            // CurrReport.CREATETOTALS(
-                            //   PrepmtInvBuf.Amount, PrepmtInvBuf."Amount Incl. VAT",
-                            //   PrepmtVATAmountLine."Line Amount", PrepmtVATAmountLine."VAT Base",
-                            //   PrepmtVATAmountLine."VAT Amount",
-                            //   PrepmtLineAmount);
+                                PrepmtLineAmount := TempPrepmtInvBuf.Amount;
                         end;
                     }
                     dataitem(PrepmtVATCounter; Integer)
                     {
                         DataItemTableView = sorting(Number);
 
-                        column(PrepmtVATAmountLine__VAT_Amount_; PrepmtVATAmountLine."VAT Amount")
+                        column(PrepmtVATAmountLine__VAT_Amount_; TempPrepmtVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtVATAmountLine__VAT_Base_; PrepmtVATAmountLine."VAT Base")
+                        column(PrepmtVATAmountLine__VAT_Base_; TempPrepmtVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtVATAmountLine__Line_Amount_; PrepmtVATAmountLine."Line Amount")
+                        column(PrepmtVATAmountLine__Line_Amount_; TempPrepmtVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtVATAmountLine__VAT___; PrepmtVATAmountLine."VAT %")
+                        column(PrepmtVATAmountLine__VAT___; TempPrepmtVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(PrepmtVATAmountLine__VAT_Amount__Control194; PrepmtVATAmountLine."VAT Amount")
+                        column(PrepmtVATAmountLine__VAT_Amount__Control194; TempPrepmtVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtVATAmountLine__VAT_Base__Control195; PrepmtVATAmountLine."VAT Base")
+                        column(PrepmtVATAmountLine__VAT_Base__Control195; TempPrepmtVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtVATAmountLine__Line_Amount__Control196; PrepmtVATAmountLine."Line Amount")
+                        column(PrepmtVATAmountLine__Line_Amount__Control196; TempPrepmtVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtVATAmountLine__VAT____Control197; PrepmtVATAmountLine."VAT %")
+                        column(PrepmtVATAmountLine__VAT____Control197; TempPrepmtVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(PrepmtVATAmountLine__VAT_Identifier_; PrepmtVATAmountLine."VAT Identifier")
+                        column(PrepmtVATAmountLine__VAT_Identifier_; TempPrepmtVATAmountLine."VAT Identifier")
                         {
                         }
-                        column(PrepmtVATAmountLine__VAT_Amount__Control210; PrepmtVATAmountLine."VAT Amount")
-                        {
-                            AutoFormatExpression = "Purchase Header Archive"."Currency Code";
-                            AutoFormatType = 1;
-                        }
-                        column(PrepmtVATAmountLine__VAT_Base__Control211; PrepmtVATAmountLine."VAT Base")
+                        column(PrepmtVATAmountLine__VAT_Amount__Control210; TempPrepmtVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtVATAmountLine__Line_Amount__Control212; PrepmtVATAmountLine."Line Amount")
+                        column(PrepmtVATAmountLine__VAT_Base__Control211; TempPrepmtVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtVATAmountLine__VAT____Control213; PrepmtVATAmountLine."VAT %")
+                        column(PrepmtVATAmountLine__Line_Amount__Control212; TempPrepmtVATAmountLine."Line Amount")
+                        {
+                            AutoFormatExpression = "Purchase Header Archive"."Currency Code";
+                            AutoFormatType = 1;
+                        }
+                        column(PrepmtVATAmountLine__VAT____Control213; TempPrepmtVATAmountLine."VAT %")
                         {
                             DecimalPlaces = 0 : 5;
                         }
-                        column(PrepmtVATAmountLine__VAT_Amount__Control215; PrepmtVATAmountLine."VAT Amount")
+                        column(PrepmtVATAmountLine__VAT_Amount__Control215; TempPrepmtVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtVATAmountLine__VAT_Base__Control216; PrepmtVATAmountLine."VAT Base")
+                        column(PrepmtVATAmountLine__VAT_Base__Control216; TempPrepmtVATAmountLine."VAT Base")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PrepmtVATAmountLine__Line_Amount__Control217; PrepmtVATAmountLine."Line Amount")
+                        column(PrepmtVATAmountLine__Line_Amount__Control217; TempPrepmtVATAmountLine."Line Amount")
                         {
                             AutoFormatExpression = "Purchase Header Archive"."Currency Code";
                             AutoFormatType = 1;
@@ -1207,12 +1134,12 @@ report 18004 "Arch.Purch. Return Order GST"
 
                         trigger OnAfterGetRecord()
                         begin
-                            PrepmtVATAmountLine.GetLine(Number);
+                            TempPrepmtVATAmountLine.GetLine(Number);
                         end;
 
                         trigger OnPreDataItem()
                         begin
-                            SetRange(Number, 1, PrepmtVATAmountLine.Count);
+                            SetRange(Number, 1, TempPrepmtVATAmountLine.Count);
                         end;
                     }
                     dataitem(PrepmtTotal; Integer)
@@ -1232,7 +1159,7 @@ report 18004 "Arch.Purch. Return Order GST"
 
                         trigger OnPreDataItem()
                         begin
-                            if not PrepmtInvBuf.Find('-') then
+                            if not TempPrepmtInvBuf.Find('-') then
                                 CurrReport.Break();
                         end;
                     }
@@ -1242,21 +1169,21 @@ report 18004 "Arch.Purch. Return Order GST"
                 var
                     PurchLineArchive: Record "Purchase Line Archive";
                 begin
-                    Clear(PurchLineArch);
-                    PurchLineArch.DeleteAll();
+                    Clear(TempPurchLineArch);
+                    TempPurchLineArch.DeleteAll();
                     PurchLineArchive.SetRange("Document Type", "Purchase Header Archive"."Document Type");
                     PurchLineArchive.SetRange("Document No.", "Purchase Header Archive"."No.");
                     PurchLineArchive.SetRange("Version No.", "Purchase Header Archive"."Version No.");
                     if PurchLineArchive.FindSet() then
                         repeat
-                            PurchLineArch := PurchLineArchive;
-                            PurchLineArch.Insert();
+                            TempPurchLineArch := PurchLineArchive;
+                            TempPurchLineArch.Insert();
                         until PurchLineArchive.Next() = 0;
-                    VATAmountLine.DeleteAll();
 
+                    TempVATAmountLine.DeleteAll();
                     if Number > 1 then
                         CopyText := CopyLbl;
-                    CurrReport.PageNo := 1;
+
                     OutputNo := OutputNo + 1;
                     TotalSubTotal := 0;
                     TotalInvoiceDiscountAmount := 0;
@@ -1282,14 +1209,14 @@ report 18004 "Arch.Purch. Return Order GST"
             begin
                 CurrReport.LANGUAGE := Language.GetLanguageID("Language Code");
                 Vendor.Get("Buy-from Vendor No.");
-                CompanyInfo.Get();
+                CompanyInformation.Get();
 
                 if RespCenter.Get("Responsibility Center") then begin
                     FormatAddr.RespCenter(CompanyAddr, RespCenter);
-                    CompanyInfo."Phone No." := RespCenter."Phone No.";
-                    CompanyInfo."Fax No." := RespCenter."Fax No.";
+                    CompanyInformation."Phone No." := RespCenter."Phone No.";
+                    CompanyInformation."Fax No." := RespCenter."Fax No.";
                 end else
-                    FormatAddr.Company(CompanyAddr, CompanyInfo);
+                    FormatAddr.Company(CompanyAddr, CompanyInformation);
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
@@ -1300,19 +1227,22 @@ report 18004 "Arch.Purch. Return Order GST"
                     SalesPurchPerson.Get("Purchaser Code");
                     PurchaserText := PurchLbl
                 end;
+
                 if "Your Reference" = '' then
                     ReferenceText := ''
                 else
                     ReferenceText := CopyStr(FieldCaption("Your Reference"), 1, 80);
+
                 if "VAT Registration No." = '' then
                     VATNoText := ''
                 else
                     VATNoText := CopyStr(FieldCaption("VAT Registration No."), 1, 80);
+
                 if "Currency Code" = '' then begin
-                    GLSetup.TestField("LCY Code");
-                    TotalText := StrSubstNo(TotalLbl, GLSetup."LCY Code");
-                    TotalInclVATText := StrSubstNo(TotaIncVatLbl, GLSetup."LCY Code");
-                    TotalExclVATText := StrSubstNo(TotalExclVatLbl, GLSetup."LCY Code");
+                    GeneralLedgerSetup.TestField("LCY Code");
+                    TotalText := StrSubstNo(TotalLbl, GeneralLedgerSetup."LCY Code");
+                    TotalInclVATText := StrSubstNo(TotaIncVatLbl, GeneralLedgerSetup."LCY Code");
+                    TotalExclVATText := StrSubstNo(TotalExclVatLbl, GeneralLedgerSetup."LCY Code");
                 end else begin
                     TotalText := StrSubstNo(TotalLbl, "Currency Code");
                     TotalInclVATText := StrSubstNo(TotaIncVatLbl, "Currency Code");
@@ -1322,18 +1252,21 @@ report 18004 "Arch.Purch. Return Order GST"
                 FormatAddr.PurchHeaderBuyFromArch(BuyFromAddr, "Purchase Header Archive");
                 if "Buy-from Vendor No." <> "Pay-to Vendor No." then
                     FormatAddr.PurchHeaderPayToArch(VendAddr, "Purchase Header Archive");
+
                 if "Payment Terms Code" = '' then
                     PaymentTerms.Init()
                 else begin
                     PaymentTerms.Get("Payment Terms Code");
                     PaymentTerms.TranslateDescription(PaymentTerms, "Language Code");
                 end;
+
                 if "Prepmt. Payment Terms Code" = '' then
                     PrepmtPaymentTerms.Init()
                 else begin
                     PrepmtPaymentTerms.Get("Prepmt. Payment Terms Code");
                     PrepmtPaymentTerms.TranslateDescription(PrepmtPaymentTerms, "Language Code");
                 end;
+
                 if "Shipment Method Code" = '' then
                     PrepmtPaymentTerms.Init()
                 else begin
@@ -1363,6 +1296,13 @@ report 18004 "Arch.Purch. Return Order GST"
                     {
                         Caption = 'No. of Copies';
                         ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the number of copies that need to be printed.';
+                    }
+                    field(ShowInternalInformation; ShowInternalInfo)
+                    {
+                        Caption = 'Show Internal Information';
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the line internal information.';
                     }
                 }
             }
@@ -1380,24 +1320,24 @@ report 18004 "Arch.Purch. Return Order GST"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get();
+        GeneralLedgerSetup.Get();
     end;
 
     var
-        GLSetup: Record "General Ledger Setup";
-        CompanyInfo: Record "Company Information";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        CompanyInformation: Record "Company Information";
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
         PrepmtPaymentTerms: Record "Payment Terms";
         SalesPurchPerson: Record "Salesperson/Purchaser";
         Vendor: Record "Vendor";
-        VATAmountLine: Record "VAT Amount Line" temporary;
-        PrepmtVATAmountLine: Record "VAT Amount Line" temporary;
-        PurchLineArch: Record "Purchase Line Archive" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        TempPrepmtVATAmountLine: Record "VAT Amount Line" temporary;
+        TempPurchLineArch: Record "Purchase Line Archive" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         PrepmtDimSetEntry: Record "Dimension Set Entry";
-        PrepmtInvBuf: Record "Prepayment Inv. Line Buffer" temporary;
+        TempPrepmtInvBuf: Record "Prepayment Inv. Line Buffer" temporary;
         RespCenter: Record "Responsibility Center";
         CurrExchRate: Record "Currency Exchange Rate";
         FormatAddr: Codeunit "Format Address";
@@ -1420,7 +1360,6 @@ report 18004 "Arch.Purch. Return Order GST"
         OutputNo: Integer;
         PurchaseLineArchiveType: Integer;
         DimText: Text[120];
-        OldDimText: Text[75];
         ShowInternalInfo: Boolean;
         Continue: Boolean;
         VATAmount: Decimal;
@@ -1448,7 +1387,6 @@ report 18004 "Arch.Purch. Return Order GST"
         TotaIncVatLbl: Label 'Total %1 Incl. VAT', Comment = '%1 = LCY Code';
         CopyLbl: Label 'COPY', Locked = true;
         PurchReturnOrderLbl: Label 'Purchase Return Order Archived %1', Comment = ' %1 = CopyText';
-        PageLbl: Label 'Page %1';
         TotalExclVatLbl: Label 'Total %1 Excl. VAT', Comment = ' %1 = Currency Code';
         VersionLbl: Label 'Version %1 of %2 ', Comment = ' %1 = Version No. , %2 = No. of Archived Versions';
         CompanyInfo__Phone_No__CaptionLbl: Label 'Phone No.', Locked = true;
@@ -1511,4 +1449,42 @@ report 18004 "Arch.Purch. Return Order GST"
         PrepmtPaymentTerms_DescriptionCaptionLbl: Label 'Prepmt. Payment Terms', Locked = true;
         CompanyRegistrationLbl: Label 'Company Registration No.', Locked = true;
         VendorRegistrationLbl: Label 'Vendor GST Reg No.', Locked = true;
+
+    local procedure GetDimensionText(
+        var DimSetEntry: Record "Dimension Set Entry";
+        Number: Integer;
+        var Continue: Boolean): Text[120]
+    var
+        DimensionText: Text[120];
+        PrevDimText: Text[75];
+        DimensionTextLbl: Label '%1; %2 - %3', Comment = ' %1 = DimText, %2 = Dimension Code, %3 = Dimension Value Code';
+        DimensionLbl: Label '%1 - %2', Comment = '%1 = Dimension Code, %2 = Dimension Value Code';
+    begin
+        Continue := false;
+        if Number = 1 then
+            if not DimSetEntry.FindSet() then
+                exit;
+
+        repeat
+            PrevDimText := CopyStr((DimensionText), 1, 75);
+            if DimensionText = '' then
+                DimensionText := StrSubstNo(DimensionLbl, DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code")
+            else
+                DimensionText := CopyStr(
+                    StrSubstNo(
+                        DimensionTextLbl,
+                        DimensionText,
+                        DimSetEntry."Dimension Code",
+                        DimSetEntry."Dimension Value Code"),
+                    1,
+                    120);
+
+            if StrLen(DimensionText) > MaxStrLen(PrevDimText) then begin
+                Continue := true;
+                exit(PrevDimText);
+            end;
+        until DimSetEntry.Next() = 0;
+
+        exit(DimensionText)
+    end;
 }

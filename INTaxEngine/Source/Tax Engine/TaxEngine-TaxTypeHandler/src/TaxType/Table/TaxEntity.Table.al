@@ -33,7 +33,7 @@ table 20257 "Tax Entity"
         }
         field(4; "Entity Type"; Option)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Entity Type';
             OptionMembers = Master,Transaction;
             OptionCaption = 'Master,Transaction';

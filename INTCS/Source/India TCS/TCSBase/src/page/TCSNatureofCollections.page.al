@@ -5,21 +5,27 @@ page 18811 "TCS Nature Of Collections"
     UsageCategory = Lists;
     SourceTable = "TCS Nature of Collection";
     Caption = 'TCS Nature of Collections';
+
     layout
     {
         area(Content)
         {
             repeater(General)
             {
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Nature of Collection on which TCS is applied.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the TCS Nature of Collection.';
+                }
+                field("TCS On Recpt. Of Pmt."; Rec."TCS On Recpt. Of Pmt.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Select this field to calculate TCS on payment receipt only. By selecting this field, TCS will not be calculated on Sales Invoice and Sales Credit Memo.';
                 }
             }
         }
@@ -50,6 +56,7 @@ page 18811 "TCS Nature Of Collections"
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Send the data in the page to an Excel file for analysis or editing';
+
                 trigger OnAction()
                 var
                     ODataUtility: Codeunit ODataUtility;
@@ -71,7 +78,7 @@ page 18811 "TCS Nature Of Collections"
 
                 trigger OnAction()
                 begin
-                    reset();
+                    Rec.Reset();
                 end;
             }
         }

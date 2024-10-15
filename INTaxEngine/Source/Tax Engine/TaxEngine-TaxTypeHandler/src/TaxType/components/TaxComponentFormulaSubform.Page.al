@@ -48,8 +48,6 @@ page 20262 "Tax Component Formula Subform"
     }
 
     local procedure FormatLine()
-    var
-        ScriptSymbolMgmt: Codeunit "Script Symbols Mgmt.";
     begin
         ValueVariable2 := ConstantOrLookupText();
     end;
@@ -63,7 +61,7 @@ page 20262 "Tax Component Formula Subform"
     begin
         if ("Value Type" = "Value Type"::Component) then begin
             if not Confirm('Convert to constant value ?') then
-                Exit(false);
+                exit(false);
 
             Validate("Component ID", 0);
         end;
@@ -77,31 +75,31 @@ page 20262 "Tax Component Formula Subform"
         XmlValue := DataTypeMgmt.ConvertLocalToXmlFormat(ValueVariable2, "Symbol Data Type"::Number);
         Value := CopyStr(XmlValue, 1, 250);
         Validate(Value);
-        Exit(true);
+        exit(true);
     end;
 
     local procedure ConvertConstantToLookup(): Boolean
     begin
         if ("Value Type" = "Value Type"::Constant) and (Value <> '') then begin
             if not Confirm('Convert to Lookup ?') then
-                Exit(false);
+                exit(false);
 
             Value := '';
         end;
 
         "Value Type" := "Value Type"::Component;
-        Exit(true);
+        exit(true);
     end;
 
     local procedure OpenComponentLookup()
     var
         TaxComponent: Record "Tax Component";
         TaxComponentFormula: Record "Tax Component Formula";
-        TaxComponents: Page "Tax Components";
     begin
         TaxComponentFormula.SetRange(ID, "Formula Expr. ID");
         if TaxComponentFormula.FindFirst() then begin
             TaxComponent.SetRange("Tax Type", "Tax Type");
+            TaxComponent.SetFilter("Component Type", '%1', TaxComponent."Component Type"::Normal);
             TaxComponent.SetFilter(ID, '<>%1', TaxComponentFormula."Component ID");
             if Page.RunModal(page::"Tax Components", TaxComponent) = Action::LookupOK then begin
                 Validate("Component ID", TaxComponent.ID);
@@ -140,7 +138,5 @@ page 20262 "Tax Component Formula Subform"
     end;
 
     var
-        LookupSerialization: Codeunit "Lookup Serialization";
-        LookupMgmt: Codeunit "Lookup Mgmt.";
         ValueVariable2: Text;
 }

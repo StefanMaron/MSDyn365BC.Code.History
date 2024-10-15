@@ -11,17 +11,17 @@ page 18543 "Assessee Codes"
         {
             repeater(General)
             {
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code by whom any tax or any other sum of money is payable';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of assesse codes';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of assessee code';
@@ -53,7 +53,7 @@ page 18543 "Assessee Codes"
                     ODataUtility.EditWorksheetInExcel(
                         'Assesse Codes',
                         CurrPage.ObjectId(false),
-                        StrSubstNo(AssesseeCodeLbl, Code));
+                        StrSubstNo(AssesseeCodeLbl, Rec.Code));
                 end;
             }
         }

@@ -4159,9 +4159,6 @@ End Function</Code>
         <Field Name="TDSAmtWorkTaxAmt">
           <DataField>TDSAmtWorkTaxAmt</DataField>
         </Field>
-        <Field Name="TDSAmtWorkTaxAmtFormat">
-          <DataField>TDSAmtWorkTaxAmtFormat</DataField>
-        </Field>
         <Field Name="LineAmt">
           <DataField>LineAmt</DataField>
         </Field>

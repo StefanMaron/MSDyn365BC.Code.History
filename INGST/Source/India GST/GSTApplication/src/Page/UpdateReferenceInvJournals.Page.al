@@ -16,24 +16,24 @@ page 18431 "Update Reference Inv. Journals"
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = '';
+                    ToolTip = 'Specifies the type of document that the entry belongs to.';
                 }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = '';
+                    ToolTip = 'Specifies the document number for the reference.';
                 }
                 field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = '';
+                    ToolTip = 'Specifies the source number as per defined type in source type.';
                 }
                 field("Reference Invoice Nos."; Rec."Reference Invoice Nos.")
                 {
                     ApplicationArea = All;
-                    ToolTip = '';
+                    ToolTip = 'Specifies the Reference Invoice number.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -62,19 +62,19 @@ page 18431 "Update Reference Inv. Journals"
                 field("Description"; Rec.Description)
                 {
                     ApplicationArea = All;
-                    ToolTip = '';
+                    ToolTip = 'Specifies the descriptive text that is associated with the reference document.';
                 }
                 field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = '';
+                    ToolTip = 'Specifies if the Source Type of the Entry is Customer,Vendor,Bank or G/L Account.';
                 }
                 field("Verified"; Rec.Verified)
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = '';
+                    ToolTip = 'Specifies whether the reference document is verified or not.';
                 }
             }
         }
@@ -92,7 +92,7 @@ page 18431 "Update Reference Inv. Journals"
                 Promoted = true;
                 PromotedCategory = Process;
                 Scope = Repeater;
-                Tooltip = '';
+                Tooltip = 'Specifies the process through which the reference document can be verified.';
 
                 trigger OnAction()
                 var
@@ -166,12 +166,13 @@ page 18431 "Update Reference Inv. Journals"
         ReferenceInvoiceNo.SetRange("Document Type", Rec."Document Type");
         ReferenceInvoiceNo.SetRange("Source No.", Rec."Source No.");
         ReferenceInvoiceNo.SetRange(Verified, true);
-        if not ReferenceInvoiceNo.FindFirst() then begin
+        if ReferenceInvoiceNo.IsEmpty then begin
             VendorLedgerEntry.SetRange("Document No.", Rec."Document No.");
-            if VendorLedgerEntry.FindFirst() and not Rec.Verified then
+            if (not VendorLedgerEntry.IsEmpty) and (not Rec.Verified) then
                 Error(ReferenceErr);
+
             CustLedgerEntry.SetRange("Document No.", Rec."Document No.");
-            if CustLedgerEntry.FindFirst() and not Rec.Verified then
+            if (not CustLedgerEntry.IsEmpty) and (not Rec.Verified) then
                 Error(ReferenceErr);
         end;
     end;

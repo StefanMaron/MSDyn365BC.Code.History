@@ -9,6 +9,7 @@ pageextension 18251 "FA GL General" extends "Fixed Asset G/L Journal"
                 Caption = 'Location Code';
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the location code for which the journal lines will be posted.';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
@@ -21,11 +22,19 @@ pageextension 18251 "FA GL General" extends "Fixed Asset G/L Journal"
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the GST assessable value on the Journal Line';
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("Custom Duty Amount"; Rec."Custom Duty Amount")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the custom duty amount  on the Journal line.';
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
         }
         addfirst(factboxes)
@@ -65,6 +74,13 @@ pageextension 18251 "FA GL General" extends "Fixed Asset G/L Journal"
             end;
         }
         modify("Posting Date")
+        {
+            trigger OnAfterValidate()
+            begin
+                CallTaxEngine();
+            end;
+        }
+        modify("Currency Code")
         {
             trigger OnAfterValidate()
             begin

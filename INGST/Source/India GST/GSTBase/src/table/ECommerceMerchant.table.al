@@ -8,23 +8,24 @@ table 18015 "E-Commerce Merchant"
         field(1; "Customer No."; code[10])
         {
             Caption = 'Customer No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = Customer;
             NotBlank = true;
         }
         field(2; "Merchant Id"; code[30])
         {
             Caption = 'Merchant Id';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             NotBlank = true;
         }
         field(3; "Company GST Reg. No."; code[20])
         {
             Caption = 'Company GST Reg. No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "GST Registration Nos.";
         }
     }
+
     keys
     {
         key(PK; "Customer No.", "Merchant Id")

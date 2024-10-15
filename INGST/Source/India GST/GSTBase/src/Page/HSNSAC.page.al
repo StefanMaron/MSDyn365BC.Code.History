@@ -1,10 +1,10 @@
-page 18005 "HSNSAC"
+page 18005 "HSN/SAC"
 {
     PageType = List;
     ApplicationArea = Basic, Suite;
     UsageCategory = Lists;
     SourceTable = "HSN/SAC";
-    Caption = 'HSNSAC';
+    Caption = 'HSN/SAC';
 
     layout
     {
@@ -12,22 +12,22 @@ page 18005 "HSNSAC"
         {
             repeater(General)
             {
-                field("GST Group Code"; "GST Group Code")
+                field("GST Group Code"; Rec."GST Group Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies GST group code.';
                 }
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies HSN/SAC codes for various groups.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies details of HSN/SAC code.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether GST group is for HSN/SAC.';
@@ -64,6 +64,7 @@ page 18005 "HSNSAC"
             }
         }
     }
+
     var
         CodeValueLbl: Label 'Code %1', Comment = '%1 = GST Group Code';
 }

@@ -1,6 +1,7 @@
 enum 18543 "Assessee Type"
 {
     Extensible = false;
+
     value(0; "")
     {
         Caption = ' ';

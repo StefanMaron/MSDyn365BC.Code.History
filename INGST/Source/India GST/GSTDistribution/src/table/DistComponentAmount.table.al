@@ -7,55 +7,55 @@ table 18201 "Dist. Component Amount"
         field(1; "Distribution No."; Code[20])
         {
             Caption = 'Distribution No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(2; "GST Component Code"; Code[10])
+        field(2; "GST Component Code"; Code[30])
         {
             Caption = 'GST Component Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(3; "GST Base Amount"; Decimal)
         {
             Caption = 'GST Base Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(4; "GST Amount"; Decimal)
         {
             Caption = 'GST Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(5; "GST Registration No."; Code[20])
         {
             Caption = 'GST Registration No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(6; "To Location Code"; Code[10])
         {
             Caption = 'To Location Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = Location where("GST Input Service Distributor" = filter(false));
         }
         field(7; "Distribution %"; Decimal)
         {
             Caption = 'Distribution %';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(8; "GST Credit"; enum "GST Credit")
         {
             Caption = 'GST Credit';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(9; Type; Enum Type)
         {
             Caption = 'Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(10; "No."; Code[20])
         {
             Caption = 'No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = if (Type = const("G/L Account")) "G/L Account"
                 where(
                     "Direct Posting" = const(false),
@@ -65,12 +65,12 @@ table 18201 "Dist. Component Amount"
         field(11; "Debit Amount"; Decimal)
         {
             Caption = 'Debit Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(12; "Credit Amount"; Decimal)
         {
             Caption = 'Credit Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
 
@@ -82,4 +82,3 @@ table 18201 "Dist. Component Amount"
         }
     }
 }
-

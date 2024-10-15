@@ -12,42 +12,42 @@ page 18748 "TDS Journal Batches"
         {
             repeater(General)
             {
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the tax journal batch.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the tax journal batch.';
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of account where the balancing entry will be posted.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of location that the entry is posted to.';
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number where the balancing entry will be posted.';
                 }
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new entries or records.';
                 }
-                field("Posting No. Series"; "Posting No. Series")
+                field("Posting No. Series"; Rec."Posting No. Series")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of number series that will be used to assign number to ledger entries that are posted from Journal using this template.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
@@ -82,7 +82,7 @@ page 18748 "TDS Journal Batches"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetupNewBatch();
+        Rec.SetupNewBatch();
     end;
 
     trigger OnOpenPage()
@@ -92,6 +92,4 @@ page 18748 "TDS Journal Batches"
 
     var
         TDSJnlManagement: Codeunit "TDS Jnl Management";
-
 }
-

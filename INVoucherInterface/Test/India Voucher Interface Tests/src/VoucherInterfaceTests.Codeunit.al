@@ -1,7 +1,7 @@
 codeunit 18996 "Voucher Interface Tests"
 {
-    // [FEATURE] [Voucher Interface] 
     Subtype = Test;
+
     [Test]
     procedure CreateVoucherSetupThroughCompanyInformation()
     var
@@ -11,7 +11,7 @@ codeunit 18996 "Voucher Interface Tests"
         BankAccount: Record "Bank Account";
         VoucherType: Enum "Gen. Journal Template Type";
     begin
-        // [Scenario 355488][Check if the system is allowing  to define No series and G/L accounts/Bank Account for each type of Voucher in Company Information]
+        // [SCENARIO] [355488] [Check if the system is allowing  to define No series and G/L accounts/Bank Account for each type of Voucher in Company Information]
         // [GIVEN] Create GLAccount/BankAccount for different Voucher Setup
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Cash Receipt Voucher", GeneralJnlLine."Account Type"::"G/L Account", RecLocation.Code);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Cash Payment Voucher", GeneralJnlLine."Account Type"::"G/L Account", RecLocation.Code);
@@ -29,7 +29,7 @@ codeunit 18996 "Voucher Interface Tests"
         BankAccount: Record "Bank Account";
         VoucherType: Enum "Gen. Journal Template Type";
     begin
-        // [Scenario 355489][Check if the system is allowing  to define No series and G/L accounts/Bank Account for each type of Voucher in Location]
+        // [SCENARIO] [355489] [Check if the system is allowing  to define No series and G/L accounts/Bank Account for each type of Voucher in Location]
         // [GIVEN] Create GLAccount/BankAccount for different Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         StorageBoolean.Set('LocationSetup', true);
@@ -52,16 +52,16 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherType: Enum "Gen. Journal Template Type";
         Amount: Decimal;
     begin
-        //[Scenario 355496][Check if the system is allowing the entering of narration for the total voucher while creating contra voucher.]
+        // [SCENARIO] [355496] [Check if the system is allowing the entering of narration for the total voucher while creating contra voucher.]
         // [FEATURE] [Voucher Interface] [Contra Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Contra Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Contra Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Contra Voucher", RecLocation.Code);
 
         // [WHEN] Created and Posted MultiLne Contra Voucher with Voucher Narration
@@ -86,16 +86,16 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherType: Enum "Gen. Journal Template Type";
         Amount: Decimal;
     begin
-        //[Scenario 355498][Check if the system is allowing the entering of cheque number and date while creating contra voucher.]
+        // [SCENARIO] [355498] [Check if the system is allowing the entering of cheque number and date while creating contra voucher.]
         // [FEATURE] [Voucher Interface] [Contra Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Contra Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Contra Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Contra Voucher", RecLocation.Code);
 
         // [WHEN] Created MultiLne Contra Voucher
@@ -118,16 +118,16 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherType: Enum "Gen. Journal Template Type";
         Amount: Decimal;
     begin
-        //[Scenario 355500][Check if the system is creating correct GL entries after posting contra voucher.]
+        // [SCENARIO] [355500] [Check if the system is creating correct GL entries after posting contra voucher.]
         // [FEATURE] [Voucher Interface] [Contra Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Contra Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Contra Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Contra Voucher", RecLocation.Code);
 
         // [WHEN] Created and Posted Multiline Contra Voucher
@@ -152,16 +152,16 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherType: Enum "Gen. Journal Template Type";
         Amount: Decimal;
     begin
-        // [Scenario 355521][Check if the system consider no. series and GL/Bank Account related Information from the Company Information master if same information is blank in the location while posting Contra Voucher]
+        // [SCENARIO] [355521] [Check if the system consider no. series and GL/Bank Account related Information from the Company Information master if same information is blank in the location while posting Contra Voucher]
         // [FEATURE] [Voucher Interface] [Contra Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Contra Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Contra Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Contra Voucher", RecLocation.Code);
 
         // [WHEN] Created and Posted Multiline Contra Voucher
@@ -184,13 +184,13 @@ codeunit 18996 "Voucher Interface Tests"
         GLAccount: Record "G/L Account";
         VoucherType: Enum "Gen. Journal Template Type";
     begin
-        //[Scenario 355444][Check if the cash receipt voucher is "location" based with specific No. series.]
+        // [SCENARIO] [355444] [Check if the cash receipt voucher is "location" based with specific No. series.]
         // [FEATURE] [Voucher Interface] [Cash Receipt Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Cash Receipt Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Cash Receipt Voucher", RecLocation.Code);
 
         /// [WHEN] Created Cash Receipt Voucher
@@ -208,15 +208,14 @@ codeunit 18996 "Voucher Interface Tests"
         RecLocation: Record Location;
         GLAccount: Record "G/L Account";
         VoucherType: Enum "Gen. Journal Template Type";
-        LocationCompareErr: Label 'Location are not equal';
     begin
-        // [Scenario 355501][Check if the Journal voucher is location based with specific No. series.]
+        // [SCENARIO] [355501] [Check if the Journal voucher is location based with specific No. series.]
         // [FEATURE] [Voucher Interface] [Journal Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Journal Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Journal Voucher", RecLocation.Code);
 
         // [WHEN] Created Journal Voucher Line
@@ -236,12 +235,12 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherType: Enum "Gen. Journal Template Type";
     begin
         // [FEATURE] [Voucher Interface] [Journal Voucher]
-        // [Scenario 355510][Check is the system is creating correct GL entries after posting journal voucher.]
+        // [SCENARIO] [355510] [Check is the system is creating correct GL entries after posting journal voucher.]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Journal Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Journal Voucher", RecLocation.Code);
 
         // [WHEN] Created and Posted Multiline Journal Voucher
@@ -261,13 +260,13 @@ codeunit 18996 "Voucher Interface Tests"
         GLAccount: Record "G/L Account";
         VoucherType: Enum "Gen. Journal Template Type";
     begin
-        //[Scenario 355502][Check if the entries which are neither affecting cash accounts nor bank accounts can be entered through journal voucher.]
+        // [SCENARIO] [355502] [Check if the entries which are neither affecting cash accounts nor bank accounts can be entered through journal voucher.]
         // [FEATURE] [Voucher Interface] [Journal Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Journal Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Journal Voucher", RecLocation.Code);
 
         // [WHEN] Created and Posted MultiLne Journal Voucher.
@@ -287,13 +286,13 @@ codeunit 18996 "Voucher Interface Tests"
         GLAccount: Record "G/L Account";
         VoucherType: Enum "Gen. Journal Template Type";
     begin
-        //[Scenario 355504][Check if the system is allowing the entering of narration for the total voucher while creating Journal voucher.]
+        // [SCENARIO] [355504] [Check if the system is allowing the entering of narration for the total voucher while creating Journal voucher.]
         // [FEATURE] [Voucher Interface] [Journal Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Journal Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Journal Voucher", RecLocation.Code);
 
         // [WHEN] Created and Posted MultiLne Journal Voucher with Voucher Narration
@@ -315,13 +314,13 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherType: Enum "Gen. Journal Template Type";
         DocumentNo, DocumentNo2 : Code[20];
     begin
-        //[Scenario 355505][Check if the system is allowing the entering of narration in single or multiple lines while creating Journal voucher.
+        // [SCENARIO] [355505] [Check if the system is allowing the entering of narration in single or multiple lines while creating Journal voucher.
         // [FEATURE] [Voucher Interface] [Journal Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Journal Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Journal Voucher", RecLocation.Code);
 
         // [WHEN] Created and Posted MultiLne Journal Voucher with Voucher Narration with different Posting Date.
@@ -345,15 +344,14 @@ codeunit 18996 "Voucher Interface Tests"
         RecLocation: Record Location;
         BankAccount: Record "Bank Account";
         VoucherType: Enum "Gen. Journal Template Type";
-        LocationCompareErr: Label 'Location are not equal';
     begin
-        //[Scenario 355457][Check if the Bank receipt voucher is location based with specific No. series.]
+        // [SCENARIO] [355457] [Check if the Bank receipt voucher is location based with specific No. series.]
         // [FEATURE] [Voucher Interface] [Bank Receipt Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Bank Receipt Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Bank Receipt Voucher", RecLocation.Code);
 
         // [WHEN] Created Bank Receipt Voucher
@@ -372,13 +370,13 @@ codeunit 18996 "Voucher Interface Tests"
         GLAccount: Record "G/L Account";
         VoucherType: Enum "Gen. Journal Template Type";
     begin
-        // [Scenario 355503][Check if the system is allowing the entering of multiple lines while creating journal voucher with different posting dates.]
+        // [SCENARIO] [355503] [Check if the system is allowing the entering of multiple lines while creating journal voucher with different posting dates.]
         // [FEATURE] [Voucher Interface] [Journal Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Journal Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
 
         // [WHEN] Created and Posted MultiLne Journal Voucher                                               
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Journal Voucher", RecLocation.Code);
@@ -399,13 +397,13 @@ codeunit 18996 "Voucher Interface Tests"
         GLAccount: Record "G/L Account";
         VoucherType: Enum "Gen. Journal Template Type";
     begin
-        // [Scenario 355452][Check if the entries that are affecting only the Cash Accounts can be entered through the cash payment voucher.]
+        // [SCENARIO] [355452] [Check if the entries that are affecting only the Cash Accounts can be entered through the cash payment voucher.]
         // [FEATURE] [Voucher Interface] [Cash Payment Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Cash Payment Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Cash Payment Voucher", RecLocation.Code);
 
         // [WHEN] Created and Posted MultiLne Cash Payment Voucher                                              
@@ -426,9 +424,8 @@ codeunit 18996 "Voucher Interface Tests"
         Location: Record Location;
         GLAccount: Record "G/L Account";
         VoucherEnum: enum "Gen. Journal Template Type";
-        AccountTypeErr: Label 'Account No. %1 is not defined as Debit account for the Voucher Sub Type Bank Receipt Voucher and Document No. %2.', Comment = '%1 =Account No., %2= Document No.';
     begin
-        // [Scenario 355518][Check if the system is not allowing to enter Cash Account in Bank Receipt voucher.]
+        // [SCENARIO] [355518] [Check if the system is not allowing to enter Cash Account in Bank Receipt voucher.]
         // [FEATURE] [Voucher Interface] [Bank Receipt Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         StorageEnum.Set('AccountType', format(GeneralJnlLine."Account Type"::"Bank Account"));
@@ -437,18 +434,18 @@ codeunit 18996 "Voucher Interface Tests"
         CreateGenJnlTemplateAndBatch(GenJournalTemplate, GenJournalBatch, Location.Code, VoucherEnum::"Bank Receipt Voucher");
         Storage.Set('TemplateName', GenJournalTemplate.Name);
 
-        //[WHEN] Create and Post Bank Receipt Voucher for multiple lines
+        // [WHEN] Create and Post Bank Receipt Voucher for multiple lines
         LibraryERM.CreateGLAccount(GLAccount);
 
         // [WHEN] Execution of MultiLne Bank Receipt Voucher & Posted.                                                
         CreateGenJnlLine(
-         GeneralJnlLine, GenJournalBatch.name, GeneralJnlLine."Account Type"::Customer, LibSales.CreateCustomerNo(),
-         -LibRandom.RandDecInDecimalRange(10000, 6000, 2), CALCDATE('<-CM>', WorkDate()));
+            GeneralJnlLine, GenJournalBatch.name, GeneralJnlLine."Account Type"::Customer, LibSales.CreateCustomerNo(),
+            -LibRandom.RandDecInDecimalRange(10000, 6000, 2), CalcDate('<-CM>', WorkDate()));
         GeneralJnlLine.Validate("Bal. Account No.", GLAccount."No.");
         GeneralJnlLine.Modify(true);
         asserterror LibraryERM.PostGeneralJnlLine(GeneralJnlLine);
 
-        //[Then] ExpectedError Verified
+        // [THEN] ExpectedError Verified
         Assert.ExpectedError(StrSubstNo(AccountTypeErr, GLAccount."No.", GeneralJnlLine."Document No."));
     end;
 
@@ -461,13 +458,13 @@ codeunit 18996 "Voucher Interface Tests"
         BankAccount: Record "Bank Account";
         VoucherType: Enum "Gen. Journal Template Type";
     begin
-        // [Scenario 355458][Check if the entries affecting only the Bank Accounts can be entered through the bank receipt voucher.]
+        // [SCENARIO] [355458] [Check if the entries affecting only the Bank Accounts can be entered through the bank receipt voucher.]
         // [FEATURE] [Voucher Interface] [Bank Receipt Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Bank Receipt Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Bank Receipt Voucher", RecLocation.Code);
 
         // [WHEN] Created and Posted Multiline Bank Receipt Voucher
@@ -488,13 +485,13 @@ codeunit 18996 "Voucher Interface Tests"
         BankAccount: Record "Bank Account";
         VoucherType: Enum "Gen. Journal Template Type";
     begin
-        // [Scenario 355462][Check if the system is allowing the entering of cheque number and date while creating bank receipt voucher.]
+        // [SCENARIO] [355462] [Check if the system is allowing the entering of cheque number and date while creating bank receipt voucher.]
         // [FEATURE] [Voucher Interface] [Bank Receipt Voucher]
         // [GIVEN] Create Location,Bank Account,GLAccount with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Bank Receipt Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Bank Receipt Voucher", RecLocation.Code);
 
         // [WHEN] Creation of Multiline Bank Receipt voucher & posted.
@@ -514,13 +511,13 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherType: Enum "Gen. Journal Template Type";
         DocumentNo, DocumentNo2 : Code[20];
     begin
-        // [Scenario 355459][Check if the system is allowing the entering of multiple line while creating bank receipt voucher with different posting dates.]
+        // [SCENARIO] [355459] [Check if the system is allowing the entering of multiple line while creating bank receipt voucher with different posting dates.]
         // [FEATURE] [Voucher Interface] [Bank Receipt Voucher]
         // [GIVEN] Create Location,Bank Account with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Bank Receipt Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Bank Receipt Voucher", RecLocation.Code);
 
         // [WHEN] Created MultiLne Bank Receipt Voucher created with Voucher Narration & Cheque No  & Posted.
@@ -544,15 +541,14 @@ codeunit 18996 "Voucher Interface Tests"
         RecLocation: Record Location;
         GLAccount: Record "G/L Account";
         VoucherType: Enum "Gen. Journal Template Type";
-        DocumentNo2: Code[20];
     begin
         // [FEATURE] [Voucher Interface] [Cash Payment Voucher]
-        // [Scenario 355453][Check if the system is allowing the entering of multiple lines while creating cash payment voucher with different posting dates.]
+        // [SCENARIO] [355453] [Check if the system is allowing the entering of multiple lines while creating cash payment voucher with different posting dates.]
         // [GIVEN] Create Location,G/L Account with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Cash Payment Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Cash Payment Voucher", RecLocation.Code);
 
         // [WHEN] Created and Posted MultiLne Cash Payment Voucher
@@ -575,12 +571,12 @@ codeunit 18996 "Voucher Interface Tests"
         DocumentNo, DocumentNo2 : Code[20];
     begin
         // [FEATURE] [Voucher Interface] [Bank Receipt Voucher]
-        // [Scenario 355460][Check if the system is allowing the entering of narration for the total voucher while creating bank receipt voucher.]
+        // [SCENARIO] [355460] [Check if the system is allowing the entering of narration for the total voucher while creating bank receipt voucher.]
         // [GIVEN] Create Location,Bank Account with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Bank Receipt Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Bank Receipt Voucher", RecLocation.Code);
 
         // [WHEN] Created MultiLne Bank Receipt Voucher created with Voucher Narration & Cheque No  & Posted
@@ -606,27 +602,26 @@ codeunit 18996 "Voucher Interface Tests"
         RecLocation: Record Location;
         BankAccount: Record "Bank Account";
         VoucherType: Enum "Gen. Journal Template Type";
-        NegativeeAmtErr: Label 'must be negative';
     begin
-        // [Scenario 355520][Check if the system is not allowing to enter Bank Account as Debit Amount in Bank Payment Voucher]
+        // [SCENARIO] [355520] [Check if the system is not allowing to enter Bank Account as Debit Amount in Bank Payment Voucher]
         // [FEATURE] [Voucher Interface] [Bank Payment Voucher]
         // [GIVEN] Create Location,Bank Account with Voucher Setup
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Bank Payment Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Bank Payment Voucher", RecLocation.Code);
 
         // [WHEN] Created MultiLne Bank Payment voucher with Cheque No & Voucher Narration & Posted
         CreateGenJnlLine(
-         GeneralJnlLine, DummyGenJnlBatch.name, GeneralJnlLine."Account Type"::Customer, LibSales.CreateCustomerNo(),
-         LibRandom.RandDecInDecimalRange(10000, 6000, 2), CALCDATE('<-CM>', WorkDate()));
+            GeneralJnlLine, DummyGenJnlBatch.name, GeneralJnlLine."Account Type"::Customer, LibSales.CreateCustomerNo(),
+            LibRandom.RandDecInDecimalRange(10000, 6000, 2), CalcDate('<-CM>', WorkDate()));
         GeneralJnlLine.Validate("Bal. Account Type", GeneralJnlLine."Bal. Account Type"::"Bank Account");
         GeneralJnlLine.Validate("Bal. Account No.", BankAccount."No.");
         GeneralJnlLine.Modify(true);
         asserterror LibraryERM.PostGeneralJnlLine(GeneralJnlLine);
 
-        //[THEN] Expected Error Verified
-        Assert.ExpectedError(NegativeeAmtErr);
+        // [THEN] Expected Error Verified
+        Assert.ExpectedError(NegativeAmtErr);
     end;
 
     [Test]
@@ -637,14 +632,13 @@ codeunit 18996 "Voucher Interface Tests"
         RecLocation: Record Location;
         GLAccount: Record "G/L Account";
         VoucherType: Enum "Gen. Journal Template Type";
-        PositiveAmtErr: Label 'must be positive';
     begin
         // [FEATURE] [Voucher Interface] [Cash Payment Voucher]
-        // [Scenario 355515][Check if the system is not allowing to enter Cash Account as Debit Amount in Cash Payment Voucher.]
+        // [SCENARIO] [355515] [Check if the system is not allowing to enter Cash Account as Debit Amount in Cash Payment Voucher.]
         // [GIVEN] Create Location,G/L Account with Voucher Setup
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Cash Payment Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Cash Payment Voucher", RecLocation.Code);
 
         // [WHEN] Craeted MultiLne Bank Payment Voucher with Cheque No & Voucher Narration & Posted
@@ -663,14 +657,13 @@ codeunit 18996 "Voucher Interface Tests"
         RecLocation: Record Location;
         BankAccount: Record "Bank Account";
         VoucherType: Enum "Gen. Journal Template Type";
-        NegativeeAmtErr: Label 'must be negative';
     begin
-        // [Scenario 355517][Check if the system is not allowing to enter Bank Account as Credit Amount in Bank Receipt Voucher.]
+        // [SCENARIO] [355517] [Check if the system is not allowing to enter Bank Account as Credit Amount in Bank Receipt Voucher.]
         // [FEATURE] [Voucher Interface] [Bank Receipt Voucher]
         // [GIVEN] Create Location,Bank Account with Voucher Setup
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Bank Receipt Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                '');
+            GeneralJnlLine."Account Type"::"Bank Account",
+            '');
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Bank Receipt Voucher", RecLocation.Code);
 
         // [WHEN] Craeted MultiLne Bank Receipt voucherwith Credit Account & Posted
@@ -678,7 +671,7 @@ codeunit 18996 "Voucher Interface Tests"
         asserterror LibraryERM.PostGeneralJnlLine(GeneralJnlLine);
 
         // [THEN] Expected Assert Error Verified
-        Assert.ExpectedError(NegativeeAmtErr);
+        Assert.ExpectedError(NegativeAmtErr);
     end;
 
     [Test]
@@ -691,13 +684,13 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherType: Enum "Gen. Journal Template Type";
         DocumentNo, DocumentNo2 : Code[20];
     begin
-        // [Scenario 355468][Check if the system is allowing the entering of narration for the total voucher while creating bank payment voucher.]
+        // [SCENARIO] [355468] [Check if the system is allowing the entering of narration for the total voucher while creating bank payment voucher.]
         // [FEATURE] [Voucher Interface] [Bank Payment Voucher]
         // [GIVEN] Create Location,Bank Account with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Bank Payment Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Bank Payment Voucher", RecLocation.Code);
 
         // [WHEN] Craeted MultiLne Bank Payment voucher with Cheque No & Voucher Narration & Posted
@@ -725,20 +718,20 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherType: Enum "Gen. Journal Template Type";
         DocumentNo: Code[20];
     begin
-        // [Scenario 355470][Check if the system is allowing the entering of cheque number and date while creating bank payment voucher.]
+        // [SCENARIO] [355470] [Check if the system is allowing the entering of cheque number and date while creating bank payment voucher.]
         // [FEATURE] [Voucher Interface] [Bank Payment Voucher]
         // [GIVEN] Create Location,Bank Account with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Bank Payment Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Bank Payment Voucher", RecLocation.Code);
 
         // [WHEN] Created MultiLne Bank Payment voucher with Cheque No & Voucher Narration & Posted
         CreateMultiLinesinVoucherForVendor(GeneralJnlLine, DummyGenJnlBatch.Name, BankAccount."No.", GeneralJnlLine."Account Type"::"Bank Account");
         DocumentNo := GeneralJnlLine."Document No.";
 
-        //[THEN] Cheque No. Assignment Verified
+        // [THEN] Cheque No. Assignment Verified
         LibraryVoucher.AssignChequeNo(DocumentNo);
     end;
 
@@ -753,12 +746,12 @@ codeunit 18996 "Voucher Interface Tests"
         DocumentNo, DocumentNo2 : Code[20];
     begin
         // [FEATURE] [Voucher Interface] [Bank Payment Voucher]
-        // [Scenario 355469][Check if the system is allowing the entering of narration in single or multiple lines while creating bank payment voucher.]
+        // [SCENARIO] [355469] [Check if the system is allowing the entering of narration in single or multiple lines while creating bank payment voucher.]
         // [GIVEN] Create Location,Bank Account with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Bank Payment Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Bank Payment Voucher", RecLocation.Code);
 
         // [WHEN] Created MultiLne Bank Payment voucher with Cheque No & Line Voucher Narration & Posted
@@ -787,12 +780,12 @@ codeunit 18996 "Voucher Interface Tests"
         DocumentNo, DocumentNo2 : Code[20];
     begin
         // [FEATURE] [Voucher Interface] [Bank Receipt Voucher]
-        // [Scenario-355461][Check if the system is allowing the entering of narration in single or multiple lines while creating bank receipt voucher.]
+        // [SCENARIO] [355461] [Check if the system is allowing the entering of narration in single or multiple lines while creating bank receipt voucher.]
         // [GIVEN] Create Location,Bank Account with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Bank Receipt Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Bank Receipt Voucher", RecLocation.Code);
 
         // [WHEN] Created MultiLne Bank Receipt voucher with Cheque No & Line Voucher Narration & Posted
@@ -820,12 +813,12 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherType: Enum "Gen. Journal Template Type";
     begin
         // [FEATURE] [Voucher Interface] [Cash Payment Voucher]
-        // [Scenario-355455][Check if the system is allowing the entering of narration in single or multiple lines while creating cash payment voucher.]
+        // [SCENARIO] [355455] [Check if the system is allowing the entering of narration in single or multiple lines while creating cash payment voucher.]
         // [GIVEN] Create Location,G/L Account with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Cash Payment Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Cash Payment Voucher", RecLocation.Code);
 
         // [WHEN] Created MultiLne cash payment voucher with Line Voucher Narration & Posted
@@ -849,12 +842,12 @@ codeunit 18996 "Voucher Interface Tests"
         DocumentNo, DocumentNo2 : Code[20];
     begin
         // [FEATURE] [Voucher Interface] [Cash Payment Voucher]
-        // [Scenario 355454][Check if the system is allowing the entering of narration for the total voucher while creating cash payment voucher.]
+        // [SCENARIO] [355454] [Check if the system is allowing the entering of narration for the total voucher while creating cash payment voucher.]
         // [GIVEN] Create Location,G/L Account with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Cash Payment Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Cash Payment Voucher", RecLocation.Code);
 
         // [WHEN] Created MultiLne Cash Payment Voucher with Voucher Narration & Posted
@@ -881,12 +874,12 @@ codeunit 18996 "Voucher Interface Tests"
         DocumentNo, DocumentNo2 : Code[20];
     begin
         // [FEATURE] [Voucher Interface] [Cash Payment Voucher]
-        // [Scenario 355456][Check if the system is creating correct GL entries after posting of cash payment voucher]
+        // [SCENARIO] [355456] [Check if the system is creating correct GL entries after posting of cash payment voucher]
         // [GIVEN] Create Location,G/L Account with Voucher Setup
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Cash Payment Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Cash Payment Voucher", RecLocation.Code);
 
         // [WHEN] Created and Posted MultiLine Cash Payment Voucher with different posting dates.
@@ -912,7 +905,7 @@ codeunit 18996 "Voucher Interface Tests"
         BankAccount: Record "Bank Account";
         VoucherType: Enum "Gen. Journal Template Type";
     begin
-        // [Scenario 355511][Check if the separate screens are open for different type of voucher (contra, cash, bank and Journal).]
+        // [SCENARIO] [355511] [Check if the separate screens are open for different type of voucher (contra, cash, bank and Journal).]
         // [GIVEN] Create Location
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
 
@@ -952,18 +945,18 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherEnum: Enum "Gen. Journal Template Type";
         BankAccNo: code[20];
     begin
-        //[Scenario 355463] Check if the system is creating correct GL entries after posting Bank receipt voucher.
-        //[GIVEN] Create Setup for Location, Template and Batch
+        // [SCENARIO] [355463] Check if the system is creating correct GL entries after posting Bank receipt voucher.
+        // [GIVEN] Create Setup for Location, Template and Batch
         StorageEnum.Set('AccountType', format(GenJournalLine."Account Type"::"Bank Account"));
         BankAccNo := CreateLocationWithVoucherSetup(Location, VoucherEnum::"Bank Receipt Voucher");
         CreateGenJnlTemplateAndBatch(GenJournalTemplate, GenJournalBatch, Location.Code, VoucherEnum::"Bank Receipt Voucher");
 
-        //[WHEN] Created and Posted Bank Receipt Voucher for Multiple Lines
+        // [WHEN] Created and Posted Bank Receipt Voucher for Multiple Lines
         LibraryVoucher.CreateGenJournalLineForBankToCustomer(GenJournalLine, GenJournalTemplate, GenJournalBatch, true, BankAccNo);
         LibraryVoucher.CreateGenJournalLineForBankToCustomer(GenJournalLine, GenJournalTemplate, GenJournalBatch, true, BankAccNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        //[THEN] G/LEntries Verified
+        // [THEN] G/LEntries Verified
         LibraryVoucher.VerifyVoucherGLEntryCount(GenJournalBatch.Name, 4);
     end;
 
@@ -978,16 +971,16 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherEnum: Enum "Gen. Journal Template Type";
         BankAccNo: code[20];
     begin
-        //[Scenario 355465] Check if the Bank payment voucher is location based with specific No. series.
-        //[GIVEN] Create Setup for Location, Template and Batch
+        // [SCENARIO] [355465] Check if the Bank payment voucher is location based with specific No. series.
+        // [GIVEN] Create Setup for Location, Template and Batch
         StorageEnum.Set('AccountType', format(GenJournalLine."Account Type"::"Bank Account"));
         BankAccNo := CreateLocationWithVoucherSetup(Location, VoucherEnum::"Bank Payment Voucher");
         CreateGenJnlTemplateAndBatch(GenJournalTemplate, GenJournalBatch, Location.Code, VoucherEnum::"Bank Payment Voucher");
 
-        //[WHEN] Created Bank Payment Voucher
+        // [WHEN] Created Bank Payment Voucher
         LibraryVoucher.CreateGenJournalLineForBankToCustomer(GenJournalLine, GenJournalTemplate, GenJournalBatch, true, BankAccNo);
 
-        //[THEN] Location Code Verified
+        // [THEN] Location Code Verified
         Assert.IsSubstring(Location.Code, GenJournalLine."Location Code");
     end;
 
@@ -1002,17 +995,17 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherEnum: Enum "Gen. Journal Template Type";
         BankAccNo: code[20];
     begin
-        //[Scenario 355466] Check if the entries affecting only the Bank Accounts can be entered through the bank payment voucher.
-        //[GIVEN] Create Setup for Location, Template and Batch
+        // [SCENARIO] [355466] Check if the entries affecting only the Bank Accounts can be entered through the bank payment voucher.
+        // [GIVEN] Create Setup for Location, Template and Batch
         StorageEnum.Set('AccountType', format(GenJournalLine."Account Type"::"Bank Account"));
         BankAccNo := CreateLocationWithVoucherSetup(Location, VoucherEnum::"Bank Payment Voucher");
 
-        //[WHEN] Created and Posted Bank Payment Voucher 
+        // [WHEN] Created and Posted Bank Payment Voucher 
         CreateGenJnlTemplateAndBatch(GenJournalTemplate, GenJournalBatch, Location.Code, VoucherEnum::"Bank Payment Voucher");
         LibraryVoucher.CreateGenJournalLineForVendorToBank(GenJournalLine, GenJournalTemplate, GenJournalBatch, false, BankAccNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        //[THEN] G/LEntries Verified
+        // [THEN] G/LEntries Verified
         LibraryVoucher.VerifyVoucherGLEntryCount(GenJournalBatch.Name, 2);
     end;
 
@@ -1027,13 +1020,13 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherEnum: Enum "Gen. Journal Template Type";
         BankAccNo: code[20];
     begin
-        //[Scenario 355467] Check if the system is allowing the entering of multiple line while creating bank payment voucher with different posting dates.
-        //[GIVEN] Create Setup for Location, Template and Batch
+        // [SCENARIO] [355467] Check if the system is allowing the entering of multiple line while creating bank payment voucher with different posting dates.
+        // [GIVEN] Create Setup for Location, Template and Batch
         StorageEnum.Set('AccountType', format(GenJournalLine."Account Type"::"Bank Account"));
         BankAccNo := CreateLocationWithVoucherSetup(Location, VoucherEnum::"Bank Payment Voucher");
         CreateGenJnlTemplateAndBatch(GenJournalTemplate, GenJournalBatch, Location.Code, VoucherEnum::"Bank Payment Voucher");
 
-        //[WHEN] Created and Posted MultiLine Bank Payment Voucher with different posting dates
+        // [WHEN] Created and Posted MultiLine Bank Payment Voucher with different posting dates
         LibraryVoucher.CreateGenJournalLineForVendorToBank(GenJournalLine, GenJournalTemplate, GenJournalBatch, false, BankAccNo);
         InsertGenJnlCopy(GenJournalLine);
         LibraryVoucher.CreateGenJournalLineForVendorToBank(GenJournalLine, GenJournalTemplate, GenJournalBatch, false, BankAccNo);
@@ -1042,7 +1035,7 @@ codeunit 18996 "Voucher Interface Tests"
         InsertGenJnlCopy(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        //[THEN] G/L Entries verified 
+        // [THEN] G/L Entries verified 
         LibraryVoucher.VerifyVoucherGLEntryCount(GenJournalBatch.Name, 4);
         VerifyGLEntryForDifferentPostingDates(GenJournalTemplate.Name, GenJournalBatch.Name);
     end;
@@ -1058,18 +1051,18 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherEnum: Enum "Gen. Journal Template Type";
         BankAccNo: code[20];
     begin
-        //[Scenario 355471] Check if the system is creating correct GL entries after posting Bank payment voucher.
-        //[GIVEN] Create Setup for Location, Template and Batch
+        // [SCENARIO] [355471] Check if the system is creating correct GL entries after posting Bank payment voucher.
+        // [GIVEN] Create Setup for Location, Template and Batch
         StorageEnum.Set('AccountType', format(GenJournalLine."Account Type"::"Bank Account"));
         BankAccNo := CreateLocationWithVoucherSetup(Location, VoucherEnum::"Bank Payment Voucher");
         CreateGenJnlTemplateAndBatch(GenJournalTemplate, GenJournalBatch, Location.Code, VoucherEnum::"Bank Payment Voucher");
 
-        //[WHEN] Created and Posted Bank Payment Voucher for multiple lines
+        // [WHEN] Created and Posted Bank Payment Voucher for multiple lines
         LibraryVoucher.CreateGenJournalLineForVendorToBank(GenJournalLine, GenJournalTemplate, GenJournalBatch, true, BankAccNo);
         LibraryVoucher.CreateGenJournalLineForVendorToBank(GenJournalLine, GenJournalTemplate, GenJournalBatch, true, BankAccNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        //[THEN] G/LEntries Verified
+        // [THEN] G/LEntries Verified
         LibraryVoucher.VerifyVoucherGLEntryCount(GenJournalBatch.Name, 4);
     End;
 
@@ -1084,16 +1077,16 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherEnum: Enum "Gen. Journal Template Type";
         GLAccNo: Code[20];
     begin
-        //[Scenario 355490] Check if the Contra voucher is location based with specific No. series.
-        //[GIVEN] Create Setup for Location, Template and Batch
+        // [SCENARIO] [355490] Check if the Contra voucher is location based with specific No. series.
+        // [GIVEN] Create Setup for Location, Template and Batch
         StorageEnum.Set('AccountType', format(GenJournalLine."Account Type"::"G/L Account"));
         GLAccNo := CreateLocationWithVoucherSetup(Location, VoucherEnum::"Contra Voucher");
         CreateGenJnlTemplateAndBatch(GenJournalTemplate, GenJournalBatch, Location.Code, VoucherEnum::"Contra Voucher");
 
-        //[WHEN] Created Contra Voucher
+        // [WHEN] Created Contra Voucher
         LibraryVoucher.CreateGenJournalLineForGLAccount(GenJournalLine, GenJournalTemplate, GenJournalBatch, false, GLAccNo);
 
-        //[THEN] Check Location on Contra Voucher
+        // [THEN] Check Location on Contra Voucher
         Assert.IsSubstring(Location.Code, GenJournalLine."Location Code");
     end;
 
@@ -1105,17 +1098,16 @@ codeunit 18996 "Voucher Interface Tests"
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
-        GLEntry: Record "G/L Entry";
         VoucherEnum: Enum "Gen. Journal Template Type";
         GLAccNo: code[20];
     begin
-        //[Scenario 355492] Check if the system is allowing the entering of multiple lines while creating contra voucher with different posting dates.
-        //[GIVEN] Create Setup for Location, Template and Batch
+        // [SCENARIO] [355492] Check if the system is allowing the entering of multiple lines while creating contra voucher with different posting dates.
+        // [GIVEN] Create Setup for Location, Template and Batch
         StorageEnum.Set('AccountType', format(GenJournalLine."Account Type"::"G/L Account"));
         GLAccNo := CreateLocationWithVoucherSetup(Location, VoucherEnum::"Contra Voucher");
         CreateGenJnlTemplateAndBatch(GenJournalTemplate, GenJournalBatch, Location.Code, VoucherEnum::"Contra Voucher");
 
-        //[WHEN] Created and Posted Contra Voucher with different posting dates
+        // [WHEN] Created and Posted Contra Voucher with different posting dates
         LibraryVoucher.CreateGenJournalLineForGLAccount(GenJournalLine, GenJournalTemplate, GenJournalBatch, false, GLAccNo);
         GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Modify(true);
@@ -1126,7 +1118,7 @@ codeunit 18996 "Voucher Interface Tests"
         InsertGenJnlCopy(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        //[THEN] G/LEntries Verified
+        // [THEN] G/LEntries Verified
         LibraryVoucher.VerifyVoucherGLEntryCount(GenJournalBatch.Name, 4);
         VerifyGLEntryForDifferentPostingdates(GenJournalTemplate.Name, GenJournalBatch.Name);
     end;
@@ -1142,18 +1134,18 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherEnum: Enum "Gen. Journal Template Type";
         GLAccNo: Code[20];
     begin
-        //[Scenario 355491] Check if the entries affecting only the Cash Accounts and Bank accounts between them selves can be entered through the contra voucher.
-        //[GIVEN] Create Setup for Location, Template and Batch
+        // [SCENARIO] [355491] Check if the entries affecting only the Cash Accounts and Bank accounts between them selves can be entered through the contra voucher.
+        // [GIVEN] Create Setup for Location, Template and Batch
         StorageEnum.Set('AccountType', format(GenJournalLine."Account Type"::"G/L Account"));
         GLAccNo := CreateLocationWithVoucherSetup(Location, VoucherEnum::"Contra Voucher");
         CreateGenJnlTemplateAndBatch(GenJournalTemplate, GenJournalBatch, Location.Code, VoucherEnum::"Contra Voucher");
 
-        //[WHEN] Created and Posted Cotra Voucher for Multiple Lines
+        // [WHEN] Created and Posted Cotra Voucher for Multiple Lines
         LibraryVoucher.CreateGenJournalLineForGLAccount(GenJournalLine, GenJournalTemplate, GenJournalBatch, false, GLAccNo);
         LibraryVoucher.CreateGenJournalLineForGLAccount(GenJournalLine, GenJournalTemplate, GenJournalBatch, false, GLAccNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        //[THEN] G/L Entries verified
+        // [THEN] G/L Entries verified
         LibraryVoucher.VerifyVoucherGLEntryCount(GenJournalBatch.Name, 4);
     end;
 
@@ -1166,13 +1158,13 @@ codeunit 18996 "Voucher Interface Tests"
         GLAccount: Record "G/L Account";
         VoucherType: Enum "Gen. Journal Template Type";
     begin
-        // [Scenario 355512][Check if the system consider no. series and GL Account related Information from the Company Information master if same information is blank in the location while posting Cash Receipt Voucher]
+        // [SCENARIO] [355512] [Check if the system consider no. series and GL Account related Information from the Company Information master if same information is blank in the location while posting Cash Receipt Voucher]
         // [FEATURE] [Voucher Interface] [Cash Receipt Voucher]
         // [GIVEN] Created G/L Account and Voucher Setup Using Company Information
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Cash Receipt Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Cash Receipt Voucher", RecLocation.Code);
 
         // [WHEN] Created and Posted MultiLne Cash Receipt Voucher                                               
@@ -1192,12 +1184,12 @@ codeunit 18996 "Voucher Interface Tests"
         BankAccount: Record "Bank Account";
         VoucherType: Enum "Gen. Journal Template Type";
     begin
-        // [Scenario 355516][Check if the system consider no. series and Bank Account related Information from the Company Information master if same information is blank in the location while posting Bank Receipt Voucher]
+        // [SCENARIO] [355516] [Check if the system consider no. series and Bank Account related Information from the Company Information master if same information is blank in the location while posting Bank Receipt Voucher]
         // [FEATURE] [Voucher Interface] [Bank Receipt Voucher]
         // [GIVEN] Created G/L Account and Voucher Setup Using Company Information
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Bank Receipt Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Bank Receipt Voucher", RecLocation.Code);
 
         // [WHEN] Created and  MultiLne Bank Receipt Voucher                                                 
@@ -1217,12 +1209,12 @@ codeunit 18996 "Voucher Interface Tests"
         BankAccount: Record "Bank Account";
         VoucherType: Enum "Gen. Journal Template Type";
     begin
-        // [Scenario 355519][Check if the system consider no. series and Bank Account related Information from the Company Information master if same information is blank in the location while posting Bank Payment Voucher]
+        // [SCENARIO] [355519] [Check if the system consider no. series and Bank Account related Information from the Company Information master if same information is blank in the location while posting Bank Payment Voucher]
         // [FEATURE] [Voucher Interface] [Bank Receipt Voucher]
         // [GIVEN] Create G/L Account & Voucher Setup Using Company Information
         CreateBankAccountWithVoucherAcc(BankAccount, VoucherType::"Bank Payment Voucher",
-                                            GeneralJnlLine."Account Type"::"Bank Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"Bank Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Bank Payment Voucher", RecLocation.Code);
 
         // [WHEN] Created and Posted MultiLne Bank Receipt Voucher                                              
@@ -1242,13 +1234,13 @@ codeunit 18996 "Voucher Interface Tests"
         GLAccount: Record "G/L Account";
         VoucherType: Enum "Gen. Journal Template Type";
     begin
-        // [Scenario 355513][Check if the system consider no. series and GL Account related Information from the Company Information master if same information is blank in the location while posting Cash Payment Voucher]
+        // [SCENARIO] [355513] [Check if the system consider no. series and GL Account related Information from the Company Information master if same information is blank in the location while posting Cash Payment Voucher]
         // [FEATURE] [Voucher Interface] [Cash Payment Voucher]
         // [GIVEN] Create G/L Account & Voucher Setup Using Company Information
         LibInventory.CreateLocationWMS(RecLocation, false, false, false, false, true);
         CreateGLAccountWithVoucherAcc(GLAccount, VoucherType::"Cash Payment Voucher",
-                                            GeneralJnlLine."Account Type"::"G/L Account",
-                                                RecLocation.Code);
+            GeneralJnlLine."Account Type"::"G/L Account",
+            RecLocation.Code);
         CreatePaymentVoucherTemplate(DummyGenJnlBatch, VoucherType::"Cash Payment Voucher", RecLocation.Code);
 
         // [WHEN] Created and Posted MultiLne Cash Payment Voucher                                               
@@ -1270,21 +1262,20 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherEnum: Enum "Gen. Journal Template Type";
         GLAccNo: code[20];
     begin
-        //[Scenario 355445] Check if the entries that are affecting only the Cash Accounts can be entered through the cash receipt voucher.
-        //[Scenario 355450] Check if the system is creating correct GL entries after posting of cash receipt voucher.
-        //[GIVEN] Create Setup for Location, Template and Batch
+        // [SCENARIO] [355445] Check if the entries that are affecting only the Cash Accounts can be entered through the cash receipt voucher.
+        // [SCENARIO] [355450] Check if the system is creating correct GL entries after posting of cash receipt voucher.
+        // [GIVEN] Create Setup for Location, Template and Batch
         StorageEnum.Set('AccountType', format(GenJournalLine."Account Type"::"G/L Account"));
         GLAccNo := CreateLocationWithVoucherSetup(Location, VoucherEnum::"Cash Receipt Voucher");
         CreateGenJnlTemplateAndBatch(GenJournalTemplate, GenJournalBatch, Location.Code, VoucherEnum::"Cash Receipt Voucher");
 
-        //[WHEN] Created and Posted Cash Receipt Voucher
+        // [WHEN] Created and Posted Cash Receipt Voucher
         LibraryVoucher.CreateGenJournalLineForGLToCustomer(GenJournalLine, GenJournalTemplate, GenJournalBatch, false, GLAccNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        //[THEN] G/LEntries Verified
+        // [THEN] G/LEntries Verified
         LibraryVoucher.VerifyVoucherGLEntryCount(GenJournalBatch.Name, 2);
     end;
-
 
     [Test]
     [HandlerFunctions('VoucherAccountDebit')]
@@ -1297,13 +1288,13 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherEnum: Enum "Gen. Journal Template Type";
         GLAccNo: code[20];
     begin
-        //[Scenario 355446] Check if the system is allowing the entering of multiple lines while creating cash receipt voucher with different posting dates.
-        //[GIVEN] Create Setup for Location, Template and Batch
+        // [SCENARIO] [355446] Check if the system is allowing the entering of multiple lines while creating cash receipt voucher with different posting dates.
+        // [GIVEN] Create Setup for Location, Template and Batch
         StorageEnum.Set('AccountType', format(GenJournalLine."Account Type"::"G/L Account"));
         GLAccNo := CreateLocationWithVoucherSetup(Location, VoucherEnum::"Cash Receipt Voucher");
         CreateGenJnlTemplateAndBatch(GenJournalTemplate, GenJournalBatch, Location.Code, VoucherEnum::"Cash Receipt Voucher");
 
-        //[WHEN] Created and Posted Cash Receipt Voucher for different posting dates
+        // [WHEN] Created and Posted Cash Receipt Voucher for different posting dates
         LibraryVoucher.CreateGenJournalLineForGLToCustomer(GenJournalLine, GenJournalTemplate, GenJournalBatch, false, GLAccNo);
         InsertGenJnlCopy(GenJournalLine);
         LibraryVoucher.CreateGenJournalLineForGLToCustomer(GenJournalLine, GenJournalTemplate, GenJournalBatch, false, GLAccNo);
@@ -1312,7 +1303,7 @@ codeunit 18996 "Voucher Interface Tests"
         InsertGenJnlCopy(GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        //[THEN] G/LEntries Verified
+        // [THEN] G/LEntries Verified
         LibraryVoucher.VerifyVoucherGLEntryCount(GenJournalBatch.Name, 4);
         VerifyGLEntryForDifferentPostingDates(GenJournalTemplate.Name, GenJournalBatch.Name);
     end;
@@ -1329,18 +1320,18 @@ codeunit 18996 "Voucher Interface Tests"
         GLAccNo: code[20];
         DocumentNo: Code[20];
     begin
-        //[Scenario 355447] Check if the system is allowing the entering of narration for the total voucher while creating cash receipt voucher.
-        //[GIVEN] Create Setup for Location, Template and Batch
+        // [SCENARIO] [355447] Check if the system is allowing the entering of narration for the total voucher while creating cash receipt voucher.
+        // [GIVEN] Create Setup for Location, Template and Batch
         StorageEnum.Set('AccountType', format(GenJournalLine."Account Type"::"G/L Account"));
         GLAccNo := CreateLocationWithVoucherSetup(Location, VoucherEnum::"Cash Receipt Voucher");
         CreateGenJnlTemplateAndBatch(GenJournalTemplate, GenJournalBatch, Location.Code, VoucherEnum::"Cash Receipt Voucher");
 
-        //[WHEN] Created and Posted Cash Receipt Voucher
+        // [WHEN] Created and Posted Cash Receipt Voucher
         LibraryVoucher.CreateGenJournalLineForGLToCustomer(GenJournalLine, GenJournalTemplate, GenJournalBatch, false, GLAccNo);
         LibraryVoucher.AssignVoucherNarration(GenJournalLine."Document No.");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        //[THEN] G/LEntries Verified
+        // [THEN] G/LEntries Verified
         DocumentNo := LibraryVoucher.VerifyVoucherGLEntryCount(GenJournalBatch.Name, 2);
         CheckPostedNarration(DocumentNo);
     end;
@@ -1357,17 +1348,17 @@ codeunit 18996 "Voucher Interface Tests"
         GLAccNo: code[20];
         DocumentNo: Code[20];
     begin
-        //[Scenario 355448] Check if the system is allowing the entering of narration in single or multiple lines while creating cash receipt voucher.
-        //[GIVEN] Create Setup for Location, Template and Batch
+        // [SCENARIO] [355448] Check if the system is allowing the entering of narration in single or multiple lines while creating cash receipt voucher.
+        // [GIVEN] Create Setup for Location, Template and Batch
         StorageEnum.Set('AccountType', format(GenJournalLine."Account Type"::"G/L Account"));
         GLAccNo := CreateLocationWithVoucherSetup(Location, VoucherEnum::"Cash Receipt Voucher");
         CreateGenJnlTemplateAndBatch(GenJournalTemplate, GenJournalBatch, Location.Code, VoucherEnum::"Cash Receipt Voucher");
 
-        //[WHEN] Created and Posted Cash Receipt Voucher
+        // [WHEN] Created and Posted Cash Receipt Voucher
         LibraryVoucher.CreateGenJournalLineForGLToCustomer(GenJournalLine, GenJournalTemplate, GenJournalBatch, true, GLAccNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        //[THEN] G/LEntries Verified
+        // [THEN] G/LEntries Verified
         DocumentNo := LibraryVoucher.VerifyVoucherGLEntryCount(GenJournalBatch.Name, 2);
         CheckPostedNarration(DocumentNo);
     end;
@@ -1383,248 +1374,17 @@ codeunit 18996 "Voucher Interface Tests"
         VoucherEnum: Enum "Gen. Journal Template Type";
         GLAccNo: Code[20];
     begin
-        //[Scenario 355451] Check if the cash payment voucher is location based with specific No. series.
-        //[GIVEN] Create Setup for Location, Template and Batch
+        // [SCENARIO] [355451] Check if the cash payment voucher is location based with specific No. series.
+        // [GIVEN] Create Setup for Location, Template and Batch
         StorageEnum.Set('AccountType', format(GenJournalLine."Account Type"::"G/L Account"));
         GLAccNo := CreateLocationWithVoucherSetup(Location, VoucherEnum::"Cash Receipt Voucher");
         CreateGenJnlTemplateAndBatch(GenJournalTemplate, GenJournalBatch, Location.Code, VoucherEnum::"Cash Receipt Voucher");
 
-        //[WHEN] Created Contra Voucher
+        // [WHEN] Created Contra Voucher
         LibraryVoucher.CreateGenJournalLineForGLToCustomer(GenJournalLine, GenJournalTemplate, GenJournalBatch, false, GLAccNo);
 
-        //[THEN] Location Code Verified on Contra Voucher
+        // [THEN] Location Code Verified on Contra Voucher
         Assert.IsSubstring(Location.Code, GenJournalLine."Location Code");
-    end;
-
-    [TEST]
-    [HandlerFunctions('TaxRatePageHandler,PayTDS')]
-    procedure PostPayTDSEntriesUsingCashPaymentVoucher()
-    var
-        AssesseeCode: Record "Assessee Code";
-        TDSSection: Record "TDS Section";
-        ConcessionalCode: Record "Concessional Code";
-        TDSPostingSetup: Record "TDS Posting Setup";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        Vendor: Record Vendor;
-        GenJournalLine: Record "Gen. Journal Line";
-        DocumentNo: Code[20];
-        VoucherType: Enum "Gen. Journal Template Type";
-    begin
-        //[Scenario 355525][Check if the system is allowing to pay TDS amount to government authorities through Cash Payment Voucher]
-        //[GIVEN] Created Vendor ,Posting Setup and TDS Setup
-        GSTTDSLibrary.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
-        GSTTDSLibrary.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
-        CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
-
-        //[WHEN] Create and Post TDS Invoice 
-        CreateGeneralJournalforTDSInvoice(GenJournalLine, Vendor, WorkDate());
-        DocumentNo := GenJournalLine."Document No.";
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-        //[THEN] G/L Entries Verified and Created Cash Payment Voucher  For Pay TDS
-        GSTTDSLibrary.VerifyGLEntryCount(DocumentNo, 3);
-        GSTTDSLibrary.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
-        CreatePaymentJournalFOrPayTDS(GenJournalLine, TDSPostingSetup."TDS Account", GSTTDSLibrary.GetTDSAmount(DocumentNo), VoucherType::"Cash Payment Voucher");
-    end;
-
-    [TEST]
-    [HandlerFunctions('TaxRatePageHandler,PayTDS')]
-    procedure PostPayTDSEntriesUsingBankPaymentVoucher()
-    var
-        AssesseeCode: Record "Assessee Code";
-        TDSSection: Record "TDS Section";
-        ConcessionalCode: Record "Concessional Code";
-        TDSPostingSetup: Record "TDS Posting Setup";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        Vendor: Record Vendor;
-        GenJournalLine: Record "Gen. Journal Line";
-        DocumentNo: Code[20];
-        VoucherType: Enum "Gen. Journal Template Type";
-    begin
-        //[Scenario 355528][Check if the system is allowing to pay TDS amount to government authorities through Bank Payment Voucher]
-        //[GIVEN] Created Vendor ,Posting Setup and TDS Setup
-        GSTTDSLibrary.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
-        GSTTDSLibrary.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
-        CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
-
-        //[WHEN] Create and Post TDS Invoice 
-        CreateGeneralJournalforTDSInvoice(GenJournalLine, Vendor, WorkDate());
-        DocumentNo := GenJournalLine."Document No.";
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-        //[THEN] G/L Entries Verified and Created Bank Payment Voucher Journal For Pay TDS
-        GSTTDSLibrary.VerifyGLEntryCount(DocumentNo, 3);
-        GSTTDSLibrary.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
-        CreatePaymentJournalFOrPayTDSBank(GenJournalLine, TDSPostingSetup."TDS Account", GSTTDSLibrary.GetTDSAmount(DocumentNo), VoucherType::"Bank Payment Voucher");
-    end;
-
-    local procedure CreateTaxRate()
-    var
-        TDSSetup: Record "TDS Setup";
-        PageTaxtype: TestPage "Tax Types";
-    begin
-        if not TDSSetup.Get() then
-            exit;
-        PageTaxtype.OpenEdit();
-        PageTaxtype.Filter.SetFilter(Code, TDSSetup."Tax Type");
-        PageTaxtype.TaxRates.Invoke();
-    end;
-
-    procedure CreatePaymentJournalFOrPayTDS(var GenJournalLine: Record "Gen. Journal Line"; TDSAccount: Code[20]; TDSAmount: Decimal; VoucherType: Enum "Gen. Journal Template Type")
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        Location: Record Location;
-        GLAccount: Record "G/L Account";
-        CompanyInfo: Record "Company Information";
-        Payment: Codeunit "TDS Pay";
-        LibraryJournals: Codeunit "Library - Journals";
-        TDSPay: TestPage "Pay TDS";
-        Amount: Decimal;
-        TDSSectionCode: Code[10];
-    begin
-        LibInventory.CreateLocationWMS(Location, false, false, false, false, true);
-        CreateGLAccountWithVoucherAcc(GLAccount, VoucherType,
-                                            GenJournalLine."Account Type"::"G/L Account",
-                                                Location.Code);
-        CreatePaymentVoucherTemplate(GenJournalBatch, VoucherType, Location.Code);
-        CompanyInfo.Get();
-        LibraryJournals.CreateGenJournalLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-        GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", TDSAccount,
-        GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), TDSAmount);
-        GenJournalLine.Validate("Posting Date", WorkDate());
-        TDSSectionCode := CopyStr(StorageTDS.Get('SectionCode'), 1, MaxStrLen(TDSSectionCode));
-        GenJournalLine.Validate("TDS Section Code", TDSSectionCode);
-        GenJournalLine.Validate("T.A.N. No.", CompanyInfo."T.A.N. No.");
-        GenJournalLine.Modify(true);
-        Location.Validate("T.A.N. No.", CompanyInfo."T.A.N. No.");
-        Location.Modify(true);
-        Payment.PayTDS(GenJournalLine);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
-    procedure CreatePaymentJournalFOrPayTDSBank(var GenJournalLine: Record "Gen. Journal Line"; TDSAccount: Code[20]; TDSAmount: Decimal; VoucherType: Enum "Gen. Journal Template Type")
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        Location: Record Location;
-        GLAccount: Record "G/L Account";
-        BankAccount: Record "Bank Account";
-        CompanyInfo: Record "Company Information";
-        Payment: Codeunit "TDS Pay";
-        LibraryJournals: Codeunit "Library - Journals";
-        TDSPay: TestPage "Pay TDS";
-        Amount: Decimal;
-        TDSSectionCode: Code[10];
-    begin
-        LibInventory.CreateLocationWMS(Location, false, false, false, false, true);
-        CreateBankAccountWithVoucherAcc(BankAccount, VoucherType,
-                                            GenJournalLine."Account Type"::"Bank Account",
-                                                Location.Code);
-        CreatePaymentVoucherTemplate(GenJournalBatch, VoucherType, Location.Code);
-        CompanyInfo.Get();
-        LibraryJournals.CreateGenJournalLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-        GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", TDSAccount,
-        GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), TDSAmount);
-        GenJournalLine.Validate("Posting Date", WorkDate());
-        TDSSectionCode := CopyStr(StorageTDS.Get('SectionCode'), 1, MaxStrLen(TDSSectionCode));
-        GenJournalLine.Validate("TDS Section Code", TDSSectionCode);
-        GenJournalLine.Validate("T.A.N. No.", CompanyInfo."T.A.N. No.");
-        GenJournalLine.Modify(true);
-        Location.Validate("T.A.N. No.", CompanyInfo."T.A.N. No.");
-        Location.Modify(true);
-        Payment.PayTDS(GenJournalLine);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
-    local procedure CreateGeneralJournalforTDSInvoice(var GenJournalLine: Record "Gen. Journal Line"; var Vendor: Record Vendor; PostingDate: Date)
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        LibraryJournal: Codeunit "Library - Journals";
-        Amount: Decimal;
-        TDSSectionCode: Code[10];
-    begin
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        Amount := LibRandom.RandDec(100000, 2);
-        LibraryJournal.CreateGenJournalLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-        GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, Vendor."No.",
-        GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), -Amount);
-        GenJournalLine.Validate("Posting Date", PostingDate);
-        TDSSectionCode := CopyStr(StorageTDS.Get('SectionCode'), 1, MaxStrLen(TDSSectionCode));
-        GenJournalLine.Validate("TDS Section Code", TDSSectionCode);
-        GenJournalLine.Validate(Amount, -Amount);
-        GenJournalLine.Modify(true);
-    END;
-
-    [PageHandler]
-    procedure PayTDS(var PayTDSPage: TestPage "Pay TDS")
-    begin
-        PayTDSPage."&Pay".Invoke();
-    end;
-
-    local procedure CreateTaxRateSetup(TDSSection: Code[10]; AssesseeCode: Code[10]; ConcessionlCode: Code[10]; EffectiveDate: Date)
-    begin
-        StorageTDS.Set('SectionCode', TDSSection);
-        StorageTDS.Set('TDSAssesseeCode', AssesseeCode);
-        StorageTDS.Set('TDSConcessionalCode', ConcessionlCode);
-        StorageTDS.Set('EffectiveDate', Format(EffectiveDate));
-        GenerateTaxComponentsPercentage();
-        CreateTaxRate();
-    end;
-
-    local procedure GenerateTaxComponentsPercentage()
-    begin
-        StorageTDS.Set('TDSPercentage', Format(LibRandom.RandIntInRange(2, 4)));
-        StorageTDS.Set('NonPANTDSPercentage', Format(LibRandom.RandIntInRange(2, 4)));
-        StorageTDS.Set('SurchargePercentage', Format(LibRandom.RandIntInRange(2, 4)));
-        StorageTDS.Set('eCessPercentage', Format(LibRandom.RandIntInRange(2, 4)));
-        StorageTDS.Set('SHECessPercentage', Format(LibRandom.RandIntInRange(2, 4)));
-        StorageTDS.Set('TDSThresholdAmount', Format(LibRandom.RandIntInRange(2, 4)));
-        StorageTDS.Set('SurchargeThresholdAmount', Format(LibRandom.RandIntInRange(2, 4)));
-    end;
-
-    [PageHandler]
-    procedure TaxRatePageHandler(var TaxRate: TestPage "Tax Rates");
-    var
-        EffectiveDate: Date;
-        TDSPercentage: Decimal;
-        NonPANTDSPercentage: Decimal;
-        SurchargePercentage: Decimal;
-        eCessPercentage: Decimal;
-        SHECessPercentage: Decimal;
-        TDSThresholdAmount: Decimal;
-        SurchargeThresholdAmount: Decimal;
-    begin
-        Evaluate(EffectiveDate, StorageTDS.Get('EffectiveDate'));
-        Evaluate(TDSPercentage, StorageTDS.Get('TDSPercentage'));
-        Evaluate(NonPANTDSPercentage, StorageTDS.Get('NonPANTDSPercentage'));
-        Evaluate(SurchargePercentage, StorageTDS.Get('SurchargePercentage'));
-        Evaluate(eCessPercentage, StorageTDS.Get('eCessPercentage'));
-        Evaluate(SHECessPercentage, StorageTDS.Get('SHECessPercentage'));
-        Evaluate(TDSThresholdAmount, StorageTDS.Get('TDSThresholdAmount'));
-        Evaluate(SurchargeThresholdAmount, StorageTDS.Get('SurchargeThresholdAmount'));
-        TaxRate.AttributeValue1.SetValue(StorageTDS.Get('SectionCode'));
-        TaxRate.AttributeValue2.SetValue(StorageTDS.Get('TDSAssesseeCode'));
-        TaxRate.AttributeValue3.SetValue(EffectiveDate);
-        TaxRate.AttributeValue4.SetValue(StorageTDS.Get('TDSConcessionalCode'));
-        TaxRate.AttributeValue5.SetValue('');
-        TaxRate.AttributeValue6.SetValue('');
-        TaxRate.AttributeValue7.SetValue('');
-        TaxRate.AttributeValue8.SetValue(TDSPercentage);
-        TaxRate.AttributeValue9.SetValue(NonPANTDSPercentage);
-        TaxRate.AttributeValue10.SetValue(SurchargePercentage);
-        TaxRate.AttributeValue11.SetValue(eCessPercentage);
-        TaxRate.AttributeValue12.SetValue(SHECessPercentage);
-        TaxRate.AttributeValue13.SetValue(TDSThresholdAmount);
-        TaxRate.AttributeValue14.SetValue(SurchargeThresholdAmount);
-        TaxRate.AttributeValue15.SetValue('');
-        TaxRate.AttributeValue16.SetValue('');
-        TaxRate.AttributeValue17.SetValue(0.00);
-        TaxRate.OK().Invoke();
     end;
 
     local procedure CheckPostedNarration(DocumentNo: Code[20])
@@ -1636,7 +1396,7 @@ codeunit 18996 "Voucher Interface Tests"
         Assert.RecordIsNotEmpty(PostedNarration);
     end;
 
-    procedure VerifyGLEntryForDifferentPostingDates(JournalTemplateName: Code[10]; JournaBatchName: code[10])
+    local procedure VerifyGLEntryForDifferentPostingDates(JournalTemplateName: Code[10]; JournaBatchName: code[10])
     var
         GenJournalLineCopy: Record "Gen. Journal Line";
         GLEntry: Record "G/L Entry";
@@ -1648,31 +1408,38 @@ codeunit 18996 "Voucher Interface Tests"
         GenJournalLineCopy.SetRange("Journal Batch Name", JournaBatchName);
         if not GenJournalLineCopy.IsEmpty() then
             repeat
-                GLEntry.SETRANGE("External Document No.", GenJournalLineCopy."Document No.");
+                GLEntry.SetRange("External Document No.", GenJournalLineCopy."Document No.");
                 GLEntry.FindFirst();
                 Assert.IsSubstring(format(GenJournalLineCopy."Posting Date"), format(GLEntry."Posting Date"));
             until GenJournalLineCopy.Next() = 0;
     end;
 
-    local procedure CreateGLAccountWithVoucherAcc(VAR GLAccount: Record "G/L Account"; Type: Enum "Gen. Journal Template Type"; AccountType: Enum "Gen. Journal Account Type";
-                                                                                                 LocationCode: Code[10])
+    local procedure CreateGLAccountWithVoucherAcc(VAR GLAccount: Record "G/L Account";
+        Type: Enum "Gen. Journal Template Type";
+        AccountType: Enum "Gen. Journal Account Type";
+        LocationCode: Code[10])
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         CreateVoucherAccount(GLAccount."No.", AccountType, Type, FORMAT(Type), LocationCode);
-        GLAccount.SETRANGE("No.", GLAccount."No.");
-        GLAccount.SETFILTER("Date Filter", '%1..%2', CALCDATE('< -1M >', WorkDate()), CALCDATE('< +1Y >', WorkDate()));
+        GLAccount.SetRange("No.", GLAccount."No.");
+        GLAccount.SetFilter("Date Filter", '%1..%2', CalcDate('< -1M >', WorkDate()), CalcDate('< +1Y >', WorkDate()));
         GLAccount.FindFirst();
     end;
 
-    local procedure CreateBankAccountWithVoucherAcc(VAR BankAccount: Record "Bank Account"; Type: Enum "Gen. Journal Template Type"; AccountType: Enum "Gen. Journal Account Type";
-                                                                                                      LocationCode: Code[10])
+    local procedure CreateBankAccountWithVoucherAcc(VAR BankAccount: Record "Bank Account";
+        Type: Enum "Gen. Journal Template Type";
+        AccountType: Enum "Gen. Journal Account Type";
+        LocationCode: Code[10])
     begin
         LibraryERM.CreateBankAccount(BankAccount);
         CreateVoucherAccount(BankAccount."No.", AccountType, Type, FORMAT(Type), LocationCode);
     end;
 
-    local procedure CreateVoucherAccount(AccountNo: Code[20]; AccType: Enum "Gen. Journal Account Type"; SubType: Enum "Gen. Journal Template Type"; TextType: Text;
-                                                                                            LocationCode: Code[10])
+    Local procedure CreateVoucherAccount(AccountNo: Code[20];
+        AccType: Enum "Gen. Journal Account Type";
+        SubType: Enum "Gen. Journal Template Type";
+        TaxtType: Text;
+        LocationCode: Code[10])
     var
         VoucherCrAccount: Record "Voucher Posting Credit Account";
         VoucherDrAccount: Record "Voucher Posting Debit Account";
@@ -1714,14 +1481,14 @@ codeunit 18996 "Voucher Interface Tests"
             LocationCard.GoToKey(LocationCode);
             VoucherSetupPage.Trap();
             LocationCard."Voucher Setup".Invoke();
-            VoucherSetupPage.Filter.SetFilter(Type, TextType);
+            VoucherSetupPage.Filter.SetFilter(Type, TaxtType);
             VoucherSetupPage.Filter.SetFilter("Location Code", LocationCode);
             VoucherSetupPage."Posting No. Series".SetValue(Storage.Get('Noseries'));
         end else begin
             CompanyInformationPage.OpenEdit();
             VoucherSetupPage.Trap();
             CompanyInformationPage."Journal Voucher Posting Setup".Invoke();
-            VoucherSetupPage.Filter.SetFilter(Type, TextType);
+            VoucherSetupPage.Filter.SetFilter(Type, TaxtType);
             VoucherSetupPage.Filter.SetFilter("Location Code", LocationCode);
             VoucherSetupPage."Posting No. Series".SetValue(Storage.Get('Noseries'));
         end;
@@ -1733,7 +1500,7 @@ codeunit 18996 "Voucher Interface Tests"
         end;
     end;
 
-    procedure CreateNoSeries(): Code[20]
+    local procedure CreateNoSeries(): Code[20]
     var
         Noseries: Code[20];
     begin
@@ -1744,7 +1511,9 @@ codeunit 18996 "Voucher Interface Tests"
         end;
     end;
 
-    local procedure CreatePaymentVoucherTemplate(VAR GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type"; LocationCode: Code[10])
+    local procedure CreatePaymentVoucherTemplate(VAR GenJournalBatch: Record "Gen. Journal Batch"; Type:
+        Enum "Gen. Journal Template Type";
+        LocationCode: Code[10])
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -1757,66 +1526,76 @@ codeunit 18996 "Voucher Interface Tests"
         GenJournalBatch.Modify();
     end;
 
-    local procedure CreateMultiLinesinVoucherForVendor(VAR GenJournalLine: Record "Gen. Journal Line"; GenJnlBatchName: Code[10]; AccountNo: Code[20];
-                                                                                                           AccountType: Enum "Gen. Journal Account Type")
+    local procedure CreateMultiLinesinVoucherForVendor(VAR GenJournalLine: Record "Gen. Journal Line";
+        GenJnlBatchName: Code[10];
+        AccountNo: Code[20];
+        AccountType: Enum "Gen. Journal Account Type")
     begin
         CreateGenJnlLine(
-          GenJournalLine, GenJnlBatchName, AccountType, AccountNo, -LibRandom.RandDecInDecimalRange(10000, 6000, 2),
-          CALCDATE('<-CM>', WorkDate()));
+            GenJournalLine, GenJnlBatchName, AccountType, AccountNo, -LibRandom.RandDecInDecimalRange(10000, 6000, 2),
+            CalcDate('<-CM>', WorkDate()));
         CreateGenJnlLine(
-GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Vendor, LibPurchase.CreateVendorNo(),
-LibRandom.RandDecInDecimalRange(10000, 6000, 2), CALCDATE('<-CM>', WorkDate()));
+            GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Vendor, LibPurchase.CreateVendorNo(),
+            LibRandom.RandDecInDecimalRange(10000, 6000, 2), CalcDate('<-CM>', WorkDate()));
     end;
 
-    local procedure CreateMultiLinesWrongVoucherForVendor(VAR GenJournalLine: Record "Gen. Journal Line"; GenJnlBatchName: Code[10]; AccountNo: Code[20];
-                                                                                                              AccountType: Enum "Gen. Journal Account Type")
+    local procedure CreateMultiLinesWrongVoucherForVendor(VAR GenJournalLine: Record "Gen. Journal Line";
+        GenJnlBatchName: Code[10];
+        AccountNo: Code[20];
+        AccountType: Enum "Gen. Journal Account Type")
     begin
         CreateGenJnlLine(
-          GenJournalLine, GenJnlBatchName, AccountType, AccountNo, LibRandom.RandDecInDecimalRange(10000, 6000, 2),
-          CALCDATE('<-CM>', WorkDate()));
+            GenJournalLine, GenJnlBatchName, AccountType, AccountNo, LibRandom.RandDecInDecimalRange(10000, 6000, 2),
+            CalcDate('<-CM>', WorkDate()));
         CreateGenJnlLine(
-GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Vendor, LibPurchase.CreateVendorNo(),
--LibRandom.RandDecInDecimalRange(10000, 6000, 2), CALCDATE('<-CM>', WorkDate()));
+            GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Vendor, LibPurchase.CreateVendorNo(),
+            -LibRandom.RandDecInDecimalRange(10000, 6000, 2), CalcDate('<-CM>', WorkDate()));
     end;
 
-    local procedure CreateMultiLinesWrongVoucherForCustomer(VAR GenJournalLine: Record "Gen. Journal Line"; GenJnlBatchName: Code[10]; AccountNo: Code[20];
-                                                                                                                AccountType: Enum "Gen. Journal Account Type")
+    local procedure CreateMultiLinesWrongVoucherForCustomer(VAR GenJournalLine: Record "Gen. Journal Line";
+        GenJnlBatchName: Code[10];
+        AccountNo: Code[20];
+        AccountType: Enum "Gen. Journal Account Type")
     begin
         CreateGenJnlLine(
-          GenJournalLine, GenJnlBatchName, AccountType, AccountNo, -LibRandom.RandDecInDecimalRange(10000, 6000, 2),
-          CALCDATE('<-CM>', WorkDate()));
+            GenJournalLine, GenJnlBatchName, AccountType, AccountNo, -LibRandom.RandDecInDecimalRange(10000, 6000, 2),
+            CalcDate('<-CM>', WorkDate()));
         CreateGenJnlLine(
-GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Customer, LibSales.CreateCustomerNo(),
-LibRandom.RandDecInDecimalRange(10000, 6000, 2), CALCDATE('<-CM>', WorkDate()));
+            GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Customer, LibSales.CreateCustomerNo(),
+            LibRandom.RandDecInDecimalRange(10000, 6000, 2), CalcDate('<-CM>', WorkDate()));
     end;
 
-    local procedure CreateMultiLinesJournalVoucherForVendor(VAR GenJournalLine: Record "Gen. Journal Line"; GenJnlBatchName: Code[10]; AccountNo: Code[20];
-                                                                                                                AccountType: Enum "Gen. Journal Account Type")
+    local procedure CreateMultiLinesJournalVoucherForVendor(VAR GenJournalLine: Record "Gen. Journal Line";
+        GenJnlBatchName: Code[10];
+        AccountNo: Code[20];
+        AccountType: Enum "Gen. Journal Account Type")
     begin
         CreateJournalVoucherLine(
-          GenJournalLine, GenJnlBatchName, AccountType, AccountNo, LibRandom.RandDecInDecimalRange(10000, 6000, 2),
-          CALCDATE('<-CM>', WorkDate()));
+            GenJournalLine, GenJnlBatchName, AccountType, AccountNo, LibRandom.RandDecInDecimalRange(10000, 6000, 2),
+            CalcDate('<-CM>', WorkDate()));
         CreateJournalVoucherLine(
-GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Vendor, LibPurchase.CreateVendorNo(),
--LibRandom.RandDecInDecimalRange(10000, 6000, 2), CALCDATE('<-CM>', WorkDate()));
+            GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Vendor, LibPurchase.CreateVendorNo(),
+            -LibRandom.RandDecInDecimalRange(10000, 6000, 2), CalcDate('<-CM>', WorkDate()));
     end;
 
-    local procedure CreateMultiLinesinVoucherForCustomer(VAR GenJournalLine: Record "Gen. Journal Line"; GenJnlBatchName: Code[10]; AccountNo: Code[20];
-                                                                                                             AccountType: Enum "Gen. Journal Account Type")
+    local procedure CreateMultiLinesinVoucherForCustomer(VAR GenJournalLine: Record "Gen. Journal Line";
+        GenJnlBatchName: Code[10];
+        AccountNo: Code[20];
+        AccountType: Enum "Gen. Journal Account Type")
     begin
         CreateGenJnlLine(
-          GenJournalLine, GenJnlBatchName, AccountType, AccountNo, LibRandom.RandDecInDecimalRange(10000, 6000, 2),
-          CALCDATE('<-CM>', WorkDate()));
+            GenJournalLine, GenJnlBatchName, AccountType, AccountNo, LibRandom.RandDecInDecimalRange(10000, 6000, 2),
+            CalcDate('<-CM>', WorkDate()));
         CreateGenJnlLine(
-GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Customer, LibSales.CreateCustomerNo(),
--LibRandom.RandDecInDecimalRange(10000, 6000, 2), CALCDATE('<-CM>', WorkDate()));
+            GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Customer, LibSales.CreateCustomerNo(),
+            -LibRandom.RandDecInDecimalRange(10000, 6000, 2), CalcDate('<-CM>', WorkDate()));
     end;
 
     local procedure CreateGenJnlLine(VAR GenJournalLine: Record "Gen. Journal Line"; GenJnlBatchName: Code[10];
-                                                                    AccountType: Enum "Gen. Journal Account Type";
-                                                                                     AccountNo: Code[20];
-                                                                                     Amount: Decimal;
-                                                                                     PostingDate: Date): Code[20]
+        AccountType: Enum "Gen. Journal Account Type";
+        AccountNo: Code[20];
+        Amount: Decimal;
+        PostingDate: Date): Code[20]
     var
         TemplateName: Code[10];
     begin
@@ -1828,11 +1607,12 @@ GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Customer, LibSal
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateJournalVoucherLine(VAR GenJournalLine: Record "Gen. Journal Line"; GenJnlBatchName: Code[10];
-                                                                            AccountType: Enum "Gen. Journal Account Type";
-                                                                                             AccountNo: Code[20];
-                                                                                             Amount: Decimal;
-                                                                                             PostingDate: Date): Code[20]
+    local procedure CreateJournalVoucherLine(VAR GenJournalLine: Record "Gen. Journal Line";
+        GenJnlBatchName: Code[10];
+        AccountType: Enum "Gen. Journal Account Type";
+        AccountNo: Code[20];
+        Amount: Decimal;
+        PostingDate: Date): Code[20]
     var
         TemplateName: Code[10];
     begin
@@ -1844,7 +1624,11 @@ GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Customer, LibSal
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateGenJnlTemplateAndBatch(var GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalBatch: Record "Gen. Journal Batch"; LocationCode: code[20]; VoucherType: enum "Gen. Journal Template Type");
+    local procedure CreateGenJnlTemplateAndBatch(
+        var GenJournalTemplate: Record "Gen. Journal Template";
+        var GenJournalBatch: Record "Gen. Journal Batch";
+        LocationCode: code[20];
+        VoucherType: enum "Gen. Journal Template Type");
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate(Type, VoucherType);
@@ -1855,7 +1639,9 @@ GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Customer, LibSal
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure CreateLocationWithVoucherSetup(var Location: Record Location; Type: Enum "Gen. Journal Template Type"): Code[20]
+    local procedure CreateLocationWithVoucherSetup(
+        var Location: Record Location;
+        Type: Enum "Gen. Journal Template Type"): Code[20]
     var
         BankAccount: Record "Bank Account";
         GLAccount: Record "G/L Account";
@@ -1883,7 +1669,9 @@ GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Customer, LibSal
         end;
     end;
 
-    local procedure CreateVoucherAccountSetup(SubType: Enum "Gen. Journal Template Type"; LocationCode: Code[10])
+    local procedure CreateVoucherAccountSetup(
+        SubType: Enum "Gen. Journal Template Type";
+        LocationCode: Code[10])
     var
         VoucherSetupPage: TestPage "Journal Voucher Posting Setup";
         LocationCard: TestPage "Location Card";
@@ -1948,7 +1736,6 @@ GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Customer, LibSal
 
     var
         LibInventory: Codeunit "Library - Warehouse";
-        GSTTDSLibrary: Codeunit "GST TDS Library";
         LibraryERM: Codeunit "Library - ERM";
         LibRandom: Codeunit "Library - Random";
         LibPurchase: Codeunit "Library - Purchase";
@@ -1957,7 +1744,10 @@ GenJournalLine, GenJnlBatchName, GenJournalLine."Account Type"::Customer, LibSal
         LibSales: Codeunit "Library - Sales";
         LibraryVoucher: Codeunit "Library Voucher Interface";
         Storage: Dictionary of [Text, Code[20]];
-        StorageTDS: Dictionary of [Text, Text];
         StorageBoolean: Dictionary of [Text, Boolean];
         StorageEnum: Dictionary of [Text, Text];
+        NegativeAmtErr: Label 'must be negative';
+        LocationCompareErr: Label 'Location are not equal';
+        PositiveAmtErr: Label 'must be positive';
+        AccountTypeErr: Label 'Account No. %1 is not defined as Debit account for the Voucher Sub Type Bank Receipt Voucher and Document No. %2.', Comment = '%1 =Account No., %2= Document No.';
 }

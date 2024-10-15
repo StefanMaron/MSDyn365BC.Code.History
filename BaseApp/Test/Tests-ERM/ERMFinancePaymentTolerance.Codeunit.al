@@ -2450,7 +2450,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
-        DetailedCustLedgEntry.FindSet;
+        DetailedCustLedgEntry.FindSet();
     end;
 
     [Normal]
@@ -2586,7 +2586,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Normal]
-    local procedure VerifyDetldCustomerLedgerEntry(GenJournalLine: Record "Gen. Journal Line"; EntryType: Option; Amount: Decimal)
+    local procedure VerifyDetldCustomerLedgerEntry(GenJournalLine: Record "Gen. Journal Line"; EntryType: Enum "Detailed CV Ledger Entry Type"; Amount: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -2606,7 +2606,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Normal]
-    local procedure VerifyAmountInDetldCustomer(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; EntryType: Option; Amount: Decimal)
+    local procedure VerifyAmountInDetldCustomer(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; EntryType: Enum "Detailed CV Ledger Entry Type"; Amount: Decimal)
     var
         Currency: Record Currency;
     begin
@@ -2623,7 +2623,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Normal]
-    local procedure VerifyAmountInDetailedLedger(DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option; DocumentNo: Code[20]; Amount: Decimal)
+    local procedure VerifyAmountInDetailedLedger(DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentNo: Code[20]; Amount: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -2640,7 +2640,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
-        DetailedCustLedgEntry.FindSet;
+        DetailedCustLedgEntry.FindSet();
         DetailedCustLedgEntry.TestField("Entry Type", DetailedCustLedgEntry."Entry Type"::"Initial Entry");
         DetailedCustLedgEntry.TestField(Amount, Amount);
 

@@ -2,7 +2,7 @@ enum 18024 "GST Invoice Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; "Self Invoice")
     {

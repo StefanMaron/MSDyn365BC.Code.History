@@ -1,13 +1,25 @@
-Codeunit 18687 "TDS Preview Handler"
+codeunit 18687 "TDS Preview Handler"
 {
     SingleInstance = true;
+
+    var
+        TempTDSEntry: Record "TDS Entry" temporary;
+
+    procedure UpdateInvoiceAmountOnTempTDSEntry(TDSEntry: Record "TDS Entry")
+    begin
+        if not TempTDSEntry.Get(TDSEntry."Entry No.") then
+            exit;
+
+        TempTDSEntry."Invoice Amount" := TDSEntry."Invoice Amount";
+        TempTDSEntry.Modify();
+    end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Posting Preview Event Handler", 'OnGetEntries', '', false, false)]
     local procedure TDSLedgerEntry(TableNo: Integer; var RecRef: RecordRef)
     begin
         case TableNo of
             Database::"TDS Entry":
-                RecRef.GetTable(TempTDSLedgerEntry);
+                RecRef.GetTable(TempTDSEntry);
         end;
     end;
 
@@ -16,27 +28,27 @@ Codeunit 18687 "TDS Preview Handler"
     begin
         case TableNo of
             Database::"TDS Entry":
-                Page.Run(page::"TDS Entries", TempTDSLedgerEntry);
+                Page.Run(Page::"TDS Entries", TempTDSEntry);
         end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Posting Preview Event Handler", 'OnAfterFillDocumentEntry', '', false, false)]
     local procedure FillTDSEntries(var DocumentEntry: Record "Document Entry")
     var
-        PreviewHandler: Codeunit "Posting Preview Event Handler";
+        PostingPreviewEventHandler: Codeunit "Posting Preview Event Handler";
     begin
-        PreviewHandler.InsertDocumentEntry(TempTDSLedgerEntry, DocumentEntry);
+        PostingPreviewEventHandler.InsertDocumentEntry(TempTDSEntry, DocumentEntry);
     end;
-
 
     [EventSubscriber(ObjectType::Table, database::"TDS Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure SavePreviewTDSEntry(var Rec: Record "TDS Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary() then
             exit;
-        TempTDSLedgerEntry := Rec;
-        TempTDSLedgerEntry."Document No." := '***';
-        TempTDSLedgerEntry.Insert();
+
+        TempTDSEntry := Rec;
+        TempTDSEntry."Document No." := '***';
+        TempTDSEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostPurchaseDoc', '', false, false)]
@@ -59,11 +71,8 @@ Codeunit 18687 "TDS Preview Handler"
 
     local procedure DeleteTempTDSEntry()
     begin
-        TempTDSLedgerEntry.Reset();
-        if not TempTDSLedgerEntry.IsEmpty() then
-            TempTDSLedgerEntry.DeleteAll();
+        TempTDSEntry.Reset();
+        if not TempTDSEntry.IsEmpty() then
+            TempTDSEntry.DeleteAll();
     end;
-
-    var
-        TempTDSLedgerEntry: Record "TDS Entry" temporary;
 }

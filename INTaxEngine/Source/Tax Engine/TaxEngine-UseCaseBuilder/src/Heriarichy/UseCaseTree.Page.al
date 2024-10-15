@@ -209,7 +209,6 @@ page 20298 "Use Case Tree"
     var
         UseCase: Record "Tax Use Case";
         AppObjHelper: Codeunit "App Object Helper";
-        ScriptSerialization: Codeunit "Script Serialization";
         EmptyGuid: Guid;
     begin
         Emphasize := Rec."Node Type" <> Rec."Node Type"::"Use Case";
@@ -239,7 +238,7 @@ page 20298 "Use Case Tree"
         ConditionText2: Text;
     begin
         if Not Allobj.Get(Allobj."Object Type"::Table, Rec."Table Id") then
-            Exit(StrSubstNo(ObjectIDNotFoundErr, Rec."Table Id"));
+            exit(StrSubstNo(ObjectIDNotFoundErr, Rec."Table Id"));
         RecordRef.OPEN(Rec."Table ID");
         Rec.CalcFields(Condition);
         if not Rec.Condition.HasValue() then

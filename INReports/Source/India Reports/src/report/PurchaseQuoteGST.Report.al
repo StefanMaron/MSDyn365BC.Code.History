@@ -680,7 +680,6 @@ report 18012 "Purchase - Quote GST"
         NoOfLoops: Integer;
         CopyText: Text[30];
         DimText: Text[120];
-        OldDimText: Text[75];
         ShowIntInfo: Boolean;
         Continue: Boolean;
         ArchiveDoc: Boolean;

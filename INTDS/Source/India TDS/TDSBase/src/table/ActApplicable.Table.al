@@ -1,7 +1,6 @@
 table 18686 "Act Applicable"
 {
     Caption = 'Act Applicable';
-    DataClassification = EndUserIdentifiableInformation;
     LookupPageId = "Act Applicable";
     DrillDownPageId = "Act Applicable";
     Access = Public;
@@ -12,12 +11,12 @@ table 18686 "Act Applicable"
         field(1; Code; Code[10])
         {
             Caption = 'Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; Description; Text[50])
         {
             Caption = 'Description';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
 

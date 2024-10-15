@@ -20,7 +20,7 @@ page 20166 "Action Find Substring Dialog"
                     begin
                         ScriptSymbolsMgmt.SearchSymbolOfType(
                             "Symbol Type"::Variable,
-                            "Symbol Data Type"::NUMBER,
+                            "Symbol Data Type"::String,
                             "Variable ID",
                             VariableName2);
 
@@ -32,7 +32,7 @@ page 20166 "Action Find Substring Dialog"
                         ScriptSymbolsMgmt.OpenSymbolsLookupOfType(
                             "Symbol Type"::Variable,
                             Text,
-                            "Symbol Data Type"::NUMBER,
+                            "Symbol Data Type"::String,
                             "Variable ID",
                             VariableName2);
 

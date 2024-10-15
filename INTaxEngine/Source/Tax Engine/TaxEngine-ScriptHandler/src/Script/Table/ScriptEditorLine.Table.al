@@ -8,12 +8,12 @@ table 20201 "Script Editor Line"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; "Line No."; Integer)
@@ -33,7 +33,7 @@ table 20201 "Script Editor Line"
         }
         field(6; "Action ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Action ID';
         }
         field(7; "Group Type"; Enum "Action Group Type")
@@ -43,7 +43,7 @@ table 20201 "Script Editor Line"
         }
         field(8; "Container Action ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Container Action ID';
         }
         field(9; "Container Type"; Enum "Container Action Type")

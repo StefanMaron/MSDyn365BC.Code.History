@@ -348,11 +348,9 @@ table 121 "Purch. Rcpt. Line"
             Caption = 'Job Task No.';
             TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
         }
-        field(1002; "Job Line Type"; Option)
+        field(1002; "Job Line Type"; Enum "Job Line Type")
         {
             Caption = 'Job Line Type';
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
         }
         field(1003; "Job Unit Price"; Decimal)
         {
@@ -739,7 +737,7 @@ table 121 "Purch. Rcpt. Line"
         PurchDocLineComments.SetRange("Document Type", PurchDocLineComments."Document Type"::Receipt);
         PurchDocLineComments.SetRange("No.", "Document No.");
         PurchDocLineComments.SetRange("Document Line No.", "Line No.");
-        if not PurchDocLineComments.IsEmpty then
+        if not PurchDocLineComments.IsEmpty() then
             PurchDocLineComments.DeleteAll();
     end;
 
@@ -931,7 +929,7 @@ table 121 "Purch. Rcpt. Line"
             NextLineNo := NextLineNo + 10000;
             if "Attached to Line No." = 0 then
                 SetRange("Attached to Line No.", "Line No.");
-        until (Next = 0) or ("Attached to Line No." = 0);
+        until (Next() = 0) or ("Attached to Line No." = 0);
     end;
 
     local procedure CopyFromPurchRcptLine(var PurchLine: Record "Purchase Line"; PurchOrderLine: Record "Purchase Line"; TempPurchLine: Record "Purchase Line"; NextLineNo: Integer)
@@ -993,8 +991,8 @@ table 121 "Purch. Rcpt. Line"
                                 TempPurchInvLine := PurchInvLine;
                                 if TempPurchInvLine.Insert() then;
                             end;
-                    until ValueEntry.Next = 0;
-            until ItemLedgEntry.Next = 0;
+                    until ValueEntry.Next() = 0;
+            until ItemLedgEntry.Next() = 0;
         end;
     end;
 
@@ -1021,7 +1019,7 @@ table 121 "Purch. Rcpt. Line"
                       TotalCostLCY + ItemLedgEntry."Cost Amount (Expected)" + ItemLedgEntry."Cost Amount (Actual)";
                     TotalQtyBase := TotalQtyBase + ItemLedgEntry.Quantity;
                 end;
-            until ItemLedgEntry.Next = 0;
+            until ItemLedgEntry.Next() = 0;
 
         if ExactCostReverse and (RemainingQty <> 0) and (TotalQtyBase <> 0) then
             RevUnitCostLCY := Abs(TotalCostLCY / TotalQtyBase) * "Qty. per Unit of Measure"

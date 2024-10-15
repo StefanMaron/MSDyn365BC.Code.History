@@ -9,6 +9,7 @@ table 18766 "Provisional Entry"
         field(1; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
+            AutoIncrement = true;
             DataClassification = EndUserIdentifiableInformation;
         }
         field(2; "Journal Batch Name"; Code[10])
@@ -45,9 +46,9 @@ table 18766 "Provisional Entry"
         {
             Caption = 'Party Code';
             DataClassification = EndUserIdentifiableInformation;
-            TableRelation = IF ("Party Type" = CONST(Vendor)) Vendor."No."
-            ELSE
-            IF ("Party Type" = CONST(Customer)) Customer."No.";
+            TableRelation = if ("Party Type" = const(Vendor)) Vendor."No."
+            else
+            if ("Party Type" = const(Customer)) Customer."No.";
         }
         field(9; "Account Type"; Enum "Gen. Journal Account Type")
         {
@@ -58,16 +59,16 @@ table 18766 "Provisional Entry"
         {
             Caption = 'Account No.';
             DataClassification = EndUserIdentifiableInformation;
-            TableRelation = IF ("Account Type" = CONST("G/L Account")) "G/L Account" WHERE("Account Type" = CONST(Posting),
-                                                                                      Blocked = CONST(false))
-            ELSE
-            IF ("Account Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Account Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Account Type" = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF ("Account Type" = CONST("Fixed Asset")) "Fixed Asset";
+            TableRelation = if ("Account Type" = const("G/L Account")) "G/L Account" where("Account Type" = const(Posting),
+                                                                                      Blocked = const(false))
+            else
+            if ("Account Type" = const(Customer)) Customer
+            else
+            if ("Account Type" = const(Vendor)) Vendor
+            else
+            if ("Account Type" = const("Bank Account")) "Bank Account"
+            else
+            if ("Account Type" = const("Fixed Asset")) "Fixed Asset";
         }
         field(11; "TDS Section Code"; Code[10])
         {
@@ -99,16 +100,16 @@ table 18766 "Provisional Entry"
         {
             Caption = 'Bal. Account No.';
             DataClassification = EndUserIdentifiableInformation;
-            TableRelation = IF ("Bal. Account Type" = CONST("G/L Account")) "G/L Account" WHERE("Account Type" = CONST(Posting),
-                                                                                           Blocked = CONST(false))
-            ELSE
-            IF ("Bal. Account Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Bal. Account Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Bal. Account Type" = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF ("Bal. Account Type" = CONST("Fixed Asset")) "Fixed Asset";
+            TableRelation = if ("Bal. Account Type" = const("G/L Account")) "G/L Account" where("Account Type" = const(Posting),
+                                                                                           Blocked = const(false))
+            else
+            if ("Bal. Account Type" = const(Customer)) Customer
+            else
+            if ("Bal. Account Type" = const(Vendor)) Vendor
+            else
+            if ("Bal. Account Type" = const("Bank Account")) "Bank Account"
+            else
+            if ("Bal. Account Type" = const("Fixed Asset")) "Fixed Asset";
         }
         field(17; "Location Code"; Code[10])
         {
@@ -230,13 +231,16 @@ table 18766 "Provisional Entry"
         AlreadyAppliedErr: Label 'Provisional Entry is already applied.';
         MultiEntryApplyErr: Label 'You canot apply more than one Provisional Entry.';
     begin
-        GenJnlLine.GET(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
-        IF "Purchase Invoice No." <> '' then
-            ERROR(AlreadyAppliedErr);
-        IF GenJnlLine."Applied Provisional Entry" <> 0 then
-            ERROR(MultiEntryApplyErr);
-        IF "Posting Date" > GenJnlLine."Posting Date" then
-            ERROR(PostingDateEarlierErr);
+        GenJnlLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+        if "Purchase Invoice No." <> '' then
+            Error(AlreadyAppliedErr);
+
+        if GenJnlLine."Applied Provisional Entry" <> 0 then
+            Error(MultiEntryApplyErr);
+
+        if "Posting Date" > GenJnlLine."Posting Date" then
+            Error(PostingDateEarlierErr);
+
         GenJnlLine.TestField("Bal. Account No.", "Bal. Account No.");
         GenJnlLine.TestField(Amount, Amount);
         GenJnlLine.TestField("Location Code", "Location Code");
@@ -245,7 +249,9 @@ table 18766 "Provisional Entry"
         GenJnlLine."Applied Provisional Entry" := "Entry No.";
         GenJnlLine.Modify();
 
-        ProvisionalEntry.GET("Entry No.");
+        if not ProvisionalEntry.Get("Entry No.") then
+            exit;
+
         ProvisionalEntry."Purchase Invoice No." := GenJnlLine."Document No.";
         ProvisionalEntry."Invoice Jnl Batch Name" := GenJnlLine."Journal Batch Name";
         ProvisionalEntry."Invoice Jnl Template Name" := GenJnlLine."Journal Template Name";
@@ -263,15 +269,15 @@ table 18766 "Provisional Entry"
             if UserId <> "Applied User ID" then
                 Error(DiffUserErr);
 
-        GenJnlLine.GET(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
-        ProvisionalEntry.GET("Entry No.");
+        GenJnlLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+        ProvisionalEntry.Get("Entry No.");
         ProvisionalEntry."Purchase Invoice No." := '';
         ProvisionalEntry."Invoice Jnl Batch Name" := '';
         ProvisionalEntry."Invoice Jnl Template Name" := '';
         ProvisionalEntry."Applied User ID" := '';
         ProvisionalEntry.Modify();
+
         GenJnlLine."Applied Provisional Entry" := 0;
         GenJnlLine.Modify();
     end;
 }
-

@@ -804,7 +804,7 @@ codeunit 137800 "SCM Work Center Test"
         with ProdOrderCapacityNeed do begin
             SetRange(Type, Type::"Machine Center");
             SetFilter("No.", MachineCenterNoFilter);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(0, ("Starting Time" - 000000T) mod 1000, ProdOrderCapNeedRoundErr);
                 Assert.AreEqual(0, ("Ending Time" - 000000T) mod 1000, ProdOrderCapNeedRoundErr);
@@ -824,7 +824,7 @@ codeunit 137800 "SCM Work Center Test"
             SetRange(Type, Type::"Machine Center");
             SetRange("Allocated Time", 0);
             SetFilter("No.", MachineCenterNoFilter);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(DT2Date("Ending Date-Time"), DT2Date("Starting Date-Time"), ProdOrderCapNeedDateInconsitencyErr);
                 Assert.AreEqual("Ending Time", "Starting Time", ProdOrderCapNeedDateInconsitencyErr);

@@ -8,17 +8,17 @@ table 20140 "Lookup Field Filter"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; "Table Filter ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             TableRelation = "Lookup Table Filter".ID where("Case ID" = field("Case ID"));
             Caption = 'Table Filter ID';
         }
@@ -37,7 +37,7 @@ table 20140 "Lookup Field Filter"
         }
         field(6; "Filter Type"; Enum "Conditional Operator")
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Filter Type';
             trigger OnValidate()
             begin
@@ -61,7 +61,7 @@ table 20140 "Lookup Field Filter"
         }
         field(9; "Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }

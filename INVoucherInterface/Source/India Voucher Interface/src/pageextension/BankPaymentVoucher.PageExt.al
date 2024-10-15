@@ -25,6 +25,7 @@
                     Caption = 'Cheque No.';
                     Editable = false;
                     ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the cheque number of the journal entry.';
                 }
             }
         }

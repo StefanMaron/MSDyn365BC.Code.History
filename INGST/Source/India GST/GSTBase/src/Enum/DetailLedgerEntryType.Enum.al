@@ -1,6 +1,5 @@
 enum 18013 "Detail Ledger Entry Type"
 {
-
     value(0; "Initial Entry")
     {
         Caption = 'Initial Entry';

@@ -2,8 +2,7 @@ pageextension 20271 "Purchase Blanket Order Ext" extends "Blanket Purchase Order
 {
     layout
     {
-
-        addbefore(ApprovalFactBox)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

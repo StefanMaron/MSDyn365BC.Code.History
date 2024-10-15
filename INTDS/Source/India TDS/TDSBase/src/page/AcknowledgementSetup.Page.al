@@ -10,22 +10,22 @@ page 18685 "Acknowledgement Setup"
         {
             repeater(General)
             {
-                field("Financial Year"; "Financial Year")
+                field("Financial Year"; Rec."Financial Year")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Financial Year';
                 }
-                field(Quarter; Quarter)
+                field(Quarter; Rec.Quarter)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quarter this Financial Year period belongs to.';
                 }
-                field("Acknowledgment No."; "Acknowledgment No.")
+                field("Acknowledgment No."; Rec."Acknowledgment No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Acknowledgment No.';
                 }
-                field(Location; Location)
+                field(Location; Rec.Location)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the location code';

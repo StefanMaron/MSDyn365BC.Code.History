@@ -55,7 +55,6 @@ page 20334 "Tax Insert Record Dialog"
         AppObjectHelper: Codeunit "App Object Helper";
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
         IntoTableName: Text[30];
-        RecordVariable2: Text;
 
     procedure SetCurrentRecord(var InsertRecord2: Record "Tax Insert Record");
     begin
@@ -82,7 +81,6 @@ page 20334 "Tax Insert Record Dialog"
     local procedure FormatLine();
     begin
         IntoTableName := AppObjectHelper.GetObjectName(ObjectType::Table, Rec."Table ID");
-        RecordVariable2 := ScriptSymbolsMgmt.GetSymbolName("Symbol Type"::Variable, Rec."Record Variable");
     end;
 
     trigger OnOpenPage();

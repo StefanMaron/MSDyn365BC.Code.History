@@ -1,25 +1,24 @@
 table 18814 "TCS Setup"
 {
-    DataClassification = EndUserIdentifiableInformation;
     Access = Public;
     Extensible = true;
 
     fields
     {
-        field(1; "Primary Key"; Code[10])
+        field(1; "ID"; Code[10])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; "Tax Type"; Code[20])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "Tax Type";
         }
     }
 
     keys
     {
-        key(PK; "Primary Key")
+        key(PK; "ID")
         {
             Clustered = true;
         }

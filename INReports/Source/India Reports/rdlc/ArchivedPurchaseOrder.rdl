@@ -19,7 +19,7 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>18.01907cm</Width>
+                  <Width>17.69478cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -522,13 +522,10 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                     <Width>2cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.91999cm</Width>
+                                    <Width>1.58145cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.28001cm</Width>
-                                  </TablixColumn>
-                                  <TablixColumn>
-                                    <Width>1.4cm</Width>
+                                    <Width>1.94147cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
                                     <Width>2.52001cm</Width>
@@ -560,6 +557,19 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             <rd:DefaultName>textbox16</rd:DefaultName>
                                             <ZIndex>144</ZIndex>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <TopBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </TopBorder>
+                                              <BottomBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </BottomBorder>
                                               <VerticalAlign>Bottom</VerticalAlign>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -591,6 +601,19 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             <rd:DefaultName>textbox2</rd:DefaultName>
                                             <ZIndex>143</ZIndex>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <TopBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </TopBorder>
+                                              <BottomBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </BottomBorder>
                                               <VerticalAlign>Bottom</VerticalAlign>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -624,6 +647,19 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             <rd:DefaultName>textbox4</rd:DefaultName>
                                             <ZIndex>142</ZIndex>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <TopBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </TopBorder>
+                                              <BottomBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </BottomBorder>
                                               <VerticalAlign>Bottom</VerticalAlign>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -655,6 +691,19 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             <rd:DefaultName>textbox5</rd:DefaultName>
                                             <ZIndex>141</ZIndex>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <TopBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </TopBorder>
+                                              <BottomBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </BottomBorder>
                                               <VerticalAlign>Bottom</VerticalAlign>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -688,6 +737,19 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             <rd:DefaultName>textbox28</rd:DefaultName>
                                             <ZIndex>140</ZIndex>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <TopBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </TopBorder>
+                                              <BottomBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </BottomBorder>
                                               <VerticalAlign>Bottom</VerticalAlign>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -721,6 +783,19 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             <rd:DefaultName>textbox31</rd:DefaultName>
                                             <ZIndex>139</ZIndex>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <TopBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </TopBorder>
+                                              <BottomBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </BottomBorder>
                                               <VerticalAlign>Bottom</VerticalAlign>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -752,37 +827,19 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             <rd:DefaultName>textbox34</rd:DefaultName>
                                             <ZIndex>138</ZIndex>
                                             <Style>
-                                              <VerticalAlign>Bottom</VerticalAlign>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="textbox37">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=First(Fields!Purchase_Line_Archive___VAT_Identifier_Caption.Value)</Value>
-                                                    <Style>
-                                                      <FontSize>9pt</FontSize>
-                                                      <FontWeight>Bold</FontWeight>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox37</rd:DefaultName>
-                                            <ZIndex>137</ZIndex>
-                                            <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <TopBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </TopBorder>
+                                              <BottomBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </BottomBorder>
                                               <VerticalAlign>Bottom</VerticalAlign>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -816,6 +873,19 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             <rd:DefaultName>textbox40</rd:DefaultName>
                                             <ZIndex>136</ZIndex>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <TopBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </TopBorder>
+                                              <BottomBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </BottomBorder>
                                               <VerticalAlign>Bottom</VerticalAlign>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -1036,36 +1106,6 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             </Paragraphs>
                                             <rd:DefaultName>textbox100</rd:DefaultName>
                                             <ZIndex>128</ZIndex>
-                                            <Style>
-                                              <VerticalAlign>Middle</VerticalAlign>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>2pt</PaddingTop>
-                                              <PaddingBottom>2pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="textbox101">
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>9pt</FontSize>
-                                                      <Color>#ff0000</Color>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox101</rd:DefaultName>
-                                            <ZIndex>127</ZIndex>
                                             <Style>
                                               <VerticalAlign>Middle</VerticalAlign>
                                               <PaddingLeft>2pt</PaddingLeft>
@@ -1321,32 +1361,6 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox131">
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style />
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox131</rd:DefaultName>
-                                            <ZIndex>117</ZIndex>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>2pt</PaddingTop>
-                                              <PaddingBottom>2pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
                                           <Textbox Name="textbox54">
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -1586,34 +1600,6 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox194">
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!Purchase_Line_Archive___VAT_Identifier_.Value</Value>
-                                                    <Style>
-                                                      <FontSize>9pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox38</rd:DefaultName>
-                                            <ZIndex>108</ZIndex>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>2pt</PaddingTop>
-                                              <PaddingBottom>2pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
                                           <Textbox Name="textbox195">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
@@ -1739,34 +1725,6 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Textbox211">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>9pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox211</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>2pt</PaddingTop>
-                                              <PaddingBottom>2pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
                                           <Textbox Name="Textbox212">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
@@ -1852,10 +1810,9 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>8</ColSpan>
+                                          <ColSpan>7</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
@@ -2083,35 +2040,6 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             </Paragraphs>
                                             <rd:DefaultName>textbox231</rd:DefaultName>
                                             <ZIndex>4</ZIndex>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>2pt</PaddingTop>
-                                              <PaddingBottom>2pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="textbox232">
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>9pt</FontSize>
-                                                      <FontWeight>Bold</FontWeight>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox232</rd:DefaultName>
-                                            <ZIndex>3</ZIndex>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -2357,10 +2285,9 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>3</ColSpan>
+                                          <ColSpan>2</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell>
                                         <CellContents>
@@ -2385,6 +2312,14 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             <rd:DefaultName>textbox206</rd:DefaultName>
                                             <ZIndex>12</ZIndex>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <BottomBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </BottomBorder>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
                                               <PaddingTop>2pt</PaddingTop>
@@ -2593,10 +2528,9 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>3</ColSpan>
+                                          <ColSpan>2</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell>
                                         <CellContents>
@@ -2834,10 +2768,9 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>3</ColSpan>
+                                          <ColSpan>2</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell>
                                         <CellContents>
@@ -2862,6 +2795,14 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             <rd:DefaultName>textbox30</rd:DefaultName>
                                             <ZIndex>28</ZIndex>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <BottomBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </BottomBorder>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
                                               <PaddingTop>2pt</PaddingTop>
@@ -3076,10 +3017,9 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>3</ColSpan>
+                                          <ColSpan>2</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell>
                                         <CellContents>
@@ -3104,6 +3044,14 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             <rd:DefaultName>textbox115</rd:DefaultName>
                                             <ZIndex>36</ZIndex>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <BottomBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </BottomBorder>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
                                               <PaddingTop>2pt</PaddingTop>
@@ -3311,10 +3259,9 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>3</ColSpan>
+                                          <ColSpan>2</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell>
                                         <CellContents>
@@ -3552,10 +3499,9 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>3</ColSpan>
+                                          <ColSpan>2</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell>
                                         <CellContents>
@@ -3580,6 +3526,14 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             <rd:DefaultName>textbox162</rd:DefaultName>
                                             <ZIndex>52</ZIndex>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <BottomBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </BottomBorder>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
                                               <PaddingTop>2pt</PaddingTop>
@@ -3788,10 +3742,9 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>3</ColSpan>
+                                          <ColSpan>2</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell>
                                         <CellContents>
@@ -4028,10 +3981,9 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>3</ColSpan>
+                                          <ColSpan>2</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell>
                                         <CellContents>
@@ -4055,6 +4007,14 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             </Paragraphs>
                                             <ZIndex>68</ZIndex>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <BottomBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </BottomBorder>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
                                               <PaddingTop>2pt</PaddingTop>
@@ -4302,35 +4262,6 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox357">
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>9pt</FontSize>
-                                                      <FontWeight>Bold</FontWeight>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox357</rd:DefaultName>
-                                            <ZIndex>77</ZIndex>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>2pt</PaddingTop>
-                                              <PaddingBottom>2pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
                                           <Textbox Name="textbox377">
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -4557,10 +4488,9 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>3</ColSpan>
+                                          <ColSpan>2</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell>
                                         <CellContents>
@@ -4789,10 +4719,9 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>3</ColSpan>
+                                          <ColSpan>2</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell>
                                         <CellContents>
@@ -4816,6 +4745,14 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                             <rd:DefaultName>textbox358</rd:DefaultName>
                                             <ZIndex>94</ZIndex>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <BottomBorder>
+                                                <Color>Black</Color>
+                                                <Style>Solid</Style>
+                                                <Width>1pt</Width>
+                                              </BottomBorder>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
                                               <PaddingTop>2pt</PaddingTop>
@@ -4830,7 +4767,6 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                               </TablixBody>
                               <TablixColumnHierarchy>
                                 <TablixMembers>
-                                  <TablixMember />
                                   <TablixMember />
                                   <TablixMember />
                                   <TablixMember />
@@ -4925,7 +4861,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                   </TablixMember>
                                   <TablixMember>
                                     <Visibility>
-                                      <Hidden>=IIF(Fields!Purchase_Header_Archive___Prices_Including_VAT_.Value=FALSE AND SUM(Fields!VATAmount.Value)&lt;&gt;0,FALSE,TRUE)</Hidden>
+                                      <Hidden>true</Hidden>
                                     </Visibility>
                                     <KeepTogether>true</KeepTogether>
                                   </TablixMember>
@@ -4985,8 +4921,8 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                 </SortExpression>
                               </SortExpressions>
                               <Top>0.92592cm</Top>
-                              <Height>8.01502cm</Height>
-                              <Width>17.69476cm</Width>
+                              <Height>8.015cm</Height>
+                              <Width>17.6177cm</Width>
                               <ZIndex>1</ZIndex>
                               <Style />
                             </Tablix>
@@ -5876,7 +5812,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                 </Filter>
                               </Filters>
                               <Top>8.99471cm</Top>
-                              <Height>2.64523cm</Height>
+                              <Height>2.64522cm</Height>
                               <Width>16.82532cm</Width>
                               <ZIndex>2</ZIndex>
                               <Visibility>
@@ -6375,7 +6311,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                 </Filter>
                               </Filters>
                               <Top>21.69312cm</Top>
-                              <Height>5.07614cm</Height>
+                              <Height>5.07612cm</Height>
                               <Width>6.98414cm</Width>
                               <ZIndex>3</ZIndex>
                               <Style />
@@ -7134,7 +7070,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                               </Filters>
                               <Top>11.85185cm</Top>
                               <Height>3.19136cm</Height>
-                              <Width>9.19998cm</Width>
+                              <Width>9.19999cm</Width>
                               <ZIndex>5</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF(Fields!VATAmountLine__VAT_Identifier__Control161.Value="",TRUE,FALSE)</Hidden>
@@ -7881,7 +7817,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                 </Filter>
                               </Filters>
                               <Top>16.61376cm</Top>
-                              <Height>5.07614cm</Height>
+                              <Height>5.07612cm</Height>
                               <Width>6.98414cm</Width>
                               <ZIndex>7</ZIndex>
                               <Visibility>
@@ -9780,7 +9716,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                 </Filter>
                               </Filters>
                               <Top>26.98413cm</Top>
-                              <Height>6.02851cm</Height>
+                              <Height>6.02849cm</Height>
                               <Width>17.24919cm</Width>
                               <ZIndex>8</ZIndex>
                               <Visibility>
@@ -10732,8 +10668,8 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                                 </Filter>
                               </Filters>
                               <Top>33.33333cm</Top>
-                              <Height>3.27934cm</Height>
-                              <Width>12.49998cm</Width>
+                              <Height>3.27933cm</Height>
+                              <Width>12.49997cm</Width>
                               <ZIndex>9</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF(Fields!PrepmtVATAmountLine__VAT_Identifier_Caption.Value="",TRUE,FALSE)</Hidden>
@@ -10908,7 +10844,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                               </Filters>
                               <Top>36.8254cm</Top>
                               <Height>0.84602cm</Height>
-                              <Width>14.7cm</Width>
+                              <Width>14.69999cm</Width>
                               <ZIndex>10</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF(Fields!PrepmtPaymentTerms_Description.Value="",TRUE,FALSE)</Hidden>
@@ -10962,20 +10898,20 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
             <PageBreak>
               <BreakLocation>End</BreakLocation>
             </PageBreak>
+            <Top>0in</Top>
             <Height>37.77778cm</Height>
-            <Width>18.01907cm</Width>
+            <Width>17.69478cm</Width>
             <Style />
           </Tablix>
         </ReportItems>
         <Height>37.82357cm</Height>
         <Style />
       </Body>
-      <Width>18.04553cm</Width>
+      <Width>17.69478cm</Width>
       <Page>
         <PageHeader>
           <Height>9.70643cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
-          <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
             <Textbox Name="Purchase_Header_Archive___Buy_from_Vendor_No__Caption1">
               <KeepTogether>true</KeepTogether>
@@ -11041,8 +10977,8 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.67529cm</Top>
-              <Left>3.53635cm</Left>
+              <Top>8.2255cm</Top>
+              <Left>3.49998cm</Left>
               <Height>0.42973cm</Height>
               <Width>6.3cm</Width>
               <ZIndex>2</ZIndex>
@@ -11065,8 +11001,8 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.67529cm</Top>
-              <Left>0.17635cm</Left>
+              <Top>8.2255cm</Top>
+              <Left>0.13998cm</Left>
               <Height>0.42973cm</Height>
               <Width>3.15cm</Width>
               <ZIndex>3</ZIndex>
@@ -11089,8 +11025,8 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.25229cm</Top>
-              <Left>3.53635cm</Left>
+              <Top>7.8025cm</Top>
+              <Left>3.49998cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
               <ZIndex>4</ZIndex>
@@ -11113,59 +11049,11 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>8.25229cm</Top>
-              <Left>0.17635cm</Left>
+              <Top>7.8025cm</Top>
+              <Left>0.13998cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
               <ZIndex>5</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="Purchase_Header_Archive___VAT_Registration_No__1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(21,3)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>7.82929cm</Top>
-              <Left>3.53635cm</Left>
-              <Height>0.423cm</Height>
-              <Width>6.3cm</Width>
-              <ZIndex>6</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="VATNoText1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(20,3)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>7.82929cm</Top>
-              <Left>0.17635cm</Left>
-              <Height>0.423cm</Height>
-              <Width>3.15cm</Width>
-              <ZIndex>7</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11189,7 +11077,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>10.89998cm</Left>
               <Height>0.423cm</Height>
               <Width>3.78345cm</Width>
-              <ZIndex>8</ZIndex>
+              <ZIndex>6</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11213,7 +11101,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>10.89998cm</Left>
               <Height>0.423cm</Height>
               <Width>3.78345cm</Width>
-              <ZIndex>9</ZIndex>
+              <ZIndex>7</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11233,11 +11121,11 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>6.23946cm</Top>
+              <Top>5.89021cm</Top>
               <Left>11.11111cm</Left>
               <Height>0.423cm</Height>
               <Width>2.1cm</Width>
-              <ZIndex>10</ZIndex>
+              <ZIndex>8</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11257,11 +11145,11 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>5.81646cm</Top>
+              <Top>5.46721cm</Top>
               <Left>11.11111cm</Left>
               <Height>0.423cm</Height>
               <Width>2.1cm</Width>
-              <ZIndex>11</ZIndex>
+              <ZIndex>9</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11281,35 +11169,11 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>5.39346cm</Top>
+              <Top>5.04421cm</Top>
               <Left>11.11111cm</Left>
               <Height>0.423cm</Height>
               <Width>2.1cm</Width>
-              <ZIndex>12</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="textbox149">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(5,3)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>4.97046cm</Top>
-              <Left>11.11111cm</Left>
-              <Height>0.423cm</Height>
-              <Width>2.1cm</Width>
-              <ZIndex>13</ZIndex>
+              <ZIndex>10</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11333,7 +11197,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>11.11111cm</Left>
               <Height>0.423cm</Height>
               <Width>2.1cm</Width>
-              <ZIndex>14</ZIndex>
+              <ZIndex>11</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11357,7 +11221,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>11.11111cm</Left>
               <Height>0.423cm</Height>
               <Width>2.1cm</Width>
-              <ZIndex>15</ZIndex>
+              <ZIndex>12</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11381,7 +11245,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>11.11111cm</Left>
               <Height>0.423cm</Height>
               <Width>1.26984cm</Width>
-              <ZIndex>16</ZIndex>
+              <ZIndex>13</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11405,7 +11269,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>11.11111cm</Left>
               <Height>0.423cm</Height>
               <Width>6.51cm</Width>
-              <ZIndex>17</ZIndex>
+              <ZIndex>14</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11429,7 +11293,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>11.11111cm</Left>
               <Height>0.423cm</Height>
               <Width>6.51cm</Width>
-              <ZIndex>18</ZIndex>
+              <ZIndex>15</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11455,7 +11319,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>14.75398cm</Left>
               <Height>0.423cm</Height>
               <Width>2.94078cm</Width>
-              <ZIndex>19</ZIndex>
+              <ZIndex>16</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11481,7 +11345,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>14.78926cm</Left>
               <Height>0.423cm</Height>
               <Width>2.9055cm</Width>
-              <ZIndex>20</ZIndex>
+              <ZIndex>17</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11501,11 +11365,11 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>6.23946cm</Top>
+              <Top>5.89021cm</Top>
               <Left>13.42111cm</Left>
               <Height>0.423cm</Height>
               <Width>4.2cm</Width>
-              <ZIndex>21</ZIndex>
+              <ZIndex>18</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11525,11 +11389,11 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>5.81646cm</Top>
+              <Top>5.46721cm</Top>
               <Left>13.42111cm</Left>
               <Height>0.423cm</Height>
               <Width>4.2cm</Width>
-              <ZIndex>22</ZIndex>
+              <ZIndex>19</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11549,35 +11413,11 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>5.39346cm</Top>
+              <Top>5.04421cm</Top>
               <Left>13.42111cm</Left>
               <Height>0.423cm</Height>
               <Width>4.2cm</Width>
-              <ZIndex>23</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="textbox119">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(6,3)</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>4.97046cm</Top>
-              <Left>13.42111cm</Left>
-              <Height>0.423cm</Height>
-              <Width>4.2cm</Width>
-              <ZIndex>24</ZIndex>
+              <ZIndex>20</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11601,7 +11441,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>13.42111cm</Left>
               <Height>0.423cm</Height>
               <Width>4.2cm</Width>
-              <ZIndex>25</ZIndex>
+              <ZIndex>21</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11625,7 +11465,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>13.42111cm</Left>
               <Height>0.423cm</Height>
               <Width>4.2cm</Width>
-              <ZIndex>26</ZIndex>
+              <ZIndex>22</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11649,7 +11489,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>11.11111cm</Left>
               <Height>0.423cm</Height>
               <Width>6.51cm</Width>
-              <ZIndex>27</ZIndex>
+              <ZIndex>23</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11673,7 +11513,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>11.11111cm</Left>
               <Height>0.423cm</Height>
               <Width>6.51cm</Width>
-              <ZIndex>28</ZIndex>
+              <ZIndex>24</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11697,7 +11537,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>11.11111cm</Left>
               <Height>0.423cm</Height>
               <Width>6.51cm</Width>
-              <ZIndex>29</ZIndex>
+              <ZIndex>25</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11722,7 +11562,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>11.11111cm</Left>
               <Height>0.423cm</Height>
               <Width>6.51cm</Width>
-              <ZIndex>30</ZIndex>
+              <ZIndex>26</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11746,7 +11586,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>11.11111cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
-              <ZIndex>31</ZIndex>
+              <ZIndex>27</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11773,7 +11613,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>10.89998cm</Left>
               <Height>0.423cm</Height>
               <Width>6.72113cm</Width>
-              <ZIndex>32</ZIndex>
+              <ZIndex>28</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11797,7 +11637,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>0.31746cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
-              <ZIndex>33</ZIndex>
+              <ZIndex>29</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11821,7 +11661,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>0.31746cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
-              <ZIndex>34</ZIndex>
+              <ZIndex>30</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11845,7 +11685,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>0.31746cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
-              <ZIndex>35</ZIndex>
+              <ZIndex>31</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11869,7 +11709,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>0.31746cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
-              <ZIndex>36</ZIndex>
+              <ZIndex>32</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11893,7 +11733,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>0.31746cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
-              <ZIndex>37</ZIndex>
+              <ZIndex>33</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11917,7 +11757,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>0.31746cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
-              <ZIndex>38</ZIndex>
+              <ZIndex>34</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11941,7 +11781,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>0.31746cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
-              <ZIndex>39</ZIndex>
+              <ZIndex>35</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11965,7 +11805,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>0.31746cm</Left>
               <Height>0.423cm</Height>
               <Width>6.3cm</Width>
-              <ZIndex>40</ZIndex>
+              <ZIndex>36</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -11989,7 +11829,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>13.33333cm</Left>
               <Height>0.423cm</Height>
               <Width>4.07778cm</Width>
-              <ZIndex>41</ZIndex>
+              <ZIndex>37</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -12013,7 +11853,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>12.38095cm</Left>
               <Height>0.423cm</Height>
               <Width>0.5177cm</Width>
-              <ZIndex>42</ZIndex>
+              <ZIndex>38</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -12038,7 +11878,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>10.89998cm</Left>
               <Height>0.423cm</Height>
               <Width>3.78345cm</Width>
-              <ZIndex>43</ZIndex>
+              <ZIndex>39</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -12068,7 +11908,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>14.75398cm</Left>
               <Height>0.423cm</Height>
               <Width>2.94078cm</Width>
-              <ZIndex>44</ZIndex>
+              <ZIndex>40</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -12096,7 +11936,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>10.89998cm</Left>
               <Height>0.423cm</Height>
               <Width>3.78345cm</Width>
-              <ZIndex>45</ZIndex>
+              <ZIndex>41</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -12126,7 +11966,7 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               <Left>14.78926cm</Left>
               <Height>0.423cm</Height>
               <Width>2.9055cm</Width>
-              <ZIndex>46</ZIndex>
+              <ZIndex>42</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -12135,7 +11975,11 @@ Fields!STRSUBSTNO_Text010__Purchase_Header_Archive___Version_No____Purchase_Head
               </Style>
             </Textbox>
           </ReportItems>
-          <Style />
+          <Style>
+            <Border>
+              <Style>None</Style>
+            </Border>
+          </Style>
         </PageHeader>
         <PageHeight>29.7cm</PageHeight>
         <PageWidth>21cm</PageWidth>
@@ -12282,9 +12126,6 @@ End Function
         </Field>
         <Field Name="STRSUBSTNO_Text004_CopyText_">
           <DataField>STRSUBSTNO_Text004_CopyText_</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text005_FORMAT_CurrReport_PAGENO__">
-          <DataField>STRSUBSTNO_Text005_FORMAT_CurrReport_PAGENO__</DataField>
         </Field>
         <Field Name="CompanyRegistrationLbl">
           <DataField>CompanyRegistrationLbl</DataField>

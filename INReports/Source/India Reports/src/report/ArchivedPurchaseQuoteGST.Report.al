@@ -36,7 +36,7 @@ report 18001 "Archived Purchase Quote GST"
                     column(CompanyRegistrationLbl; CompanyRegistrationLbl)
                     {
                     }
-                    column(CompanyInfo_GST_RegistrationNo; CompanyInfo."GST Registration No.")
+                    column(CompanyInfo_GST_RegistrationNo; CompanyInformation."GST Registration No.")
                     {
                     }
                     column(VendorRegistrationLbl; VendorRegistrationLbl)
@@ -72,25 +72,25 @@ report 18001 "Archived Purchase Quote GST"
                     column(VendAddr_5_; VendAddr[5])
                     {
                     }
-                    column(CompanyInfo__Phone_No__; CompanyInfo."Phone No.")
+                    column(CompanyInfo__Phone_No__; CompanyInformation."Phone No.")
                     {
                     }
                     column(VendAddr_6_; VendAddr[6])
                     {
                     }
-                    column(CompanyInfo__Fax_No__; CompanyInfo."Fax No.")
+                    column(CompanyInfo__Fax_No__; CompanyInformation."Fax No.")
                     {
                     }
-                    column(CompanyInfo__VAT_Registration_No__; CompanyInfo."VAT Registration No.")
+                    column(CompanyInfo__VAT_Registration_No__; CompanyInformation."VAT Registration No.")
                     {
                     }
-                    column(CompanyInfo__Giro_No__; CompanyInfo."Giro No.")
+                    column(CompanyInfo__Giro_No__; CompanyInformation."Giro No.")
                     {
                     }
-                    column(CompanyInfo__Bank_Name_; CompanyInfo."Bank Name")
+                    column(CompanyInfo__Bank_Name_; CompanyInformation."Bank Name")
                     {
                     }
-                    column(CompanyInfo__Bank_Account_No__; CompanyInfo."Bank Account No.")
+                    column(CompanyInfo__Bank_Account_No__; CompanyInformation."Bank Account No.")
                     {
                     }
                     column(Purchase_Header_Archive___Pay_to_Vendor_No__; "Purchase Header Archive"."Pay-to Vendor No.")
@@ -183,35 +183,9 @@ report 18001 "Archived Purchase Quote GST"
 
                         trigger OnAfterGetRecord()
                         begin
-                            if Number = 1 then begin
-                                if not DimSetEntry1.FindSet() then
-                                    CurrReport.Break();
-                            end else
-                                if not Continue then
-                                    CurrReport.Break();
-
-                            Clear(DimText);
-                            Continue := false;
-                            repeat
-                                OldDimText := CopyStr((DimText), 1, 75);
-                                if DimText = '' then
-                                    DimText := StrSubstNo(DimensionTxt, DimSetEntry1."Dimension Code", DimSetEntry1."Dimension Value Code")
-                                else
-                                    DimText := CopyStr(
-                                        StrSubstNo(
-                                            AppendDimensionTxt,
-                                            DimText,
-                                            DimSetEntry1."Dimension Code",
-                                            DimSetEntry1."Dimension Value Code"),
-                                            1,
-                                            120);
-
-                                if StrLen(DimText) > MaxStrLen(OldDimText) then begin
-                                    DimText := OldDimText;
-                                    Continue := true;
-                                    exit;
-                                end;
-                            until DimSetEntry1.Next() = 0;
+                            DimText := GetDimensionText(DimSetEntry1, Number, Continue);
+                            if not Continue then
+                                CurrReport.Break();
                         end;
 
                         trigger OnPreDataItem()
@@ -308,30 +282,9 @@ report 18001 "Archived Purchase Quote GST"
 
                             trigger OnAfterGetRecord()
                             begin
-                                if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet() then
-                                        CurrReport.Break();
-                                end else
-                                    if not Continue then
-                                        CurrReport.Break();
-
-                                Clear(DimText);
-                                Continue := false;
-                                repeat
-                                    OldDimText := CopyStr((DimText), 1, 75);
-                                    if DimText = '' then
-                                        DimText := StrSubstNo(DimensionTxt, DimSetEntry2."Dimension Code", DimSetEntry2."Dimension Value Code")
-                                    else
-                                        DimText :=
-                                          CopyStr((StrSubstNo(
-                                        AppendDimensionTxt, DimText,
-                                        DimSetEntry2."Dimension Code", DimSetEntry2."Dimension Value Code")), 1, 120);
-                                    if StrLen(DimText) > MaxStrLen(OldDimText) then begin
-                                        DimText := OldDimText;
-                                        Continue := true;
-                                        exit;
-                                    end;
-                                until DimSetEntry2.Next() = 0;
+                                DimText := GetDimensionText(DimSetEntry2, Number, Continue);
+                                if not Continue then
+                                    CurrReport.Break();
                             end;
 
                             trigger OnPreDataItem()
@@ -361,13 +314,18 @@ report 18001 "Archived Purchase Quote GST"
                         trigger OnPreDataItem()
                         begin
                             MoreLines := TempPurchLineArchive.Find('+');
-                            while MoreLines and (TempPurchLineArchive.Description = '') and (TempPurchLineArchive."Description 2" = '') and
-                                  (TempPurchLineArchive."No." = '') and (TempPurchLineArchive.Quantity = 0) and
-                                  (TempPurchLineArchive.Amount = 0)
+                            while MoreLines and
+                                (TempPurchLineArchive.Description = '') and
+                                (TempPurchLineArchive."Description 2" = '') and
+                                (TempPurchLineArchive."No." = '') and
+                                (TempPurchLineArchive.Quantity = 0) and
+                                (TempPurchLineArchive.Amount = 0)
                             do
                                 MoreLines := TempPurchLineArchive.Next(-1) <> 0;
+
                             if not MoreLines then
                                 CurrReport.Break();
+
                             TempPurchLineArchive.SetRange("Line No.", 0, TempPurchLineArchive."Line No.");
                             SetRange(Number, 1, TempPurchLineArchive.Count);
                         end;
@@ -462,8 +420,6 @@ report 18001 "Archived Purchase Quote GST"
                         CopyText := CopyLbl;
                         OutputNo += 1;
                     end;
-
-                    CurrReport.PageNo := 1;
                 end;
 
                 trigger OnPostDataItem()
@@ -485,14 +441,14 @@ report 18001 "Archived Purchase Quote GST"
             begin
                 CurrReport.LANGUAGE := Language.GetLanguageID("Language Code");
                 Vendor.Get("Buy-from Vendor No.");
-                CompanyInfo.Get();
+                CompanyInformation.Get();
 
                 if RespCenter.Get("Responsibility Center") then begin
                     FormatAddr.RespCenter(CompanyAddr, RespCenter);
-                    CompanyInfo."Phone No." := RespCenter."Phone No.";
-                    CompanyInfo."Fax No." := RespCenter."Fax No.";
+                    CompanyInformation."Phone No." := RespCenter."Phone No.";
+                    CompanyInformation."Fax No." := RespCenter."Fax No.";
                 end else
-                    FormatAddr.Company(CompanyAddr, CompanyInfo);
+                    FormatAddr.Company(CompanyAddr, CompanyInformation);
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
@@ -503,14 +459,17 @@ report 18001 "Archived Purchase Quote GST"
                     SalesPurchPerson.Get("Purchaser Code");
                     PurchaserText := PurchLbl
                 end;
+
                 if "Your Reference" = '' then
                     ReferenceText := ''
                 else
                     ReferenceText := CopyStr(FieldCaption("Your Reference"), 1, 80);
+
                 if "VAT Registration No." = '' then
                     VATNoText := ''
                 else
                     VATNoText := CopyStr(FieldCaption("VAT Registration No."), 1, 80);
+
                 FormatAddr.PurchHeaderPayToArch(VendAddr, "Purchase Header Archive");
 
                 if "Shipment Method Code" = '' then
@@ -519,8 +478,8 @@ report 18001 "Archived Purchase Quote GST"
                     ShipmentMethod.Get("Shipment Method Code");
                     ShipmentMethod.TranslateDescription(ShipmentMethod, "Language Code");
                 end;
-                CalcFields("No. of Archived Versions");
 
+                CalcFields("No. of Archived Versions");
                 FormatAddr.PurchHeaderShipToArch(ShipToAddr, "Purchase Header Archive");
             end;
         }
@@ -541,32 +500,24 @@ report 18001 "Archived Purchase Quote GST"
                     {
                         Caption = 'No. of Copies';
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'No. of Copies';
+                        ToolTip = 'Specifies the number of copies that need to be printed.';
                     }
                     field(ShowInternalInfo; ShowInterInfo)
                     {
                         Caption = 'Show Internal Information';
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Show Internal Information';
+                        ToolTip = 'Specifies the line internal information.';
                     }
                 }
             }
         }
-
-        actions
-        {
-        }
-    }
-
-    labels
-    {
     }
 
     var
         ShipmentMethod: Record "Shipment Method";
         SalesPurchPerson: Record "Salesperson/Purchaser";
         Vendor: Record "Vendor";
-        CompanyInfo: Record "Company Information";
+        CompanyInformation: Record "Company Information";
         TempPurchLineArchive: Record "Purchase Line Archive" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
@@ -585,7 +536,6 @@ report 18001 "Archived Purchase Quote GST"
         NoOfLoops: Integer;
         CopyText: Text[30];
         DimText: Text[120];
-        OldDimText: Text[75];
         ShowInterInfo: Boolean;
         Continue: Boolean;
         OutputNo: Integer;
@@ -601,8 +551,8 @@ report 18001 "Archived Purchase Quote GST"
         Quote_No_CaptionLbl: Label 'Quote No.', Locked = true;
         Header_DimensionsCaptionLbl: Label 'Header Dimensions', Locked = true;
         Purchase_Line_Archive___Expected_Receipt_Date__Control55CaptionLbl: Label 'Expected Date', Locked = true;
-        Purchase_Line_Archive___No__CaptionLbl: Label 'Our No.', Locked = true;
-        Purchase_Line_Archive___Vendor_Item_No__CaptionLbl: Label 'No.', Locked = true;
+        Purchase_Line_Archive___No__CaptionLbl: Label 'Item No.', Locked = true;
+        Purchase_Line_Archive___Vendor_Item_No__CaptionLbl: Label 'Vendor Item No', Locked = true;
         Line_DimensionsCaptionLbl: Label 'Line Dimensions';
         ShipmentMethod_DescriptionCaptionLbl: Label 'Shipment Method', Locked = true;
         Ship_to_AddressCaptionLbl: Label 'Ship-to Address', Locked = true;
@@ -611,6 +561,42 @@ report 18001 "Archived Purchase Quote GST"
         PurchLbl: Label 'Purchaser', Locked = true;
         CopyLbl: Label 'COPY', Locked = true;
         PurchQuoteArchLbl: Label 'Purchase - Quote Archived %1', Locked = true;
-        AppendDimensionTxt: Label '%1, %2 %3', Locked = true;
-        DimensionTxt: Label '%1 - %2', Locked = true;
+
+    local procedure GetDimensionText(
+        var DimSetEntry: Record "Dimension Set Entry";
+        Number: Integer;
+        var Continue: Boolean): Text[120]
+    var
+        DimensionText: Text[120];
+        PrevDimText: Text[75];
+        DimensionTextLbl: Label '%1; %2 - %3', Comment = ' %1 = DimText, %2 = Dimension Code, %3 = Dimension Value Code';
+        DimensionLbl: Label '%1 - %2', Comment = '%1 = Dimension Code, %2 = Dimension Value Code';
+    begin
+        Continue := false;
+        if Number = 1 then
+            if not DimSetEntry.FindSet() then
+                exit;
+
+        repeat
+            PrevDimText := CopyStr((DimensionText), 1, 75);
+            if DimensionText = '' then
+                DimensionText := StrSubstNo(DimensionLbl, DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code")
+            else
+                DimensionText := CopyStr(
+                    StrSubstNo(
+                        DimensionTextLbl,
+                        DimensionText,
+                        DimSetEntry."Dimension Code",
+                        DimSetEntry."Dimension Value Code"),
+                    1,
+                    120);
+
+            if StrLen(DimensionText) > MaxStrLen(PrevDimText) then begin
+                Continue := true;
+                exit(PrevDimText);
+            end;
+        until DimSetEntry.Next() = 0;
+
+        exit(DimensionText)
+    end;
 }

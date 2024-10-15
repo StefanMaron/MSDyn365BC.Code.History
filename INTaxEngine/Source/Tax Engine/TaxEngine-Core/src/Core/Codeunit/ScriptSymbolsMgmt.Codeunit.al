@@ -58,11 +58,11 @@ codeunit 20133 "Script Symbols Mgmt."
         TempSymbols.FilterGroup := 0;
         TempSymbols.SetRange(ID, ID);
         if TempSymbols.FindFirst() then
-            Exit(TempSymbols.Name);
+            exit(TempSymbols.Name);
 
         if UseStrictMode then
             Error(SymbolIDNotFoundErr, SymbolType, ID);
-        Exit('');
+        exit('');
     end;
 
     procedure GetSymbolFormulaID(SymbolType: Enum "Symbol Type"; ID: Integer): Guid
@@ -92,7 +92,7 @@ codeunit 20133 "Script Symbols Mgmt."
         TempSymbols.SetRange(ID, ID);
         TempSymbols.SetRange("Value Type", TempSymbols."Value Type"::Formula);
         if TempSymbols.FindFirst() then
-            Exit(TempSymbols."Formula ID");
+            exit(TempSymbols."Formula ID");
     end;
 
     procedure InsertScriptSymbol(
@@ -195,12 +195,12 @@ codeunit 20133 "Script Symbols Mgmt."
         TempSymbols.FilterGroup := 0;
         TempSymbols.SetRange(Name, Name);
         if TempSymbols.FindFirst() then
-            Exit(TempSymbols.ID);
+            exit(TempSymbols.ID);
 
         if UseStrictMode then
             Error(SymbolNameNotFoundErr, SymbolType, Name);
 
-        Exit(0);
+        exit(0);
     end;
 
     procedure SearchSymbolOfType(

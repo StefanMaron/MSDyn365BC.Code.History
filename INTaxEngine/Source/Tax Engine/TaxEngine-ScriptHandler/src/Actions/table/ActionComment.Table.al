@@ -8,22 +8,22 @@ table 20156 "Action Comment"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(4; Text; Text[250])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Text';
         }
     }

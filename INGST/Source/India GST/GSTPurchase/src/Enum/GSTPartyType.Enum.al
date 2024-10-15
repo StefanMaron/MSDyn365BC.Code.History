@@ -3,7 +3,7 @@ enum 18081 "GST Party Type"
     Extensible = true;
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Vendor)
     {

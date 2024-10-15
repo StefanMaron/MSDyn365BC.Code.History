@@ -7,149 +7,148 @@ table 18006 "GST Posting Buffer"
         field(1; Type; enum Type)
         {
             Caption = 'Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(2; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             TableRelation = "Gen. Business Posting Group";
         }
         field(3; "Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Gen. Prod. Posting Group';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             TableRelation = "Gen. Product Posting Group";
         }
-        field(4; "GST Component Code"; Code[10])
+        field(4; "GST Component Code"; Code[30])
         {
             Caption = 'GST Component Code';
-            DataClassification = EndUserIdentifiableInformation;
-            TableRelation = "GST Component";
+            DataClassification = SystemMetadata;
         }
         field(5; "GST Reverse Charge"; Boolean)
         {
             Caption = 'GST Reverse Charge';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(6; "GST Group Code"; Code[20])
         {
             Caption = 'GST Group Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             TableRelation = "GST Group";
         }
         field(7; "Party Code"; Code[20])
         {
             Caption = 'Party Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(8; "GST Base Amount"; Decimal)
         {
             Caption = 'GST Base Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(9; "GST %"; Decimal)
         {
             Caption = 'GST %';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(10; "GST Amount"; Decimal)
         {
             Caption = 'GST Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(11; "Interim Amount"; Decimal)
         {
             Caption = 'Interim Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(12; "Global Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(13; "Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(14; "Account No."; Code[20])
         {
             Caption = 'Account No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             TableRelation = "G/L Account";
         }
         field(15; "Interim Account No."; Code[20])
         {
             Caption = 'Interim Account No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             TableRelation = "G/L Account";
         }
         field(16; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             TableRelation = "G/L Account";
         }
         field(17; "Transaction Type"; enum "Buffer Transaction Type")
         {
             Caption = 'Transaction Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(18; "GST Group Type"; Enum "GST Group Type")
         {
             Caption = 'GST Group Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(19; "Custom Duty Amount"; Decimal)
         {
             Caption = 'Custom Duty Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(20; Availment; Boolean)
         {
             Caption = 'Availment';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(21; "Normal Payment"; Boolean)
         {
             Caption = 'Normal Payment';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(22; "GST Amount (LCY)"; Decimal)
         {
             Caption = 'GST Amount (LCY)';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(23; "Higher Inv. Exchange Rate"; Boolean)
         {
             Caption = 'Higher Inv. Exchange Rate';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(24; "Forex Fluctuation"; Boolean)
         {
             Caption = 'Forex Fluctuation';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(25; "Document Line No."; Integer)
         {
             Caption = 'Document Line No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(26; "No."; Code[20])
         {
             Caption = 'No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
             TableRelation = "Dimension Set Entry";
         }

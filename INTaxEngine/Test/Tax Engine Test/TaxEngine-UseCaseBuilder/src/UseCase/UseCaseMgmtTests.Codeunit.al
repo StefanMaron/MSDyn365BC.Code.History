@@ -2,32 +2,16 @@ codeunit 136864 "Use Case Mgmt. Tests"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    trigger OnRun()
+    begin
+        // [FEATURE] [TaxEngine] [Use Case Mgmt.] [UT]
+    end;
 
     var
         Assert: Codeunit Assert;
         LibraryUseCase: Codeunit "Library - Use Case Tests";
         LibraryTaxType: Codeunit "Library - Tax Type Tests";
-        LibraryUseCaseTests: Codeunit "Library - Use Case Tests";
         LibraryTaxTypeTests: Codeunit "Library - Tax Type Tests";
-
-    [Test]
-    [HandlerFunctions('TableLinkingDialogHandler')]
-    procedure TestOpenTableLinkingDialog()
-    var
-        UseCaseMgmt: Codeunit "Use Case Mgmt.";
-        UseCaseEntityMgmt: Codeunit "Use Case Entity Mgmt.";
-        CaseID, ID : Guid;
-    begin
-        // [SCENARIO] To check if Table Linking Dialog is opening
-
-        // [GIVEN] There should be a record in Table linking
-        ID := UseCaseEntityMgmt.CreateTableLinking(CaseID, Database::"Sales Line", Database::"Sales Header");
-
-        // [WHEN] Then function OpenTableLinkingDialog is called
-        UseCaseMgmt.OpenTableLinkingDialog(CaseID, ID);
-
-        // [THEN] it should open Table Linking dialog
-    end;
 
     [Test]
     [HandlerFunctions('TableRelationDialogHandler')]
@@ -75,46 +59,13 @@ codeunit 136864 "Use Case Mgmt. Tests"
         // [THEN] it should open Component Expression Dialog
     end;
 
-
-    [Test]
-    procedure TestApplyTableLinkFilters()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        UseCaseMgmt: Codeunit "Use Case Mgmt.";
-        UseCaseEntityMgmt: Codeunit "Use Case Entity Mgmt.";
-        RecRef, LookupRecRef : RecordRef;
-        CaseID, ID : Guid;
-        ComponentID: Integer;
-    begin
-        // [SCENARIO] To check if ApplyTableLinkFilters function is applying filters on record
-
-        // [GIVEN] There should be a record in Table Linking created
-        CaseID := CreateGuid();
-        LibraryTaxTypeTests.CreateTaxType('VAT', 'VAT');
-        id := UseCaseEntityMgmt.CreateTableLinking(CaseID, Database::"Sales Header", Database::"Sales Line");
-        LibraryUseCaseTests.AddTableFieldLink(CaseID, ID, Database::"Sales Header", Database::"Sales Line", SalesHeader.FieldNo("No."), SalesLine.FieldNo("Document No."));
-
-        // [WHEN] Then function ApplyTableLinkFilters is called
-        SalesLine.FindFirst();
-        LookupRecRef.GetTable(SalesLine);
-        RecRef.Open(Database::"Sales Header");
-        UseCaseMgmt.ApplyTableLinkFilters(RecRef, CaseID, ID, LookupRecRef);
-
-        // [THEN] it should open Component Expression Dialog
-        Assert.RecordIsNotEmpty(RecRef);
-    end;
-
     [Test]
     [HandlerFunctions('TaxUseCaseCardHandler')]
     procedure TestCreateAndOpenChildUseCaseCard()
     var
         TaxUseCase: Record "Tax Use Case";
-        SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         UseCaseMgmt: Codeunit "Use Case Mgmt.";
-        UseCaseEntityMgmt: Codeunit "Use Case Entity Mgmt.";
-        RecRef, LookupRecRef : RecordRef;
         CaseID, EmptyGuid : Guid;
         Type: Option Option,Text,Integer,Decimal,Boolean,Date;
         AttributeID: Integer;
@@ -141,12 +92,6 @@ codeunit 136864 "Use Case Mgmt. Tests"
     [Test]
     procedure TestIndentUseCases()
     begin
-    end;
-
-    [ModalPageHandler]
-    procedure TableLinkingDialogHandler(var TableLinkingDialog: TestPage "Use Case Table Link Dialog")
-    begin
-        TableLinkingDialog.OK().Invoke();
     end;
 
     [ModalPageHandler]

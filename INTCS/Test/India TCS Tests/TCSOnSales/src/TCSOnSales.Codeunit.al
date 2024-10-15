@@ -2,7 +2,7 @@ codeunit 18916 "TCS On Sales"
 {
     Subtype = Test;
 
-    //[Scenario 355200] Check if the program is calculating TCS while creating Invoice with Item using the Sales Order with multiple NOC.
+    // [SCENARIO] [355200] Check if the program is calculating TCS while creating Invoice with Item using the Sales Order with multiple NOC.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithMultilineItem()
@@ -32,7 +32,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     end;
 
-    //[Scenario 355201] Check if the program is calculating TCS while creating Invoice with Item using the Sales Invoice with multiple NOC.
+    // [SCENARIO] [355201] Check if the program is calculating TCS while creating Invoice with Item using the Sales Invoice with multiple NOC.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithMultilineItem()
@@ -63,7 +63,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     end;
 
-    //[Scenario 355206] Check if the program is calculating TCS while creating Invoice with Charge Items using the Sales Order with multiple NOC.
+    // [SCENARIO] [355206] Check if the program is calculating TCS while creating Invoice with Charge Items using the Sales Order with multiple NOC.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithChargeItemAndMultipleNOC()
@@ -88,7 +88,7 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, SalesLine."No."));
     end;
 
-    //[Scenario 355207] Check if the program is calculating TCS while creating Invoice with Charge Items using the Sales Invoice with multiple NOC.
+    // [SCENARIO] [355207] Check if the program is calculating TCS while creating Invoice with Charge Items using the Sales Invoice with multiple NOC.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithChargeItemAndMultipleNOC()
@@ -113,7 +113,7 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, SalesLine."No."));
     end;
 
-    //[Scenario 355108] Check if the program is calculating TCS using Sales Order with G/L Account Invoice in case of shipment only.
+    // [SCENARIO] [355108] Check if the program is calculating TCS using Sales Order with G/L Account Invoice in case of shipment only.
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesOrderStatisticsPageHandler')]
     procedure PostFromSalesOrderTCSVerifyAndGLShipment()
@@ -142,7 +142,7 @@ codeunit 18916 "TCS On Sales"
         // [THEN] TCS and G/L verified
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         LibraryVarStorage.Clear();
         LibraryVarStorage.Enqueue(SalesLine);
         VerifyStatisticsForTCS(SalesHeader);
@@ -151,7 +151,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyTCSEntryCount(DocumentNo, false, 0, 0);
     end;
 
-    //[Scenario 355109] Check if the program is calculating TCS using Sales Order with Item in case of shipment only.
+    // [SCENARIO] [355109] Check if the program is calculating TCS using Sales Order with Item in case of shipment only.
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesOrderStatisticsPageHandler')]
     procedure PostFromSalesOrderTCSVerifyAndItemShipment()
@@ -180,7 +180,7 @@ codeunit 18916 "TCS On Sales"
         // [THEN] TCS and G/L Entry Verified
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         LibraryVarStorage.Clear();
         LibraryVarStorage.Enqueue(SalesLine);
         VerifyStatisticsForTCS(SalesHeader);
@@ -189,7 +189,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyTCSEntryCount(DocumentNo, false, 0, 0);
     end;
 
-    //[Scenario 355208] Check if the program is showing TCS amount should be shown in Statistics while creating Sales Credit Memo.
+    // [SCENARIO] [355208] Check if the program is showing TCS amount should be shown in Statistics while creating Sales Credit Memo.
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesStatisticsPageHandler')]
     procedure SalesCreditMemoWithItemAndStatsVerify()
@@ -217,13 +217,13 @@ codeunit 18916 "TCS On Sales"
         // [THEN] Verify Statistics   
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         LibraryVarStorage.Clear();
         LibraryVarStorage.Enqueue(SalesLine);
         VerifyStatisticsForTCS(SalesHeader);
     end;
 
-    //[Scenario 355209] Check if the program is showing TCS amount should be shown in Statistics while creating Sales Return Order.
+    // [SCENARIO] [355209] Check if the program is showing TCS amount should be shown in Statistics while creating Sales Return Order.
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesOrderStatisticsPageHandler')]
     procedure SalesReturmOrderWithItemStatsVerify()
@@ -251,16 +251,16 @@ codeunit 18916 "TCS On Sales"
         // [THEN] Verify Statistics   
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         LibraryVarStorage.Clear();
         LibraryVarStorage.Enqueue(SalesLine);
         VerifyStatisticsForTCS(SalesHeader);
     End;
 
-    //[Scenario 355210] Check if the program is calculating TCS using Credit Memo in case of Line Discount
+    // [SCENARIO] [355210] Check if the program is calculating TCS using Credit Memo in case of Line Discount
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesCreditMemoTCSWithLineDiscount()
+    procedure PostFromSalesCrMemoTCSWithLineDiscount()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -288,7 +288,7 @@ codeunit 18916 "TCS On Sales"
         VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355211] Check if the program is calculating TCS using Return Order in case of Line Discount
+    // [SCENARIO] [355211] Check if the program is calculating TCS using Return Order in case of Line Discount
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesReturnOrderTCSWithLineDiscount()
@@ -319,10 +319,10 @@ codeunit 18916 "TCS On Sales"
         VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355214] Check if the program is calculating TCS using Credit Memo in case of G/L Account
+    // [SCENARIO] [355214] Check if the program is calculating TCS using Credit Memo in case of G/L Account
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesCreditMemoTCSWithGLAccount()
+    procedure PostFromSalesCrMemoTCSWithGLAcc()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -350,10 +350,10 @@ codeunit 18916 "TCS On Sales"
         VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355215] Check if the program is calculating TCS using Sales Return Order in case of G/L Account
+    // [SCENARIO] [355215] Check if the program is calculating TCS using Sales Return Order in case of G/L Account
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesReturnOrderTCSWithGLAccount()
+    procedure PostFromSalesReturnOrderTCSWithGLAcc()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -381,10 +381,10 @@ codeunit 18916 "TCS On Sales"
         VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355222] Check if the system is calculating TCS rounded off on each component (TCS amount, surcharge amount, eCess amount) while preparing Credit Memo
+    // [SCENARIO] [355222] Check if the system is calculating TCS rounded off on each component (TCS amount, surcharge amount, eCess amount) while preparing Credit Memo
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesCreditMemoTCSWithGLAccountRounding()
+    procedure PostFromSalesCrMemoTCSWithGLAccRounding()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -408,7 +408,7 @@ codeunit 18916 "TCS On Sales"
             false);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         BaseAmount := SalesLine."Line Amount";
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -418,10 +418,10 @@ codeunit 18916 "TCS On Sales"
         VerifyTCSEntry(DocumentNo, TCSLibrary.RoundTCSAmount(BaseAmount), SalesHeader."Currency Factor", true, false, false);
     End;
 
-    //[Scenario 355223] Check if the system is calculating TCS rounded off on each component (TCS amount, surcharge amount, eCess amount) while preparing Return Order
+    // [SCENARIO] [355223] Check if the system is calculating TCS rounded off on each component (TCS amount, surcharge amount, eCess amount) while preparing Return Order
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesReturnOrderTCSWithGLAccountRounding()
+    procedure PostFromSalesReturnOrderTCSWithGLAccRounding()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -445,7 +445,7 @@ codeunit 18916 "TCS On Sales"
             false);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         BaseAmount := SalesLine."Line Amount";
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -455,10 +455,10 @@ codeunit 18916 "TCS On Sales"
         VerifyTCSEntry(DocumentNo, TCSLibrary.RoundTCSAmount(BaseAmount), SalesHeader."Currency Factor", true, false, false);
     End;
 
-    //[Scenario 355228] Check if the program is allowing the posting using the Credit Memo with TCS information where  TCAN No. has not been defined.
+    // [SCENARIO] [355228] Check if the program is allowing the posting using the Credit Memo with TCS information where  TCAN No. has not been defined.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesCreditMemoWithoutCompanyTCANNo()
+    procedure PostFromSalesCrMemoWithoutCompanyTCANNo()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -486,7 +486,7 @@ codeunit 18916 "TCS On Sales"
     End;
 
 
-    //[Scenario 355229] Check if the program is allowing the posting using the Return Order with TCS information where TCAN No. has not been defined.
+    // [SCENARIO] [355229] Check if the program is allowing the posting using the Return Order with TCS information where TCAN No. has not been defined.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesReturnOrderWithoutCompanyTCANNo()
@@ -516,10 +516,10 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(TCANNoErr);
     End;
 
-    //[Scenario 355230] Check if the program is calculating TCS raised to the Customer using Credit Memo and Threshold Overlook is selected with G/L Account
+    // [SCENARIO] [355230] Check if the program is calculating TCS raised to the Customer using Credit Memo and Threshold Overlook is selected with G/L Account
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesCreditMemoWithThresholdOverlook()
+    procedure PostFromSalesCrMemoWithThresholdOverlook()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -547,7 +547,7 @@ codeunit 18916 "TCS On Sales"
         VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355232] Check if the program is calculating TCS raised to the Customer using Return Order and Threshold Overlook is selected with G/L Account
+    // [SCENARIO] [355232] Check if the program is calculating TCS raised to the Customer using Return Order and Threshold Overlook is selected with G/L Account
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesReturnOrderWithThresholdOverlook()
@@ -578,10 +578,10 @@ codeunit 18916 "TCS On Sales"
         VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355223] Check if the program is calculating TCS  raised to the Customer using Credit Memo and Threshold Overlook is not selected with G/L Account.
+    // [SCENARIO] [355223] Check if the program is calculating TCS  raised to the Customer using Credit Memo and Threshold Overlook is not selected with G/L Account.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesCreditMemoWithoutThresholdOverlook()
+    procedure PostFromSalesCrMemoWithoutThresholdOverlook()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -609,7 +609,7 @@ codeunit 18916 "TCS On Sales"
         VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 934] Check if the program is calculating TCS on higher rate in case an invoice Charge Items  is raised to the Customer which is not having PAN No. using Sales Order
+    // [SCENARIO] [934] Check if the program is calculating TCS on higher rate in case an invoice Charge Items  is raised to the Customer which is not having PAN No. using Sales Order
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderTCSWithoutCustPANNo()
@@ -638,10 +638,10 @@ codeunit 18916 "TCS On Sales"
             false);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         TCSSalesLibrary.CreateSalesLine(SalesHeader, SalesLine1, SalesLine1.Type::"Charge (Item)", false);
         TCSSalesLibrary.CreateItemChargeAssignment(ItemChargeAssignmentSales, SalesLine1, SalesHeader."Document Type"::Order,
-                                            SalesHeader."No.", SalesLine."Line No.", SalesLine."No.");
+            SalesHeader."No.", SalesLine."Line No.", SalesLine."No.");
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] TCS and G/L Entry Created and Verified
@@ -649,7 +649,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 935] Check if the program is calculating TCS on higher rate in case an invoice Charge Items  is raised to the Customer which is not having PAN No. using Sales Invoice
+    // [SCENARIO] [935] Check if the program is calculating TCS on higher rate in case an invoice Charge Items  is raised to the Customer which is not having PAN No. using Sales Invoice
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceTCSWithoutCustPANNo()
@@ -678,10 +678,10 @@ codeunit 18916 "TCS On Sales"
             false);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         TCSSalesLibrary.CreateSalesLine(SalesHeader, SalesLine1, SalesLine1.Type::"Charge (Item)", false);
         TCSSalesLibrary.CreateItemChargeAssignment(ItemChargeAssignmentSales, SalesLine1, SalesHeader."Document Type"::Invoice,
-                                            SalesHeader."No.", SalesLine."Line No.", SalesLine."No.");
+            SalesHeader."No.", SalesLine."Line No.", SalesLine."No.");
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] TCS and G/L Entry Created and Verified
@@ -689,7 +689,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 354892] Check if the program is calculating TCS using Sales Order  with G/L Account in case of Foreign Currency
+    // [SCENARIO] [354892] Check if the program is calculating TCS using Sales Order  with G/L Account in case of Foreign Currency
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithGLForFCY()
@@ -720,7 +720,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355893] Check if the program is calculating TCS using Sales Invoice with G/L Account in case of Foreign Currency
+    // [SCENARIO] [355893] Check if the program is calculating TCS using Sales Invoice with G/L Account in case of Foreign Currency
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithGLForFCY()
@@ -751,7 +751,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 354894] Check if the program is calculating TCS using Sales Invoice with Item in case of Foreign Currency
+    // [SCENARIO] [354894] Check if the program is calculating TCS using Sales Invoice with Item in case of Foreign Currency
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithItemForFCY()
@@ -782,7 +782,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 354895] Check if the program is calculating TCS using Sales Order with Item in case of Foreign Currency
+    // [SCENARIO] [354895] Check if the program is calculating TCS using Sales Order with Item in case of Foreign Currency
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithItemForFCY()
@@ -813,7 +813,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 354900] Check if the program is calculating TCS using Sales Order with Charge Item in case of Foreign Currency
+    // [SCENARIO] [354900] Check if the program is calculating TCS using Sales Order with Charge Item in case of Foreign Currency
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithChargeItemForFCY()
@@ -840,7 +840,7 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, SalesLine."No."));
     End;
 
-    //[Scenario 354901] Check if the program is calculating TCS using Sales Invoice with Charge Item in case of Foreign Currency
+    // [SCENARIO] [354901] Check if the program is calculating TCS using Sales Invoice with Charge Item in case of Foreign Currency
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithChargeItemForFCY()
@@ -867,7 +867,7 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, SalesLine."No."));
     End;
 
-    //[Scenario 355120] Check if the program is calculating TCS using Sales Order Charge Items where TCS is applicable only on selected lines.
+    // [SCENARIO] [355120] Check if the program is calculating TCS using Sales Order Charge Items where TCS is applicable only on selected lines.
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesOrderStatisticsPageHandler')]
     procedure PostFromSalesOrderWithMultiLineItemChargeAndSingleNoc()
@@ -909,8 +909,8 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, ItemNo));
     End;
 
-    //[Scenario 355121] Check if the program is calculating TCS using Sales Invoice Charge Items where TCS is applicable only on selected lines.
-    //[Scenario 355122] Check if the program is calculating TCS using Sales Invoice Charge Items in case of shipment only.
+    // [SCENARIO] [355121] Check if the program is calculating TCS using Sales Invoice Charge Items where TCS is applicable only on selected lines.
+    // [SCENARIO] [355122] Check if the program is calculating TCS using Sales Invoice Charge Items in case of shipment only.
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesStatisticsPageHandler')]
     procedure PostFromSalesInvoiceWithMultiLineItemChargeAndSingleNoc()
@@ -953,7 +953,7 @@ codeunit 18916 "TCS On Sales"
     End;
 
 
-    //[Scenario 355131] Check if the program is showing TCS amount should be shown in Statistics while creating Sales Order/Invoice Charge Items.
+    // [SCENARIO] [355131] Check if the program is showing TCS amount should be shown in Statistics while creating Sales Order/Invoice Charge Items.
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesOrderStatisticsPageHandler')]
     procedure PostFromSalesOrderWithItemChargeStatsVerify()
@@ -981,7 +981,7 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, SalesLine."No."));
     End;
 
-    //[Scenario 355133] Check if the program is calculating TCS using Sales Order in case of Line Discount with G/L Account
+    // [SCENARIO] [355133] Check if the program is calculating TCS using Sales Order in case of Line Discount with G/L Account
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderTCSWithGLAndLineDiscount()
@@ -1012,7 +1012,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     end;
 
-    //[Scenario 355135] Check if the program is calculating TCS using Sales Order in case of Line Discount with Item
+    // [SCENARIO] [355135] Check if the program is calculating TCS using Sales Order in case of Line Discount with Item
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderTCSWithItemAndLineDiscount()
@@ -1043,7 +1043,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     end;
 
-    //[Scenario 355134] Check if the program is calculating TCS using Sales Invoice in case of Line Discount with G/L Account
+    // [SCENARIO] [355134] Check if the program is calculating TCS using Sales Invoice in case of Line Discount with G/L Account
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceTCSWithGLAndLineDiscount()
@@ -1074,7 +1074,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     end;
 
-    //[Scenario 355136] Check if the program is calculating TCS using Sales Invoice in case of Line Discount with Item
+    // [SCENARIO] [355136] Check if the program is calculating TCS using Sales Invoice in case of Line Discount with Item
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceTCSWithItemAndLineDiscount()
@@ -1105,7 +1105,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     end;
 
-    //[Scenario 355141] Check if the program is calculating TCS using Sales Order in case of Line Discount with Charge Items
+    // [SCENARIO] [355141] Check if the program is calculating TCS using Sales Order in case of Line Discount with Charge Items
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesOrderStatisticsPageHandler')]
     procedure PostFromSalesOrderTCSWithChargeItemAndLineDisc()
@@ -1133,7 +1133,7 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, SalesLine."No."));
     end;
 
-    //[Scenario 355142] Check if the program is calculating TCS using Sales Invoice in case of Line Discount with Charge Item
+    // [SCENARIO] [355142] Check if the program is calculating TCS using Sales Invoice in case of Line Discount with Charge Item
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesStatisticsPageHandler')]
     procedure PostFromSalesInvoiceTCSWithChargeItemAndLineDisc()
@@ -1161,10 +1161,10 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, SalesLine."No."));
     end;
 
-    //[Scenario 355248] Check if the program is calculating TCS using Credit Memo in case of Foreign Currency.
+    // [SCENARIO] [355248] Check if the program is calculating TCS using Credit Memo in case of Foreign Currency.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesCreditMemoWithGLForFCY()
+    procedure PostFromSalesCrMemoWithGLForFCY()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -1192,7 +1192,7 @@ codeunit 18916 "TCS On Sales"
         VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355249] Check if the program is calculating TCS using Return Order in case of Foreign Currency.
+    // [SCENARIO] [355249] Check if the program is calculating TCS using Return Order in case of Foreign Currency.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesReturnOrderWithGLForFCY()
@@ -1223,10 +1223,10 @@ codeunit 18916 "TCS On Sales"
         VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355270] Check if the program is calculating TCS using Credit Memo where TCS is applicable only on selected lines
+    // [SCENARIO] [355270] Check if the program is calculating TCS using Credit Memo where TCS is applicable only on selected lines
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesCreditMemoWithMultiLineItemAndSingleNoc()
+    procedure PostFromSalesCrMemoWithMultiLineItemAndSingleNoc()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -1264,7 +1264,7 @@ codeunit 18916 "TCS On Sales"
         VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355271] Check if the program is calculating TCS using Return Order where TCS is applicable only on selected lines
+    // [SCENARIO] [355271] Check if the program is calculating TCS using Return Order where TCS is applicable only on selected lines
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesReturnOrderWithMultiLineItemAndSingleNoc()
@@ -1304,7 +1304,7 @@ codeunit 18916 "TCS On Sales"
         VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 354896] Check if the program is calculating TCS using Sales Order with Fixed Assets in case of Foreign Currency.
+    // [SCENARIO] [354896] Check if the program is calculating TCS using Sales Order with Fixed Assets in case of Foreign Currency.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithFAForFCY()
@@ -1334,7 +1334,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354897] Check if the program is calculating TCS using Sales Invoice with Fixed Assets in case of Foreign Currency.
+    // [SCENARIO] [354897] Check if the program is calculating TCS using Sales Invoice with Fixed Assets in case of Foreign Currency.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithFAForFCY()
@@ -1364,7 +1364,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355137] Check if the program is calculating TCS using Sales Order in case of Line Discount with Fixed Assets
+    // [SCENARIO] [355137] Check if the program is calculating TCS using Sales Order in case of Line Discount with Fixed Assets
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithFAAndLineDiscountForFCY()
@@ -1394,7 +1394,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355138] Check if the program is calculating TCS using Sales Invoice in case of Line Discount with Fixed Assets
+    // [SCENARIO] [355138] Check if the program is calculating TCS using Sales Invoice in case of Line Discount with Fixed Assets
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithFAAndLineDiscountForFCY()
@@ -1424,7 +1424,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354833] Check if the program is calculating TCS in Sales Order with no threshold and surcharge overlook for NOD lines of a particular Customer with Fixed Assets.
+    // [SCENARIO] [354833] Check if the program is calculating TCS in Sales Order with no threshold and surcharge overlook for NOD lines of a particular Customer with Fixed Assets.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderFAWithoutThresholdAndSurchargeOverlook()
@@ -1454,7 +1454,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354834] Check if the program is calculating TCS in Sales Invoice with no threshold and surcharge overlook for NOD lines of a particular Customer with Fixed Assets.
+    // [SCENARIO] [354834] Check if the program is calculating TCS in Sales Invoice with no threshold and surcharge overlook for NOD lines of a particular Customer with Fixed Assets.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceFAWithoutThresholdAndSurchargeOverlook()
@@ -1484,7 +1484,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354836] Check if the program is calculating TCS in case an invoice is raised to the foreign Customer using Sales Order and Surcharge Overlook is selected with Fixed Assets
+    // [SCENARIO] [354836] Check if the program is calculating TCS in case an invoice is raised to the foreign Customer using Sales Order and Surcharge Overlook is selected with Fixed Assets
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderFAWithFCYAndSurchargeOverlook()
@@ -1514,7 +1514,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354837] Check if the program is calculating TCS in case an invoice is raised to the foreign Customer using Sales Invoice and Surcharge Overlook is selected with Fixed Assets
+    // [SCENARIO] [354837] Check if the program is calculating TCS in case an invoice is raised to the foreign Customer using Sales Invoice and Surcharge Overlook is selected with Fixed Assets
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceFAWithFCYAndSurchargeOverlook()
@@ -1544,7 +1544,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354838] Check if the program is calculating TCS using Sales Order with concessional codes with Fixed Assets.
+    // [SCENARIO] [354838] Check if the program is calculating TCS using Sales Order with concessional codes with Fixed Assets.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithFAAndConcessionalCode()
@@ -1574,7 +1574,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354839] Check if the program is calculating TCS using Sales Invoice with concessional codes with Fixed Assets.
+    // [SCENARIO] [354839] Check if the program is calculating TCS using Sales Invoice with concessional codes with Fixed Assets.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithFAAndConcessionalCode()
@@ -1604,7 +1604,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354919] Check if the program is calculating TCS on higher rate in case an invoice with Fixed Assets is raised to the Customer which is not having PAN No. using Sales Order.
+    // [SCENARIO] [354919] Check if the program is calculating TCS on higher rate in case an invoice with Fixed Assets is raised to the Customer which is not having PAN No. using Sales Order.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithFAAndWithoutPANNo()
@@ -1634,10 +1634,10 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355224] Check if the program is allowing the posting of Invoice with G/L Account using the Credit Memo with TCS information where Accounting Period has not been specified.
+    // [SCENARIO] [355224] Check if the program is allowing the posting of Invoice with G/L Account using the Credit Memo with TCS information where Accounting Period has not been specified.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesCreditMemoTCSWithoutTaxAccountingPeriod()
+    procedure PostFromSalesCrMemoTCSWithoutTaxAccountingPeriod()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -1663,7 +1663,7 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(IncomeTaxAccountingErr);
     End;
 
-    //[Scenario 355225] Check if the program is allowing the posting of Invoice with G/L Account using the return Order with TCS information where Accounting Period has not been specified.
+    // [SCENARIO] [355225] Check if the program is allowing the posting of Invoice with G/L Account using the return Order with TCS information where Accounting Period has not been specified.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesReturnOrderTCSWithoutTaxAccountingPeriod()
@@ -1693,7 +1693,7 @@ codeunit 18916 "TCS On Sales"
     End;
 
 
-    //[Scenario 354920] Check if the program is calculating TCS on higher rate in case an invoice with Fixed Assets is raised to the Customer which is not having PAN No. using Sales Invoice.
+    // [SCENARIO] [354920] Check if the program is calculating TCS on higher rate in case an invoice with Fixed Assets is raised to the Customer which is not having PAN No. using Sales Invoice.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithFAAndWithoutPANNo()
@@ -1723,7 +1723,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355143] Check if the program is calculating TCS using Sales Order in case of Invoice Discount with Item
+    // [SCENARIO] [355143] Check if the program is calculating TCS using Sales Order in case of Invoice Discount with Item
     [Test]
     [HandlerFunctions('TaxRatePageHandler,CustomerInvoiceDiscountPageHandler')]
     procedure PostFromSalesOrderWithItemAndInvoiceDiscount()
@@ -1769,7 +1769,7 @@ codeunit 18916 "TCS On Sales"
         VerifyTCSEntry(DocumentNo, BaseAmount, SalesHeader."Currency Factor", true, false, false);
     End;
 
-    //[Scenario 355144] Check if the program is calculating TCS using Sales Invoice in case of Invoice Discount with Item
+    // [SCENARIO] [355144] Check if the program is calculating TCS using Sales Invoice in case of Invoice Discount with Item
     [Test]
     [HandlerFunctions('TaxRatePageHandler,CustomerInvoiceDiscountPageHandler')]
     procedure PostFromSalesInvoiceWithItemAndInvoiceDiscount()
@@ -1810,10 +1810,10 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355149] Check if the program is calculating TCS using Sales Order in case of Invoice Discount with G/L Account
+    // [SCENARIO] [355149] Check if the program is calculating TCS using Sales Order in case of Invoice Discount with G/L Account
     [Test]
     [HandlerFunctions('TaxRatePageHandler,CustomerInvoiceDiscountPageHandler')]
-    procedure PostFromSalesOrderWithGLAccountAndInvoiceDiscount()
+    procedure PostFromSalesOrderWithGLAccAndInvoiceDiscount()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -1851,10 +1851,10 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355150] Check if the program is calculating TCS using Sales Invoice in case of Invoice Discount with G/L Account
+    // [SCENARIO] [355150] Check if the program is calculating TCS using Sales Invoice in case of Invoice Discount with G/L Account
     [Test]
     [HandlerFunctions('TaxRatePageHandler,CustomerInvoiceDiscountPageHandler')]
-    procedure PostFromSalesInvoiceWithGLAccountAndInvoiceDiscount()
+    procedure PostFromSalesInvoiceWithGLAccAndInvoiceDiscount()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -1892,10 +1892,10 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355212] Check if the program is calculating TCS using Credit Memo  in case of Invoice Discount
+    // [SCENARIO] [355212] Check if the program is calculating TCS using Credit Memo  in case of Invoice Discount
     [Test]
     [HandlerFunctions('TaxRatePageHandler,CustomerInvoiceDiscountPageHandler')]
-    procedure PostFromSalesCreditMemoWithItemAndInvoiceDiscount()
+    procedure PostFromSalesCrMemoWithItemAndInvoiceDiscount()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -1933,7 +1933,7 @@ codeunit 18916 "TCS On Sales"
         VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355213] Check if the program is calculating TCS using Return Order  in case of Invoice Discount
+    // [SCENARIO] [355213] Check if the program is calculating TCS using Return Order  in case of Invoice Discount
     [Test]
     [HandlerFunctions('TaxRatePageHandler,CustomerInvoiceDiscountPageHandler')]
     procedure PostFromSalesReturnOrderWithItemAndInvoiceDiscount()
@@ -1974,7 +1974,7 @@ codeunit 18916 "TCS On Sales"
         VerifyGLEntryWithTCS(DocumentNo, TCSPostingSetup."TCS Account No.");
     End;
 
-    //[Scenario 355146] Check if the program is calculating TCS using Sales Order in case of Invoice Discount with Charge Items
+    // [SCENARIO] [355146] Check if the program is calculating TCS using Sales Order in case of Invoice Discount with Charge Items
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesOrderStatisticsPageHandler,CustomerInvoiceDiscountPageHandler')]
     procedure PostFromSalesOrderWithChargeItemAndInvoiceDiscount()
@@ -2007,7 +2007,7 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, SalesLine."No."));
     End;
 
-    //[Scenario 355145] Check if the program is calculating TCS using Sales Invoice in case of Invoice Discount with Charge Items
+    // [SCENARIO] [355145] Check if the program is calculating TCS using Sales Invoice in case of Invoice Discount with Charge Items
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesStatisticsPageHandler,CustomerInvoiceDiscountPageHandler')]
     procedure PostFromSalesInvoiceWithChargeItemAndInvoiceDiscount()
@@ -2040,10 +2040,10 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, SalesLine."No."));
     End;
 
-    //[Scenario 355220] Check if the program is calculating TCS using Credit Memo in case of Charge Items
+    // [SCENARIO] [355220] Check if the program is calculating TCS using Credit Memo in case of Charge Items
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesCreditMemoWithMultipleChargeItemLine()
+    procedure PostFromSalesCrMemoWithMultipleChargeItemLine()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -2086,7 +2086,7 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, ItemNo));
     end;
 
-    //[Scenario 355221] Check if the program is calculating TCS using Return Order in case of Charge Items
+    // [SCENARIO] [355221] Check if the program is calculating TCS using Return Order in case of Charge Items
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesReturnOrderWithMultipleChargeItemLine()
@@ -2131,7 +2131,7 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, ItemNo));
     end;
 
-    //[Scenario 354792] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different effective dates with G/L Account.
+    // [SCENARIO] [354792] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different effective dates with G/L Account.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithGLForDifferentTCSNocEffectiveDate()
@@ -2160,7 +2160,7 @@ codeunit 18916 "TCS On Sales"
             false);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         BaseAmount := SalesLine."Line Amount";
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -2170,7 +2170,7 @@ codeunit 18916 "TCS On Sales"
         VerifyTCSEntry(DocumentNo, TCSLibrary.RoundTCSAmount(BaseAmount), SalesHeader."Currency Factor", true, true, true);
     End;
 
-    //[Scenario 354793] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different effective dates with G/L Account.
+    // [SCENARIO] [354793] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different effective dates with G/L Account.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithGLForDifferentTCSNocEffectiveDate()
@@ -2199,7 +2199,7 @@ codeunit 18916 "TCS On Sales"
             false);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         BaseAmount := SalesLine."Line Amount";
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -2209,7 +2209,7 @@ codeunit 18916 "TCS On Sales"
         VerifyTCSEntry(DocumentNo, TCSLibrary.RoundTCSAmount(BaseAmount), SalesHeader."Currency Factor", true, true, true);
     End;
 
-    //[Scenario 354822] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different effective dates with Item.
+    // [SCENARIO] [354822] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different effective dates with Item.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithItemForDifferentTCSNocEffectiveDate()
@@ -2231,14 +2231,14 @@ codeunit 18916 "TCS On Sales"
 
         // [WHEN] Create and Post Sales Order with Tax Rate Setup with different posting date
         TCSSalesLibrary.CreateSalesDocument(SalesHeader,
-          SalesHeader."Document Type"::Order,
-          Customer."No.",
-          CalcDate('<1D>', WorkDate()),
-          SalesLine.Type::Item,
-          false);
+            SalesHeader."Document Type"::Order,
+            Customer."No.",
+            CalcDate('<1D>', WorkDate()),
+            SalesLine.Type::Item,
+            false);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         BaseAmount := SalesLine."Line Amount";
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -2248,7 +2248,7 @@ codeunit 18916 "TCS On Sales"
         VerifyTCSEntry(DocumentNo, TCSLibrary.RoundTCSAmount(BaseAmount), SalesHeader."Currency Factor", true, true, true);
     End;
 
-    //[Scenario 354823] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different effective dates with Item.
+    // [SCENARIO] [354823] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different effective dates with Item.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithItemForDifferentTCSNocEffectiveDate()
@@ -2277,7 +2277,7 @@ codeunit 18916 "TCS On Sales"
             false);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         BaseAmount := SalesLine."Line Amount";
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -2287,7 +2287,7 @@ codeunit 18916 "TCS On Sales"
         VerifyTCSEntry(DocumentNo, TCSLibrary.RoundTCSAmount(BaseAmount), SalesHeader."Currency Factor", true, true, true);
     End;
 
-    //[Scenario 354840] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different effective dates with Fixed Assets.
+    // [SCENARIO] [354840] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different effective dates with Fixed Assets.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithFAForDifferentTCSNocEffectiveDate()
@@ -2319,7 +2319,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354841] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different effective dates with Fixed Assets.
+    // [SCENARIO] [354841] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different effective dates with Fixed Assets.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithFAForDifferentTCSNocEffectiveDate()
@@ -2351,10 +2351,10 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355244] Check if the program is calculating TCS using Credit Memo in case of different rates for same NOC with different effective dates with G/L Account.
+    // [SCENARIO] [355244] Check if the program is calculating TCS using Credit Memo in case of different rates for same NOC with different effective dates with G/L Account.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesCreditMemoWithItemForDifferentTCSNocEffectiveDate()
+    procedure PostFromSalesCrMemoWithItemForDifferentTCSNocEffectiveDate()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -2380,7 +2380,7 @@ codeunit 18916 "TCS On Sales"
             false);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         BaseAmount := SalesLine."Line Amount";
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -2390,7 +2390,7 @@ codeunit 18916 "TCS On Sales"
         VerifyTCSEntry(DocumentNo, TCSLibrary.RoundTCSAmount(BaseAmount), SalesHeader."Currency Factor", true, true, true);
     End;
 
-    //[Scenario 355245] Check if the program is calculating TCS using Return Order in case of different rates for same NOC with different effective dates with G/L Account.
+    // [SCENARIO] [355245] Check if the program is calculating TCS using Return Order in case of different rates for same NOC with different effective dates with G/L Account.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesReturnOrderWithItemForDifferentTCSNocEffectiveDate()
@@ -2419,7 +2419,7 @@ codeunit 18916 "TCS On Sales"
             false);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         BaseAmount := SalesLine."Line Amount";
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -2429,7 +2429,7 @@ codeunit 18916 "TCS On Sales"
         VerifyTCSEntry(DocumentNo, TCSLibrary.RoundTCSAmount(BaseAmount), SalesHeader."Currency Factor", true, true, true);
     End;
 
-    //[Scenario 354828] Check if the program is calculating TCS with threshold and surcharge overlook for NOC lines of a particular customer with Fixed Assets.
+    // [SCENARIO] [354828] Check if the program is calculating TCS with threshold and surcharge overlook for NOC lines of a particular customer with Fixed Assets.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithFAForThreshholdOverlookAndDifferentCustomer()
@@ -2458,7 +2458,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354929] Check if the program is calculating TCS on Lower rate/zero rate in case an invoice with Fixed Assets is raised to the Customer is having a certificate using Sales Order
+    // [SCENARIO] [354929] Check if the program is calculating TCS on Lower rate/zero rate in case an invoice with Fixed Assets is raised to the Customer is having a certificate using Sales Order
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithFAWithoutPANNoWithConcessionalCode()
@@ -2488,7 +2488,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354930] Check if the program is calculating TCS on Lower rate/zero rate in case an invoice with Fixed Assets is raised to the Customer is having a certificate using Sales Invoice
+    // [SCENARIO] [354930] Check if the program is calculating TCS on Lower rate/zero rate in case an invoice with Fixed Assets is raised to the Customer is having a certificate using Sales Invoice
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithFAWithoutPANNoWithConcessionalCode()
@@ -2518,7 +2518,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354931] Check if the program is calculating TCS on Lower rate/zero rate in case an invoice with Resources is raised to the Customer is having a certificate using Sales Order
+    // [SCENARIO] [354931] Check if the program is calculating TCS on Lower rate/zero rate in case an invoice with Resources is raised to the Customer is having a certificate using Sales Order
 
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
@@ -2550,7 +2550,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354921] Check if the program is calculating TCS on higher rate in case an invoice with Resources is raised to the Customer which is not having PAN No. using Sales Invoice.
+    // [SCENARIO] [354921] Check if the program is calculating TCS on higher rate in case an invoice with Resources is raised to the Customer which is not having PAN No. using Sales Invoice.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithResourceWithoutPANNoWithConcessionalCode()
@@ -2581,7 +2581,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 932] Check if the program is calculating TCS on higher rate in case an invoice with Resources is raised to the Customer which is not having PAN No. using Sales Invoice.
+    // [SCENARIO] [932] Check if the program is calculating TCS on higher rate in case an invoice with Resources is raised to the Customer which is not having PAN No. using Sales Invoice.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithResourceAndWithoutPANNo()
@@ -2612,7 +2612,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354922] Check if the program is calculating TCS on higher rate in case an invoice with Resources is raised to the Customer which is not having PAN No. using Sales Order.
+    // [SCENARIO] [354922] Check if the program is calculating TCS on higher rate in case an invoice with Resources is raised to the Customer which is not having PAN No. using Sales Order.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithResourceAndWithoutPANNo()
@@ -2643,7 +2643,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354898] Check if the program is calculating TCS using Sales Invoice with Resources in case of Foreign Currency.
+    // [SCENARIO] [354898] Check if the program is calculating TCS using Sales Invoice with Resources in case of Foreign Currency.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithResourceAndFCY()
@@ -2674,7 +2674,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354899] Check if the program is calculating TCS using Sales Order with Resources in case of Foreign Currency.
+    // [SCENARIO] [354899] Check if the program is calculating TCS using Sales Order with Resources in case of Foreign Currency.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithResourceAndFCY()
@@ -2705,7 +2705,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355116] Check if the program is calculating TCS using Sales Order with Fixed Assets where TCS is applicable only on selected lines.
+    // [SCENARIO] [355116] Check if the program is calculating TCS using Sales Order with Fixed Assets where TCS is applicable only on selected lines.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithMultiLineFAAndSingleNoc()
@@ -2743,7 +2743,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355117] Check if the program is calculating TCS using Sales Invoice with Fixed Assets where TCS is applicable only on selected lines.
+    // [SCENARIO] [355117] Check if the program is calculating TCS using Sales Invoice with Fixed Assets where TCS is applicable only on selected lines.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithMultiLineFAAndSingleNoc()
@@ -2781,7 +2781,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355118] Check if the program is calculating TCS using Sales Invoice with Resources where TCS is applicable only on selected lines.
+    // [SCENARIO] [355118] Check if the program is calculating TCS using Sales Invoice with Resources where TCS is applicable only on selected lines.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithMultiLineResourceAndSingleNoc()
@@ -2820,7 +2820,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355119] Check if the program is calculating TCS using Sales Order with Resources where TCS is applicable only on selected lines.
+    // [SCENARIO] [355119] Check if the program is calculating TCS using Sales Order with Resources where TCS is applicable only on selected lines.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithMultiLineResourceAndSingleNoc()
@@ -2859,7 +2859,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354855/354869] Check if the program is calculating TCS in Sales Order with no threshold and surcharge overlook for NOD lines of a particular Customer with Resources.
+    // [SCENARIO] [354855/354869] Check if the program is calculating TCS in Sales Order with no threshold and surcharge overlook for NOD lines of a particular Customer with Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithResourceWithoutThresholdSurcharge()
@@ -2890,7 +2890,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354856] Check if the program is calculating TCS in Sales Invoice with no threshold and surcharge overlook for NOD lines of a particular Customer with Resources.
+    // [SCENARIO] [354856] Check if the program is calculating TCS in Sales Invoice with no threshold and surcharge overlook for NOD lines of a particular Customer with Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithResourceWithoutThresholdSurcharge()
@@ -2921,7 +2921,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354859] Check if the program is calculating TCS in case an invoice is raised to the Customer using Sales Order and Threshold Overlook is selected with Resources.
+    // [SCENARIO] [354859] Check if the program is calculating TCS in case an invoice is raised to the Customer using Sales Order and Threshold Overlook is selected with Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithResourceWithThresholdSurcharge()
@@ -2952,7 +2952,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354860] Check if the program is calculating TCS in case an invoice is raised to the Customer using Sales Invoice and Threshold Overlook is selected with Resources.
+    // [SCENARIO] [354860] Check if the program is calculating TCS in case an invoice is raised to the Customer using Sales Invoice and Threshold Overlook is selected with Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithResourceWithThresholdSurcharge()
@@ -2983,7 +2983,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354878] Check if the program is calculating TCS with threshold and surcharge overlook for NOC lines of a particular customer with Resources.
+    // [SCENARIO] [354878] Check if the program is calculating TCS with threshold and surcharge overlook for NOC lines of a particular customer with Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithResourceForThreshholdOverlookAndDifferentCustomer()
@@ -3012,7 +3012,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354879] Check if the program is calculating TCS with threshold and surcharge overlook for NOC lines of a particular customer with Charge Items.
+    // [SCENARIO] [354879] Check if the program is calculating TCS with threshold and surcharge overlook for NOC lines of a particular customer with Charge Items.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithChargeItemForThreshholdOverlookAndDifferentCustomer()
@@ -3037,7 +3037,7 @@ codeunit 18916 "TCS On Sales"
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, SalesLine."No."));
     End;
 
-    //[Scenario 355202] Check if the program is calculating TCS while creating Invoice with Fixed Assets using the Sales Order with multiple NOC.
+    // [SCENARIO] [355202] Check if the program is calculating TCS while creating Invoice with Fixed Assets using the Sales Order with multiple NOC.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithFAAndMultipleNOC()
@@ -3080,7 +3080,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355203] Check if the program is calculating TCS while creating Invoice with Fixed Assets using the Sales Invoice  with multiple NOC.
+    // [SCENARIO] [355203] Check if the program is calculating TCS while creating Invoice with Fixed Assets using the Sales Invoice  with multiple NOC.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithFAAndMultipleNOC()
@@ -3123,7 +3123,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355110] Check if the program is calculating TCS using Sales Order/Invoice with Fixed Assets in case of shipment only.
+    // [SCENARIO] [355110] Check if the program is calculating TCS using Sales Order/Invoice with Fixed Assets in case of shipment only.
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesOrderStatisticsPageHandler')]
     procedure PostFromSalesOrderTCSVerifyAndFAShipment()
@@ -3152,7 +3152,7 @@ codeunit 18916 "TCS On Sales"
         // [THEN] TCS and G/L verified
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         LibraryVarStorage.Clear();
         LibraryVarStorage.Enqueue(SalesLine);
         VerifyStatisticsForTCS(SalesHeader);
@@ -3162,7 +3162,7 @@ codeunit 18916 "TCS On Sales"
     end;
 
 
-    //[Scenario 354848] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different effective dates with Resources.
+    // [SCENARIO] [354848] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different effective dates with Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithResourceForDifferentTCSNocEffectiveDate()
@@ -3194,7 +3194,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 354849] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different effective dates with Resources.
+    // [SCENARIO] [354849] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different effective dates with Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithResourceForDifferentTCSNocEffectiveDate()
@@ -3226,7 +3226,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355139] Check if the program is calculating TCS using Sales Order in case of Line Discount with Resources.
+    // [SCENARIO] [355139] Check if the program is calculating TCS using Sales Order in case of Line Discount with Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithResourceAndLineDiscount()
@@ -3256,7 +3256,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355140] Check if the program is calculating TCS using Sales Invoice in case of Line Discount with Resources.
+    // [SCENARIO] [355140] Check if the program is calculating TCS using Sales Invoice in case of Line Discount with Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithResourceAndLineDiscount()
@@ -3286,7 +3286,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355147/355154] Check if the program is calculating TCS using Sales Order in case of Invoice Discount with Resources.
+    // [SCENARIO] [355147/355154] Check if the program is calculating TCS using Sales Order in case of Invoice Discount with Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler,CustomerInvoiceDiscountPageHandler')]
     procedure PostFromSalesOrderWithResourceAndInvoiceDiscount()
@@ -3327,7 +3327,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355148/355153] Check if the program is calculating TCS using Sales Invoice in case of Invoice Discount with Resources.
+    // [SCENARIO] [355148/355153] Check if the program is calculating TCS using Sales Invoice in case of Invoice Discount with Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler,CustomerInvoiceDiscountPageHandler')]
     procedure PostFromSalesInvoiceWithResourceAndInvoiceDiscount()
@@ -3368,7 +3368,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355151] Check if the program is calculating TCS using Sales Order in case of Invoice Discount with Fixed Assets
+    // [SCENARIO] [355151] Check if the program is calculating TCS using Sales Order in case of Invoice Discount with Fixed Assets
     [Test]
     [HandlerFunctions('TaxRatePageHandler,CustomerInvoiceDiscountPageHandler')]
     procedure PostFromSalesOrderWithFAAndInvoiceDiscount()
@@ -3408,7 +3408,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355152] Check if the program is calculating TCS using Sales Invoice in case of Invoice Discount with Fixed Assets
+    // [SCENARIO] [355152] Check if the program is calculating TCS using Sales Invoice in case of Invoice Discount with Fixed Assets
     [Test]
     [HandlerFunctions('TaxRatePageHandler,CustomerInvoiceDiscountPageHandler')]
     procedure PostFromSalesInvoiceWithFAAndInvoiceDiscount()
@@ -3448,7 +3448,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355204] Check if the program is calculating TCS while creating Invoice with Resources using the Sales Order with multiple NOC
+    // [SCENARIO] [355204] Check if the program is calculating TCS while creating Invoice with Resources using the Sales Order with multiple NOC
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithResourcesAndMultipleNOC()
@@ -3489,7 +3489,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     end;
 
-    //[Scenario 355205] Check if the program is calculating TCS while creating Invoice with Resources using the Sales Invoice with multiple NOC
+    // [SCENARIO] [355205] Check if the program is calculating TCS while creating Invoice with Resources using the Sales Invoice with multiple NOC
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSaleslInvoiceWithResourcesAndMultipleNOC()
@@ -3530,7 +3530,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     end;
 
-    //[Scenario 354795] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different assessee codes with G/L Account.
+    // [SCENARIO] [354795] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different assessee codes with G/L Account.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithGLAndDifferentAssesseeCode()
@@ -3579,12 +3579,12 @@ codeunit 18916 "TCS On Sales"
             SalesLine.Type::"G/L Account",
             false);
 
-        //[THEN] Verified TCS entries for different Assessee Codes
+        // [THEN] Verified TCS entries for different Assessee Codes
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo, AssesseeCode.Code);
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo2, AssesseeCode2.Code);
     end;
 
-    //[Scenario 354799] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different assessee codes with G/L Account.
+    // [SCENARIO] [354799] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different assessee codes with G/L Account.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithGLAndDifferentAssesseeCode()
@@ -3633,12 +3633,12 @@ codeunit 18916 "TCS On Sales"
             SalesLine.Type::"G/L Account",
             false);
 
-        //[THEN] Verified TCS entries for different Assessee Codes
+        // [THEN] Verified TCS entries for different Assessee Codes
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo, AssesseeCode.Code);
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo2, AssesseeCode2.Code);
     end;
 
-    //[Scenario 354824] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different assessee codes with Item.
+    // [SCENARIO] [354824] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different assessee codes with Item.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithItemAndDifferentAssesseeCode()
@@ -3687,12 +3687,12 @@ codeunit 18916 "TCS On Sales"
             SalesLine.Type::Item,
             false);
 
-        //[THEN] Verified TCS entries for different Assessee Codes
+        // [THEN] Verified TCS entries for different Assessee Codes
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo, AssesseeCode.Code);
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo2, AssesseeCode2.Code);
     end;
 
-    //[Scenario 354825] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different assessee codes with Item.
+    // [SCENARIO] [354825] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different assessee codes with Item.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithItemAndDifferentAssesseeCode()
@@ -3741,12 +3741,12 @@ codeunit 18916 "TCS On Sales"
             SalesLine.Type::Item,
             false);
 
-        //[THEN] Verified TCS entries for different Assessee Codes
+        // [THEN] Verified TCS entries for different Assessee Codes
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo, AssesseeCode.Code);
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo2, AssesseeCode2.Code);
     end;
 
-    //[Scenario 354842] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different assessee codes with Fixed Assets.
+    // [SCENARIO] [354842] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different assessee codes with Fixed Assets.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithFAAndDifferentAssesseeCode()
@@ -3778,7 +3778,7 @@ codeunit 18916 "TCS On Sales"
             SalesHeader."Document Type"::Invoice,
             Customer."No.",
             WorkDate(),
-           SalesLine.Type::"Fixed Asset",
+            SalesLine.Type::"Fixed Asset",
             false);
 
         //Create Tax rate with second Assessee Code
@@ -3795,12 +3795,12 @@ codeunit 18916 "TCS On Sales"
             SalesLine.Type::"Fixed Asset",
             false);
 
-        //[THEN] Verified TCS entries for different Assessee Codes
+        // [THEN] Verified TCS entries for different Assessee Codes
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo, AssesseeCode.Code);
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo2, AssesseeCode2.Code);
     end;
 
-    //[Scenario 354843] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different assessee codes with Fixed Assets.
+    // [SCENARIO] [354843] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different assessee codes with Fixed Assets.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithFAAndDifferentAssesseeCode()
@@ -3849,12 +3849,12 @@ codeunit 18916 "TCS On Sales"
             SalesLine.Type::"Fixed Asset",
             false);
 
-        //[THEN] Verified TCS entries for different Assessee Codes
+        // [THEN] Verified TCS entries for different Assessee Codes
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo, AssesseeCode.Code);
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo2, AssesseeCode2.Code);
     end;
 
-    //[Scenario 354846] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different assessee codes with Resources.
+    // [SCENARIO] [354846] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different assessee codes with Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithResourceAndDifferentAssesseeCode()
@@ -3903,12 +3903,12 @@ codeunit 18916 "TCS On Sales"
             SalesLine.Type::Resource,
             false);
 
-        //[THEN] Verified TCS entries for different Assessee Codes
+        // [THEN] Verified TCS entries for different Assessee Codes
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo, AssesseeCode.Code);
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo2, AssesseeCode2.Code);
     end;
 
-    //[Scenario 354847] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different assessee codes with Fixed Assets.
+    // [SCENARIO] [354847] Check if the program is calculating TCS using Sales Invoice in case of different rates for same NOC with different assessee codes with Fixed Assets.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceWithResourceAndDifferentAssesseeCode()
@@ -3957,12 +3957,12 @@ codeunit 18916 "TCS On Sales"
             SalesLine.Type::Resource,
             false);
 
-        //[THEN] Verified TCS entries for different Assessee Codes
+        // [THEN] Verified TCS entries for different Assessee Codes
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo, AssesseeCode.Code);
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo2, AssesseeCode2.Code);
     end;
 
-    //[Scenario 354882] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different assessee codes with Charge Items.
+    // [SCENARIO] [354882] Check if the program is calculating TCS using Sales Order in case of different rates for same NOC with different assessee codes with Charge Items.
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesOrderStatisticsPageHandler')]
     procedure PostFromSalesOrderWithChargeItemAndDifferentAssesseeCode()
@@ -3994,7 +3994,7 @@ codeunit 18916 "TCS On Sales"
         VerifyStatisticsForTCS(SalesHeader);
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        //[THEN] Show expected error
+        // [THEN] Show expected error
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, SalesLine."No."));
 
         //Create Tax rate with second Assessee Code
@@ -4010,11 +4010,11 @@ codeunit 18916 "TCS On Sales"
         VerifyStatisticsForTCS(SalesHeader);
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        //[THEN] Show expected error
+        // [THEN] Show expected error
         Assert.ExpectedError(StrSubstNo(ItemChargePostingErr, SalesLine."No."));
     end;
 
-    //[Scenario 355111] Check if the program is calculating TCS using Sales Order with Resources in case of shipment only.
+    // [SCENARIO] [355111] Check if the program is calculating TCS using Sales Order with Resources in case of shipment only.
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesOrderStatisticsPageHandler')]
     procedure PostFromSalesOrderTCSVerifyAndResourceShipment()
@@ -4043,7 +4043,7 @@ codeunit 18916 "TCS On Sales"
         // [THEN] TCS and G/L verified
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         LibraryVarStorage.Clear();
         LibraryVarStorage.Enqueue(SalesLine);
         VerifyStatisticsForTCS(SalesHeader);
@@ -4052,7 +4052,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyTCSEntryCount(DocumentNo, false, 0, 0);
     end;
 
-    //[Scenario 1126] Check if the program is calculating TCS while creating Invoice with Item using the Sales Order with multiple NOC.
+    // [SCENARIO] [1126] Check if the program is calculating TCS while creating Invoice with Item using the Sales Order with multiple NOC.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesOrderWithItemAndAdditionalCurrency()
@@ -4084,7 +4084,7 @@ codeunit 18916 "TCS On Sales"
         TCSLibrary.VerifyGLEntryAdditionalCurrencyAmt('', DocumentNo);
     end;
 
-    //[Scenario 355128] Check if the program is calculating TCS using Credit Memo in case of Fixed Assets
+    // [SCENARIO] [355128] Check if the program is calculating TCS using Credit Memo in case of Fixed Assets
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesStatisticsPageHandler')]
     procedure SalesInvoiceTCSWithFAAndStatsVerify()
@@ -4106,19 +4106,19 @@ codeunit 18916 "TCS On Sales"
             SalesHeader."Document Type"::Invoice,
             Customer."No.",
             WorkDate(),
-           SalesLine.Type::"Fixed Asset",
+            SalesLine.Type::"Fixed Asset",
             false);
 
         // [THEN] TCS and G/L Entry Created and Verified
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        IF SalesLine.FindFirst() THEN;
+        SalesLine.FindFirst();
         LibraryVarStorage.Clear();
         LibraryVarStorage.Enqueue(SalesLine);
         VerifyStatisticsForTCS(SalesHeader);
     End;
 
-    //[Scenario 355129] Check if the program is showing TCS amount should be shown in Statistics while creating Sales Order with Fixed Assets.
+    // [SCENARIO] [355129] Check if the program is showing TCS amount should be shown in Statistics while creating Sales Order with Fixed Assets.
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesOrderStatisticsPageHandler')]
     procedure SalesOrderTCSWithFAAndStatsVerify()
@@ -4146,13 +4146,13 @@ codeunit 18916 "TCS On Sales"
         // [THEN] TCS and G/L Entry Created and Verified
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         LibraryVarStorage.Clear();
         LibraryVarStorage.Enqueue(SalesLine);
         VerifyStatisticsForTCS(SalesHeader);
     End;
 
-    //[Scenario 355130] Check if the program is showing TCS amount should be shown in Statistics while creating Sales Order/Invoice with Resources.
+    // [SCENARIO] [355130] Check if the program is showing TCS amount should be shown in Statistics while creating Sales Order/Invoice with Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesOrderStatisticsPageHandler')]
     procedure SalesOrderTCSWithResourceAndStatsVerify()
@@ -4180,13 +4180,13 @@ codeunit 18916 "TCS On Sales"
         // [THEN] TCS and G/L Entry Created and Verified
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         LibraryVarStorage.Clear();
         LibraryVarStorage.Enqueue(SalesLine);
         VerifyStatisticsForTCS(SalesHeader);
     End;
 
-    //[Scenario 355216] Check if the program is calculating TCS using Credit Memo in case of Fixed Assets
+    // [SCENARIO] [355216] Check if the program is calculating TCS using Credit Memo in case of Fixed Assets
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesStatisticsPageHandler')]
     procedure SalesCreditMemoTCSWithFAAndStatsVerify()
@@ -4214,13 +4214,13 @@ codeunit 18916 "TCS On Sales"
         // [THEN] TCS and G/L Entry Created and Verified
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        IF SalesLine.FindFirst() THEN;
+        SalesLine.FindFirst();
         LibraryVarStorage.Clear();
         LibraryVarStorage.Enqueue(SalesLine);
         VerifyStatisticsForTCS(SalesHeader);
     End;
 
-    //[Scenario 355217] Check if the program is calculating TCS using Return Order in case of Fixed Assets
+    // [SCENARIO] [355217] Check if the program is calculating TCS using Return Order in case of Fixed Assets
     [Test]
     [HandlerFunctions('TaxRatePageHandler,SalesOrderStatisticsPageHandler')]
     procedure SalesReturnOrderTCSWithFAAndSatsVerify()
@@ -4248,16 +4248,16 @@ codeunit 18916 "TCS On Sales"
         // [THEN] TCS and G/L Entry Created and Verified
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindFirst() then;
+        SalesLine.FindFirst();
         LibraryVarStorage.Clear();
         LibraryVarStorage.Enqueue(SalesLine);
         VerifyStatisticsForTCS(SalesHeader);
     End;
 
-    //[Scenario 355218] Check if the program is calculating TCS using Credit Memo in case of Resources.
+    // [SCENARIO] [355218] Check if the program is calculating TCS using Credit Memo in case of Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesCreditMemoTCSWithResource()
+    procedure PostFromSalesCrMemoTCSWithResource()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -4285,7 +4285,7 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355218] Check if the program is calculating TCS using return Order in case of Resources.
+    // [SCENARIO] [355218] Check if the program is calculating TCS using return Order in case of Resources.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesReturnOrderTCSWithResource()
@@ -4316,10 +4316,10 @@ codeunit 18916 "TCS On Sales"
         TCSSalesLibrary.VerifyTCSEntryForFAandResource(DocumentNo);
     End;
 
-    //[Scenario 355246] Check if the program is calculating TCS using Credit Memo in case of different rates for same NOC with different assessee codes with G/L Account.
+    // [SCENARIO] [355246] Check if the program is calculating TCS using Credit Memo in case of different rates for same NOC with different assessee codes with G/L Account.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesCreditMemoWithGLAndDifferentAssesseeCode()
+    procedure PostFromSalesCrMemoWithGLAndDifferentAssesseeCode()
     var
         Customer: Record Customer;
         Customer2: Record Customer;
@@ -4365,12 +4365,12 @@ codeunit 18916 "TCS On Sales"
             SalesLine.Type::"G/L Account",
             false);
 
-        //[THEN] Verified TCS entries for different Assessee Codes
+        // [THEN] Verified TCS entries for different Assessee Codes
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo, AssesseeCode.Code);
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo2, AssesseeCode2.Code);
     end;
 
-    //[Scenario 355247] Check if the program is calculating TCS using Return Order in case of different rates for same NOC with different assessee codes with G/L Account.
+    // [SCENARIO] [355247] Check if the program is calculating TCS using Return Order in case of different rates for same NOC with different assessee codes with G/L Account.
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesReturnOrderWithGLAndDifferentAssesseeCode()
@@ -4418,9 +4418,205 @@ codeunit 18916 "TCS On Sales"
             WorkDate(),
             SalesLine.Type::"G/L Account",
             false);
-        //[THEN] Verified TCS entries for different Assessee Codes
+        // [THEN] Verified TCS entries for different Assessee Codes
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo, AssesseeCode.Code);
         TCSLibrary.VerifyTCSEntryForAssesseeCode(DocumentNo2, AssesseeCode2.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('TaxRatePageHandler,TCSNOCHandler')]
+    procedure PostFromSalesInvoiceWithTCSNOCSelection()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TCSPostingSetup: Record "TCS Posting Setup";
+        ConcessionalCode: Record "Concessional Code";
+        TCSNatureOfCollection: Record "TCS Nature Of Collection";
+        AssesseeCode: Record "Assessee Code";
+    begin
+        // [GIVEN] Created Setup for NOC, Assessee Code, Customer, TCS Setup, Tax Accounting Period and TCS Rates
+        TCSLibrary.CreateAccPeriodAndFillCompInfo();
+        TCSLibrary.CreateTCSPostingSetupWithNOC(TCSPostingSetup, TCSNatureOfCollection);
+        Storage.Set(TCSNOCTypeLbl, TCSNatureOfCollection.Code);
+        TCSLibrary.CreateNOCWithCustomer(TCSPostingSetup."TCS Nature of Collection", Customer);
+        TCSLibrary.UpdateCustomerAssesseeAndConcessionalCode(Customer, AssesseeCode, ConcessionalCode, TCSPostingSetup."TCS Nature of Collection");
+        CreateTaxRateSetup(TCSPostingSetup."TCS Nature of Collection", Customer."Assessee Code", ConcessionalCode.Code, WorkDate());
+
+        // [WHEN] Create and Post Sales Order for first Assessee Code
+        TCSSalesLibrary.CreateSalesDocument(
+            SalesHeader,
+            SalesHeader."Document Type"::Invoice,
+            Customer."No.",
+            WorkDate(),
+            SalesLine.Type::"G/L Account",
+            false);
+        UpdateTCSNOCSection(SalesHeader);
+
+        // [THEN] Verified TDS Section selected on Purchase line
+        Assert.AreEqual(TCSNatureOfCollection.Code, TCSPostingSetup."TCS Nature of Collection",
+            StrSubstNo(VerifyErr, SalesLine.FieldCaption("TCS Nature of Collection"), SalesLine.TableCaption));
+    end;
+
+    local procedure UpdateTCSNOCSection(SalesHeader: Record "Sales Header")
+    var
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        SalesInvoice.OpenEdit();
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesInvoice.SalesLines."TCS Nature of Collection".Lookup();
+    end;
+
+    local procedure CreateCustomerInvoiceDiscount(CustomerNo: Code[20])
+    var
+        PageCustomer: TestPage "Customer Card";
+    begin
+        PageCustomer.OpenEdit();
+        PageCustomer.Filter.SetFilter("No.", CustomerNo);
+        PageCustomer."Invoice &Discounts".Invoke();
+    end;
+
+    local procedure VerifyTCSEntry(DocumentNo: Code[20]; TCSBaseAmount: Decimal; CurrencyFactor: Decimal;
+             WithPAN: Boolean; SurchargeOverlook: Boolean; TCSThresholdOverlook: Boolean)
+    var
+        TCSEntry: Record "TCS Entry";
+        ExpectedTCSAmount: Decimal;
+        ExpectedSurchargeAmount: Decimal;
+        ExpectedEcessAmount: Decimal;
+        ExpectedSHEcessAmount: Decimal;
+        TCSPercentage: Decimal;
+        NonPANTCSPercentage: Decimal;
+        SurchargePercentage: Decimal;
+        eCessPercentage: Decimal;
+        SHECessPercentage: Decimal;
+        TCSThresholdAmount: Decimal;
+        SurchargeThresholdAmount: Decimal;
+        AmountErr: Label '%1 is incorrect in %2.', Comment = '%1 and %2 = TCS Amount and TCS field Caption';
+    begin
+        Evaluate(TCSPercentage, Storage.Get(TCSPercentageLbl));
+        Evaluate(NonPANTCSPercentage, Storage.Get(NonPANTCSPercentageLbl));
+        Evaluate(SurchargePercentage, Storage.Get(SurchargePercentageLbl));
+        Evaluate(eCessPercentage, Storage.Get(ECessPercentageLbl));
+        Evaluate(SHECessPercentage, Storage.Get(SHECessPercentageLbl));
+        Evaluate(TCSThresholdAmount, Storage.Get(TCSThresholdAmountLbl));
+        Evaluate(SurchargeThresholdAmount, Storage.Get(SurchargeThresholdAmountLbl));
+
+        if CurrencyFactor = 0 then
+            CurrencyFactor := 1;
+        if (TCSBaseAmount < TCSThresholdAmount) and (TCSThresholdOverlook = false) then
+            ExpectedTCSAmount := 0
+        else
+            if WithPAN then
+                ExpectedTCSAmount := TCSBaseAmount * TCSPercentage / 100 / CurrencyFactor
+            else
+                ExpectedTCSAmount := TCSBaseAmount * NonPANTCSPercentage / 100 / CurrencyFactor;
+
+        if (TCSBaseAmount < SurchargeThresholdAmount) and (SurchargeOverlook = false) then
+            ExpectedSurchargeAmount := 0
+        else
+            ExpectedSurchargeAmount := ExpectedTCSAmount * SurchargePercentage / 100;
+        ExpectedEcessAmount := (ExpectedTCSAmount + ExpectedSurchargeAmount) * eCessPercentage / 100;
+        ExpectedSHEcessAmount := (ExpectedTCSAmount + ExpectedSurchargeAmount) * SHECessPercentage / 100;
+        TCSEntry.SetRange("Document No.", DocumentNo);
+        TCSEntry.FindFirst();
+        Assert.AreNearlyEqual(
+            TCSBaseAmount / CurrencyFactor, TCSEntry."TCS Base Amount", TCSLibrary.GetTCSRoundingPrecision(),
+            StrSubstNo(AmountErr, TCSEntry.FieldName("TCS Base Amount"), TCSEntry.TableCaption()));
+        if WithPAN then
+            Assert.AreEqual(
+                TCSPercentage, TCSEntry."TCS %",
+                StrSubstNo(AmountErr, TCSEntry.FieldName("TCS %"), TCSEntry.TableCaption()))
+        else
+            Assert.AreEqual(
+                NonPANTCSPercentage, TCSEntry."TCS %",
+                StrSubstNo(AmountErr, TCSEntry.FieldName("TCS %"), TCSEntry.TableCaption()));
+        Assert.AreNearlyEqual(
+            ExpectedTCSAmount, TCSEntry."TCS Amount", TCSLibrary.GetTCSRoundingPrecision(),
+            StrSubstNo(AmountErr, TCSEntry.FieldName("TCS Amount"), TCSEntry.TableCaption()));
+        Assert.AreEqual(
+            SurchargePercentage, TCSEntry."Surcharge %",
+            StrSubstNo(AmountErr, TCSEntry.FieldName("Surcharge %"), TCSEntry.TableCaption()));
+        Assert.AreNearlyEqual(
+            ExpectedSurchargeAmount, TCSEntry."Surcharge Amount", TCSLibrary.GetTCSRoundingPrecision(),
+            StrSubstNo(AmountErr, TCSEntry.FieldName("Surcharge Amount"), TCSEntry.TableCaption()));
+        Assert.AreEqual(
+            eCessPercentage, TCSEntry."eCESS %",
+            StrSubstNo(AmountErr, TCSEntry.FieldName("eCESS %"), TCSEntry.TableCaption()));
+        Assert.AreNearlyEqual(
+            ExpectedEcessAmount, TCSEntry."eCESS Amount", TCSLibrary.GetTCSRoundingPrecision(),
+            StrSubstNo(AmountErr, TCSEntry.FieldName("eCESS Amount"), TCSEntry.TableCaption()));
+        Assert.AreEqual(
+            SHECessPercentage, TCSEntry."SHE Cess %",
+            StrSubstNo(AmountErr, TCSEntry.FieldName("SHE Cess %"), TCSEntry.TableCaption()));
+        Assert.AreNearlyEqual(
+            ExpectedSHEcessAmount, TCSEntry."SHE Cess Amount", TCSLibrary.GetTCSRoundingPrecision(),
+            StrSubstNo(AmountErr, TCSEntry.FieldName("SHE Cess Amount"), TCSEntry.TableCaption()));
+    end;
+
+    local procedure VerifyGLEntryWithTCS(DocumentNo: Code[20]; TCSAccountNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        TCSLibrary.FindGLEntry(GLEntry, DocumentNo, TCSAccountNo);
+        GLEntry.TestField(Amount, -TCSLibrary.GetTCSAmount(DocumentNo));
+    end;
+
+    local procedure CreateTaxRate()
+    var
+        TCSSetup: Record "TCS Setup";
+        PageTaxtype: TestPage "Tax Types";
+    begin
+        TCSSetup.Get();
+        PageTaxtype.OpenEdit();
+        PageTaxtype.Filter.SetFilter(Code, TCSSetup."Tax Type");
+        PageTaxtype.TaxRates.Invoke();
+    end;
+
+    local procedure CreateTaxRateSetup(TCSNOC: Code[10]; AssesseeCode: Code[10]; ConcessionalCode: Code[10]; EffectiveDate: Date)
+    begin
+        Storage.Set(TCSNOCTypeLbl, TCSNOC);
+        Storage.Set(TCSAssesseeCodeLbl, AssesseeCode);
+        Storage.Set(TCSConcessionalCodeLbl, ConcessionalCode);
+        Storage.Set(EffectiveDateLbl, Format(EffectiveDate, 0, 9));
+        GenerateTaxComponentsPercentage();
+        CreateTaxRate();
+    end;
+
+    local procedure GenerateTaxComponentsPercentage()
+    var
+    begin
+        Storage.Set(TCSPercentageLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        Storage.Set(NonPANTCSPercentageLbl, Format(LibraryRandom.RandIntInRange(6, 10)));
+        Storage.Set(SurchargePercentageLbl, Format(LibraryRandom.RandIntInRange(6, 10)));
+        Storage.Set(ECessPercentageLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        Storage.Set(SHECessPercentageLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        Storage.Set(TCSThresholdAmountLbl, Format(LibraryRandom.RandIntInRange(4000, 6000)));
+        Storage.Set(SurchargeThresholdAmountLbl, Format(LibraryRandom.RandIntInRange(4000, 6000)));
+    end;
+
+    local procedure CreateAndPostMultiLineSalesDocument(
+        var SalesHeader: Record "Sales Header";
+        DocumentType: Enum "Sales Document Type";
+        CustomerNo: Code[20];
+        PostingDate: Date;
+        LineType: Enum "Sales Line Type";
+        LineDiscount: Boolean): Code[20]
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Modify(true);
+
+        TCSSalesLibrary.CreateSalesLine(SalesHeader, SalesLine, LineType, LineDiscount);
+        TCSSalesLibrary.CreateSalesLine(SalesHeader, SalesLine, LineType, LineDiscount);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    [ModalPageHandler]
+    procedure TCSNOCHandler(var TCSNatureOfCollections: TestPage "TCS Nature Of Collections")
+    begin
+        TCSNatureOfCollections.Filter.SetFilter(Code, Storage.Get(TCSNOCTypeLbl));
     end;
 
     local procedure VerifyStatisticsForTCS(var Salesheader: Record "Sales Header")
@@ -4504,119 +4700,6 @@ codeunit 18916 "TCS On Sales"
         end;
     end;
 
-    local procedure CreateCustomerInvoiceDiscount(CustomerNo: Code[20])
-    var
-        PageCustomer: TestPage "Customer Card";
-    begin
-        PageCustomer.OpenEdit();
-        PageCustomer.Filter.SetFilter("No.", CustomerNo);
-        PageCustomer."Invoice &Discounts".Invoke();
-    end;
-
-    [PageHandler]
-    procedure CustomerInvoiceDiscountPageHandler(var CustInvDisc: TestPage "Cust. Invoice Discounts");
-    var
-    begin
-        CustInvDisc."Discount %".SetValue(LibraryRandom.RandIntInRange(1, 4));
-        CustInvDisc.OK().Invoke();
-    end;
-
-    procedure VerifyTCSEntry(DocumentNo: Code[20]; TCSBaseAmount: Decimal; CurrencyFactor: Decimal;
-             WithPAN: Boolean; SurchargeOverlook: Boolean; TCSThresholdOverlook: Boolean)
-    var
-        TCSEntry: Record "TCS Entry";
-        ExpectedTCSAmount: Decimal;
-        ExpectedSurchargeAmount: Decimal;
-        ExpectedEcessAmount: Decimal;
-        ExpectedSHEcessAmount: Decimal;
-        TCSPercentage: Decimal;
-        NonPANTCSPercentage: Decimal;
-        SurchargePercentage: Decimal;
-        eCessPercentage: Decimal;
-        SHECessPercentage: Decimal;
-        TCSThresholdAmount: Decimal;
-        SurchargeThresholdAmount: Decimal;
-        AmountErr: Label '%1 is incorrect in %2.', Comment = '%1 and %2 = TCS Amount and TCS field Caption';
-    begin
-        Evaluate(TCSPercentage, Storage.Get('TCSPercentage'));
-        Evaluate(NonPANTCSPercentage, Storage.Get('NonPANTCSPercentage'));
-        Evaluate(SurchargePercentage, Storage.Get('SurchargePercentage'));
-        Evaluate(eCessPercentage, Storage.Get('eCessPercentage'));
-        Evaluate(SHECessPercentage, Storage.Get('SHECessPercentage'));
-        Evaluate(TCSThresholdAmount, Storage.Get('TCSThresholdAmount'));
-        Evaluate(SurchargeThresholdAmount, Storage.Get('SurchargeThresholdAmount'));
-
-        if CurrencyFactor = 0 then
-            CurrencyFactor := 1;
-        if (TCSBaseAmount < TCSThresholdAmount) and (TCSThresholdOverlook = false) then
-            ExpectedTCSAmount := 0
-        else
-            if WithPAN then
-                ExpectedTCSAmount := TCSBaseAmount * TCSPercentage / 100 / CurrencyFactor
-            else
-                ExpectedTCSAmount := TCSBaseAmount * NonPANTCSPercentage / 100 / CurrencyFactor;
-
-        if (TCSBaseAmount < SurchargeThresholdAmount) and (SurchargeOverlook = false) then
-            ExpectedSurchargeAmount := 0
-        else
-            ExpectedSurchargeAmount := ExpectedTCSAmount * SurchargePercentage / 100;
-        ExpectedEcessAmount := (ExpectedTCSAmount + ExpectedSurchargeAmount) * eCessPercentage / 100;
-        ExpectedSHEcessAmount := (ExpectedTCSAmount + ExpectedSurchargeAmount) * SHECessPercentage / 100;
-        TCSEntry.SETRANGE("Document No.", DocumentNo);
-        TCSEntry.FINDFIRST();
-        Assert.AreNearlyEqual(
-          TCSBaseAmount / CurrencyFactor, TCSEntry."TCS Base Amount", TCSLibrary.GetTCSRoundingPrecision(),
-          STRSUBSTNO(AmountErr, TCSEntry.FIELDNAME("TCS Base Amount"), TCSEntry.TABLECAPTION()));
-        if WithPAN then
-            Assert.AreEqual(
-              TCSPercentage, TCSEntry."TCS %",
-              STRSUBSTNO(AmountErr, TCSEntry.FIELDNAME("TCS %"), TCSEntry.TABLECAPTION()))
-        else
-            Assert.AreEqual(
-            NonPANTCSPercentage, TCSEntry."TCS %",
-            STRSUBSTNO(AmountErr, TCSEntry.FIELDNAME("TCS %"), TCSEntry.TABLECAPTION()));
-        Assert.AreNearlyEqual(
-          ExpectedTCSAmount, TCSEntry."TCS Amount", TCSLibrary.GetTCSRoundingPrecision(),
-          STRSUBSTNO(AmountErr, TCSEntry.FIELDNAME("TCS Amount"), TCSEntry.TABLECAPTION()));
-        Assert.AreEqual(
-          SurchargePercentage, TCSEntry."Surcharge %",
-          STRSUBSTNO(AmountErr, TCSEntry.FIELDNAME("Surcharge %"), TCSEntry.TABLECAPTION()));
-        Assert.AreNearlyEqual(
-          ExpectedSurchargeAmount, TCSEntry."Surcharge Amount", TCSLibrary.GetTCSRoundingPrecision(),
-          STRSUBSTNO(AmountErr, TCSEntry.FIELDNAME("Surcharge Amount"), TCSEntry.TABLECAPTION()));
-        Assert.AreEqual(
-          eCessPercentage, TCSEntry."eCESS %",
-          STRSUBSTNO(AmountErr, TCSEntry.FIELDNAME("eCESS %"), TCSEntry.TABLECAPTION()));
-        Assert.AreNearlyEqual(
-          ExpectedEcessAmount, TCSEntry."eCESS Amount", TCSLibrary.GetTCSRoundingPrecision(),
-          STRSUBSTNO(AmountErr, TCSEntry.FIELDNAME("eCESS Amount"), TCSEntry.TABLECAPTION()));
-        Assert.AreEqual(
-          SHECessPercentage, TCSEntry."SHE Cess %",
-          STRSUBSTNO(AmountErr, TCSEntry.FIELDNAME("SHE Cess %"), TCSEntry.TABLECAPTION()));
-        Assert.AreNearlyEqual(
-          ExpectedSHEcessAmount, TCSEntry."SHE Cess Amount", TCSLibrary.GetTCSRoundingPrecision(),
-          STRSUBSTNO(AmountErr, TCSEntry.FIELDNAME("SHE Cess Amount"), TCSEntry.TABLECAPTION()));
-    end;
-
-    local procedure VerifyGLEntryWithTCS(DocumentNo: Code[20]; TCSAccountNo: Code[20])
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        TCSLibrary.FindGLEntry(GLEntry, DocumentNo, TCSAccountNo);
-        GLEntry.TESTFIELD(Amount, -TCSLibrary.GetTCSAmount(DocumentNo));
-    end;
-
-    local procedure CreateTaxRate()
-    var
-        TCSSetup: Record "TCS Setup";
-        PageTaxtype: TestPage "Tax Types";
-    begin
-        TCSSetup.Get();
-        PageTaxtype.OpenEdit();
-        PageTaxtype.Filter.SetFilter(Code, TCSSetup."Tax Type");
-        PageTaxtype.TaxRates.Invoke();
-    end;
-
     [PageHandler]
     procedure TaxRatePageHandler(var TaxRate: TestPage "Tax Rates");
     var
@@ -4629,18 +4712,19 @@ codeunit 18916 "TCS On Sales"
         TCSThresholdAmount: Decimal;
         SurchargeThresholdAmount: Decimal;
     begin
-        Evaluate(EffectiveDate, Storage.Get('EffectiveDate'));
-        Evaluate(TCSPercentage, Storage.Get('TCSPercentage'));
-        Evaluate(NonPANTCSPercentage, Storage.Get('NonPANTCSPercentage'));
-        Evaluate(SurchargePercentage, Storage.Get('SurchargePercentage'));
-        Evaluate(eCessPercentage, Storage.Get('eCessPercentage'));
-        Evaluate(SHECessPercentage, Storage.Get('SHECessPercentage'));
-        Evaluate(TCSThresholdAmount, Storage.Get('TCSThresholdAmount'));
-        Evaluate(SurchargeThresholdAmount, Storage.Get('SurchargeThresholdAmount'));
+        Evaluate(EffectiveDate, Storage.Get(EffectiveDateLbl), 9);
+        Evaluate(TCSPercentage, Storage.Get(TCSPercentageLbl));
+        Evaluate(NonPANTCSPercentage, Storage.Get(NonPANTCSPercentageLbl));
+        Evaluate(SurchargePercentage, Storage.Get(SurchargePercentageLbl));
+        Evaluate(eCessPercentage, Storage.Get(ECessPercentageLbl));
+        Evaluate(SHECessPercentage, Storage.Get(SHECessPercentageLbl));
+        Evaluate(TCSThresholdAmount, Storage.Get(TCSThresholdAmountLbl));
+        Evaluate(SurchargeThresholdAmount, Storage.Get(SurchargeThresholdAmountLbl));
 
-        TaxRate.AttributeValue1.SetValue(Storage.Get('TCSNOCType'));
-        TaxRate.AttributeValue2.SetValue(Storage.Get('TCSAssesseeCode'));
-        TaxRate.AttributeValue3.SetValue(Storage.Get('TCSConcessionalCode'));
+        TaxRate.New();
+        TaxRate.AttributeValue1.SetValue(Storage.Get(TCSNOCTypeLbl));
+        TaxRate.AttributeValue2.SetValue(Storage.Get(TCSAssesseeCodeLbl));
+        TaxRate.AttributeValue3.SetValue(Storage.Get(TCSConcessionalCodeLbl));
         TaxRate.AttributeValue4.SetValue(EffectiveDate);
         TaxRate.AttributeValue5.SetValue(TCSPercentage);
         TaxRate.AttributeValue6.SetValue(SurchargePercentage);
@@ -4652,47 +4736,13 @@ codeunit 18916 "TCS On Sales"
         TaxRate.OK().Invoke();
     end;
 
-    local procedure CreateTaxRateSetup(TCSNOC: Code[10]; AssesseeCode: Code[10]; ConcessionalCode: Code[10]; EffectiveDate: Date)
-    begin
-        Storage.Set('TCSNOCType', TCSNOC);
-        Storage.Set('TCSAssesseeCode', AssesseeCode);
-        Storage.Set('TCSConcessionalCode', ConcessionalCode);
-        Storage.Set('EffectiveDate', Format(EffectiveDate));
-        GenerateTaxComponentsPercentage();
-        CreateTaxRate();
-    end;
-
-    local procedure GenerateTaxComponentsPercentage()
+    [PageHandler]
+    procedure CustomerInvoiceDiscountPageHandler(var CustInvDisc: TestPage "Cust. Invoice Discounts");
     var
     begin
-        Storage.Set('TCSPercentage', Format(LibraryRandom.RandIntInRange(2, 4)));
-        Storage.Set('NonPANTCSPercentage', Format(LibraryRandom.RandIntInRange(6, 10)));
-        Storage.Set('SurchargePercentage', Format(LibraryRandom.RandIntInRange(6, 10)));
-        Storage.Set('eCessPercentage', Format(LibraryRandom.RandIntInRange(2, 4)));
-        Storage.Set('SHECessPercentage', Format(LibraryRandom.RandIntInRange(2, 4)));
-        Storage.Set('TCSThresholdAmount', Format(LibraryRandom.RandIntInRange(4000, 6000)));
-        Storage.Set('SurchargeThresholdAmount', Format(LibraryRandom.RandIntInRange(4000, 6000)));
+        CustInvDisc."Discount %".SetValue(LibraryRandom.RandIntInRange(1, 4));
+        CustInvDisc.OK().Invoke();
     end;
-
-    local procedure CreateAndPostMultiLineSalesDocument(
-            var SalesHeader: Record "Sales Header";
-            DocumentType: Enum "Sales Document Type";
-            CustomerNo: Code[20];
-            PostingDate: Date;
-            LineType: Enum "Sales Line Type";
-            LineDiscount: Boolean): Code[20]
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        SalesHeader.Validate("Posting Date", PostingDate);
-        SalesHeader.Modify(true);
-
-        TCSSalesLibrary.CreateSalesLine(SalesHeader, SalesLine, LineType, LineDiscount);
-        TCSSalesLibrary.CreateSalesLine(SalesHeader, SalesLine, LineType, LineDiscount);
-        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-    end;
-
 
     var
         LibraryVarStorage: Codeunit "Library - Variable Storage";
@@ -4703,7 +4753,19 @@ codeunit 18916 "TCS On Sales"
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
         Assert: Codeunit Assert;
         Storage: Dictionary of [Text, Text];
+        EffectiveDateLbl: Label 'EffectiveDate', locked = true;
+        TCSNOCTypeLbl: Label 'TCSNOCType', locked = true;
+        TCSAssesseeCodeLbl: Label 'TCSAssesseeCode', locked = true;
+        TCSConcessionalCodeLbl: Label 'TCSConcessionalCode', locked = true;
+        TCSPercentageLbl: Label 'TCSPercentage', locked = true;
+        NonPANTCSPercentageLbl: Label 'NonPANTCSPercentage', locked = true;
+        SurchargePercentageLbl: Label 'SurchargePercentage', locked = true;
+        ECessPercentageLbl: Label 'ECessPercentage', Locked = true;
+        SHECessPercentageLbl: Label 'SHECessPercentage', locked = true;
+        TCSThresholdAmountLbl: Label 'TCSThresholdAmount', locked = true;
+        SurchargeThresholdAmountLbl: Label 'SurchargeThresholdAmount', locked = true;
         ItemChargePostingErr: Label 'You must assign item charge %1 if you want to invoice it.', Comment = '%1= No.';
         TCANNoErr: Label 'T.C.A.N. No. must have a value in Gen. Journal Line: Journal Template Name=, Journal Batch Name=, Line No.=0. It cannot be zero or empty.', Locked = true;
         IncomeTaxAccountingErr: Label 'Posting Date doesn''t lie in Tax Accounting Period', Locked = true;
+        VerifyErr: Label '%1 is incorrect in %2.', Comment = '%1 and %2 = Field Caption and Table Caption';
 }

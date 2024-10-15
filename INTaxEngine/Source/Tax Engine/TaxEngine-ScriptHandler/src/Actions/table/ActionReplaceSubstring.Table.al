@@ -8,17 +8,17 @@ table 20181 "Action Replace Substring"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(4; "Variable ID"; Integer)
@@ -40,7 +40,7 @@ table 20181 "Action Replace Substring"
         }
         field(7; "Substring Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Substring Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
@@ -57,7 +57,7 @@ table 20181 "Action Replace Substring"
         }
         field(10; "String Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'String Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
@@ -74,7 +74,7 @@ table 20181 "Action Replace Substring"
         }
         field(13; "New String Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'New String Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }

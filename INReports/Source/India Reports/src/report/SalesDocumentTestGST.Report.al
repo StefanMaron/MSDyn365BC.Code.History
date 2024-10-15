@@ -861,10 +861,6 @@ report 18023 "Sales Document - Test GST"
                             }
 
                             trigger OnAfterGetRecord()
-                            var
-                                TaxTrnasactionValue: Record "Tax Transaction Value";
-                                TaxTrnasactionValue1: Record "Tax Transaction Value";
-                                TaxTrnasactionValue2: Record "Tax Transaction Value";
                             begin
                                 DimText := GetDimensionText(DimSetEntry2, Number, Continue);
                                 if not Continue then
@@ -1976,7 +1972,6 @@ report 18023 "Sales Document - Test GST"
         end;
     }
 
-
     trigger OnInitReport()
     begin
         GLSetup.Get();
@@ -2031,24 +2026,20 @@ report 18023 "Sales Document - Test GST"
         ShipInvText: Text[50];
         ReceiveInvText: Text[50];
         DimText: Text[120];
-        OldDimText: Text[75];
         ErrorText: array[99] of Text[250];
         QtyToHandleCaption: Text[30];
         AllowPostingFrom: Date;
         AllowPostingTo: Date;
-        VATDate: Date;
         MaxQtyToBeInvoiced: Decimal;
         RemQtyToBeInvoiced: Decimal;
         QtyToBeInvoiced: Decimal;
         VATAmount: Decimal;
         VATBaseAmount: Decimal;
         VATDiscountAmount: Decimal;
-        TotalAmountInclVAT: Decimal;
         QtyToHandle: Decimal;
         TCSGSTCompAmount: Decimal;
         ErrorCounter: Integer;
         OrigMaxLineNo: Integer;
-        DropShipOrder: Boolean;
         InvOnNextPostReq: Boolean;
         ShipReceiveOnNextPostReq: Boolean;
         VATNoError: Boolean;
@@ -2081,7 +2072,6 @@ report 18023 "Sales Document - Test GST"
         SumLineServiceTaxSHECessAmount: Decimal;
         SumSalesLineAmountToCusTomer: Decimal;
         SumTotalTDSTCSInclSHECESS: Decimal;
-        ServiceTaxExists: Boolean;
         AppliedServiceTaxSBCAmount: Decimal;
         AppliedServiceTaxSBCAmt: Decimal;
         ServiceTaxSBCAmt: Decimal;
@@ -2092,7 +2082,6 @@ report 18023 "Sales Document - Test GST"
         SumKKCessAmount: Decimal;
         SumSalesLineGSTAmount: Decimal;
         GSTCompAmount: array[20] of Decimal;
-        IsGSTApplicable: Boolean;
         j: Integer;
         NNC_TotalGST: Decimal;
         QtyToShipLbl: Label '%1 must be zero.', Comment = '%1 = Sales Line".FieldCaption("Qty. to Ship")';

@@ -5,7 +5,7 @@ codeunit 136857 "Tax Document Stats Mgmt Tests"
 
     trigger OnRun()
     begin
-        // [FEATURE] [TaxEngine] [Use Case Event Library] [UT]
+        // [FEATURE] [TaxEngine] [Tax Document Stats Mgmt.] [UT]
     end;
 
     [Test]

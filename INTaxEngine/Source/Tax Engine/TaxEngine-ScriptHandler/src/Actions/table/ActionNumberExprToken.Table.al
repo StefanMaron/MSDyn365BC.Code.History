@@ -8,17 +8,17 @@ table 20180 "Action Number Expr. Token"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; "Numeric Expr. ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Numeric Expr. ID';
             TableRelation = "Action Number Expression".ID where("Case ID" = field("Case ID"));
         }
@@ -40,7 +40,7 @@ table 20180 "Action Number Expr. Token"
         }
         field(7; "Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Lookup ID';
         }
     }

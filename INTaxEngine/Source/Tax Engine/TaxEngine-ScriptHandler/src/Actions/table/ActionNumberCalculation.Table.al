@@ -8,17 +8,17 @@ table 20178 "Action Number Calculation"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(4; "Variable ID"; Integer)
@@ -40,13 +40,13 @@ table 20178 "Action Number Calculation"
         }
         field(7; "LHS Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'LHS Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
         field(8; "Arithmetic Operator"; Enum "Arithmetic Operator")
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Arithmetic operators';
         }
         field(9; "RHS Type"; Option)
@@ -62,7 +62,7 @@ table 20178 "Action Number Calculation"
         }
         field(11; "RHS Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'RHS Lookup ID';
         }
     }

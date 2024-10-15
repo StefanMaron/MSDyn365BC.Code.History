@@ -9,7 +9,6 @@ codeunit 20165 "Script Editor Mgmt."
         ActionsLoaded: Boolean;
 
     procedure InitActions();
-    var
     begin
         if ActionsLoaded then
             exit;
@@ -27,7 +26,6 @@ codeunit 20165 "Script Editor Mgmt."
         InsertAction("Action Type"::EXTRACTSUBSTRINGFROMPOSITION, 'Extract Substring From Position', DATABASE::"Action Ext. Substr. From Pos.", 1);
         InsertAction("Action Type"::DATECALCULATION, 'Date Calculation', DATABASE::"Action Date Calculation", 1);
         InsertAction("Action Type"::DATETODATETIME, 'Date To DateTime', DATABASE::"Action Date To DateTime", 1);
-        InsertAction("Action Type"::GETRECORD, 'Get Record', DATABASE::"Action Get Record", 1);
         InsertAction("Action Type"::ALERTMESSAGE, 'Message', DATABASE::"Action Message", 1);
         InsertAction("Action Type"::LOOPTHROUGHRECORDS, 'Loop Through Records', DATABASE::"Action Loop Through Records", 1);
         InsertAction("Action Type"::EXTRACTDATEPART, 'Extract Date Part', DATABASE::"Action Extract Date Part", 1);
@@ -77,7 +75,7 @@ codeunit 20165 "Script Editor Mgmt."
             if (ScriptAction.FindFirst()) and (ScriptAction.Count() = 1) then begin
                 Text := ScriptAction.Text;
                 ActionType := ScriptAction.ID;
-                Exit(true);
+                exit(true);
             end;
         end;
 
@@ -85,10 +83,10 @@ codeunit 20165 "Script Editor Mgmt."
         if Page.RunModal(Page::"Script Actions", ScriptAction) = ACTION::LookupOK then begin
             Text := ScriptAction.Text;
             ActionType := ScriptAction.ID;
-            Exit(true);
+            exit(true);
         end;
 
-        Exit(false);
+        exit(false);
     end;
 
     procedure UpdateDraftRow(
@@ -128,7 +126,7 @@ codeunit 20165 "Script Editor Mgmt."
         ScriptEditorLine.FindFirst();
         ScriptEditorLine.SetRange("Action ID");
 
-        Exit(ScriptEditorLine.GetPosition());
+        exit(ScriptEditorLine.GetPosition());
     end;
 
     local procedure AddItemToContainer(var ScriptEditorLine: Record "Script Editor Line" Temporary);

@@ -2,7 +2,7 @@ enum 18020 "GST Customer Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Registered)
     {

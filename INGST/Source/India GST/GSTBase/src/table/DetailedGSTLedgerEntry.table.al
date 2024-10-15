@@ -3,852 +3,506 @@ table 18001 "Detailed GST Ledger Entry"
     Caption = 'Detailed GST Ledger Entry';
     LookupPageId = "Detailed GST Ledger Entry";
     DrillDownPageId = "Detailed GST Ledger Entry";
+
     fields
     {
         field(1; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             AutoIncrement = true;
         }
         field(2; "Entry Type"; Enum "Detail Ledger Entry Type")
         {
             Caption = 'Entry Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(3; "Transaction Type"; Enum "Detail Ledger Transaction Type")
         {
             Caption = 'Transaction Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(4; "Document Type"; Enum "GST Document Type")
         {
             Caption = 'Document Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(5; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(6; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(8; Type; enum Type)
+        field(7; Type; enum Type)
         {
             Caption = 'Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(9; "No."; Code[20])
+        field(8; "No."; Code[20])
         {
             Caption = 'No.';
-            DataClassification = EndUserIdentifiableInformation;
-            TableRelation = IF (Type = CONST("G/L Account")) "G/L Account"
-            ELSE
-            IF (Type = CONST(Item)) Item
-            ELSE
-            IF (Type = CONST(Resource)) Resource
-            ELSE
-            IF (Type = CONST("Fixed Asset")) "Fixed Asset"
-            ELSE
-            IF (Type = CONST("Charge (Item)")) "Item Charge";
+            DataClassification = CustomerContent;
+            TableRelation = if (Type = const("G/L Account")) "G/L Account"
+            else
+            if (Type = const(Item)) Item
+            else
+            if (Type = const(Resource)) Resource
+            else
+            if (Type = const("Fixed Asset")) "Fixed Asset"
+            else
+            if (Type = const("Charge (Item)")) "Item Charge";
         }
-        field(10; "Product Type"; enum "Product Type")
+        field(9; "Product Type"; enum "Product Type")
         {
             Caption = 'Product Type';
-            DataClassification = EndUserIdentifiableInformation;
-
+            DataClassification = CustomerContent;
         }
-        field(11; "Source Type"; enum "Source Type")
+        field(10; "Source Type"; enum "Source Type")
         {
             Caption = 'Source Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(12; "Source No."; Code[20])
+        field(11; "Source No."; Code[20])
         {
             Caption = 'Source No.';
-            DataClassification = EndUserIdentifiableInformation;
-            TableRelation = IF ("Source Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Source Type" = CONST(Vendor)) Vendor;
+            DataClassification = CustomerContent;
+            TableRelation = if ("Source Type" = const(Customer)) Customer
+            else
+            if ("Source Type" = const(Vendor)) Vendor;
         }
-        field(13; "HSN/SAC Code"; Code[10])
+        field(12; "HSN/SAC Code"; Code[10])
         {
             Caption = 'HSN/SAC Code';
-            DataClassification = EndUserIdentifiableInformation;
-            TableRelation = "HSN/SAC".Code WHERE("GST Group Code" = FIELD("GST Group Code"));
+            DataClassification = CustomerContent;
+            TableRelation = "HSN/SAC".Code where("GST Group Code" = field("GST Group Code"));
         }
-        field(14; "GST Component Code"; Code[10])
+        field(13; "GST Component Code"; Code[30])
         {
             Caption = 'GST Component Code';
-            DataClassification = EndUserIdentifiableInformation;
-
+            DataClassification = CustomerContent;
         }
-        field(15; "GST Group Code"; Code[20])
+        field(14; "GST Group Code"; Code[20])
         {
             Caption = 'GST Group Code';
             TableRelation = "GST Group";
-            DataClassification = EndUserIdentifiableInformation;
-
+            DataClassification = CustomerContent;
         }
-        field(16; "GST Jurisdiction Type"; enum "GST Jurisdiction Type")
+        field(15; "GST Jurisdiction Type"; enum "GST Jurisdiction Type")
         {
             Caption = 'GST Jurisdiction Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(17; "GST Base Amount"; Decimal)
+        field(16; "GST Base Amount"; Decimal)
         {
             Caption = 'GST Base Amount';
-            DataClassification = EndUserIdentifiableInformation;
-
+            DataClassification = CustomerContent;
         }
-        field(18; "GST %"; Decimal)
+        field(17; "GST %"; Decimal)
         {
             Caption = 'GST %';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(19; "GST Amount"; Decimal)
+        field(18; "GST Amount"; Decimal)
         {
             Caption = 'GST Amount';
-            DataClassification = EndUserIdentifiableInformation;
-
+            DataClassification = CustomerContent;
         }
-        field(20; "External Document No."; Code[40])
+        field(19; "External Document No."; Code[40])
         {
             Caption = 'External Document No.';
-            DataClassification = EndUserIdentifiableInformation;
-
+            DataClassification = CustomerContent;
         }
-        field(22; "Amount Loaded on Item"; Decimal)
+        field(20; "Amount Loaded on Item"; Decimal)
         {
             Caption = 'Amount Loaded on Item';
-            DataClassification = EndUserIdentifiableInformation;
-
+            DataClassification = CustomerContent;
         }
-        field(25; Quantity; Decimal)
+        field(21; Quantity; Decimal)
         {
             Caption = 'Quantity';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(29; "GST Without Payment of Duty"; Boolean)
+        field(22; "GST Without Payment of Duty"; Boolean)
         {
             Caption = 'GST Without Payment of Duty';
-            DataClassification = EndUserIdentifiableInformation;
-
+            DataClassification = CustomerContent;
         }
-        field(30; "G/L Account No."; Code[20])
+        field(23; "G/L Account No."; Code[20])
         {
             Caption = 'G/L Account No.';
             TableRelation = "G/L Account";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(32; "Reversed by Entry No."; Integer)
+        field(24; "Reversed by Entry No."; Integer)
         {
             Caption = 'Reversed by Entry No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(33; Reversed; Boolean)
+        field(25; Reversed; Boolean)
         {
             Caption = 'Reversed';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(35; "User ID"; Code[50])
-        {
-            Caption = 'User ID';
-            DataClassification = EndUserIdentifiableInformation;
-
-        }
-        field(38; Positive; Boolean)
-        {
-            Caption = 'Positive';
-            DataClassification = EndUserIdentifiableInformation;
-
-        }
-        field(42; "Document Line No."; Integer)
+        field(26; "Document Line No."; Integer)
         {
             Caption = 'Document Line No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(43; "Item Charge Entry"; Boolean)
+        field(27; "Item Charge Entry"; Boolean)
         {
             Caption = 'Item Charge Entry';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(44; "Reverse Charge"; Boolean)
+        field(28; "Reverse Charge"; Boolean)
         {
             Caption = 'Reverse Charge';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(45; "GST on Advance Payment"; Boolean)
+        field(29; "GST on Advance Payment"; Boolean)
         {
             Caption = 'GST on Advance Payment';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(46; "Nature of Supply"; Enum "GST Nature of Supply")
-        {
-            Caption = 'Nature of Supply';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(48; "Payment Document No."; Code[20])
+        field(30; "Payment Document No."; Code[20])
         {
             Caption = 'Payment Document No.';
-            DataClassification = EndUserIdentifiableInformation;
-
+            DataClassification = CustomerContent;
         }
-        field(52; "GST Exempted Goods"; Boolean)
+        field(31; "GST Exempted Goods"; Boolean)
         {
             Caption = 'GST Exempted Goods';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(53; "Location State Code"; Code[10])
-        {
-            Caption = 'Location State Code';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(54; "Buyer/Seller State Code"; Code[10])
-        {
-            Caption = 'Buyer/Seller State Code';
-            TableRelation = State;
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(55; "Shipping Address State Code"; Code[10])
-        {
-            Caption = 'Shipping Address State Code';
-            TableRelation = State;
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(56; "Location  Reg. No."; Code[20])
+        field(32; "Location  Reg. No."; Code[20])
         {
             Caption = 'Location  Reg. No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(57; "Buyer/Seller Reg. No."; Code[20])
+        field(33; "Buyer/Seller Reg. No."; Code[20])
         {
             Caption = 'Buyer/Seller Reg. No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(58; "GST Group Type"; enum "GST Group Type")
+        field(34; "GST Group Type"; enum "GST Group Type")
         {
             Caption = 'GST Group Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(59; "GST Credit"; enum "Detail GST Credit")
+        field(35; "GST Credit"; enum "GST Credit")
         {
             Caption = 'GST Credit';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(61; "Reversal Entry"; Boolean)
+        field(36; "Reversal Entry"; Boolean)
         {
             Caption = 'Reversal Entry';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(62; "Transaction No."; Integer)
+        field(37; "Transaction No."; Integer)
         {
             Caption = 'Transaction No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(63; "Currency Code"; Code[10])
+        field(38; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(64; "Currency Factor"; Decimal)
+        field(39; "Currency Factor"; Decimal)
         {
             Caption = 'Currency Factor';
             DecimalPlaces = 1 : 6;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(65; "Application Doc. Type"; Enum "Application Doc Type")
+        field(40; "Application Doc. Type"; Enum "Application Doc Type")
         {
             Caption = 'Application Doc. Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(66; "Application Doc. No"; Code[20])
+        field(41; "Application Doc. No"; Code[20])
         {
             Caption = 'Application Doc. No';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(67; "Original Doc. Type"; enum "Original Doc Type")
-        {
-            Caption = 'Original Doc. Type';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(68; "Original Doc. No."; Code[20])
-        {
-            Caption = 'Original Doc. No.';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(69; "Applied From Entry No."; Integer)
+        field(42; "Applied From Entry No."; Integer)
         {
             Caption = 'Applied From Entry No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(70; "Reversed Entry No."; Integer)
+        field(43; "Reversed Entry No."; Integer)
         {
             Caption = 'Reversed Entry No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(71; "Remaining Closed"; Boolean)
+        field(44; "Remaining Closed"; Boolean)
         {
             Caption = 'Remaining Closed';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(72; "GST Rounding Precision"; Decimal)
+        field(45; "GST Rounding Precision"; Decimal)
         {
             Caption = 'GST Rounding Precision';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(73; "GST Rounding Type"; Enum "GST Inv Rounding Type")
+        field(46; "GST Rounding Type"; Enum "GST Inv Rounding Type")
         {
             Caption = 'GST Rounding Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(74; "Location Code"; Code[10])
+        field(47; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
-            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
-            DataClassification = EndUserIdentifiableInformation;
+            TableRelation = Location where("Use As In-Transit" = const(false));
+            DataClassification = CustomerContent;
         }
-        field(75; "GST Customer Type"; Enum "GST Customer Type")
+        field(48; "GST Customer Type"; Enum "GST Customer Type")
         {
             Caption = 'GST Customer Type';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(76; "GST Vendor Type"; Enum "GST Vendor Type")
+        field(49; "GST Vendor Type"; Enum "GST Vendor Type")
         {
             Caption = 'GST Vendor Type';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(77; "CLE/VLE Entry No."; Integer)
-        {
-            Caption = 'CLE/VLE Entry No.';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(78; "Bill Of Export No."; Code[20])
-        {
-            Caption = 'Bill Of Export No.';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(79; "Bill Of Export Date"; Date)
-        {
-            Caption = 'Bill Of Export Date';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(80; "e-Comm. Merchant Id"; Code[30])
-        {
-            Caption = 'e-Comm. Merchant Id';
-            DataClassification = EndUserIdentifiableInformation;
-
-        }
-        field(81; "e-Comm. Operator GST Reg. No."; Code[20])
-        {
-            Caption = 'e-Comm. Operator GST Reg. No.';
-            DataClassification = EndUserIdentifiableInformation;
-
-        }
-        field(82; "Sales Invoice Type"; Enum "Sales Invoice Type")
-        {
-            Caption = 'Sales Invoice Type';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(83; "Original Invoice No."; Code[20])
+        field(50; "Original Invoice No."; Code[20])
         {
             Caption = 'Original Invoice No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(84; "Original Invoice Date"; Date)
-        {
-            Caption = 'Original Invoice Date';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(85; "Reconciliation Month"; Integer)
+        field(51; "Reconciliation Month"; Integer)
         {
             Caption = 'Reconciliation Month';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(86; "Reconciliation Year"; Integer)
+        field(52; "Reconciliation Year"; Integer)
         {
             Caption = 'Reconciliation Year';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(87; Reconciled; Boolean)
+        field(53; Reconciled; Boolean)
         {
             Caption = 'Reconciled';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(88; "Credit Availed"; Boolean)
+        field(54; "Credit Availed"; Boolean)
         {
             Caption = 'Credit Availed';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(89; Paid; Boolean)
+        field(55; Paid; Boolean)
         {
             Caption = 'Paid';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(90; "Amount to Customer/Vendor"; Decimal)
-        {
-            Caption = 'Amount to Customer/Vendor';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(91; "Credit Adjustment Type"; Enum "Credit Adjustment Type")
+        field(56; "Credit Adjustment Type"; Enum "Credit Adjustment Type")
         {
             Caption = 'Credit Adjustment Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(92; "Adv. Pmt. Adjustment"; Boolean)
-        {
-            Caption = 'Adv. Pmt. Adjustment';
-            Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(93; "Original Adv. Pmt Doc. No."; Code[20])
-        {
-            Caption = 'Original Adv. Pmt Doc. No.';
-            Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(94; "Original Adv. Pmt Doc. Date"; Date)
-        {
-            Caption = 'Original Adv. Pmt Doc. Date';
-            Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(96; "Payment Document Date"; Date)
-        {
-            Caption = 'Payment Document Date';
-            DataClassification = EndUserIdentifiableInformation;
-
-        }
-        field(97; Cess; Boolean)
-        {
-            Caption = 'Cess';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-
-        field(98; UnApplied; Boolean)
+        field(57; UnApplied; Boolean)
         {
             Caption = 'UnApplied';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(99; "Item Ledger Entry No."; Integer)
-        {
-            Caption = 'Item Ledger Entry No.';
-            Editable = false;
-            TableRelation = "Item Ledger Entry" WHERE("Entry No." = FIELD("Item Ledger Entry No."));
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(100; "Credit Reversal"; Enum "Credit Reversal")
-        {
-            Caption = 'Credit Reversal';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(101; "GST Place of Supply"; enum "GST Place Of Supply")
+        field(58; "GST Place of Supply"; enum "GST Dependency Type")
         {
             Caption = 'GST Place of Supply';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(102; "Item Charge Assgn. Line No."; Integer)
-        {
-            Caption = 'Item Charge Assgn. Line No.';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(103; "Payment Type"; Enum "Payment Type")
+        field(59; "Payment Type"; Enum "Payment Type")
         {
             Caption = 'Payment Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(104; Distributed; Boolean)
+        field(60; Distributed; Boolean)
         {
             Caption = 'Distributed';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(105; "Distributed Reversed"; Boolean)
+        field(61; "Distributed Reversed"; Boolean)
         {
             Caption = 'Distributed Reversed';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(106; "Input Service Distribution"; Boolean)
+        field(62; "Input Service Distribution"; Boolean)
         {
             Caption = 'Input Service Distribution';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
-        field(107; Opening; Boolean)
+        field(63; Opening; Boolean)
         {
             Caption = 'Opening';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(108; "Remaining Amount Closed"; Boolean)
-        {
-            Caption = 'Remaining Amount Closed';
-            DataClassification = EndUserIdentifiableInformation;
-            Editable = false;
-        }
-        field(109; "Remaining Base Amount"; Decimal)
+        field(64; "Remaining Base Amount"; Decimal)
         {
             Caption = 'Remaining Base Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
-        field(110; "Remaining GST Amount"; Decimal)
+        field(65; "Remaining GST Amount"; Decimal)
         {
             Caption = 'Remaining GST Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
-        field(112; "Gen. Bus. Posting Group"; Code[20])
-        {
-            Caption = 'Gen. Bus. Posting Group';
-            DataClassification = EndUserIdentifiableInformation;
-            Editable = false;
-            TableRelation = "Gen. Business Posting Group";
-        }
-        field(113; "Gen. Prod. Posting Group"; Code[20])
-        {
-            Caption = 'Gen. Prod. Posting Group';
-            DataClassification = EndUserIdentifiableInformation;
-            Editable = false;
-            TableRelation = "Gen. Product Posting Group";
-        }
-        field(114; "Reason Code"; Code[10])
-        {
-            Caption = 'Reason Code';
-            DataClassification = EndUserIdentifiableInformation;
-            Editable = false;
-            TableRelation = "Reason Code";
-        }
-        field(115; "Dist. Document No."; Code[20])
+        field(66; "Dist. Document No."; Code[20])
         {
             Caption = 'Dist. Document No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(116; "Associated Enterprises"; Boolean)
+        field(67; "Associated Enterprises"; Boolean)
         {
             Caption = 'Associated Enterprises';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(117; "Delivery Challan Amount"; Decimal)
-        {
-
-            DataClassification = EndUserIdentifiableInformation;
-            Caption = 'Delivery Challan Amount';
-        }
-        field(118; "Liable to Pay"; Boolean)
+        field(68; "Liable to Pay"; Boolean)
         {
             Caption = 'Liable to Pay';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(119; "Subcon Document No."; Code[20])
-        {
-            Caption = 'Subcon Document No.';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(120; "Last Credit Adjusted Date"; Date)
-        {
-            Caption = 'Last Credit Adjusted Date';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(121; "Dist. Input GST Credit"; Boolean)
+        field(69; "Dist. Input GST Credit"; Boolean)
         {
             Caption = 'Dist. Input GST Credit';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(122; "Component Calc. Type"; Enum "Component Calc Type")
-        {
-            Caption = 'Component Calc. Type';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(123; "Cess Amount Per Unit Factor"; Decimal)
-        {
-            Caption = 'Cess Amount Per Unit Factor';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(124; "Cess UOM"; Code[10])
-        {
-            Caption = 'Cess UOM';
-            TableRelation = "Unit of Measure";
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(125; "Cess Factor Quantity"; Decimal)
-        {
-            Caption = 'Cess Factor Quantity';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(126; "Dist. Reverse Document No."; Code[20])
+        field(70; "Dist. Reverse Document No."; Code[20])
         {
             Caption = 'Dist. Reverse Document No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(127; UOM; Code[10])
-        {
-            Caption = 'UOM';
-            TableRelation = "Unit of Measure";
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(128; "Purchase Invoice Type"; Enum "GST Invoice Type")
-        {
-            Caption = 'Purchase Invoice Type';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(129; "Bank Charge Entry"; Boolean)
-        {
-            Caption = 'Bank Charge Entry';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(130; "Foreign Exchange"; Boolean)
-        {
-            Caption = 'Foreign Exchange';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(131; "Bill of Entry No."; Text[20])
-        {
-            Caption = 'Bill of Entry No.';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(132; "Bill of Entry Date"; Date)
-        {
-            Caption = 'Bill of Entry Date';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(133; "Eligibility for ITC"; Enum "Eligibility for ITC")
+        field(71; "Eligibility for ITC"; Enum "Eligibility for ITC")
         {
             Caption = 'Eligibility for ITC';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(134; "GST Assessable Value"; Decimal)
+        field(72; "GST Assessable Value"; Decimal)
         {
             Caption = 'GST Assessable Value';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(135; "GST Reason Type"; Enum "GST Reason Type")
-        {
-            Caption = 'GST Reason Type';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(136; "GST Rate %"; Decimal)
-        {
-            Caption = 'GST Rate %';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(137; "Jnl. Bank Charge"; Code[10])
-        {
-            Caption = 'Bank Charge';
-            // TableRelation = "Bank Charge";
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(138; "GST Inv. Rounding Precision"; Decimal)
+        field(73; "GST Inv. Rounding Precision"; Decimal)
         {
             Caption = 'GST Inv. Rounding Precision';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
-        field(139; "GST Inv. Rounding Type"; enum "GST Inv Rounding Type")
+        field(74; "GST Inv. Rounding Type"; enum "GST Inv Rounding Type")
         {
             Caption = 'GST Inv. Rounding Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
-        field(140; "RCM Exempt"; Boolean)
+        field(75; "Cr. & Liab. Adjustment Type"; Enum "Cr Libty Adjustment Type")
         {
-            Caption = 'RCM Exempt';
-            DataClassification = EndUserIdentifiableInformation;
+            Caption = 'Cr. & Liab. Adjustment Type';
+            DataClassification = CustomerContent;
         }
-        field(141; "RCM Exempt Transaction"; Boolean)
-        {
-            Caption = 'RCM Exempt Transaction';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(142; "Order Address Code"; Code[10])
-        {
-            Caption = 'Order Address Code';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(143; "Cr. & Libty. Adjustment Type"; Enum "Cr Libty Adjustment Type")
-        {
-            Caption = 'Cr. & Libty. Adjustment Type';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(144; "AdjustmentBase Amount"; Decimal)
+        field(76; "AdjustmentBase Amount"; Decimal)
         {
             Caption = 'AdjustmentBase Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(145; "Adjustment Amount"; Decimal)
+        field(77; "Adjustment Amount"; Decimal)
         {
             Caption = 'Adjustment Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(146; "Bill to-Location(POS)"; Code[10])
-        {
-            Caption = 'Bill to-Location(POS)';
-            DataClassification = EndUserIdentifiableInformation;
-            Editable = false;
-        }
-        field(147; "Custom Duty Amount"; Decimal)
+        field(78; "Custom Duty Amount"; Decimal)
         {
             Caption = 'Custom Duty Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(148; "Journal Entry"; Boolean)
+        field(79; "Journal Entry"; Boolean)
         {
             Caption = 'Journal Entry';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
-        field(149; "Recurring Journal"; Boolean)
+        field(80; "Remaining Quantity"; Decimal)
         {
-            Caption = 'Recurring Journal';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(150; "Allocations Line No."; Integer)
-        {
-            Caption = 'Allocations Line No.';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(156; "GST Journal Type"; Enum "GST Journal Type")
-        {
-            Caption = 'GST Journal Type';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(157; "Adjustment Type"; Enum "Adjustment Type")
-        {
-            Caption = 'Adjustment Type';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(158; "Remaining Quantity"; Decimal)
-        {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Remaining Quantity';
         }
-        field(159; "ARN No."; Code[20])
+        field(81; "ARN No."; Code[20])
         {
             Caption = 'ARN No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(160; "Ship-to Code"; Code[10])
-        {
-            Caption = 'Ship-to Code';
-            TableRelation = "Ship-to Address".Code;
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(161; "FA Journal Entry"; Boolean)
-        {
-            Caption = 'FA Journal Entry';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(162; "Without Bill Of Entry"; Boolean)
-        {
-            Caption = 'Without Bill Of Entry';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(163; "Finance Charge Memo"; Boolean)
-        {
-            Caption = 'Finance Charge Memo';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(164; "Forex Fluctuation"; Boolean)
+        field(82; "Forex Fluctuation"; Boolean)
         {
             Caption = 'Forex Fluctuation';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(165; "Depreciation Book Code"; Code[10])
-        {
-            Caption = 'Depreciation Book Code';
-            TableRelation = "Depreciation Book";
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(166; "Fluctuation Amt. Credit"; Boolean)
+        field(83; "Fluctuation Amt. Credit"; Boolean)
         {
             Caption = 'Fluctuation Amt. Credit';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(167; "CAJ %"; Decimal)
+        field(84; "CAJ %"; Decimal)
         {
             Caption = 'CAJ %';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(168; "CAJ Amount"; Decimal)
+        field(85; "CAJ Amount"; Decimal)
         {
             Caption = 'CAJ Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(169; "CAJ % Permanent Reversal"; Decimal)
+        field(86; "CAJ % Permanent Reversal"; Decimal)
         {
             Caption = 'CAJ % Permanent Reversal';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(170; "CAJ Amount Permanent Reversal"; Decimal)
+        field(87; "CAJ Amount Permanent Reversal"; Decimal)
         {
             Caption = 'CAJ Amount Permanent Reversal';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(171; "Location ARN No."; Code[20])
-        {
-            Caption = 'Location ARN No.';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(180; "Rate Change Applicable"; Boolean)
-        {
-            Caption = 'Rate Change Applicable';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(181; "Remaining CAJ Adj. Base Amt"; Decimal)
+        field(88; "Remaining CAJ Adj. Base Amt"; Decimal)
         {
             Caption = 'Remaining CAJ Adj. Base Amt';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(182; "Remaining CAJ Adj. Amt"; Decimal)
+        field(89; "Remaining CAJ Adj. Amt"; Decimal)
         {
             Caption = 'Remaining CAJ Adj. Amt';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(183; "CAJ Base Amount"; Decimal)
+        field(90; "CAJ Base Amount"; Decimal)
         {
             Caption = 'CAJ Base Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(184; "POS as Vendor State"; Boolean)
-        {
-            Caption = 'POS as Vendor State';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(185; "GST Base Amount FCY"; Decimal)
-        {
-            Caption = 'GST Base Amount FCY';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(186; "GST Amount FCY"; Decimal)
-        {
-            Caption = 'GST Amount FCY';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(187; "POS Out Of India"; Boolean)
-        {
-            Caption = 'POS Out Of India';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(188; "G/L Entry No."; Integer)
+        field(91; "G/L Entry No."; Integer)
         {
             Caption = 'G/L Entry No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = False;
         }
-        field(189; "Skip Tax Engine Trigger"; Boolean)
+        field(92; "Skip Tax Engine Trigger"; Boolean)
         {
             Caption = 'Skip Tax Engine Trigger';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = False;
         }
-
-
+        field(93; "Executed Use Case ID"; Guid)
+        {
+            Caption = 'Executed Use Case ID';
+            DataClassification = CustomerContent;
+            Editable = False;
+        }
     }
 
     keys
@@ -875,33 +529,18 @@ table 18001 "Detailed GST Ledger Entry"
         key(Key7; "Payment Document No.")
         {
         }
-        key(Key8; "Transaction Type", "Document No.", "Entry Type", "HSN/SAC Code", Cess, "Document Line No.")
-        {
-        }
         key(Key9; "Transaction Type", "Document Type", "Document No.", "Transaction No.")
-        {
-        }
-        key(Key10; "CLE/VLE Entry No.", "GST Group Code")
         {
         }
         key(Key11; "Document No.", "HSN/SAC Code")
         {
             SumIndexFields = "GST Base Amount", "GST Amount";
         }
-        key(Key12; "Transaction Type", "Source No.", "Original Doc. Type", "Original Doc. No.", "GST Group Code")
-        {
-        }
-        key(Key13; "Transaction Type", "Source No.", "CLE/VLE Entry No.", "Document Type", "Document No.", "GST Group Code")
-        {
-        }
         key(Key14; "Transaction Type", "Document Type", "Document No.", "Document Line No.", "GST Component Code")
         {
             SumIndexFields = "GST Amount";
         }
         key(Key15; "Transaction Type", "Source Type", "Source No.", "Document Type", "Document No.", "GST Group Type")
-        {
-        }
-        key(Key16; "Location  Reg. No.", "Transaction Type", Paid, "Entry Type", "Original Doc. Type", "Posting Date", "Reverse Charge", "GST Credit", "Payment Type", "GST Component Code")
         {
         }
         key(Key17; "Document No.", "GST Component Code")
@@ -945,10 +584,4 @@ table 18001 "Detailed GST Ledger Entry"
         {
         }
     }
-
-    fieldgroups
-    {
-    }
 }
-
-

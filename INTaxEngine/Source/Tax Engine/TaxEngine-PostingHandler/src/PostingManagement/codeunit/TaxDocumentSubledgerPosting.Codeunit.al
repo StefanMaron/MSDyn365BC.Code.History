@@ -10,11 +10,12 @@ codeunit 20342 "Tax Document Subledger Posting"
         GroupKey: Text;
         RecordVariant: Variant;
     begin
+        GenLineRecord := Record;
         RecordVariant := TempTransactionValue."Tax Record ID";
         GroupTaxPostingBuffer(TempTransactionValue, TaxPostingKeys);
 
         foreach GroupKey in TaxPostingKeys.Keys do
-            CreateTaxSubledger(TempTaxPostingBuffer, GroupKey, TaxPostingKeys.Get(GroupKey), TempTransactionValue);
+            CreateTaxSubledger(TempTaxPostingBuffer, TaxPostingKeys.Get(GroupKey), TempTransactionValue);
     end;
 
     local procedure GroupTaxPostingBuffer(var TempTransactionValue: Record "Tax Transaction Value" temporary; TaxPostingKeysBuffer: Dictionary of [Text, List of [RecordId]])
@@ -39,11 +40,11 @@ codeunit 20342 "Tax Document Subledger Posting"
 
     local procedure CreateTaxSubledger(
         var TempTaxPostingBuffer: Record "Transaction Posting Buffer" temporary;
-        GroupKey: Text;
         RecIDList: List of [RecordID];
         var TempTransactionValue: Record "Tax Transaction Value" temporary)
     var
         TempSymbols: Record "Script Symbol Value" temporary;
+        RecRef: RecordRef;
         FirstRecID: RecordId;
         RecordVariant: Variant;
         RecIDListEmptyErr: Label 'RecordID List is empty';
@@ -56,7 +57,12 @@ codeunit 20342 "Tax Document Subledger Posting"
         PopulateAttributeRateColumnVariables(FirstRecID, TempTransactionValue, TempSymbols);
         PopulateComponentVariables(RecIDList, TempTransactionValue, TempSymbols);
 
-        RecordVariant := FirstRecID;
+        RecRef.Get(FirstRecID);
+        if RecRef.Number = Database::"Gen. Journal Line" then
+            RecordVariant := GenLineRecord
+        else
+            RecordVariant := FirstRecID;
+
         PopulatePostingFieldVariablesAndExecute(
             TempTaxPostingBuffer,
             TempSymbols,
@@ -340,7 +346,7 @@ codeunit 20342 "Tax Document Subledger Posting"
     var
         SymbolStore: Codeunit "Script Symbol Store";
         DataTypeMgmt: Codeunit "Use Case Data Type Mgmt.";
+        GenLineRecord: Variant;
         SymbolDataType: Enum "Symbol Data Type";
         PostingFieldSymbol: Enum "Posting Field Symbol";
-        EmptyGuid: Guid;
 }

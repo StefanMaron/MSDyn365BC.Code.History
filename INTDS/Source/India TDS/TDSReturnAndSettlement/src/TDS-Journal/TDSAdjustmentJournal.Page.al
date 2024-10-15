@@ -17,6 +17,7 @@ page 18747 "TDS Adjustment Journal"
             group(General)
             {
                 Caption = 'General';
+
                 field("Current Jnl Batch Name"; CurrentJnlBatchName)
                 {
                     Caption = 'Batch Name';
@@ -45,10 +46,7 @@ page 18747 "TDS Adjustment Journal"
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         TDSEntry: Record "TDS Entry";
-                        TDSJnlBatch: Record "TDS Journal Batch";
-                        NoSeriesMgt: Codeunit NoSeriesManagement;
                         TDSEntriesList: Page "TDS Entries";
-                        DocumentNo: Code[20];
                     begin
                         TDSEntry.Reset();
                         TDSEntry.SetRange("TDS Paid", false);
@@ -71,121 +69,122 @@ page 18747 "TDS Adjustment Journal"
             }
             repeater(Line)
             {
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     Visible = false;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the creation date of the the entry';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of document of the entry on the adjustment journal line.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies document number for the adjustment journal.';
                 }
-                field("Assessee Code"; "Assessee Code")
+                field("Assessee Code"; Rec."Assessee Code")
                 {
                     Editable = false;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the assessee code for the entry on the journal line.';
                 }
-                field("TDS Section Code"; "TDS Section Code")
+                field("TDS Section Code"; Rec."TDS Section Code")
                 {
                     Editable = false;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the TDS section code for the entry on the journal line.';
                 }
-                field("TDS Base Amount"; "TDS Base Amount")
+                field("TDS Base Amount"; Rec."TDS Base Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total base amount including (TDS) on the adjustment journal line.';
                 }
-                field("TDS Base Amount Applied"; "TDS Base Amount Applied")
+                field("TDS Base Amount Applied"; Rec."TDS Base Amount Applied")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the TDS base amount to be applied on the adjustment journal line.';
                 }
-                field("TDS %"; "TDS %")
+                field("TDS %"; Rec."TDS %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the TDS % of the TDS entry the journal line is linked to.';
                 }
-                field("TDS % Applied"; "TDS % Applied")
+                field("TDS % Applied"; Rec."TDS % Applied")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the TDS % to be applied on the adjustment journal line.';
                 }
-                field("Surcharge %"; "Surcharge %")
+                field("Surcharge %"; Rec."Surcharge %")
                 {
                     Editable = false;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the surcharge % of the TDS entry the journal line is linked to.';
                 }
-                field("Surcharge % Applied"; "Surcharge % Applied")
+                field("Surcharge % Applied"; Rec."Surcharge % Applied")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the surcharge % to be applied on the adjustment journal line.';
                 }
-                field("eCESS %"; "eCESS %")
+                field("eCESS %"; Rec."eCESS %")
                 {
                     Editable = false;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the eCess % of the TDS entry the journal line is linked to.';
                 }
-                field("eCESS % Applied"; "eCESS % Applied")
+                field("eCESS % Applied"; Rec."eCESS % Applied")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the eCess % to be applied on the adjustment journal line.';
                 }
-                field("SHE Cess %"; "SHE Cess %")
+                field("SHE Cess %"; Rec."SHE Cess %")
                 {
                     Editable = false;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the SHE Cess % of the TDS entry the journal line is linked to.';
                 }
-                field("SHE Cess % Applied"; "SHE Cess % Applied")
+                field("SHE Cess % Applied"; Rec."SHE Cess % Applied")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the SHE Cess % to be applied on the adjustment journal line.';
                 }
-                field("Bal. TDS Including SHECESS"; "Bal. TDS Including SHE CESS")
+                field("Bal. TDS Including SHECESS"; Rec."Bal. TDS Including SHE CESS")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the balance TDS including SHE Cess on the adjustment journal line.';
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     Caption = 'TDS Deducted';
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the TDS deducted to be adjusted on the journal line.';
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     Editable = false;
                     ApplicationArea = Basic, Suite;
                     Visible = false;
                     ToolTip = 'Displays the external document number entered in the purchase/sales document/journal bank charges Line.';
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of account that the entry on the adjustment journal line to be posted to.';
+
                     trigger OnValidate()
                     begin
                         TDSJnlManagement.GetAccountsTax(Rec, AccName, BalAccName);
                     end;
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the account number that the entry on the adjustment journal line to be posted to.';
@@ -193,33 +192,34 @@ page 18747 "TDS Adjustment Journal"
                     trigger OnValidate()
                     begin
                         TDSJnlManagement.GetAccountsTax(Rec, AccName, BalAccName);
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description on adjustment journal line to be adjusted.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     Editable = false;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of amount including adjustment amount on the adjustment journal.';
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the balancing account type that should be used in adjustment journal line.';
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of balancing account type to which the balancing entry on the journal line will be posted.';
+
                     trigger OnValidate()
                     begin
                         TDSJnlManagement.GetAccountsTax(Rec, AccName, BalAccName);
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
             }
@@ -244,8 +244,8 @@ page 18747 "TDS Adjustment Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
-                        CurrPage.SAVERECORD();
+                        Rec.ShowDimensions();
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -254,13 +254,14 @@ page 18747 "TDS Adjustment Journal"
                 Caption = 'A&ccount';
                 Image = ChartOfAccounts;
                 ToolTip = 'View or change detailed information about the record on the document or journal line. (Shift +F7)';
+
                 action(Card)
                 {
                     Caption = 'Card';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'View or change detailed information about the record on the document or journal line. (Shift +F7)';
                     Image = EditLines;
-                    RunObject = Codeunit 15;
+                    RunObject = Codeunit "Gen. Jnl.-Show Card";
                     ShortCutKey = 'Shift+F7';
                 }
                 action("Ledger E&ntries")
@@ -281,6 +282,7 @@ page 18747 "TDS Adjustment Journal"
                 Caption = 'P&osting';
                 Image = Post;
                 ToolTip = 'Click Pay to transfer the total of the selected entries to the amount field of payment journal.';
+
                 action("P&ost")
                 {
                     Caption = 'P&ost';
@@ -298,73 +300,59 @@ page 18747 "TDS Adjustment Journal"
                         TDSAdjPost: Codeunit "TDS Adjustment Post";
                     begin
                         TDSAdjPost.PostTaxJournal(Rec);
-                        CurrentJnlBatchName := GETRANGEMAX("Journal Batch Name");
-                        CurrPage.UPDATE(FALSE);
+                        CurrentJnlBatchName := Rec.GetRangeMax("Journal Batch Name");
+                        CurrPage.Update(false);
                     end;
                 }
             }
         }
     }
+
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
         AfterGetCurrentRecord();
-    end;
-
-    trigger OnInit()
-    begin
-        TotalBalanceVisible := TRUE;
-        BalanceVisible := TRUE;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine(xRec, FALSE);
-        CLEAR(ShortcutDimCode);
-        CLEAR(AccName);
+        Rec.SetUpNewLine(xRec, false);
+        Clear(ShortcutDimCode);
+        Clear(AccName);
         AfterGetCurrentRecord();
     end;
 
     trigger OnOpenPage()
     var
         JnlSelected: Boolean;
-        FromTemplate: Enum "TDS Template Type";
     begin
         BalAccName := '';
-        OpenedFromBatch := ("Journal Batch Name" <> '') AND ("Journal Template Name" = '');
+        OpenedFromBatch := (Rec."Journal Batch Name" <> '') and (Rec."Journal Template Name" = '');
         if OpenedFromBatch then begin
-            CurrentJnlBatchName := "Journal Batch Name";
+            CurrentJnlBatchName := Rec."Journal Batch Name";
             TDSJnlManagement.OpenTaxJnl(CurrentJnlBatchName, Rec);
             exit
         end;
-        TDSJnlManagement.TaxTemplateSelection(PAGE::"TDS Adjustment Journal", FromTemplate::"TDS Adjustments", Rec, JnlSelected);
-        if NOT JnlSelected then
-            ERROR('');
+        TDSJnlManagement.TaxTemplateSelection(Page::"TDS Adjustment Journal", Rec, JnlSelected);
+        if not JnlSelected then
+            Error('');
         TDSJnlManagement.OpenTaxJnl(CurrentJnlBatchName, Rec);
     end;
 
     var
-        TDSEntry: Record "TDS Entry";
         TDSJnlManagement: Codeunit "TDS Jnl Management";
         TransactionNo: Integer;
-        TotalBalance: Decimal;
         CurrentJnlBatchName: Code[10];
         ShortcutDimCode: array[8] of Code[20];
         BalAccName: Text[100];
         AccName: Text[100];
-        ShowBalance: Boolean;
-        ShowTotalBalance: Boolean;
         OpenedFromBatch: Boolean;
-        [InDataSet]
-        BalanceVisible: Boolean;
-        [InDataSet]
-        TotalBalanceVisible: Boolean;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
         CurrPage.SAVERECORD();
         TDSJnlManagement.SetNameTax(CurrentJnlBatchName, Rec);
-        CurrPage.UPDATE(FALSE);
+        CurrPage.Update(false);
     end;
 
     local procedure AfterGetCurrentRecord()
@@ -376,114 +364,82 @@ page 18747 "TDS Adjustment Journal"
     local procedure InsertTDSJnlLine(TransactionNo: Integer)
     var
         GetTDSEntry: Record "TDS Entry";
-        TDSJnlLine: Record "TDS Journal Line";
-        TDSJnlBatch: Record "TDS Journal Batch";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        TDSJournalLine: Record "TDS Journal Line";
+        TDSJournalBatch: Record "TDS Journal Batch";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
         DocumentNo: Code[20];
         LineNo: Integer;
     begin
-        TDSJnlBatch.GET("Journal Template Name", "Journal Batch Name");
-        if TDSJnlBatch."No. Series" <> '' then begin
-            CLEAR(NoSeriesMgt);
-            DocumentNo := NoSeriesMgt.TryGetNextNo(TDSJnlBatch."No. Series", "Posting Date");
+        TDSJournalBatch.Get(Rec."Journal Template Name", Rec."Journal Batch Name");
+        if TDSJournalBatch."No. Series" <> '' then begin
+            Clear(NoSeriesManagement);
+            DocumentNo := NoSeriesManagement.TryGetNextNo(TDSJournalBatch."No. Series", Rec."Posting Date");
         end;
-        TDSJnlLine.LockTable();
-        TDSJnlLine.SETRANGE("Journal Template Name", "Journal Template Name");
-        TDSJnlLine.SETRANGE("Journal Batch Name", "Journal Batch Name");
-        if TDSJnlLine.FindLast() then
-            LineNo := TDSJnlLine."Line No." + 10000
+        TDSJournalLine.LockTable();
+        TDSJournalLine.SetRange("Journal Template Name", Rec."Journal Template Name");
+        TDSJournalLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
+        if TDSJournalLine.FindLast() then
+            LineNo := TDSJournalLine."Line No." + 10000
         else
             LineNo := 10000;
 
-        GetTDSEntry.GET(TransactionNo);
-        IF GetTDSEntry."TDS Base Amount" <> 0 then
-            InsertTDSJnlLineWithTDSAmt(TDSJnlLine, GetTDSEntry, DocumentNo, LineNo);
-        IF GetTDSEntry."Work Tax Amount" <> 0 then
-            InsertTDSJnlLineWithWorkTaxAmt(TDSJnlLine, GetTDSEntry, DocumentNo, LineNo);
+        GetTDSEntry.Get(TransactionNo);
+        if GetTDSEntry."TDS Base Amount" <> 0 then
+            InsertTDSJnlLineWithTDSAmt(TDSJournalLine, GetTDSEntry, DocumentNo, LineNo);
     end;
 
-    local procedure InsertTDSJnlLineWithTDSAmt(TDSJnlLine: Record "TDS Journal Line"; TDSEntry: Record "TDS Entry"; DocumentNo: Code[20]; LineNo: Integer)
+    local procedure InsertTDSJnlLineWithTDSAmt(
+        TDSJournalLine: Record "TDS Journal Line";
+        TDSEntry: Record "TDS Entry";
+        DocumentNo: Code[20];
+        LineNo: Integer)
+    var
+        SourceCodeSetup: Record "Source Code Setup";
     begin
-        TDSJnlLine.Init();
-        TDSJnlLine."Document No." := DocumentNo;
-        TDSJnlLine."Journal Template Name" := "Journal Template Name";
-        TDSJnlLine."Journal Batch Name" := "Journal Batch Name";
-        TDSJnlLine."Line No." := LineNo;
-        TDSJnlLine.Adjustment := TRUE;
-        TDSJnlLine."Posting Date" := WorkDate();
-        TDSJnlLine."Account Type" := TDSJnlLine."Account Type"::Vendor;
-        TDSJnlLine."Account No." := TDSEntry."Vendor No.";
-        TDSJnlLine."TDS Section Code" := TDSEntry.Section;
-        TDSJnlLine."Document Type" := TDSEntry."Document Type";
-        TDSJnlLine.Description := TDSEntry.Description;
-        TDSJnlLine."Concessional Code" := TDSEntry."Concessional Code";
-        TDSJnlLine."Per Contract" := TDSEntry."Per Contract";
-        TDSJnlLine."Assessee Code" := TDSEntry."Assessee Code";
-        TDSJnlLine."TDS Base Amount" := ABS(TDSEntry."TDS Base Amount");
-        TDSJnlLine."Surcharge Base Amount" := ABS(TDSEntry."Surcharge Base Amount");
-        TDSJnlLine."eCESS Base Amount" := ABS(TDSEntry."TDS Amount Including Surcharge");
-        TDSJnlLine."SHE Cess Base Amount" := ABS(TDSEntry."TDS Amount Including Surcharge");
-        IF TDSEntry.Adjusted THEN BEGIN
-            TDSJnlLine."TDS %" := TDSEntry."Adjusted TDS %";
-            TDSJnlLine."Surcharge %" := TDSEntry."Adjusted Surcharge %";
-            TDSJnlLine."eCESS %" := TDSEntry."Adjusted eCESS %";
-            TDSJnlLine."SHE Cess %" := TDSEntry."Adjusted SHE CESS %"
-        END ELSE BEGIN
-            TDSJnlLine."TDS %" := TDSEntry."TDS %";
-            TDSJnlLine."Surcharge %" := TDSEntry."Surcharge %";
-            TDSJnlLine."eCESS %" := TDSEntry."eCESS %";
-            TDSJnlLine."SHE Cess %" := TDSEntry."SHE Cess %";
-        END;
-        TDSJnlLine."Debit Amount" := TDSEntry."Total TDS Including SHE CESS";
-        TDSJnlLine."TDS Amount" := TDSEntry."TDS Amount";
-        TDSJnlLine."Surcharge Amount" := TDSEntry."Surcharge Amount";
-        TDSJnlLine."eCESS on TDS Amount" := TDSEntry."eCESS Amount";
-        TDSJnlLine."SHE Cess on TDS Amount" := TDSEntry."SHE Cess Amount";
-        TDSJnlLine."Bal. Account No." := TDSEntry."Account No.";
-        TDSJnlLine."TDS Invoice No." := TDSEntry."Document No.";
-        TDSJnlLine."TDS Transaction No." := TDSEntry."Entry No.";
-        TDSJnlLine."T.A.N. No." := TDSEntry."T.A.N. No.";
-        TDSJnlLine."Document Type" := TDSJnlLine."Document Type"::" ";
-        TDSJnlLine."Bal. TDS Including SHE CESS" := TDSEntry."Bal. TDS Including SHE CESS";
-        TDSJnlLine.Insert();
-        CurrPage.Update(false);
-    end;
-
-    local procedure InsertTDSJnlLineWithWorkTaxAmt(TDSJnlLine: Record "TDS Journal Line"; TDSEntry: Record "TDS Entry"; DocumentNo: Code[20]; LineNo: Integer)
-    begin
-        TDSJnlLine.Init();
-        TDSJnlLine."Document No." := DocumentNo;
-        TDSJnlLine."Journal Template Name" := "Journal Template Name";
-        TDSJnlLine."Journal Batch Name" := "Journal Batch Name";
-        TDSJnlLine."Line No." := LineNo + 10000;
-        TDSJnlLine.Adjustment := TRUE;
-        TDSJnlLine."Posting Date" := WorkDate();
-        TDSJnlLine."Account Type" := TDSJnlLine."Account Type"::Vendor;
-        TDSJnlLine."Account No." := TDSEntry."Vendor No.";
-        TDSJnlLine."Document Type" := TDSEntry."Document Type";
-        TDSJnlLine.Description := TDSEntry.Description;
-        TDSJnlLine."TDS Section Code" := TDSEntry.Section;
-        TDSJnlLine."Assessee Code" := TDSEntry."Assessee Code";
-        TDSJnlLine."Work Tax Nature Of Deduction" := TDSEntry."Work Tax Nature Of Deduction";
-        TDSJnlLine."Work Tax Base Amount" := ABS(TDSEntry."Work Tax Base Amount");
-        IF TDSEntry.Adjusted THEN
-            TDSJnlLine."Work Tax %" := TDSEntry."Adjusted Work Tax %"
-        ELSE
-            TDSJnlLine."Work Tax %" := TDSEntry."Work Tax %";
-        TDSJnlLine."Debit Amount" := TDSEntry."Balance Work Tax Amount";
-        TDSJnlLine."Work Tax Amount" := TDSEntry."Work Tax Amount";
-        TDSJnlLine."Surcharge Amount" := TDSEntry."Surcharge Amount";
-        TDSJnlLine."eCESS on TDS Amount" := TDSEntry."eCESS Amount";
-        TDSJnlLine."SHE Cess on TDS Amount" := TDSEntry."SHE Cess Amount";
-        TDSJnlLine."Bal. Account No." := TDSEntry."Work Tax Account";
-        TDSJnlLine."TDS Invoice No." := TDSEntry."Document No.";
-        TDSJnlLine."TDS Transaction No." := TDSEntry."Entry No.";
-        TDSJnlLine."T.A.N. No." := TDSEntry."T.A.N. No.";
-        TDSJnlLine."Document Type" := TDSJnlLine."Document Type"::" ";
-        TDSJnlLine."Bal. TDS Including SHE CESS" := TDSEntry."Bal. TDS Including SHE CESS";
-        TDSJnlLine."Work Tax" := TRUE;
-        TDSJnlLine.Insert();
+        SourceCodeSetup.Get();
+        SourceCodeSetup.TestField("TDS Adjustment Journal");
+        TDSJournalLine.Init();
+        TDSJournalLine."Document No." := DocumentNo;
+        TDSJournalLine."Journal Template Name" := Rec."Journal Template Name";
+        TDSJournalLine."Journal Batch Name" := Rec."Journal Batch Name";
+        TDSJournalLine."Line No." := LineNo;
+        TDSJournalLine.Adjustment := true;
+        TDSJournalLine."Posting Date" := WorkDate();
+        TDSJournalLine."Account Type" := TDSJournalLine."Account Type"::Vendor;
+        TDSJournalLine."Account No." := TDSEntry."Vendor No.";
+        TDSJournalLine."TDS Section Code" := TDSEntry.Section;
+        TDSJournalLine."Document Type" := TDSEntry."Document Type";
+        TDSJournalLine."Concessional Code" := TDSEntry."Concessional Code";
+        TDSJournalLine."Per Contract" := TDSEntry."Per Contract";
+        TDSJournalLine."Assessee Code" := TDSEntry."Assessee Code";
+        TDSJournalLine."TDS Base Amount" := Abs(TDSEntry."TDS Base Amount");
+        TDSJournalLine."Surcharge Base Amount" := Abs(TDSEntry."Surcharge Base Amount");
+        TDSJournalLine."eCESS Base Amount" := Abs(TDSEntry."TDS Amount Including Surcharge");
+        TDSJournalLine."SHE Cess Base Amount" := Abs(TDSEntry."TDS Amount Including Surcharge");
+        if TDSEntry.Adjusted then begin
+            TDSJournalLine."TDS %" := TDSEntry."Adjusted TDS %";
+            TDSJournalLine."Surcharge %" := TDSEntry."Adjusted Surcharge %";
+            TDSJournalLine."eCESS %" := TDSEntry."Adjusted eCESS %";
+            TDSJournalLine."SHE Cess %" := TDSEntry."Adjusted SHE CESS %"
+        end else begin
+            TDSJournalLine."TDS %" := TDSEntry."TDS %";
+            TDSJournalLine."Surcharge %" := TDSEntry."Surcharge %";
+            TDSJournalLine."eCESS %" := TDSEntry."eCESS %";
+            TDSJournalLine."SHE Cess %" := TDSEntry."SHE Cess %";
+        end;
+        TDSJournalLine."Debit Amount" := TDSEntry."Total TDS Including SHE CESS";
+        TDSJournalLine."TDS Amount" := TDSEntry."TDS Amount";
+        TDSJournalLine."Surcharge Amount" := TDSEntry."Surcharge Amount";
+        TDSJournalLine."eCESS on TDS Amount" := TDSEntry."eCESS Amount";
+        TDSJournalLine."SHE Cess on TDS Amount" := TDSEntry."SHE Cess Amount";
+        TDSJournalLine."Bal. Account No." := TDSEntry."Account No.";
+        TDSJournalLine."TDS Invoice No." := TDSEntry."Document No.";
+        TDSJournalLine."TDS Transaction No." := TDSEntry."Entry No.";
+        TDSJournalLine."T.A.N. No." := TDSEntry."T.A.N. No.";
+        TDSJournalLine."Document Type" := TDSJournalLine."Document Type"::" ";
+        TDSJournalLine."Bal. TDS Including SHE CESS" := TDSEntry."Bal. TDS Including SHE CESS";
+        TDSJournalLine."Source Code" := SourceCodeSetup."TDS Adjustment Journal";
+        TDSJournalLine.Insert();
         CurrPage.Update(false);
     end;
 }
-

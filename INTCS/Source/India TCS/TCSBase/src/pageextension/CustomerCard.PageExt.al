@@ -8,6 +8,7 @@ pageextension 18808 "Customer Card" extends "Customer Card"
             {
                 Caption = 'Tax Information';
                 Image = Action;
+
                 action("TCS Allowed NOC")
                 {
                     Caption = 'TCS Allowed NOC';

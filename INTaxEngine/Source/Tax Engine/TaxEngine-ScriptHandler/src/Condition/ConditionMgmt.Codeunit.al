@@ -94,22 +94,16 @@ codeunit 20161 "Condition Mgmt."
     var
         InvalidCalculationDatatypeErr: Label 'Invalid datatype for calculation.';
     begin
-        if LHS.IsBigInteger() then
-            CalcBigInteger(LHS, RHS, Operator, false, OutputValue)
+        if LHS.IsDecimal() then
+            CalcDecimal(LHS, RHS, Operator, false, OutputValue)
         else
-            if RHS.IsBigInteger() then
-                CalcBigInteger(RHS, LHS, Operator, true, OutputValue)
+            if RHS.IsDecimal() then
+                CalcDecimal(RHS, LHS, Operator, true, OutputValue)
             else
-                if LHS.IsDecimal() then
-                    CalcDecimal(LHS, RHS, Operator, false, OutputValue)
+                if LHS.IsInteger() then
+                    CalcInteger(LHS, RHS, Operator, OutputValue)
                 else
-                    if RHS.IsDecimal() then
-                        CalcDecimal(RHS, LHS, Operator, true, OutputValue)
-                    else
-                        if LHS.IsInteger() then
-                            CalcInteger(LHS, RHS, Operator, OutputValue)
-                        else
-                            Error(InvalidCalculationDatatypeErr);
+                    Error(InvalidCalculationDatatypeErr);
     end;
 
     local procedure CompareVariants(
@@ -119,8 +113,6 @@ codeunit 20161 "Condition Mgmt."
     begin
         if LHS.IsDecimal() or RHS.IsDecimal() then
             exit(CompareDecimals(LHS, RHS, Operator));
-        if LHS.IsBigInteger() or RHS.IsBigInteger() then
-            exit(CompareBigIntegers(LHS, RHS, Operator));
         if LHS.IsInteger() or RHS.IsInteger() then
             exit(CompareIntegers(LHS, RHS, Operator));
 
@@ -144,40 +136,6 @@ codeunit 20161 "Condition Mgmt."
     local procedure CompareDecimals(
         LHS: Decimal;
         RHS: Decimal;
-        Operator: Enum "Conditional Operator"): Boolean;
-    begin
-        case Operator of
-            Operator::equals:
-                exit(LHS = RHS);
-            Operator::"not equals":
-                exit(LHS <> RHS);
-            Operator::"is empty":
-                exit(LHS = 0);
-            Operator::"is not empty":
-                exit(LHS <> 0);
-            Operator::"begins with",
-          Operator::"does not begin with",
-          Operator::"ends with",
-          Operator::"does not end with",
-          Operator::contains,
-          Operator::"does not contain",
-          Operator::"equals ignore case",
-          Operator::"contains ignore case":
-                exit(false);
-            Operator::"is greater than":
-                exit(LHS > RHS);
-            Operator::"is greater than or equals to":
-                exit(LHS >= RHS);
-            Operator::"is less than":
-                exit(LHS < RHS);
-            Operator::"is less than or equals to":
-                exit(LHS <= RHS);
-        end;
-    end;
-
-    local procedure CompareBigIntegers(
-        LHS: BigInteger; RHS:
-        BigInteger;
         Operator: Enum "Conditional Operator"): Boolean;
     begin
         case Operator of
@@ -451,94 +409,6 @@ codeunit 20161 "Condition Mgmt."
             Operator::"is less than or equals to":
                 exit(LHS <= RHS);
         end;
-    end;
-
-    local procedure CalcBigInteger(
-        Value1: BigInteger;
-        Value2: Variant;
-        Operator: Enum "Arithmetic Operator";
-        Swap: Boolean;
-        var OutputValue: Variant);
-    var
-        Value2BigInteger: BigInteger;
-        Value2Decimal: Decimal;
-        Value2Integer: Integer;
-    begin
-        if Value2.IsBigInteger() then begin
-            Value2BigInteger := Value2;
-
-            case Operator of
-                Operator::"divided by":
-                    if Swap then
-                        OutputValue := Value2BigInteger / Value1
-                    else
-                        OutputValue := Value1 / Value2BigInteger;
-                Operator::minus:
-                    if Swap then
-                        OutputValue := Value2BigInteger - Value1
-                    else
-                        OutputValue := Value1 - Value2BigInteger;
-                Operator::"mod":
-                    if Swap then
-                        OutputValue := Value2BigInteger MOD Value1
-                    else
-                        OutputValue := Value1 MOD Value2BigInteger;
-                Operator::"multiply by":
-                    OutputValue := Value1 * Value2BigInteger;
-                Operator::plus:
-                    OutputValue := Value1 + Value2BigInteger;
-            end;
-        end else
-            if Value2.IsDecimal() then begin
-                Value2Decimal := Value2;
-
-                case Operator of
-                    Operator::"divided by":
-                        if Swap then
-                            OutputValue := Value2Decimal / Value1
-                        else
-                            OutputValue := Value1 / Value2Decimal;
-                    Operator::minus:
-                        if Swap then
-                            OutputValue := Value2Decimal - Value1
-                        else
-                            OutputValue := Value1 - Value2Decimal;
-                    Operator::"mod":
-                        if Swap then
-                            OutputValue := Value2Decimal MOD Value1
-                        else
-                            OutputValue := Value1 MOD Value2Decimal;
-                    Operator::"multiply by":
-                        OutputValue := Value1 * Value2Decimal;
-                    Operator::plus:
-                        OutputValue := Value1 + Value2Decimal;
-                end;
-            end else
-                if Value2.IsInteger() then begin
-                    Value2Integer := Value2;
-
-                    case Operator of
-                        Operator::"divided by":
-                            if Swap then
-                                OutputValue := Value2Integer / Value1
-                            else
-                                OutputValue := Value1 / Value2Integer;
-                        Operator::minus:
-                            if Swap then
-                                OutputValue := Value2Integer - Value1
-                            else
-                                OutputValue := Value1 - Value2Integer;
-                        Operator::"mod":
-                            if Swap then
-                                OutputValue := Value2Integer MOD Value1
-                            else
-                                OutputValue := Value1 MOD Value2Integer;
-                        Operator::"multiply by":
-                            OutputValue := Value1 * Value2Integer;
-                        Operator::plus:
-                            OutputValue := Value1 + Value2Integer;
-                    end;
-                end;
     end;
 
     local procedure CalcDecimal(

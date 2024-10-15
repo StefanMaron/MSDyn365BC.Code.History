@@ -439,25 +439,10 @@ report 18010 "Purchase - Credit Memo GST"
                         column(TaxAmountCaption; TaxAmountCaptionLbl)
                         {
                         }
-                        column(ServiceTaxAmtCaption; ServiceTaxAmtCaptionLbl)
-                        {
-                        }
                         column(OtherTaxesAmtCaption; OtherTaxesAmtCaptionLbl)
                         {
                         }
                         column(ChargesAmountCaption; ChargesAmountCaptionLbl)
-                        {
-                        }
-                        column(ServiceTaxeCessAmtCaption; ServiceTaxeCessAmtCaptionLbl)
-                        {
-                        }
-                        column(ServiceTaxSHECessAmtCaption; ServiceTaxSHECessAmtCaptionLbl)
-                        {
-                        }
-                        column(ServTaxSBCAmtCaption; ServTaxSBCAmtCaptionLbl)
-                        {
-                        }
-                        column(KKCessAmtCaption; KKCessAmtCaptionLbl)
                         {
                         }
                         column(PaymentDisconVATCaption; PaymentDisconVATCaptionLbl)
@@ -490,7 +475,7 @@ report 18010 "Purchase - Credit Memo GST"
                         column(IGSTAmt; IGSTAmt)
                         {
                         }
-                        column(UGSTAmt; UGSTAmt)
+                        column(CessAmt; CessAmt)
                         {
                         }
                         dataitem(DimensionLoop2; Integer)
@@ -522,9 +507,6 @@ report 18010 "Purchase - Credit Memo GST"
                         }
 
                         trigger OnAfterGetRecord()
-                        var
-                            TaxTrnasactionValue: Record "Tax Transaction Value";
-                            DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
                         begin
                             if (Type = Type::"G/L Account") and (not ShowInternalInfo) then
                                 "No." := '';
@@ -545,24 +527,12 @@ report 18010 "Purchase - Credit Memo GST"
 
                             AllowInvDiscount := Format("Purch. Cr. Memo Line"."Allow Invoice Disc.");
 
-                            DetailedGSTLedger.Reset();
-                            DetailedGSTLedger.SetRange("Document No.", "Purch. Cr. Memo Line"."Document No.");
-                            if DetailedGSTLedger.FindSet() then
-                                repeat
-                                    if DetailedGSTLedger."GST Component Code" = 'CGST' then
-                                        CGSTAmt += Abs(DetailedGSTLedger."GST Amount");
-                                    if DetailedGSTLedger."GST Component Code" = 'SGST' then
-                                        SGSTAmt += Abs(DetailedGSTLedger."GST Amount");
-                                    if DetailedGSTLedger."GST Component Code" = 'IGST' then
-                                        IGSTAmt += Abs(DetailedGSTLedger."GST Amount");
-                                    if DetailedGSTLedger."GST Component Code" = 'UGST' then
-                                        UGSTAmt += Abs(DetailedGSTLedger."GST Amount");
-                                until DetailedGSTLedger.Next() = 0;
+                            GetGSTAmount("Purch. Cr. Memo Hdr.", "Purch. Cr. Memo Line");
 
                             TotalSubTotal += "Line Amount";
                             TotalInvoiceDiscountAmount -= "Inv. Discount Amount";
                             TotalAmount += Amount;
-                            TotalAmountInclVAT += "Line Amount" + CGSTAmt + SGSTAmt + IGSTAmt + UGSTAmt;
+                            TotalAmountInclVAT += "Line Amount" + CGSTAmt + SGSTAmt + IGSTAmt + CessAmt;
                             TotalPaymentDiscountOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
                         end;
 
@@ -788,10 +758,6 @@ report 18010 "Purchase - Credit Memo GST"
                     TotalInvoiceDiscountAmount := 0;
                     TotalAmount := 0;
                     TotalAmountInclVAT := 0;
-                    CGSTAmt := 0;
-                    SGSTAmt := 0;
-                    IGSTAmt := 0;
-                    UGSTAmt := 0;
                     TotalPaymentDiscountOnVAT := 0;
                     ChargesAmount := 0;
                     OtherTaxesAmount := 0;
@@ -817,8 +783,6 @@ report 18010 "Purchase - Credit Memo GST"
             var
                 PurchCrMemoLine: Record "Purch. Cr. Memo Line";
             begin
-                CurrReport.LANGUAGE := Language.GetLanguageID("Language Code");
-
                 CompanyInfo.Get();
                 IsGSTApplicable := CheckGSTDoc("Purch. Cr. Memo Line");
                 Vendor.Get("Buy-from Vendor No.");
@@ -905,7 +869,6 @@ report 18010 "Purchase - Credit Memo GST"
 
     requestpage
     {
-        SaveValues = true;
 
         layout
         {
@@ -995,7 +958,6 @@ report 18010 "Purchase - Credit Memo GST"
         CompanyInfo2: Record "Company Information";
         CompanyInfo3: Record "Company Information";
         CompanyInfo: Record "Company Information";
-        DetailedGSTLedger: Record "Detailed GST Ledger Entry";
         SalesPurchPerson: Record "Salesperson/Purchaser";
         VATAmountLine: Record "VAT Amount Line";
         DimSetEntry1: Record "Dimension Set Entry";
@@ -1003,7 +965,6 @@ report 18010 "Purchase - Credit Memo GST"
         RespCenter: Record "Responsibility Center";
         CurrExchRate: Record "Currency Exchange Rate";
         Vendor: Record Vendor;
-        Language: Codeunit Language;
         PurchCrMemoCountPrinted: Codeunit "PurchCrMemo-Printed";
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;
@@ -1030,7 +991,6 @@ report 18010 "Purchase - Credit Memo GST"
         OutputNo: Integer;
         CopyText: Text;
         DimText: Text;
-        OldDimText: Text;
         ShowInternalInfo: Boolean;
         Continue: Boolean;
         LogInteraction: Boolean;
@@ -1047,17 +1007,15 @@ report 18010 "Purchase - Credit Memo GST"
         TotalSubTotal: Decimal;
         TotalAmount: Decimal;
         TotalAmountInclVAT: Decimal;
-        TotalAmountVAT: Decimal;
         TotalInvoiceDiscountAmount: Decimal;
         TotalPaymentDiscountOnVAT: Decimal;
-        VendGSTReg: Code[40];
         CGSTAmt: Decimal;
         SGSTAmt: Decimal;
         IGSTAmt: Decimal;
-        UGSTAmt: Decimal;
+        CessAmt: Decimal;
         IsGSTApplicable: Boolean;
         PurchLbl: Label 'Purchase %1', Comment = '%1 = GLSetup."LCY Code"';
-        TotalLbl: Label 'Total Amount';
+        TotalLbl: Label 'Total Amount %1', Comment = '%1= GLSetup LCY Code';
         AppliesToLbl: Label '(Applies to %1 %2)', Comment = '%1 = docNo %2 = DocType';
         CopYLbl: Label 'COPY';
         PurchCredLbl: Label 'Purchase - Credit Memo%1', Comment = '%1 Document No.';
@@ -1086,13 +1044,14 @@ report 18010 "Purchase - Credit Memo GST"
         AmountCaptionLbl: Label 'Amount';
         ContinuedCaptionLbl: Label 'Continued';
         SubtotalCaptionLbl: Label 'Subtotal';
+        CGSTLbl: Label 'CGST';
+        SGSTLbl: Label 'SGST';
+        IGSTLbl: Label 'IGST';
+        CessLbl: Label 'CESS';
         ExciseAmountCaptionLbl: Label 'Excise Amount';
         TaxAmountCaptionLbl: Label 'Tax Amount';
-        ServiceTaxAmtCaptionLbl: Label 'Service Tax Amount';
         OtherTaxesAmtCaptionLbl: Label 'Other Taxes Amount';
         ChargesAmountCaptionLbl: Label 'Charges Amount';
-        ServiceTaxeCessAmtCaptionLbl: Label 'Service Tax eCess Amount';
-        ServiceTaxSHECessAmtCaptionLbl: Label 'Service Tax SHECess Amount';
         PaymentDisconVATCaptionLbl: Label 'Payment Discount on VAT';
         AllowInvDiscCaptionLbl: Label 'Allow Invoice Discount';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
@@ -1106,8 +1065,6 @@ report 18010 "Purchase - Credit Memo GST"
         TotalCaptionLbl: Label 'Total';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
         InvDiscountAmtCaptionLbl: Label 'Invoice Discount Amount';
-        ServTaxSBCAmtCaptionLbl: Label 'SBC Amount';
-        KKCessAmtCaptionLbl: Label 'KK Cess Amount';
         CompanyRegistrationLbl: Label 'Company Registration No.';
         VendorRegistrationLbl: Label 'Vendor GST Reg No.';
 
@@ -1178,5 +1135,64 @@ report 18010 "Purchase - Credit Memo GST"
         until DimSetEntry.Next() = 0;
 
         exit(DimensionText)
+    end;
+
+    procedure GetGSTRoundingPrecision(ComponentName: Code[30]): Decimal
+    var
+        TaxComponent: Record "Tax Component";
+        GSTSetup: Record "GST Setup";
+        GSTRoundingPrecision: Decimal;
+    begin
+        if not GSTSetup.Get() then
+            exit;
+        GSTSetup.TestField("GST Tax Type");
+
+        TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
+        TaxComponent.SetRange(Name, ComponentName);
+        TaxComponent.FindFirst();
+        if TaxComponent."Rounding Precision" <> 0 then
+            GSTRoundingPrecision := TaxComponent."Rounding Precision"
+        else
+            GSTRoundingPrecision := 1;
+        exit(GSTRoundingPrecision);
+    end;
+
+    local procedure GetGSTAmount(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PurchCrMemoLine: Record "Purch. Cr. Memo Line")
+    var
+        DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+    begin
+        Clear(IGSTAmt);
+        Clear(CGSTAmt);
+        Clear(SGSTAmt);
+        Clear(CessAmt);
+        DetailedGSTLedgerEntry.Reset();
+        DetailedGSTLedgerEntry.SetRange("Document No.", PurchCrMemoLine."Document No.");
+        if DetailedGSTLedgerEntry.FindSet() then
+            repeat
+                if (DetailedGSTLedgerEntry."GST Component Code" = CGSTLbl) And (PurchCrMemoHdr."Currency Code" <> '') then
+                    CGSTAmt += Round((Abs(DetailedGSTLedgerEntry."GST Amount") * PurchCrMemoHdr."Currency Factor"), GetGSTRoundingPrecision(DetailedGSTLedgerEntry."GST Component Code"))
+                else
+                    if (DetailedGSTLedgerEntry."GST Component Code" = CGSTLbl) then
+                        CGSTAmt += Abs(DetailedGSTLedgerEntry."GST Amount");
+
+                if (DetailedGSTLedgerEntry."GST Component Code" = SGSTLbl) And (PurchCrMemoHdr."Currency Code" <> '') then
+                    SGSTAmt += Round((Abs(DetailedGSTLedgerEntry."GST Amount") * PurchCrMemoHdr."Currency Factor"), GetGSTRoundingPrecision(DetailedGSTLedgerEntry."GST Component Code"))
+                else
+                    if (DetailedGSTLedgerEntry."GST Component Code" = SGSTLbl) then
+                        SGSTAmt += Abs(DetailedGSTLedgerEntry."GST Amount");
+
+                if (DetailedGSTLedgerEntry."GST Component Code" = IGSTLbl) And (PurchCrMemoHdr."Currency Code" <> '') then
+                    IGSTAmt += Round((Abs(DetailedGSTLedgerEntry."GST Amount") * PurchCrMemoHdr."Currency Factor"), GetGSTRoundingPrecision(DetailedGSTLedgerEntry."GST Component Code"))
+                else
+                    if (DetailedGSTLedgerEntry."GST Component Code" = IGSTLbl) then
+                        IGSTAmt += Abs(DetailedGSTLedgerEntry."GST Amount");
+
+                if (DetailedGSTLedgerEntry."GST Component Code" = CessLbl) And (PurchCrMemoHdr."Currency Code" <> '') then
+                    CessAmt += Round((Abs(DetailedGSTLedgerEntry."GST Amount") * PurchCrMemoHdr."Currency Factor"), GetGSTRoundingPrecision(DetailedGSTLedgerEntry."GST Component Code"))
+                else
+                    if (DetailedGSTLedgerEntry."GST Component Code" = CessLbl) then
+                        CessAmt += Abs(DetailedGSTLedgerEntry."GST Amount");
+            until DetailedGSTLedgerEntry.Next() = 0;
     end;
 }

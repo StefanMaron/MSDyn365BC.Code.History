@@ -29,7 +29,7 @@ codeunit 7325 "Whse.-Output Prod. Release"
                     if ProdOrderLine."Location Code" <> LocationCode2 then
                         CreateWhseRqst(ProdOrderLine, ProdHeader);
                     LocationCode2 := ProdOrderLine."Location Code";
-                until ProdOrderLine.Next = 0;
+                until ProdOrderLine.Next() = 0;
         end;
         exit(WhseRqstCreated);
     end;
@@ -88,7 +88,7 @@ codeunit 7325 "Whse.-Output Prod. Release"
                            (ProdOrderLine2."Remaining Quantity" <> 0)
                         then
                             KeepWhseRqst := true;
-                    until (ProdOrderLine2.Next = 0) or KeepWhseRqst;
+                    until (ProdOrderLine2.Next() = 0) or KeepWhseRqst;
             end;
 
             if not KeepWhseRqst then
@@ -171,7 +171,7 @@ codeunit 7325 "Whse.-Output Prod. Release"
                             WhseRqstCreated := false;
                     end;
                     OnAfterCheckWhseRqstProdOrderLine(ProdOrderLine2, WhseRqst, WhseRqstCreated);
-                until (ProdOrderLine2.Next = 0) or not WhseRqstCreated;
+                until (ProdOrderLine2.Next() = 0) or not WhseRqstCreated;
         end;
         exit(WhseRqstCreated);
     end;

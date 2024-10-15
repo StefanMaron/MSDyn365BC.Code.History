@@ -1,7 +1,7 @@
 codeunit 18081 "GST Purhase No. Series"
 {
     //No Series for Purchase
-    [EventSubscriber(ObjectType::Table, database::"Purchase Header", 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnpurchaseAfterInsertEvent(var Rec: Record "Purchase Header")
     var
         PostingNoSeries: Record "Posting No. Series";
@@ -14,7 +14,7 @@ codeunit 18081 "GST Purhase No. Series"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, database::"Purchase header", 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
     local procedure BuyFromVendor(var Rec: Record "Purchase Header")
     var
         PostingNoSeries: Record "Posting No. Series";
@@ -25,8 +25,7 @@ codeunit 18081 "GST Purhase No. Series"
         Rec := Record;
     end;
 
-
-    [EventSubscriber(ObjectType::Table, database::"Purchase Header", 'OnAfterValidateEvent', 'Buy-from Contact No.', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterValidateEvent', 'Buy-from Contact No.', false, false)]
     local procedure BuyfromContactNo(var Rec: Record "Purchase Header")
     var
         PostingNoSeries: Record "Posting No. Series";
@@ -37,7 +36,7 @@ codeunit 18081 "GST Purhase No. Series"
         Rec := Record;
     end;
 
-    [EventSubscriber(ObjectType::Table, database::"Purchase Header", 'OnAfterValidateEvent', 'Pay-to Contact No.', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterValidateEvent', 'Pay-to Contact No.', false, false)]
     local procedure PaytoContactNo(var Rec: Record "Purchase Header")
     var
         PostingNoSeries: Record "Posting No. Series";
@@ -48,7 +47,7 @@ codeunit 18081 "GST Purhase No. Series"
         Rec := Record;
     end;
 
-    [EventSubscriber(ObjectType::Table, database::"Purchase Header", 'OnAfterValidateEvent', 'trading', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterValidateEvent', 'trading', false, false)]
     local procedure Purchasetrading(var Rec: Record "Purchase Header")
     var
         PostingNoSeries: Record "Posting No. Series";
@@ -59,7 +58,7 @@ codeunit 18081 "GST Purhase No. Series"
         Rec := Record;
     end;
 
-    [EventSubscriber(ObjectType::Table, database::"Purchase Header", 'OnAfterValidateEvent', 'Invoice Type', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterValidateEvent', 'Invoice Type', false, false)]
     local procedure PurchaseInvoiceType(var Rec: Record "Purchase Header")
     var
         PostingNoSeries: Record "Posting No. Series";
@@ -70,7 +69,7 @@ codeunit 18081 "GST Purhase No. Series"
         Rec := Record;
     end;
 
-    [EventSubscriber(ObjectType::Table, database::"Purchase Header", 'OnBeforeValidateEvent', 'Location Code', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnBeforeValidateEvent', 'Location Code', false, false)]
     local procedure PurchaseLocation(var Rec: Record "Purchase Header")
     var
         PostingNoSeries: Record "Posting No. Series";

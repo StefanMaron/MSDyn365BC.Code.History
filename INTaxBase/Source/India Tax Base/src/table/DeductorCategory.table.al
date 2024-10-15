@@ -39,6 +39,7 @@ table 18545 "Deductor Category"
             DataClassification = EndUserIdentifiableInformation;
         }
     }
+
     keys
     {
         key(PK; Code)

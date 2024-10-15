@@ -2,7 +2,7 @@ enum 18045 "Sales Invoice Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; "Bill of Supply")
     {

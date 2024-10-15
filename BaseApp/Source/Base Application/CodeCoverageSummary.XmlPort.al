@@ -54,7 +54,7 @@ xmlport 9990 "Code Coverage Summary"
                                 "<ObjectCoverage>" := Format(CodeCoverageMgt.FunctionCoverage("Code Coverage", TotalLines, HitLines));
                             end;
                         else
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
 
                     LinesHit := Format(HitLines);

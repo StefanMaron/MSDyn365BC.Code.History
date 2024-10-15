@@ -8,7 +8,7 @@ table 20306 "Tax Use Case"
     {
         field(1; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(2; "Tax Table ID"; Integer)
@@ -18,12 +18,12 @@ table 20306 "Tax Use Case"
         }
         field(4; "Description"; Text[2000])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Description';
         }
         field(5; Enable; Boolean)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Enable';
             trigger OnValidate()
             begin
@@ -43,7 +43,7 @@ table 20306 "Tax Use Case"
         }
         field(7; "Parent Use Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Parent Use Case ID';
             TableRelation = "Tax Use Case".ID;
         }
@@ -59,24 +59,28 @@ table 20306 "Tax Use Case"
         }
         field(10; "Condition ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Condition ID';
         }
         field(16; "Computation Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Computation Script ID';
         }
         field(18; Code; Code[20])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Caption = 'Code';
         }
-        field(20; Version; Decimal)
+        field(20; "Major Version"; Integer)
         {
-            DataClassification = EndUserIdentifiableInformation;
-            DecimalPlaces = 2 : 5;
-            Caption = 'Version';
+            DataClassification = SystemMetadata;
+            Caption = 'Major Version';
+        }
+        field(21; "Minor Version"; Integer)
+        {
+            DataClassification = SystemMetadata;
+            Caption = 'Minor Version';
         }
         field(22; "Effective From"; DateTime)
         {
@@ -85,7 +89,7 @@ table 20306 "Tax Use Case"
         }
         field(23; "Status"; Enum "Use Case Status")
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Use Case Status';
         }
         field(24; "Changed By"; Text[80])
@@ -93,25 +97,19 @@ table 20306 "Tax Use Case"
             DataClassification = EndUserIdentifiableInformation;
             Caption = 'Changed By';
         }
-        //EXT-TODO:: Pulled from Posting Handler Extension
         field(20335; "Posting Table ID"; Integer)
         {
             DataClassification = SystemMetadata;
             Caption = 'Posting Table ID';
-            trigger OnValidate()
-
-            begin
-
-            end;
         }
         field(20336; "Posting Table Filter ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Posting Table Filter ID';
         }
         field(20337; "Posting Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Posting Script ID';
         }
     }
@@ -137,29 +135,20 @@ table 20306 "Tax Use Case"
         TestField("Tax Type");
     end;
 
-    trigger OnModify()
-    var
-        ScriptSymbolStore: Codeunit "Script Symbol Store";
-    begin
-        if Status = Status::Released then
-            ScriptSymbolStore.OnBeforeValidateIfUpdateIsAllowed(ID);
-    end;
-
     trigger OnDelete()
     begin
         ClearCaseIDOnUseCaseTree(ID);
-        DeleteAttributeMapping(ID);
-        DeleteColumnMapping(ID);
+        DeleteAttributeMapping();
+        DeleteColumnMapping();
         DeleteScript(ID, "Computation Script ID");
         DeleteScriptVariable("Computation Script ID");
         DeleteSwitchCases(ID);
         DeleteUseCaseCondition(ID, "Condition ID");
         DeleteUseCaseComponentCalculate(ID);
-        DeleteUseCaseEventRelation(ID);
         DeleteUseCaseSymbolLookup(ID, "Computation Script ID");
     end;
 
-    local procedure DeleteAttributeMapping(CaseId: Guid)
+    local procedure DeleteAttributeMapping()
     var
         UseCaseAttributeMapping: Record "Use Case Attribute Mapping";
     begin
@@ -168,7 +157,7 @@ table 20306 "Tax Use Case"
             UseCaseAttributeMapping.DeleteAll(true);
     end;
 
-    local procedure DeleteColumnMapping(CaseId: Guid)
+    local procedure DeleteColumnMapping()
     var
         UseCaseRateColumnRelation: Record "Use Case Rate Column Relation";
     begin
@@ -213,15 +202,6 @@ table 20306 "Tax Use Case"
     begin
         if not IsNullGuid(ConditionID) then
             ScriptEntityMgmt.DeleteCondition(CaseId, EmptyGuid, ConditionID);
-    end;
-
-    local procedure DeleteUseCaseEventRelation(CaseId: Guid)
-    var
-        UseCaseEventRelation: Record "Use Case Event Relation";
-    begin
-        UseCaseEventRelation.SetRange("Case ID", CaseId);
-        if not UseCaseEventRelation.IsEmpty() then
-            UseCaseEventRelation.DeleteAll(true);
     end;
 
     local procedure DeleteUseCaseSymbolLookup(CaseId: Guid; ScriptId: Guid)

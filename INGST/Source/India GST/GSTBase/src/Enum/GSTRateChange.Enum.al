@@ -2,7 +2,7 @@ enum 18032 "GST Rate Change"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; "Before Rate Change")
     {

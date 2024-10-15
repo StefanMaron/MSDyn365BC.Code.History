@@ -13,10 +13,10 @@ enum 20132 "Symbol Type"
     value(10; "Component Percent") { }
     value(11; "Attribute Table") { }
     value(12; Column) { }
-    value(50000; "Component Code") { }
-    value(50001; "Component Name") { }
-    value(50002; "Attribute Code") { }
-    value(50003; "Attribute Name") { }
-    value(50004; "Component Amount (LCY)") { }
+    value(20132; "Component Code") { }
+    value(20133; "Component Name") { }
+    value(20134; "Attribute Code") { }
+    value(20135; "Attribute Name") { }
+    value(20136; "Component Amount (LCY)") { }
     value(13; "Posting Field") { }
 }

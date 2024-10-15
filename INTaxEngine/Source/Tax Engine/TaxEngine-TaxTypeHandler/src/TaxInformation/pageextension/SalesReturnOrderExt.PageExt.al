@@ -2,7 +2,7 @@ pageextension 20260 "Sales Return Order Ext" extends "Sales Return Order"
 {
     layout
     {
-        addbefore(Control1900383207)
+        addfirst(factboxes)
         {
             part("Tax Information"; "Tax Information Factbox")
             {

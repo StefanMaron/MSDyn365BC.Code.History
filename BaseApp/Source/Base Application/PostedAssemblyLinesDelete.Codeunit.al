@@ -19,7 +19,7 @@ codeunit 902 "PostedAssemblyLines-Delete"
         if PostedAssemblyLine.Find('-') then
             repeat
                 PostedAssemblyLine.Delete(true);
-            until PostedAssemblyLine.Next = 0;
+            until PostedAssemblyLine.Next() = 0;
         ItemTrackingMgt.DeleteItemEntryRelation(
           DATABASE::"Posted Assembly Line", 0, PostedAssemblyHeader."No.", '', 0, 0, true);
 

@@ -2,7 +2,7 @@ enum 18002 "Application Doc Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Payment)
     {

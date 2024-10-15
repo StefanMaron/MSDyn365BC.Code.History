@@ -83,7 +83,7 @@ page 181 "Additional Customer Terms"
                 trigger OnAction()
                 begin
                     Validate(Accepted, true);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }

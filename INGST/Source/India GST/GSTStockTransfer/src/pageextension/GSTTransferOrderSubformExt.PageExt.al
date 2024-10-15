@@ -24,9 +24,22 @@ pageextension 18396 "GST Transfer Order Subform Ext" extends "Transfer Order Sub
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the Transfer Price for the item on the transfer line.';
+
                 trigger OnValidate()
                 begin
                     CurrPage.SaveRecord();
+                end;
+            }
+            field("GST Credit"; Rec."GST Credit")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies whether the GST credit should be availed or not';
+                trigger OnValidate()
+                var
+                    TaxCaseExecution: Codeunit "Use Case Execution";
+                begin
+                    CurrPage.SaveRecord();
+                    TaxCaseExecution.HandleEvent('OnAfterTransferPrirce', Rec, '', 0);
                 end;
             }
         }
@@ -36,6 +49,7 @@ pageextension 18396 "GST Transfer Order Subform Ext" extends "Transfer Order Sub
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the custom duty amount  on the transfer line.';
+
                 trigger OnValidate()
                 var
                     TaxCaseExecution: Codeunit "Use Case Execution";
@@ -48,6 +62,7 @@ pageextension 18396 "GST Transfer Order Subform Ext" extends "Transfer Order Sub
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the GST assessable value on the transfer line.';
+
                 trigger OnValidate()
                 var
                     TaxCaseExecution: Codeunit "Use Case Execution";

@@ -13,6 +13,7 @@ page 18203 "GST Distribution"
             group(General)
             {
                 Caption = 'General';
+
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -22,7 +23,7 @@ page 18203 "GST Distribution"
                     trigger OnAssistEdit()
                     begin
                         if Rec.AssistEdit(xRec) then
-                            CurrPage.UPDATE();
+                            CurrPage.Update();
                     end;
                 }
                 field("ISD Document Type"; Rec."ISD Document Type")
@@ -36,7 +37,8 @@ page 18203 "GST Distribution"
                     ApplicationArea = Basic, Suite;
                     Caption = 'From Location Code';
                     ToolTip = 'Specifies location code from which input will be distributed, input service distribution field need to be marked true for this location.';
-                    Trigger OnValidate()
+
+                    trigger OnValidate()
                     begin
                         EnableFillBufferLine();
                     end;
@@ -46,7 +48,8 @@ page 18203 "GST Distribution"
                     ApplicationArea = Basic, Suite;
                     Caption = 'From GSTIN No.';
                     ToolTip = 'Specifies from which GSTIN No. input credit will be distributed.';
-                    Trigger OnValidate()
+
+                    trigger OnValidate()
                     begin
                         EnableFillBufferLine();
                     end;
@@ -56,7 +59,8 @@ page 18203 "GST Distribution"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posting Date';
                     ToolTip = 'Specifies the entry''s Posting Date.';
-                    Trigger OnValidate()
+
+                    trigger OnValidate()
                     begin
                         EnableFillBufferLine();
                     end;
@@ -66,7 +70,8 @@ page 18203 "GST Distribution"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Dist. Document Type';
                     ToolTip = 'Specifies the document type as an identifier for distribution.';
-                    Trigger OnValidate()
+
+                    trigger OnValidate()
                     begin
                         EnableFillBufferLine();
                     end;
@@ -76,7 +81,8 @@ page 18203 "GST Distribution"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Dist. Credit Type';
                     ToolTip = 'Specifies if the distribution credit to be availed or not.';
-                    Trigger OnValidate()
+
+                    trigger OnValidate()
                     begin
                         EnableFillBufferLine();
                     end;
@@ -107,11 +113,12 @@ page 18203 "GST Distribution"
             }
             part(Subform; "GST Distribution Lines")
             {
-                SubPageLink = "Distribution No." = FIELD("No.");
+                SubPageLink = "Distribution No." = field("No.");
                 ApplicationArea = Basic, Suite;
             }
         }
     }
+
     actions
     {
         area(navigation)
@@ -120,9 +127,10 @@ page 18203 "GST Distribution"
             {
                 Caption = 'O&rder';
                 Image = "Order";
+
                 action(Dimensions)
                 {
-                    AccessByPermission = TableData 348 = R;
+                    AccessByPermission = TableData "Dimension" = R;
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     Promoted = false;
@@ -171,7 +179,7 @@ page 18203 "GST Distribution"
                         GSTDistribution.InsertDistComponentAmount(Rec."No.", false);
                         if GSTDistribution.PostGSTDistribution(Rec."No.", '', false) then begin
                             Message(GSTDistributionMsg);
-                            CurrPage.CLOSE();
+                            CurrPage.Close();
                         end;
                     end;
                 }
@@ -183,6 +191,10 @@ page 18203 "GST Distribution"
     begin
         EnableFillBufferLine();
     end;
+
+    var
+        GSTDistribution: Codeunit "GST Distribution";
+        ApplyBtnEnable: Boolean;
 
     local procedure ApplyEntries()
     var
@@ -270,11 +282,6 @@ page 18203 "GST Distribution"
         ApplyBtnEnable :=
           (Rec."From Location Code" <> '') and (Rec."Posting Date" <> 0D) and
           (Rec."Dist. Document Type" <> Rec."Dist. Document Type"::" ");
-        CurrPage.UPDATE();
+        CurrPage.Update();
     end;
-
-    var
-        GSTDistribution: Codeunit "GST Distribution";
-        ApplyBtnEnable: Boolean;
-
 }

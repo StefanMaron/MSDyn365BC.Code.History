@@ -45,7 +45,6 @@ page 20198 "Script Editor"
                     var
                         ActionText2: Text;
                     begin
-
                         if ("Action Type" = "Action Type"::DRAFTROW) then begin
                             Postition := GetPosition();
                             ScriptEditorMgmt.UpdateDraftRow(Rec, ActionText2);
@@ -138,7 +137,6 @@ page 20198 "Script Editor"
         SearchEditable: Boolean;
         DescriptionText: Text;
         ActionText: Text;
-        EmptyGuid: Guid;
         [InDataSet]
         EnableAddElseIFAction: Boolean;
         ActionTextStyle: Text;
@@ -211,12 +209,12 @@ page 20198 "Script Editor"
           "Action Type"::LOOPNTIMES,
           "Action Type"::LOOPWITHCONDITION,
           "Action Type"::LOOPTHROUGHRECORDS:
-                Exit(Format("Group Type"));
+                exit(Format("Group Type"));
             "Action Type"::DRAFTROW:
-                Exit('');
+                exit('');
             else begin
                     ScriptAction2.GET("Action Type");
-                    Exit(Format(ScriptAction2.Text));
+                    exit(Format(ScriptAction2.Text));
                 end;
         end;
     end;
@@ -293,7 +291,7 @@ page 20198 "Script Editor"
             UpdateEditorLines(ScriptContext)
         end;
 
-        Exit(Find(Which));
+        exit(Find(Which));
     end;
 
     trigger OnAfterGetRecord();

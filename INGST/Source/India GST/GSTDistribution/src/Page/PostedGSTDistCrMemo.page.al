@@ -61,7 +61,6 @@ page 18208 "Posted GST Dist.- Cr. Memo"
                     ToolTip = 'Specifies the document number assigned to the distribution before posting.Specifies the document number assigned to the distribution before posting.';
                 }
             }
-
             part(PostedGSTDistSubform; "Posted GST Dist. Subform")
             {
                 ApplicationArea = Basic, Suite;

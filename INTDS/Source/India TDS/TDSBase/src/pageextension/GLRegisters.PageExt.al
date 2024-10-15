@@ -14,7 +14,7 @@ pageextension 18685 "G/L Registers" extends "G/L Registers"
                 var
                     TDSManagement: Codeunit "TDS Entity Management";
                 begin
-                    TDSManagement.OpenTDSEntries("From Entry No.", "To Entry No.");
+                    TDSManagement.OpenTDSEntries(Rec."From Entry No.", Rec."To Entry No.");
                 end;
             }
         }

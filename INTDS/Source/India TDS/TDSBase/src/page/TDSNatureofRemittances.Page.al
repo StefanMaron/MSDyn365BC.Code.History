@@ -11,12 +11,12 @@ page 18692 "TDS Nature Of Remittances"
         {
             repeater(General)
             {
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specify the type of remittance deductee deals with.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies description of TDS nature of remittance.';

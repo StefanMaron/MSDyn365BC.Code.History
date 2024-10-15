@@ -2,35 +2,34 @@ enum 18047 "Tax Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; "Sales Tax")
     {
         Caption = 'Sales Tax';
     }
-    value(3; Excise)
+    value(2; Excise)
     {
         Caption = 'Excise';
     }
-    value(4; "Service Tax")
+    value(3; "Service Tax")
     {
         Caption = 'Service Tax';
     }
-    value(5; "GST Credit")
+    value(4; "GST Credit")
     {
         Caption = 'GST Credit';
     }
-    value(6; "GST Liability")
+    value(5; "GST Liability")
     {
         Caption = 'GST Liability';
     }
-    value(7; "GST TDS Credit")
+    value(6; "GST TDS Credit")
     {
         Caption = 'GST TDS Credit';
     }
-    value(8; "GST TCS Credit")
+    value(7; "GST TCS Credit")
     {
         Caption = 'GST TCS Credit';
     }
-
 }

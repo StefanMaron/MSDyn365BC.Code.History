@@ -5,38 +5,10 @@ codeunit 20292 "Use Case Entity Mgmt."
         UseCase: Record "Tax Use Case";
     begin
         UseCase.GET(CaseID);
-        Exit(UseCase."Tax Table ID");
-    end;
-
-    /// Table Linking
-    procedure CreateTableLinking(CaseID: Guid; TableID: Integer; LookupTableID: Integer): Guid;
-    var
-        UseCaseEventTableLink: Record "Use Case Event Table Link";
-    begin
-        UseCaseEventTableLink.Init();
-        UseCaseEventTableLink."Case ID" := CaseID;
-        UseCaseEventTableLink.ID := CreateGuid();
-        UseCaseEventTableLink."Table ID" := TableID;
-        UseCaseEventTableLink."Lookup Table ID" := LookupTableID;
-        UseCaseEventTableLink.Insert(true);
-        Commit();
-        Exit(UseCaseEventTableLink.ID);
-    end;
-
-    procedure DeleteTableLinking(CaseID: Guid; var ID: Guid): Guid;
-    var
-        UseCaseEventTableLink: Record "Use Case Event Table Link";
-    begin
-        if IsNullGuid(ID) then
-            Exit;
-
-        UseCaseEventTableLink.GET(CaseID, ID);
-        UseCaseEventTableLink.Delete(true);
-        ID := EmptyGuid;
+        exit(UseCase."Tax Table ID");
     end;
 
     /// Rate Column Relation
-
     procedure CreateRateColumnRelation(CaseID: Guid): Guid;
     var
         UseCaseRateColumnRelation: Record "Use Case Rate Column Relation";
@@ -46,7 +18,7 @@ codeunit 20292 "Use Case Entity Mgmt."
         UseCaseRateColumnRelation.ID := CreateGuid();
         UseCaseRateColumnRelation.Insert(true);
 
-        Exit(UseCaseRateColumnRelation.ID);
+        exit(UseCaseRateColumnRelation.ID);
     end;
 
     procedure DeleteRateColumnRelation(CaseID: Guid; ID: Guid);
@@ -70,7 +42,7 @@ codeunit 20292 "Use Case Entity Mgmt."
         UseCaseAttributeMapping.ID := CREATEGUID();
         UseCaseAttributeMapping.Insert(true);
 
-        Exit(UseCaseAttributeMapping.ID);
+        exit(UseCaseAttributeMapping.ID);
     end;
 
     procedure DeleteUseCaseAttributeMapping(CaseID: Guid; ID: Guid);
@@ -95,7 +67,7 @@ codeunit 20292 "Use Case Entity Mgmt."
         UseCaseComponentCalculation.ID := CREATEGUID();
         UseCaseComponentCalculation.Insert(true);
 
-        Exit(UseCaseComponentCalculation.ID);
+        exit(UseCaseComponentCalculation.ID);
     end;
 
     procedure DeleteComponentCalculation(CaseID: Guid; ID: Guid);
@@ -119,7 +91,7 @@ codeunit 20292 "Use Case Entity Mgmt."
         TaxComponentExpression."Component ID" := ID;
         TaxComponentExpression.Insert(true);
 
-        Exit(TaxComponentExpression.ID);
+        exit(TaxComponentExpression.ID);
     end;
 
     procedure DeleteTaxComponentExpression(CaseID: Guid; ID: Guid);
@@ -140,7 +112,7 @@ codeunit 20292 "Use Case Entity Mgmt."
         TaxTableRelation."Case ID" := CaseID;
         TaxTableRelation.ID := CreateGuid();
         TaxTableRelation.Insert(true);
-        Exit(TaxTableRelation.ID);
+        exit(TaxTableRelation.ID);
     end;
 
     procedure DeleteTableRelation(CaseID: Guid; var ID: Guid);
@@ -171,11 +143,35 @@ codeunit 20292 "Use Case Entity Mgmt."
             Error(CannotChangeReleasedUseCaseErr, TaxUseCase.Description);
     end;
 
+    local procedure ValidateUseCase(TaxUseCase: Record "Tax Use Case"; xTaxUseCase: Record "Tax Use Case")
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        if not CompanyInformation.Get() then
+            exit;
+
+        if (not xTaxUseCase.Enable) and (TaxUseCase.Enable) then begin
+            TaxUseCase.TestField(Status, TaxUseCase.Status::Released);
+            exit;
+        end;
+
+        if (TaxUseCase.Status = TaxUseCase.Status::Released) and (xTaxUseCase.Status = xTaxUseCase.Status::Draft) then
+            exit;
+
+        if TaxUseCase.Status = TaxUseCase.Status::Released then
+            Error(CannotChangeReleasedUseCaseErr, TaxUseCase.Description);
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Tax Type", 'OnBeforeDeleteTaxType', '', false, false)]
     local procedure OnAfterDeleteTaxType(TaxTypeCode: Code[20])
     var
         TaxUseCase: Record "Tax Use Case";
+        UseCaseMgmt: Codeunit "Use Case Mgmt.";
     begin
+        TaxUseCase.SetRange("Tax Type", TaxTypeCode);
+        UseCaseMgmt.DisableSelectedUseCases(TaxUseCase);
+
+        TaxUseCase.Reset();
         TaxUseCase.SetRange("Tax Type", TaxTypeCode);
         if not TaxUseCase.IsEmpty() then
             TaxUseCase.DeleteAll(true);
@@ -185,6 +181,18 @@ codeunit 20292 "Use Case Entity Mgmt."
     procedure OnBeforeValidateIfUpdateIsAllowed(CaseID: Guid)
     begin
         ValidateUseCase(CaseID);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Tax Use Case", 'OnBeforeModifyEvent', '', false, false)]
+    local procedure OnBeforeModifyTaxUseCase(var Rec: Record "Tax Use Case"; var xRec: Record "Tax Use Case"; RunTrigger: Boolean)
+    begin
+        if not RunTrigger then
+            exit;
+
+        if Format(Rec) = Format(xRec) then
+            exit;
+
+        ValidateUseCase(Rec, xRec);
     end;
 
     var

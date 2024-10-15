@@ -13,20 +13,20 @@ table 18869 "TCS Journal Batch"
         {
             NotBlank = true;
             TableRelation = "TCS Journal Template";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; Name; Code[10])
         {
             NotBlank = true;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(3; Description; Text[50])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(4; "Bal. Account Type"; Enum "Bal. Account Type")
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -35,60 +35,60 @@ table 18869 "TCS Journal Batch"
         }
         field(5; "Bal. Account No."; Code[20])
         {
-            DataClassification = EndUserIdentifiableInformation;
-            TableRelation = If ("Bal. Account Type" = const("G/L Account")) "G/L Account"
-            Else
-            If ("Bal. Account Type" = const(Customer)) Customer
-            Else
-            If ("Bal. Account Type" = const(Vendor)) Vendor
-            Else
-            If ("Bal. Account Type" = const("Bank Account")) "Bank Account";
+            DataClassification = CustomerContent;
+            TableRelation = if ("Bal. Account Type" = const("G/L Account")) "G/L Account"
+            else
+            if ("Bal. Account Type" = const(Customer)) Customer
+            else
+            if ("Bal. Account Type" = const(Vendor)) Vendor
+            else
+            if ("Bal. Account Type" = const("Bank Account")) "Bank Account";
 
             trigger OnValidate()
             begin
-                If "Bal. Account Type" = "Bal. Account Type"::"G/L Account" Then
+                if "Bal. Account Type" = "Bal. Account Type"::"G/L Account" then
                     CheckGLAcc("Bal. Account No.");
             end;
         }
         field(6; "No. Series"; Code[10])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "No. Series";
 
             trigger OnValidate()
             var
                 TCSJnlTemplate: Record "TCS Journal Template";
             begin
-                If "No. Series" <> '' Then Begin
+                if "No. Series" <> '' then begin
                     TCSJnlTemplate.Get("Journal Template Name");
-                    If "No. Series" = "Posting No. Series" Then
+                    if "No. Series" = "Posting No. Series" then
                         Validate("Posting No. Series", '');
                 end;
             end;
         }
         field(7; "Posting No. Series"; Code[10])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "No. Series";
 
             trigger OnValidate()
             var
                 ValueErr: Label 'must not be %1', Comment = '%1=The value.';
             begin
-                If ("Posting No. Series" = "No. Series") and ("Posting No. Series" <> '') Then
-                    FIELDError("Posting No. Series", STRSUBSTNO(ValueErr, "Posting No. Series"));
+                if ("Posting No. Series" = "No. Series") and ("Posting No. Series" <> '') then
+                    FieldError("Posting No. Series", StrSubstNo(ValueErr, "Posting No. Series"));
                 ModifyLines(FieldNo("Posting No. Series"));
                 Modify();
             end;
         }
         field(8; "Location Code"; Code[10])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = Location;
 
             trigger OnValidate()
             begin
-                If "Location Code" <> xRec."Location Code" Then Begin
+                if "Location Code" <> xRec."Location Code" then begin
                     ModifyLinesVouchers(FieldNo("Location Code"));
                     Modify();
                 end;
@@ -106,73 +106,73 @@ table 18869 "TCS Journal Batch"
 
     trigger OnDelete()
     var
-        TCSJnlLine: Record "TCS Journal Line";
+        TCSJournalLine: Record "TCS Journal Line";
     begin
-        TCSJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-        TCSJnlLine.SetRange("Journal Batch Name", Name);
-        TCSJnlLine.DeleteAll(True);
+        TCSJournalLine.SetRange("Journal Template Name", "Journal Template Name");
+        TCSJournalLine.SetRange("Journal Batch Name", Name);
+        TCSJournalLine.DeleteAll(true);
     end;
 
     trigger OnInsert()
     var
-        TCSJnlTemplate: Record "TCS Journal Template";
+        TCSJournalTemplate: Record "TCS Journal Template";
     begin
         LockTable();
-        TCSJnlTemplate.Get("Journal Template Name");
+        TCSJournalTemplate.Get("Journal Template Name");
     end;
 
     procedure SetupNewBatch()
     var
-        TCSJnlTemplate: Record "TCS Journal Template";
+        TCSJournalTemplate: Record "TCS Journal Template";
     begin
-        TCSJnlTemplate.Get("Journal Template Name");
-        "Bal. Account Type" := TCSJnlTemplate."Bal. Account Type";
-        "Bal. Account No." := TCSJnlTemplate."Bal. Account No.";
-        "No. Series" := TCSJnlTemplate."No. Series";
-        "Posting No. Series" := TCSJnlTemplate."Posting No. Series";
-    end;
-
-    local procedure CheckGLAcc(AccNo: Code[20])
-    var
-        GLAcc: Record "G/L Account";
-    begin
-        If AccNo <> '' Then Begin
-            GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc();
-            GLAcc.TestField("Direct Posting", True);
-        end;
+        TCSJournalTemplate.Get("Journal Template Name");
+        "Bal. Account Type" := TCSJournalTemplate."Bal. Account Type";
+        "Bal. Account No." := TCSJournalTemplate."Bal. Account No.";
+        "No. Series" := TCSJournalTemplate."No. Series";
+        "Posting No. Series" := TCSJournalTemplate."Posting No. Series";
     end;
 
     procedure ModifyLines(i: Integer)
     var
-        TCSJnlLine: Record "TCS Journal Line";
+        TCSJournalLine: Record "TCS Journal Line";
     begin
-        TCSJnlLine.LockTable();
-        TCSJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-        TCSJnlLine.SetRange("Journal Batch Name", Name);
-        If TCSJnlLine.FindSet() Then
+        TCSJournalLine.LockTable();
+        TCSJournalLine.SetRange("Journal Template Name", "Journal Template Name");
+        TCSJournalLine.SetRange("Journal Batch Name", Name);
+        if TCSJournalLine.FindSet() then
             repeat
-                Case i Of
+                case i of
                     FieldNo("Posting No. Series"):
-                        TCSJnlLine.Validate("Posting No. Series", "Posting No. Series");
+                        TCSJournalLine.Validate("Posting No. Series", "Posting No. Series");
                 end;
-                TCSJnlLine.Modify(True);
-            until TCSJnlLine.Next() = 0;
+                TCSJournalLine.Modify(true);
+            until TCSJournalLine.Next() = 0;
     end;
 
     procedure ModifyLinesVouchers(CurrFieldNo: Integer)
     var
-        TCSJnlLine: Record "TCS Journal Line";
+        TCSJournalLine: Record "TCS Journal Line";
     begin
-        TCSJnlLine.LockTable();
-        TCSJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-        TCSJnlLine.SetRange("Journal Batch Name", Name);
-        If TCSJnlLine.FindFirst() Then
-            Case CurrFieldNo Of
+        TCSJournalLine.LockTable();
+        TCSJournalLine.SetRange("Journal Template Name", "Journal Template Name");
+        TCSJournalLine.SetRange("Journal Batch Name", Name);
+        if TCSJournalLine.FindFirst() then
+            case CurrFieldNo of
                 FieldNo("Location Code"):
-                    TCSJnlLine.ModifyAll("Location Code", "Location Code");
+                    TCSJournalLine.ModifyAll("Location Code", "Location Code");
                 FieldNo("Posting No. Series"):
-                    TCSJnlLine.ModifyAll("Posting No. Series", "Posting No. Series");
+                    TCSJournalLine.ModifyAll("Posting No. Series", "Posting No. Series");
             end;
+    end;
+
+    local procedure CheckGLAcc(AccNo: Code[20])
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        if AccNo <> '' then begin
+            GLAccount.Get(AccNo);
+            GLAccount.CheckGLAcc();
+            GLAccount.TestField("Direct Posting", true);
+        end;
     end;
 }

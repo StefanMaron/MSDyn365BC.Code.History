@@ -1,7 +1,6 @@
 table 18687 "Allowed Sections"
 {
     Caption = 'Allowed Sections';
-    DataClassification = EndUserIdentifiableInformation;
     LookupPageId = "Allowed Sections";
     DrillDownPageId = "Allowed Sections";
     DataCaptionFields = "Vendor No", "TDS Section";
@@ -14,18 +13,18 @@ table 18687 "Allowed Sections"
         {
             Caption = 'Vendor No.';
             TableRelation = Vendor;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; "TDS Section"; Code[10])
         {
             Caption = 'TDS Section';
             TableRelation = "TDS Section";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(3; "Default Section"; Boolean)
         {
             Caption = 'Default Section';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -35,12 +34,12 @@ table 18687 "Allowed Sections"
         field(4; "Threshold Overlook"; Boolean)
         {
             Caption = 'Threshold Overlook';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(5; "Surcharge Overlook"; Boolean)
         {
             Caption = 'Surcharge Overlook';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(6; "TDS Section Description"; Text[100])
         {
@@ -52,21 +51,22 @@ table 18687 "Allowed Sections"
         field(7; "Non Resident Payments"; Boolean)
         {
             Caption = 'Non Resident Payments';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(8; "Nature of Remittance"; Code[10])
         {
             Caption = 'Nature of Remittance';
             TableRelation = "TDS Nature of Remittance";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(9; "Act Applicable"; Code[10])
         {
             Caption = 'Act Applicable';
             TableRelation = "Act Applicable";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
+
     keys
     {
         key(PK; "Vendor No", "TDS Section")
@@ -74,6 +74,7 @@ table 18687 "Allowed Sections"
             Clustered = true;
         }
     }
+
     fieldgroups
     {
         fieldgroup(DropDown; "TDS Section", "TDS Section Description")
@@ -88,7 +89,7 @@ table 18687 "Allowed Sections"
         DefaultErr: Label 'Default Section is already selected for TDS Section %1.', Comment = '%1 = Section';
     begin
         if rec."Default Section" then begin
-            AllowedSections.reset();
+            AllowedSections.Reset();
             AllowedSections.SetRange("Vendor No", "Vendor No");
             AllowedSections.SetRange("Default Section", true);
             if AllowedSections.FindFirst() then

@@ -1,4 +1,4 @@
-Codeunit 18351 "Validate Service Trans. Price"
+codeunit 18351 "Validate Service Trans. Price"
 {
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Use Case Event Library", 'OnAddUseCaseEventstoLibrary', '', false, false)]
     local procedure OnAddUseCaseEventstoLibrary()
@@ -17,14 +17,14 @@ Codeunit 18351 "Validate Service Trans. Price"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Tax Transaction Value", 'OnBeforeTableFilterApplied', '', false, false)]
-    local procedure OnBeforeTableFilterApplied(var TaxRecordID: RecordId; LineNoFilter: Integer; DocumentNoFilter: Text)
+    local procedure OnBeforeTableFilterApplied(var TaxRecordID: RecordID; LineNoFilter: Integer; DocumentNoFilter: Text)
     var
         ServieTransferLine: Record "Service Transfer Line";
     begin
         ServieTransferLine.Reset();
         ServieTransferLine.SetRange("Document No.", DocumentNoFilter);
         ServieTransferLine.SetRange("Line No.", LineNoFilter);
-        IF ServieTransferLine.FindFirst() then
+        if ServieTransferLine.FindFirst() then
             TaxRecordID := ServieTransferLine.RecordId();
     end;
 }

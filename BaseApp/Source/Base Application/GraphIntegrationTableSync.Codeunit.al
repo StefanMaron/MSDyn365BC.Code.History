@@ -81,7 +81,7 @@ codeunit 5451 "Graph Integration Table Sync"
                     if ModifiedOnIntegrationRecord."Modified On" > LatestModifiedOn then
                         LatestModifiedOn := ModifiedOnIntegrationRecord."Modified On";
                 end;
-        until (IntegrationRecord.Next = 0);
+        until (IntegrationRecord.Next() = 0);
 
         IntegrationTableSynch.EndIntegrationSynchJob;
 
@@ -126,7 +126,7 @@ codeunit 5451 "Graph Integration Table Sync"
                         if ModifiedOn > LatestModifiedOn then
                             LatestModifiedOn := ModifiedOn;
                     end;
-            until (SourceRecordRef.Next = 0);
+            until (SourceRecordRef.Next() = 0);
         end;
 
         IntegrationTableSynch.EndIntegrationSynchJob;
@@ -300,7 +300,7 @@ codeunit 5451 "Graph Integration Table Sync"
             end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5451, 'OnBeforeSynchronizationStart', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Integration Table Sync", 'OnBeforeSynchronizationStart', '', false, false)]
     local procedure IgnoreSyncBasedOnChangekey(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
     var
         GraphSubscriptionManagement: Codeunit "Graph Subscription Management";
@@ -340,7 +340,7 @@ codeunit 5451 "Graph Integration Table Sync"
     begin
         // Attempt to call an operation on the graph. If it fails, then a sync shouldn't be attempted.
         GraphRecordRef.Open(IntegrationTableMapping."Integration Table ID");
-        if GraphRecordRef.IsEmpty then;
+        if GraphRecordRef.IsEmpty() then;
     end;
 
     [IntegrationEvent(false, false)]

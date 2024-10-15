@@ -37,7 +37,6 @@ page 20251 "Rate Setup"
                     Caption = 'Linked Attribute Name';
                     ToolTip = 'Specifies the name of attribute. This will be only applicable where column type is either Range, Value or Output value.';
                     Editable = ("Column Type" = "Column Type"::Value);
-
                     trigger OnValidate()
                     begin
                         ScriptSymbolsMgmt.SetContext("Tax Type", EmptyGuid, EmptyGuid);
@@ -60,6 +59,16 @@ page 20251 "Rate Setup"
                                 "Linked Attribute ID",
                                 LinkedAttributeName2);
                     end;
+                }
+                field("Visible on Interface"; "Visible on Interface")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether column will be visible on tax information factbox.';
+                }
+                field("Allow Blank"; "Allow Blank")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether column on Rate Setup can be blank so that it can take priority if exact match is not found.';
                 }
             }
         }
@@ -100,6 +109,11 @@ page 20251 "Rate Setup"
             LinkedAttributeName2 := AttributeManagement.GetAttributeName("Linked Attribute ID")
         else
             LinkedAttributeName2 := '';
+    end;
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    begin
+        UpdateTransactionKeys();
     end;
 
     var

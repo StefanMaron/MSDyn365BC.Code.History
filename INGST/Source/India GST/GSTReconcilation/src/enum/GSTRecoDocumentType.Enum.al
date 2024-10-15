@@ -1,6 +1,5 @@
 enum 18281 "GSTReco Document Type"
 {
-    Extensible = true;
     value(0; Invoice)
     {
         Caption = 'Invoice';

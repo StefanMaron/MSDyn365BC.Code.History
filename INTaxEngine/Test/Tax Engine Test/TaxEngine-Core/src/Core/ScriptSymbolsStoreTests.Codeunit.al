@@ -39,6 +39,34 @@ codeunit 136704 "Script Symbols Store Tests"
     end;
 
     [Test]
+    procedure TestInitSymbolsWithTaxType()
+    var
+        TempSymbols: Record "Script Symbol Value" temporary;
+        ScriptSymbolStore: Codeunit "Script Symbol Store";
+        LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
+        CaseID: Guid;
+        ScriptID: Guid;
+    begin
+        // [SCENARIO] Initilize Symbols with System Type from 5000 to 5009 
+
+        // [GIVEN] Case ID, Script ID, Symbol Default Values
+        CaseID := CreateGuid();
+        ScriptID := CreateGuid();
+
+        // [WHEN] The function InitSymbols is called.
+        BindSubscription(LibraryScriptSymbolLookup);
+        ScriptSymbolStore.InitSymbolContext('VAT', CaseID);
+        ScriptSymbolStore.InsertSymbolValue("Symbol Type"::System, "Symbol Data Type"::String, 5000, 'TEST SYMBOL');
+        UnbindSubscription(LibraryScriptSymbolLookup);
+        ScriptSymbolStore.CopySymbols(TempSymbols);
+
+        // [THEN] It should create symbols in store from 5000 to 5009.
+        TempSymbols.SetRange("Symbol ID", 5000, 5009);
+        TempSymbols.SetRange(Type, TempSymbols.Type::System);
+        Assert.RecordIsNotEmpty(TempSymbols);
+    end;
+
+    [Test]
     procedure TestInsertSymbolValue()
     var
         TempSymbols: Record "Script Symbol Value" temporary;
@@ -250,7 +278,6 @@ codeunit 136704 "Script Symbols Store Tests"
     procedure TestInsertDictionaryValueWithNoValue()
     var
         ScriptSymbolStore: Codeunit "Script Symbol Store";
-        LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
         SymbolID: Integer;
         MemberID: Integer;
         MemberValue: Text;
@@ -331,8 +358,6 @@ codeunit 136704 "Script Symbols Store Tests"
     var
         TempSymbolMembers: Record "Script Symbol Member Value" Temporary;
         ScriptSymbolStore: Codeunit "Script Symbol Store";
-        LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
-
         SymbolID: Integer;
         MemberID: Integer;
         MemberValue: Date;

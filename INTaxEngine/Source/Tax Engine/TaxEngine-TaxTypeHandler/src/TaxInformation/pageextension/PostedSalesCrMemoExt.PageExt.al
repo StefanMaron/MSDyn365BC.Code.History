@@ -3,8 +3,7 @@ pageextension 20245 "Posted Sales Cr. Memo Ext" extends "Posted Sales Credit Mem
 
     layout
     {
-
-        addbefore(IncomingDocAttachFactBox)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

@@ -1,4 +1,4 @@
-Codeunit 18393 "Validate Transfer Price"
+codeunit 18393 "Validate Transfer Price"
 {
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Use Case Event Library", 'OnAddUseCaseEventstoLibrary', '', false, false)]
     local procedure OnAddUseCaseEventstoLibrary()
@@ -17,15 +17,14 @@ Codeunit 18393 "Validate Transfer Price"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Tax Transaction Value", 'OnBeforeTableFilterApplied', '', false, false)]
-    local procedure OnBeforeTableFilterApplied(var TaxRecordID: RecordId; LineNoFilter: Integer; DocumentNoFilter: Text)
+    local procedure OnBeforeTableFilterApplied(var TaxRecordID: RecordID; LineNoFilter: Integer; DocumentNoFilter: Text)
     var
         TransferLine: Record "Transfer Line";
     begin
         TransferLine.Reset();
         TransferLine.SetRange("Document No.", DocumentNoFilter);
         TransferLine.SetRange("Line No.", LineNoFilter);
-        IF TransferLine.FindFirst() then
+        if TransferLine.FindFirst() then
             TaxRecordID := TransferLine.RecordId();
     end;
-
 }

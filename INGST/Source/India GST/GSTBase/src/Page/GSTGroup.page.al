@@ -5,40 +5,49 @@ page 18001 "GST Group"
     UsageCategory = Lists;
     SourceTable = "GST Group";
     Caption = 'GST Group';
+
     layout
     {
         area(Content)
         {
             repeater(General)
             {
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code which needs to be assigned to identify a GST group, should be one unique code, both number and letters are allowed.';
-
                 }
-                field("GST Group Type"; "GST Group Type")
+                field("GST Group Type"; Rec."GST Group Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the GST group is assigned for goods or service.';
-
-
                 }
-                field("GST Place Of Supply"; "GST Place Of Supply")
+                field("GST Place Of Supply"; Rec."GST Place Of Supply")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the location state code which system should consider for GST calculation.';
-
-
+                    ToolTip = 'Specifies the GST Place of Supply. For example Bill-to Address, Ship-to Address, Location Address etc.';
                 }
-                field(Description; Description)
+                field("Component Calc. Type"; Rec."Component Calc. Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the type of calculation to be considered for the specified GST Group.';
+                }
+                field("Cess UOM"; Rec."Cess UOM")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the unit of measure code to be used for the calculation of Cess where calculation depends on amount per unit.';
+                }
+                field("Cess Credit"; Rec."Cess Credit")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether the credit is to be availed or not.';
+                }
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the GST group.';
-
-
                 }
-                field("Reverse Charge"; "Reverse Charge")
+                field("Reverse Charge"; Rec."Reverse Charge")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the reverse charge is applicable for this GST group or not.';
@@ -70,12 +79,10 @@ page 18001 "GST Group"
                     CurrPage.ObjectId(false),
                     StrSubstNo(CodeValueLbl, Rec.Code));
                 end;
-
-
             }
-
         }
     }
-    Var
+
+    var
         CodeValueLbl: Label 'Code %1', Comment = '%1 = GST Group Code';
 }

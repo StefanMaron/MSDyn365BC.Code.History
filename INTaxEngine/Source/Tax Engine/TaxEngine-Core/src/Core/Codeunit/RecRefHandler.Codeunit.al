@@ -96,7 +96,6 @@ codeunit 20131 "RecRef Handler"
     procedure SetFieldValue(var RecRef: RecordRef; FieldID: Integer; Value: Variant);
     var
         FldRef: FieldRef;
-        TmpFieldRef: FieldRef;
         TempValue: Variant;
         TypeNotSupportedLbl: Label '%1 not supported.', Comment = '%1 =Field Data type';
     begin

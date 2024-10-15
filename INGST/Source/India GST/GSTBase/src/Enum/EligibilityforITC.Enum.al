@@ -2,7 +2,7 @@ enum 18016 "Eligibility for ITC"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Ineligible)
     {

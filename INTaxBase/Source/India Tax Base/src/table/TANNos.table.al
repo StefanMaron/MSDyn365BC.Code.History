@@ -20,6 +20,7 @@ table 18548 "TAN Nos."
             DataClassification = EndUserIdentifiableInformation;
         }
     }
+
     keys
     {
         key(PK; Code)

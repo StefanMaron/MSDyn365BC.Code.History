@@ -142,7 +142,7 @@ report 5801 "Invt. Valuation - Cost Spec."
                         TotalRemAvg += RemainingQty;
 
                         IncrTotals;
-                    until ItemLedgerEntry.Next = 0;
+                    until ItemLedgerEntry.Next() = 0;
 
                     CalcAvgCost;
                 end;
@@ -263,7 +263,7 @@ report 5801 "Invt. Valuation - Cost Spec."
                 if Find('-') then
                     repeat
                         SumQty(RemainingQty, PosQty, "Outbound Item Entry No.", Quantity);
-                    until Next = 0;
+                    until Next() = 0;
             end else begin
                 Reset;
                 SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
@@ -273,7 +273,7 @@ report 5801 "Invt. Valuation - Cost Spec."
                 if Find('-') then
                     repeat
                         SumQty(RemainingQty, PosQty, "Inbound Item Entry No.", -Quantity);
-                    until Next = 0;
+                    until Next() = 0;
             end;
 
         if IsPositive then
@@ -308,7 +308,7 @@ report 5801 "Invt. Valuation - Cost Spec."
                         SumUnitCost(TotalCostTotal["Entry Type".AsInteger() + 1],
                           "Cost Amount (Actual)" + "Cost Amount (Expected)", ItemLedgerEntry.Quantity);
                     NoOfEntries["Entry Type".AsInteger() + 1] := 1;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

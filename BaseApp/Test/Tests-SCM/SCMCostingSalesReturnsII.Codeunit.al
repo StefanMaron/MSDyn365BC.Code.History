@@ -232,7 +232,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SelectSalesLines(SalesLine3, SalesHeader3."No.", SalesHeader."Document Type"::"Credit Memo");
         CopySalesLinesToTemp(TempSalesLine, SalesLine3);
         SalesLine3.SetRange(Type, SalesLine3.Type::"Charge (Item)");
-        SalesLine3.FindSet;
+        SalesLine3.FindSet();
         repeat
             CreateItemChargeAssignment(SalesLine3, SalesOrderNo);
         until SalesLine3.Next = 0;
@@ -997,7 +997,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", SalesHeaderNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     [Normal]
@@ -1026,7 +1026,11 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         CopySalesDocument: Report "Copy Sales Document";
     begin
         CopySalesDocument.SetSalesHeader(SalesHeader);
+#if CLEAN17
+        CopySalesDocument.SetParameters(DocType, DocNo, IncludeHeader, RecalcLines);
+#else
         CopySalesDocument.InitializeRequest(DocType, DocNo, IncludeHeader, RecalcLines);
+#endif
         CopySalesDocument.UseRequestPage(false);
         CopySalesDocument.RunModal;
     end;
@@ -1034,7 +1038,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     [Normal]
     local procedure CopySalesLinesToTemp(var TempSalesLine: Record "Sales Line" temporary; var SalesLine: Record "Sales Line")
     begin
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             TempSalesLine := SalesLine;
             TempSalesLine.Insert();
@@ -1075,7 +1079,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     var
         Counter: Integer;
     begin
-        TempItem.FindSet;
+        TempItem.FindSet();
         for Counter := 1 to TempItem.Count do begin
             LibraryCosting.AdjustCostItemEntries(TempItem."No.", '');
             TempItem.Next;
@@ -1085,7 +1089,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     [Normal]
     local procedure VerifySalesAmount(var TempSalesLine: Record "Sales Line" temporary; SalesHeader: Record "Sales Header"; SalesOrderNo: Code[20])
     begin
-        TempSalesLine.FindSet;
+        TempSalesLine.FindSet();
         VerifyCustLedgerEntry(TempSalesLine, SalesHeader);
 
         repeat
@@ -1102,7 +1106,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     begin
         with ItemLedgerEntry do begin
             SetRange("Item No.", Item."No.");
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Cost Amount (Actual)");
                 Assert.AreEqual(Item."Unit Cost" * Quantity, "Cost Amount (Actual)", ItemLedgCostAmountErr);
@@ -1121,7 +1125,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesShipmentLine.SetRange("Order No.", SalesOrderNo);
         SalesShipmentLine.FindFirst;
         TempSalesLine.SetRange(Type, TempSalesLine.Type::"Charge (Item)");
-        TempSalesLine.FindSet;
+        TempSalesLine.FindSet();
         CalcSalesAmountWithCharge :=
           SalesShipmentLine.Quantity * SalesShipmentLine."Unit Price" - TempSalesLine.Quantity * TempSalesLine."Unit Price";
 
@@ -1147,13 +1151,13 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         ReturnReceiptHeader.FindFirst;
         ReturnReceiptLine.SetRange("Document No.", ReturnReceiptHeader."No.");
         ReturnReceiptLine.SetRange(Type, ReturnReceiptLine.Type::Item);
-        ReturnReceiptLine.FindSet;
+        ReturnReceiptLine.FindSet();
 
         repeat
             CalcSalesAmount += ReturnReceiptLine.Quantity * ReturnReceiptLine."Unit Price";
         until ReturnReceiptLine.Next = 0;
         ItemLedgerEntry.SetRange("Document No.", ReturnReceiptHeader."No.");
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
 
         repeat
             ItemLedgerEntry.CalcFields("Sales Amount (Actual)");
@@ -1183,7 +1187,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     [Normal]
     local procedure CalcCustCrMemoAmount(var TempSalesLine: Record "Sales Line" temporary) TotalAmountIncVAT: Decimal
     begin
-        TempSalesLine.FindSet;
+        TempSalesLine.FindSet();
         repeat
             TotalAmountIncVAT +=
               TempSalesLine.Quantity * TempSalesLine."Unit Price" +

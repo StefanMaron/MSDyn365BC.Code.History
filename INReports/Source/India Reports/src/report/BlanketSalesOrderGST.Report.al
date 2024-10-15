@@ -532,9 +532,6 @@ report 18006 "Blanket Sales Order GST"
                         var
                             TaxTrnasactionValue: Record "Tax Transaction Value";
                             TaxTrnasactionValue1: Record "Tax Transaction Value";
-                            TaxTrnasactionValue2: Record "Tax Transaction Value";
-                            DocType1: Enum "Document Type Enum";
-                            DocType: Text;
                         begin
                             if Number = 1 then
                                 TempSalesLine.FindFirst()
@@ -1027,8 +1024,6 @@ report 18006 "Blanket Sales Order GST"
         CompanyInfo2: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         Customer: Record "Customer";
-        GSTComponent: Record "GST Component";
-        DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
         SalesSetup: Record "Sales & Receivables Setup";
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         TempSalesLine: Record "Sales Line" temporary;
@@ -1061,7 +1056,6 @@ report 18006 "Blanket Sales Order GST"
         ShowShippingAddr: Boolean;
         i: Integer;
         DimText: Text[120];
-        OldDimText: Text[75];
         ShowIntInfo: Boolean;
         Continue: Boolean;
         VATAmount: Decimal;
@@ -1077,7 +1071,6 @@ report 18006 "Blanket Sales Order GST"
         VALExchRate: Text[50];
         ChargesAmount: Decimal;
         OtherTaxesAmount: Decimal;
-        TotalInclVAT: Decimal;
         TotalAmounttoCustomer: Decimal;
         [InDataSet]
         LogInteractionEnable: Boolean;

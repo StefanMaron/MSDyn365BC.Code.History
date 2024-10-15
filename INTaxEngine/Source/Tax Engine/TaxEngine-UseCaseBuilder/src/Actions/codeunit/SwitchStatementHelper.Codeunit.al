@@ -20,7 +20,7 @@ codeunit 20284 "Switch Statement Helper"
         SwitchStatement.ID := CreateGuid();
         SwitchStatement.Insert();
 
-        Exit(SwitchStatement.ID);
+        exit(SwitchStatement.ID);
     end;
 
     procedure DeleteSwitchStatement(CaseID: Guid; ID: Guid);

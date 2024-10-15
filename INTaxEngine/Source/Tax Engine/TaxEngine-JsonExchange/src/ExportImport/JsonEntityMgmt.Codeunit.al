@@ -10,7 +10,7 @@ codeunit 20360 "Json Entity Mgmt."
         LookupTableSorting.ID := CreateGuid();
         LookupTableSorting."Table ID" := TableID;
         LookupTableSorting.Insert(true);
-        Exit(LookupTableSorting.ID);
+        exit(LookupTableSorting.ID);
     end;
 
     procedure CreateTableFilters(CaseID: Guid; ScriptID: Guid; TableID: Integer): Guid;
@@ -24,20 +24,6 @@ codeunit 20360 "Json Entity Mgmt."
         LookupTableFilter."Table ID" := TableID;
         LookupTableFilter.Insert(true);
         exit(LookupTableFilter.ID);
-    end;
-    /// Table Linking
-    procedure CreateTableLinking(CaseID: Guid; TableID: Integer; LookupTableID: Integer): Guid;
-    var
-        UseCaseEventTableLink: Record "Use Case Event Table Link";
-    begin
-        UseCaseEventTableLink.Init();
-        UseCaseEventTableLink."Case ID" := CaseID;
-        UseCaseEventTableLink.ID := CreateGuid();
-        UseCaseEventTableLink."Table ID" := TableID;
-        UseCaseEventTableLink."Lookup Table ID" := LookupTableID;
-        UseCaseEventTableLink.Insert(true);
-        Commit();
-        Exit(UseCaseEventTableLink.ID);
     end;
 
     procedure CreateLookup(CaseID: Guid; ScriptID: Guid): Guid;
@@ -262,8 +248,6 @@ codeunit 20360 "Json Entity Mgmt."
                 ActionID := CreateDateCalculation(CaseID, ScriptID);
             ActionType::DATETODATETIME:
                 ActionID := CreateDateToDateTime(CaseID, ScriptID);
-            ActionType::GETRECORD:
-                ActionID := CreateGetRecord(CaseID, ScriptID);
             ActionType::ALERTMESSAGE:
                 ActionID := CreateAlertMessage(CaseID, ScriptID);
             ActionType::LOOPTHROUGHRECORDS:
@@ -395,19 +379,6 @@ codeunit 20360 "Json Entity Mgmt."
         ActionDateToDateTime.Insert();
 
         exit(ActionDateToDateTime.ID);
-    end;
-
-    procedure CreateGetRecord(CaseID: Guid; ScriptID: Guid): Guid;
-    var
-        ActionGetRecord: Record "Action Get Record";
-    begin
-        ActionGetRecord.Init();
-        ActionGetRecord."Case ID" := CaseID;
-        ActionGetRecord."Script ID" := ScriptID;
-        ActionGetRecord.ID := CreateGuid();
-        ActionGetRecord.Insert();
-
-        exit(ActionGetRecord.ID);
     end;
 
     procedure CreateAlertMessage(CaseID: Guid; ScriptID: Guid): Guid;

@@ -16,11 +16,13 @@ page 18929 "Voucher Posting Debit Accounts"
                 {
                     Caption = 'Type';
                     ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK or a cash account.';
                 }
                 field("Account No."; "Account No.")
                 {
                     Caption = 'Account No.';
                     ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the general ledger or bank account that the balancing entry is posted to, such as a cash account.';
                 }
             }
         }

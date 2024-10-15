@@ -5,7 +5,7 @@ tableextension 18716 "Purchase Line" extends "Purchase Line"
         field(18716; "TDS Section Code"; Code[10])
         {
             Caption = 'TDS Section Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             trigger OnValidate()
             var
                 TDSSection: Record "TDS Section";
@@ -14,19 +14,49 @@ tableextension 18716 "Purchase Line" extends "Purchase Line"
                 if "TDS Section Code" <> '' then
                     if not TDSSection.Get("TDS Section Code") then
                         Error(SectionErr, TDSSection, TDSSection.TableCaption());
+
+                if ("TDS Section Code" <> '') or ((xRec."TDS Section Code" <> '') and ("TDS Section Code" = '')) then
+                    UpdateTaxAmountOnCurrentDocument();
             end;
         }
         field(18717; "Nature of Remittance"; Code[10])
         {
             Caption = 'Nature of Remittance';
             TableRelation = "TDS Nature of Remittance";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(18718; "Act Applicable"; Code[10])
         {
             Caption = 'Act Applicable';
             TableRelation = "Act Applicable";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+        }
+        modify("Direct Unit Cost")
+        {
+            trigger OnAfterValidate()
+            var
+            begin
+                if ("TDS Section Code" <> '') or ((xRec."TDS Section Code" <> '') and ("TDS Section Code" = '')) then
+                    UpdateTaxAmountOnCurrentDocument();
+            end;
+        }
+        modify("Line Discount %")
+        {
+            trigger OnAfterValidate()
+            var
+            begin
+                if ("TDS Section Code" <> '') or ((xRec."TDS Section Code" <> '') and ("TDS Section Code" = '')) then
+                    UpdateTaxAmountOnCurrentDocument();
+            end;
+        }
+        modify("Inv. Discount Amount")
+        {
+            trigger OnAfterValidate()
+            var
+            begin
+                if ("TDS Section Code" <> '') or ((xRec."TDS Section Code" <> '') and ("TDS Section Code" = '')) then
+                    UpdateTaxAmountOnCurrentDocument();
+            end;
         }
     }
     procedure OnAfterTDSSectionCodeLookupPurchLine(var PurchLine: Record "Purchase Line"; VendorNo: Code[20]; SetTDSSection: boolean)
@@ -93,6 +123,26 @@ tableextension 18716 "Purchase Line" extends "Purchase Line"
         AllowedSections.SetRange("Non Resident Payments", true);
         if AllowedSections.IsEmpty then
             Error(NonResidentPaymentsSelectionErr, Rec."Buy-from Vendor No.");
+    end;
+
+    local procedure UpdateTaxAmountOnCurrentDocument()
+    var
+        PurchaseLine: Record "Purchase Line";
+        CalculateTax: Codeunit "Calculate Tax";
+    begin
+        PurchaseLine.SetRange("Document Type", "Document Type");
+        PurchaseLine.SetRange("Document No.", "Document No.");
+        PurchaseLine.SetRange("Line No.", "Line No.");
+        if not PurchaseLine.IsEmpty() then
+            Modify();
+
+        PurchaseLine.SetRange("Document Type", "Document Type");
+        PurchaseLine.SetRange("Document No.", "Document No.");
+        PurchaseLine.SetFilter("Line No.", '<>%1', "Line No.");
+        if PurchaseLine.FindSet() then
+            repeat
+                CalculateTax.CallTaxEngineOnPurchaseLine(PurchaseLine, PurchaseLine);
+            until PurchaseLine.Next() = 0;
     end;
 
     var

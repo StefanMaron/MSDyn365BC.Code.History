@@ -105,31 +105,37 @@ report 18008 "Purchase Order GST"
                     column(Vendor_GST_RegistrationNo; Vendor."GST Registration No.")
                     {
                     }
-                    column(GSTComponentCode1; GSTComponentCodeName[2] + ' Amount')
+                    column(GSTComponentCode1; GSTComponentCodeName[6] + ' Amount')
                     {
                     }
-                    column(GSTComponentCode2; GSTComponentCodeName[3] + ' Amount')
+                    column(GSTComponentCode2; GSTComponentCodeName[2] + ' Amount')
                     {
                     }
-                    column(GSTComponentCode3; GSTComponentCodeName[5] + ' Amount')
+                    column(GSTComponentCode3; GSTComponentCodeName[3] + ' Amount')
                     {
                     }
-                    column(GSTComponentCode4; GSTComponentCodeName[6] + ' Amount')
+                    column(GSTComponentCode4; GSTComponentCodeName[5] + ' Amount')
                     {
                     }
-                    column(GSTCompAmount1; Abs(GSTCompAmount[2]))
+                    column(GSTCompAmount1; Abs(SGSTAmt))
                     {
                     }
-                    column(GSTCompAmount2; Abs(GSTCompAmount[3]))
+                    column(GSTCompAmount2; Abs(CGSTAmt))
                     {
                     }
-                    column(GSTCompAmount3; Abs(GSTCompAmount[5]))
+                    column(GSTCompAmount3; Abs(IGSSTAmt))
                     {
                     }
-                    column(GSTCompAmount4; Abs(GSTCompAmount[6]))
+                    column(GSTCompAmount4; Abs(0.00))
                     {
                     }
                     column(TDSAmt; TDSAmt)
+                    {
+                    }
+                    column(CessAmount; CessAmount)
+                    {
+                    }
+                    column(GLAccountNo; GLAccountNo)
                     {
                     }
                     column(IsGSTApplicable; IsGSTApplicable)
@@ -264,7 +270,6 @@ report 18008 "Purchase Order GST"
                         column(HdrDimsCaption; HdrDimsCaptionLbl)
                         {
                         }
-
                         trigger OnAfterGetRecord()
                         begin
                             DimText := GetDimensionText(DimSetEntry1, Number, Continue);
@@ -284,7 +289,6 @@ report 18008 "Purchase Order GST"
                                        "Document No." = field("No.");
                         DataItemLinkReference = "Purchase Header";
                         DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
-
 
                         trigger OnPreDataItem()
                         begin
@@ -357,21 +361,6 @@ report 18008 "Purchase Order GST"
                             AutoFormatExpression = "Purchase Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PurchLineExciseAmount; 0)
-                        {
-                            AutoFormatExpression = "Purchase Header"."Currency Code";
-                            AutoFormatType = 1;
-                        }
-                        column(PurchLineTaxAmount; 'PurchLine."Tax Amount"')
-                        {
-                            AutoFormatExpression = "Purchase Header"."Currency Code";
-                            AutoFormatType = 1;
-                        }
-                        column(PurchLineServiceTaxAmount; 0)
-                        {
-                            AutoFormatExpression = "Purchase Header"."Currency Code";
-                            AutoFormatType = 1;
-                        }
                         column(OtherTaxesAmount; OtherTaxesAmount)
                         {
                             AutoFormatExpression = "Purchase Header"."Currency Code";
@@ -382,22 +371,7 @@ report 18008 "Purchase Order GST"
                             AutoFormatExpression = "Purchase Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(PurchLineTotalTDSIncludingSheCess; -TotalServiceTaxTDSSHEeCessAmount)
-                        {
-                            AutoFormatExpression = "Purchase Header"."Currency Code";
-                            AutoFormatType = 1;
-                        }
-                        column(PurchLineWorkTaxAmount; 0)
-                        {
-                            AutoFormatExpression = "Purchase Header"."Currency Code";
-                            AutoFormatType = 1;
-                        }
-                        column(PurchLineSerTaxeCessAmt; 0)
-                        {
-                            AutoFormatExpression = "Purchase Header"."Currency Code";
-                            AutoFormatType = 1;
-                        }
-                        column(PurchLineSerTaxSHECessAmt; 0)
+                        column(PurchLineTotalTDSIncludingSheCess; 0)
                         {
                             AutoFormatExpression = "Purchase Header"."Currency Code";
                             AutoFormatType = 1;
@@ -441,24 +415,6 @@ report 18008 "Purchase Order GST"
                             AutoFormatExpression = "Purchase Header"."Currency Code";
                             AutoFormatType = 1;
                         }
-                        column(TotalServiceTaxAmount; TotalServiceTaxAmount)
-                        {
-                        }
-                        column(TotalServiceTaxeCessAmount; TotalServiceTaxeCessAmount)
-                        {
-                        }
-                        column(TotalServiceTaxSHE2CessAmt; TotalServiceTaxSHE2CessAmount)
-                        {
-                        }
-                        column(TotalSerTaxTDSSHEeCessAmt; TotalServiceTaxTDSSHEeCessAmount)
-                        {
-                        }
-                        column(TotalServiceWorkTaxAmount; TotalServiceWorkTaxAmount)
-                        {
-                        }
-                        column(TotalExciseAmount; TotalExciseAmount)
-                        {
-                        }
                         column(TotalTaxAmount; TotalTaxAmount)
                         {
                         }
@@ -477,13 +433,7 @@ report 18008 "Purchase Order GST"
                         column(SubtotalCaption; SubtotalCaptionLbl)
                         {
                         }
-                        column(ExciseAmtCaption; ExciseAmtCaptionLbl)
-                        {
-                        }
                         column(TaxAmtCaption; TaxAmtCaptionLbl)
-                        {
-                        }
-                        column(ServTaxAmtCaption; ServTaxAmtCaptionLbl)
                         {
                         }
                         column(OtherTaxesAmtCaption; OtherTaxesAmtCaptionLbl)
@@ -493,15 +443,6 @@ report 18008 "Purchase Order GST"
                         {
                         }
                         column(TotalTDSIncleSHECessCaption; TotalTDSIncleSHECessCaptionLbl)
-                        {
-                        }
-                        column(WorkTaxAmtCaption; WorkTaxAmtCaptionLbl)
-                        {
-                        }
-                        column(ServTaxeCessAmtCaption; ServTaxeCessAmtCaptionLbl)
-                        {
-                        }
-                        column(ServTaxeSHECessAmtCaption; ServTaxeSHECessAmtCaptionLbl)
                         {
                         }
                         column(VATDiscAmtCaption; VATDiscAmtCaptionLbl)
@@ -519,24 +460,6 @@ report 18008 "Purchase Order GST"
                         column(UnitofMeasure_PurchaseLineCaption; "Purchase Line".FieldCaption("Unit of Measure"))
                         {
                         }
-                        column(ServTaxeSBCAmt; 0)
-                        {
-                        }
-                        column(ServTaxSBCAmtCaption; ServTaxSBCAmtCaptionLbl)
-                        {
-                        }
-                        column(TotalServiceTaxSBCAmount; TotalServiceTaxSBCAmount)
-                        {
-                        }
-                        column(KKCessAmt; 0)
-                        {
-                        }
-                        column(KKCessAmtCaption; KKCessAmtCaptionLbl)
-                        {
-                        }
-                        column(TotalKKCessAmount; TotalKKCessAmount)
-                        {
-                        }
                         column(TotalGSTAmount; TotalGSTAmount)
                         {
                         }
@@ -548,7 +471,6 @@ report 18008 "Purchase Order GST"
                             column(LineDimsCaption; LineDimsCaptionLbl)
                             {
                             }
-
                             trigger OnAfterGetRecord()
                             begin
                                 DimText := GetDimensionText(DimSetEntry2, Number, Continue);
@@ -566,98 +488,39 @@ report 18008 "Purchase Order GST"
 
                         trigger OnAfterGetRecord()
                         var
-                            TaxTrnasactionValue: Record "Tax Transaction Value";
-                            TaxTrnasactionValue1: Record "Tax Transaction Value";
-                            TaxTrnasactionValue2: Record "Tax Transaction Value";
-                            PurchLine1: Record "Purchase Line";
+                            TaxTransactionValue: Record "Tax Transaction Value";
+                            GSTSetup: Record "GST Setup";
+                            TDSSetup: Record "TDS Setup";
                         begin
+                            if not GSTSetup.Get() then
+                                exit;
+
+                            if not TDSSetup.Get() then
+                                exit;
+
                             if Number = 1 then
                                 TempPurchLine.FindFirst()
                             else
                                 TempPurchLine.Next();
                             "Purchase Line" := TempPurchLine;
-                            if (TempPurchLine.Type <> TempPurchLine.Type::" ") then begin
-                                j := 1;
-                                TaxTrnasactionValue.Reset();
-                                TaxTrnasactionValue.SetRange("Tax Record ID", TempPurchLine.RecordId);
-                                TaxTrnasactionValue.SetRange("Tax Type", 'GST');
-                                TaxTrnasactionValue.SetRange("Value Type", TaxTrnasactionValue."Value Type"::COMPONENT);
-                                TaxTrnasactionValue.SetFilter(Percent, '<>%1', 0);
-                                if TaxTrnasactionValue.FindSet() then
-                                    repeat
-                                        j := TaxTrnasactionValue."Value ID";
-                                        GSTComponentCode[j] := TaxTrnasactionValue."Value ID";
-                                        TaxTrnasactionValue1.Reset();
-                                        TaxTrnasactionValue1.SetRange("Tax Record ID", TempPurchLine.RecordId);
-                                        TaxTrnasactionValue1.SetRange("Tax Type", 'GST');
-                                        TaxTrnasactionValue1.SetRange("Value Type", TaxTrnasactionValue1."Value Type"::COMPONENT);
-                                        TaxTrnasactionValue1.SetRange("Value ID", GSTComponentCode[j]);
-                                        if TaxTrnasactionValue1.FindSet() then
-                                            repeat
-                                                GSTCompAmount[j] += TaxTrnasactionValue1.Amount;
-                                                TotalServiceTaxAmount += TaxTrnasactionValue1.Amount;
-                                            until TaxTrnasactionValue1.Next() = 0;
-                                        j += 1;
-                                    until TaxTrnasactionValue.Next() = 0;
-                            end;
 
-                            if (TempPurchLine.Type <> TempPurchLine.Type::" ") then begin
-                                j := 1;
-                                PurchLine1.Reset();
-                                PurchLine1.SetRange("Document No.", "Purchase Header"."No.");
-                                if PurchLine1.FindSet() then
-                                    repeat
-                                        TaxTrnasactionValue.Reset();
-                                        TaxTrnasactionValue.SetRange("Tax Record ID", PurchLine1.RecordId);
-                                        TaxTrnasactionValue.SetRange("Tax Type", 'TDS');
-                                        TaxTrnasactionValue.SetRange("Value Type", TaxTrnasactionValue."Value Type"::COMPONENT);
-                                        TaxTrnasactionValue.SetFilter(Percent, '<>%1', 0);
-                                        if TaxTrnasactionValue.FindSet() then
-                                            repeat
-                                                j := TaxTrnasactionValue."Value ID";
-                                                TDSComponentCode[j] := TaxTrnasactionValue."Value ID";
-                                                TaxTrnasactionValue2.Reset();
-                                                TaxTrnasactionValue2.SetRange("Tax Record ID", PurchLine1.RecordId);
-                                                TaxTrnasactionValue2.SetRange("Tax Type", 'TDS');
-                                                TaxTrnasactionValue2.SetRange("Value Type", TaxTrnasactionValue2."Value Type"::COMPONENT);
-                                                TaxTrnasactionValue2.SetRange("Value ID", TDSComponentCode[j]);
-                                                if TaxTrnasactionValue2.FindSet() then
-                                                    repeat
-                                                        TDSCompAmount[j] += TaxTrnasactionValue2.Amount;
-                                                        TDSAmt += TaxTrnasactionValue2.Amount;
-                                                    until TaxTrnasactionValue2.Next() = 0;
-                                                j += 1;
-                                            until TaxTrnasactionValue.Next() = 0;
-                                    until PurchLine1.Next() = 0;
-                            end;
-                            TDSAmt := Round(TDSAmt, 1);
+                            GetGSTAmounts(TaxTransactionValue, TempPurchLine, GSTSetup);
 
-                            TaxTrnasactionValue.Reset();
-                            TaxTrnasactionValue.SetRange("Tax Record ID", TempPurchLine.RecordId);
-                            TaxTrnasactionValue.SetRange("Tax Type", 'GST');
-                            TaxTrnasactionValue.SetRange("Value Type", TaxTrnasactionValue."Value Type"::COMPONENT);
-                            TaxTrnasactionValue.SetFilter(Percent, '<>%1', 0);
-                            if TaxTrnasactionValue.FindSet() then
-                                repeat
-                                    j := TaxTrnasactionValue."Value ID";
-                                    case TaxTrnasactionValue."Value ID" of
-                                        6:
-                                            GSTComponentCodeName[j] := 'SGST';
-                                        2:
-                                            GSTComponentCodeName[j] := 'CGST';
-                                        3:
-                                            GSTComponentCodeName[j] := 'IGST';
-                                        5:
-                                            GSTComponentCodeName[j] := 'UTGST';
-                                    end;
-                                    j += 1;
-                                until TaxTrnasactionValue.Next() = 0;
+                            GetGSTCaptions(TaxTransactionValue, TempPurchLine, GSTSetup);
+
+                            GetCessAmount(TaxTransactionValue, TempPurchLine, GSTSetup);
+
+                            GetTDSAmount(TaxTransactionValue, TempPurchLine, TDSSetup);
 
                             AllowInvDisctxt := Format("Purchase Line"."Allow Invoice Disc.");
 
-                            TotalSubTotal += "Purchase Line"."Line Amount";
-                            TotalInvoiceDiscountAmount -= "Purchase Line"."Inv. Discount Amount";
-                            TotalAmount += "Purchase Line".Amount;
+                            GetInvoiceRoundingAmount("Purchase Header");
+
+                            if "Purchase Line"."No." <> GLAccountNo then begin
+                                TotalSubTotal += "Purchase Line"."Line Amount";
+                                TotalInvoiceDiscountAmount -= "Purchase Line"."Inv. Discount Amount";
+                                TotalAmount += "Purchase Line".Amount;
+                            end;
                         end;
 
                         trigger OnPostDataItem()
@@ -724,11 +587,6 @@ report 18008 "Purchase Order GST"
                         {
                         }
 
-                        trigger OnAfterGetRecord()
-                        begin
-                            TempVATAmountLine.GetLine(Number);
-                        end;
-
                         trigger OnPreDataItem()
                         begin
                             if VATAmount = 0 then
@@ -761,7 +619,6 @@ report 18008 "Purchase Order GST"
                         column(VATAmountLineVATIdentLCY; TempVATAmountLine."VAT Identifier")
                         {
                         }
-
                         trigger OnAfterGetRecord()
                         begin
                             TempVATAmountLine.GetLine(Number);
@@ -783,12 +640,12 @@ report 18008 "Purchase Order GST"
                             SetRange(Number, 1, TempVATAmountLine.Count);
 
                             if GLSetup."LCY Code" = '' then
-                                VALSpecLCYHeader := VatAmtSpecLbl + Text008Lbl
+                                VALSpecLCYHeader := VatAmtSpecLbl + LocalCurrencyLbl
                             else
                                 VALSpecLCYHeader := VatAmtSpecLbl + Format(GLSetup."LCY Code");
 
                             CurrExchRate.FindCurrency("Purchase Header"."Posting Date", "Purchase Header"."Currency Code", 1);
-                            VALExchRate := StrSubstNo(Text009Lbl, CurrExchRate."Relational Exch. Rate Amount", CurrExchRate."Exchange Rate Amount");
+                            VALExchRate := StrSubstNo(ExchangeRateLbl, CurrExchRate."Relational Exch. Rate Amount", CurrExchRate."Exchange Rate Amount");
                         end;
                     }
                     dataitem(Total2; Integer)
@@ -829,7 +686,6 @@ report 18008 "Purchase Order GST"
                         column(VendNoCaption; VendNoCaptionLbl)
                         {
                         }
-
                         trigger OnPreDataItem()
                         begin
                             if "Purchase Header"."Buy-from Vendor No." = "Purchase Header"."Pay-to Vendor No." then
@@ -874,7 +730,6 @@ report 18008 "Purchase Order GST"
                         column(SelltoCustomerNo_PurchHdrCaption; "Purchase Header".FieldCaption("Sell-to Customer No."))
                         {
                         }
-
                         trigger OnPreDataItem()
                         begin
                             if ("Purchase Header"."Sell-to Customer No." = '') and (ShipToAddr[1] = '') then
@@ -944,7 +799,6 @@ report 18008 "Purchase Order GST"
                             column(DummyColumn; 0)
                             {
                             }
-
                             trigger OnAfterGetRecord()
                             begin
                                 DimText := GetDimensionText(PrepmtDimSetEntry, Number, Continue);
@@ -962,7 +816,6 @@ report 18008 "Purchase Order GST"
                                 PrepmtDimSetEntry.SetRange("Dimension Set ID", TempPrepmtInvBuf."Dimension Set ID");
                             end;
                         }
-
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
@@ -1017,7 +870,6 @@ report 18008 "Purchase Order GST"
                         column(PrepmtVATIdentCaption; PrepmtVATIdentCaptionLbl)
                         {
                         }
-
                         trigger OnAfterGetRecord()
                         begin
                             PrepmtVATAmountLine.GetLine(Number);
@@ -1069,17 +921,9 @@ report 18008 "Purchase Order GST"
                     ChargesAmount := 0;
                     OtherTaxesAmount := 0;
                     TotalInvoiceDiscountAmount := 0;
-                    TotalServiceTaxAmount := 0;
                     TDSAmt := 0;
-                    TotalServiceTaxeCessAmount := 0;
-                    TotalServiceTaxSHE2CessAmount := 0;
-                    TotalServiceTaxTDSSHEeCessAmount := 0;
-                    TotalServiceWorkTaxAmount := 0;
                     TotalTaxAmount := 0;
-                    TotalServiceTaxSBCAmount := 0;
-                    TotalKKCessAmount := 0;
                     TotalGSTAmount := 0;
-                    TotalExciseAmount := 0;
                     GSTTot := 0;
                 end;
 
@@ -1097,10 +941,8 @@ report 18008 "Purchase Order GST"
                     OutputNo := 0;
                 end;
             }
-
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageID("Language Code");
                 CompanyInfo.Get();
                 IsGSTApplicable := CheckGSTDoc("Purchase Line");
 
@@ -1133,12 +975,12 @@ report 18008 "Purchase Order GST"
                 if "Currency Code" = '' then begin
                     GLSetup.TestField("LCY Code");
                     TotalText := StrSubstNo(TotalLbl, GLSetup."LCY Code");
-                    TotalInclVATText := StrSubstNo(Text13700Lbl, GLSetup."LCY Code");
-                    TotalExclVATText := StrSubstNo(Text13701Lbl, GLSetup."LCY Code");
+                    TotalInclVATText := StrSubstNo(TotalIncTaxLbl, GLSetup."LCY Code");
+                    TotalExclVATText := StrSubstNo(TotalExclTaxLbl, GLSetup."LCY Code");
                 end else begin
                     TotalText := StrSubstNo(TotalLbl, "Currency Code");
-                    TotalInclVATText := StrSubstNo(Text13700Lbl, "Currency Code");
-                    TotalExclVATText := StrSubstNo(Text13701Lbl, "Currency Code");
+                    TotalInclVATText := StrSubstNo(TotalIncTaxLbl, "Currency Code");
+                    TotalExclVATText := StrSubstNo(TotalExclTaxLbl, "Currency Code");
                 end;
 
                 FormatAdd.PurchHeaderBuyFrom(BuyFromAddr, "Purchase Header");
@@ -1165,21 +1007,11 @@ report 18008 "Purchase Order GST"
 
                 FormatAdd.PurchHeaderShipTo(ShipToAddr, "Purchase Header");
 
-                if not CurrReport.Preview then begin
-                    if ArchiveDoc then
-                        ArchiveManagement.StorePurchDocument("Purchase Header", LogInterac);
-
-                    if LogInterac then begin
-                        CalcFields("No. of Archived Versions");
-                        SegManagement.LogDocument(
-                          13, "No.", "Doc. No. Occurrence", "No. of Archived Versions", Database::Vendor, "Buy-from Vendor No.",
-                          "Purchaser Code", '', "Posting Description", '');
-                    end;
-                end;
                 PricesInclVATtxt := Format("Prices Including VAT");
-                Clear(GSTCompAmount);
+                Clear(SGSTAmt);
+                Clear(CGSTAmt);
+                Clear(IGSSTAmt);
                 Clear(GSTComponentCodeName);
-                Clear(GSTComponentCode);
                 Clear(TDSCompAmount);
             end;
         }
@@ -1187,7 +1019,6 @@ report 18008 "Purchase Order GST"
 
     requestpage
     {
-        SaveValues = true;
 
         layout
         {
@@ -1208,57 +1039,11 @@ report 18008 "Purchase Order GST"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the line internal information.';
                     }
-                    field(ArchiveDocument; ArchiveDoc)
-                    {
-                        Caption = 'Archive Document';
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies whether the document is archived or not.';
-
-                        trigger OnValidate()
-                        begin
-                            if not ArchiveDoc then
-                                LogInterac := false;
-                        end;
-                    }
-                    field(LogInteraction; LogInterac)
-                    {
-                        Caption = 'Log Interaction';
-                        Enabled = LogInteractionEnable;
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the log Interaction for archived document to be done or not.';
-
-                        trigger OnValidate()
-                        begin
-                            if LogInterac then
-                                ArchiveDoc := ArchiveDocumentEnable;
-                        end;
-                    }
                 }
             }
         }
 
-        actions
-        {
-        }
-
-        trigger OnInit()
-        begin
-            LogInteractionEnable := true;
-            ArchiveDocumentEnable := false;
-        end;
-
-        trigger OnOpenPage()
-        begin
-            LogInterac := SegManagement.FindInteractTmplCode(13) <> '';
-
-            LogInteractionEnable := LogInterac;
-        end;
     }
-
-    labels
-    {
-    }
-
 
     trigger OnInitReport()
     begin
@@ -1285,18 +1070,16 @@ report 18008 "Purchase Order GST"
         CurrExchRate: Record "Currency Exchange Rate";
         PurchSetup: Record "Purchases & Payables Setup";
         Vendor: Record Vendor;
-        Language: Codeunit Language;
         PurchCountPrinted: Codeunit "Purch.Header-Printed";
         FormatAdd: Codeunit "Format Address";
         PurchPost: Codeunit "Purch.-Post";
-        ArchiveManagement: Codeunit ArchiveManagement;
-        SegManagement: Codeunit SegManagement;
         PurchPostPrepmt: Codeunit "Purchase-Post Prepayments";
         TDSCompAmount: array[20] of Decimal;
-        GSTCompAmount: array[20] of Decimal;
-        TDSComponentCode: array[20] of Integer;
-        GSTComponentCode: array[20] of Integer;
+        CessAmount: Decimal;
         GSTComponentCodeName: array[20] of Code[20];
+        CGSTAmt: Decimal;
+        SGSTAmt: Decimal;
+        IGSSTAmt: Decimal;
         VendAddr: array[8] of Text[50];
         ShipToAddr: array[8] of Text[50];
         CompanyAddr: array[8] of Text[50];
@@ -1313,11 +1096,8 @@ report 18008 "Purchase Order GST"
         CopyText: Text[30];
         OutputNo: Integer;
         DimText: Text[120];
-        OldDimText: Text[75];
         ShowInternalInfo: Boolean;
         Continue: Boolean;
-        ArchiveDoc: Boolean;
-        LogInterac: Boolean;
         VATAmount: Decimal;
         VATBaseAmount: Decimal;
         VATDiscountAmount: Decimal;
@@ -1336,31 +1116,19 @@ report 18008 "Purchase Order GST"
         GSTTot: Decimal;
         ChargesAmount: Decimal;
         [InDataSet]
-        ArchiveDocumentEnable: Boolean;
-        [InDataSet]
-        LogInteractionEnable: Boolean;
         TotalSubTotal: Decimal;
         TotalAmount: Decimal;
         TotalInvoiceDiscountAmount: Decimal;
         TotalTaxAmount: Decimal;
-        TotalServiceTaxAmount: Decimal;
-        TotalServiceTaxeCessAmount: Decimal;
-        TotalServiceTaxSHE2CessAmount: Decimal;
-        TotalServiceTaxTDSSHEeCessAmount: Decimal;
-        TotalServiceWorkTaxAmount: Decimal;
-        TotalServiceTaxSBCAmount: Decimal;
-        VendGSTReg: Code[30];
-        TotalKKCessAmount: Decimal;
+        GLAccountNo: Code[20];
         TotalGSTAmount: Decimal;
-        TotalExciseAmount: Decimal;
         IsGSTApplicable: Boolean;
-        j: Integer;
         PrepmtLoopLineNo: Integer;
         VatAmtSpecLbl: Label 'VAT Amount Specification in ';
-        Text008Lbl: Label 'Local Currency';
-        Text009Lbl: Label 'Exchange rate: %1/%2', Comment = '%1 = Relational Exch. Rate Amount %2 = Exchange Rate Amount';
-        Text13700Lbl: Label 'Total %1 Incl. Taxes', Comment = '%1 Total Inc Tax';
-        Text13701Lbl: Label 'Total %1 Excl. Taxes', Comment = '%1 Total Excl Tax';
+        LocalCurrencyLbl: Label 'Local Currency';
+        ExchangeRateLbl: Label 'Exchange rate: %1/%2', Comment = '%1 = Relational Exch. Rate Amount %2 = Exchange Rate Amount';
+        TotalIncTaxLbl: Label 'Total %1 Incl. Taxes', Comment = '%1 Total Inc Tax';
+        TotalExclTaxLbl: Label 'Total %1 Excl. Taxes', Comment = '%1 Total Excl Tax';
         PurchLbl: Label 'Purchaser';
         TotalLbl: Label 'Total %1', Comment = '%1 Total';
         CopyLbl: Label 'COPY';
@@ -1372,6 +1140,12 @@ report 18008 "Purchase Order GST"
         BankAccNoCaptionLbl: Label 'Account No.';
         OrderNoCaptionLbl: Label 'Order No.';
         PageCaptionLbl: Label 'Page';
+        IGSTLbl: Label 'IGST';
+        SGSTLbl: Label 'SGST';
+        CGSTLbl: Label 'CGST';
+        CESSLbl: Label 'CESS';
+        GSTLbl: Label 'GST';
+        GSTCESSLbl: Label 'GST CESS';
         HdrDimsCaptionLbl: Label 'Header Dimensions';
         DirectUnitCostCaptionLbl: Label 'Direct Unit Cost';
         DiscPercentCaptionLbl: Label 'Discount %';
@@ -1379,15 +1153,10 @@ report 18008 "Purchase Order GST"
         LineDiscAmtCaptionLbl: Label 'Line Discount Amount';
         AllowInvDiscCaptionLbl: Label 'Allow Invoice Discount';
         SubtotalCaptionLbl: Label 'Subtotal';
-        ExciseAmtCaptionLbl: Label 'Excise Amount';
         TaxAmtCaptionLbl: Label 'Tax Amount';
-        ServTaxAmtCaptionLbl: Label 'Service Tax Amount';
         OtherTaxesAmtCaptionLbl: Label 'Other Taxes Amount';
         ChrgsAmtCaptionLbl: Label 'Charges Amount';
         TotalTDSIncleSHECessCaptionLbl: Label 'Total TDS Amount';
-        WorkTaxAmtCaptionLbl: Label 'Work Tax Amount';
-        ServTaxeCessAmtCaptionLbl: Label 'Service Tax eCess Amount';
-        ServTaxeSHECessAmtCaptionLbl: Label 'Service Tax SHECess Amount';
         VATDiscAmtCaptionLbl: Label 'Payment Discount on VAT';
         LineDimsCaptionLbl: Label 'Line Dimensions';
         VATAmtSpecCaptionLbl: Label 'VAT Amount Specification';
@@ -1413,21 +1182,15 @@ report 18008 "Purchase Order GST"
         DocDateCaptionLbl: Label 'Document Date';
         HomePageCaptionLbl: Label 'Home Page';
         EmailCaptionLbl: Label 'E-Mail';
-        ServTaxSBCAmtCaptionLbl: Label 'SBC Amount';
-        KKCessAmtCaptionLbl: Label 'KK Cess Amount';
         CompanyRegistrationLbl: Label 'Company Registration No.';
         VendorRegistrationLbl: Label 'Vendor GST Reg No.';
 
     procedure InitializeRequest(
         NewNoOfCopies: Integer;
-        NewShowInternalInfo: Boolean;
-        NewArchiveDocument: Boolean;
-        NewLogInteraction: Boolean)
+        NewShowInternalInfo: Boolean)
     begin
         NoOfCopy := NewNoOfCopies;
         ShowInternalInfo := NewShowInternalInfo;
-        ArchiveDoc := NewArchiveDocument;
-        LogInterac := NewLogInteraction;
     end;
 
     local procedure CheckGSTDoc(PurchLine: Record "Purchase Line"): Boolean
@@ -1477,5 +1240,138 @@ report 18008 "Purchase Order GST"
         until DimSetEntry.Next() = 0;
 
         exit(DimensionText)
+    end;
+
+    procedure GetGSTRoundingPrecision(ComponentName: Code[30]): Decimal
+    var
+        TaxComponent: Record "Tax Component";
+        GSTSetup: Record "GST Setup";
+        GSTRoundingPrecision: Decimal;
+    begin
+        if not GSTSetup.Get() then
+            exit;
+        GSTSetup.TestField("GST Tax Type");
+
+        TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
+        TaxComponent.SetRange(Name, ComponentName);
+        TaxComponent.FindFirst();
+        if TaxComponent."Rounding Precision" <> 0 then
+            GSTRoundingPrecision := TaxComponent."Rounding Precision"
+        else
+            GSTRoundingPrecision := 1;
+        exit(GSTRoundingPrecision);
+    end;
+
+    local procedure GetInvoiceRoundingAmount(PurchaseHeader: Record "Purchase Header")
+    var
+        VendorPostingGroup: Record "Vendor Posting Group";
+    begin
+        Vendor.SetRange("No.", PurchaseHeader."Buy-from Vendor No.");
+        Vendor.SetRange("Vendor Posting Group", PurchaseHeader."Vendor Posting Group");
+        if Vendor.FindFirst() then begin
+            VendorPostingGroup.SetRange(Code, Vendor."Vendor Posting Group");
+            if VendorPostingGroup.FindFirst() then
+                GLAccountNo := VendorPostingGroup."Invoice Rounding Account";
+        end;
+    end;
+
+    local procedure GetGSTAmounts(TaxTransactionValue: Record "Tax Transaction Value";
+    PurchaseLine: Record "Purchase Line";
+    GSTSetup: Record "GST Setup")
+    var
+        ComponentName: Code[30];
+    begin
+        ComponentName := GetComponentName("Purchase Line", GSTSetup);
+
+        if (PurchaseLine.Type <> PurchaseLine.Type::" ") then begin
+            TaxTransactionValue.Reset();
+            TaxTransactionValue.SetRange("Tax Record ID", PurchaseLine.RecordId);
+            TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
+            TaxTransactionValue.SetRange("Value Type", TaxTransactionValue."Value Type"::COMPONENT);
+            TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+            if TaxTransactionValue.FindSet() then
+                repeat
+                    case TaxTransactionValue."Value ID" of
+                        6:
+                            SGSTAmt += Round(TaxTransactionValue.Amount, GetGSTRoundingPrecision(ComponentName));
+                        2:
+                            CGSTAmt += Round(TaxTransactionValue.Amount, GetGSTRoundingPrecision(ComponentName));
+                        3:
+                            IGSSTAmt += Round(TaxTransactionValue.Amount, GetGSTRoundingPrecision(ComponentName));
+                    end;
+                until TaxTransactionValue.Next() = 0;
+        end;
+    end;
+
+    local procedure GetCessAmount(TaxTransactionValue: Record "Tax Transaction Value";
+        PurchaseLine: Record "Purchase Line";
+        GSTSetup: Record "GST Setup")
+    begin
+        if (PurchaseLine.Type <> PurchaseLine.Type::" ") then begin
+            TaxTransactionValue.Reset();
+            TaxTransactionValue.SetRange("Tax Record ID", PurchaseLine.RecordId);
+            TaxTransactionValue.SetRange("Tax Type", GSTSetup."Cess Tax Type");
+            TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+            if TaxTransactionValue.FindSet() then
+                repeat
+                    CessAmount += Round(TaxTransactionValue.Amount, GetGSTRoundingPrecision(GetComponentName(PurchaseLine, GSTSetup)));
+                until TaxTransactionValue.Next() = 0;
+        end;
+    end;
+
+    local procedure GetGSTCaptions(TaxTransactionValue: Record "Tax Transaction Value";
+        PurchaseLine: Record "Purchase Line";
+        GSTSetup: Record "GST Setup")
+    begin
+        TaxTransactionValue.Reset();
+        TaxTransactionValue.SetRange("Tax Record ID", PurchaseLine.RecordId);
+        TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
+        TaxTransactionValue.SetRange("Value Type", TaxTransactionValue."Value Type"::COMPONENT);
+        TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+        if TaxTransactionValue.FindSet() then
+            repeat
+                case TaxTransactionValue."Value ID" of
+                    6:
+                        GSTComponentCodeName[6] := SGSTLbl;
+                    2:
+                        GSTComponentCodeName[2] := CGSTLbl;
+                    3:
+                        GSTComponentCodeName[3] := IGSTLbl;
+                end;
+            until TaxTransactionValue.Next() = 0;
+    end;
+
+    local procedure GetComponentName(PurchaseLine: Record "Purchase Line";
+        GSTSetup: Record "GST Setup"): Code[30]
+    var
+        ComponentName: Code[30];
+    begin
+        if GSTSetup."GST Tax Type" = GSTLbl then
+            if PurchaseLine."GST Jurisdiction Type" = PurchaseLine."GST Jurisdiction Type"::Interstate then
+                ComponentName := IGSTLbl
+            else
+                ComponentName := CGSTLbl
+        else
+            if GSTSetup."Cess Tax Type" = GSTCESSLbl then
+                ComponentName := CESSLbl;
+        exit(ComponentName)
+    end;
+
+    local procedure GetTDSAmount(TaxTransactionValue: Record "Tax Transaction Value";
+        PurchaseLine: Record "Purchase Line";
+        TDSSetup: Record "TDS Setup")
+    begin
+        if (PurchaseLine.Type <> PurchaseLine.Type::" ") then begin
+            TaxTransactionValue.Reset();
+            TaxTransactionValue.SetRange("Tax Record ID", PurchaseLine.RecordId);
+            TaxTransactionValue.SetRange("Tax Type", TDSSetup."Tax Type");
+            TaxTransactionValue.SetRange("Value Type", TaxTransactionValue."Value Type"::COMPONENT);
+            TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+            if TaxTransactionValue.FindSet() then
+                repeat
+                    TDSAmt += TaxTransactionValue.Amount;
+                until TaxTransactionValue.Next() = 0;
+        end;
+        TDSAmt := Round(TDSAmt, 1);
     end;
 }

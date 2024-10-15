@@ -70,7 +70,7 @@ table 355 "Dimension Set ID Filter Line"
             if DimensionSetIDFilterLine.Next <> 0 then
                 repeat
                     DimensionValueFilter += "Dimension Value Filter Part";
-                until Next = 0;
+                until Next() = 0;
         end;
         Rec := DimensionSetIDFilterLine;
         CopyFilters(DimensionSetIDFilterLine);

@@ -11,50 +11,49 @@ page 18687 "Allowed Sections"
         {
             repeater(General)
             {
-                field("Vendor No"; "Vendor No")
+                field("Vendor No"; Rec."Vendor No")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Vendor No. ';
                     Visible = false;
                 }
-                field("TDS Section"; "TDS Section")
+                field("TDS Section"; Rec."TDS Section")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the section codes as per the Income Tax Act 1961';
                 }
-                field("TDS Section Description"; "TDS Section Description")
+                field("TDS Section Description"; Rec."TDS Section Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the section description as per the Income Tax Act 1961';
                 }
-
-                field("Default Section"; "Default Section")
+                field("Default Section"; Rec."Default Section")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Select the check mark if the section has to be auto updated in the transaction.';
                 }
-                field("Threshold Overlook"; "Threshold Overlook")
+                field("Threshold Overlook"; Rec."Threshold Overlook")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Select the check mark in this field to overlook the TDS Threshold amount.';
                 }
-                field("Surcharge Overlook"; "Surcharge Overlook")
+                field("Surcharge Overlook"; Rec."Surcharge Overlook")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Select the check mark in this field to overlook the TDS surcharge amount.';
                 }
-                field("Non Resident Payments"; "Non Resident Payments")
+                field("Non Resident Payments"; Rec."Non Resident Payments")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the section belongs to Non Resident payments.';
                 }
-                field("Nature of Remittance"; "Nature of Remittance")
+                field("Nature of Remittance"; Rec."Nature of Remittance")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specify the type of remittance deductee deals with.';
                 }
-                field("Act Applicable"; "Act Applicable")
+                field("Act Applicable"; Rec."Act Applicable")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specify the tax rates prescribed under the IT Act or DTAA.';

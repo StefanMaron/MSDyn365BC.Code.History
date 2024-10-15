@@ -3,7 +3,7 @@ report 18935 "Check Report"
     DefaultLayout = RDLC;
     RDLCLayout = './src/report/rdlc/Check.rdl';
     Caption = 'Check';
-    Permissions = TableData 270 = m;
+    Permissions = TableData "Bank Account" = m;
 
     dataset
     {
@@ -24,7 +24,7 @@ report 18935 "Check Report"
                 GenJnlLine4.SetRange("Posting Date", "Posting Date");
                 GenJnlLine4.SetRange("Document No.", "Document No.");
                 GenJnlLine4.SetRange("Account Type", GenJnlLine4."Account Type"::"Bank Account");
-                if GenJnlLine4.FindFirst() then
+                if not GenJnlLine4.IsEmpty then
                     CheckManagement.VoidCheck(VoidGenJnlLine);
             end;
 
@@ -104,17 +104,17 @@ report 18935 "Check Report"
                         AutoFormatExpression = GenJnlLine."Currency Code";
                         AutoFormatType = 1;
                     }
-                    column(TotalLineAmtLineAmt2; TotalLineAmount - LineAmount2 - TDSAmount - WorkTaxAmount)
+                    column(TotalLineAmtLineAmt2; TotalLineAmount - LineAmount2)
                     {
                         AutoFormatExpression = GenJnlLine."Currency Code";
                         AutoFormatType = 1;
                     }
-                    column(TDSAmtWorkTaxAmt; TDSAmount + WorkTaxAmount)
+                    column(TDSAmtWorkTaxAmt; 0)
                     {
                         AutoFormatExpression = GenJnlLine."Currency Code";
                         AutoFormatType = 1;
                     }
-                    column(LineAmt; LineAmount - TDSAmount)
+                    column(LineAmt; LineAmount)
                     {
                         AutoFormatExpression = GenJnlLine."Currency Code";
                         AutoFormatType = 1;
@@ -140,7 +140,7 @@ report 18935 "Check Report"
                         AutoFormatExpression = GenJnlLine."Currency Code";
                         AutoFormatType = 1;
                     }
-                    column(CurrentLineAmt; LineAmount2 - TDSAmount - WorkTaxAmount)
+                    column(CurrentLineAmt; LineAmount2)
                     {
                         AutoFormatExpression = GenJnlLine."Currency Code";
                         AutoFormatType = 1;
@@ -205,25 +205,9 @@ report 18935 "Check Report"
                                         begin
                                             case BalancingType of
                                                 BalancingType::Customer:
-                                                    begin
-                                                        CustLedgEntry.Reset();
-                                                        CustLedgEntry.SetCurrentKey("Document No.");
-                                                        CustLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
-                                                        CustLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
-                                                        CustLedgEntry.SetRange("Customer No.", BalancingNo);
-                                                        CustLedgEntry.Find('-');
-                                                        CustUpdateAmounts(CustLedgEntry, RemainingAmount);
-                                                    end;
+                                                    GetAppliedAmtBasedOnBalancingType(BalancingType, ApplyMethod);
                                                 BalancingType::Vendor:
-                                                    begin
-                                                        VendLedgEntry.Reset();
-                                                        VendLedgEntry.SetCurrentKey("Document No.");
-                                                        VendLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
-                                                        VendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
-                                                        VendLedgEntry.SetRange("Vendor No.", BalancingNo);
-                                                        VendLedgEntry.Find('-');
-                                                        VendUpdateAmounts(VendLedgEntry, RemainingAmount);
-                                                    end;
+                                                    GetAppliedAmtBasedOnBalancingType(BalancingType, ApplyMethod);
                                             end;
                                             RemainingAmount := RemainingAmount - LineAmount2;
                                             CurrentLineAmount := LineAmount2;
@@ -285,31 +269,9 @@ report 18935 "Check Report"
                                                             LineDiscount := 0;
                                                         end;
                                                     BalancingType::Customer:
-                                                        begin
-                                                            CustLedgEntry.Reset();
-                                                            CustLedgEntry.SetCurrentKey("Document No.");
-                                                            CustLedgEntry.SetRange("Document Type", GenJnlLine2."Applies-to Doc. Type");
-                                                            CustLedgEntry.SetRange("Document No.", GenJnlLine2."Applies-to Doc. No.");
-                                                            CustLedgEntry.SetRange("Customer No.", BalancingNo);
-                                                            CustLedgEntry.Find('-');
-                                                            CustUpdateAmounts(CustLedgEntry, CurrentLineAmount);
-                                                            LineAmount := CurrentLineAmount;
-                                                        end;
+                                                        GetAppliedAmtBasedOnBalancingType(BalancingType, ApplyMethod);
                                                     BalancingType::Vendor:
-                                                        begin
-                                                            VendLedgEntry.Reset();
-                                                            if GenJnlLine2."Source Line No." <> 0 then
-                                                                VendLedgEntry.SetRange("Entry No.", GenJnlLine2."Source Line No.")
-                                                            else begin
-                                                                VendLedgEntry.SetCurrentKey("Document No.");
-                                                                VendLedgEntry.SetRange("Document Type", GenJnlLine2."Applies-to Doc. Type");
-                                                                VendLedgEntry.SetRange("Document No.", GenJnlLine2."Applies-to Doc. No.");
-                                                                VendLedgEntry.SetRange("Vendor No.", BalancingNo);
-                                                            end;
-                                                            VendLedgEntry.Find('-');
-                                                            VendUpdateAmounts(VendLedgEntry, CurrentLineAmount);
-                                                            LineAmount := CurrentLineAmount;
-                                                        end;
+                                                        GetAppliedAmtBasedOnBalancingType(BalancingType, ApplyMethod);
                                                     BalancingType::"Bank Account":
                                                         begin
                                                             DocType := Format(GenJnlLine2."Document Type");
@@ -462,7 +424,7 @@ report 18935 "Check Report"
                     column(CompanyAddr1; CompanyAddr[1])
                     {
                     }
-                    column(TotalLineAmount; TotalLineAmount - TDSAmount - WorkTaxAmount)
+                    column(TotalLineAmount; TotalLineAmount)
                     {
                         AutoFormatExpression = GenJnlLine."Currency Code";
                         AutoFormatType = 1;
@@ -502,7 +464,7 @@ report 18935 "Check Report"
                                       TotAmtPosLbl,
                                       UseCheckNo, TotalLineAmount);
                                 CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::Printed;
-                                CheckLedgEntry.Amount := TotalLineAmount - TDSAmount - WorkTaxAmount;//Alle-Temp+ JnlBankCharges.Amount;
+                                CheckLedgEntry.Amount := TotalLineAmount;
                             end else begin
                                 CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::Voided;
                                 CheckLedgEntry.Amount := 0;
@@ -1016,8 +978,6 @@ report 18935 "Check Report"
         CurrencyCode2: Code[10];
         NetAmount: Text[30];
         LineAmount2: Decimal;
-        TDSAmount: Decimal;
-        WorkTaxAmount: Decimal;
         NotPreviewLbl: Label 'Preview is not allowed.';
         LastCheckLbl: Label 'Last Check No. must be filled in.';
         FilterLbl: Label 'Filters on %1 and %2 are not allowed.', Comment = '%1 = Line No. %2 = Document No.';
@@ -1166,61 +1126,6 @@ report 18935 "Check Report"
             AddToNoText(NoText, NoTextIndex, PrintExponent, ' ' + ' ONLY')
         else
             AddToNoText(NoText, NoTextIndex, PrintExponent, ' PAISA ONLY');
-    end;
-
-    procedure InitTextVariable()
-    begin
-        OnesText[1] := OneLbl;
-        OnesText[2] := TwoLbl;
-        OnesText[3] := ThreeLbl;
-        OnesText[4] := FourLbl;
-        OnesText[5] := FiveLbl;
-        OnesText[6] := SixLbl;
-        OnesText[7] := SevenLbl;
-        OnesText[8] := EightLbl;
-        OnesText[9] := NineLbl;
-        OnesText[10] := TenLbl;
-        OnesText[11] := ElevenLbl;
-        OnesText[12] := TwelveLbl;
-        OnesText[13] := ThirteenLbl;
-        OnesText[14] := FourteenLbl;
-        OnesText[15] := FifteenLbl;
-        OnesText[16] := SixteenLbl;
-        OnesText[17] := SeventeenLbl;
-        OnesText[18] := EighteenLbl;
-        OnesText[19] := NinteenLbl;
-        TensText[1] := '';
-        TensText[2] := TwentyLbl;
-        TensText[3] := ThirtyLbl;
-        TensText[4] := FortyLbl;
-        TensText[5] := FiftyLbl;
-        TensText[6] := SixtyLbl;
-        TensText[7] := SeventyLbl;
-        TensText[8] := EightyLbl;
-        TensText[9] := NinetyLbl;
-
-        ExponentText[1] := '';
-        ExponentText[2] := ThousandLbl;
-        ExponentText[3] := LakhLbl;
-        ExponentText[4] := CroreLbl;
-    end;
-
-    procedure InitializeRequest(
-        BankAcc: Code[20];
-        LastCheckNo: Code[20];
-        NewOneCheckPrVend: Boolean;
-        NewReprintChecks: Boolean;
-        NewTestPrint: Boolean;
-        NewPreprintedStub: Boolean)
-    begin
-        if BankAcc <> '' then
-            if BankAcc2.Get(BankAcc) then begin
-                UseCheckNo := LastCheckNo;
-                OneCheckPrVendor := NewOneCheckPrVend;
-                PrintChecks := NewReprintChecks;
-                TestPrint := NewTestPrint;
-                PrintedStub := NewPreprintedStub;
-            end;
     end;
 
     procedure ABSMin(Decimal1: Decimal; Decimal2: Decimal): Decimal
@@ -1393,6 +1298,54 @@ report 18935 "Check Report"
         end;
     end;
 
+    procedure InitTextVariable()
+    begin
+        OnesText[1] := OneLbl;
+        OnesText[2] := TwoLbl;
+        OnesText[3] := ThreeLbl;
+        OnesText[4] := FourLbl;
+        OnesText[5] := FiveLbl;
+        OnesText[6] := SixLbl;
+        OnesText[7] := SevenLbl;
+        OnesText[8] := EightLbl;
+        OnesText[9] := NineLbl;
+        OnesText[10] := TenLbl;
+        OnesText[11] := ElevenLbl;
+        OnesText[12] := TwelveLbl;
+        OnesText[13] := ThirteenLbl;
+        OnesText[14] := FourteenLbl;
+        OnesText[15] := FifteenLbl;
+        OnesText[16] := SixteenLbl;
+        OnesText[17] := SeventeenLbl;
+        OnesText[18] := EighteenLbl;
+        OnesText[19] := NinteenLbl;
+        TensText[1] := '';
+        TensText[2] := TwentyLbl;
+        TensText[3] := ThirtyLbl;
+        TensText[4] := FortyLbl;
+        TensText[5] := FiftyLbl;
+        TensText[6] := SixtyLbl;
+        TensText[7] := SeventyLbl;
+        TensText[8] := EightyLbl;
+        TensText[9] := NinetyLbl;
+        ExponentText[1] := '';
+        ExponentText[2] := ThousandLbl;
+        ExponentText[3] := LakhLbl;
+        ExponentText[4] := CroreLbl;
+    end;
+
+    procedure InitializeRequest(BankAcc: Code[20]; LastCheckNo: Code[20]; NewOneCheckPrVend: Boolean; NewReprintChecks: Boolean; NewTestPrint: Boolean; NewPreprintedStub: Boolean)
+    begin
+        if BankAcc <> '' then
+            if BankAcc2.Get(BankAcc) then begin
+                UseCheckNo := LastCheckNo;
+                OneCheckPrVendor := NewOneCheckPrVend;
+                PrintChecks := NewReprintChecks;
+                TestPrint := NewTestPrint;
+                PrintedStub := NewPreprintedStub;
+            end;
+    end;
+
     local procedure ExchangeAmt(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; Amount: Decimal) Amount2: Decimal
     begin
         if (CurrencyCode <> '') and (CurrencyCode2 = '') then
@@ -1434,5 +1387,55 @@ report 18935 "Check Report"
 
         ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Open, ApprovalEntry.Status::Created);
         exit(ApprovalEntry.IsEmpty);
+    end;
+
+    local procedure GetAppliedAmtBasedOnBalancingType(BalancingType: Enum "Gen. Journal Account Type"; ApplyMethod: Option Payment,OneLineOneEntry,OneLineID,MoreLinesOneEntry)
+    begin
+        if ApplyMethod = ApplyMethod::OneLineOneEntry then begin
+            if BalancingType = BalancingType::Customer then begin
+                CustLedgEntry.Reset();
+                CustLedgEntry.SetCurrentKey("Document No.");
+                CustLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
+                CustLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
+                CustLedgEntry.SetRange("Customer No.", BalancingNo);
+                CustLedgEntry.Find('-');
+                CustUpdateAmounts(CustLedgEntry, RemainingAmount);
+            end;
+            if BalancingType = BalancingType::Vendor then begin
+                VendLedgEntry.Reset();
+                VendLedgEntry.SetCurrentKey("Document No.");
+                VendLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
+                VendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
+                VendLedgEntry.SetRange("Vendor No.", BalancingNo);
+                VendLedgEntry.Find('-');
+                VendUpdateAmounts(VendLedgEntry, RemainingAmount);
+            end;
+        end;
+        if ApplyMethod = ApplyMethod::MoreLinesOneEntry then begin
+            if BalancingType = BalancingType::Customer then begin
+                CustLedgEntry.Reset();
+                CustLedgEntry.SetCurrentKey("Document No.");
+                CustLedgEntry.SetRange("Document Type", GenJnlLine2."Applies-to Doc. Type");
+                CustLedgEntry.SetRange("Document No.", GenJnlLine2."Applies-to Doc. No.");
+                CustLedgEntry.SetRange("Customer No.", BalancingNo);
+                CustLedgEntry.Find('-');
+                CustUpdateAmounts(CustLedgEntry, CurrentLineAmount);
+                LineAmount := CurrentLineAmount;
+            end;
+            if BalancingType = BalancingType::Vendor then begin
+                VendLedgEntry.Reset();
+                if GenJnlLine2."Source Line No." <> 0 then
+                    VendLedgEntry.SetRange("Entry No.", GenJnlLine2."Source Line No.")
+                else begin
+                    VendLedgEntry.SetCurrentKey("Document No.");
+                    VendLedgEntry.SetRange("Document Type", GenJnlLine2."Applies-to Doc. Type");
+                    VendLedgEntry.SetRange("Document No.", GenJnlLine2."Applies-to Doc. No.");
+                    VendLedgEntry.SetRange("Vendor No.", BalancingNo);
+                end;
+                VendLedgEntry.Find('-');
+                VendUpdateAmounts(VendLedgEntry, CurrentLineAmount);
+                LineAmount := CurrentLineAmount;
+            end;
+        end;
     end;
 }

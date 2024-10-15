@@ -3,580 +3,404 @@ codeunit 18192 "GST TCS Transactions"
     Subtype = Test;
 
     var
-        LibraryTCS: Codeunit "GST TCS Library";
+        GSTTCSLibrary: Codeunit "GST TCS Library";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryGST: Codeunit "Library GST";
         LibraryRandom: Codeunit "Library - Random";
         LibraryStorage: Dictionary of [Text, Text];
-        PostedDocumentNo: Code[20];
-        TaxType: Code[10];
+        StorageBoolean: Dictionary of [Text, Boolean];
+        TaxType: Code[20];
         ComponentPerArray: array[20] of Decimal;
+        LocationCodeLbl: Label 'LocationCode';
+        LocationStateCodeLbl: Label 'LocationStateCode';
+        WithoutPaymentofDutyLbl: Label 'WithoutPaymentofDuty';
+        PANNoLbl: Label 'PANNo';
+        POSLbl: Label 'POS';
+        NoOfLineLbl: Label 'NoOfLine';
+        GSTGroupCodeLbl: Label 'GSTGroupCode';
+        HSNSACCodeLbl: Label 'HSNSACCode';
+        CGSTLbl: Label 'CGST';
+        SGSTLbl: Label 'SGST';
+        IGSTLbl: Label 'IGST';
+        ExemptedLbl: Label 'Exempted';
+        LineDiscountLbl: Label 'LineDiscount';
+        FromStateCodeLbl: Label 'FromStateCode';
+        CustomerNoLbl: Label 'CustomerNo';
+        ToStateCodeLbl: Label 'ToStateCode';
+        SurchargeThresholdAmountLbl: Label 'SurchargeThresholdAmount';
+        TCSThresholdAmountLbl: Label 'TCSThresholdAmount';
+        SHECessPercentageLbl: Label 'SHECessPercentage';
+        eCessPercentageLbl: Label 'eCessPercentage';
+        SurchargePercentageLbl: Label 'SurchargePercentage';
+        NonPANTCSPercentageLbl: Label 'NonPANTCSPercentage';
+        TCSPercentageLbl: Label 'TCSPercentage';
+        EffectiveDateLbl: Label 'EffectiveDate';
+        TCSNOCTypeLbl: Label 'TCSNOCType';
+        TCSConcessionalCodeLbl: Label 'TCSConcessionalCode';
+        TCSAssesseeCodeLbl: Label 'TCSAssesseeCode';
 
-    //[Scenario 354593]- Check if the system is calculating TCS and GST on Intra-State Sale of Goods through Sale Quotes.
-    [TEST]
+    // [SCENARIO] [354593]- Check if the system is calculating TCS and GST on Intra-State Sale of Goods through Sale Quotes.
+    [Test]
     [HandlerFunctions('GSTTCSTaxRatesPage')]
     procedure GSTTCSIntraStateSalesOfGoodsThroughSalesQuotes()
     var
-        GSTGroup: Record "GST Group";
-        HSNSAC: Record "HSN/SAC";
-        TCSNatureOfCollection: Record "TCS Nature Of Collection";
-        TCSPostingSetup: Record "TCS Posting Setup";
-        ConcessionalCode: Record "Concessional Code";
-        AssesseeCode: Record "Assessee Code";
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        LocationTan: Record Location;
-        TCANNo: Record "T.C.A.N. No.";
-        StateCode: Code[10];
-        LocationCode: Code[10];
-        CustomerNo: Code[20];
-        Intrastate: Boolean;
         GSTCustomerType: Enum "GST Customer Type";
         GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        LocationCode: Code[10];
+        CustomerNo: Code[20];
+        TCSNOC: Code[10];
+        TCSConcessionalCode: Code[10];
     begin
-        GSTCustomerType := GSTCustomerType::Registered;
-        IntraState := true;
-        GSTGroupType := GSTGroupType::Goods;
-
         // [GIVEN] Created GST and TCS Setup
-        Initialize(GSTCustomerType, GSTGroupType, IntraState);
+        CreateGSTSetup(GSTCustomerType::Registered, GSTGroupType::Goods, true);
         InitializeSharedStep(false, false);
-        CustomerNo := LibraryStorage.Get('CustomerNo');
+        CustomerNo := CopyStr(LibraryStorage.Get(CustomerNoLbl), 1, MaxStrLen(CustomerNo));
         Customer.Get(CustomerNo);
-        LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationCode := LibraryStorage.Get('LocationCode');
-        LocationTan.Get(LocationCode);
-        TCANNo.FindFirst();
-        LocationTan.Validate("T.C.A.N. No.", TCANNo.Code);
-        LocationTan.Modify(true);
-        LibraryTCS.UpdateCustomerWithNOCWithOutConcessionalGST(Customer, true, true);
-        CreateTaxRateSetup(TCSPostingSetup."TCS Nature of Collection", Customer."Assessee Code", '', WorkDate());
+        LocationCode := CopyStr(LibraryStorage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
+        GSTTCSLibrary.CreateGSTTCSSetup(Customer, TCSNOC, TCSConcessionalCode, LocationCode);
+        GSTTCSLibrary.UpdateCustomerNOC(Customer, true, true);
+        CreateTaxRateSetup(TCSNOC, Customer."Assessee Code", '', WorkDate());
 
         // [WHEN] Create and Post Sales Quote with GST and Line Type as Item for Intrastate Transactions
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote,
-                            LibraryStorage.Get('CustomerNo'),
-                            CopyStr(LibraryStorage.Get('LocationCode'), 1, 10),
-                            LibraryStorage.Get('GSTGroupCode'),
-                            LibraryStorage.Get('HSNSACCode'),
-                            SalesLine.Type::Item,
-                            false, false, false, 1);
+        LibraryStorage.Set(NoOfLineLbl, '1');
+        CreateSalesDocument(SalesHeader, SalesLine, LineType::Item, DocumentType::Quote);
 
-        //[THEN] Quote to Make Order Conversion
+        // [THEN] Quote to Make Order Conversion
         LibrarySales.QuoteMakeOrder(SalesHeader);
     end;
 
-    //[Scenario 354633]- Check if the system is calculating TCS and GST on Inter-State Sale of Services to Unregistered Customer through Sale Orders.
-    [TEST]
+    // [SCENARIO] [354633]- Check if the system is calculating TCS and GST on Inter-State Sale of Services to Unregistered Customer through Sale Orders.
+    [Test]
     [HandlerFunctions('GSTTCSTaxRatesPage')]
     procedure GSTTCSInterStateSalesOfServicesThroughSalesOrdersForUnregisteredCust()
     var
-        GSTGroup: Record "GST Group";
-        HSNSAC: Record "HSN/SAC";
-        TCSNatureOfCollection: Record "TCS Nature Of Collection";
-        TCSPostingSetup: Record "TCS Posting Setup";
-        ConcessionalCode: Record "Concessional Code";
-        AssesseeCode: Record "Assessee Code";
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        LocationTan: Record Location;
-        TCANNo: Record "T.C.A.N. No.";
-        StateCode: Code[10];
-        LocationCode: Code[10];
-        CustomerNo: Code[20];
-        Intrastate: Boolean;
         GSTCustomerType: Enum "GST Customer Type";
         GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        PostedDocumentNo: Code[20];
+        LocationCode: Code[10];
+        CustomerNo: Code[20];
+        TCSNOC: Code[10];
+        TCSConcessionalCode: Code[10];
     begin
-        GSTCustomerType := GSTCustomerType::Unregistered;
-        IntraState := false;
-        GSTGroupType := GSTGroupType::Service;
-
         // [GIVEN] Created GST and TCS Setup
-        Initialize(GSTCustomerType, GSTGroupType, IntraState);
+        CreateGSTSetup(GSTCustomerType::Unregistered, GSTGroupType::Service, false);
         InitializeSharedStep(false, false);
-        CustomerNo := LibraryStorage.Get('CustomerNo');
+        CustomerNo := CopyStr(LibraryStorage.Get(CustomerNoLbl), 1, MaxStrLen(CustomerNo));
         Customer.Get(CustomerNo);
-        LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationCode := LibraryStorage.Get('LocationCode');
-        // LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationTan.Get(LocationCode);
-        TCANNo.FindFirst();
-        LocationTan.Validate("T.C.A.N. No.", TCANNo.Code);
-        LocationTan.Modify(true);
-        LibraryTCS.UpdateCustomerWithNOCWithOutConcessionalGST(Customer, true, true);
-        CreateTaxRateSetup(TCSPostingSetup."TCS Nature of Collection", Customer."Assessee Code", '', WorkDate());
+        LocationCode := CopyStr(LibraryStorage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
+        GSTTCSLibrary.CreateGSTTCSSetup(Customer, TCSNOC, TCSConcessionalCode, LocationCode);
+        GSTTCSLibrary.UpdateCustomerNOC(Customer, true, true);
+        CreateTaxRateSetup(TCSNOC, Customer."Assessee Code", '', WorkDate());
 
-        // [WHEN] Create and Post Sales Order with GST and Line Type as Item for Intrastate Transactions
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
-                            LibraryStorage.Get('CustomerNo'),
-                            CopyStr(LibraryStorage.Get('LocationCode'), 1, 10),
-                            LibraryStorage.Get('GSTGroupCode'),
-                            LibraryStorage.Get('HSNSACCode'),
-                            SalesLine.Type::"G/L Account",
-                            false, false, false, 1);
+        // [WHEN] Create and Post Sales Order with GST and Line Type as G/L Account for Intrastate Transactions
+        LibraryStorage.Set(NoOfLineLbl, '1');
+        PostedDocumentNo := CreateAndPostSalesDocument(SalesHeader, SalesLine, LineType::"G/L Account", DocumentType::Order);
 
-        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [THEN] G/L Entries Verified
+        // [THEN] GST ledger entries are created and Verified
         LibraryGST.VerifyGLEntries(SalesHeader."Document Type"::Order, PostedDocumentNo, 5);
     end;
 
-    //[Scenario 354600]- Check if the system is calculating TCS and GST on Intra-State Sale of Services through Sale Orders.
-    [TEST]
+    // [SCENARIO] [354600]- Check if the system is calculating TCS and GST on Intra-State Sale of Services through Sale Orders.
+    [Test]
     [HandlerFunctions('GSTTCSTaxRatesPage')]
     procedure GSTTCSIntraStateSalesOfServicesThroughSalesOrders()
     var
-        GSTGroup: Record "GST Group";
-        HSNSAC: Record "HSN/SAC";
-        TCSNatureOfCollection: Record "TCS Nature Of Collection";
-        TCSPostingSetup: Record "TCS Posting Setup";
-        ConcessionalCode: Record "Concessional Code";
-        AssesseeCode: Record "Assessee Code";
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        LocationTan: Record Location;
-        TCANNo: Record "T.C.A.N. No.";
-        StateCode: Code[10];
-        LocationCode: Code[10];
-        CustomerNo: Code[20];
-        Intrastate: Boolean;
         GSTCustomerType: Enum "GST Customer Type";
         GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        PostedDocumentNo: Code[20];
+        LocationCode: Code[10];
+        CustomerNo: Code[20];
+        TCSNOC: Code[10];
+        TCSConcessionalCode: Code[10];
     begin
-        GSTCustomerType := GSTCustomerType::Registered;
-        IntraState := true;
-        GSTGroupType := GSTGroupType::Service;
-
         // [GIVEN] Created GST and TCS Setup
-        Initialize(GSTCustomerType, GSTGroupType, IntraState);
+        CreateGSTSetup(GSTCustomerType::Registered, GSTGroupType::Service, true);
         InitializeSharedStep(false, false);
-        CustomerNo := LibraryStorage.Get('CustomerNo');
+        CustomerNo := CopyStr(LibraryStorage.Get(CustomerNoLbl), 1, MaxStrLen(CustomerNo));
         Customer.Get(CustomerNo);
-        LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationCode := LibraryStorage.Get('LocationCode');
-        // LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationTan.Get(LocationCode);
-        TCANNo.FindFirst();
-        LocationTan.Validate("T.C.A.N. No.", TCANNo.Code);
-        LocationTan.Modify(true);
-        LibraryTCS.UpdateCustomerWithNOCWithOutConcessionalGST(Customer, true, true);
-        CreateTaxRateSetup(TCSPostingSetup."TCS Nature of Collection", Customer."Assessee Code", '', WorkDate());
+        LocationCode := CopyStr(LibraryStorage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
+        GSTTCSLibrary.CreateGSTTCSSetup(Customer, TCSNOC, TCSConcessionalCode, LocationCode);
+        GSTTCSLibrary.UpdateCustomerNOC(Customer, true, true);
+        CreateTaxRateSetup(TCSNOC, Customer."Assessee Code", '', WorkDate());
 
         // [WHEN] Create and Post Sales Order with GST and Line Type as G/L Account for Intrastate Transactions
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
-                            LibraryStorage.Get('CustomerNo'),
-                            CopyStr(LibraryStorage.Get('LocationCode'), 1, 10),
-                            LibraryStorage.Get('GSTGroupCode'),
-                            LibraryStorage.Get('HSNSACCode'),
-                            SalesLine.Type::"G/L Account",
-                            false, false, false, 1);
+        LibraryStorage.Set(NoOfLineLbl, '1');
+        PostedDocumentNo := CreateAndPostSalesDocument(SalesHeader, SalesLine, LineType::"G/L Account", DocumentType::Order);
 
-        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [THEN] G/L Entries Verified
+        // [THEN] GST ledger entries are created and Verified
         LibraryGST.VerifyGLEntries(SalesHeader."Document Type"::Order, PostedDocumentNo, 5);
     end;
 
-    //[Scenario 354601]- Check if the system is calculating TCS and GST on Intra-State Sale of Services through Sale Invoices.
-    [TEST]
+    // [SCENARIO] [354601]- Check if the system is calculating TCS and GST on Intra-State Sale of Services through Sale Invoices.
+    [Test]
     [HandlerFunctions('GSTTCSTaxRatesPage')]
     procedure GSTTCSIntraStateSalesOfServicesThroughSalesInvoices()
     var
-        GSTGroup: Record "GST Group";
-        HSNSAC: Record "HSN/SAC";
-        TCSNatureOfCollection: Record "TCS Nature Of Collection";
-        TCSPostingSetup: Record "TCS Posting Setup";
-        ConcessionalCode: Record "Concessional Code";
-        AssesseeCode: Record "Assessee Code";
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        LocationTan: Record Location;
-        TCANNo: Record "T.C.A.N. No.";
-        StateCode: Code[10];
-        LocationCode: Code[10];
-        CustomerNo: Code[20];
-        Intrastate: Boolean;
         GSTCustomerType: Enum "GST Customer Type";
         GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        PostedDocumentNo: Code[20];
+        LocationCode: Code[10];
+        CustomerNo: Code[20];
+        TCSNOC: Code[10];
+        TCSConcessionalCode: Code[10];
     begin
-        GSTCustomerType := GSTCustomerType::Registered;
-        IntraState := true;
-        GSTGroupType := GSTGroupType::Service;
-
         // [GIVEN] Created GST and TCS Setup
-        Initialize(GSTCustomerType, GSTGroupType, IntraState);
+        CreateGSTSetup(GSTCustomerType::Registered, GSTGroupType::Service, true);
         InitializeSharedStep(false, false);
-        CustomerNo := LibraryStorage.Get('CustomerNo');
+        CustomerNo := CopyStr(LibraryStorage.Get(CustomerNoLbl), 1, MaxStrLen(CustomerNo));
         Customer.Get(CustomerNo);
-        LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationCode := LibraryStorage.Get('LocationCode');
-        // LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationTan.Get(LocationCode);
-        TCANNo.FindFirst();
-        LocationTan.Validate("T.C.A.N. No.", TCANNo.Code);
-        LocationTan.Modify(true);
-        LibraryTCS.UpdateCustomerWithNOCWithOutConcessionalGST(Customer, true, true);
-        CreateTaxRateSetup(TCSPostingSetup."TCS Nature of Collection", Customer."Assessee Code", '', WorkDate());
+        LocationCode := CopyStr(LibraryStorage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
+        GSTTCSLibrary.CreateGSTTCSSetup(Customer, TCSNOC, TCSConcessionalCode, LocationCode);
+        GSTTCSLibrary.UpdateCustomerNOC(Customer, true, true);
+        CreateTaxRateSetup(TCSNOC, Customer."Assessee Code", '', WorkDate());
 
         // [WHEN] Create and Post Sales Order with GST and Line Type as G/L Account for Intrastate Transactions
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-                            LibraryStorage.Get('CustomerNo'),
-                            CopyStr(LibraryStorage.Get('LocationCode'), 1, 10),
-                            LibraryStorage.Get('GSTGroupCode'),
-                            LibraryStorage.Get('HSNSACCode'),
-                            SalesLine.Type::"G/L Account",
-                            false, false, false, 1);
+        LibraryStorage.Set(NoOfLineLbl, '1');
+        PostedDocumentNo := CreateAndPostSalesDocument(SalesHeader, SalesLine, LineType::"G/L Account", DocumentType::Invoice);
 
-        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [THEN] G/L Entries Verified
+        // [THEN] GST ledger entries are created and Verified
         LibraryGST.VerifyGLEntries(SalesHeader."Document Type"::Order, PostedDocumentNo, 5);
     end;
 
-    //[Scenario 354599]- Check if the system is calculating TCS and GST on Intra-State Sale of Services through Sale Quotes.
-    [TEST]
+    // [SCENARIO] [354599]- Check if the system is calculating TCS and GST on Intra-State Sale of Services through Sale Quotes.
+    [Test]
     [HandlerFunctions('GSTTCSTaxRatesPage')]
     procedure GSTTCSIntraStateSalesOfServicesThroughSalesQuotes()
     var
-        GSTGroup: Record "GST Group";
-        HSNSAC: Record "HSN/SAC";
-        TCSNatureOfCollection: Record "TCS Nature Of Collection";
-        TCSPostingSetup: Record "TCS Posting Setup";
-        ConcessionalCode: Record "Concessional Code";
-        AssesseeCode: Record "Assessee Code";
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        LocationTan: Record Location;
-        TCANNo: Record "T.C.A.N. No.";
-        StateCode: Code[10];
-        LocationCode: Code[10];
-        CustomerNo: Code[20];
-        Qty: Decimal;
-        Intrastate: Boolean;
         GSTCustomerType: Enum "GST Customer Type";
         GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        LocationCode: Code[10];
+        CustomerNo: Code[20];
+        TCSNOC: Code[10];
+        TCSConcessionalCode: Code[10];
     begin
-        GSTCustomerType := GSTCustomerType::Registered;
-        IntraState := true;
-        GSTGroupType := GSTGroupType::Service;
-
         // [GIVEN] Created GST and TCS Setup
-        Initialize(GSTCustomerType, GSTGroupType, IntraState);
+        CreateGSTSetup(GSTCustomerType::Registered, GSTGroupType::Service, true);
         InitializeSharedStep(false, false);
-        CustomerNo := LibraryStorage.Get('CustomerNo');
+        CustomerNo := CopyStr(LibraryStorage.Get(CustomerNoLbl), 1, MaxStrLen(CustomerNo));
         Customer.Get(CustomerNo);
-        LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationCode := LibraryStorage.Get('LocationCode');
-        // LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationTan.Get(LocationCode);
-        TCANNo.FindFirst();
-        LocationTan.Validate("T.C.A.N. No.", TCANNo.Code);
-        LocationTan.Modify(true);
-        LibraryTCS.UpdateCustomerWithNOCWithOutConcessionalGST(Customer, true, true);
-        CreateTaxRateSetup(TCSPostingSetup."TCS Nature of Collection", Customer."Assessee Code", '', WorkDate());
+        LocationCode := CopyStr(LibraryStorage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
+        GSTTCSLibrary.CreateGSTTCSSetup(Customer, TCSNOC, TCSConcessionalCode, LocationCode);
+        GSTTCSLibrary.UpdateCustomerNOC(Customer, true, true);
+        CreateTaxRateSetup(TCSNOC, Customer."Assessee Code", '', WorkDate());
 
-        //[WHEN] Create and Post Sales Quote with GST and Line Type as Item for Intrastate Transactions
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote,
-                           LibraryStorage.Get('CustomerNo'),
-                           CopyStr(LibraryStorage.Get('LocationCode'), 1, 10),
-                           LibraryStorage.Get('GSTGroupCode'),
-                           LibraryStorage.Get('HSNSACCode'),
-                           SalesLine.Type::"G/L Account",
-                           false, false, false, 1);
+        // [WHEN] Create and Post Sales Quote with GST and Line Type as G/L Account for Intrastate Transactions
+        LibraryStorage.Set(NoOfLineLbl, '1');
+        CreateSalesDocument(SalesHeader, SalesLine, LineType::"G/L Account", DocumentType::Quote);
 
-        //[THEN] Quote to Make Order Conversion
+        // [THEN] Quote to Make Order Conversion
         LibrarySales.QuoteMakeOrder(SalesHeader);
     end;
 
-    //[Scenario 354602]- Check if the system is calculating TCS and GST on Inter-State Sale of Goods through Sale Quotes.
-    [TEST]
+    // [SCENARIO] [354602]- Check if the system is calculating TCS and GST on Inter-State Sale of Goods through Sale Quotes.
+    [Test]
     [HandlerFunctions('GSTTCSTaxRatesPage')]
     procedure GSTTCSInterStateSalesOfGoodsThroughSalesQuotes()
     var
-        GSTGroup: Record "GST Group";
-        HSNSAC: Record "HSN/SAC";
-        TCSNatureOfCollection: Record "TCS Nature Of Collection";
-        TCSPostingSetup: Record "TCS Posting Setup";
-        ConcessionalCode: Record "Concessional Code";
-        AssesseeCode: Record "Assessee Code";
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        LocationTan: Record Location;
-        TCANNo: Record "T.C.A.N. No.";
-        StateCode: Code[10];
-        LocationCode: Code[10];
-        CustomerNo: Code[20];
-        Qty: Decimal;
-        Intrastate: Boolean;
         GSTCustomerType: Enum "GST Customer Type";
         GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        LocationCode: Code[10];
+        CustomerNo: Code[20];
+        TCSNOC: Code[10];
+        TCSConcessionalCode: Code[10];
     begin
-        GSTCustomerType := GSTCustomerType::Registered;
-        IntraState := false;
-        GSTGroupType := GSTGroupType::Goods;
-
         // [GIVEN] Created GST and TCS Setup
-        Initialize(GSTCustomerType, GSTGroupType, IntraState);
+        CreateGSTSetup(GSTCustomerType::Registered, GSTGroupType::Goods, false);
         InitializeSharedStep(false, false);
-        CustomerNo := LibraryStorage.Get('CustomerNo');
+        CustomerNo := CopyStr(LibraryStorage.Get(CustomerNoLbl), 1, MaxStrLen(CustomerNo));
         Customer.Get(CustomerNo);
-        LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationCode := LibraryStorage.Get('LocationCode');
-        // LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationTan.Get(LocationCode);
-        TCANNo.FindFirst();
-        LocationTan.Validate("T.C.A.N. No.", TCANNo.Code);
-        LocationTan.Modify(true);
-        LibraryTCS.UpdateCustomerWithNOCWithOutConcessionalGST(Customer, true, true);
-        CreateTaxRateSetup(TCSPostingSetup."TCS Nature of Collection", Customer."Assessee Code", '', WorkDate());
+        LocationCode := CopyStr(LibraryStorage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
+        GSTTCSLibrary.CreateGSTTCSSetup(Customer, TCSNOC, TCSConcessionalCode, LocationCode);
+        GSTTCSLibrary.UpdateCustomerNOC(Customer, true, true);
+        CreateTaxRateSetup(TCSNOC, Customer."Assessee Code", '', WorkDate());
 
-        //[WHEN] Create and Post Sales Quote with GST and Line Type as Item for Interstate Transactions
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote,
-                           LibraryStorage.Get('CustomerNo'),
-                           CopyStr(LibraryStorage.Get('LocationCode'), 1, 10),
-                           LibraryStorage.Get('GSTGroupCode'),
-                           LibraryStorage.Get('HSNSACCode'),
-                           SalesLine.Type::Item,
-                           false, false, false, 1);
+        // [WHEN] Create and Post Sales Quote with GST and Line Type as Item for Interstate Transactions
+        LibraryStorage.Set(NoOfLineLbl, '1');
+        CreateSalesDocument(SalesHeader, SalesLine, LineType::Item, DocumentType::Quote);
 
-        //[THEN] Quote to Make Order Conversion
+        // [THEN] Quote to Make Order Conversion
         LibrarySales.QuoteMakeOrder(SalesHeader);
     end;
 
-    //[Scenario 354604]- Check if the system is calculating TCS and GST on Inter-State Sale of Goods through Sale Orders.
-    [TEST]
+    // [SCENARIO] [354604]- Check if the system is calculating TCS and GST on Inter-State Sale of Goods through Sale Orders.
+    [Test]
     [HandlerFunctions('GSTTCSTaxRatesPage')]
     procedure GSTTCSInterStateSalesOfGoodsThroughSalesOrders()
     var
-        GSTGroup: Record "GST Group";
-        HSNSAC: Record "HSN/SAC";
-        TCSNatureOfCollection: Record "TCS Nature Of Collection";
-        TCSPostingSetup: Record "TCS Posting Setup";
-        ConcessionalCode: Record "Concessional Code";
-        AssesseeCode: Record "Assessee Code";
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        LocationTan: Record Location;
-        TCANNo: Record "T.C.A.N. No.";
-        StateCode: Code[10];
-        LocationCode: Code[10];
-        CustomerNo: Code[20];
-        Intrastate: Boolean;
         GSTCustomerType: Enum "GST Customer Type";
         GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        PostedDocumentNo: Code[20];
+        LocationCode: Code[10];
+        CustomerNo: Code[20];
+        TCSNOC: Code[10];
+        TCSConcessionalCode: Code[10];
     begin
-        GSTCustomerType := GSTCustomerType::Registered;
-        IntraState := false;
-        GSTGroupType := GSTGroupType::Goods;
-
         // [GIVEN] Created GST and TCS Setup
-        Initialize(GSTCustomerType, GSTGroupType, IntraState);
+        CreateGSTSetup(GSTCustomerType::Registered, GSTGroupType::Goods, false);
         InitializeSharedStep(false, false);
-        CustomerNo := LibraryStorage.Get('CustomerNo');
+        CustomerNo := CopyStr(LibraryStorage.Get(CustomerNoLbl), 1, MaxStrLen(CustomerNo));
         Customer.Get(CustomerNo);
-        LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationCode := LibraryStorage.Get('LocationCode');
-        LocationTan.Get(LocationCode);
-        TCANNo.FindFirst();
-        LocationTan.Validate("T.C.A.N. No.", TCANNo.Code);
-        LocationTan.Modify(true);
-        LibraryTCS.UpdateCustomerWithNOCWithOutConcessionalGST(Customer, true, true);
-        CreateTaxRateSetup(TCSPostingSetup."TCS Nature of Collection", Customer."Assessee Code", '', WorkDate());
+        LocationCode := CopyStr(LibraryStorage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
+        GSTTCSLibrary.CreateGSTTCSSetup(Customer, TCSNOC, TCSConcessionalCode, LocationCode);
+        GSTTCSLibrary.UpdateCustomerNOC(Customer, true, true);
+        CreateTaxRateSetup(TCSNOC, Customer."Assessee Code", '', WorkDate());
 
         // [WHEN] Create and Post Sales Order with GST and Line Type as Goods and Interstate Juridisction
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
-                            LibraryStorage.Get('CustomerNo'),
-                            CopyStr(LibraryStorage.Get('LocationCode'), 1, 10),
-                            LibraryStorage.Get('GSTGroupCode'),
-                            LibraryStorage.Get('HSNSACCode'),
-                            SalesLine.Type::Item,
-                            false, false, false, 1);
+        LibraryStorage.Set(NoOfLineLbl, '1');
+        PostedDocumentNo := CreateAndPostSalesDocument(SalesHeader, SalesLine, LineType::Item, DocumentType::Order);
 
-        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [THEN] G/L Entries Verified
+        // [THEN] GST ledger entries are created and Verified
         LibraryGST.VerifyGLEntries(SalesHeader."Document Type"::Order, PostedDocumentNo, 4);
     end;
 
-    //[Scenario 354605]- Check if the system is calculating TCS and GST on Inter-State Sale of Goods through Sale Invoices.
-    [TEST]
+    // [SCENARIO] [354605]- Check if the system is calculating TCS and GST on Inter-State Sale of Goods through Sale Invoices.
+    [Test]
     [HandlerFunctions('GSTTCSTaxRatesPage')]
     procedure GSTTCSInterStateSalesOfGoodsThroughSalesInvoices()
     var
-        GSTGroup: Record "GST Group";
-        HSNSAC: Record "HSN/SAC";
-        TCSNatureOfCollection: Record "TCS Nature Of Collection";
-        TCSPostingSetup: Record "TCS Posting Setup";
-        ConcessionalCode: Record "Concessional Code";
-        AssesseeCode: Record "Assessee Code";
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        LocationTan: Record Location;
-        TCANNo: Record "T.C.A.N. No.";
-        StateCode: Code[10];
-        LocationCode: Code[10];
-        CustomerNo: Code[20];
-        Intrastate: Boolean;
         GSTCustomerType: Enum "GST Customer Type";
         GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        PostedDocumentNo: Code[20];
+        LocationCode: Code[10];
+        CustomerNo: Code[20];
+        TCSNOC: Code[10];
+        TCSConcessionalCode: Code[10];
     begin
-        GSTCustomerType := GSTCustomerType::Registered;
-        IntraState := false;
-        GSTGroupType := GSTGroupType::Goods;
-
         // [GIVEN] Created GST and TCS Setup
-        Initialize(GSTCustomerType, GSTGroupType, IntraState);
+        CreateGSTSetup(GSTCustomerType::Registered, GSTGroupType::Goods, false);
         InitializeSharedStep(false, false);
-        CustomerNo := LibraryStorage.Get('CustomerNo');
+        CustomerNo := CopyStr(LibraryStorage.Get(CustomerNoLbl), 1, MaxStrLen(CustomerNo));
         Customer.Get(CustomerNo);
-        LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationCode := LibraryStorage.Get('LocationCode');
-        // LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationTan.Get(LocationCode);
-        TCANNo.FindFirst();
-        LocationTan.Validate("T.C.A.N. No.", TCANNo.Code);
-        LocationTan.Modify(true);
-        LibraryTCS.UpdateCustomerWithNOCWithOutConcessionalGST(Customer, true, true);
-        CreateTaxRateSetup(TCSPostingSetup."TCS Nature of Collection", Customer."Assessee Code", '', WorkDate());
+        LocationCode := CopyStr(LibraryStorage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
+        GSTTCSLibrary.CreateGSTTCSSetup(Customer, TCSNOC, TCSConcessionalCode, LocationCode);
+        GSTTCSLibrary.UpdateCustomerNOC(Customer, true, true);
+        CreateTaxRateSetup(TCSNOC, Customer."Assessee Code", '', WorkDate());
 
         // [WHEN] Create and Post Sales Order with GST and Line Type as Goods and Interstate Juridisction
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-                            LibraryStorage.Get('CustomerNo'),
-                            CopyStr(LibraryStorage.Get('LocationCode'), 1, 10),
-                            LibraryStorage.Get('GSTGroupCode'),
-                            LibraryStorage.Get('HSNSACCode'),
-                            SalesLine.Type::Item,
-                            false, false, false, 1);
+        LibraryStorage.Set(NoOfLineLbl, '1');
+        PostedDocumentNo := CreateAndPostSalesDocument(SalesHeader, SalesLine, LineType::Item, DocumentType::Invoice);
 
-        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [THEN] G/L Entries Verified
+        // [THEN] GST ledger entries are created and Verified
         LibraryGST.VerifyGLEntries(SalesHeader."Document Type"::Order, PostedDocumentNo, 4);
     end;
 
-    //[Scenario 354608]- Check if the system is calculating TCS and GST on Inter-State Sale of Services through Sale Orders
-    [TEST]
+    // [SCENARIO] [354608]- Check if the system is calculating TCS and GST on Inter-State Sale of Services through Sale Orders
+    [Test]
     [HandlerFunctions('GSTTCSTaxRatesPage')]
     procedure GSTTCSInterStateSalesOfServicesThroughSalesOrders()
     var
-        GSTGroup: Record "GST Group";
-        HSNSAC: Record "HSN/SAC";
-        TCSNatureOfCollection: Record "TCS Nature Of Collection";
-        TCSPostingSetup: Record "TCS Posting Setup";
-        ConcessionalCode: Record "Concessional Code";
-        AssesseeCode: Record "Assessee Code";
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        LocationTan: Record Location;
-        TCANNo: Record "T.C.A.N. No.";
-        StateCode: Code[10];
-        LocationCode: Code[10];
-        CustomerNo: Code[20];
-        Intrastate: Boolean;
         GSTCustomerType: Enum "GST Customer Type";
         GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        PostedDocumentNo: Code[20];
+        LocationCode: Code[10];
+        CustomerNo: Code[20];
+        TCSNOC: Code[10];
+        TCSConcessionalCode: Code[10];
     begin
-        GSTCustomerType := GSTCustomerType::Registered;
-        IntraState := false;
-        GSTGroupType := GSTGroupType::Goods;
-
         // [GIVEN] Created GST and TCS Setup
-        Initialize(GSTCustomerType, GSTGroupType, IntraState);
+        CreateGSTSetup(GSTCustomerType::Registered, GSTGroupType::Service, false);
         InitializeSharedStep(false, false);
-        CustomerNo := LibraryStorage.Get('CustomerNo');
+        CustomerNo := CopyStr(LibraryStorage.Get(CustomerNoLbl), 1, MaxStrLen(CustomerNo));
         Customer.Get(CustomerNo);
-        LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationCode := LibraryStorage.Get('LocationCode');
-        // LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationTan.Get(LocationCode);
-        TCANNo.FindFirst();
-        LocationTan.Validate("T.C.A.N. No.", TCANNo.Code);
-        LocationTan.Modify(true);
-        LibraryTCS.UpdateCustomerWithNOCWithOutConcessionalGST(Customer, true, true);
-        CreateTaxRateSetup(TCSPostingSetup."TCS Nature of Collection", Customer."Assessee Code", '', WorkDate());
+        LocationCode := CopyStr(LibraryStorage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
+        GSTTCSLibrary.CreateGSTTCSSetup(Customer, TCSNOC, TCSConcessionalCode, LocationCode);
+        GSTTCSLibrary.UpdateCustomerNOC(Customer, true, true);
+        CreateTaxRateSetup(TCSNOC, Customer."Assessee Code", '', WorkDate());
 
         // [WHEN] Create and Post Sales Order with GST and Line Type as Services and Interstate Juridisction
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
-                            LibraryStorage.Get('CustomerNo'),
-                            CopyStr(LibraryStorage.Get('LocationCode'), 1, 10),
-                            LibraryStorage.Get('GSTGroupCode'),
-                            LibraryStorage.Get('HSNSACCode'),
-                            SalesLine.Type::"G/L Account",
-                            false, false, false, 1);
+        LibraryStorage.Set(NoOfLineLbl, '1');
+        PostedDocumentNo := CreateAndPostSalesDocument(SalesHeader, SalesLine, LineType::"G/L Account", DocumentType::Order);
 
-        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [THEN] G/L Entries Verified
+        // [THEN] GST ledger entries are created and Verified
         LibraryGST.VerifyGLEntries(SalesHeader."Document Type"::Order, PostedDocumentNo, 4);
     end;
 
-    //[Scenario 354607]- Check if the system is calculating TCS and GST on Inter-State Sale of Services through Sale Quotes.
-    [TEST]
+    // [SCENARIO] [354607]- Check if the system is calculating TCS and GST on Inter-State Sale of Services through Sale Quotes.
+    [Test]
     [HandlerFunctions('GSTTCSTaxRatesPage')]
     procedure GSTTCSInterStateSalesOfServicesThroughSalesQuotes()
     var
-        GSTGroup: Record "GST Group";
-        HSNSAC: Record "HSN/SAC";
-        TCSNatureOfCollection: Record "TCS Nature Of Collection";
-        TCSPostingSetup: Record "TCS Posting Setup";
-        ConcessionalCode: Record "Concessional Code";
-        AssesseeCode: Record "Assessee Code";
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        LocationTan: Record Location;
-        TCANNo: Record "T.C.A.N. No.";
-        StateCode: Code[10];
-        LocationCode: Code[10];
-        Qty: Decimal;
-        CustomerNo: Code[20];
-        Intrastate: Boolean;
         GSTCustomerType: Enum "GST Customer Type";
         GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        LocationCode: Code[10];
+        CustomerNo: Code[20];
+        TCSNOC: Code[10];
+        TCSConcessionalCode: Code[10];
     begin
-        GSTCustomerType := GSTCustomerType::Registered;
-        IntraState := false;
-        GSTGroupType := GSTGroupType::Service;
-
         // [GIVEN] Created GST and TCS Setup
-        Initialize(GSTCustomerType, GSTGroupType, IntraState);
+        CreateGSTSetup(GSTCustomerType::Registered, GSTGroupType::Service, false);
         InitializeSharedStep(false, false);
-        CustomerNo := LibraryStorage.Get('CustomerNo');
+        CustomerNo := CopyStr(LibraryStorage.Get(CustomerNoLbl), 1, MaxStrLen(CustomerNo));
         Customer.Get(CustomerNo);
-        LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationCode := LibraryStorage.Get('LocationCode');
-        //LibraryTCS.CreateGSTTCSSetup(Customer, TCSPostingSetup, ConcessionalCode);
-        LocationTan.Get(LocationCode);
-        TCANNo.FindFirst();
-        LocationTan.Validate("T.C.A.N. No.", TCANNo.Code);
-        LocationTan.Modify(true);
-        LibraryTCS.UpdateCustomerWithNOCWithOutConcessionalGST(Customer, true, true);
-        CreateTaxRateSetup(TCSPostingSetup."TCS Nature of Collection", Customer."Assessee Code", '', WorkDate());
+        LocationCode := CopyStr(LibraryStorage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
+        GSTTCSLibrary.CreateGSTTCSSetup(Customer, TCSNOC, TCSConcessionalCode, LocationCode);
+        GSTTCSLibrary.UpdateCustomerNOC(Customer, true, true);
+        CreateTaxRateSetup(TCSNOC, Customer."Assessee Code", '', WorkDate());
 
-        //[WHEN] Create and Post Sales Quote with GST and Line Type as G/L Account for Interstate Transactions
-        Qty := LibraryRandom.RandInt(5);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", SalesLine."No.", Qty);
+        // [WHEN] Create and Post Sales Quote with GST and Line Type as G/L Account for Interstate Transactions
+        LibraryStorage.Set(NoOfLineLbl, '1');
+        CreateSalesDocument(SalesHeader, SalesLine, LineType::"G/L Account", DocumentType::Quote);
 
-        //[THEN] Quote to Make Order Conversion
+        // [THEN] Quote to Make Order Conversion
         LibrarySales.QuoteMakeOrder(SalesHeader);
     end;
 
-    procedure UpdateCustomerSetupWithGST(
+    local procedure UpdateCustomerSetupWithGST(
         CustomerNo: Code[20];
         GSTCustomerType: Enum "GST Customer Type";
         StateCode: Code[10];
-        Pan: Code[20])
+        PANNo: Code[20])
     var
         Customer: Record Customer;
         State: Record State;
@@ -585,323 +409,250 @@ codeunit 18192 "GST TCS Transactions"
         if GSTCustomerType <> GSTCustomerType::Export then begin
             State.Get(StateCode);
             Customer.Validate("State Code", StateCode);
-            Customer.Validate("P.A.N. No.", Pan);
+            Customer.Validate("P.A.N. No.", PANNo);
             if not ((GSTCustomerType = GSTCustomerType::" ") or (GSTCustomerType = GSTCustomerType::Unregistered)) then
-                Customer.Validate("GST Registration No.", LibraryGST.GenerateGSTRegistrationNo(State."State Code (GST Reg. No.)", Pan));
+                Customer.Validate("GST Registration No.", LibraryGST.GenerateGSTRegistrationNo(State."State Code (GST Reg. No.)", PANNo));
         end;
         Customer.Validate(Address, CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(Customer.Address)));
         Customer.Validate("GST Customer Type", GSTCustomerType);
         Customer.Modify(true);
     end;
 
-    [PageHandler]
-    procedure GSTTCSTaxRatesPage(var TaxRate: TestPage "Tax Rates")
-    var
-        Location: Record Location;
-        AttributeCaption: Text[50];
-        TCSPercentage: Decimal;
-        NonPANTCSPercentage: Decimal;
-        SurchargePercentage: Decimal;
-        eCessPercentage: Decimal;
-        SHECessPercentage: Decimal;
-        EffectiveDate: Date;
-        TCSThresholdAmount: Decimal;
-        SurchargeThresholdAmount: Decimal;
-    begin
-        if TaxType = 'GST' then begin
-            TaxRate.AttributeValue1.SetValue(LibraryStorage.Get('HSNSACCode'));
-            TaxRate.AttributeValue2.SetValue(LibraryStorage.Get('GSTGroupCode'));
-            TaxRate.AttributeValue3.SetValue(LibraryStorage.Get('FromStateCode'));
-            TaxRate.AttributeValue4.SetValue(LibraryStorage.Get('ToStateCode'));
-            TaxRate.AttributeValue5.SetValue(Today);
-            TaxRate.AttributeValue6.SetValue(CalcDate('<10Y>', Today));
-            TaxRate.AttributeValue7.SetValue(componentPerArray[1]);
-            TaxRate.AttributeValue8.SetValue(componentPerArray[2]);
-            TaxRate.AttributeValue9.SetValue(componentPerArray[4]);
-            TaxRate.AttributeValue10.SetValue(componentPerArray[3]);
-            TaxRate.AttributeValue11.SetValue(componentPerArray[5]);
-            TaxRate.AttributeValue12.SetValue(componentPerArray[6]);
-            TaxRate.OK().Invoke();
-            Clear(TaxRate);
-        end;
-        if TaxType = 'TCS' then begin
-            Evaluate(EffectiveDate, LibraryStorage.Get('EffectiveDate'));
-            Evaluate(TCSPercentage, LibraryStorage.Get('TCSPercentage'));
-            Evaluate(NonPANTCSPercentage, LibraryStorage.Get('NonPANTCSPercentage'));
-            Evaluate(SurchargePercentage, LibraryStorage.Get('SurchargePercentage'));
-            Evaluate(eCessPercentage, LibraryStorage.Get('eCessPercentage'));
-            Evaluate(SHECessPercentage, LibraryStorage.Get('SHECessPercentage'));
-            Evaluate(TCSThresholdAmount, LibraryStorage.Get('TCSThresholdAmount'));
-            Evaluate(SurchargeThresholdAmount, LibraryStorage.Get('SurchargeThresholdAmount'));
-
-            TaxRate.AttributeValue1.SetValue(LibraryStorage.Get('TCSNOCType'));
-            TaxRate.AttributeValue2.SetValue(LibraryStorage.Get('TCSAssesseeCode'));
-            TaxRate.AttributeValue3.SetValue(LibraryStorage.Get('TCSConcessionalCode'));
-            TaxRate.AttributeValue4.SetValue(EffectiveDate);
-            TaxRate.AttributeValue5.SetValue(TCSPercentage);
-            TaxRate.AttributeValue6.SetValue(SurchargePercentage);
-            TaxRate.AttributeValue7.SetValue(NonPANTCSPercentage);
-            TaxRate.AttributeValue8.SetValue(eCessPercentage);
-            TaxRate.AttributeValue9.SetValue(SHECessPercentage);
-            TaxRate.AttributeValue10.SetValue(TCSThresholdAmount);
-            TaxRate.AttributeValue11.SetValue(SurchargeThresholdAmount);
-            TaxRate.OK().Invoke();
-            TaxRate.OK().Invoke();
-        end;
-    end;
-
-    [PageHandler]
-    procedure TaxRatePageHandler(var TaxRate: TestPage "Tax Rates")
-    var
-        TCSPercentage: Decimal;
-        NonPANTCSPercentage: Decimal;
-        SurchargePercentage: Decimal;
-        eCessPercentage: Decimal;
-        SHECessPercentage: Decimal;
-        EffectiveDate: Date;
-        TCSThresholdAmount: Decimal;
-        SurchargeThresholdAmount: Decimal;
-    begin
-        Evaluate(EffectiveDate, LibraryStorage.Get('EffectiveDate'));
-        Evaluate(TCSPercentage, LibraryStorage.Get('TCSPercentage'));
-        Evaluate(NonPANTCSPercentage, LibraryStorage.Get('NonPANTCSPercentage'));
-        Evaluate(SurchargePercentage, LibraryStorage.Get('SurchargePercentage'));
-        Evaluate(eCessPercentage, LibraryStorage.Get('eCessPercentage'));
-        Evaluate(SHECessPercentage, LibraryStorage.Get('SHECessPercentage'));
-        Evaluate(TCSThresholdAmount, LibraryStorage.Get('TCSThresholdAmount'));
-        Evaluate(SurchargeThresholdAmount, LibraryStorage.Get('SurchargeThresholdAmount'));
-
-        TaxRate.AttributeValue1.SetValue(LibraryStorage.Get('TCSNOCType'));
-        TaxRate.AttributeValue2.SetValue(LibraryStorage.Get('TCSAssesseeCode'));
-        TaxRate.AttributeValue3.SetValue(LibraryStorage.Get('TCSConcessionalCode'));
-        TaxRate.AttributeValue4.SetValue(EffectiveDate);
-        TaxRate.AttributeValue5.SetValue(TCSPercentage);
-        TaxRate.AttributeValue6.SetValue(SurchargePercentage);
-        TaxRate.AttributeValue7.SetValue(NonPANTCSPercentage);
-        TaxRate.AttributeValue8.SetValue(eCessPercentage);
-        TaxRate.AttributeValue9.SetValue(SHECessPercentage);
-        TaxRate.AttributeValue10.SetValue(TCSThresholdAmount);
-        TaxRate.AttributeValue11.SetValue(SurchargeThresholdAmount);
-        TaxRate.OK().Invoke();
-    end;
-
     local procedure CreateSalesDocument(
         var SalesHeader: Record "Sales Header";
         var SalesLine: Record "Sales Line";
-        DocumenType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        DocumentType: Enum "Sales Document Type"): Code[20]
+    var
         CustomerNo: Code[20];
         LocationCode: Code[10];
-        GSTGroupCode: Code[20];
-        HSNSACCode: Code[10];
-        LineType: Enum "Sales Line Type";
-        WithoutPaymentofDuty: Boolean;
-        PlaceofSupply: Boolean;
-        AssessableValue: Boolean;
-        NoOfLine: Integer)
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        LineTypeNo: Code[20];
-        Amount: Decimal;
-        LineNo: Integer;
     begin
-        CreateSalesHeader(SalesHeader, CustomerNo, DocumenType, LocationCode, WithoutPaymentofDuty, PlaceofSupply);
-
-        for LineNo := 1 to NoOfLine do begin
-            Amount := LibraryRandom.RandDec(1000, 2);
-            case LineType of
-                LineType::Item:
-                    LineTypeNo := LibraryGST.CreateItemWithGSTDetails(VATPostingSetup, GSTGroupCode, HSNSACCode, true, false);
-                LineType::"G/L Account":
-                    LineTypeNo := LibraryGST.CreateGLAccWithGSTDetails(VATPostingSetup, GSTGroupCode, HSNSACCode, true, false);
-                LineType::"Fixed Asset":
-                    LineTypeNo := LibraryGST.CreateFixedAssetWithGSTDetails(VATPostingSetup, GSTGroupCode, HSNSACCode, true, false);
-            end;
-            CreateSalesLine(SalesHeader, SalesLine, LineType, LineTypeNo, LibraryRandom.RandDecInRange(2, 10, 0), Amount, AssessableValue);
-        end;
+        CustomerNo := CopyStr(LibraryStorage.Get(CustomerNoLbl), 1, MaxStrLen(CustomerNo));
+        LocationCode := CopyStr(LibraryStorage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
+        CreateSalesHeaderWithGST(SalesHeader, CustomerNo, DocumentType, LocationCode);
+        CreateSalesLineWithGST(SalesHeader, SalesLine, LineType, LibraryRandom.RandDecInRange(2, 10, 0), StorageBoolean.Get(ExemptedLbl), StorageBoolean.Get(LineDiscountLbl));
+        exit(SalesHeader."No.");
     end;
 
-    local procedure CreateSalesHeader(
+    local procedure CreateAndPostSalesDocument(
+        var SalesHeader: Record "Sales Header";
+        var SalesLine: Record "Sales Line";
+        LineType: Enum "Sales Line Type";
+        DocumentType: Enum "Sales Document Type"): Code[20];
+    var
+        CustomerNo: Code[20];
+        LocationCode: Code[10];
+        PostedDocumentNo: Code[20];
+    begin
+        CustomerNo := CopyStr(LibraryStorage.Get(CustomerNoLbl), 1, MaxStrLen(CustomerNo));
+        LocationCode := CopyStr(LibraryStorage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
+        CreateSalesHeaderWithGST(SalesHeader, CustomerNo, DocumentType, LocationCode);
+        CreateSalesLineWithGST(SalesHeader, SalesLine, LineType, LibraryRandom.RandDecInRange(2, 10, 0), StorageBoolean.Get(ExemptedLbl), StorageBoolean.Get(LineDiscountLbl));
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        exit(PostedDocumentNo);
+    end;
+
+    local procedure CreateSalesHeaderWithGST(
         var SalesHeader: Record "Sales Header";
         CustomerNo: Code[20];
         DocumentType: Enum "Sales Document Type";
-        LocationCode: Code[10];
+        LocationCode: Code[10])
+    var
         WithoutPaymentofDuty: Boolean;
-        PlaceofSupply: Boolean)
+        POS: Boolean;
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Posting Date", WorkDate());
         SalesHeader.Validate("Location Code", LocationCode);
 
-        if WithoutPaymentofDuty then
-            SalesHeader.Validate("GST Without Payment of Duty", true);
-
-        if PlaceofSupply then begin
-            SalesHeader.Validate("GST Invoice", true);
-            SalesHeader.Validate("POS Out Of India", true);
+        if StorageBoolean.ContainsKey(WithoutPaymentofDutyLbl) then begin
+            WithoutPaymentofDuty := StorageBoolean.Get(WithoutPaymentofDutyLbl);
+            if WithoutPaymentofDuty then
+                SalesHeader.Validate("GST Without Payment of Duty", true);
+        end;
+        if StorageBoolean.ContainsKey(POSLbl) then begin
+            POS := StorageBoolean.Get(POSLbl);
+            if POS then begin
+                SalesHeader.Validate("GST Invoice", true);
+                SalesHeader.Validate("POS Out Of India", true);
+            end;
         end;
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesLine(
+    local procedure CreateSalesLineWithGST(
         var SalesHeader: Record "Sales Header";
         var SalesLine: Record "Sales Line";
-        Type: Enum "Sales Line Type";
-        ItemNo: Code[20];
-        Qty: Decimal;
-        Amount: Decimal;
-        AssessableValue: Boolean)
+        LineType: Enum "Sales Line Type";
+        Quantity: Decimal;
+        Exempted: Boolean;
+        LineDiscount: Boolean)
     var
+        VATPostingSetup: Record "VAT Posting Setup";
+        LineTypeNo: Code[20];
         TCSNOCType: Code[10];
+        LineNo: Integer;
+        NoOfLine: Integer;
     begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, ItemNo, Qty);
-        SalesLine.Validate(Quantity, Qty);
-        if AssessableValue then begin
-            SalesLine.Validate("GST On Assessable Value", true);
-            SalesLine.Validate("GST Assessable Value (LCY)", Amount);
+        Evaluate(NoOfLine, LibraryStorage.Get(NoOfLineLbl));
+        for LineNo := 1 to NoOfLine do begin
+            case LineType of
+                LineType::Item:
+                    LineTypeNo := LibraryGST.CreateItemWithGSTDetails(VATPostingSetup, (LibraryStorage.Get(GSTGroupCodeLbl)), (LibraryStorage.Get(HSNSACCodeLbl)), true, Exempted);
+                LineType::"G/L Account":
+                    LineTypeNo := LibraryGST.CreateGLAccWithGSTDetails(VATPostingSetup, (LibraryStorage.Get(GSTGroupCodeLbl)), (LibraryStorage.Get(HSNSACCodeLbl)), true, Exempted);
+                LineType::"Fixed Asset":
+                    LineTypeNo := LibraryGST.CreateFixedAssetWithGSTDetails(VATPostingSetup, (LibraryStorage.Get(GSTGroupCodeLbl)), (LibraryStorage.Get(HSNSACCodeLbl)), true, Exempted);
+            end;
+
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, LineType, LineTypeno, Quantity);
+            SalesLine.Validate("VAT Prod. Posting Group", VATPostingsetup."VAT Prod. Posting Group");
+            if LineDiscount then begin
+                SalesLine.Validate("Line Discount %", LibraryRandom.RandDecInRange(10, 20, 2));
+                LibraryGST.UpdateLineDiscAccInGeneralPostingSetup(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+            end;
+            TCSNOCType := CopyStr(LibraryStorage.Get(TCSNOCTypeLbl), 1, MaxStrLen(TCSNOCType));
+            GSTTCSLibrary.UpdateSalesLineWithTCSNOC(SalesLine, TCSNOCType);
+            SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10000));
+            SalesLine.Modify(true);
         end;
-        TCSNOCType := LibraryStorage.Get('TCSNOCType');
-        SalesLine.Validate("TCS Nature of Collection", TCSNOCType);
-        SalesLine.Validate("Unit Price", Amount);
-        SalesLine.Modify(true);
     end;
 
-    local procedure Initialize(
+    local procedure CreateGSTSetup(
         GSTCustomerType: Enum "GST Customer Type";
         GSTGroupType: Enum "GST Group Type";
         IntraState: Boolean)
     var
         GSTGroup: Record "GST Group";
         HSNSAC: Record "HSN/SAC";
-        GSTComponent: Record "Tax Component";
+        TaxComponent: Record "Tax Component";
+        GSTSetup: Record "GST Setup";
         CompanyInformation: Record "Company information";
-        TaxTypeSetup: Record "Tax Type Setup";
         LocationStateCode: Code[10];
         CustomerNo: Code[20];
         LocationCode: Code[10];
         CustomerStateCode: Code[10];
-        LocPan: Code[20];
+        LocPANNo: Code[20];
         HSNSACCode: Code[10];
         GSTGroupCode: Code[20];
         LocationGSTRegNo: Code[15];
-        CompInfoStateCode: Code[10];
         HsnSacType: Enum "GST Goods And Services Type";
-        GSTcomponentcode: Text[30];
+        GSTComponentCode: Text[30];
     begin
         FillCompanyInformation();
         CompanyInformation.Get();
-        LocPan := LibraryStorage.Get('PANNo');
+        LocPANNo := CopyStr(LibraryStorage.Get(PANNoLbl), 1, MaxStrLen(LocPANNo));
         LocationStateCode := LibraryGST.CreateInitialSetup();
         if CompanyInformation."State Code" = '' then begin
             CompanyInformation."State Code" := LocationStateCode;
             CompanyInformation.Modify(true);
         end;
-        LibraryStorage.Set('LocationStateCode', LocationStateCode);
+        LibraryStorage.Set(LocationStateCodeLbl, LocationStateCode);
 
-        LocationGSTRegNo := LibraryGST.CreateGSTRegistrationNos(LocationStateCode, LocPan);
+        LocationGSTRegNo := LibraryGST.CreateGSTRegistrationNos(LocationStateCode, LocPANNo);
         if CompanyInformation."GST Registration No." = '' then begin
             CompanyInformation."GST Registration No." := LocationGSTRegNo;
             CompanyInformation.Modify(true);
         end;
 
         LocationCode := LibraryGST.CreateLocationSetup(LocationStateCode, LocationGSTRegNo, false);
-        LibraryStorage.Set('LocationCode', LocationCode);
+        LibraryStorage.Set(LocationCodeLbl, LocationCode);
 
         GSTGroupCode := LibraryGST.CreateGSTGroup(GSTGroup, GSTGroupType, GSTGroup."GST Place Of Supply"::" ", false);
-        LibraryStorage.Set('GSTGroupCode', GSTGroupCode);
+        LibraryStorage.Set(GSTGroupCodeLbl, GSTGroupCode);
 
         HSNSACCode := LibraryGST.CreateHSNSACCode(HSNSAC, GSTGroupCode, HsnSacType::HSN);
-        LibraryStorage.Set('HSNSACCode', HSNSACCode);
+        LibraryStorage.Set(HSNSACCodeLbl, HSNSACCode);
 
         if IntraState then begin
             CustomerNo := LibraryGST.CreateCustomerSetup();
-            UpdateCustomerSetupWithGST(CustomerNo, GSTCustomerType, LocationStateCode, LocPan);
-            InitializeTaxRateParameters(IntraState, LocationStateCode, LocationStateCode);
-            CreateGSTComponentAndPostingSetup(IntraState, LocationStateCode, GSTComponent, GSTcomponentcode);
+            UpdateCustomerSetupWithGST(CustomerNo, GSTCustomerType, LocationStateCode, LocPANNo);
+            CreateGSTSetupTaxRateParameters(IntraState, LocationStateCode, LocationStateCode);
+            CreateGSTComponentAndPostingSetup(IntraState, LocationStateCode, TaxComponent, GSTComponentCode);
         end else begin
             CustomerStateCode := LibraryGST.CreateGSTStateCode();
             CustomerNo := LibraryGST.CreateCustomerSetup();
-            UpdateCustomerSetupWithGST(CustomerNo, GSTCustomerType, CustomerStateCode, LocPan);
-            LibraryStorage.Set('CustomerStateCode', CustomerStateCode);
+            UpdateCustomerSetupWithGST(CustomerNo, GSTCustomerType, CustomerStateCode, LocPANNo);
             if GSTCustomerType in [GSTCustomerType::Export, GSTCustomerType::"SEZ Unit", GSTCustomerType::"SEZ Development"] then
-                InitializeTaxRateParameters(IntraState, '', LocationStateCode)
+                CreateGSTSetupTaxRateParameters(IntraState, '', LocationStateCode)
             else begin
-                InitializeTaxRateParameters(IntraState, CustomerStateCode, LocationStateCode);
-                CreateGSTComponentAndPostingSetup(IntraState, LocationStateCode, GSTComponent, GSTcomponentcode);
+                CreateGSTSetupTaxRateParameters(IntraState, CustomerStateCode, LocationStateCode);
+                CreateGSTComponentAndPostingSetup(IntraState, LocationStateCode, TaxComponent, GSTComponentCode);
             end;
         end;
-        LibraryStorage.Set('CustomerNo', CustomerNo);
+        LibraryStorage.Set(CustomerNoLbl, CustomerNo);
 
-        if not TaxTypeSetup.Get() then
+        if not GSTSetup.Get() then
             exit;
-        TaxType := TaxTypeSetup.Code;
+
+        TaxType := GSTSetup."GST Tax Type";
         CreateGSTRate();
     end;
 
-    local procedure InitializeSharedStep(Exempted: Boolean; LineDiscount: Boolean)
+    local procedure InitializeSharedStep(
+        Exempted: Boolean;
+        LineDiscount: Boolean)
     begin
-        LibraryStorage.Set('Exempted', Format(Exempted));
-        LibraryStorage.Set('LineDiscount', Format(LineDiscount));
+        StorageBoolean.Set(ExemptedLbl, Exempted);
+        StorageBoolean.Set(LineDiscountLbl, LineDiscount);
     end;
 
-    local procedure InitializeTaxRateParameters(IntraState: Boolean; FromState: Code[10]; ToState: Code[10])
+    local procedure CreateGSTSetupTaxRateParameters(
+        IntraState: Boolean;
+        FromState: Code[10];
+        ToState: Code[10])
     var
         GSTTaxPercent: Decimal;
     begin
-        LibraryStorage.Set('FromStateCode', FromState);
-        LibraryStorage.Set('ToStateCode', ToState);
+        LibraryStorage.Set(FromStateCodeLbl, FromState);
+        LibraryStorage.Set(ToStateCodeLbl, ToState);
 
         GSTTaxPercent := LibraryRandom.RandDecInRange(10, 18, 0);
         if IntraState then begin
-            componentPerArray[1] := (GSTTaxPercent / 2);
-            componentPerArray[2] := (GSTTaxPercent / 2);
-            componentPerArray[3] := 0;
+            ComponentPerArray[1] := (GSTTaxPercent / 2);
+            ComponentPerArray[2] := (GSTTaxPercent / 2);
+            ComponentPerArray[3] := 0.00;
         end else
-            componentPerArray[4] := GSTTaxPercent;
+            ComponentPerArray[4] := GSTTaxPercent;
     end;
 
     local procedure CreateGSTComponentAndPostingSetup(
         IntraState: Boolean;
         LocationStateCode: Code[10];
-        GSTComponent: Record "Tax Component";
-        GSTcomponentcode: Text[30])
+        TaxComponent: Record "Tax Component";
+        GSTComponentCode: Text[30])
     begin
         if IntraState then begin
-            GSTcomponentcode := 'CGST';
-            LibraryGST.CreateGSTComponent(GSTComponent, GSTcomponentcode);
-            LibraryGST.CreateGSTPostingSetup(GSTComponent, LocationStateCode);
+            GSTComponentCode := CGSTLbl;
+            LibraryGST.CreateGSTComponent(TaxComponent, GSTComponentCode);
+            LibraryGST.CreateGSTPostingSetup(TaxComponent, LocationStateCode);
 
-            GSTcomponentcode := 'UTGST';
-            LibraryGST.CreateGSTComponent(GSTComponent, GSTcomponentcode);
-            LibraryGST.CreateGSTPostingSetup(GSTComponent, LocationStateCode);
-
-            GSTcomponentcode := 'SGST';
-            LibraryGST.CreateGSTComponent(GSTComponent, GSTcomponentcode);
-            LibraryGST.CreateGSTPostingSetup(GSTComponent, LocationStateCode);
+            GSTComponentCode := SGSTLbl;
+            LibraryGST.CreateGSTComponent(TaxComponent, GSTComponentCode);
+            LibraryGST.CreateGSTPostingSetup(TaxComponent, LocationStateCode);
         end else begin
-            GSTcomponentcode := 'IGST';
-            LibraryGST.CreateGSTComponent(GSTComponent, GSTcomponentcode);
-            LibraryGST.CreateGSTPostingSetup(GSTComponent, LocationStateCode);
+            GSTComponentCode := IGSTLbl;
+            LibraryGST.CreateGSTComponent(TaxComponent, GSTComponentCode);
+            LibraryGST.CreateGSTPostingSetup(TaxComponent, LocationStateCode);
         end;
     end;
 
     local procedure CreateTCSRate()
     var
-        TCSSetup: Record "TCS Setup";
-        PageTaxtype: TestPage "Tax Types";
+        TaxTypes: TestPage "Tax Types";
     begin
-        PageTaxtype.OpenEdit();
-        PageTaxtype.Filter.SetFilter(Code, TaxType);
-        PageTaxtype.TaxRates.Invoke();
+        TaxTypes.OpenEdit();
+        TaxTypes.Filter.SetFilter(Code, TaxType);
+        TaxTypes.TaxRates.Invoke();
     end;
 
     local procedure CreateGSTRate()
     var
-        TaxTypeSetup: Record "Tax Type Setup";
-        PageTaxtype: TestPage "Tax Types";
+        TaxTypes: TestPage "Tax Types";
     begin
-        PageTaxtype.OpenEdit();
-        PageTaxtype.Filter.SetFilter(Code, TaxType);
-        PageTaxtype.TaxRates.Invoke();
+        TaxTypes.OpenEdit();
+        TaxTypes.Filter.SetFilter(Code, TaxType);
+        TaxTypes.TaxRates.Invoke();
     end;
 
     local procedure CreateTaxRateSetup(
@@ -909,44 +660,94 @@ codeunit 18192 "GST TCS Transactions"
         AssesseeCode: Code[10];
         ConcessionalCode: Code[10];
         EffectiveDate: Date)
-    var
-        TCSSetup: Record "TCS Setup";
     begin
-        LibraryStorage.Set('TCSNOCType', TCSNOC);
-        LibraryStorage.Set('TCSAssesseeCode', AssesseeCode);
-        LibraryStorage.Set('TCSConcessionalCode', ConcessionalCode);
-        LibraryStorage.Set('EffectiveDate', Format(EffectiveDate));
+        LibraryStorage.Set(TCSNOCTypeLbl, TCSNOC);
+        LibraryStorage.Set(TCSAssesseeCodeLbl, AssesseeCode);
+        LibraryStorage.Set(TCSConcessionalCodeLbl, ConcessionalCode);
+        LibraryStorage.Set(EffectiveDateLbl, Format(EffectiveDate, 0, 9));
         GenerateTaxComponentsPercentage();
-        TaxType := TCSSetup."Tax Type";
+        TaxType := GSTTCSLibrary.GetTCSTaxTypeCode();
+
         CreateTCSRate();
     end;
 
     local procedure GenerateTaxComponentsPercentage()
     begin
-        LibraryStorage.Set('TCSPercentage', Format(LibraryRandom.RandIntInRange(2, 4)));
-        LibraryStorage.Set('NonPANTCSPercentage', Format(LibraryRandom.RandIntInRange(6, 10)));
-        LibraryStorage.Set('SurchargePercentage', Format(LibraryRandom.RandIntInRange(6, 10)));
-        LibraryStorage.Set('eCessPercentage', Format(LibraryRandom.RandIntInRange(2, 4)));
-        LibraryStorage.Set('SHECessPercentage', Format(LibraryRandom.RandIntInRange(2, 4)));
-        LibraryStorage.Set('TCSThresholdAmount', Format(LibraryRandom.RandIntInRange(4000, 6000)));
-        LibraryStorage.Set('SurchargeThresholdAmount', Format(LibraryRandom.RandIntInRange(4000, 6000)));
+        LibraryStorage.Set(TCSPercentageLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        LibraryStorage.Set(NonPANTCSPercentageLbl, Format(LibraryRandom.RandIntInRange(6, 10)));
+        LibraryStorage.Set(SurchargePercentageLbl, Format(LibraryRandom.RandIntInRange(6, 10)));
+        LibraryStorage.Set(eCessPercentageLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        LibraryStorage.Set(SHECessPercentageLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        LibraryStorage.Set(TCSThresholdAmountLbl, Format(LibraryRandom.RandIntInRange(4000, 6000)));
+        LibraryStorage.Set(SurchargeThresholdAmountLbl, Format(LibraryRandom.RandIntInRange(4000, 6000)));
     end;
 
     local procedure FillCompanyInformation()
     var
-        CompInfo: Record "Company Information";
-        GSTRegistrationNos: Record "GST Registration Nos.";
+        CompanyInformation: Record "Company Information";
     begin
-        CompInfo.Get();
-        if CompInfo."State Code" = '' then
-            CompInfo.Validate("State Code", LibraryGST.CreateGSTStateCode());
-        LibraryStorage.Set('CompInfoStateCode', CompInfo."State Code");
-        CompInfo.Validate("Circle No.", LibraryUtility.GenerateRandomText(30));
-        CompInfo."P.A.N. No." := LibraryGST.CreatePANNos();
-        LibraryStorage.Set('PANNo', CompInfo."P.A.N. No.");
-        CompInfo.Validate("Ward No.", LibraryUtility.GenerateRandomText(30));
-        CompInfo.Validate("Assessing Officer", LibraryUtility.GenerateRandomText(30));
-        //CompInfo.Validate("Deductor Category", LibraryTCS.CreateDeductorCategory());
-        CompInfo.Modify(true);
+        CompanyInformation.Get();
+        if CompanyInformation."State Code" = '' then
+            CompanyInformation.Validate("State Code", LibraryGST.CreateGSTStateCode());
+        CompanyInformation."P.A.N. No." := LibraryGST.CreatePANNos();
+        LibraryStorage.Set(PANNoLbl, CompanyInformation."P.A.N. No.");
+        CompanyInformation.Modify(true);
+    end;
+
+    [PageHandler]
+    procedure GSTTCSTaxRatesPage(var TaxRates: TestPage "Tax Rates")
+    var
+        GSTSetup: Record "GST Setup";
+        TCSPercentage: Decimal;
+        NonPANTCSPercentage: Decimal;
+        SurchargePercentage: Decimal;
+        eCessPercentage: Decimal;
+        SHECessPercentage: Decimal;
+        EffectiveDate: Date;
+        TCSThresholdAmount: Decimal;
+        SurchargeThresholdAmount: Decimal;
+    begin
+        if not GSTSetup.Get() then
+            exit;
+
+        if TaxType = GSTSetup."GST Tax Type" then begin
+            TaxRates.New();
+            TaxRates.AttributeValue1.SetValue(LibraryStorage.Get(GSTGroupCodeLbl));
+            TaxRates.AttributeValue2.SetValue(LibraryStorage.Get(HSNSACCodeLbl));
+            TaxRates.AttributeValue3.SetValue(LibraryStorage.Get(FromStateCodeLbl));
+            TaxRates.AttributeValue4.SetValue(LibraryStorage.Get(ToStateCodeLbl));
+            TaxRates.AttributeValue5.SetValue(WorkDate());
+            TaxRates.AttributeValue6.SetValue(CalcDate('<10Y>', WorkDate()));
+            TaxRates.AttributeValue7.SetValue(ComponentPerArray[1]); // SGST
+            TaxRates.AttributeValue8.SetValue(ComponentPerArray[2]); // CGST
+            TaxRates.AttributeValue9.SetValue(ComponentPerArray[4]); // IGST
+            TaxRates.AttributeValue10.SetValue(ComponentPerArray[3]); // KFloodCess
+            TaxRates.OK().Invoke();
+            Clear(TaxRates);
+        end;
+        if TaxType = GSTTCSLibrary.GetTCSTaxTypeCode() then begin
+            Evaluate(EffectiveDate, LibraryStorage.Get(EffectiveDateLbl), 9);
+            Evaluate(TCSPercentage, LibraryStorage.Get(TCSPercentageLbl));
+            Evaluate(NonPANTCSPercentage, LibraryStorage.Get(NonPANTCSPercentageLbl));
+            Evaluate(SurchargePercentage, LibraryStorage.Get(SurchargePercentageLbl));
+            Evaluate(eCessPercentage, LibraryStorage.Get(eCessPercentageLbl));
+            Evaluate(SHECessPercentage, LibraryStorage.Get(SHECessPercentageLbl));
+            Evaluate(TCSThresholdAmount, LibraryStorage.Get(TCSThresholdAmountLbl));
+            Evaluate(SurchargeThresholdAmount, LibraryStorage.Get(SurchargeThresholdAmountLbl));
+
+            TaxRates.New();
+            TaxRates.AttributeValue1.SetValue(LibraryStorage.Get(TCSNOCTypeLbl));
+            TaxRates.AttributeValue2.SetValue(LibraryStorage.Get(TCSAssesseeCodeLbl));
+            TaxRates.AttributeValue3.SetValue(LibraryStorage.Get(TCSConcessionalCodeLbl));
+            TaxRates.AttributeValue4.SetValue(EffectiveDate);
+            TaxRates.AttributeValue5.SetValue(TCSPercentage);
+            TaxRates.AttributeValue6.SetValue(SurchargePercentage);
+            TaxRates.AttributeValue7.SetValue(NonPANTCSPercentage);
+            TaxRates.AttributeValue8.SetValue(eCessPercentage);
+            TaxRates.AttributeValue9.SetValue(SHECessPercentage);
+            TaxRates.AttributeValue10.SetValue(TCSThresholdAmount);
+            TaxRates.AttributeValue11.SetValue(SurchargeThresholdAmount);
+            TaxRates.OK().Invoke();
+        end;
     end;
 }

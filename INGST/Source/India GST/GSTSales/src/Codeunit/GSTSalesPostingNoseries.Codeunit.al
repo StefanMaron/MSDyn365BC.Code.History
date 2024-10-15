@@ -1,5 +1,8 @@
 codeunit 18142 "GST Sales Posting No. Series"
 {
+    var
+        PostingNoSeries: Record "Posting No. Series";
+
     //No Series for Sales 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertEvent(var Rec: Record "Sales Header")
@@ -93,6 +96,13 @@ codeunit 18142 "GST Sales Posting No. Series"
         Rec := Record;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterValidateEvent', 'Invoice Type', false, false)]
+    local procedure PurchaseInvoiceType(var Rec: Record "Sales Header")
     var
-        PostingNoSeries: Record "Posting No. Series";
+        Record: Variant;
+    begin
+        Record := Rec;
+        PostingNoSeries.GetPostingNoSeriesCode(Record);
+        Rec := Record;
+    end;
 }

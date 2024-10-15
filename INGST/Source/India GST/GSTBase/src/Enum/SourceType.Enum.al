@@ -2,7 +2,7 @@ enum 18046 "Source Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Customer)
     {

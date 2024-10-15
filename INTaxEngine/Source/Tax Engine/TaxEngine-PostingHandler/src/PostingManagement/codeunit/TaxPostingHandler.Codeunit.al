@@ -1,5 +1,15 @@
 codeunit 20345 "Tax Posting Handler"
 {
+    procedure GetCurrency(CurrencyCode: Code[10]; var Currency: Record Currency)
+    begin
+        if CurrencyCode = '' then
+            Currency.InitRoundingPrecision()
+        else begin
+            Currency.Get(CurrencyCode);
+            Currency.TestField("Amount Rounding Precision");
+        end;
+    end;
+
     [EventSubscriber(ObjectType::Page, page::"Switch Statements", 'OnMappingAssitEdit', '', false, false)]
     local procedure OnMappingAssitEdit(var SwitchCase: Record "Switch Case")
     var
@@ -119,13 +129,11 @@ codeunit 20345 "Tax Posting Handler"
         ScriptID: Guid;
         var Symbols: Record "Script Symbol Value")
     begin
-        InitTaxPostingFields(sender, CaseID, ScriptID, Symbols);
+        InitTaxPostingFields(sender, Symbols);
     end;
 
     local procedure InitTaxPostingFields(
         sender: Codeunit "Script Symbol Store";
-        CaseID: Guid;
-        ScriptID: Guid;
         var Symbols: Record "Script Symbol Value");
     var
         PostingFields: Enum "Posting Field Symbol";
@@ -253,8 +261,6 @@ codeunit 20345 "Tax Posting Handler"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Use Case Mgmt.", 'OnAfterOpenPostingSetup', '', false, false)]
     local procedure OnAfterOpenPostingSetup(var TaxUseCase: Record "Tax Use Case")
-    var
-        UseCasePosting: page "Use Case Posting";
     begin
         Page.Run(Page::"Use Case Posting", TaxUseCase);
     end;

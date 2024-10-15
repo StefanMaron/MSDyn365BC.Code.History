@@ -11,12 +11,12 @@ page 18686 "Act Applicable"
         {
             repeater(GroupName)
             {
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specify the tax rates prescribed under the IT Act or DATA for which the journal line has been created.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the IT Act.';

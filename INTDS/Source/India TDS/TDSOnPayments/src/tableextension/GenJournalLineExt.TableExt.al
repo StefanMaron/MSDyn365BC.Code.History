@@ -6,7 +6,7 @@ tableextension 18766 "GenJournalLineExt" extends "Gen. Journal Line"
         {
             Caption = 'Nature of Remittance';
             TableRelation = "TDS Nature of Remittance";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             trigger OnValidate()
             begin
                 if "Account Type" = "Account Type"::Vendor then
@@ -19,7 +19,7 @@ tableextension 18766 "GenJournalLineExt" extends "Gen. Journal Line"
         {
             Caption = 'Act Applicable';
             TableRelation = "Act Applicable";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             trigger OnValidate()
             begin
                 if "Account Type" = "Account Type"::Vendor then
@@ -31,27 +31,33 @@ tableextension 18766 "GenJournalLineExt" extends "Gen. Journal Line"
         field(18768; "Pay TDS"; Boolean)
         {
             Caption = 'Pay TDS';
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(18769; "Pay Work Tax"; Boolean)
-        {
-            Caption = 'Pay Work Tax';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(18770; "TDS Posting to G/L"; Boolean)
         {
             Caption = 'TDS Posting';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(18771; "TDS Invoice Amount"; Decimal)
         {
             Caption = 'TDS Invoice Amount';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(18772; "TDS Adjustment"; Boolean)
         {
             Caption = 'TDS Adjustment';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+        }
+        field(18773; "Include GST in TDS Base"; Boolean)
+        {
+            Caption = 'Include GST in TDS Base';
+            DataClassification = CustomerContent;
+            trigger OnValidate()
+            begin
+                TestField("Document Type", "Document Type"::Invoice);
+                if "TDS Section Code" <> '' then
+                    Error(GSTTDSIncErr);
+            end;
         }
         modify("Provisional Entry")
         {
@@ -68,9 +74,10 @@ tableextension 18766 "GenJournalLineExt" extends "Gen. Journal Line"
                 TestField("TDS Section Code");
                 TestField("Work Tax Nature Of Deduction", '');
                 if Amount >= 0 then
-                    ERROR(AmtNegativeErr);
+                    Error(AmtNegativeErr);
+
                 if GetTotalDocLines() > 1 then
-                    ERROR(MultiLineErr);
+                    Error(MultiLineErr);
             end;
         }
         modify("Work Tax Nature Of Deduction")
@@ -246,16 +253,16 @@ tableextension 18766 "GenJournalLineExt" extends "Gen. Journal Line"
 
     local procedure GetTotalDocLines(): Integer
     var
-        GenJnlLine: Record "Gen. Journal Line";
+        GenJournalLine: Record "Gen. Journal Line";
     begin
-        GenJnlLine.SETCURRENTKEY("Journal Template Name", "Journal Batch Name", "Document No.", "Line No.");
-        GenJnlLine.SETRANGE("Journal Template Name", "Journal Template Name");
-        GenJnlLine.SETRANGE("Journal Batch Name", "Journal Batch Name");
-        if GenJnlLine."Document No." = GenJnlLine."Old Document No." then
-            GenJnlLine.SETRANGE("Document No.", "Document No.")
+        GenJournalLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.", "Line No.");
+        GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
+        if GenJournalLine."Document No." = GenJournalLine."Old Document No." then
+            GenJournalLine.SetRange("Document No.", "Document No.")
         else
-            GenJnlLine.SETRANGE("Document No.", "Old Document No.");
-        exit(GenJnlLine.Count);
+            GenJournalLine.SetRange("Document No.", "Old Document No.");
+        exit(GenJournalLine.Count);
     end;
 
     var
@@ -263,4 +270,5 @@ tableextension 18766 "GenJournalLineExt" extends "Gen. Journal Line"
         ConfirmMessageMsg: label 'TDS Section Code %1 is not attached with Vendor No. %2, Do you want to assign to vendor & Continue ?', Comment = '%1 = TDS Section Code, %2= Vendor No.';
         AmtNegativeErr: Label 'Amount must be negative.';
         MultiLineErr: Label 'Multi Line transactions are not allowed for Provisional Entries.';
+        GSTTDSIncErr: Label 'Please make TDS Section Code blank before selecting Include GST in TDS Base.';
 }

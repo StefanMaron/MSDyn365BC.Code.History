@@ -28,17 +28,6 @@ page 20310 "Use Cases"
                     Caption = 'Tax Entity Name';
                     StyleExpr = DescriptionStyle;
                     ToolTip = 'Specifies the source table considered for computing tax components.';
-                    trigger OnValidate()
-                    begin
-                        TaxTypeObjectHelper.SearchTaxTypeTable("Tax Table ID", TaxEntityName, "Tax Type", false);
-                        FormatLine();
-                    end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        TaxTypeObjectHelper.OpenTaxTypeTransactionTableLookup("Tax Table ID", TaxEntityName, Text, "Tax Type");
-                        FormatLine();
-                    end;
                 }
                 field(Enable; Enable)
                 {
@@ -208,7 +197,6 @@ page 20310 "Use Cases"
 
     var
         AppObjectHelper: Codeunit "App Object Helper";
-        TaxTypeObjectHelper: Codeunit "Tax Type Object Helper";
         FilterTaxType: Code[20];
         TaxEntityName: Text[30];
         DescriptionStyle: Text;

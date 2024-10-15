@@ -7,12 +7,12 @@ table 20174 "Action Loop Through Rec. Field"
     {
         field(1; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(2; "Loop ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Loop ID';
             TableRelation = "Action Loop Through Records".ID where("Script ID" = field("Script ID"));
         }
@@ -38,12 +38,12 @@ table 20174 "Action Loop Through Rec. Field"
         }
         field(8; "Calculate Sum"; Boolean)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Calculate Sum';
         }
         field(9; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
     }

@@ -2,7 +2,7 @@ pageextension 20252 "Purchase Quote Ext" extends "Purchase Quote"
 {
     layout
     {
-        addbefore(IncomingDocAttachFactBox)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

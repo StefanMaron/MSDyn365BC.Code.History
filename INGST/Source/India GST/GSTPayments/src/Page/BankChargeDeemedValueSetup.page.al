@@ -17,15 +17,15 @@ page 18243 "Bank Charge Deemed Value Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to identify the set of bank charges.';
                 }
-                field("Upper Limit"; Rec."Upper Limit")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the upper limit for calculation of bank charges.';
-                }
                 field("Lower Limit"; Rec."Lower Limit")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the lower limit for calculation of bank charges.';
+                }
+                field("Upper Limit"; Rec."Upper Limit")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the upper limit for calculation of bank charges.';
                 }
                 field(Formula; Rec.Formula)
                 {

@@ -2,7 +2,7 @@ enum 18007 "Composition Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Retailer)
     {

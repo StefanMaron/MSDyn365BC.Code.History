@@ -2,7 +2,8 @@ table 18009 "HSN/SAC"
 {
     Caption = 'HSN/SAC';
     DataCaptionFields = "GST Group Code", Code;
-    DataClassification = EndUserIdentifiableInformation;
+    LookupPageId = "HSN/SAC";
+    DrillDownPageId = "HSN/SAC";
 
     fields
     {
@@ -10,26 +11,27 @@ table 18009 "HSN/SAC"
         {
             Caption = 'GST Group Code';
             NotBlank = true;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "GST Group";
         }
         field(2; "Code"; code[10])
         {
             Caption = 'Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             NotBlank = true;
         }
         field(3; "Description"; Text[50])
         {
             Caption = 'Description';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(4; "Type"; enum "GST Goods And Services Type")
         {
             Caption = 'Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
+
     keys
     {
         key(PK; "GST Group Code", Code)

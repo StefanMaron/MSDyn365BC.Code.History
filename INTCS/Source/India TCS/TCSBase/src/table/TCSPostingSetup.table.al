@@ -1,6 +1,5 @@
 table 18813 "TCS Posting Setup"
 {
-    DataClassification = EndUserIdentifiableInformation;
     LookupPageId = "TCS Posting Setup";
     DrillDownPageId = "TCS Posting Setup";
     Access = Public;
@@ -10,24 +9,23 @@ table 18813 "TCS Posting Setup"
     {
         field(1; "TCS Nature of Collection"; Code[10])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "TCS Nature Of Collection";
             NotBlank = true;
         }
-
         field(2; "Effective Date"; Date)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             NotBlank = true;
         }
         field(3; "TCS Account No."; code[20])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "G/L Account";
 
             trigger OnValidate()
             begin
-                CheckGLAcc("TCS Account No.", FALSE);
+                CheckGLAcc("TCS Account No.", false);
             end;
         }
     }
@@ -39,15 +37,16 @@ table 18813 "TCS Posting Setup"
             Clustered = true;
         }
     }
-    procedure CheckGLAcc(AccNo: code[20]; CheckDirectPosting: boolean)
+
+    procedure CheckGLAcc(AccNo: Code[20]; CheckDirectPosting: Boolean)
     var
-        GlAcc: Record "G/L Account";
+        GLAccount: Record "G/L Account";
     begin
-        IF AccNo <> '' then begin
-            GLAcc.GET(AccNo);
-            GLAcc.CheckGLAcc();
-            IF CheckDirectPosting then
-                GLAcc.TestField("Direct Posting", TRUE);
+        if AccNo <> '' then begin
+            GLAccount.Get(AccNo);
+            GLAccount.CheckGLAcc();
+            if CheckDirectPosting then
+                GLAccount.TestField("Direct Posting", true);
         end;
     end;
 }

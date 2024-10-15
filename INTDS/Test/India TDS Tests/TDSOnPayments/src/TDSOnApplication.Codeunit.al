@@ -2,10 +2,10 @@ codeunit 18805 "TDS On Application"
 {
     Subtype = Test;
 
-    [TEST]
-    //Scenario 353847 -Check if the program is calculating TDS in case of creating Purchase Invoice against an full advance payment
+    [Test]
+    // [SCENARIO] [353847] Check if the program is calculating TDS in case of creating Purchase Invoice against an full advance payment
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromPurchaseInvoiceWithFullAdvancePayemnt()
+    procedure PostFromPurchInvWithFullAdvancePayemnt()
     var
         GenJournalLine: Record "Gen. Journal Line";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -15,29 +15,29 @@ codeunit 18805 "TDS On Application"
         LineType: Enum "Purchase Line Type";
         PostedInvoiceNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithOutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted GenJournalLine and Purchase Invoice
+        // [WHEN] Created and Posted GenJournalLine and Purchase Invoice
         CreateGeneralJournalforTDSPayment(GenJournalLine, Vendor, WorkDate());
         DocumentNo := GenJournalLine."Document No.";
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         PostedInvoiceNo := CreateAndPostPurchaseDocumentWithFullApplication(
-                                    Vendor."No.",
-                                    DocumentNo,
-                                    DocumentType::Invoice,
-                                    LineType::"G/L Account");
+            Vendor."No.",
+            DocumentNo,
+            DocumentType::Invoice,
+            LineType::"G/L Account");
 
-        //[THEN] G/L Entries Verified
-        LibraryTDS.VerifyGLEntryCount(PostedInvoiceNo, 2);
+        // [THEN] G/L Entries Verified
+        VerifyGLEntryCount(PostedInvoiceNo, 2);
     end;
 
-    [TEST]
-    //Scenario 353848 -Check if the program is calculating TDS in case of creating Purchase Invoice against an partial advance payment
+    [Test]
+    // [SCENARIO] [353848] Check if the program is calculating TDS in case of creating Purchase Invoice against an partial advance payment
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromPurchaseInvoiceWithPartialAdvancePayment()
+    procedure PostFromPurchInvWithPartialAdvancePayment()
     var
         GenJournalLine: Record "Gen. Journal Line";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -47,29 +47,29 @@ codeunit 18805 "TDS On Application"
         LineType: Enum "Purchase Line Type";
         PostedInvoiceNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithOutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        ///[WHEN] Created and Posted GenJournalLine and Purchase Invoice
+        /// [WHEN] Created and Posted GenJournalLine and Purchase Invoice
         CreateGeneralJournalforTDSPayment(GenJournalLine, Vendor, WorkDate());
         DocumentNo := GenJournalLine."Document No.";
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         PostedInvoiceNo := CreateAndPostPurchaseDocumentWithPartialApplication(
-                                    Vendor."No.",
-                                    DocumentNo,
-                                    DocumentType::Invoice,
-                                    LineType::"G/L Account");
+            Vendor."No.",
+            DocumentNo,
+            DocumentType::Invoice,
+            LineType::"G/L Account");
 
-        //[THEN] G/L Entries Verified
-        LibraryTDS.VerifyGLEntryCount(PostedInvoiceNo, 2);
+        // [THEN] G/L Entries Verified
+        VerifyGLEntryCount(PostedInvoiceNo, 2);
     end;
 
-    [TEST]
-    //Scenario 353848 -Check if the program is calculating TDS in case of creating Purchase Invoice against an partial advance payment
+    [Test]
+    // [SCENARIO] [353848] Check if the program is calculating TDS in case of creating Purchase Invoice against an partial advance payment
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromPurchaseInvoiceWithExceedAdvancePaymentt()
+    procedure PostFromPurchInvWithExceedAdvancePaymentt()
     var
         GenJournalLine: Record "Gen. Journal Line";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -79,23 +79,23 @@ codeunit 18805 "TDS On Application"
         LineType: Enum "Purchase Line Type";
         PostedInvoiceNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithOutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted GenJournalLine and Purchase Invoice
+        // [WHEN] Created and Posted GenJournalLine and Purchase Invoice
         CreateGeneralJournalforTDSPayment(GenJournalLine, Vendor, WorkDate());
         DocumentNo := GenJournalLine."Document No.";
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         PostedInvoiceNo := CreateAndPostPurchaseDocumentWithExceedApplication(
-                               Vendor."No.",
-                               DocumentNo,
-                               DocumentType::Invoice,
-                               LineType::"G/L Account");
+            Vendor."No.",
+            DocumentNo,
+            DocumentType::Invoice,
+            LineType::"G/L Account");
 
-        //[THEN] G/L Entries Verified
-        LibraryTDS.VerifyGLEntryCount(PostedInvoiceNo, 2);
+        // [THEN] G/L Entries Verified
+        VerifyGLEntryCount(PostedInvoiceNo, 2);
     end;
 
     local procedure CreateGeneralJournalforTDSPayment(var GenJournalLine: Record "Gen. Journal Line"; var Vendor: Record Vendor; PostingDate: Date)
@@ -118,9 +118,9 @@ codeunit 18805 "TDS On Application"
     end;
 
     local procedure CreateAndPostPurchaseDocumentWithFullApplication(vendorNo: code[20];
-                     GLDocNo: code[20];
-                     DocumentType: Enum "Purchase Document Type";
-                     LineType: Enum "Purchase Line Type"): Code[20]
+        GLDocNo: code[20];
+        DocumentType: Enum "Purchase Document Type";
+        LineType: Enum "Purchase Line Type"): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -146,9 +146,9 @@ codeunit 18805 "TDS On Application"
     end;
 
     local procedure CreateAndPostPurchaseDocumentWithPartialApplication(vendorNo: code[20];
-                     GLDocNo: code[20];
-                     DocumentType: Enum "Purchase Document Type";
-                     LineType: Enum "Purchase Line Type"): Code[20]
+        GLDocNo: code[20];
+        DocumentType: Enum "Purchase Document Type";
+        LineType: Enum "Purchase Line Type"): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -168,9 +168,9 @@ codeunit 18805 "TDS On Application"
     end;
 
     local procedure CreateAndPostPurchaseDocumentWithExceedApplication(vendorNo: code[20];
-                         GLDocNo: code[20];
-                         DocumentType: Enum "Purchase Document Type";
-                         LineType: Enum "Purchase Line Type"): Code[20]
+        GLDocNo: code[20];
+        DocumentType: Enum "Purchase Document Type";
+        LineType: Enum "Purchase Line Type"): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -206,12 +206,12 @@ codeunit 18805 "TDS On Application"
     end;
 
     local procedure CreatePurchaseDocument(
-                    var PurchaseHeader: Record "Purchase Header";
-                    DocumentType: Enum "Purchase Document Type";
-                                      VendorNo: Code[20];
-                                      PostingDate: Date;
-                                      LineType: enum "Purchase Line Type";
-                                      LineDiscount: Boolean)
+        var PurchaseHeader: Record "Purchase Header";
+        DocumentType: Enum "Purchase Document Type";
+        VendorNo: Code[20];
+        PostingDate: Date;
+        LineType: enum "Purchase Line Type";
+        LineDiscount: Boolean)
     var
         PurchaseLine: Record "Purchase Line";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -230,12 +230,12 @@ codeunit 18805 "TDS On Application"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, GetLineTypeNo(Type), LibraryRandom.RandDec(1, 2));
         PurchaseLine.Validate(Quantity, LibraryRandom.RandIntInRange(1, 1));
         if LineDiscount then
-            PurchaseLine.VALIDATE("Line Discount %", LibraryRandom.RandDecInRange(10, 20, 2))
+            PurchaseLine.Validate("Line Discount %", LibraryRandom.RandDecInRange(10, 20, 2))
         else
-            PurchaseLine.VALIDATE("Line Discount %", 0);
+            PurchaseLine.Validate("Line Discount %", 0);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInDecimalRange(1000, 1001, 0));
-        PurchaseLine.MODIFY(TRUE);
-        PurchaseLine.MODIFY(TRUE);
+        PurchaseLine.Modify(true);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure GetLineTypeNo(Type: enum "Purchase Line Type"): Code[20]
@@ -257,6 +257,15 @@ codeunit 18805 "TDS On Application"
         exit(GLAccount."No.");
     end;
 
+    local procedure VerifyGLEntryCount(DocumentNo: Code[20]; ExpectedCount: Integer)
+    var
+        DummyGLEntry: Record "G/L Entry";
+        Assert: Codeunit Assert;
+    begin
+        DummyGLEntry.SetRange("Document No.", DocumentNo);
+        Assert.RecordCount(DummyGLEntry, ExpectedCount);
+    end;
+
     local procedure CreateTaxRateSetup(TDSSection: Code[10]; AssesseeCode: Code[10]; ConcessionlCode: Code[10]; EffectiveDate: Date)
     var
         Section: Code[10];
@@ -264,27 +273,27 @@ codeunit 18805 "TDS On Application"
         TDSConcessionlCode: Code[10];
     begin
         Section := TDSSection;
-        Storage.Set('SectionCode', Section);
+        Storage.Set(SectionCodeLbl, Section);
         TDSAssesseeCode := AssesseeCode;
-        Storage.Set('TDSAssesseeCode', TDSAssesseeCode);
+        Storage.Set(TDSAssesseeCodeLbl, TDSAssesseeCode);
         TDSConcessionlCode := ConcessionlCode;
-        Storage.Set('TDSConcessionalCode', TDSConcessionlCode);
-        Storage.Set('EffectiveDate', Format(EffectiveDate));
+        Storage.Set(TDSConcessionalCodeLbl, TDSConcessionlCode);
+        Storage.Set(EffectiveDateLbl, Format(EffectiveDate, 0, 9));
         CreateTaxRate();
     end;
 
     local procedure GenerateTaxComponentsPercentage()
     begin
-        Storage.Set('TDSPercentage', Format(LibraryRandom.RandIntInRange(2, 4)));
-        Storage.Set('NonPANTDSPercentage', Format(LibraryRandom.RandIntInRange(6, 10)));
-        Storage.Set('SurchargePercentage', Format(LibraryRandom.RandIntInRange(6, 10)));
-        Storage.Set('eCessPercentage', Format(LibraryRandom.RandIntInRange(2, 4)));
-        Storage.Set('SHECessPercentage', Format(LibraryRandom.RandIntInRange(2, 4)));
-        Storage.Set('TDSThresholdAmount', Format(LibraryRandom.RandIntInRange(4000, 6000)));
-        Storage.Set('SurchargeThresholdAmount', Format(LibraryRandom.RandIntInRange(4000, 6000)));
+        Storage.Set(TDSPercentageLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        Storage.Set(NonPANTDSPercentageLbl, Format(LibraryRandom.RandIntInRange(6, 10)));
+        Storage.Set(SurchargePercentageLbl, Format(LibraryRandom.RandIntInRange(6, 10)));
+        Storage.Set(ECessPercentageLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        Storage.Set(SHECessPercentageLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        Storage.Set(TDSThresholdAmountLbl, Format(LibraryRandom.RandIntInRange(4000, 6000)));
+        Storage.Set(SurchargeThresholdAmountLbl, Format(LibraryRandom.RandIntInRange(4000, 6000)));
     end;
 
-    Local procedure CreateTaxRate()
+    local procedure CreateTaxRate()
     var
         TDSSetup: Record "TDS Setup";
         PageTaxtype: TestPage "Tax Types";
@@ -308,19 +317,20 @@ codeunit 18805 "TDS On Application"
         SurchargeThresholdAmount: Decimal;
     begin
         GenerateTaxComponentsPercentage();
-        Evaluate(EffectiveDate, Storage.Get('EffectiveDate'));
-        Evaluate(TDSPercentage, Storage.Get('TDSPercentage'));
-        Evaluate(NonPANTDSPercentage, Storage.Get('NonPANTDSPercentage'));
-        Evaluate(SurchargePercentage, Storage.Get('SurchargePercentage'));
-        Evaluate(eCessPercentage, Storage.Get('eCessPercentage'));
-        Evaluate(SHECessPercentage, Storage.Get('SHECessPercentage'));
-        Evaluate(TDSThresholdAmount, Storage.Get('TDSThresholdAmount'));
-        Evaluate(SurchargeThresholdAmount, Storage.Get('SurchargeThresholdAmount'));
+        Evaluate(EffectiveDate, Storage.Get(EffectiveDateLbl), 9);
+        Evaluate(TDSPercentage, Storage.Get(TDSPercentageLbl));
+        Evaluate(NonPANTDSPercentage, Storage.Get(NonPANTDSPercentageLbl));
+        Evaluate(SurchargePercentage, Storage.Get(SurchargePercentageLbl));
+        Evaluate(eCessPercentage, Storage.Get(ECessPercentageLbl));
+        Evaluate(SHECessPercentage, Storage.Get(SHECessPercentageLbl));
+        Evaluate(TDSThresholdAmount, Storage.Get(TDSThresholdAmountLbl));
+        Evaluate(SurchargeThresholdAmount, Storage.Get(SurchargeThresholdAmountLbl));
 
-        TaxRate.AttributeValue1.SetValue(Storage.Get('SectionCode'));
-        TaxRate.AttributeValue2.SetValue(Storage.Get('TDSAssesseeCode'));
+        TaxRate.New();
+        TaxRate.AttributeValue1.SetValue(Storage.Get(SectionCodeLbl));
+        TaxRate.AttributeValue2.SetValue(Storage.Get(TDSAssesseeCodeLbl));
         TaxRate.AttributeValue3.SetValue(EffectiveDate);
-        TaxRate.AttributeValue4.SetValue(Storage.Get('TDSConcessionalCode'));
+        TaxRate.AttributeValue4.SetValue(Storage.Get(TDSConcessionalCodeLbl));
         TaxRate.AttributeValue5.SetValue('');
         TaxRate.AttributeValue6.SetValue('');
         TaxRate.AttributeValue7.SetValue('');
@@ -331,9 +341,7 @@ codeunit 18805 "TDS On Application"
         TaxRate.AttributeValue12.SetValue(SHECessPercentage);
         TaxRate.AttributeValue13.SetValue(TDSThresholdAmount);
         TaxRate.AttributeValue14.SetValue(SurchargeThresholdAmount);
-        TaxRate.AttributeValue15.SetValue('');
-        TaxRate.AttributeValue16.SetValue('');
-        TaxRate.AttributeValue17.SetValue(0.00);
+        TaxRate.AttributeValue15.SetValue(0.00);
         TaxRate.OK().Invoke();
     end;
 
@@ -343,4 +351,15 @@ codeunit 18805 "TDS On Application"
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         Storage: Dictionary of [Text, Text];
+        EffectiveDateLbl: Label 'EffectiveDate', Locked = true;
+        TDSPercentageLbl: Label 'TDSPercentage', Locked = true;
+        NonPANTDSPercentageLbl: Label 'NonPANTDSPercentage', Locked = true;
+        SurchargePercentageLbl: Label 'SurchargePercentage', Locked = true;
+        ECessPercentageLbl: Label 'ECessPercentage', Locked = true;
+        SHECessPercentageLbl: Label 'SHECessPercentage', Locked = true;
+        TDSThresholdAmountLbl: Label 'TDSThresholdAmount', Locked = true;
+        SectionCodeLbl: Label 'SectionCode', Locked = true;
+        TDSAssesseeCodeLbl: Label 'TDSAssesseeCode', Locked = true;
+        SurchargeThresholdAmountLbl: Label 'SurchargeThresholdAmount', Locked = true;
+        TDSConcessionalCodeLbl: Label 'TDSConcessionalCode', Locked = true;
 }

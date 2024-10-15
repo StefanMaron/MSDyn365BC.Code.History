@@ -2,7 +2,7 @@ pageextension 20257 "Sales Journal Ext" extends "Sales Journal"
 {
     layout
     {
-        addbefore(IncomingDocAttachFactBox)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

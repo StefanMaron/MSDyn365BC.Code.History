@@ -1,10 +1,10 @@
 page 18007 "Return & Reco Components"
 {
-
     PageType = List;
     ApplicationArea = Basic, Suite;
     UsageCategory = Administration;
     SourceTable = "Retrun & Reco. Components";
+
     layout
     {
         area(Content)

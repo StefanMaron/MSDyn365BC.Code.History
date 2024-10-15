@@ -54,8 +54,6 @@ codeunit 136868 "Use Case Variables Mgmt. Tests"
         TaxAttribute: Record "Tax Attribute";
         EntityAttributeMapping: Record "Entity Attribute Mapping";
         RecordAttributeMapping: Record "Record Attribute Mapping";
-
-        AllObj: Record AllObj;
         UseCaseVariablesMgmt: Codeunit "Use Case Variables Mgmt.";
         LibraryUseCaseTests: Codeunit "Library - Use Case Tests";
         RecRef: RecordRef;

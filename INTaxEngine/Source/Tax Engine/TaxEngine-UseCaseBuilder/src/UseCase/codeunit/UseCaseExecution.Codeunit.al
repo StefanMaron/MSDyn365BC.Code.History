@@ -7,7 +7,7 @@ codeunit 20293 "Use Case Execution"
         CurrencyCode: Code[20];
         CurrencyFactor: Decimal)
     begin
-        if not IsEnabled(UseCase, SourceRecordRef) then
+        if not IsEnabled(UseCase) then
             exit;
 
         SymbolStore.InitSymbols(UseCase.ID, UseCase."Computation Script ID", Symbols);
@@ -43,20 +43,6 @@ codeunit 20293 "Use Case Execution"
         ExecuteUseCase(UseCase, SourceRecordRef, Symbols, CurrencyCode, CurrencyFactor);
     end;
 
-    local procedure FindAttributesUseCaseID(AttribtueID: Integer; UseCaseID: Guid): Guid
-    var
-        TaxUseCaseLine: Record "Use Case Attribute Mapping";
-        UseCase: Record "Tax Use Case";
-    begin
-        TaxUseCaseLine.SetRange("Case ID", UseCaseID);
-        TaxUseCaseLine.SetRange("Attribtue ID", AttribtueID);
-        if not TaxUseCaseLine.IsEmpty() then
-            exit(UseCaseID);
-
-        UseCase.Get(UseCaseID);
-        exit(FindAttributesUseCaseID(AttribtueID, UseCase."Parent Use Case ID"));
-    end;
-
     procedure ExecuteUseCaseTree(
         UseCaseID: Guid;
         var CurrentRecord: Variant;
@@ -86,10 +72,7 @@ codeunit 20293 "Use Case Execution"
 
     procedure HandleEvent(EventName: Text; Record: Variant; CurrencyCode: Code[20]; CurrencyFactor: Decimal)
     var
-        UseCaseEventRelation: Record "Use Case Event Relation";
-        TaxType: Record "Tax Type";
         RecRef: RecordRef;
-        Handled: Boolean;
     begin
         GetRecRefFromRecord(Record, RecRef);
 
@@ -128,7 +111,6 @@ codeunit 20293 "Use Case Execution"
     var
         TaxTransactionValue: Record "Tax Transaction Value";
     begin
-        TaxTransactionValue.Reset();
         TaxTransactionValue.SetRange("Tax Type", TaxType);
         TaxTransactionValue.SetRange("Tax Record ID", RecRef.RecordId());
         if not TaxTransactionValue.IsEmpty() then
@@ -219,12 +201,9 @@ codeunit 20293 "Use Case Execution"
         ConditionInStream.READ(Filters);
     End;
 
-    local procedure RecordViewFound(RecRef: RecordRef; Filters: Text) Found: Boolean;
+    local procedure RecordViewFound(RecRef: RecordRef; Filters: Text): Boolean;
     var
-        Field: Record Field;
         TempRecRef: RecordRef;
-        FieldRef: FieldRef;
-        TempFieldRef: FieldRef;
     Begin
         if Filters = '' then
             exit;
@@ -275,7 +254,7 @@ codeunit 20293 "Use Case Execution"
 
     local procedure IsChildUseCase(UseCase: Record "Tax Use Case"): Boolean
     begin
-        Exit(not IsNullGuid(UseCase."Parent Use Case ID"));
+        exit(not IsNullGuid(UseCase."Parent Use Case ID"));
     end;
 
     local procedure InsertTempTaxType(TaxType: Code[20])
@@ -290,7 +269,7 @@ codeunit 20293 "Use Case Execution"
         exit(TempTaxType.get(TaxType));
     end;
 
-    local procedure IsEnabled(UseCase: Record "Tax Use Case"; SourceRecordRef: RecordRef) Enabled: Boolean
+    local procedure IsEnabled(UseCase: Record "Tax Use Case") Enabled: Boolean
     var
         TaxType: Record "Tax Type";
     begin
@@ -313,5 +292,4 @@ codeunit 20293 "Use Case Execution"
         TransactionValueHelper: Codeunit "Transaction Value Helper";
         RecRefHelper: Codeunit "RecRef Handler";
         EmptyGUID: Guid;
-    // TransactionValueCleared: Boolean;
 }

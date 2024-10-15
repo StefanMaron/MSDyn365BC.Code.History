@@ -8,15 +8,15 @@ codeunit 18769 "Provisional Post Preview"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Posting Preview Event Handler", 'OnGetEntries', '', false, false)]
     local procedure ProvisionalEntry(TableNo: Integer; var RecRef: RecordRef)
     begin
-        if TableNo = DATABASE::"Provisional Entry" then
-            RecRef.GETTABLE(TempProvisionalEntry);
+        if TableNo = Database::"Provisional Entry" then
+            RecRef.GetTable(TempProvisionalEntry);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Posting Preview Event Handler", 'OnAfterShowEntries', '', false, false)]
     local procedure ShowProvisionalEntries(TableNo: Integer)
     begin
-        if TableNo = DATABASE::"Provisional Entry" then
-            PAGE.Run(page::"Provisional Entries Preview", TempProvisionalEntry);
+        if TableNo = Database::"Provisional Entry" then
+            Page.Run(Page::"Provisional Entries Preview", TempProvisionalEntry);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Posting Preview Event Handler", 'OnAfterFillDocumentEntry', '', false, false)]
@@ -29,7 +29,6 @@ codeunit 18769 "Provisional Post Preview"
 
     [EventSubscriber(ObjectType::Table, database::"Provisional Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure SavePreviewProvisionalEntry(var Rec: Record "Provisional Entry"; RunTrigger: Boolean)
-    var
     begin
         if Rec.IsTemporary() then
             exit;

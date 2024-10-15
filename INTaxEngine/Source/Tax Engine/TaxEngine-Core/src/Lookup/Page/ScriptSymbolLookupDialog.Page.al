@@ -385,8 +385,6 @@ page 20142 "Script Symbol Lookup Dialog"
     }
 
     procedure SetCurrentRecord(var ScriptSymbolLookup2: Record "Script Symbol Lookup");
-    var
-        TypeHelper: Codeunit "Type Helper";
     begin
         ScriptSymbolLookup := ScriptSymbolLookup2;
         TestRecord();
@@ -563,7 +561,6 @@ page 20142 "Script Symbol Lookup Dialog"
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
         LookupEntityMgmt: Codeunit "Lookup Entity Mgmt.";
         LookupSerialization: Codeunit "Lookup Serialization";
-        EmptyGuid: Guid;
         VariableName2: Text[30];
         RecordFieldName: Text[30];
         ExpectedDatatype: Enum "Symbol Data Type";

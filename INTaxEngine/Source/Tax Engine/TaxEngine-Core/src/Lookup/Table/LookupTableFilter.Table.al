@@ -8,17 +8,17 @@ table 20142 "Lookup Table Filter"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; "ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(4; "Table ID"; Integer)
@@ -42,13 +42,6 @@ table 20142 "Lookup Table Filter"
     }
 
     trigger OnInsert()
-    var
-        ScriptSymbolStore: Codeunit "Script Symbol Store";
-    begin
-        ScriptSymbolStore.OnBeforeValidateIfUpdateIsAllowed("Case ID");
-    end;
-
-    trigger OnModify();
     var
         ScriptSymbolStore: Codeunit "Script Symbol Store";
     begin

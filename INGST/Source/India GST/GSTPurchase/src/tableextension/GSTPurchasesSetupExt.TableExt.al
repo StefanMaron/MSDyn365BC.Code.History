@@ -2,85 +2,68 @@ tableextension 18084 "GST Purchases Setup Ext" extends "Purchases & Payables Set
 {
     fields
     {
-        field(18080; "Posted Purch. Inv.(Unreg)";
-        Code[10])
+        field(18084; "GST Liability Adj. Jnl Nos."; Code[20])
         {
-            caption = 'Posted Purch. Inv.(Unreg)';
+            Caption = 'GST Liability Adj. Jnl Nos.';
             TableRelation = "No. Series";
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(18081; "Posted Purch Cr. Memo(Unreg)"; Code[10])
-        {
-            caption = 'Posted Purch Cr. Memo(Unreg)';
-            TableRelation = "No. Series";
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(18082; "Posted Purch Inv.(Unreg Supp)"; Code[10])
-        {
-            caption = 'Posted Purch Inv.(Unreg Supp)';
-            TableRelation = "No. Series";
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(18083; "Pst. Pur. Inv(Unreg. Deb.Note)"; Code[10])
-        {
-            caption = 'Pst. Pur. Inv(Unreg. Deb.Note)';
-            TableRelation = "No. Series";
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(18084; "GST Liability Adj. Jnl Nos."; Code[10])
-        {
-            caption = 'GST Liability Adj. Jnl Nos.';
-            TableRelation = "No. Series";
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(18085; "Purch. Inv. Nos. (Reg)"; Code[10])
-        {
-            caption = 'Purch. Inv. Nos. (Reg)';
-            TableRelation = "No. Series";
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(18086; "Purch. Inv. Nos. (Reg Supp)"; Code[10])
-        {
-            caption = 'Purch. Inv. Nos. (Reg Supp)';
-            TableRelation = "No. Series";
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(18087; "Pur. Inv. Nos.(Reg Deb.Note)"; Code[10])
-        {
-            caption = 'Pur. Inv. Nos.(Reg Deb.Note)';
-            TableRelation = "No. Series";
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(18088; "Purch. Cr. Memo Nos. (Reg)"; Code[10])
-        {
-            caption = 'Purch. Cr. Memo Nos. (Reg)';
-            TableRelation = "No. Series";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(18089; "RCM Exempt Start Date (Unreg)"; date)
         {
             Caption = 'RCM Exempt Start Date (Unreg)';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+
             trigger OnValidate()
             begin
-                IF ("RCM Exempt Start Date (Unreg)" <> 0D) AND ("RCM Exempt End Date (Unreg)" <> 0D) THEN
-                    IF "RCM Exempt Start Date (Unreg)" > "RCM Exempt End Date (Unreg)" THEN
-                        ERROR(RcmBeforeDateErr);
+                if ("RCM Exempt Start Date (Unreg)" <> 0D) and ("RCM Exempt End Date (Unreg)" <> 0D) then
+                    if "RCM Exempt Start Date (Unreg)" > "RCM Exempt End Date (Unreg)" then
+                        Error(RcmBeforeDateErr);
             end;
         }
         field(18090; "RCM Exempt End Date (Unreg)"; date)
         {
             Caption = 'RCM Exempt End Date (Unreg)';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+
             trigger OnValidate()
             begin
-                IF "RCM Exempt End Date (Unreg)" < "RCM Exempt Start Date (Unreg)" THEN
-                    ERROR(RcmAfterDateErr);
+                if "RCM Exempt End Date (Unreg)" < "RCM Exempt Start Date (Unreg)" then
+                    Error(RcmAfterDateErr);
             end;
         }
+        field(18091; "Posted Delivery Challan Nos."; Code[20])
+        {
+            Caption = 'Posted Delivery Challan Nos.';
+            DataClassification = CustomerContent;
+            TableRelation = "No. Series";
+        }
+        field(18092; "Subcontracting Order Nos."; Code[20])
+        {
+            Caption = 'Subcontracting Order Nos.';
+            DataClassification = CustomerContent;
+            TableRelation = "No. Series";
+        }
+        field(18093; "Posted SC Comp. Rcpt. Nos."; Code[20])
+        {
+            Caption = 'Posted SC Comp. Rcpt. Nos.';
+            DataClassification = CustomerContent;
+            TableRelation = "No. Series";
+        }
+        field(18094; "Delivery Challan Nos."; Code[20])
+        {
+            Caption = 'Delivery Challan Nos.';
+            DataClassification = CustomerContent;
+            TableRelation = "No. Series";
+        }
+        field(18095; "Multiple Subcon. Order Det Nos"; Code[20])
+        {
+            Caption = 'Multiple Subcon. Order Det Nos';
+            DataClassification = CustomerContent;
+            TableRelation = "No. Series";
+        }
     }
-    var
-        RcmBeforeDateErr: label 'RCM start date must be earlier then RCM End Date.';
-        RcmAfterDateErr: label 'RCM End date must not be earlier then RCM start Date.';
 
+    var
+        RcmBeforeDateErr: Label 'RCM start date must be earlier then RCM End Date.';
+        RcmAfterDateErr: Label 'RCM End date must not be earlier then RCM start Date.';
 }

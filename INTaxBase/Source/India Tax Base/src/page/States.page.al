@@ -11,17 +11,17 @@ page 18547 "States"
         {
             repeater(General)
             {
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the state codes as per the Income Tax Act 1961';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of state codes';
                 }
-                field("State Code for eTDS/TCS"; "State Code for eTDS/TCS")
+                field("State Code for eTDS/TCS"; Rec."State Code for eTDS/TCS")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the numeric code for state which is mandatory if deductor type is State Govt. (code S), Statutory body - State Govt. (code E), Autonomous body - State Govt. code H) and Local Authority - State Govt. (code N).';
@@ -53,7 +53,7 @@ page 18547 "States"
                     ODataUtility.EditWorksheetInExcel(
                         'States',
                         CurrPage.ObjectId(false),
-                        StrSubstNo(StateCodeLbl, Code));
+                        StrSubstNo(StateCodeLbl, Rec.Code));
                 end;
             }
         }

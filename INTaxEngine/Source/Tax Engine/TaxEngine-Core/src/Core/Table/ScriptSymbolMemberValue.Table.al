@@ -48,7 +48,7 @@ table 20131 "Script Symbol Member Value"
         }
         field(112; "Guid Value"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Guid Value';
         }
         field(113; "RecordID Value"; RecordID)

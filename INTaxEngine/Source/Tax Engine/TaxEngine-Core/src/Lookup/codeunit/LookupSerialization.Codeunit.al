@@ -210,6 +210,5 @@ codeunit 20143 "Lookup Serialization"
     var
         AppObjectHelper: Codeunit "App Object Helper";
         ScriptDataTypeMgmt: Codeunit "Script Data Type Mgmt.";
-        EmptyGuid: Guid;
 }
 

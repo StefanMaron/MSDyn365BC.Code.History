@@ -1,10 +1,11 @@
 codeunit 139064 "Monitor Sensitive Field Test"
 {
     Subtype = Test;
-    TestPermissions = Disabled;
+    TestPermissions = NonRestrictive;
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
+    [TestPermissions(TestPermissions::Disabled)]
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure UserAndEmailValidationBeforeEnableMonitor()
     var
@@ -16,7 +17,6 @@ codeunit 139064 "Monitor Sensitive Field Test"
         // [Scenario] try To enable without choosing user.
         // [GIVEN] Clean Entry and setup table 
         MonitorFieldTestHelper.InitMonitor();
-        LibraryLowerPermissions.SetSecurity();
 
         LibraryEmailFeature.SetEmailFeatureEnabled(false);
         EmailSetupWizardPage.Trap();
@@ -36,7 +36,7 @@ codeunit 139064 "Monitor Sensitive Field Test"
         asserterror MonitorSensitiveField.EnableMonitor(true);
         Assert.ExpectedError(UserNotFoundErr);
 
-        InsertUser(User, '');
+        InsertUser(User, 'TESTUSER', '');
         UserCard.Trap();
         asserterror FieldMonitoringSetup.Validate("User Id", User."User Name");
         FieldMonitoringSetup.Modify();
@@ -54,10 +54,14 @@ codeunit 139064 "Monitor Sensitive Field Test"
     begin
         // [Scenario] try To enable without choosing user.
         // [GIVEN] Clean Entry and setup table 
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        LibraryLowerPermissions.SetOutsideO365Scope;
+        InsertUser(User, 'TESTUSER', 'test');
         MonitorFieldTestHelper.InitMonitor();
+
         LibraryLowerPermissions.SetSecurity();
-        InsertUser(User, 'test');
+        LibraryLowerPermissions.AddO365Full();
+        LibraryLowerPermissions.PushPermissionSet(D365MonitorFields);
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
 
         // [WHEN] 
         MonitorSensitiveField.GetSetupTable(FieldMonitoringSetup);
@@ -70,26 +74,30 @@ codeunit 139064 "Monitor Sensitive Field Test"
         FieldMonitoringSetup.Get();
         Assert.IsTrue(FieldMonitoringSetup."Monitor Status", 'Monitor should be enabled');
         // [THEN] Entry should exist for enabling the monitor
+        LibraryLowerPermissions.SetOutsideO365Scope;
         Assert.IsTrue(MonitorFieldTestHelper.EntryExists(Database::"Field Monitoring Setup", FieldMonitoringSetup.FieldNo(FieldMonitoringSetup."Monitor Status"),
             'false', 'true'), 'An entry should be logged after enabling the monitor');
     end;
 
     [Test]
+    [TestPermissions(TestPermissions::Disabled)]
     [HandlerFunctions('CreatePromotionNotificationHandler')]
     procedure ShowPromotionNotification()
     var
         FieldMonitoringSetup: Record "Field Monitoring Setup";
         MyNotifications: Record "My Notifications";
-        CompanyInformation: TestPage "Company Information";
+        User: Record User;
     begin
         // [Scenario] Promoting monitor sensitive field in company information page
         // [GIVEN] Clean Entry and setup table 
+        User.SetRange("User Name", UserId());
+        if not User.FindFirst() then
+            InsertUser(User, UserId(), '');
         MonitorFieldTestHelper.InitMonitor();
 
         // [WHEN] Monitor opening company page
         // [THEN] User should get a notification
-        CompanyInformation.OpenEdit();
-        CompanyInformation.Close();
+        MonitorSensitiveField.ShowPromotionNotification();
         Assert.IsTrue(IsPromotionNotificationShown, 'Promotion notification should show up when we open pages with sensitive field');
         CleanUpNotificationBoolean();
 
@@ -98,21 +106,20 @@ codeunit 139064 "Monitor Sensitive Field Test"
         MonitorSensitiveField.GetSetupTable(FieldMonitoringSetup);
         FieldMonitoringSetup."Monitor Status" := true;
         FieldMonitoringSetup.Modify(false);
-        CompanyInformation.OpenEdit();
-        CompanyInformation.Close();
-        Assert.IsFalse(IsPromotionNotificationShown, 'Promotion notification should be shown');
+        MonitorSensitiveField.ShowPromotionNotification();
+        Assert.IsFalse(IsPromotionNotificationShown, 'Promotion notification should not be shown');
 
         // [WHEN] User ask not to see the promotion message again
         // [THEN] No notification 
         MyNotifications.Disable(MonitorSensitiveField.GetPromoteMonitorFeatureNotificationId());
-        CompanyInformation.OpenEdit();
-        CompanyInformation.Close();
-        Assert.IsFalse(IsPromotionNotificationShown, 'Promotion notification should be shown');
+        MonitorSensitiveField.ShowPromotionNotification();
+        Assert.IsFalse(IsPromotionNotificationShown, 'Promotion notification should not be shown');
         CleanUpNotificationBoolean();
     end;
 
     [Test]
     [HandlerFunctions('CreateHiddenTablesNotificationHandler')]
+    [TestPermissions(TestPermissions::Disabled)]
     procedure ShowHiddenTablenotificationInChangeLogSetupTable()
     var
         ChangeLogSetupTableList: TestPage "Change Log Setup (Table) List";
@@ -120,8 +127,8 @@ codeunit 139064 "Monitor Sensitive Field Test"
     begin
         // [Scenario] Notify the user that some tables are hidden because they are monitored in Monitor Sensitive field feature
         // [GIVEN] Clean Entry and setup table 
-        LibraryLowerPermissions.SetSecurity();
         MonitorFieldTestHelper.InitMonitor();
+
         ChangeLogSetupTableList.OpenEdit();
         ChangeLogSetupTableList.Close();
         Assert.IsFalse(IsHiddenTableNotificationShown, 'If no fields are monitored, then change log should not have any hidden tables');
@@ -138,6 +145,7 @@ codeunit 139064 "Monitor Sensitive Field Test"
 
     [Test]
     [HandlerFunctions('CreateEmailFeatureEnabledNotificationHandler')]
+    [TestPermissions(TestPermissions::Disabled)]
     procedure ShowEmailFeatureEnabledNotification()
     var
         FieldMonitoringSetup: Record "Field Monitoring Setup";
@@ -148,7 +156,7 @@ codeunit 139064 "Monitor Sensitive Field Test"
         // [Scenario] Notify the user that new email experience is enabled
         // [GIVEN] Clean Entry and setup table 
         MonitorFieldTestHelper.InitMonitor();
-        LibraryLowerPermissions.SetSecurity();
+
         MonitorSensitiveField.GetSetupTable(FieldMonitoringSetup);
         FieldMonitoringSetup."Monitor Status" := true;
         FieldMonitoringSetup.Modify(false);
@@ -169,7 +177,6 @@ codeunit 139064 "Monitor Sensitive Field Test"
         Assert.IsTrue(IsEmailFeatureNotificationShown, 'New email experience notification should show up when the feature key is enabled and the monitor');
         CleanUpNotificationBoolean();
 
-
         // [WHEN] Email account is set
         FieldMonitoringSetup."Email Account Name" := 'Dummy';
         FieldMonitoringSetup.Modify(false);
@@ -186,6 +193,60 @@ codeunit 139064 "Monitor Sensitive Field Test"
         MonitoredFieldsWorksheet.OpenEdit();
         MonitoredFieldsWorksheet.Close();
         Assert.IsFalse(IsEmailFeatureNotificationShown, 'No notification should be raised');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure MonitorSensitiveFieldWithNewEmailModule()
+    var
+        EmailAccount: Record "Email Account";
+        FieldMonitoringSetup: Record "Field Monitoring Setup";
+        User: Record User;
+        TestTableC: Record "Test Table C";
+        ChangeLogEntry: Record "Change Log Entry";
+        ConnectorMock: Codeunit "Connector Mock";
+        ChangeLogManagement: Codeunit "Change Log Management";
+        MonitorNotification: codeunit "Monitored Field Notification";
+    begin
+        // [Scenario] When a sensitive field change with notification enabled using the new email module, entry should contain message id
+        // [GIVEN] Setting up monitor sensitive field with new email module
+        LibraryLowerPermissions.SetOutsideO365Scope;
+        InsertUser(User, 'TESTUSER', 'test@contoso.com');
+        ConnectorMock.Initialize();
+        ConnectorMock.AddAccount(EmailAccount);
+        MonitorFieldTestHelper.InitMonitor();
+
+        LibraryLowerPermissions.SetSecurity();
+        LibraryLowerPermissions.AddO365Full();
+        LibraryLowerPermissions.PushPermissionSet(D365MonitorFields);
+        LibraryLowerPermissions.AddO365BusFull();
+
+        MonitorSensitiveField.GetSetupTable(FieldMonitoringSetup);
+        FieldMonitoringSetup.Validate("Email Account Name", EmailAccount.Name);
+        FieldMonitoringSetup.Validate("Email Account Id", EmailAccount."Account Id");
+        FieldMonitoringSetup.Validate("User Id", User."User Name");
+        FieldMonitoringSetup.Validate("Email Connector", FieldMonitoringSetup."Email Connector"::"Test Email Connector");
+        FieldMonitoringSetup.Modify();
+        ChangeLogManagement.InitChangeLog();
+
+        // [WHEN] Monitoring field with notification - like status field on fild monitoring setup
+        MonitorSensitiveField.EnableMonitor(false);
+
+        // [THEN] Field changes should be logged and a notification email should be sent with the message id part of the entry
+        ChangeLogEntry.SetRange("Table No.", Database::"Field Monitoring Setup");
+        ChangeLogEntry.SetRange("Field No.", FieldMonitoringSetup.FieldNo("Monitor Status"));
+        ChangeLogEntry.SetRange("Field Log Entry Feature", ChangeLogEntry."Field Log Entry Feature"::"Monitor Sensitive Fields");
+        Assert.IsTrue(ChangeLogEntry.FindFirst(), 'A log entry should have been added when changing sensitive field');
+        Assert.IsFalse(IsNullGuid(ChangeLogEntry."Notification Message Id"), 'Message Id should have been populated in the log entry');
+        Assert.AreEqual(ChangeLogEntry."Notification Status"::"Email Enqueued", ChangeLogEntry."Notification Status", 'Notification status should be sent');
+
+        LibraryLowerPermissions.SetOutsideO365Scope;
+        // [WHEN] Simulate raising an event that email was sent
+        MonitorNotification.UpdateEmailStatus(ChangeLogEntry."Notification Message Id", true);
+
+        // [THEN] Email status should be marked as sent
+        ChangeLogEntry.FindFirst();
+        Assert.AreEqual(ChangeLogEntry."Notification Status"::"Email Sent", ChangeLogEntry."Notification Status", 'Notification status should be sent');
     end;
 
     local procedure InitSMTP()
@@ -236,10 +297,10 @@ codeunit 139064 "Monitor Sensitive Field Test"
     end;
 
     [Normal]
-    local procedure InsertUser(var User: Record User; ContactEmail: Text);
+    local procedure InsertUser(var User: Record User; UserName: Text; ContactEmail: Text);
     begin
         User."User Security ID" := CreateGuid();
-        User."User Name" := 'TESTUSER';
+        User."User Name" := UserName;
         User."Contact Email" := CopyStr(ContactEmail, 1, 80);
         User.State := User.State::Enabled;
         User.Insert();
@@ -296,5 +357,6 @@ codeunit 139064 "Monitor Sensitive Field Test"
         IsEmailFeatureNotificationShown, IsHiddenTableNotificationShown, IsPromotionNotificationShown : boolean;
         EmailAccountMissingErr: label 'You must specify the email account to send notification email from when field values change. Specify the account in the Notification Email Account field. If no accounts are available, you can add one.';
         UserNotFoundErr: Label 'To start monitoring fields, you must specify the user who will receive notification emails when field values change.', Locked = true;
+        D365MonitorFields: Label 'D365 Monitor Fields', Locked = true;
 }
 

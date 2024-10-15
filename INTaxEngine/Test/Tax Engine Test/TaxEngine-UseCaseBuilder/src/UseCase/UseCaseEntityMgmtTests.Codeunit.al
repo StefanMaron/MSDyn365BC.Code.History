@@ -2,6 +2,10 @@ codeunit 136862 "Use Case Entity Mgmt. Tests"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    trigger OnRun()
+    begin
+        // [FEATURE] [TaxEngine] [Use Case Entity Mgmt.] [UT]
+    end;
 
     var
         Assert: Codeunit Assert;
@@ -30,59 +34,6 @@ codeunit 136862 "Use Case Entity Mgmt. Tests"
     end;
 
     [Test]
-    procedure TestCreateTableLinking()
-    var
-        UseCaseEventTableLink: Record "Use Case Event Table Link";
-        UseCaseEntityMgmt: Codeunit "Use Case Entity Mgmt.";
-        LibraryUseCase: Codeunit "Library - Use Case Tests";
-        LibraryTaxType: Codeunit "Library - Tax Type Tests";
-        CaseID, EmptyGuid, ID : Guid;
-        TableID: Integer;
-    begin
-        // [SCENARIO] To check if function is creating record use case event table link
-
-        // [GIVEN] There should a use case and use case event created in the system
-        LibraryTaxType.CreateTaxType('VAT', 'VAT');
-        CaseID := CreateGuid();
-        LibraryUseCase.CreateUseCase('VAT', CaseID, Database::"Sales Line", 'Test Use Case', EmptyGuid);
-
-        // [WHEN] function CreateTableLinking is called
-        ID := UseCaseEntityMgmt.CreateTableLinking(CaseID, Database::"Sales Line", Database::"Sales Header");
-
-        // [THEN] it should create a record in Use Case Event Table Link
-        UseCaseEventTableLink.SetRange("Case ID", CaseID);
-        UseCaseEventTableLink.SetRange(ID, ID);
-        Assert.RecordIsNotEmpty(UseCaseEventTableLink);
-    end;
-
-    [Test]
-    procedure TestDeleteTableLinking()
-    var
-        UseCaseEventTableLink: Record "Use Case Event Table Link";
-        UseCaseEntityMgmt: Codeunit "Use Case Entity Mgmt.";
-        LibraryUseCase: Codeunit "Library - Use Case Tests";
-        LibraryTaxType: Codeunit "Library - Tax Type Tests";
-        CaseID, EmptyGuid, ID : Guid;
-        TableID: Integer;
-    begin
-        // [SCENARIO] To check if function is deleting record use case event table link
-
-        // [GIVEN] There should a use case and use case event created in the system
-        LibraryTaxType.CreateTaxType('VAT', 'VAT');
-        CaseID := CreateGuid();
-        LibraryUseCase.CreateUseCase('VAT', CaseID, Database::"Sales Line", 'Test Use Case', EmptyGuid);
-        ID := UseCaseEntityMgmt.CreateTableLinking(CaseID, Database::"Sales Line", Database::"Sales Header");
-
-        // [WHEN] function DeleteTableLinking is called
-        UseCaseEntityMgmt.DeleteTableLinking(CaseID, ID);
-
-        // [THEN] it should delete the record from Use Case Event Table Link
-        UseCaseEventTableLink.SetRange("Case ID", CaseID);
-        UseCaseEventTableLink.SetRange(ID, ID);
-        Assert.RecordIsEmpty(UseCaseEventTableLink);
-    end;
-
-    [Test]
     procedure TestCreateRateColumnRelation()
     var
         UseCaseColumnRelation: Record "Use Case Rate Column Relation";
@@ -90,7 +41,6 @@ codeunit 136862 "Use Case Entity Mgmt. Tests"
         LibraryUseCase: Codeunit "Library - Use Case Tests";
         LibraryTaxType: Codeunit "Library - Tax Type Tests";
         CaseID, EmptyGuid, ID : Guid;
-        TableID: Integer;
     begin
         // [SCENARIO] To check if function is deleting record rate column relation
 
@@ -116,7 +66,6 @@ codeunit 136862 "Use Case Entity Mgmt. Tests"
         LibraryUseCase: Codeunit "Library - Use Case Tests";
         LibraryTaxType: Codeunit "Library - Tax Type Tests";
         CaseID, EmptyGuid, ID : Guid;
-        TableID: Integer;
     begin
         // [SCENARIO] To check if function is deleting record rate column relation
 
@@ -143,7 +92,6 @@ codeunit 136862 "Use Case Entity Mgmt. Tests"
         LibraryUseCase: Codeunit "Library - Use Case Tests";
         LibraryTaxType: Codeunit "Library - Tax Type Tests";
         CaseID, EmptyGuid, ID : Guid;
-        TableID: Integer;
     begin
         // [SCENARIO] To check if function is creating record Attribute mapping
 
@@ -169,7 +117,6 @@ codeunit 136862 "Use Case Entity Mgmt. Tests"
         LibraryUseCase: Codeunit "Library - Use Case Tests";
         LibraryTaxType: Codeunit "Library - Tax Type Tests";
         CaseID, EmptyGuid, ID : Guid;
-        TableID: Integer;
     begin
         // [SCENARIO] To check if function is deleting record Attribtue mapping
 
@@ -196,7 +143,6 @@ codeunit 136862 "Use Case Entity Mgmt. Tests"
         LibraryUseCase: Codeunit "Library - Use Case Tests";
         LibraryTaxType: Codeunit "Library - Tax Type Tests";
         CaseID, EmptyGuid, ID : Guid;
-        TableID: Integer;
     begin
         // [SCENARIO] To check if function is creating record in Component Calculation
 
@@ -222,7 +168,6 @@ codeunit 136862 "Use Case Entity Mgmt. Tests"
         LibraryUseCase: Codeunit "Library - Use Case Tests";
         LibraryTaxType: Codeunit "Library - Tax Type Tests";
         CaseID, EmptyGuid, ID : Guid;
-        TableID: Integer;
     begin
         // [SCENARIO] To check if function is deleting record from Component Calculation
 
@@ -303,9 +248,8 @@ codeunit 136862 "Use Case Entity Mgmt. Tests"
     var
         TaxTableRelation: Record "Tax Table Relation";
         UseCaseEntityMgmt: Codeunit "Use Case Entity Mgmt.";
-        LibraryUseCase: Codeunit "Library - Use Case Tests";
         LibraryTaxType: Codeunit "Library - Tax Type Tests";
-        CaseID, EmptyGuid, ID : Guid;
+        CaseID, ID : Guid;
         ComponentID: Integer;
     begin
         // [SCENARIO] To check if function is creating record in Tax Table Relation
@@ -330,9 +274,8 @@ codeunit 136862 "Use Case Entity Mgmt. Tests"
     var
         TaxTableRelation: Record "Tax Table Relation";
         UseCaseEntityMgmt: Codeunit "Use Case Entity Mgmt.";
-        LibraryUseCase: Codeunit "Library - Use Case Tests";
         LibraryTaxType: Codeunit "Library - Tax Type Tests";
-        CaseID, EmptyGuid, ID : Guid;
+        CaseID, ID : Guid;
         ComponentID: Integer;
     begin
         // [SCENARIO] To check if function is deleting record from Tax Table Relation

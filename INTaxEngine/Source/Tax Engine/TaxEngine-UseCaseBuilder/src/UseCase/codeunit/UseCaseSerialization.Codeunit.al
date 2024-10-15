@@ -1,24 +1,5 @@
 codeunit 20296 "Use Case Serialization"
 {
-    procedure TableLinkToString(CaseID: Guid; ID: Guid): Text;
-    var
-        UseCaseFieldLink: Record "Use Case Field Link";
-        TableFilters: Text;
-    begin
-        UseCaseFieldLink.Reset();
-        UseCaseFieldLink.SetRange("Case ID", CaseID);
-        UseCaseFieldLink.SetRange("Table Filter ID", ID);
-        if UseCaseFieldLink.FindSet() then
-            repeat
-                if TableFilters <> '' then
-                    TableFilters += ',';
-
-                TableFilters += LinkedFieldFilterToString(UseCaseFieldLink);
-            until UseCaseFieldLink.Next() = 0;
-
-        exit(TableFilters);
-    end;
-
     procedure TableRelationToString(CaseID: Guid; ID: Guid): Text;
     var
         TaxTableRelation: Record "Tax Table Relation";
@@ -53,21 +34,6 @@ codeunit 20296 "Use Case Serialization"
                 TaxComponentExpression.Expression,
                 ComponentExprTokenToString(TaxComponentExpression),
                 VariableName));
-    end;
-
-    local procedure LinkedFieldFilterToString(UseCaseFieldLink: Record "Use Case Field Link"): Text;
-    var
-        FieldName2: Text;
-        Value2: Text;
-        ToStringFormatFilterTxt: Label '%1 like %2', Comment = '%1 - Field Name, %2 - Filter Value';
-        ToStringFormatConstantTxt: Label '%1 equals %2', Comment = '%1 - Field Name, %2 - Constant Value';
-    begin
-        FieldName2 := AppObjectHelper.GetFieldName(UseCaseFieldLink."Table ID", UseCaseFieldLink."Field ID");
-        Value2 := AppObjectHelper.GetFieldName(UseCaseFieldLink."Lookup Table ID", UseCaseFieldLink."Lookup Field ID");
-        if UseCaseFieldLink."Filter Type" = UseCaseFieldLink."Filter Type"::CONST then
-            exit(StrSubstNo(ToStringFormatConstantTxt, FieldName2, Value2))
-        else
-            exit(StrSubstNo(ToStringFormatFilterTxt, FieldName2, Value2));
     end;
 
     local procedure ComponentExprTokenToString(

@@ -14,7 +14,7 @@ page 18003 "GST Posting Setup"
         {
             repeater(General)
             {
-                field("State Code"; "State Code")
+                field("State Code"; Rec."State Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state code.';
@@ -24,98 +24,98 @@ page 18003 "GST Posting Setup"
                     Caption = 'GST Component Code';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies GST component code.';
+
                     trigger OnLookup(var Text: Text): Boolean
                     var
-                        TaxTypeSetup: Record "Tax Type Setup";
+                        GSTSetup: Record "GST Setup";
                         ComponentName: Variant;
                     begin
-                        if not TaxTypeSetup.get() then
+                        if not GSTSetup.Get() then
                             exit;
-                        ScriptSymbolMgmt.SetContext(TaxTypeSetup.Code, EmptyGuid, EmptyGuid);
+                        ScriptSymbolMgmt.SetContext(GSTSetup."GST Tax Type", EmptyGuid, EmptyGuid);
                         ScriptSymbolMgmt.OpenSymbolsLookup(
                             SymbolType::Component,
                             Text,
-                            "Component ID",
+                            Rec."Component ID",
                             ComponentName);
-                        Validate("Component ID");
+                        Rec.Validate("Component ID");
                         FormatLine();
                     end;
 
                     trigger OnValidate()
                     var
-                        TaxTypeSetup: Record "Tax Type Setup";
+                        GSTSetup: Record "GST Setup";
                         ComponentName: Variant;
                     begin
-                        if not TaxTypeSetup.get() then
+                        if not GSTSetup.Get() then
                             exit;
-                        ScriptSymbolMgmt.SetContext('GST', EmptyGuid, EmptyGuid);
-                        ScriptSymbolMgmt.SearchSymbol(SymbolType::Component, "Component ID", ComponentName);
-                        Validate("Component ID");
+                        ScriptSymbolMgmt.SetContext(GSTSetup."GST Tax Type", EmptyGuid, EmptyGuid);
+                        ScriptSymbolMgmt.SearchSymbol(SymbolType::Component, Rec."Component ID", ComponentName);
+                        Rec.Validate("Component ID");
                         FormatLine();
                     end;
-
                 }
-                field("Receivable Account"; "Receivable Account")
+                field("Receivable Account"; Rec."Receivable Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state-wise receivable account for each component. ';
                 }
-                field("Payable Account"; "Payable Account")
+                field("Payable Account"; Rec."Payable Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state-wise payable account for each component. ';
                 }
-                field("Receivable Account (Interim)"; "Receivable Account (Interim)")
+                field("Receivable Account (Interim)"; Rec."Receivable Account (Interim)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state-wise receivable account (interim) for each component. ';
                 }
-                field("Payables Account (Interim)"; "Payables Account (Interim)")
+                field("Payables Account (Interim)"; Rec."Payables Account (Interim)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state-wise payable account (interim) for each component. ';
                 }
-                field("Expense Account"; "Expense Account")
+                field("Expense Account"; Rec."Expense Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state-wise expense account for each component. ';
                 }
-                field("Refund Account"; "Refund Account")
+                field("Refund Account"; Rec."Refund Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state-wise refund account for each component. ';
                 }
-                field("Receivable Acc. Interim (Dist)"; "Receivable Acc. Interim (Dist)")
+                field("Receivable Acc. Interim (Dist)"; Rec."Receivable Acc. Interim (Dist)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state-wise receivable account interim (Dist) for each component. ';
                 }
-                field("Receivable Acc. (Dist)"; "Receivable Acc. (Dist)")
+                field("Receivable Acc. (Dist)"; Rec."Receivable Acc. (Dist)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state-wise receivable account (Dist) for each component. ';
                 }
-                field("GST Credit Mismatch Account"; "GST Credit Mismatch Account")
+                field("GST Credit Mismatch Account"; Rec."GST Credit Mismatch Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state-wise GST credit mismatch account for each component. ';
                 }
-                field("GST TDS Receivable Account"; "GST TDS Receivable Account")
+                field("GST TDS Receivable Account"; Rec."GST TDS Receivable Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state-wise GST TDS receivable account  for each component. ';
                 }
-                field("GST TCS Receivable Account"; "GST TCS Receivable Account")
+                field("GST TCS Receivable Account"; Rec."GST TCS Receivable Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state-wise GST TCS receivable account for each component. ';
                 }
-                field("GST TCS Payable Account"; "GST TCS Payable Account")
+                field("GST TCS Payable Account"; Rec."GST TCS Payable Account")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state-wise GST TCS payable account for each component. ';
                 }
-                field("IGST Payable A/c (Import)"; "IGST Payable A/c (Import)")
+                field("IGST Payable A/c (Import)"; Rec."IGST Payable A/c (Import)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state-wise IGST payable account (import) for each component. ';
@@ -123,8 +123,6 @@ page 18003 "GST Posting Setup"
             }
         }
     }
-
-
     actions
     {
         area(Processing)
@@ -164,26 +162,34 @@ page 18003 "GST Posting Setup"
         FormatLine();
     end;
 
-    local procedure FormatLine()
-    var
-        TaxTypeSetup: Record "Tax Type Setup";
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        Clear(ScriptSymbolMgmt);
-        if not TaxTypeSetup.Get() then
-            exit;
-        TaxTypeSetup.TestField(Code);
-        ScriptSymbolMgmt.SetContext(TaxTypeSetup.Code, EmptyGuid, EmptyGuid);
-
-        if "Component ID" <> 0 then
-            ComponentName := ScriptSymbolMgmt.GetSymbolName(SymbolType::Component, "Component ID")
-        else
-            ComponentName := '';
+        if ComponentName = '' then
+            Error(GSTComponentErr);
     end;
 
-    Var
+
+    var
         ScriptSymbolMgmt: Codeunit "Script Symbols Mgmt.";
         SymbolType: Enum "Symbol Type";
         EmptyGuid: Guid;
         ComponentName: Text[30];
         CodeValueLbl: Label 'Code %1', Comment = '%1 = State Code';
+        GSTComponentErr: Label 'GST component code must be selected';
+
+    local procedure FormatLine()
+    var
+        GSTSetup: Record "GST Setup";
+    begin
+        Clear(ScriptSymbolMgmt);
+        if not GSTSetup.Get() then
+            exit;
+        GSTSetup.TestField("GST Tax Type");
+        ScriptSymbolMgmt.SetContext(GSTSetup."GST Tax Type", EmptyGuid, EmptyGuid);
+
+        if Rec."Component ID" <> 0 then
+            ComponentName := ScriptSymbolMgmt.GetSymbolName(SymbolType::Component, Rec."Component ID")
+        else
+            ComponentName := '';
+    end;
 }

@@ -102,8 +102,6 @@ codeunit 20157 "Script Action Execution"
                 ExecuteNumberExpression(SymbolStore, SourceRecRef, CaseID, ScriptID, ActionID);
             ActionType::STRINGEXPRESSION:
                 ExecuteStringExpression(SymbolStore, SourceRecRef, CaseID, ScriptID, ActionID);
-            ActionType::GETRECORD:
-                ExecuteGetRecord(SymbolStore, SourceRecRef, CaseID, ScriptID, ActionID);
             ActionType::EXITLOOP:
                 ExitLoop := true;
             ActionType::CONTINUE:
@@ -285,8 +283,6 @@ codeunit 20157 "Script Action Execution"
         while (ConditionOk) and (not ExitLoop) do begin
             if ActionLoopThroughRecords."Index Variable" <> 0 then
                 SymbolStore.SetSymbol2("Symbol Type"::Variable, ActionLoopThroughRecords."Index Variable", Index);
-
-            SymbolStore.TransferRecRefToSymbolMembers(RecordRef, ActionLoopThroughRecords."Record Variable");
 
             SetLoopThroughRecordFields(SymbolStore, CaseID, ScriptID, ActionID, RecordRef);
             ExecuteContainerItem(
@@ -1115,80 +1111,6 @@ codeunit 20157 "Script Action Execution"
 
     end;
 
-    local procedure ExecuteGetRecord(
-        var SymbolStore: Codeunit "Script Symbol Store";
-        var SourceRecRef: RecordRef;
-        CaseID: Guid;
-        ScriptID: Guid;
-        ActionID: Guid);
-    var
-        ActionGetRecord: Record "Action Get Record";
-        RecordRef: RecordRef;
-        RecordsFound: Boolean;
-    begin
-        ActionGetRecord.GET(CaseID, ScriptID, ActionID);
-        RecordRef.OPEN(ActionGetRecord."Table ID");
-        if not IsNullGuid(ActionGetRecord."Table Filter ID") then
-            SymbolStore.ApplyTableFilters(
-                SourceRecRef,
-                ActionGetRecord."Case ID",
-                ActionGetRecord."Script ID",
-                RecordRef,
-                ActionGetRecord."Table Filter ID");
-
-        if ActionGetRecord."Ignore If Record Not Found" then
-            case ActionGetRecord.Method of
-                ActionGetRecord.Method::First:
-                    RecordsFound := RecordRef.FindFirst();
-                ActionGetRecord.Method::Last:
-                    RecordsFound := RecordRef.FindLast();
-            end
-        else begin
-            case ActionGetRecord.Method of
-                ActionGetRecord.Method::First:
-                    RecordRef.FindFirst();
-                ActionGetRecord.Method::Last:
-                    RecordRef.FindLast();
-            end;
-            RecordsFound := true;
-        end;
-
-        if RecordsFound then begin
-            SymbolStore.TransferRecRefToSymbolMembers(RecordRef, ActionGetRecord."Record Variable");
-            SetGetRecordField(SymbolStore, CaseID, ScriptID, ActionID, RecordRef);
-        end;
-
-        RecordRef.Close();
-
-    end;
-
-    local procedure SetGetRecordField(
-        var SymbolStore: Codeunit "Script Symbol Store";
-        CaseID: Guid;
-        ScriptID: Guid;
-        ActionID: Guid;
-        var RecordRef: RecordRef);
-    var
-        ActionGetRecordField: Record "Action Get Record Field";
-        FieldRef: FieldRef;
-    begin
-        ActionGetRecordField.Reset();
-        ActionGetRecordField.SetRange("Case ID", CaseID);
-        ActionGetRecordField.SetRange("Script ID", ScriptID);
-        ActionGetRecordField.SetRange("Get Record ID", ActionID);
-        if ActionGetRecordField.FindSet() then
-            repeat
-                FieldRef := RecordRef.Field(ActionGetRecordField."Field ID");
-                if ActionGetRecordField."Calculate Sum" then
-                    FieldRef.CalcSum();
-
-                if Format(FieldRef.Class()) = 'FlowField' then
-                    FieldRef.CalcField();
-
-                SymbolStore.SetSymbol2("Symbol Type"::Variable, ActionGetRecordField."Variable ID", FieldRef.Value());
-            until ActionGetRecordField.Next() = 0;
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Lookup Mgmt.", 'OnGetSymbolDataType', '', false, false)]
     local procedure OnGetSymbolDataType(ScriptSymbolLookup: Record "Script Symbol Lookup"; var Datatype: Enum "Symbol Data Type")
     var
@@ -1222,6 +1144,5 @@ codeunit 20157 "Script Action Execution"
         ExitLoop: Boolean;
         ContinueLoop: Boolean;
         SkipItemID: Guid;
-        EmptyGUID: Guid;
         SortingTxt: Label 'VERSION(1) SORTING(%1) ORDER(%2)', Locked = true;
 }

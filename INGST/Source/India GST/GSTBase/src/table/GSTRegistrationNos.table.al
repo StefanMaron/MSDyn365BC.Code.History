@@ -12,28 +12,29 @@ table 18008 "GST Registration Nos."
         {
             Caption = 'Code';
             NotBlank = true;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; "State Code"; Code[10])
         {
             Caption = 'State Code';
             NotBlank = true;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = state;
         }
         field(3; "Description"; text[50])
         {
             Caption = 'Description';
             NotBlank = true;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(4; "Input Service Distributor"; Boolean)
         {
             Caption = 'Input Service Distributor';
             NotBlank = true;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
+
     keys
     {
         key(PK; Code)

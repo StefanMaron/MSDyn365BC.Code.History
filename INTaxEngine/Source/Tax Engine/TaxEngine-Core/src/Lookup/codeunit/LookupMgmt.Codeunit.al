@@ -14,7 +14,7 @@ codeunit 20142 "Lookup Mgmt."
         if TableID = 0 then
             Error(InvalidTableIDErr, CaseID);
 
-        Exit(TableID);
+        exit(TableID);
     end;
 
     procedure GetLookupDatatype(CaseID: Guid; ScriptID: Guid; ID: Guid): Enum "Symbol Data Type";
@@ -91,7 +91,7 @@ codeunit 20142 "Lookup Mgmt."
     begin
         if (ValueType = ValueType::Lookup) then begin
             if not Confirm('Convert to constant value ?') then
-                Exit(false);
+                exit(false);
 
             EntityMgmt.DeleteLookup(CaseID, ScriptID, LookupID);
         end;
@@ -123,14 +123,14 @@ codeunit 20142 "Lookup Mgmt."
 
         XmlValue := DataTypeMgmt.ConvertLocalToXmlFormat(FormattedValue, Datatype);
         Value := CopyStr(XmlValue, 1, 250);
-        Exit(true);
+        exit(true);
     end;
 
     procedure ConvertConstantToLookup(CaseID: Guid; ScriptID: Guid; var ValueType: Option Constant,"Lookup"; var Value: Text[250]; var LookupID: Guid): Boolean;
     begin
         if (ValueType = ValueType::Constant) and (Value <> '') then begin
             if not Confirm('Convert to Lookup ?') then
-                Exit(false);
+                exit(false);
 
             Value := '';
         end;
@@ -138,7 +138,7 @@ codeunit 20142 "Lookup Mgmt."
         ValueType := ValueType::Lookup;
         if IsNullGuid(LookupID) then
             LookupID := EntityMgmt.CreateLookup(CaseID, ScriptID);
-        Exit(true);
+        exit(true);
     end;
 
     procedure OpenLookupDialogOfType(CaseID: Guid; ScriptID: Guid; ID: Guid; Datatype: Enum "Symbol Data Type");

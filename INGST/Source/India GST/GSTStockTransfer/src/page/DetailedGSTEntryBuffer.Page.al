@@ -96,37 +96,31 @@ page 18390 "Detailed GST Entry Buffer"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Displays the GST Group code of the transaction.';
-
                 }
                 field("HSN/SAC Code"; Rec."HSN/SAC Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the HSN for Items & Fixed Assets. SAC for Services & Resources. For charges, it can be either SAC or HSN. ';
-
                 }
                 field("Amount Loaded on Item"; Rec."Amount Loaded on Item")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the charges or tax amount loaded on the line item.';
-
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the location code for which the entry was posted.';
-
                 }
                 field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number of the assigned entry.';
-
                 }
                 field("Item Charge Assgn. Line No."; Rec."Item Charge Assgn. Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number of the assigned entry.';
-
                 }
                 field("Item Charge Assgn. Doc. Type"; Rec."Item Charge Assgn. Doc. Type")
                 {

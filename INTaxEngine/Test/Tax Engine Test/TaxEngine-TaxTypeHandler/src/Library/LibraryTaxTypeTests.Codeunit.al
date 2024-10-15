@@ -1,8 +1,5 @@
 codeunit 136810 "Library - Tax Type Tests"
 {
-    var
-        ScriptDataTypeMgmt: Codeunit "Script Data Type Mgmt.";
-
     procedure CreateTaxType(TaxTypeCode: Code[20]; Desc: Text[80])
     var
         TaxType: Record "Tax Type";
@@ -40,15 +37,39 @@ codeunit 136810 "Library - Tax Type Tests"
             exit(TaxAttribute.ID);
 
         TaxAttribute.Init();
-        TaxAttribute.validate("Tax Type", TaxTypeCode);
-        TaxAttribute.validate(Name, AttributeName);
-        TaxAttribute.validate(Type, Type);
+        TaxAttribute.Validate("Tax Type", TaxTypeCode);
+        TaxAttribute.Validate(Name, AttributeName);
+        TaxAttribute.Validate(Type, Type);
         TaxAttribute.Insert(true);
         TaxAttribute.Validate("Refrence Table ID", RefTableID);
         TaxAttribute.Validate("Refrence Field ID", RefFieldID);
         TaxAttribute.Validate("Lookup Page ID", LookupPageID);
         TaxAttribute.Modify(true);
         exit(TaxAttribute.ID);
+    end;
+
+    procedure CreateEntityAttributeMapping(AttributeID: Integer; TableID: Integer)
+    var
+        EntityAttributeMapping: Record "Entity Attribute Mapping";
+    begin
+        EntityAttributeMapping.Init();
+        EntityAttributeMapping."Attribute ID" := AttributeID;
+        EntityAttributeMapping."Entity ID" := TableID;
+        EntityAttributeMapping.Insert(true);
+    end;
+
+    procedure CreateTaxAttributeValue(AttributeID: Integer; Index: Integer; Value: Text[30])
+    var
+        TaxAttributeValue: Record "Tax Attribute Value";
+    begin
+        TaxAttributeValue.SetRange("Attribute ID", AttributeID);
+        if not TaxAttributeValue.IsEmpty() then
+            exit;
+        TaxAttributeValue.Init();
+        TaxAttributeValue."Attribute ID" := AttributeID;
+        TaxAttributeValue.Value := Value;
+        TaxAttributeValue.ID := Index;
+        TaxAttributeValue.Insert();
     end;
 
     procedure CreateTransactionValue(TaxTypeCode: Code[20]; CaseID: Guid; RecID: RecordId; ValueID: Integer; ValueType: Enum "Transaction Value Type"; Value: Text)
@@ -64,7 +85,14 @@ codeunit 136810 "Library - Tax Type Tests"
         TaxTransactionValue.Insert(true);
     end;
 
-    procedure CreateTaxRateColumnSetup(TaxTypeCode: Code[20]; ColumnType: Enum "Column Type"; ID: Integer; Sequence: Integer; Type: Option Option,Text,Integer,Decimal,Boolean,Date; LinkedAttrID: Integer; ColumnName: Text[30]): Integer
+    procedure CreateTaxRateColumnSetup(
+        TaxTypeCode: Code[20];
+        ColumnType: Enum "Column Type";
+                        ID: Integer;
+                        Sequence: Integer;
+        Type: Option Option,Text,Integer,Decimal,Boolean,Date;
+        LinkedAttrID: Integer;
+        ColumnName: Text[30]): Integer
     var
         TaxRateColumnSetup: Record "Tax Rate Column Setup";
     begin
@@ -86,7 +114,8 @@ codeunit 136810 "Library - Tax Type Tests"
         exit(TaxRateColumnSetup."Column ID");
     end;
 
-    procedure CreateComponent(TaxTypeCode: Code[20]; Name: Text[30]; RoundingDirection: Enum "Rounding Direction"; Precision: Decimal; SkipPosting: Boolean): Integer
+    procedure CreateComponent(TaxTypeCode: Code[20]; Name: Text[30]; RoundingDirection: Enum "Rounding Direction"; Precision: Decimal;
+                                                                                            SkipPosting: Boolean): Integer
     var
         TaxComponent: Record "Tax Component";
     begin
@@ -98,7 +127,7 @@ codeunit 136810 "Library - Tax Type Tests"
         TaxComponent.Validate("Tax Type", TaxTypeCode);
         TaxComponent.Validate(Name, Name);
         TaxComponent.ID := 10;
-        TaxComponent.validate(Direction, RoundingDirection);
+        TaxComponent.Validate(Direction, RoundingDirection);
         TaxComponent.Validate("Rounding Precision", Precision);
         TaxComponent."Skip Posting" := SkipPosting;
         TaxComponent.Insert(true);

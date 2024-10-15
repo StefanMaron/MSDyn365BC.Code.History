@@ -56,6 +56,7 @@ page 20307 "Use Case Attribute Mapping"
         ScriptSymbolsMgmt.SetContext("Case ID", EmptyGuid);
         TableRelationTxt := '';
         Clear(TableRelationTxt);
+
         SwitchCase.SetRange("Case ID", "Case ID");
         SwitchCase.SetRange("Switch Statement ID", "Switch Statement ID");
         if SwitchCase.FindSet() then

@@ -1,13 +1,34 @@
 codeunit 18243 "GST Journal Line Subscribers"
 {
+    var
+        GSTJournalLineValidations: Codeunit "GST Journal Line Validations";
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Tax Document GL Posting", 'OnBeforeGenJnlLineAdjustEntry', '', false, false)]
+    local procedure AdjustPartyType(var GenJnlLine: Record "Gen. Journal Line"; var AdjustEntry: Boolean; var IsHandled: Boolean)
+    begin
+        if (GenJnlLine."Party Type" <> GenJnlLine."Party Type"::" ") and (GenJnlLine."Party Code" <> '') then begin
+            if (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Invoice) and (GenJnlLine.Amount < 0) and (GenJnlLine."GST Credit" = GenJnlLine."GST Credit"::Availment) then
+                AdjustEntry := true;
+
+            if (GenJnlLine."GST Credit" = GenJnlLine."GST Credit"::"Non-Availment") then
+                AdjustEntry := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'GST TDS/GST TCS', false, false)]
+    local procedure ValidateGSTTCS(var Rec: Record "Gen. Journal Line")
+    begin
+        GSTJournalLineValidations.OnValidateGSTTDSTCS(Rec);
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'POS Out Of India', false, false)]
-    local Procedure ValidatePOSOutOfIndia(var Rec: Record "Gen. Journal Line")
+    local procedure ValidatePOSOutOfIndia(var Rec: Record "Gen. Journal Line")
     begin
         GSTJournalLineValidations.POSOutOfIndia(rec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'POS as Vendor State', false, false)]
-    local Procedure validatePOSasVendorState(var Rec: Record "Gen. Journal Line")
+    local procedure validatePOSasVendorState(var Rec: Record "Gen. Journal Line")
     begin
         GSTJournalLineValidations.POSasVendorState(rec);
     end;
@@ -31,25 +52,25 @@ codeunit 18243 "GST Journal Line Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'GST on Advance Payment', false, false)]
-    local Procedure validateGSTonAdvancePayment(var Rec: Record "Gen. Journal Line")
+    local procedure validateGSTonAdvancePayment(var Rec: Record "Gen. Journal Line")
     begin
         GSTJournalLineValidations.GSTonAdvancePayment(Rec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'GST Place of supply', false, false)]
-    local Procedure ValidateGSTPlaceofSuppply(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line")
+    local procedure ValidateGSTPlaceofSuppply(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line")
     begin
         GSTJournalLineValidations.GSTPlaceofsuppply(rec, xrec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'GST Group Code', false, false)]
-    local Procedure ValidateGSTGroupCode(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line")
+    local procedure ValidateGSTGroupCode(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line")
     begin
         GSTJournalLineValidations.GSTGroupCode(Rec, Xrec)
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'party Code', false, false)]
-    local Procedure ValdiatePartyCode(var Rec: Record "Gen. Journal Line")
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'Party Code', false, false)]
+    local procedure ValdiatePartyCode(var Rec: Record "Gen. Journal Line")
     begin
         GSTJournalLineValidations.partycode(rec);
     end;
@@ -67,7 +88,7 @@ codeunit 18243 "GST Journal Line Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'Currency Code', false, false)]
-    local Procedure ValidateCurrencyCode(var Rec: Record "Gen. Journal Line")
+    local procedure ValidateCurrencyCode(var Rec: Record "Gen. Journal Line")
     begin
         GSTJournalLineValidations.CurrencyCode(Rec);
     end;
@@ -85,7 +106,9 @@ codeunit 18243 "GST Journal Line Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterAccountNoOnValidateGetGLBalAccount', '', false, false)]
-    local Procedure ValidateBalGLAccountNo(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
+    local procedure ValidateBalGLAccountNo(
+        var GenJournalLine: Record "Gen. Journal Line";
+        var GLAccount: Record "G/L Account")
     begin
         GSTJournalLineValidations.BalGLAccountNo(GenJournalLine);
     end;
@@ -97,17 +120,16 @@ codeunit 18243 "GST Journal Line Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'Document Type', false, false)]
-    local Procedure ValidateDocumentType(var Rec: Record "Gen. Journal Line")
+    local procedure ValidateDocumentType(var Rec: Record "Gen. Journal Line")
     begin
         GSTJournalLineValidations.documenttype(rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'onafterinsertevent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnafterInsert(var Rec: Record "Gen. Journal Line")
     begin
         //GSTJournalLineValidations.AfterInsert(Rec)
     end;
-
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnBeforeValidateEvent', 'Account Type', false, false)]
     local procedure ValidateAccountType(var Rec: Record "Gen. Journal Line")
@@ -115,16 +137,18 @@ codeunit 18243 "GST Journal Line Subscribers"
         GSTJournalLineValidations.AccountType(Rec)
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'onbeforevalidateevent', 'Account no.', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnBeforeValidateEvent', 'Account no.', false, false)]
     local procedure OnbeforevalidateAccountNo(var Rec: Record "Gen. Journal Line")
     begin
         GSTJournalLineValidations.BeforeValidateAccountNo(Rec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterAccountNoOnValidateGetGLAccount', '', false, false)]
-    local procedure GLAccountInfo(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
+    local procedure GLAccountInfo(
+        var GenJournalLine: Record "Gen. Journal Line";
+        var GLAccount: Record "G/L Account")
     begin
-        GSTJournalLineValidations.PopulateGSTInvoiceCrMemo(TRUE, FALSE, GenJournalLine);
+        GSTJournalLineValidations.PopulateGSTInvoiceCrMemo(true, false, GenJournalLine);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterAccountNoOnValidateGetCustomerAccount', '', false, false)]
@@ -140,24 +164,33 @@ codeunit 18243 "GST Journal Line Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterAccountNoOnValidateGetFAAccount', '', false, false)]
-    local Procedure ValidateFAAccount(var GenJournalLine: Record "Gen. Journal Line"; var FixedAsset: Record "Fixed Asset")
+    local procedure ValidateFAAccount(
+        var GenJournalLine: Record "Gen. Journal Line";
+        var FixedAsset: Record "Fixed Asset")
     begin
         GSTJournalLineValidations.FaAccount(GenJournalLine, FixedAsset);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterSetupNewLine', '', false, false)]
-    local procedure Setupnewlinevalue(GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
+    local procedure Setupnewlinevalue(
+        GenJournalBatch: Record "Gen. Journal Batch";
+        var GenJournalLine: Record "Gen. Journal Line")
     var
         location: Record Location;
     begin
         GenJournalLine."Location Code" := GenJournalBatch."Location Code";
-        IF Location.GET(GenJournalBatch."Location Code") then begin
+        if Location.Get(GenJournalBatch."Location Code") then begin
             GenJournalLine."Location State Code" := Location."State Code";
             GenJournalLine."Location GST Reg. No." := Location."GST Registration No.";
             GenJournalLine."GST Input Service Distribution" := Location."GST Input Service Distributor";
         end;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'Currency Factor', false, false)]
+    local procedure OnValidateCurrencyCode(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line")
     var
-        GSTJournalLineValidations: Codeunit "GST Journal Line Validations";
+        CalculateTax: Codeunit "Calculate Tax";
+    begin
+        CalculateTax.CallTaxEngineOnGenJnlLine(Rec, xRec);
+    end;
 }

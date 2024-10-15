@@ -12,37 +12,26 @@ page 18690 "TDS Concessional Codes"
         {
             repeater(General)
             {
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Visible = false;
                     ToolTip = 'Specifies the vendor code';
                 }
-                field(Section; Section)
+                field(Section; Rec.Section)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specify the Section codes under which tax has been deducted.';
                 }
-
-                field("Concessional Code"; "Concessional Code")
+                field("Concessional Code"; Rec."Concessional Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specify the concessional code if concessional rate is applicable.';
                 }
-                field("Certificate No."; "Certificate No.")
+                field("Certificate No."; Rec."Certificate No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specify the concessional form/certificate number of the deductee.';
-                }
-                field("Start Date"; "Start Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specify the starting date of concessional certificate issued.';
-                }
-                field("End Date"; "End Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specify the ending date of concessional certificate issued.';
                 }
             }
         }
@@ -62,6 +51,7 @@ page 18690 "TDS Concessional Codes"
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Send the data in the  page to an Excel file for analysis or editing';
+
                 trigger OnAction()
                 var
                     ODataUtility: Codeunit ODataUtility;

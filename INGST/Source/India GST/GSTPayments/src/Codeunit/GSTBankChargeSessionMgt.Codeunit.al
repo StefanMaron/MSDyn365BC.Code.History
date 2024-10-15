@@ -2,6 +2,13 @@ codeunit 18248 "GST Bank Charge Session Mgt."
 {
     SingleInstance = true;
 
+    var
+        TempGenJournalLine: Record "Gen. Journal Line" temporary;
+        TransactionNo: Integer;
+        NextEntryNo: Integer;
+        BankChargeAmount: Decimal;
+        GSTBankChargesPostingStarted: Boolean;
+
     procedure SetTransactionNo(TransNo: Integer)
     begin
         TransactionNo := TransNo;
@@ -51,6 +58,7 @@ codeunit 18248 "GST Bank Charge Session Mgt."
             TempGenJournalLine."Debit Amount" := 0;
             TempGenJournalLine."Credit Amount" := Amount;
         end;
+
         TempGenJournalLine."System-Created Entry" := true;
         TempGenJournalLine.Insert();
     end;
@@ -61,6 +69,7 @@ codeunit 18248 "GST Bank Charge Session Mgt."
     begin
         if GSTBankChargesPostingStarted then
             exit;
+
         if TempGenJournalLine.FindSet() then begin
             GSTBankChargesPostingStarted := true;
             repeat
@@ -69,8 +78,17 @@ codeunit 18248 "GST Bank Charge Session Mgt."
                 GenJnlPostLine.RunWithCheck(TempGenJnlLine);
                 TempGenJournalLine.Delete();
             until TempGenJournalLine.Next() = 0;
+
             ClearTempGenJnlLine();
         end;
+    end;
+
+    procedure ClearTempGenJnlLine()
+    begin
+        Clear(TempGenJournalLine);
+        GSTBankChargesPostingStarted := false;
+        BankChargeAmount := 0;
+        TransactionNo := 0;
     end;
 
     local procedure GetTempGenJournalNextLineNo(): Integer
@@ -79,6 +97,7 @@ codeunit 18248 "GST Bank Charge Session Mgt."
     begin
         if TempGenJournalLine.FindLast() then
             NextLineNo := TempGenJournalLine."Line No.";
+
         exit(NextLineNo + 10000);
     end;
 
@@ -89,19 +108,4 @@ codeunit 18248 "GST Bank Charge Session Mgt."
         if GLAcc.Get(GLAccCode) then
             exit(GLAcc.Name);
     end;
-
-    procedure ClearTempGenJnlLine()
-    begin
-        clear(TempGenJournalLine);
-        GSTBankChargesPostingStarted := false;
-        BankChargeAmount := 0;
-        TransactionNo := 0;
-    end;
-
-    var
-        TempGenJournalLine: Record "Gen. Journal Line" temporary;
-        TransactionNo: Integer;
-        NextEntryNo: Integer;
-        BankChargeAmount: Decimal;
-        GSTBankChargesPostingStarted: Boolean;
 }

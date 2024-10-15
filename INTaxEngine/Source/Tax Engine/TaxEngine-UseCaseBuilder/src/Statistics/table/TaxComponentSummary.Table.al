@@ -13,7 +13,7 @@ table 20301 "Tax Component Summary"
         }
         field(2; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(3; "Use Case"; Text[2000])

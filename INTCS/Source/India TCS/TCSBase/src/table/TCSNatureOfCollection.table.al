@@ -2,7 +2,6 @@ table 18811 "TCS Nature Of Collection"
 {
     Caption = 'TCS Nature Of Collection';
     DataCaptionFields = Code, Description;
-    DataClassification = EndUserIdentifiableInformation;
     LookupPageId = "TCS Nature of Collections";
     DrillDownPageId = "TCS Nature of Collections";
     Access = Public;
@@ -13,13 +12,18 @@ table 18811 "TCS Nature Of Collection"
         field(1; "Code"; Code[10])
         {
             NotBlank = true;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; "Description"; text[30])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+        }
+        field(3; "TCS On Recpt. Of Pmt."; Boolean)
+        {
+            DataClassification = CustomerContent;
         }
     }
+
     keys
     {
         key(PK; code)

@@ -8,7 +8,7 @@ table 18204 "GST Distribution Line"
         {
             Caption = 'Distribution No.';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; "Line No."; Integer)
         {
@@ -20,20 +20,19 @@ table 18204 "GST Distribution Line"
         {
             Caption = 'Posting Date';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(17; "From GSTIN No."; Code[20])
         {
             Caption = 'GSTIN No.';
             Editable = false;
-            TableRelation = "GST Registration Nos."
-                where("Input Service Distributor" = filter(true));
-            DataClassification = EndUserIdentifiableInformation;
+            TableRelation = "GST Registration Nos." where("Input Service Distributor" = filter(true));
+            DataClassification = CustomerContent;
         }
-        field(19; "Rcpt. Credit Type"; Enum "GST Distribution Credit Type")
+        field(19; "Rcpt. Credit Type"; Enum "GST Credit")
         {
             Caption = 'Rcpt. Credit Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -44,13 +43,13 @@ table 18204 "GST Distribution Line"
         {
             Caption = 'From Location Code';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(21; "To Location Code"; Code[10])
         {
             Caption = 'To Location Code';
             TableRelation = Location where("GST Input Service Distributor" = filter(false));
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -61,18 +60,18 @@ table 18204 "GST Distribution Line"
         {
             Caption = 'To GSTIN No.';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(23; "Distribution Jurisdiction"; Enum "GST Jurisdiction Type")
         {
             Caption = 'Distribution Jurisdiction';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(24; "Distribution %"; Decimal)
         {
             Caption = 'Distribution %';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -84,7 +83,7 @@ table 18204 "GST Distribution Line"
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -95,7 +94,7 @@ table 18204 "GST Distribution Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
 
             trigger OnValidate()
@@ -106,7 +105,7 @@ table 18204 "GST Distribution Line"
         field(27; "Distribution Amount"; Decimal)
         {
             Caption = 'Distribution Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(480; "Dimension Set ID"; Integer)
@@ -114,7 +113,7 @@ table 18204 "GST Distribution Line"
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
 
             trigger OnLookup()
             begin
@@ -130,6 +129,16 @@ table 18204 "GST Distribution Line"
             Clustered = true;
         }
     }
+
+    var
+        DimMgt: Codeunit DimensionManagement;
+        SameToLocationErr: Label 'To Location Code: %1 and Rcpt. Credit Type: %2 already exists for Line No. %3.', Comment = '%1 = To Location Code, %2 = Rcpt. Credit Type, %3 = Line No.';
+        DistPercentRangeErr: Label '%1 must be in between 0 and 100.', Comment = '%1 = Field Name';
+        DistPercentTotalErr: Label 'Sum of %1 cannot be more than 100.', Comment = '%1 = Field Name';
+        ChangeDistPerErr: Label 'You cannot change Distribution % for GST Distribution Reversal.';
+        ChangeRcptCreditTypeErr: Label 'You cannot change Rcpt. Credit Type for GST Distribution Reversal.';
+        ChangeToLocErr: Label 'You cannot change To Location Code for GST Distribution Reversal.';
+        DistributionMsg: Label '%1,%2', Comment = '%1 =Distribution No., %2= Line No.';
 
     procedure ShowDimensions()
     begin
@@ -147,27 +156,25 @@ table 18204 "GST Distribution Line"
 
     local procedure ValidateRcptCreditType()
     var
-        GSTDistHeader: Record "GST Distribution Header";
-        GSTDistLine: Record "GST Distribution Line";
+        GSTDistributionHeader: Record "GST Distribution Header";
+        GSTDistributionLine: Record "GST Distribution Line";
     begin
-        GSTDistHeader.Get("Distribution No.");
-        if GSTDistHeader.Reversal and ("Rcpt. Credit Type" <> xRec."Rcpt. Credit Type") then
+        GSTDistributionHeader.Get("Distribution No.");
+        if GSTDistributionHeader.Reversal and ("Rcpt. Credit Type" <> xRec."Rcpt. Credit Type") then
             Error(ChangeRcptCreditTypeErr);
 
         TestField("To Location Code");
-        if "Rcpt. Credit Type" <> "Rcpt. Credit Type"::" " then begin
-            GSTDistLine.Reset();
-            GSTDistLine.SetRange("Distribution No.", "Distribution No.");
-            GSTDistLine.SetRange("To Location Code", "To Location Code");
-            GSTDistLine.SetRange("Rcpt. Credit Type", "Rcpt. Credit Type");
-            GSTDistLine.SetFilter("Line No.", '<>%1', "Line No.");
-            if GSTDistLine.FindFirst() then
-                Error(
-                    SameToLocationErr,
-                    "To Location Code",
-                    "Rcpt. Credit Type",
-                    GSTDistLine."Line No.");
-        end;
+        GSTDistributionLine.Reset();
+        GSTDistributionLine.SetRange("Distribution No.", "Distribution No.");
+        GSTDistributionLine.SetRange("To Location Code", "To Location Code");
+        GSTDistributionLine.SetRange("Rcpt. Credit Type", "Rcpt. Credit Type");
+        GSTDistributionLine.SetFilter("Line No.", '<>%1', "Line No.");
+        if GSTDistributionLine.FindFirst() then
+            Error(
+                SameToLocationErr,
+                "To Location Code",
+                "Rcpt. Credit Type",
+                GSTDistributionLine."Line No.");
     end;
 
     local procedure ValidateToLocationCode()
@@ -180,8 +187,6 @@ table 18204 "GST Distribution Line"
         GSTDistHeader.Get("Distribution No.");
         GSTDistHeader.TestField("From Location Code");
         GSTDistHeader.TestField("Posting Date");
-        if GSTDistHeader."Dist. Credit Type" = GSTDistHeader."Dist. Credit Type"::" " then
-            Error(DistCreditTypeErr);
         "From Location Code" := GSTDistHeader."From Location Code";
         "From GSTIN No." := GSTDistHeader."From GSTIN No.";
         "Posting Date" := GSTDistHeader."Posting Date";
@@ -196,49 +201,37 @@ table 18204 "GST Distribution Line"
                 "Distribution Jurisdiction" := "Distribution Jurisdiction"::Interstate;
         end;
 
-        if GSTDistHeader.Reversal then
-            if "To Location Code" <> xRec."To Location Code" then
-                Error(ChangeToLocErr);
+        if GSTDistHeader.Reversal and ("To Location Code" <> xRec."To Location Code") then
+            Error(ChangeToLocErr);
     end;
 
     local procedure ValidateDistributionPercent()
     var
-        GSTDistHeader: Record "GST Distribution Header";
-        GSTDistLine: Record "GST Distribution Line";
+        GSTDistributionHeader: Record "GST Distribution Header";
+        GSTDistributionLine: Record "GST Distribution Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         TestField("To Location Code");
-        GLSetup.Get();
-        GSTDistHeader.Get("Distribution No.");
-        GSTDistLine.SetRange("Distribution No.", "Distribution No.");
-        GSTDistLine.SetFilter("Line No.", '<>%1', "Line No.");
-        GSTDistLine.CalcSums("Distribution %");
-        if GSTDistLine."Distribution %" + "Distribution %" > 100 then
-            Error(DistPercentTotalErr, FieldName("Distribution %"));
+        GeneralLedgerSetup.Get();
+        GSTDistributionHeader.Get("Distribution No.");
+        GSTDistributionLine.SetRange("Distribution No.", "Distribution No.");
+        GSTDistributionLine.SetFilter("Line No.", '<>%1', "Line No.");
+        GSTDistributionLine.CalcSums("Distribution %");
+        if GSTDistributionLine."Distribution %" + "Distribution %" > 100 then
+            Error(DistPercentTotalErr, FieldCaption("Distribution %"));
+
         if ("Distribution %" < 0) or ("Distribution %" > 100) then
-            Error(DistPercentRangeErr, FieldName("Distribution %"));
+            Error(DistPercentRangeErr, FieldCaption("Distribution %"));
+
         if "Distribution %" <> 0 then
             "Distribution Amount" :=
               Round(
-                  GSTDistHeader."Total Amout Applied for Dist." * "Distribution %" / 100,
-                  GLSetup."Amount Rounding Precision")
+                  GSTDistributionHeader."Total Amout Applied for Dist." * "Distribution %" / 100,
+                  GeneralLedgerSetup."Amount Rounding Precision")
         else
             "Distribution Amount" := 0;
 
-        if GSTDistHeader.Reversal then
-            if "Distribution %" <> xRec."Distribution %" then
-                Error(ChangeDistPerErr);
+        if GSTDistributionHeader.Reversal and ("Distribution %" <> xRec."Distribution %") then
+            Error(ChangeDistPerErr);
     end;
-
-    var
-        GLSetup: Record "General Ledger Setup";
-        DimMgt: Codeunit DimensionManagement;
-        SameToLocationErr: Label 'To Location Code: %1 and Rcpt. Credit Type: %2 already exists for Line No. %3.', Comment = '%1 = To Location Code, %2 = Rcpt. Credit Type, %3 = Line No.';
-        DistPercentRangeErr: Label '%1 must be in between 0 and 100.', Comment = '%1 = Field Name';
-        DistPercentTotalErr: Label 'Sum of %1 cannot be more than 100.', Comment = '%1 = Field Name';
-        ChangeDistPerErr: Label 'You cannot change Distribution % for GST Distribution Reversal.';
-        ChangeRcptCreditTypeErr: Label 'You cannot change Rcpt. Credit Type for GST Distribution Reversal.';
-        ChangeToLocErr: Label 'You cannot change To Location Code for GST Distribution Reversal.';
-        DistCreditTypeErr: Label 'Dist. Credit Type cannot be blank.';
-        DistributionMsg: Label '%1,%2', Comment = '%1 =Distribution No., %2= Line No.';
 }
-

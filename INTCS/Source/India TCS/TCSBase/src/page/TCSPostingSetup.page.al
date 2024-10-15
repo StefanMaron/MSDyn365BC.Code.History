@@ -13,17 +13,17 @@ page 18812 "TCS Posting Setup"
         {
             repeater(General)
             {
-                field("TCS Nature of Collection"; "TCS Nature of Collection")
+                field("TCS Nature of Collection"; Rec."TCS Nature of Collection")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies TCS Nature of Collection of the customer account to link transactions made to this customer with the appropriate general ledger account according to TCS posting setup.';
                 }
-                field("Effective Date"; "Effective Date")
+                field("Effective Date"; Rec."Effective Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on which the TCS rate on this line comes into effect.';
                 }
-                field("TCS Account No."; "TCS Account No.")
+                field("TCS Account No."; Rec."TCS Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to which TCS amount will be posted for the TCS Nature of Collection.';

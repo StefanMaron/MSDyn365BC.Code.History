@@ -26,6 +26,12 @@ page 20283 "Switch Statements"
                         FormatLine();
                     end;
                 }
+                field(Sequence; Sequence)
+                {
+                    Caption = 'Sequence';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the sequence of case validation.';
+                }
                 field(Mapping; ActivityTextValue)
                 {
                     Caption = 'Statement';
@@ -106,11 +112,6 @@ page 20283 "Switch Statements"
         ValueType := NewType;
     end;
 
-    procedure SetVariable(NewVariableID: Integer)
-    begin
-        VariableId := NewVariableID;
-    end;
-
     trigger OnInsertRecord(Belowxrec: Boolean): Boolean
     begin
         "Action Type" := ValueType;
@@ -171,7 +172,6 @@ page 20283 "Switch Statements"
         LookupEntityMgmt: Codeunit "Lookup Entity Mgmt.";
         UseCaseMgmt: Codeunit "Use Case Mgmt.";
         LookupMgmt: Codeunit "Lookup Mgmt.";
-        VariableId: Integer;
         ValueType: Enum "Switch Case Action Type";
         ActivityTextValue: Text;
         ConditionText: Text;

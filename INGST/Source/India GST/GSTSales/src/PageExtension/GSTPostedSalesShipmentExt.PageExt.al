@@ -6,74 +6,74 @@ pageextension 18145 "GST Posted Sales Shipment Ext" extends "Posted Sales Shipme
         {
             group("Tax Information")
             {
-                field("GST Bill-to State Code"; "GST Bill-to State Code")
+                field("GST Bill-to State Code"; Rec."GST Bill-to State Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the bill-to state code of the customer on the sales document.';
                 }
-                field("GST Ship-to State Code"; "GST Ship-to State Code")
+                field("GST Ship-to State Code"; Rec."GST Ship-to State Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the ship-to state code of the customer on the sales document.';
                 }
-                field("Location State Code"; "Location State Code")
+                field("Location State Code"; Rec."Location State Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the sate code mentioned of the location on the sales document.';
                 }
-                field("Invoice Type"; "Invoice Type")
+                field("Invoice Type"; Rec."Invoice Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the invoice type on the sales document. For example, Bill of supply, export, supplementary, debit note, non-GST and taxable.';
                 }
-                field("Nature of Supply"; "Nature of Supply")
+                field("Nature of Supply"; Rec."Nature of Supply")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the nature of GST transaction. For example, B2B/B2C.';
                 }
-                field("GST Customer Type"; "GST Customer Type")
+                field("GST Customer Type"; Rec."GST Customer Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of the customer. For example, Registered, Unregistered, Export etc..';
                 }
-                field("GST Without Payment of Duty"; "GST Without Payment of Duty")
+                field("GST Without Payment of Duty"; Rec."GST Without Payment of Duty")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies if the invoice is a GST invoice with or without payment of duty.';
                 }
 
-                field("Bill Of Export No."; "Bill Of Export No.")
+                field("Bill Of Export No."; Rec."Bill Of Export No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the bill of export number. It is a document number which is submitted to custom department.';
                 }
-                field("Bill Of Export Date"; "Bill Of Export Date")
+                field("Bill Of Export Date"; Rec."Bill Of Export Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the entry date defined in bill of export document.';
                 }
-                field("E-Commerce Customer"; "E-Commerce Customer")
+                field("E-Commerce Customer"; Rec."E-Commerce Customer")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the customer number for which merchant id has to be recorded.';
                 }
-                field("E-Commerce Merchant Id"; "E-Commerce Merchant Id")
+                field("E-Commerce Merchant Id"; Rec."E-Commerce Merchant Id")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the merchant ID provided to customers by their payment processor.';
                 }
-                field("POS Out Of India"; "POS Out Of India")
+                field("POS Out Of India"; Rec."POS Out Of India")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

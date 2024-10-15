@@ -21,6 +21,15 @@
       "path": "./System Application/Source/System Application/Email/src/Test Email"
     },
     {
+      "path": "./INGateEntry/Test/India Gate Entry Tests"
+    },
+    {
+      "path": "./INFADepreciation/Test/Fixed Asset Depreciation Tests"
+    },
+    {
+      "path": "./INTaxBase/Test/India Tax Base Tests"
+    },
+    {
       "path": "./INTCS/Test/India TCS Tests"
     },
     {
@@ -30,16 +39,22 @@
       "path": "./testframework/TestRunner/Test Runner"
     },
     {
+      "path": "./testframework/performancetoolkit/Performance Toolkit Tests"
+    },
+    {
+      "path": "./testframework/performancetoolkit/Performance Toolkit Tests/src/Mock Tests"
+    },
+    {
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
     },
     {
       "path": "./PayPalPaymentsStandard/Test/PayPal Payments Standard Tests"
     },
     {
-      "path": "./Email - Outlook REST API/Test"
+      "path": "./INReports/Test/India Reports Tests"
     },
     {
-      "path": "./APIV2/Test/_Exclude_APIV2_ Tests"
+      "path": "./Email - Outlook REST API/Test"
     },
     {
       "path": "./BaseApp/Test/Tests-Bank"
@@ -144,19 +159,22 @@
       "path": "./BaseApp/Source/Base Application/Test Framework"
     },
     {
+      "path": "./CompanyHub/Test/Company Hub Tests"
+    },
+    {
       "path": "./INTDS/Test/India TDS Tests"
     },
     {
       "path": "./INGST/Test/India GST Tests"
     },
     {
+      "path": "./Onprem Permissions/Test/OnPrem Permissions Tests"
+    },
+    {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
     },
     {
       "path": "./SalesAndInventoryForecast/Test/Sales and Inventory Forecast Tests"
-    },
-    {
-      "path": "./APIV1/Test/_Exclude_APIV1_ Tests"
     },
     {
       "path": "./INVoucherInterface/Test/India Voucher Interface Tests"

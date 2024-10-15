@@ -3,7 +3,6 @@ page 20252 "Tax Rates"
     Caption = 'Tax Rates';
     PageType = List;
     SourceTable = "Tax Rate";
-
     layout
     {
         area(Content)
@@ -335,6 +334,41 @@ page 20252 "Tax Rates"
         }
     }
 
+    actions
+    {
+        area(Processing)
+        {
+            action(ExportToExcel)
+            {
+                Caption = 'Export To Excel';
+                Image = ExportToExcel;
+                ApplicationArea = Basic, Suite;
+                Promoted = true;
+                ToolTip = 'Exports the tax rates to Excel.';
+                trigger OnAction();
+                var
+                    TaxRatesExportMgmt: Codeunit "Tax Rates Export Mgmt.";
+                begin
+                    TaxRatesExportMgmt.ExportTaxRates(GlobalTaxType);
+                end;
+            }
+            action(ImportFromExcel)
+            {
+                Caption = 'Import From Excel';
+                Image = ImportExcel;
+                ApplicationArea = Basic, Suite;
+                Promoted = true;
+                ToolTip = 'Import the tax rates from Excel.';
+                trigger OnAction();
+                var
+                    TaxRatesImportMgmt: Codeunit "Tax Rates Import Mgmt.";
+                begin
+                    TaxRatesImportMgmt.ReadAndImportTaxRates(GlobalTaxType);
+                end;
+            }
+        }
+    }
+
     trigger OnAfterGetRecord()
     begin
         FormatLine();
@@ -370,6 +404,7 @@ page 20252 "Tax Rates"
 
     local procedure InsertRecord(Index: Integer)
     var
+        TaxRateValue: Record "Tax Rate Value";
         CurrentCellValue: Text;
     begin
         if IsNullGuid(ID) then begin
@@ -379,6 +414,14 @@ page 20252 "Tax Rates"
             TaxSetupMatrixMgmt.FillColumnValue(ID, AttributeValue, RangeAttribute, AttributeID);
             AttributeValue[Index] := CurrentCellValue;
             CurrPage.SaveRecord();
+        end else begin
+            TaxRateValue.SetRange("Config ID", ID);
+            if TaxRateValue.IsEmpty() then begin
+                TaxSetupMatrixMgmt.InitializeRateValue(Rec, GlobalTaxType);
+                TaxSetupMatrixMgmt.FillColumnValue(ID, AttributeValue, RangeAttribute, AttributeID);
+                AttributeValue[Index] := CurrentCellValue;
+                CurrPage.SaveRecord();
+            end;
         end;
     end;
 
@@ -399,7 +442,6 @@ page 20252 "Tax Rates"
     var
         TaxSetupMatrixMgmt: Codeunit "Tax Setup Matrix Mgmt.";
         AttributeManagement: Codeunit "Tax Attribute Management";
-        EmptyGuid: Guid;
         RangeAttribute: array[1000] of Boolean;
         AttributeValue: array[1000] of Text;
         AttributeCaption: array[1000] of Text;

@@ -71,6 +71,10 @@ page 20308 "Use Case Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the effective date of the use case.';
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field(Enable; Enable)
                 {
@@ -81,7 +85,7 @@ page 20308 "Use Case Card"
             group(VersionControl)
             {
                 Caption = 'Version';
-                field(Version; Version)
+                field(Version; VersionTxt)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -136,8 +140,16 @@ page 20308 "Use Case Card"
                 Image = PostDocument;
                 Promoted = true;
                 PromotedCategory = Process;
-                RunObject = page "Script Context";
-                RunPageLink = "Case ID" = field(ID), ID = field("Computation Script ID");
+                trigger OnAction()
+                var
+                    ScriptContext: Record "Script Context";
+                begin
+                    ScriptContext.FilterGroup(4);
+                    ScriptContext.SetRange("Case ID", Rec.ID);
+                    ScriptContext.SetRange(ID, Rec."Computation Script ID");
+                    ScriptContext.FilterGroup(0);
+                    Page.Run(Page::"Script Context", ScriptContext);
+                end;
             }
             action(AddChildUseCase)
             {
@@ -167,7 +179,7 @@ page 20308 "Use Case Card"
                     UseCase: Record "Tax Use Case";
                     UseCaseMgmt: Codeunit "Use Case Mgmt.";
                 begin
-                    CurrPage.SETSELECTIONFILTER(UseCase);
+                    UseCase.SetRange(ID, Rec.ID);
                     UseCaseMgmt.OnAfterExportUseCases(UseCase);
                 end;
             }
@@ -211,8 +223,6 @@ page 20308 "Use Case Card"
                 Image = Archive;
                 Promoted = true;
                 PromotedCategory = Process;
-                RunObject = page "Use Case Archival Log Entries";
-                RunPageLink = "Case ID" = field(ID);
                 trigger OnAction();
                 var
                     i: Integer;
@@ -229,6 +239,7 @@ page 20308 "Use Case Card"
     begin
         ShowTaxAttributePart := not IsNullGuid("Parent Use Case ID");
         FormatLine();
+        UpdateVersion();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -240,6 +251,7 @@ page 20308 "Use Case Card"
     trigger OnAfterGetRecord()
     begin
         FormatLine();
+        UpdateVersion();
     end;
 
     local procedure FormatLine()
@@ -258,6 +270,14 @@ page 20308 "Use Case Card"
             TaxEntityName := '';
     end;
 
+    local procedure UpdateVersion()
+    begin
+        if IsNullGuid("ID") then
+            VersionTxt := ''
+        else
+            VersionTxt := StrSubstNo(VersionLbl, "Major Version", "Minor Version");
+    end;
+
     var
         AppObjectHelper: Codeunit "App Object Helper";
         TaxTypeObjectHelper: Codeunit "Tax Type Object Helper";
@@ -268,5 +288,7 @@ page 20308 "Use Case Card"
         ShowTaxAttributePart: Boolean;
         ConditionText: Text;
         TaxEntityName: Text[30];
+        VersionTxt: Text;
         ConditionLbl: Label 'Condition : %1', Comment = '%1 = condtion as text';
+        VersionLbl: Label '%1.%2', Comment = '%1 - Major Version, %2 - Minor Version';
 }

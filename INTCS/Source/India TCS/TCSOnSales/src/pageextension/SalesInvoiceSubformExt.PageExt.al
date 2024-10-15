@@ -4,13 +4,13 @@ pageextension 18839 "Sales Invoice Subform Ext" extends "Sales Invoice Subform"
     {
         addafter("Location Code")
         {
-            field("TCS Nature of Collection"; "TCS Nature of Collection")
+            field("TCS Nature of Collection"; Rec."TCS Nature of Collection")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the TCS Nature of collection on which the TCS will be calculated for the Sales Invoice.';
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    AllowedNocLookup(Rec, "Sell-to Customer No.");
+                    Rec.AllowedNocLookup(Rec, Rec."Sell-to Customer No.");
                     UpdateTaxAmount();
                 end;
 
@@ -21,18 +21,34 @@ pageextension 18839 "Sales Invoice Subform Ext" extends "Sales Invoice Subform"
                 end;
             }
         }
+        modify(Quantity)
+        {
+            trigger OnAfterValidate()
+            var
+            begin
+                UpdateTaxAmount();
+            end;
+        }
+        modify("Unit Price")
+        {
+            trigger OnAfterValidate()
+            var
+            begin
+                UpdateTaxAmount();
+            end;
+        }
         modify("Invoice Disc. Pct.")
         {
             trigger OnAfterValidate()
             begin
-                TCSSalesValidations.UpdateTaxAmountOnSalesLine(Rec);
+                TCSSalesManagement.UpdateTaxAmountOnSalesLine(Rec);
             end;
         }
         modify("Invoice Discount Amount")
         {
             trigger OnAfterValidate()
             begin
-                TCSSalesValidations.UpdateTaxAmountOnSalesLine(Rec);
+                TCSSalesManagement.UpdateTaxAmountOnSalesLine(Rec);
             end;
         }
     }
@@ -45,5 +61,5 @@ pageextension 18839 "Sales Invoice Subform Ext" extends "Sales Invoice Subform"
     end;
 
     var
-        TCSSalesValidations: Codeunit "TCS Sales Validations";
+        TCSSalesManagement: Codeunit "TCS Sales Management";
 }

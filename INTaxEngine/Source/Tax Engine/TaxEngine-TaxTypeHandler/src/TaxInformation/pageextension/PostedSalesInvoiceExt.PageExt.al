@@ -3,8 +3,7 @@ pageextension 20246 "Posted Sales Invoice Ext" extends "Posted Sales Invoice"
 
     layout
     {
-
-        addbefore(IncomingDocAttachFactBox)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

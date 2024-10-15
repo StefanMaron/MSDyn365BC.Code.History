@@ -2,7 +2,7 @@ pageextension 20259 "Sales Quote Ext" extends "Sales Quote"
 {
     layout
     {
-        addbefore(IncomingDocAttachFactBox)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

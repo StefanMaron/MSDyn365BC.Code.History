@@ -1,11 +1,11 @@
 codeunit 18435 "Reference Invoice No. Mgt."
 {
     var
-        GenJournalLine: Record "Gen. Journal Line";
-        ReferenceNoMsg: Label 'Reference Invoice No is  required where Invoice Type is Debit Note and Supplementary.';
+        RefGenJournalLine: Record "Gen. Journal Line";
+        ReferenceNoMsg: Label 'Reference Invoice No is required where Invoice Type is Debit Note and Supplementary.';
         ReferenceNoErr: Label 'Selected Document No does not exist for Reference Invoice No.';
-        ReferenceInvoiceNoErr: Label 'You cannot select Non GST document to GST Docment.';
-        ReferenceNoNonGSTErr: Label 'You cannot select  Non GST - Invoice in Reference Invoice No.';
+        ReferenceInvoiceNoErr: Label 'You cannot select Non GST Document on a GST Document.';
+        ReferenceNoNonGSTErr: Label 'You cannot select Non GST - Invoice in Reference Invoice No.';
         RefNoAlterErr: Label 'Reference Invoice No cannot be updated after verification.';
         ReferenceVerifyErr: Label 'Reference Invoice No cannot be update after Verification.';
         VendInvNoErr: Label 'The field Reference Invoice No. of table %1 contains a value that cannot be found in the related table Vendor Ledger Entry.', Comment = '%1 = Document No.';
@@ -34,78 +34,8 @@ codeunit 18435 "Reference Invoice No. Mgt."
         CompGSTRegNoARNNoErr: Label 'Company Information must have either GST Registration No. or ARN No.';
         ReferenceInvNoPurchErr: Label 'Reference Invoice No. must have a value in Purchase Header: Document Type = %1, No = %2. It cannot be zero or empty.', Comment = '%1 = Document Type,%2 = Document No.';
         ReferenceInvNoSalesErr: Label 'Reference Invoice No. must have a value in Sales Header: Document Type = %1, No = %2. It cannot be zero or empty.', Comment = '%1 = Document Type,%2 = Document No.';
-
-    [EventSubscriber(ObjectType::Page, Page::"Purchase Credit Memo", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
-    local procedure PurchCrMemoOnAfterUpdateRefInvNo(var Rec: Record "Purchase Header")
-    begin
-        UpdateReferenceInvoiceNoPurchHeader(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Purchase Invoice", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
-    local procedure PurchInvOnAfterUpdateRefInvNo(var Rec: Record "Purchase Header")
-    begin
-        UpdateReferenceInvoiceNoPurchHeader(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Purchase Order", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
-    local procedure PurchOrdOnAfterUpdateRefInvNo(var Rec: Record "Purchase Header")
-    begin
-        UpdateReferenceInvoiceNoPurchHeader(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Purchase Return Order", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
-    local procedure PurchRetOrdOnAfterUpdateRefInvNo(var Rec: Record "Purchase Header")
-    begin
-        UpdateReferenceInvoiceNoPurchHeader(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Sales Credit Memo", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
-    local procedure SalesCrMemoOnAfterUpdateRefInvNo(var Rec: Record "Sales Header")
-    begin
-        UpdateReferenceInvoiceNoSalesHeader(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Sales Invoice", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
-    local procedure SalesInvOnAfterUpdateRefInvNo(var Rec: Record "Sales Header")
-    begin
-        UpdateReferenceInvoiceNoSalesHeader(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Sales Order", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
-    local procedure SalesOrdOnAfterUpdateRefInvNo(var Rec: Record "Sales Header")
-    begin
-        UpdateReferenceInvoiceNoSalesHeader(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Sales Return Order", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
-    local procedure SalesRetOrdOnAfterUpdateRefInvNo(var Rec: Record "Sales Header")
-    begin
-        UpdateReferenceInvoiceNoSalesHeader(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"General Journal", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
-    local procedure GenJnlOnAfterUpdateRefInvNo(var Rec: Record "Gen. Journal Line")
-    begin
-        UpdateReferenceInvoiceNoGenJournal(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Purchase Journal", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
-    local procedure PurchJnlOnAfterUpdateRefInvNo(var Rec: Record "Gen. Journal Line")
-    begin
-        UpdateReferenceInvoiceNoGenJournal(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Sales Journal", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
-    local procedure SalesJnlOnAfterUpdateRefInvNo(var Rec: Record "Gen. Journal Line")
-    begin
-        UpdateReferenceInvoiceNoGenJournal(Rec);
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Fixed Asset G/L Journal", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
-    local procedure FAGLJnlOnAfterUpdateRefInvNo(var Rec: Record "Gen. Journal Line")
-    begin
-        UpdateReferenceInvoiceNoGenJournal(Rec);
-    end;
+        ReferenceNoJnlErr: Label 'Reference Invoice No. must have a value  in Journal: Document Type = %1, No = %2. It cannot be zero or empty.', Comment = '%1 = Document Type and %2 = Document No';
+        ReferenceInvNoServiceErr: Label 'Reference Invoice No. must have a value in Service Header: Document Type = %1, No = %2. It cannot be zero or empty.', Comment = '%1 = Document Type,%2 = Document No.';
 
     procedure VerifyReferenceNo(var RefInvNo: Record "Reference Invoice No.")
     var
@@ -141,7 +71,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         GSTDocumentType := GenJnlDocumentType2GSTDocumentType(VendorLedgerEntry."Document Type");
                         DetailedGSTLedgerEntry.SetRange("Document Type", GSTDocumentType);
                         DetailedGSTLedgerEntry.SetRange("Source No.", RefInvNo."Source No.");
-                        if DetailedGSTLedgerEntry.FindFirst() then begin
+                        if not DetailedGSTLedgerEntry.IsEmpty() then begin
                             if not ReferenceInvoiceNo.Verified then
                                 ReferenceInvoiceNo.Verified := true;
 
@@ -161,7 +91,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         GSTDocumentType := GenJnlDocumentType2GSTDocumentType(CustLedgerEntry."Document Type");
                         DetailedGSTLedgerEntry.SetRange("Document Type", GSTDocumentType);
                         DetailedGSTLedgerEntry.SetRange("Source No.", RefInvNo."Source No.");
-                        if DetailedGSTLedgerEntry.FindFirst() then begin
+                        if not DetailedGSTLedgerEntry.IsEmpty() then begin
                             if not ReferenceInvoiceNo.Verified then
                                 ReferenceInvoiceNo.Verified := true;
 
@@ -189,50 +119,44 @@ codeunit 18435 "Reference Invoice No. Mgt."
         PurchaseHeader.SetRange("Document Type", DocumentType);
         PurchaseHeader.SetRange("No.", DocumentNo);
         if PurchaseHeader.FindFirst() then begin
-            if IsGSTApplicable(
-                "Transaction Type Enum"::Purchase,
-                Database::"Purchase Header",
-                PurchaseHeader."Document Type",
-                SalesDoctype,
-                PurchaseHeader."No.")
-            then begin
-                VendorLedgerEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
-                VendorLedgerEntry.SetRange("Vendor No.", PurchaseHeader."Pay-to Vendor No.");
-                VendorLedgerEntry.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
-                if VendorLedgerEntry.FindFirst() then begin
-                    VendorLedgerEntries.SetTableView(VendorLedgerEntry);
-                    VendorLedgerEntries.SetRecord(VendorLedgerEntry);
-                    VendorLedgerEntries.LookupMode(true);
-                    if VendorLedgerEntries.RunModal() = Action::LookupOK then begin
-                        VendorLedgerEntries.GetRecord(VendorLedgerEntry);
-                        if not (VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Invoice) then
-                            Error(DocumentTypeErr);
-
-                        GSTDocumentType := GenJnlDocumentType2GSTDocumentType(VendorLedgerEntry."Document Type");
-                        DetailedGSTLedgerEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
-                        DetailedGSTLedgerEntry.SetRange("Document Type", GSTDocumentType);
-                        if DetailedGSTLedgerEntry.FindFirst() then begin
-                            if (PurchaseHeader."Invoice Type" in [
-                                    PurchaseHeader."Invoice Type"::"Debit Note",
-                                    PurchaseHeader."Invoice Type"::Supplementary]) or
-                               (PurchaseHeader."Document Type" in [
-                                   PurchaseHeader."Document Type"::"Credit Memo",
-                                   PurchaseHeader."Document Type"::"Return Order"])
-                            then
-                                ReferenceInvoiceNo."Reference Invoice Nos." := VendorLedgerEntry."Document No."
-                            else
-                                Message(ReferenceNoMsg);
-
-                            if PurchaseHeader."Pay-to Vendor No." <> VendorLedgerEntry."Vendor No." then
-                                Error(DiffVendNoErr);
-                        end else
-                            Error(ReferenceInvoiceErr);
-                    end;
-
-                    CheckGSTPurchCrMemoValidationReference(PurchaseHeader, ReferenceInvoiceNo."Reference Invoice Nos.");
-                end;
-            end else
+            if not IsGSTApplicable("Transaction Type Enum"::Purchase, PurchaseHeader."Document Type", SalesDoctype, PurchaseHeader."No.") then
                 Error(ReferenceInvoiceNoErr);
+
+            VendorLedgerEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
+            VendorLedgerEntry.SetRange("Vendor No.", PurchaseHeader."Pay-to Vendor No.");
+            VendorLedgerEntry.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
+            if VendorLedgerEntry.FindFirst() then begin
+                VendorLedgerEntries.SetTableView(VendorLedgerEntry);
+                VendorLedgerEntries.SetRecord(VendorLedgerEntry);
+                VendorLedgerEntries.LookupMode(true);
+                if VendorLedgerEntries.RunModal() = Action::LookupOK then begin
+                    VendorLedgerEntries.GetRecord(VendorLedgerEntry);
+                    if not (VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Invoice) then
+                        Error(DocumentTypeErr);
+
+                    GSTDocumentType := GenJnlDocumentType2GSTDocumentType(VendorLedgerEntry."Document Type");
+                    DetailedGSTLedgerEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
+                    DetailedGSTLedgerEntry.SetRange("Document Type", GSTDocumentType);
+                    if not DetailedGSTLedgerEntry.IsEmpty() then begin
+                        if (PurchaseHeader."Invoice Type" in [
+                                PurchaseHeader."Invoice Type"::"Debit Note",
+                                PurchaseHeader."Invoice Type"::Supplementary]) or
+                            (PurchaseHeader."Document Type" in [
+                                PurchaseHeader."Document Type"::"Credit Memo",
+                                PurchaseHeader."Document Type"::"Return Order"])
+                        then
+                            ReferenceInvoiceNo."Reference Invoice Nos." := VendorLedgerEntry."Document No."
+                        else
+                            Error(ReferenceNoMsg);
+
+                        if PurchaseHeader."Pay-to Vendor No." <> VendorLedgerEntry."Vendor No." then
+                            Error(DiffVendNoErr);
+                    end else
+                        Error(ReferenceInvoiceErr);
+                end;
+
+                CheckGSTPurchCrMemoValidationReference(PurchaseHeader, ReferenceInvoiceNo."Reference Invoice Nos.");
+            end;
 
             PurchaseHeader."RCM Exempt" := CheckRCMExemptDate(PurchaseHeader);
         end else
@@ -244,80 +168,141 @@ codeunit 18435 "Reference Invoice No. Mgt."
         DocumentType: Enum "Sales Document Type";
         DocumentNo: Code[20])
     var
+        IsFoundSales: Boolean;
+        IsFoundService: Boolean;
+    begin
+        IsFoundSales := UpdateReferenceInvoiceNoforCustomerSales(ReferenceInvoiceNo, DocumentType, DocumentNo);
+        IsFoundService := UpdateReferenceInvoiceNoforCustomerService(ReferenceInvoiceNo, DocumentType, DocumentNo);
+
+        if (not IsFoundSales) and (not IsFoundService) then
+            UpdateReferenceInvoiceforCustomerLedgerEntries(ReferenceInvoiceNo);
+    end;
+
+    procedure UpdateReferenceInvoiceNoforCustomerSales(
+        var ReferenceInvoiceNo: Record "Reference Invoice No.";
+        DocumentType: Enum "Sales Document Type";
+        DocumentNo: Code[20]): Boolean
+    var
         SalesHeader: Record "Sales Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         CustomerLedgerEntries: Page "Customer Ledger Entries";
-        IsFound: Boolean;
         GSTDocumentType: Enum "GST Document Type";
         PurchDocType: Enum "Purchase Document Type";
-        SalesDocType: Enum "Sales Document Type";
     begin
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("No.", DocumentNo);
-        if SalesHeader.FindFirst() then begin
-            if IsGSTApplicable(
-                "Transaction Type Enum"::Sales,
-                Database::"Sales Header",
-                PurchDocType,
-                SalesHeader."Document Type",
-                SalesHeader."No.")
-            then begin
-                CustLedgerEntry.SetCurrentKey("Document No.", "Document Type", "Customer No.");
-                CustLedgerEntry.SetRange("Customer No.", SalesHeader."Bill-to Customer No.");
-                CustLedgerEntry.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-                if CustLedgerEntry.FindFirst() then begin
-                    CustomerLedgerEntries.SetTableView(CustLedgerEntry);
-                    CustomerLedgerEntries.SetRecord(CustLedgerEntry);
-                    CustomerLedgerEntries.LookupMode(true);
-                    if CustomerLedgerEntries.RunModal() = Action::LookupOK then begin
-                        CustomerLedgerEntries.GetRecord(CustLedgerEntry);
-                        if not (CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice) then
-                            Error(DocumentTypeErr);
+        if not SalesHeader.FindFirst() then
+            exit(false);
 
-                        GSTDocumentType := GenJnlDocumentType2GSTDocumentType(CustLedgerEntry."Document Type");
-                        DetailedGSTLedgerEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
-                        DetailedGSTLedgerEntry.SetRange("Document Type", GSTDocumentType);
-                        if DetailedGSTLedgerEntry.FindFirst() then begin
-                            if (SalesHeader."Invoice Type" in [
-                                   SalesHeader."Invoice Type"::"Debit Note",
-                                   SalesHeader."Invoice Type"::Supplementary]) or
-                               (SalesHeader."Document Type" in [
-                                   SalesHeader."Document Type"::"Credit Memo",
-                                   SalesHeader."Document Type"::"Return Order"])
-                            then
-                                ReferenceInvoiceNo."Reference Invoice Nos." := CustLedgerEntry."Document No."
-                            else
-                                Message(ReferenceNoMsg);
+        if not IsGSTApplicable("Transaction Type Enum"::Sales, PurchDocType, SalesHeader."Document Type", SalesHeader."No.") then
+            Error(ReferenceInvoiceNoErr);
 
-                            if SalesHeader."Bill-to Customer No." <> CustLedgerEntry."Customer No." then
-                                Error(DiffCustNoErr);
-                        end else
-                            Error(ReferenceInvoiceErr);
-                    end;
+        CustLedgerEntry.SetCurrentKey("Document No.", "Document Type", "Customer No.");
+        CustLedgerEntry.SetRange("Customer No.", SalesHeader."Bill-to Customer No.");
+        CustLedgerEntry.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        if CustLedgerEntry.FindFirst() then begin
+            CustomerLedgerEntries.SetTableView(CustLedgerEntry);
+            CustomerLedgerEntries.SetRecord(CustLedgerEntry);
+            CustomerLedgerEntries.LookupMode(true);
+            if CustomerLedgerEntries.RunModal() = Action::LookupOK then begin
+                CustomerLedgerEntries.GetRecord(CustLedgerEntry);
+                if not (CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice) then
+                    Error(DocumentTypeErr);
 
-                    CheckGSTSalesCrMemoValidationReference(SalesHeader, ReferenceInvoiceNo."Reference Invoice Nos.");
-                end;
-            end else
-                Error(ReferenceInvoiceNoErr);
+                GSTDocumentType := GenJnlDocumentType2GSTDocumentType(CustLedgerEntry."Document Type");
+                DetailedGSTLedgerEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
+                DetailedGSTLedgerEntry.SetRange("Document Type", GSTDocumentType);
+                if not DetailedGSTLedgerEntry.IsEmpty() then begin
+                    if (SalesHeader."Invoice Type" in [
+                            SalesHeader."Invoice Type"::"Debit Note",
+                            SalesHeader."Invoice Type"::Supplementary]) or
+                        (SalesHeader."Document Type" in [
+                            SalesHeader."Document Type"::"Credit Memo",
+                            SalesHeader."Document Type"::"Return Order"])
+                    then
+                        ReferenceInvoiceNo."Reference Invoice Nos." := CustLedgerEntry."Document No."
+                    else
+                        Error(ReferenceNoMsg);
 
-            IsFound := true;
+                    if SalesHeader."Bill-to Customer No." <> CustLedgerEntry."Customer No." then
+                        Error(DiffCustNoErr);
+                end else
+                    Error(ReferenceInvoiceErr);
+            end;
+
+            CheckGSTSalesCrMemoValidationReference(SalesHeader, ReferenceInvoiceNo."Reference Invoice Nos.");
         end;
 
-        if not IsFound then
-            UpdateReferenceInvoiceforCustomerLedgerEntries(ReferenceInvoiceNo);
+        exit(true);
+    end;
+
+    procedure UpdateReferenceInvoiceNoforCustomerService(
+        var ReferenceInvoiceNo: Record "Reference Invoice No.";
+        DocumentType: Enum "Sales Document Type";
+        DocumentNo: Code[20]): Boolean
+    var
+        ServiceHeader: Record "Service Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+        CustomerLedgerEntries: Page "Customer Ledger Entries";
+        GSTDocumentType: Enum "GST Document Type";
+        PurchDocType: Enum "Purchase Document Type";
+    begin
+        ServiceHeader.SetRange("Document Type", DocumentType);
+        ServiceHeader.SetRange("No.", DocumentNo);
+        if not ServiceHeader.FindFirst() then
+            exit(false);
+
+        if not IsGSTApplicable("Transaction Type Enum"::Service, PurchDocType, ServiceHeader."Document Type", ServiceHeader."No.") then
+            Error(ReferenceInvoiceNoErr);
+
+        CustLedgerEntry.SetCurrentKey("Document No.", "Document Type", "Customer No.");
+        CustLedgerEntry.SetRange("Customer No.", ServiceHeader."Customer No.");
+        CustLedgerEntry.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
+        if CustLedgerEntry.FindFirst() then begin
+            CustomerLedgerEntries.SetTableView(CustLedgerEntry);
+            CustomerLedgerEntries.SetRecord(CustLedgerEntry);
+            CustomerLedgerEntries.LookUpMode(true);
+            if CustomerLedgerEntries.RunModal() = Action::LookupOK then begin
+                CustomerLedgerEntries.GetRecord(CustLedgerEntry);
+                if not (CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice) then
+                    Error(DocumentTypeErr);
+
+                GSTDocumentType := GenJnlDocumentType2GSTDocumentType(CustLedgerEntry."Document Type");
+                DetailedGSTLedgerEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
+                DetailedGSTLedgerEntry.SetRange("Document Type", GSTDocumentType);
+                if not DetailedGSTLedgerEntry.IsEmpty() then begin
+                    if (ServiceHeader."Invoice Type" in [
+                        ServiceHeader."Invoice Type"::"Debit note",
+                        ServiceHeader."Invoice Type"::Supplementary]) or
+                        (ServiceHeader."Document Type" in [ServiceHeader."Document Type"::"Credit Memo"])
+                    then
+                        ReferenceInvoiceNo."Reference Invoice Nos." := CustLedgerEntry."Document No."
+                    else
+                        Message(ReferenceNoMsg);
+
+                    if ServiceHeader."Bill-to Customer No." <> CustLedgerEntry."Customer No." then
+                        Error(DiffCustNoErr);
+                end else
+                    Error(ReferenceInvoiceErr);
+            end;
+            CheckGSTServiceCrMemoValidationReference(ServiceHeader, ReferenceInvoiceNo."Reference Invoice Nos.");
+        end;
+
+        exit(true);
     end;
 
     procedure UpdateReferenceInvoiceforCustomerLedgerEntries(var ReferenceInvoiceNo: Record "Reference Invoice No.")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
-        CustLedgerEntry2: Record "Cust. Ledger Entry";
-        CustLedgerEntry3: Record "Cust. Ledger Entry";
+        CustLedgerEntryToCheck: Record "Cust. Ledger Entry";
+        CustLedgerEntryCopy: Record "Cust. Ledger Entry";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         CustomerLedgerEntries: Page "Customer Ledger Entries";
     begin
         CustLedgerEntry.SetRange("Customer No.", ReferenceInvoiceNo."Source No.");
-        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."document Type"::Invoice);
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         if CustLedgerEntry.FindFirst() then begin
             Clear(CustomerLedgerEntries);
             CustomerLedgerEntries.SetTableView(CustLedgerEntry);
@@ -333,17 +318,17 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     then
                         ReferenceInvoiceNo."Reference Invoice Nos." := CustLedgerEntry."Document No.";
 
-                    CustLedgerEntry2.SetRange("Document No.", ReferenceInvoiceNo."Document No.");
-                    if CustLedgerEntry2.FindFirst() then
-                        CustLedgerEntry3.Copy(CustLedgerEntry2);
+                    CustLedgerEntryToCheck.SetRange("Document No.", ReferenceInvoiceNo."Document No.");
+                    if CustLedgerEntryToCheck.FindFirst() then
+                        CustLedgerEntryCopy.Copy(CustLedgerEntryToCheck);
 
                     CheckGSTSalesCrMemoValidationsOffline(
-                      CustLedgerEntry3,
+                      CustLedgerEntryCopy,
                       CustLedgerEntry,
                       0,
                       ReferenceInvoiceNo."Reference Invoice Nos.");
 
-                    if CustLedgerEntry2."Customer No." <> DetailedGSTLedgerEntry."Source No." then
+                    if CustLedgerEntryToCheck."Customer No." <> DetailedGSTLedgerEntry."Source No." then
                         Error(DiffCustNoErr);
                 end else
                     Error(ReferenceNoNonGSTErr)
@@ -384,7 +369,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         DetailedGSTLedgerEntry.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
                         DetailedGSTLedgerEntry.SetRange("Document Type", GSTDocumentType);
                         DetailedGSTLedgerEntry.SetRange("Source No.", RefInvNo."Source No.");
-                        if DetailedGSTLedgerEntry.FindFirst() then begin
+                        if not DetailedGSTLedgerEntry.IsEmpty() then begin
                             if not ReferenceInvoiceNo.Verified then
                                 ReferenceInvoiceNo.Verified := true;
 
@@ -406,7 +391,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         DetailedGSTLedgerEntry.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
                         DetailedGSTLedgerEntry.SetRange("Document Type", GSTDocumentType);
                         DetailedGSTLedgerEntry.SetRange("Source No.", RefInvNo."Source No.");
-                        if DetailedGSTLedgerEntry.FindFirst() then begin
+                        if not DetailedGSTLedgerEntry.IsEmpty() then begin
                             if not ReferenceInvoiceNo.Verified then
                                 ReferenceInvoiceNo.Verified := true;
 
@@ -428,19 +413,19 @@ codeunit 18435 "Reference Invoice No. Mgt."
         JournalBatchName: Code[10])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
-        GenJournalLine: Record "Gen. Journal Line";
+        GenJnLine: Record "Gen. Journal Line";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         VendorLedgerEntries: Page "Vendor Ledger Entries";
         GSTDocumentType: Enum "GST Document Type";
     begin
-        GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
-        GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        GenJournalLine.SetRange("Document Type", DocumentType);
-        GenJournalLine.SetRange("Document No.", DocumentNo);
-        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
-        if GenJournalLine.FindFirst() then begin
+        GenJnLine.SetRange("Journal Template Name", JournalTemplateName);
+        GenJnLine.SetRange("Journal Batch Name", JournalBatchName);
+        GenJnLine.SetRange("Document Type", DocumentType);
+        GenJnLine.SetRange("Document No.", DocumentNo);
+        GenJnLine.SetRange("Account Type", GenJnLine."Account Type"::Vendor);
+        if GenJnLine.FindFirst() then begin
             VendorLedgerEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
-            VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
+            VendorLedgerEntry.SetRange("Vendor No.", GenJnLine."Account No.");
             VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
             if VendorLedgerEntry.FindFirst() then begin
                 VendorLedgerEntries.SetTableView(VendorLedgerEntry);
@@ -452,24 +437,26 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         Error(DocumentTypeErr);
 
                     GSTDocumentType := GenJnlDocumentType2GSTDocumentType(VendorLedgerEntry."Document Type");
+
                     DetailedGSTLedgerEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
                     DetailedGSTLedgerEntry.SetRange("Document Type", GSTDocumentType);
-                    if DetailedGSTLedgerEntry.FindFirst() then begin
-                        if (GenJournalLine."Purch. Invoice Type" in [
-                            GenJournalLine."Purch. Invoice Type"::"Debit Note",
-                            GenJournalLine."Purch. Invoice Type"::Supplementary]) or
-                           (GenJournalLine."Document Type" = GenJournalLine."Document Type"::"Credit Memo")
+                    if not DetailedGSTLedgerEntry.IsEmpty() then begin
+                        if (GenJnLine."Purch. Invoice Type" in [
+                            GenJnLine."Purch. Invoice Type"::"Debit Note",
+                            GenJnLine."Purch. Invoice Type"::Supplementary]) or
+                           (GenJnLine."Document Type" = GenJnLine."Document Type"::"Credit Memo")
                         then
                             RefInvNo."Reference Invoice Nos." := VendorLedgerEntry."Document No."
                         else
-                            Message(ReferenceNoMsg);
-                        if GenJournalLine."Account No." <> VendorLedgerEntry."Vendor No." then
+                            Error(ReferenceNoMsg);
+
+                        if GenJnLine."Account No." <> VendorLedgerEntry."Vendor No." then
                             Error(DiffVendNoErr);
                     end else
                         Error(ReferenceInvoiceErr);
                 end;
 
-                CheckGSTPurchCrMemoValidationsJournalReference(GenJournalLine, RefInvNo."Reference Invoice Nos.");
+                CheckGSTPurchCrMemoValidationsJournalReference(GenJnLine, RefInvNo."Reference Invoice Nos.");
             end else
                 Error(ReferenceInvoiceNoErr);
         end else
@@ -484,19 +471,19 @@ codeunit 18435 "Reference Invoice No. Mgt."
         JournalBatchName: Code[10])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
-        GenJournalLine: Record "Gen. Journal Line";
+        GenJnlLine: Record "Gen. Journal Line";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         CustomerLedgerEntries: Page "Customer Ledger Entries";
         GSTDocumentType: Enum "GST Document Type";
     begin
-        GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
-        GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        GenJournalLine.SetRange("Document Type", DocumentType);
-        GenJournalLine.SetRange("Document No.", DocumentNo);
-        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Customer);
-        if GenJournalLine.FindFirst() then begin
+        GenJnlLine.SetRange("Journal Template Name", JournalTemplateName);
+        GenJnlLine.SetRange("Journal Batch Name", JournalBatchName);
+        GenJnlLine.SetRange("Document Type", DocumentType);
+        GenJnlLine.SetRange("Document No.", DocumentNo);
+        GenJnlLine.SetRange("Account Type", GenJnlLine."Account Type"::Customer);
+        if GenJnlLine.FindFirst() then begin
             CustLedgerEntry.SetCurrentKey("Document No.", "Document Type", "Customer No.");
-            CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
+            CustLedgerEntry.SetRange("Customer No.", GenJnlLine."Account No.");
             CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
             if CustLedgerEntry.FindFirst() then begin
                 CustomerLedgerEntries.SetTableView(CustLedgerEntry);
@@ -511,23 +498,23 @@ codeunit 18435 "Reference Invoice No. Mgt."
 
                     DetailedGSTLedgerEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
                     DetailedGSTLedgerEntry.SetRange("Document Type", GSTDocumentType);
-                    if DetailedGSTLedgerEntry.FindFirst() then begin
-                        if (GenJournalLine."Sales Invoice Type" in [
-                            GenJournalLine."Sales Invoice Type"::"Debit Note",
-                            GenJournalLine."Sales Invoice Type"::Supplementary]) or
-                           (GenJournalLine."Document Type" = GenJournalLine."Document Type"::"Credit Memo")
+                    if not DetailedGSTLedgerEntry.IsEmpty() then begin
+                        if (GenJnlLine."Sales Invoice Type" in [
+                            GenJnlLine."Sales Invoice Type"::"Debit Note",
+                            GenJnlLine."Sales Invoice Type"::Supplementary]) or
+                           (GenJnlLine."Document Type" = GenJnlLine."Document Type"::"Credit Memo")
                         then
                             RefInvNo."Reference Invoice Nos." := CustLedgerEntry."Document No."
                         else
-                            Message(ReferenceNoMsg);
+                            Error(ReferenceNoMsg);
 
-                        if GenJournalLine."Account No." <> CustLedgerEntry."Customer No." then
+                        if GenJnlLine."Account No." <> CustLedgerEntry."Customer No." then
                             Error(DiffCustNoErr);
                     end else
                         Error(ReferenceInvoiceErr);
                 end;
 
-                CheckGSTSalesCrMemoJournalValidationReference(GenJournalLine, RefInvNo."Reference Invoice Nos.");
+                CheckGSTSalesCrMemoJournalValidationReference(GenJnlLine, RefInvNo."Reference Invoice Nos.");
             end else
                 Error(ReferenceInvoiceNoErr);
         end else
@@ -540,29 +527,18 @@ codeunit 18435 "Reference Invoice No. Mgt."
         PurchaseLine: Record "Purchase Line";
         CurrStateCode: Code[10];
         PostedStateCode: Code[10];
-        CurrDocumentGSTRegNo: Code[15];
-        PostedDocumentGSTRegNo: Code[15];
-        CurrDocLocRegNo: Code[15];
-        PostedDocLocRegNo: Code[15];
-        CurrDocGSTJurisdiction: Code[10];
-        PostedDocGSTJurisdiction: Code[10];
+        CurrDocumentGSTRegNo: Code[20];
+        PostedDocumentGSTRegNo: Code[20];
+        CurrDocLocRegNo: Code[20];
+        PostedDocLocRegNo: Code[20];
+        CurrDocGSTJurisdiction: Enum "GST Jurisdiction Type";
+        PostedDocGSTJurisdiction: Enum "GST Jurisdiction Type";
         PostedCurrencyCode: Code[10];
-        InJournal: Boolean;
         IsDummy: Boolean;
-        DocType: Enum "Document Type Enum";
-        GenJnlDocType: Enum "Gen. Journal Document Type";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
-        DocumentType: Text;
     begin
-        if IsGSTApplicable(
-            "Transaction Type Enum"::Purchase,
-            Database::"Purchase Header",
-            PurchaseHeader."Document Type",
-            SalesDocType,
-            PurchaseHeader."No.")
-        then begin
+        if IsGSTApplicable("Transaction Type Enum"::Purchase, PurchaseHeader."Document Type", SalesDocType, PurchaseHeader."No.") then begin
             if not (PurchaseHeader."Document Type" in [
                 PurchaseHeader."Document Type"::Invoice,
                 PurchaseHeader."Document Type"::"Return Order",
@@ -573,38 +549,28 @@ codeunit 18435 "Reference Invoice No. Mgt."
 
             if (ReferenceInvoiceNo <> '') and
                (PurchInvHeader.Get(ReferenceInvoiceNo) and
-               IsGSTApplicable(
-                   "Transaction Type Enum"::Purchase,
-                   Database::"Purch. Inv. Header",
-                   PurchDocType,
-                   SalesDocType,
-                   PurchInvHeader."No."))
+               IsGSTApplicable("Transaction Type Enum"::Purchase, PurchDocType, SalesDocType, PurchInvHeader."No."))
             then begin
                 CheckGSTAppliedDocument(
-                  "Transaction Type Enum"::Purchase,
-                  PurchaseHeader."Document Type",
-                  SalesDocType,
-                  ServiceDocType,
-                  PurchaseHeader."No.",
-                  ReferenceInvoiceNo,
-                  IsDummy,
-                  '',
-                  '',
-                  0);
+                    "Transaction Type Enum"::Purchase,
+                    PurchaseHeader."Document Type",
+                    SalesDocType,
+                    PurchaseHeader."No.",
+                    ReferenceInvoiceNo,
+                    IsDummy,
+                    '',
+                    '',
+                    0);
 
                 CurrStateCode := GetStateCode(
                     "Transaction Type Enum"::Purchase,
                     PurchaseHeader."Document Type",
-                    SalesDocType,
-                    ServiceDocType,
                     PurchaseHeader."No.",
                     true);
 
                 PostedStateCode := GetStateCode(
                     "Transaction Type Enum"::Purchase,
                     PurchaseHeader."Document Type"::Invoice,
-                    SalesDocType,
-                    ServiceDocType,
                     ReferenceInvoiceNo,
                     false);
 
@@ -612,7 +578,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     "Transaction Type Enum"::Purchase,
                     PurchaseHeader."Document Type",
                     SalesDocType,
-                    ServiceDocType,
                     PurchaseHeader."No.",
                     true,
                     IsDummy);
@@ -621,7 +586,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     "Transaction Type Enum"::Purchase,
                     PurchaseHeader."Document Type"::Invoice,
                     SalesDocType,
-                    ServiceDocType,
                     ReferenceInvoiceNo,
                     false,
                     IsDummy);
@@ -630,7 +594,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     "Transaction Type Enum"::Purchase,
                     PurchaseHeader."Document Type",
                     SalesDocType,
-                    ServiceDocType,
                     PurchaseHeader."No.",
                     true,
                     IsDummy);
@@ -639,7 +602,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     "Transaction Type Enum"::Purchase,
                     PurchaseHeader."Document Type",
                     SalesDocType,
-                    ServiceDocType,
                     ReferenceInvoiceNo,
                     false,
                     IsDummy);
@@ -648,7 +610,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     "Transaction Type Enum"::Purchase,
                     PurchaseHeader."Document Type",
                     SalesDocType,
-                    ServiceDocType,
                     PurchaseHeader."No.",
                     true,
                     IsDummy);
@@ -657,7 +618,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     "Transaction Type Enum"::Purchase,
                     PurchaseHeader."Document Type"::Invoice,
                     SalesDocType,
-                    ServiceDocType,
                     ReferenceInvoiceNo,
                     false,
                     IsDummy);
@@ -673,139 +633,148 @@ codeunit 18435 "Reference Invoice No. Mgt."
 
                 if CurrDocumentGSTRegNo <> PostedDocumentGSTRegNo then begin
                     if PurchaseHeader."Order Address Code" <> '' then
-                        Error(DiffGSTRegNoErr, PurchaseHeader.FieldName("Order Address GST Reg. No."), ReferenceInvoiceNo);
+                        Error(DiffGSTRegNoErr, PurchaseHeader.FieldCaption("Order Address GST Reg. No."), ReferenceInvoiceNo);
 
-                    Error(DiffGSTRegNoErr, PurchaseHeader.FieldName("Vendor GST Reg. No."), ReferenceInvoiceNo);
+                    Error(DiffGSTRegNoErr, PurchaseHeader.FieldCaption("Vendor GST Reg. No."), ReferenceInvoiceNo);
                 end;
 
                 if CurrDocLocRegNo <> PostedDocLocRegNo then
-                    Error(DiffGSTRegNoErr, PurchaseLine.FieldName("Location Code"), ReferenceInvoiceNo);
+                    Error(DiffGSTRegNoErr, PurchaseLine.FieldCaption("Location Code"), ReferenceInvoiceNo);
 
                 if CurrDocGSTJurisdiction <> PostedDocGSTJurisdiction then
-                    Error(DiffJurisdictionErr, PurchaseLine.FieldName("GST Jurisdiction Type"));
+                    Error(DiffJurisdictionErr, PurchaseLine.FieldCaption("GST Jurisdiction Type"));
 
                 if PurchaseHeader."Currency Code" <> PostedCurrencyCode then
-                    Error(DiffCurrencyCodeErr, PurchaseLine.FieldName("Currency Code"));
+                    Error(DiffCurrencyCodeErr, PurchaseLine.FieldCaption("Currency Code"));
             end;
 
-            InJournal := IsGSTFromJournal("Transaction Type Enum"::Purchase, ReferenceInvoiceNo, PurchaseHeader."Buy-from Vendor No.");
-            if (ReferenceInvoiceNo <> '') and InJournal then begin
-                CheckGSTAppliedDocumentPurchDocToJournals(ReferenceInvoiceNo, PurchaseHeader."No.", PurchaseHeader."Document Type"::Invoice);
-                CurrStateCode := GetStateCode(
-                    "Transaction Type Enum"::Purchase,
-                    PurchaseHeader."Document Type",
-                    SalesDocType,
-                    ServiceDocType,
-                    PurchaseHeader."No.",
-                    true);
-
-                PostedStateCode := GetStateCode(
-                    "Transaction Type Enum"::Purchase,
-                    PurchaseHeader."Document Type"::Invoice,
-                    SalesDocType,
-                    ServiceDocType,
-                    ReferenceInvoiceNo,
-                    false);
-
-                CurrDocumentGSTRegNo := GetPlaceOfSupplyRegistrationNo(
-                    "Transaction Type Enum"::Purchase,
-                    PurchaseHeader."Document Type",
-                    SalesDocType,
-                    ServiceDocType,
-                    PurchaseHeader."No.",
-                    true,
-                    IsDummy);
-
-                PostedDocumentGSTRegNo := GetPlaceOfSupplyRegistrationNoDocToJournals(
-                    "Transaction Type Enum"::Purchase,
-                    PurchaseHeader."Document Type"::Invoice,
-                    SalesDocType,
-                    ServiceDocType,
-                    ReferenceInvoiceNo,
-                    false,
-                    IsDummy);
-
-                CurrDocLocRegNo := GetLocationRegistrationNo(
-                    "Transaction Type Enum"::Purchase,
-                    PurchaseHeader."Document Type",
-                    SalesDocType, ServiceDocType,
-                    PurchaseHeader."No.",
-                    true,
-                    IsDummy);
-
-                PostedDocLocRegNo := GetLocationRegistrationNoDocToJournals(
-                    "Transaction Type Enum"::Purchase,
-                    PurchaseHeader."Document Type",
-                    SalesDocType,
-                    ServiceDocType,
-                    ReferenceInvoiceNo,
-                    false,
-                    IsDummy);
-
-                CurrDocGSTJurisdiction := GetGSTJurisdiction(
-                    "Transaction Type Enum"::Purchase,
-                    PurchaseHeader."Document Type",
-                    SalesDocType,
-                    ServiceDocType,
-                    PurchaseHeader."No.",
-                    true,
-                    IsDummy);
-
-                PostedDocGSTJurisdiction := GetGSTJurisdictionDocToJournals(
-                    "Transaction Type Enum"::Purchase,
-                    PurchaseHeader."Document Type"::Invoice,
-                    SalesDocType,
-                    ServiceDocType,
-                    ReferenceInvoiceNo,
-                    false,
-                    IsDummy);
-
-                PostedCurrencyCode := GetCurrencyCode(
-                    "Transaction Type Enum"::Purchase,
-                    PurchaseHeader."Document Type"::Invoice,
-                    ReferenceInvoiceNo,
-                    PurchaseHeader."Buy-from Vendor No.");
-
-                if CurrStateCode <> PostedStateCode then
-                    Error(DiffStateCodeErr);
-
-                if CurrDocumentGSTRegNo <> PostedDocumentGSTRegNo then begin
-                    if PurchaseHeader."Order Address Code" <> '' then
-                        Error(DiffGSTRegNoErr, PurchaseHeader.FieldName("Order Address GST Reg. No."), ReferenceInvoiceNo);
-
-                    Error(DiffGSTRegNoErr, PurchaseHeader.FieldName("Vendor GST Reg. No."), ReferenceInvoiceNo);
-                end;
-
-                if CurrDocLocRegNo <> PostedDocLocRegNo then
-                    Error(DiffGSTRegNoErr, PurchaseLine.FieldName("Location Code"), ReferenceInvoiceNo);
-
-                if CurrDocGSTJurisdiction <> PostedDocGSTJurisdiction then
-                    Error(DiffJurisdictionErr, PurchaseLine.FieldName("GST Jurisdiction Type"));
-
-                if PurchaseHeader."Currency Code" <> PostedCurrencyCode then
-                    Error(DiffCurrencyCodeErr, PurchaseLine.FieldName("Currency Code"));
-            end;
+            CheckGSTPurchCrMemoValidationInJournals(PurchaseHeader, ReferenceInvoiceNo);
         end;
     end;
 
-    procedure CheckGSTSalesCrMemoValidationReference(SalesHeader: Record "Sales Header"; ReferenceInvoiceNo: Code[20])
+    procedure CheckGSTPurchCrMemoValidationInJournals(PurchaseHeader: Record "Purchase Header"; ReferenceInvoiceNo: Code[20])
     var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesLine: Record "Sales Line";
-        CurrDocumentGSTRegNo: Code[15];
-        PostedDocumentGSTRegNo: Code[15];
-        CurrDocLocRegNo: Code[15];
-        PostedDocLocRegNo: Code[15];
-        CurrDocGSTJurisdiction: Code[10];
-        PostedDocGSTJurisdiction: Code[10];
+        PurchaseLine: Record "Purchase Line";
+        CurrStateCode: Code[10];
+        PostedStateCode: Code[10];
+        CurrDocumentGSTRegNo: Code[20];
+        PostedDocumentGSTRegNo: Code[20];
+        CurrDocLocRegNo: Code[20];
+        PostedDocLocRegNo: Code[20];
+        CurrDocGSTJurisdiction: Enum "GST Jurisdiction Type";
+        PostedDocGSTJurisdiction: Enum "GST Jurisdiction Type";
         PostedCurrencyCode: Code[10];
         InJournal: Boolean;
         IsDummy: Boolean;
-        GSTTransType: Enum "Detail Ledger Transaction Type";
+        SalesDocType: Enum "Sales Document Type";
+    begin
+        InJournal := IsGSTFromJournal("Transaction Type Enum"::Purchase, ReferenceInvoiceNo, PurchaseHeader."Buy-from Vendor No.");
+        if (ReferenceInvoiceNo <> '') and InJournal then begin
+            CheckGSTAppliedDocumentPurchDocToJournals(ReferenceInvoiceNo, PurchaseHeader."No.", PurchaseHeader."Document Type"::Invoice);
+            CurrStateCode := GetStateCode(
+                "Transaction Type Enum"::Purchase,
+                PurchaseHeader."Document Type",
+                PurchaseHeader."No.",
+                true);
+
+            PostedStateCode := GetStateCode(
+                "Transaction Type Enum"::Purchase,
+                PurchaseHeader."Document Type"::Invoice,
+                ReferenceInvoiceNo,
+                false);
+
+            CurrDocumentGSTRegNo := GetPlaceOfSupplyRegistrationNo(
+                "Transaction Type Enum"::Purchase,
+                PurchaseHeader."Document Type",
+                SalesDocType,
+                PurchaseHeader."No.",
+                true,
+                IsDummy);
+
+            PostedDocumentGSTRegNo := GetPlaceOfSupplyRegistrationNoDocToJournals(
+                "Transaction Type Enum"::Purchase,
+                PurchaseHeader."Document Type"::Invoice,
+                SalesDocType,
+                ReferenceInvoiceNo,
+                false,
+                IsDummy);
+
+            CurrDocLocRegNo := GetLocationRegistrationNo(
+                "Transaction Type Enum"::Purchase,
+                PurchaseHeader."Document Type",
+                SalesDocType,
+                PurchaseHeader."No.",
+                true,
+                IsDummy);
+
+            PostedDocLocRegNo := GetLocationRegistrationNoDocToJournals(
+                "Transaction Type Enum"::Purchase,
+                PurchaseHeader."Document Type",
+                SalesDocType,
+                ReferenceInvoiceNo,
+                false,
+                IsDummy);
+
+            CurrDocGSTJurisdiction := GetGSTJurisdiction(
+                "Transaction Type Enum"::Purchase,
+                PurchaseHeader."Document Type",
+                SalesDocType,
+                PurchaseHeader."No.",
+                true,
+                IsDummy);
+
+            PostedDocGSTJurisdiction := GetGSTJurisdictionDocToJournals(
+                "Transaction Type Enum"::Purchase,
+                PurchaseHeader."Document Type"::Invoice,
+                SalesDocType,
+                ReferenceInvoiceNo,
+                false,
+                IsDummy);
+
+            PostedCurrencyCode := GetCurrencyCode(
+                "Transaction Type Enum"::Purchase,
+                PurchaseHeader."Document Type"::Invoice,
+                ReferenceInvoiceNo,
+                PurchaseHeader."Buy-from Vendor No.");
+
+            if CurrStateCode <> PostedStateCode then
+                Error(DiffStateCodeErr);
+
+            if CurrDocumentGSTRegNo <> PostedDocumentGSTRegNo then begin
+                if PurchaseHeader."Order Address Code" <> '' then
+                    Error(DiffGSTRegNoErr, PurchaseHeader.FieldCaption("Order Address GST Reg. No."), ReferenceInvoiceNo);
+
+                Error(DiffGSTRegNoErr, PurchaseHeader.FieldCaption("Vendor GST Reg. No."), ReferenceInvoiceNo);
+            end;
+
+            if CurrDocLocRegNo <> PostedDocLocRegNo then
+                Error(DiffGSTRegNoErr, PurchaseLine.FieldCaption("Location Code"), ReferenceInvoiceNo);
+
+            if CurrDocGSTJurisdiction <> PostedDocGSTJurisdiction then
+                Error(DiffJurisdictionErr, PurchaseLine.FieldCaption("GST Jurisdiction Type"));
+
+            if PurchaseHeader."Currency Code" <> PostedCurrencyCode then
+                Error(DiffCurrencyCodeErr, PurchaseLine.FieldCaption("Currency Code"));
+        end;
+    end;
+
+    procedure CheckGSTSalesCrMemoValidationReference(
+        SalesHeader: Record "Sales Header";
+        ReferenceInvoiceNo: Code[20])
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        CurrDocumentGSTRegNo: Code[20];
+        PostedDocumentGSTRegNo: Code[20];
+        CurrDocLocRegNo: Code[20];
+        PostedDocLocRegNo: Code[20];
+        CurrDocGSTJurisdiction: Enum "GST Jurisdiction Type";
+        PostedDocGSTJurisdiction: Enum "GST Jurisdiction Type";
+        PostedCurrencyCode: Code[10];
+        IsDummy: Boolean;
         DocType: Enum "Document Type Enum";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
     begin
         if not (SalesHeader."Document Type" in [
             SalesHeader."Document Type"::"Return Order",
@@ -815,27 +784,16 @@ codeunit 18435 "Reference Invoice No. Mgt."
         then
             exit;
 
-        if IsGSTApplicable(
-                "Transaction Type Enum"::Sales,
-                Database::"Sales Header",
-                PurchDocType,
-                SalesHeader."Document Type",
-                SalesHeader."No.") and
+        if IsGSTApplicable("Transaction Type Enum"::Sales, PurchDocType, SalesHeader."Document Type", SalesHeader."No.") and
             SalesInvoiceHeader.Get(ReferenceInvoiceNo) and
             (ReferenceInvoiceNo <> '') and
-            IsGSTApplicable(
-                "Transaction Type Enum"::Sales,
-                Database::"Sales Invoice Header",
-                PurchDocType,
-                SalesDocType,
-                SalesInvoiceHeader."No.")
+            IsGSTApplicable("Transaction Type Enum"::Sales, PurchDocType, SalesDocType, SalesInvoiceHeader."No.")
         then begin
             DocType := SalesDocumentType2DocumentTypeEnum(SalesHeader."Document Type");
             CheckGSTAppliedDocument(
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 SalesHeader."Document Type",
-                ServiceDocType,
                 SalesHeader."No.",
                 ReferenceInvoiceNo,
                 IsDummy, '', '', 0);
@@ -844,7 +802,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 SalesHeader."Document Type",
-                ServiceDocType,
                 SalesHeader."No.",
                 true,
                 IsDummy);
@@ -853,7 +810,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 SalesHeader."Document Type"::Invoice,
-                ServiceDocType,
                 ReferenceInvoiceNo,
                 false,
                 IsDummy);
@@ -862,7 +818,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 SalesHeader."Document Type",
-                ServiceDocType,
                 SalesHeader."No.",
                 true,
                 IsDummy);
@@ -871,7 +826,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 SalesHeader."Document Type",
-                ServiceDocType,
                 ReferenceInvoiceNo,
                 false,
                 IsDummy);
@@ -880,7 +834,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 SalesHeader."Document Type",
-                ServiceDocType,
                 SalesHeader."No.",
                 true,
                 IsDummy);
@@ -889,7 +842,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 SalesHeader."Document Type"::Invoice,
-                ServiceDocType,
                 ReferenceInvoiceNo,
                 false,
                 IsDummy);
@@ -901,21 +853,38 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 SalesHeader."Sell-to Customer No.");
 
             if CurrDocumentGSTRegNo <> PostedDocumentGSTRegNo then
-                Error(DiffGSTRegNoErr, SalesLine.FieldName("GST Place of Supply"), ReferenceInvoiceNo);
+                Error(DiffGSTRegNoErr, SalesLine.FieldCaption("GST Place of Supply"), ReferenceInvoiceNo);
 
             if CurrDocLocRegNo <> PostedDocLocRegNo then
-                Error(DiffGSTRegNoErr, SalesLine.FieldName("Location Code"), ReferenceInvoiceNo);
+                Error(DiffGSTRegNoErr, SalesLine.FieldCaption("Location Code"), ReferenceInvoiceNo);
 
             if CurrDocGSTJurisdiction <> PostedDocGSTJurisdiction then
-                Error(DiffJurisdictionErr, SalesLine.FieldName("GST Jurisdiction Type"));
+                Error(DiffJurisdictionErr, SalesLine.FieldCaption("GST Jurisdiction Type"));
 
             if PostedCurrencyCode <> SalesHeader."Currency Code" then
-                Error(DiffCurrencyCodeErr, SalesLine.FieldName("Currency Code"));
+                Error(DiffCurrencyCodeErr, SalesLine.FieldCaption("Currency Code"));
         end;
 
+        CheckGSTSalesCrMemoValidationInJournals(SalesHeader, ReferenceInvoiceNo);
+    end;
+
+    procedure CheckGSTSalesCrMemoValidationInJournals(SalesHeader: Record "Sales Header"; ReferenceInvoiceNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+        CurrDocumentGSTRegNo: Code[20];
+        PostedDocumentGSTRegNo: Code[20];
+        CurrDocLocRegNo: Code[20];
+        PostedDocLocRegNo: Code[20];
+        CurrDocGSTJurisdiction: Enum "GST Jurisdiction Type";
+        PostedDocGSTJurisdiction: Enum "GST Jurisdiction Type";
+        PostedCurrencyCode: Code[10];
+        InJournal: Boolean;
+        IsDummy: Boolean;
+        PurchDocType: Enum "Purchase Document Type";
+    begin
         InJournal := IsGSTFromJournal("Transaction Type Enum"::Sales, ReferenceInvoiceNo, SalesHeader."Sell-to Customer No.");
 
-        if IsGSTApplicable("Transaction Type Enum"::Sales, Database::"Sales Header", PurchDocType, SalesHeader."Document Type", SalesHeader."No.") and
+        if IsGSTApplicable("Transaction Type Enum"::Sales, PurchDocType, SalesHeader."Document Type", SalesHeader."No.") and
             (ReferenceInvoiceNo <> '') and
             InJournal
         then begin
@@ -925,7 +894,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 SalesHeader."Document Type",
-                ServiceDocType,
                 SalesHeader."No.",
                 true,
                 IsDummy);
@@ -934,7 +902,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 SalesHeader."Document Type"::Invoice,
-                ServiceDocType,
                 ReferenceInvoiceNo,
                 false,
                 IsDummy);
@@ -943,7 +910,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 SalesHeader."Document Type",
-                ServiceDocType,
                 SalesHeader."No.",
                 true,
                 IsDummy);
@@ -952,7 +918,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 SalesHeader."Document Type",
-                ServiceDocType,
                 ReferenceInvoiceNo,
                 false,
                 IsDummy);
@@ -961,7 +926,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 SalesHeader."Document Type",
-                ServiceDocType, SalesHeader."No.",
+                SalesHeader."No.",
                 true,
                 IsDummy);
 
@@ -969,7 +934,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 SalesHeader."Document Type"::Invoice,
-                ServiceDocType,
                 ReferenceInvoiceNo,
                 false,
                 IsDummy);
@@ -981,16 +945,16 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 SalesHeader."Sell-to Customer No.");
 
             if CurrDocumentGSTRegNo <> PostedDocumentGSTRegNo then
-                Error(DiffGSTRegNoErr, SalesLine.FieldName("GST Place of Supply"), ReferenceInvoiceNo);
+                Error(DiffGSTRegNoErr, SalesLine.FieldCaption("GST Place of Supply"), ReferenceInvoiceNo);
 
             if CurrDocLocRegNo <> PostedDocLocRegNo then
-                Error(DiffGSTRegNoErr, SalesLine.FieldName("Location Code"), ReferenceInvoiceNo);
+                Error(DiffGSTRegNoErr, SalesLine.FieldCaption("Location Code"), ReferenceInvoiceNo);
 
             if CurrDocGSTJurisdiction <> PostedDocGSTJurisdiction then
-                Error(DiffJurisdictionErr, SalesLine.FieldName("GST Jurisdiction Type"));
+                Error(DiffJurisdictionErr, SalesLine.FieldCaption("GST Jurisdiction Type"));
 
             if PostedCurrencyCode <> SalesHeader."Currency Code" then
-                Error(DiffCurrencyCodeErr, SalesLine.FieldName("Currency Code"));
+                Error(DiffCurrencyCodeErr, SalesLine.FieldCaption("Currency Code"));
         end;
     end;
 
@@ -1029,9 +993,8 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 ReferenceInvoiceNo.SetRange(Verified, true);
                 if ReferenceInvoiceNo.FindFirst() then begin
                     VendorLedgerEntry.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
-                    if VendorLedgerEntry.FindFirst() then
-                        if VendorLedgerEntry."RCM Exempt" then
-                            exit(true);
+                    if VendorLedgerEntry.FindFirst() and VendorLedgerEntry."RCM Exempt" then
+                        exit(true);
                 end;
             end;
 
@@ -1069,9 +1032,8 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 ReferenceInvoiceNo.SetRange(Verified, true);
                 if ReferenceInvoiceNo.FindFirst() then begin
                     VendorLedgerEntry.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
-                    if VendorLedgerEntry.FindFirst() then
-                        if VendorLedgerEntry."RCM Exempt" then
-                            exit(true);
+                    if VendorLedgerEntry.FindFirst() and VendorLedgerEntry."RCM Exempt" then
+                        exit(true);
                 end;
             end;
 
@@ -1082,35 +1044,28 @@ codeunit 18435 "Reference Invoice No. Mgt."
     var
         ReferenceInvoiceNo: Record "Reference Invoice No.";
         UpdateReferenceInvoiceNo: Page "Update Reference Invoice No";
-        PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
         GSTDocumentType: Enum "Document Type Enum";
     begin
-        if IsGSTApplicable(
-            "Transaction Type Enum"::Purchase,
-            Database::"Purchase Header",
-            PurchaseHeader."Document Type",
-            SalesDocType,
-            PurchaseHeader."No.")
-        then begin
-            if PurchaseHeader."Document Type" in [PurchaseHeader."Document Type"::Order, PurchaseHeader."Document Type"::Invoice] then
-                if not (PurchaseHeader."Invoice Type" in [
-                    PurchaseHeader."Invoice Type"::"Debit Note",
-                    PurchaseHeader."Invoice Type"::Supplementary])
-                then
-                    Error(ReferenceNoErr);
-
-            GSTDocumentType := PurchDocumentType2DocumentTypeEnum(PurchaseHeader."Document Type");
-
-            ReferenceInvoiceNo.Reset();
-            ReferenceInvoiceNo.SetRange("Document No.", PurchaseHeader."No.");
-            ReferenceInvoiceNo.SetRange("Document Type", GSTDocumentType);
-            ReferenceInvoiceNo.SetRange("Source No.", PurchaseHeader."Buy-from Vendor No.");
-            UpdateReferenceInvoiceNo.SetSourceType(ReferenceInvoiceNo."Source Type"::Vendor);
-            UpdateReferenceInvoiceNo.SetTableView(ReferenceInvoiceNo);
-            UpdateReferenceInvoiceNo.Run();
-        end else
+        if not IsGSTApplicable("Transaction Type Enum"::Purchase, PurchaseHeader."Document Type", SalesDocType, PurchaseHeader."No.") then
             Error(ReferenceInvoiceNoErr);
+
+        if PurchaseHeader."Document Type" in [PurchaseHeader."Document Type"::Order, PurchaseHeader."Document Type"::Invoice] then
+            if not (PurchaseHeader."Invoice Type" in [
+                PurchaseHeader."Invoice Type"::"Debit Note",
+                PurchaseHeader."Invoice Type"::Supplementary])
+            then
+                Error(ReferenceNoErr);
+
+        GSTDocumentType := PurchDocumentType2DocumentTypeEnum(PurchaseHeader."Document Type");
+
+        ReferenceInvoiceNo.Reset();
+        ReferenceInvoiceNo.SetRange("Document No.", PurchaseHeader."No.");
+        ReferenceInvoiceNo.SetRange("Document Type", GSTDocumentType);
+        ReferenceInvoiceNo.SetRange("Source No.", PurchaseHeader."Buy-from Vendor No.");
+        UpdateReferenceInvoiceNo.SetSourceType(ReferenceInvoiceNo."Source Type"::Vendor);
+        UpdateReferenceInvoiceNo.SetTableView(ReferenceInvoiceNo);
+        UpdateReferenceInvoiceNo.Run();
     end;
 
     procedure UpdateReferenceInvoiceNoSalesHeader(var SalesHeader: Record "Sales Header")
@@ -1118,66 +1073,59 @@ codeunit 18435 "Reference Invoice No. Mgt."
         ReferenceInvoiceNo: Record "Reference Invoice No.";
         UpdateReferenceInvoiceNo: Page "Update Reference Invoice No";
         PurchDocType: Enum "Purchase Document Type";
-        SalesDocType: Enum "Sales Document Type";
         GSTDocumentType: Enum "Document Type Enum";
     begin
-        if IsGSTApplicable(
-            "Transaction Type Enum"::Sales,
-            Database::"Sales Header",
-            PurchDocType,
-            SalesHeader."Document Type",
-            SalesHeader."No.")
-        then begin
-            if SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice] then
-                if not (SalesHeader."Invoice Type" in [
-                    SalesHeader."Invoice Type"::"Debit Note",
-                    SalesHeader."Invoice Type"::Supplementary])
-                then
-                    Error(ReferenceNoErr);
-
-            GSTDocumentType := SalesDocumentType2DocumentTypeEnum(SalesHeader."Document Type");
-
-            ReferenceInvoiceNo.Reset();
-            ReferenceInvoiceNo.SetRange("Document No.", SalesHeader."No.");
-            ReferenceInvoiceNo.SetRange("Document Type", GSTDocumentType);
-            ReferenceInvoiceNo.SetRange("Source No.", SalesHeader."Bill-to Customer No.");
-
-            UpdateReferenceInvoiceNo.SetSourceType(ReferenceInvoiceNo."Source Type"::Customer);
-            UpdateReferenceInvoiceNo.SetTableView(ReferenceInvoiceNo);
-            UpdateReferenceInvoiceNo.Run();
-        end else
+        if not IsGSTApplicable("Transaction Type Enum"::Sales, PurchDocType, SalesHeader."Document Type", SalesHeader."No.") then
             Error(ReferenceInvoiceNoErr);
+
+        if SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice] then
+            if not (SalesHeader."Invoice Type" in [
+                SalesHeader."Invoice Type"::"Debit Note",
+                SalesHeader."Invoice Type"::Supplementary])
+            then
+                Error(ReferenceNoErr);
+
+        GSTDocumentType := SalesDocumentType2DocumentTypeEnum(SalesHeader."Document Type");
+
+        ReferenceInvoiceNo.Reset();
+        ReferenceInvoiceNo.SetRange("Document No.", SalesHeader."No.");
+        ReferenceInvoiceNo.SetRange("Document Type", GSTDocumentType);
+        ReferenceInvoiceNo.SetRange("Source No.", SalesHeader."Bill-to Customer No.");
+
+        UpdateReferenceInvoiceNo.SetSourceType(ReferenceInvoiceNo."Source Type"::Customer);
+        UpdateReferenceInvoiceNo.SetTableView(ReferenceInvoiceNo);
+        UpdateReferenceInvoiceNo.Run();
     end;
 
     procedure UpdateReferenceInvoiceNoGenJournal(var GenJnlLine: Record "Gen. Journal Line")
     var
-        GenJournalLine: Record "Gen. Journal Line";
+        GenJrnlLine: Record "Gen. Journal Line";
         ReferenceInvoiceNo: Record "Reference Invoice No.";
         UpdateReferenceInvJournals: Page "Update Reference Inv. Journals";
         GSTDocumentType: Enum "Document Type Enum";
     begin
-        GenJournalLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
-        GenJournalLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-        GenJournalLine.SetRange("Document No.", GenJnlLine."Document No.");
-        GenJournalLine.SetRange("GST in Journal", true);
-        GenJournalLine.SetFilter("Account Type", '%1|%2', GenJournalLine."Account Type"::Customer, GenJournalLine."Account Type"::Vendor);
-        if GenJournalLine.FindFirst() then begin
+        GenJrnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        GenJrnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        GenJrnlLine.SetRange("Document No.", GenJnlLine."Document No.");
+        GenJrnlLine.SetRange("GST in Journal", true);
+        GenJrnlLine.SetFilter("Account Type", '%1|%2', GenJrnlLine."Account Type"::Customer, GenJrnlLine."Account Type"::Vendor);
+        if GenJrnlLine.FindFirst() then begin
             if not (GenJnlLine."Document Type" in [GenJnlLine."Document Type"::"Credit Memo", GenJnlLine."Document Type"::Invoice]) then
                 Error(DocumentTypeErr);
 
-            if (GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor) and
-               (GenJournalLine."Document Type" = GenJournalLine."Document Type"::Invoice) and not
-               (GenJournalLine."Purch. Invoice Type" in [
-                   GenJournalLine."Purch. Invoice Type"::"Debit Note",
-                   GenJournalLine."Purch. Invoice Type"::Supplementary])
+            if (GenJrnlLine."Account Type" = GenJrnlLine."Account Type"::Vendor) and
+               (GenJrnlLine."Document Type" = GenJrnlLine."Document Type"::Invoice) and not
+               (GenJrnlLine."Purch. Invoice Type" in [
+                   GenJrnlLine."Purch. Invoice Type"::"Debit Note",
+                   GenJrnlLine."Purch. Invoice Type"::Supplementary])
             then
                 Error(ReferenceNoErr);
 
-            if (GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer) and
-               (GenJournalLine."Document Type" = GenJournalLine."Document Type"::Invoice) and not
-               (GenJournalLine."Sales Invoice Type" in [
-                   GenJournalLine."Sales Invoice Type"::"Debit Note",
-                   GenJournalLine."Sales Invoice Type"::Supplementary])
+            if (GenJrnlLine."Account Type" = GenJrnlLine."Account Type"::Customer) and
+               (GenJrnlLine."Document Type" = GenJrnlLine."Document Type"::Invoice) and not
+               (GenJrnlLine."Sales Invoice Type" in [
+                   GenJrnlLine."Sales Invoice Type"::"Debit Note",
+                   GenJrnlLine."Sales Invoice Type"::Supplementary])
             then
                 Error(ReferenceNoErr);
 
@@ -1186,11 +1134,11 @@ codeunit 18435 "Reference Invoice No. Mgt."
             ReferenceInvoiceNo.Reset();
             ReferenceInvoiceNo.SetRange("Document No.", GenJnlLine."Document No.");
             ReferenceInvoiceNo.SetRange("Document Type", GSTDocumentType);
-            ReferenceInvoiceNo.SetRange("Source No.", GenJournalLine."Account No.");
-            ReferenceInvoiceNo.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
-            ReferenceInvoiceNo.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+            ReferenceInvoiceNo.SetRange("Source No.", GenJrnlLine."Account No.");
+            ReferenceInvoiceNo.SetRange("Journal Template Name", GenJrnlLine."Journal Template Name");
+            ReferenceInvoiceNo.SetRange("Journal Batch Name", GenJrnlLine."Journal Batch Name");
 
-            if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer then
+            if GenJrnlLine."Account Type" = GenJrnlLine."Account Type"::Customer then
                 UpdateReferenceInvJournals.SetSourceType(ReferenceInvoiceNo."Source Type"::Customer);
 
             UpdateReferenceInvJournals.SetTableView(ReferenceInvoiceNo);
@@ -1199,11 +1147,40 @@ codeunit 18435 "Reference Invoice No. Mgt."
             Error(ReferenceInvoiceNoErr);
     end;
 
+    procedure UpdateReferenceInvoiceNoServiceHeader(var ServiceHeader: Record "Service Header")
+    var
+        ReferenceInvoiceNo: Record "Reference Invoice No.";
+        UpdateReferenceInvoiceNo: Page "Update Reference Invoice No";
+        PurchDocType: Enum "Purchase Document Type";
+        GSTDocumentType: Enum "Document Type Enum";
+    begin
+        if not IsGSTApplicable("Transaction Type Enum"::Service, PurchDocType, ServiceHeader."Document Type", ServiceHeader."No.") then
+            Error(ReferenceInvoiceNoErr);
+
+        if ServiceHeader."Document Type" in [ServiceHeader."Document Type"::Order, ServiceHeader."Document Type"::Invoice] then
+            if not (ServiceHeader."Invoice Type" in [
+                ServiceHeader."Invoice Type"::"Debit Note",
+                ServiceHeader."Invoice Type"::Supplementary])
+            then
+                Error(ReferenceNoErr);
+
+        GSTDocumentType := ServiceDocumentType2DocumentTypeEnum(ServiceHeader."Document Type");
+
+        ReferenceInvoiceNo.Reset();
+        ReferenceInvoiceNo.SetRange("Document No.", ServiceHeader."No.");
+        ReferenceInvoiceNo.SetRange("Document Type", GSTDocumentType);
+        ReferenceInvoiceNo.SetRange("Source No.", ServiceHeader."Bill-to Customer No.");
+
+        UpdateReferenceInvoiceNo.SetSourceType(ReferenceInvoiceNo."Source Type"::Customer);
+        UpdateReferenceInvoiceNo.SetTableView(ReferenceInvoiceNo);
+        UpdateReferenceInvoiceNo.Run();
+    end;
+
     local procedure UpdateReferenceInvoiceforVendorLedgerEntries(var ReferenceInvoiceNo: Record "Reference Invoice No.")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
-        VendorLedgerEntry2: Record "Vendor Ledger Entry";
-        VendorLedgerEntry3: Record "Vendor Ledger Entry";
+        VendorLedgerEntryToCheck: Record "Vendor Ledger Entry";
+        VendorLedgerEntryCopy: Record "Vendor Ledger Entry";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         VendorLedgerEntries: Page "Vendor Ledger Entries";
     begin
@@ -1227,14 +1204,14 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     then
                         ReferenceInvoiceNo."Reference Invoice Nos." := VendorLedgerEntry."Document No.";
 
-                    VendorLedgerEntry2.SetRange("Document No.", ReferenceInvoiceNo."Document No.");
-                    if VendorLedgerEntry2.FindFirst() then
-                        VendorLedgerEntry3.Copy(VendorLedgerEntry2);
+                    VendorLedgerEntryToCheck.SetRange("Document No.", ReferenceInvoiceNo."Document No.");
+                    if VendorLedgerEntryToCheck.FindFirst() then
+                        VendorLedgerEntryCopy.Copy(VendorLedgerEntryToCheck);
 
                     CheckGSTPurchCrMemoValidationsOffline(
-                      VendorLedgerEntry3, VendorLedgerEntry, 0, ReferenceInvoiceNo."Reference Invoice Nos.");
+                      VendorLedgerEntryCopy, VendorLedgerEntry, 0, ReferenceInvoiceNo."Reference Invoice Nos.");
 
-                    if VendorLedgerEntry2."Vendor No." <> DetailedGSTLedgerEntry."Source No." then
+                    if VendorLedgerEntryToCheck."Vendor No." <> DetailedGSTLedgerEntry."Source No." then
                         Error(DiffVendNoErr);
                 end else
                     Error(ReferenceInvoiceErr)
@@ -1251,16 +1228,14 @@ codeunit 18435 "Reference Invoice No. Mgt."
         VendorLedgerEntryInv: Record "Vendor Ledger Entry";
         VendorLedgerEntryCrMemo: Record "Vendor Ledger Entry";
         PurchInvHeader: Record "Purch. Inv. Header";
-        PurchInvHeader2: Record "Purch. Inv. Header";
+        PurchInvoiceHeader: Record "Purch. Inv. Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-        InvGSTJurisdiction: Code[10];
-        CrMemoGSTJuridiction: Code[10];
+        InvGSTJurisdiction: Enum "GST Jurisdiction Type";
+        CrMemoGSTJuridiction: Enum "GST Jurisdiction Type";
         InvoiceFromJournal: Boolean;
         CrMemoFromJournal: Boolean;
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
-        DocumentType: Text;
     begin
         if VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Invoice then begin
             VendorLedgerEntryInv.Copy(ApplyingVendorLedgerEntry);
@@ -1272,6 +1247,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
 
         InvoiceFromJournal := VendorLedgerEntryInv."Journal Entry";
         CrMemoFromJournal := VendorLedgerEntryCrMemo."Journal Entry";
+
         if not InvoiceFromJournal then
             if PurchInvHeader.Get(VendorLedgerEntryInv."Document No.") then;
 
@@ -1279,16 +1255,10 @@ codeunit 18435 "Reference Invoice No. Mgt."
             if PurchCrMemoHdr.Get(VendorLedgerEntryCrMemo."Document No.") then;
 
         if (PurchCrMemoHdr."No." = '') and not CrMemoFromJournal then
-            PurchInvHeader2.Get(VendorLedgerEntryCrMemo."Document No.");
+            PurchInvoiceHeader.Get(VendorLedgerEntryCrMemo."Document No.");
 
         if not InvoiceFromJournal then
-            if IsGSTApplicable(
-                "Transaction Type Enum"::Purchase,
-                Database::"Purch. Inv. Header",
-                PurchDocType,
-                SalesDocType,
-                PurchInvHeader."No.")
-            then begin
+            if IsGSTApplicable("Transaction Type Enum"::Purchase, PurchDocType, SalesDocType, PurchInvHeader."No.") then begin
                 VendorLedgerEntryCrMemo.TestField("RCM Exempt", VendorLedgerEntryInv."RCM Exempt");
 
                 CheckGSTAppliedDocumentPosted(
@@ -1297,19 +1267,9 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     VendorLedgerEntryCrMemo."Document No.",
                     VendorLedgerEntryInv."Document No.");
 
-                if IsGSTApplicable(
-                        "Transaction Type Enum"::Purchase,
-                        Database::"Purch. Cr. Memo Hdr.",
-                        PurchDocType,
-                        SalesDocType,
-                        PurchCrMemoHdr."No.") or
-                    IsGSTApplicable(
-                        "Transaction Type Enum"::Purchase,
-                        Database::"Purch. Inv. Header",
-                        PurchDocType,
-                        SalesDocType,
-                        PurchInvHeader2."No.") or
-                   VendorLedgerEntryCrMemo."GST in Journal"
+                if IsGSTApplicable("Transaction Type Enum"::Purchase, PurchDocType, SalesDocType, PurchCrMemoHdr."No.") or
+                    IsGSTApplicable("Transaction Type Enum"::Purchase, PurchDocType, SalesDocType, PurchInvoiceHeader."No.") or
+                    VendorLedgerEntryCrMemo."GST in Journal"
                 then begin
                     if VendorLedgerEntryInv."Location GST Reg. No." <> VendorLedgerEntryCrMemo."Location GST Reg. No." then
                         Error(DiffLocationGSTRegErr);
@@ -1321,7 +1281,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Purchase,
                         VendorLedgerEntryInv."Document Type",
                         SalesDocType,
-                        ServiceDocType,
                         VendorLedgerEntryInv."Document No.",
                         false,
                         InvoiceFromJournal);
@@ -1330,7 +1289,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Purchase,
                         VendorLedgerEntryCrMemo."Document Type",
                         SalesDocType,
-                        ServiceDocType,
                         VendorLedgerEntryCrMemo."Document No.",
                         false,
                         CrMemoFromJournal);
@@ -1349,7 +1307,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     VendorLedgerEntryInv,
                     VendorLedgerEntryCrMemo,
                     Database::"Purch. Cr. Memo Hdr.",
-                    PurchInvHeader2,
+                    PurchInvoiceHeader,
                     PurchCrMemoHdr,
                     Entrys,
                     CrMemoFromJournal)
@@ -1358,7 +1316,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     VendorLedgerEntryInv,
                     VendorLedgerEntryCrMemo,
                     Database::"Purch. Inv. Header",
-                    PurchInvHeader2,
+                    PurchInvoiceHeader,
                     PurchCrMemoHdr,
                     Entrys,
                     CrMemoFromJournal);
@@ -1371,17 +1329,8 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     VendorLedgerEntryCrMemo."Document No.",
                     VendorLedgerEntryInv."Document No.");
 
-                if IsGSTApplicable(
-                        "Transaction Type Enum"::Purchase,
-                        Database::"Purch. Cr. Memo Hdr.",
-                        PurchDocType,
-                        SalesDocType, PurchCrMemoHdr."No.") or
-                    IsGSTApplicable(
-                        "Transaction Type Enum"::Purchase,
-                        Database::"Purch. Inv. Header",
-                        PurchDocType,
-                        SalesDocType,
-                        PurchInvHeader2."No.") or
+                if IsGSTApplicable("Transaction Type Enum"::Purchase, PurchDocType, SalesDocType, PurchCrMemoHdr."No.") or
+                    IsGSTApplicable("Transaction Type Enum"::Purchase, PurchDocType, SalesDocType, PurchInvoiceHeader."No.") or
                     VendorLedgerEntryCrMemo."GST in Journal"
                 then begin
                     if VendorLedgerEntryInv."Location GST Reg. No." <> VendorLedgerEntryCrMemo."Location GST Reg. No." then
@@ -1394,7 +1343,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Purchase,
                         VendorLedgerEntryInv."Document Type",
                         SalesDocType,
-                        ServiceDocType,
                         VendorLedgerEntryInv."Document No.",
                         false,
                         InvoiceFromJournal);
@@ -1403,7 +1351,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Purchase,
                         VendorLedgerEntryCrMemo."Document Type",
                         SalesDocType,
-                        ServiceDocType,
                         VendorLedgerEntryCrMemo."Document No.",
                         false,
                         CrMemoFromJournal);
@@ -1424,18 +1371,16 @@ codeunit 18435 "Reference Invoice No. Mgt."
         CurrVendNo: Code[20];
         CurrStateCode: Code[10];
         PostedStateCode: Code[10];
-        CurrDocumentGSTRegNo: Code[15];
-        PostedDocumentGSTRegNo: Code[15];
-        CurrDocLocRegNo: Code[15];
-        PostedDocLocRegNo: Code[15];
-        CurrDocGSTJurisdiction: Code[10];
-        PostedDocGSTJurisdiction: Code[10];
+        CurrDocumentGSTRegNo: Code[20];
+        PostedDocumentGSTRegNo: Code[20];
+        CurrDocLocRegNo: Code[20];
+        PostedDocLocRegNo: Code[20];
+        CurrDocGSTJurisdiction: Enum "GST Jurisdiction Type";
+        PostedDocGSTJurisdiction: Enum "GST Jurisdiction Type";
         PostedCurrencyCode: Code[10];
         InJournal: Boolean;
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
-        GSTDocType: Enum "GST Document Type";
     begin
         if not (GenJournalLine."Document Type" in [
             GenJournalLine."Document Type"::"Credit Memo",
@@ -1449,19 +1394,13 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 InJournal := IsGSTFromJournal("Transaction Type Enum"::Purchase, ReferenceInvoiceNo, CurrVendNo);
                 if not InJournal and
                     PurchInvHeader.Get(ReferenceInvoiceNo) and
-                    IsGSTApplicable(
-                        "Transaction Type Enum"::Purchase,
-                        Database::"Purch. Inv. Header",
-                        PurchDocType,
-                        SalesDocType,
-                        PurchInvHeader."No.") or
+                    IsGSTApplicable("Transaction Type Enum"::Purchase, PurchDocType, SalesDocType, PurchInvHeader."No.") or
                     InJournal
                 then begin
                     CheckGSTAppliedDocument(
                         "Transaction Type Enum"::Purchase,
                         GenJournalLine."Document Type"::Invoice,
                         SalesDocType,
-                        ServiceDocType,
                         GenJournalLine."Document No.",
                         ReferenceInvoiceNo,
                         InJournal,
@@ -1493,7 +1432,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Purchase,
                         GenJournalLine."Document Type",
                         SalesDocType,
-                        ServiceDocType,
                         GenJournalLine."Document No.",
                         true,
                         true,
@@ -1505,7 +1443,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Purchase,
                         GenJournalLine."Document Type"::Invoice,
                         SalesDocType,
-                        ServiceDocType,
                         ReferenceInvoiceNo,
                         false,
                         InJournal);
@@ -1514,7 +1451,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Purchase,
                         GenJournalLine."Document Type",
                         SalesDocType,
-                        ServiceDocType,
                         GenJournalLine."Document No.",
                         true,
                         true,
@@ -1526,7 +1462,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Purchase,
                         GenJournalLine."Document Type",
                         SalesDocType,
-                        ServiceDocType,
                         ReferenceInvoiceNo,
                         false,
                         InJournal);
@@ -1535,7 +1470,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Purchase,
                         GenJournalLine."Document Type",
                         SalesDocType,
-                        ServiceDocType,
                         GenJournalLine."Document No.",
                         true,
                         true,
@@ -1547,7 +1481,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Purchase,
                         GenJournalLine."Document Type"::Invoice,
                         SalesDocType,
-                        ServiceDocType,
                         ReferenceInvoiceNo,
                         false,
                         InJournal);
@@ -1563,19 +1496,19 @@ codeunit 18435 "Reference Invoice No. Mgt."
 
                     if CurrDocumentGSTRegNo <> PostedDocumentGSTRegNo then begin
                         if GenJournalLine."Order Address Code" <> '' then
-                            Error(DiffGSTRegNoErr, GenJournalLine.FieldName(GenJournalLine."Order Address GST Reg. No."), ReferenceInvoiceNo);
+                            Error(DiffGSTRegNoErr, GenJournalLine.FieldCaption(GenJournalLine."Order Address GST Reg. No."), ReferenceInvoiceNo);
 
-                        Error(DiffGSTRegNoErr, GenJournalLine.FieldName("Vendor GST Reg. No."), ReferenceInvoiceNo);
+                        Error(DiffGSTRegNoErr, GenJournalLine.FieldCaption("Vendor GST Reg. No."), ReferenceInvoiceNo);
                     end;
 
                     if CurrDocLocRegNo <> PostedDocLocRegNo then
-                        Error(DiffGSTRegNoErr, GenJournalLine.FieldName("Location Code"), ReferenceInvoiceNo);
+                        Error(DiffGSTRegNoErr, GenJournalLine.FieldCaption("Location Code"), ReferenceInvoiceNo);
 
                     if CurrDocGSTJurisdiction <> PostedDocGSTJurisdiction then
-                        Error(DiffJurisdictionErr, GenJournalLine.FieldName("GST Jurisdiction Type"));
+                        Error(DiffJurisdictionErr, GenJournalLine.FieldCaption("GST Jurisdiction Type"));
 
                     if GenJournalLine."Currency Code" <> PostedCurrencyCode then
-                        Error(DiffCurrencyCodeErr, GenJournalLine.FieldName("Currency Code"));
+                        Error(DiffCurrencyCodeErr, GenJournalLine.FieldCaption("Currency Code"));
                 end;
             end;
     end;
@@ -1585,65 +1518,79 @@ codeunit 18435 "Reference Invoice No. Mgt."
         SalesHeader: Record "Sales Header";
         ServiceHeader: Record "Service Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
-        CustLedgerEntry2: Record "Cust. Ledger Entry";
-        CustLedgerEntry3: Record "Cust. Ledger Entry";
-        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryToCheck: Record "Cust. Ledger Entry";
+        CustLedgerEntryCopy: Record "Cust. Ledger Entry";
+        GenJnlLine: Record "Gen. Journal Line";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
     begin
         if ReferenceInvoiceNo."Source Type" = ReferenceInvoiceNo."Source Type"::Customer then begin
             if SalesHeader.Get(ReferenceInvoiceNo."Document Type", ReferenceInvoiceNo."Document No.") then begin
-                CustLedgerEntry2.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
-                if CustLedgerEntry2.FindFirst() then
-                    if not (CustLedgerEntry2."Document Type" = CustLedgerEntry2."Document Type"::Invoice) then
+                CustLedgerEntryToCheck.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
+                if CustLedgerEntryToCheck.FindFirst() then
+                    if not (CustLedgerEntryToCheck."Document Type" = CustLedgerEntryToCheck."Document Type"::Invoice) then
                         Error(DocumentTypeErr);
 
                 DetailedGSTLedgerEntry.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
-                DetailedGSTLedgerEntry.SetRange("Source No.", CustLedgerEntry2."Customer No.");
+                DetailedGSTLedgerEntry.SetRange("Source No.", CustLedgerEntryToCheck."Customer No.");
                 if not DetailedGSTLedgerEntry.FindFirst() then
                     Error(ReferenceInvoiceErr);
 
                 CheckGSTSalesCrMemoValidationReference(SalesHeader, ReferenceInvoiceNo."Reference Invoice Nos.");
             end else begin
-                GenJournalLine.SetRange("Journal Template Name", ReferenceInvoiceNo."Journal Template Name");
-                GenJournalLine.SetRange("Journal Batch Name", ReferenceInvoiceNo."Journal Batch Name");
-                GenJournalLine.SetRange("Document No.", ReferenceInvoiceNo."Document No.");
-                if GenJournalLine.FindFirst() then begin
-                    CustLedgerEntry2.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
-                    if CustLedgerEntry2.FindFirst() then
-                        if not (CustLedgerEntry2."Document Type" = CustLedgerEntry2."Document Type"::Invoice) then
+                GenJnlLine.SetRange("Journal Template Name", ReferenceInvoiceNo."Journal Template Name");
+                GenJnlLine.SetRange("Journal Batch Name", ReferenceInvoiceNo."Journal Batch Name");
+                GenJnlLine.SetRange("Document No.", ReferenceInvoiceNo."Document No.");
+                if GenJnlLine.FindFirst() then begin
+                    CustLedgerEntryToCheck.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
+                    if CustLedgerEntryToCheck.FindFirst() then
+                        if not (CustLedgerEntryToCheck."Document Type" = CustLedgerEntryToCheck."Document Type"::Invoice) then
                             Error(DocumentTypeErr);
 
                     DetailedGSTLedgerEntry.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
-                    DetailedGSTLedgerEntry.SetRange("Source No.", CustLedgerEntry2."Customer No.");
+                    DetailedGSTLedgerEntry.SetRange("Source No.", CustLedgerEntryToCheck."Customer No.");
                     if not DetailedGSTLedgerEntry.FindFirst() then
                         Error(ReferenceInvoiceErr);
 
-                    CheckGSTSalesCrMemoJournalValidationReference(GenJournalLine, ReferenceInvoiceNo."Reference Invoice Nos.");
+                    CheckGSTSalesCrMemoJournalValidationReference(GenJnlLine, ReferenceInvoiceNo."Reference Invoice Nos.");
                 end;
             end;
 
-            CustLedgerEntry2.SetRange("Document No.", ReferenceInvoiceNo."Document No.");
-            if CustLedgerEntry2.FindFirst() then begin
-                CustLedgerEntry3.Copy(CustLedgerEntry2);
+            CustLedgerEntryToCheck.SetRange("Document No.", ReferenceInvoiceNo."Document No.");
+            if CustLedgerEntryToCheck.FindFirst() then begin
+                CustLedgerEntryCopy.Copy(CustLedgerEntryToCheck);
                 CustLedgerEntry.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
                 if CustLedgerEntry.FindFirst() then begin
                     if not (CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice) then
                         Error(DocumentTypeErr);
 
-                    if CustLedgerEntry2."Customer No." <> ReferenceInvoiceNo."Source No." then
+                    if CustLedgerEntryToCheck."Customer No." <> ReferenceInvoiceNo."Source No." then
                         Error(DiffCustNoErr);
 
                     DetailedGSTLedgerEntry.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
                     DetailedGSTLedgerEntry.SetRange("Source No.", CustLedgerEntry."Customer No.");
-                    if not DetailedGSTLedgerEntry.FindFirst() then
+                    if DetailedGSTLedgerEntry.IsEmpty() then
                         Error(ReferenceInvoiceErr);
 
                     CheckGSTSalesCrMemoValidationsOffline(
-                        CustLedgerEntry3,
+                        CustLedgerEntryCopy,
                         CustLedgerEntry,
                         0,
                         ReferenceInvoiceNo."Reference Invoice Nos.");
                 end;
+            end;
+
+            if ServiceHeader.Get(ReferenceInvoiceNo."Document Type", ReferenceInvoiceNo."Document No.") then begin
+                CustLedgerEntryToCheck.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
+                if CustLedgerEntryToCheck.FindFirst() then
+                    if not (CustLedgerEntryToCheck."Document Type" = CustLedgerEntryToCheck."Document Type"::Invoice) then
+                        Error(DocumentTypeErr);
+
+                DetailedGSTLedgerEntry.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
+                DetailedGSTLedgerEntry.SetRange("Source No.", CustLedgerEntryToCheck."Customer No.");
+                if DetailedGSTLedgerEntry.IsEmpty() then
+                    Error(ReferenceInvoiceErr);
+
+                CheckGSTServiceCrMemoValidationReference(ServiceHeader, ReferenceInvoiceNo."Reference Invoice Nos.");
             end;
         end;
     end;
@@ -1652,7 +1599,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
         TransType: Enum "Transaction Type Enum";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
         DocumentNo: Code[20];
         AppliedDocumentNo: Code[20];
         InJournal: Boolean;
@@ -1660,30 +1606,31 @@ codeunit 18435 "Reference Invoice No. Mgt."
         Batchname: Code[10];
         LineNo: Integer)
     var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        ServiceHeader: Record "Service Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+        ServiceDocType: Enum "Service Document Type";
     begin
         case TransType of
             "Transaction Type Enum"::Purchase:
                 CheckGSTAppliedDocumentPurchase(AppliedDocumentNo, InJournal, PurchDocType, DocumentNo, TemplateName, Batchname, LineNo);
             "Transaction Type Enum"::Sales:
                 CheckGSTAppliedDocumentSales(AppliedDocumentNo, InJournal, SalesDocType, DocumentNo, TemplateName, Batchname, LineNo);
+            "Transaction Type Enum"::Service:
+                begin
+                    ServiceDocType := SalesDocumentType2ServiceDocumentTypeEnum(SalesDocType);
+                    CheckGSTAppliedDocumentService(AppliedDocumentNo, ServiceDocType, DocumentNo);
+                end;
         end;
     end;
 
     local procedure GetStateCode(
         TransType: Enum "Transaction Type Enum";
         PurchDocType: Enum "Purchase Document Type";
-        SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
         DocumentNo: Code[20];
         CurrentDocument: Boolean) StateCode: Code[10]
     var
         Vendor: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
         GSTDocumentType: Enum "GST Document Type";
     begin
         if CurrentDocument then
@@ -1710,11 +1657,15 @@ codeunit 18435 "Reference Invoice No. Mgt."
             DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Purchase)
         else
             DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Sales);
+
         DetailedGSTLedgerEntry.SetRange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::"Initial Entry");
         DetailedGSTLedgerEntry.SetRange("Document Type", GSTDocumentType);
         DetailedGSTLedgerEntry.SetRange("Document No.", DocumentNo);
         DetailedGSTLedgerEntry.FindFirst();
-        exit(DetailedGSTLedgerEntry."Buyer/Seller State Code");
+
+        DetailedGSTLedgerEntryInfo.Get(DetailedGSTLedgerEntry."Entry No.");
+
+        exit(DetailedGSTLedgerEntryInfo."Buyer/Seller State Code");
     end;
 
     local procedure GetStateCodeforGenJnlPurchValidation(
@@ -1728,19 +1679,20 @@ codeunit 18435 "Reference Invoice No. Mgt."
         LineNo: Integer): Code[10]
     var
         Vendor: Record Vendor;
-        GenJournalLine: Record "Gen. Journal Line";
+        GenJnlLine: Record "Gen. Journal Line";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
         GSTDocumentType: Enum "GST Document Type";
     begin
         if CurrentDocument then
             case TransType of
                 "Transaction Type Enum"::Purchase:
                     if InJournal and (DocumentNo <> '') then begin
-                        GenJournalLine.Get(TemplateName, BatchName, LineNo);
-                        if GenJournalLine."Order Address Code" <> '' then
-                            exit(GenJournalLine."Order Address State Code")
+                        GenJnlLine.Get(TemplateName, BatchName, LineNo);
+                        if GenJnlLine."Order Address Code" <> '' then
+                            exit(GenJnlLine."Order Address State Code")
                         else begin
-                            Vendor.Get(GetVendorNo(GenJournalLine));
+                            Vendor.Get(GetVendorNo(GenJnlLine));
                             exit(Vendor."State Code");
                         end;
                     end;
@@ -1753,30 +1705,31 @@ codeunit 18435 "Reference Invoice No. Mgt."
             DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Purchase)
         else
             DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Sales);
+
         DetailedGSTLedgerEntry.SetRange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::"Initial Entry");
         DetailedGSTLedgerEntry.SetRange("Document Type", GSTDocumentType);
         DetailedGSTLedgerEntry.SetRange("Document No.", DocumentNo);
         DetailedGSTLedgerEntry.SetRange("Journal Entry", InJournal);
         DetailedGSTLedgerEntry.FindFirst();
 
-        exit(DetailedGSTLedgerEntry."Buyer/Seller State Code");
+        DetailedGSTLedgerEntryInfo.Get(DetailedGSTLedgerEntry."Entry No.");
+
+        exit(DetailedGSTLedgerEntryInfo."Buyer/Seller State Code");
     end;
 
     local procedure GetPlaceOfSupplyRegistrationNo(
         TransType: Enum "Transaction Type Enum";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
         DocumentNo: Code[20];
         CurrentDocument: Boolean;
-        InJournal: Boolean): Code[15]
+        InJournal: Boolean): Code[20]
     begin
         exit(
             GetPlaceOfSupplyRegistrationNo(
                 TransType,
                 PurchDocType,
                 SalesDocType,
-                ServiceDocType,
                 DocumentNo,
                 CurrentDocument,
                 InJournal,
@@ -1789,18 +1742,16 @@ codeunit 18435 "Reference Invoice No. Mgt."
         TransType: Enum "Transaction Type Enum";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
         DocumentNo: Code[20];
         CurrentDocument: Boolean;
         InJournal: Boolean;
         TemplateName: Code[10];
         BatchName: Code[10];
-        LineNo: Integer): Code[15]
+        LineNo: Integer): Code[20]
     var
-        Customer: Record Customer;
-        ShipToAddress: Record "Ship-to Address";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         GSTDocType: Enum "GST Document Type";
+        ServiceDocType: Enum "Service Document Type";
     begin
         if CurrentDocument then
             case TransType of
@@ -1808,6 +1759,11 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     exit(GetPlaceOfSupplyRegistrationNoSales(SalesDocType, DocumentNo, InJournal, TemplateName, BatchName, LineNo));
                 "Transaction Type Enum"::Purchase:
                     exit(GetPlaceOfSupplyRegistrationNoPurchase(PurchDocType, DocumentNo, InJournal, TemplateName, BatchName, LineNo));
+                "Transaction Type Enum"::Service:
+                    begin
+                        ServiceDocType := SalesDocumentType2ServiceDocumentTypeEnum(SalesDocType);
+                        exit(GetPlaceOfSupplyRegistrationNoService(ServiceDocType, DocumentNo));
+                    end;
             end;
 
         DetailedGSTLedgerEntry.Reset();
@@ -1827,6 +1783,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
         DetailedGSTLedgerEntry.SetRange("Document No.", DocumentNo);
         DetailedGSTLedgerEntry.SetRange("Journal Entry", InJournal);
         DetailedGSTLedgerEntry.FindFirst();
+
         if (DetailedGSTLedgerEntry."Buyer/Seller Reg. No." = '') and (DetailedGSTLedgerEntry."ARN No." <> '') then
             Error(UpdateGSTNosErr, DetailedGSTLedgerEntry."Document No.");
 
@@ -1839,14 +1796,14 @@ codeunit 18435 "Reference Invoice No. Mgt."
         InJournal: Boolean;
         TemplateName: Code[10];
         BatchName: Code[10];
-        LineNo: Integer): Code[15]
+        LineNo: Integer): Code[20]
     var
         Customer: Record Customer;
         ShipToAddress: Record "Ship-to Address";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        GenJournalLine2: Record "Gen. Journal Line";
-        GenJournalLine3: Record "Gen. Journal Line";
+        GenJournalLineToCheck: Record "Gen. Journal Line";
+        GenJournalLineCopy: Record "Gen. Journal Line";
     begin
         if not InJournal then
             if DocumentNo <> '' then
@@ -1857,12 +1814,11 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
                     if SalesLine.FindFirst() then
                         case SalesLine."GST Place of Supply" of
-                            SalesLine."GST Place of Supply"::"Bill-to Address", SalesLine."GST Place of Supply"::"Location Address":
+                            SalesLine."GST Place of Supply"::" ", SalesLine."GST Place of Supply"::"Bill-to Address", SalesLine."GST Place of Supply"::"Location Address":
                                 begin
                                     if SalesHeader."Customer GST Reg. No." = '' then
-                                        if Customer.Get(SalesLine."Sell-to Customer No.") then
-                                            if Customer."ARN No." <> '' then
-                                                SalesHeader.TestField("Customer GST Reg. No.");
+                                        if Customer.Get(SalesLine."Sell-to Customer No.") and (Customer."ARN No." <> '') then
+                                            SalesHeader.TestField("Customer GST Reg. No.");
 
                                     exit(SalesHeader."Customer GST Reg. No.");
                                 end;
@@ -1870,75 +1826,76 @@ codeunit 18435 "Reference Invoice No. Mgt."
                                 begin
                                     SalesHeader.TestField("Ship-to Code");
                                     if SalesHeader."Ship-to GST Reg. No." = '' then
-                                        if ShipToAddress.Get(SalesHeader."Sell-to Customer No.", SalesHeader."Ship-to Code") then
-                                            if ShipToAddress."ARN No." <> '' then
-                                                SalesHeader.TestField("Ship-to GST Reg. No.");
+                                        if ShipToAddress.Get(SalesHeader."Sell-to Customer No.", SalesHeader."Ship-to Code") and (ShipToAddress."ARN No." <> '') then
+                                            SalesHeader.TestField("Ship-to GST Reg. No.");
 
                                     exit(SalesHeader."Ship-to GST Reg. No.");
                                 end;
                         end;
                 end else begin
-                    GenJournalLine3.Get(TemplateName, BatchName, LineNo);
-                    Customer.Get(GetCustomerNo(GenJournalLine3));
+                    GenJournalLineCopy.Get(TemplateName, BatchName, LineNo);
+                    Customer.Get(GetCustomerNo(GenJournalLineCopy));
 
-                    GenJournalLine.Reset();
-                    GenJournalLine.SetRange("Journal Template Name", TemplateName);
-                    GenJournalLine.SetRange("Journal Batch Name", BatchName);
-                    GenJournalLine.SetRange("Document No.", GenJournalLine3."Old Document No.");
-                    GenJournalLine.SetFilter("GST Group Code", '<>%1', '');
-                    GenJournalLine.FindFirst();
-                    case GenJournalLine."GST Place of Supply" of
-                        GenJournalLine."GST Place of Supply"::"Bill-to Address", GenJournalLine."GST Place of Supply"::"Location Address":
+                    RefGenJournalLine.Reset();
+                    RefGenJournalLine.SetRange("Journal Template Name", TemplateName);
+                    RefGenJournalLine.SetRange("Journal Batch Name", BatchName);
+                    RefGenJournalLine.SetRange("Document No.", GenJournalLineCopy."Old Document No.");
+                    RefGenJournalLine.SetFilter("GST Group Code", '<>%1', '');
+                    RefGenJournalLine.FindFirst();
+
+                    case RefGenJournalLine."GST Place of Supply" of
+                        RefGenJournalLine."GST Place of Supply"::"Bill-to Address", RefGenJournalLine."GST Place of Supply"::"Location Address":
                             begin
                                 if (Customer."GST Registration No." = '') and (Customer."ARN No." <> '') then
-                                    GenJournalLine3.TestField("Customer GST Reg. No.");
+                                    GenJournalLineCopy.TestField("Customer GST Reg. No.");
 
                                 exit(Customer."GST Registration No.");
                             end;
-                        GenJournalLine."GST Place of Supply"::"Ship-to Address":
+                        RefGenJournalLine."GST Place of Supply"::"Ship-to Address":
                             begin
-                                GenJournalLine2.SetRange("Document No.", GenJournalLine."Document No.");
-                                GenJournalLine2.SetFilter("Ship-to Code", '<>%1', '');
-                                if GenJournalLine2.FindFirst() then begin
-                                    ShipToAddress.Get(GenJournalLine2."Account No.", GenJournalLine2."Ship-to Code");
-                                    if (GenJournalLine2."Ship-to GST Reg. No." = '') and (ShipToAddress."ARN No." <> '') then
-                                        GenJournalLine2.TestField("Ship-to GST Reg. No.");
+                                GenJournalLineToCheck.SetRange("Document No.", RefGenJournalLine."Document No.");
+                                GenJournalLineToCheck.SetFilter("Ship-to Code", '<>%1', '');
+                                if GenJournalLineToCheck.FindFirst() then begin
+                                    ShipToAddress.Get(GenJournalLineToCheck."Account No.", GenJournalLineToCheck."Ship-to Code");
+                                    if (GenJournalLineToCheck."Ship-to GST Reg. No." = '') and (ShipToAddress."ARN No." <> '') then
+                                        GenJournalLineToCheck.TestField("Ship-to GST Reg. No.");
 
-                                    exit(GenJournalLine2."Ship-to GST Reg. No.");
+                                    exit(GenJournalLineToCheck."Ship-to GST Reg. No.");
                                 end;
                             end;
                     end;
                 end;
 
         if InJournal then begin
-            GenJournalLine3.Get(TemplateName, BatchName, LineNo);
-            Customer.Get(GetCustomerNo(GenJournalLine3));
+            GenJournalLineCopy.Get(TemplateName, BatchName, LineNo);
+            Customer.Get(GetCustomerNo(GenJournalLineCopy));
 
-            GenJournalLine.Reset();
-            GenJournalLine.SetRange("Journal Template Name", TemplateName);
-            GenJournalLine.SetRange("Journal Batch Name", BatchName);
-            GenJournalLine.SetRange("Document No.", GenJournalLine3."Old Document No.");
-            GenJournalLine.SetFilter("GST Group Code", '<>%1', '');
-            GenJournalLine.FindFirst();
-            case GenJournalLine."GST Place of Supply" of
-                GenJournalLine."GST Place of Supply"::"Bill-to Address", GenJournalLine."GST Place of Supply"::"Location Address":
+            RefGenJournalLine.Reset();
+            RefGenJournalLine.SetRange("Journal Template Name", TemplateName);
+            RefGenJournalLine.SetRange("Journal Batch Name", BatchName);
+            RefGenJournalLine.SetRange("Document No.", GenJournalLineCopy."Document No.");
+            RefGenJournalLine.SetFilter("GST Group Code", '<>%1', '');
+            RefGenJournalLine.FindFirst();
+
+            case RefGenJournalLine."GST Place of Supply" of
+                RefGenJournalLine."GST Place of Supply"::"Bill-to Address", RefGenJournalLine."GST Place of Supply"::"Location Address":
                     begin
                         if (Customer."GST Registration No." = '') and (Customer."ARN No." <> '') then
-                            GenJournalLine3.TestField("Customer GST Reg. No.");
+                            GenJournalLineCopy.TestField("Customer GST Reg. No.");
 
                         exit(Customer."GST Registration No.");
                     end;
-                GenJournalLine."GST Place of Supply"::"Ship-to Address":
+                RefGenJournalLine."GST Place of Supply"::"Ship-to Address":
                     begin
-                        GenJournalLine2.SetRange("Document No.", GenJournalLine."Document No.");
-                        GenJournalLine2.SetFilter("Ship-to Code", '<>%1', '');
-                        if GenJournalLine2.FindFirst() then begin
-                            ShipToAddress.Get(GenJournalLine2."Account No.", GenJournalLine2."Ship-to Code");
+                        GenJournalLineToCheck.SetRange("Document No.", RefGenJournalLine."Document No.");
+                        GenJournalLineToCheck.SetFilter("Ship-to Code", '<>%1', '');
+                        if GenJournalLineToCheck.FindFirst() then begin
+                            ShipToAddress.Get(GenJournalLineToCheck."Account No.", GenJournalLineToCheck."Ship-to Code");
 
-                            if (GenJournalLine2."Ship-to GST Reg. No." = '') and (ShipToAddress."ARN No." <> '') then
-                                GenJournalLine2.TestField("Ship-to GST Reg. No.");
+                            if (GenJournalLineToCheck."Ship-to GST Reg. No." = '') and (ShipToAddress."ARN No." <> '') then
+                                GenJournalLineToCheck.TestField("Ship-to GST Reg. No.");
 
-                            exit(GenJournalLine2."Ship-to GST Reg. No.");
+                            exit(GenJournalLineToCheck."Ship-to GST Reg. No.");
                         end;
                     end;
             end;
@@ -1949,6 +1906,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
     begin
         if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor then
             exit(GenJournalLine."Account No.");
+
         if GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::Vendor then
             exit(GenJournalLine."Bal. Account No.");
     end;
@@ -1968,7 +1926,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
         IsInJournal: Boolean;
         TemplateName: Code[10];
         BatchName: Code[10];
-        LineNo: Integer) GSTRegistrationNo: Code[15]
+        LineNo: Integer) GSTRegistrationNo: Code[20]
     var
         Vendor: Record Vendor;
         OrderAddress: Record "Order Address";
@@ -1980,33 +1938,32 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 if PurchaseHeader."Order Address Code" <> '' then begin
                     GSTRegistrationNo := PurchaseHeader."Order Address GST Reg. No.";
                     if GSTRegistrationNo = '' then
-                        if OrderAddress.Get(PurchaseHeader."Buy-from Vendor No.", PurchaseHeader."Order Address Code") then
-                            if OrderAddress."ARN No." <> '' then
-                                PurchaseHeader.TestField("Order Address GST Reg. No.");
+                        if OrderAddress.Get(PurchaseHeader."Buy-from Vendor No.", PurchaseHeader."Order Address Code") and (OrderAddress."ARN No." <> '') then
+                            PurchaseHeader.TestField("Order Address GST Reg. No.");
                 end else begin
                     GSTRegistrationNo := PurchaseHeader."Vendor GST Reg. No.";
                     if GSTRegistrationNo = '' then
-                        if Vendor.Get(PurchaseHeader."Buy-from Vendor No.") then
-                            if Vendor."ARN No." <> '' then
-                                PurchaseHeader.TestField("Vendor GST Reg. No.");
+                        if Vendor.Get(PurchaseHeader."Buy-from Vendor No.") and (Vendor."ARN No." <> '') then
+                            PurchaseHeader.TestField("Vendor GST Reg. No.");
                 end;
             end;
+
         if IsInJournal then begin
-            GenJournalLine.Get(TemplateName, BatchName, LineNo);
-            Vendor.Get(GetVendorNo(GenJournalLine));
-            if GenJournalLine."Order Address Code" <> '' then begin
-                GSTRegistrationNo := GenJournalLine."Order Address GST Reg. No.";
+            RefGenJournalLine.Get(TemplateName, BatchName, LineNo);
+            Vendor.Get(GetVendorNo(RefGenJournalLine));
+            if RefGenJournalLine."Order Address Code" <> '' then begin
+                GSTRegistrationNo := RefGenJournalLine."Order Address GST Reg. No.";
                 if GSTRegistrationNo = '' then
-                    if OrderAddress.Get(Vendor."No.", GenJournalLine."Order Address Code") then
-                        if OrderAddress."ARN No." <> '' then
-                            GenJournalLine.TestField("Order Address GST Reg. No.");
+                    if OrderAddress.Get(Vendor."No.", RefGenJournalLine."Order Address Code") and (OrderAddress."ARN No." <> '') then
+                        RefGenJournalLine.TestField("Order Address GST Reg. No.");
             end else begin
                 GSTRegistrationNo := Vendor."GST Registration No.";
                 if GSTRegistrationNo = '' then
                     if Vendor."ARN No." <> '' then
-                        GenJournalLine.TestField("Vendor GST Reg. No.");
+                        RefGenJournalLine.TestField("Vendor GST Reg. No.");
             end;
         end;
+
         exit(GSTRegistrationNo);
     end;
 
@@ -2021,7 +1978,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
     var
         PurchaseHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
-        GenJournalLine: Record "Gen. Journal Line";
+        GenJnlLine: Record "Gen. Journal Line";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         GenJnlAccType: Enum "Gen. Journal Account Type";
     begin
@@ -2034,25 +1991,25 @@ codeunit 18435 "Reference Invoice No. Mgt."
 
                 CheckGSTAccountingPeriod(DocumentNo, PurchaseHeader."Posting Date", PurchInvHeader."Posting Date");
             end else begin
-                GenJournalLine.Get(TemplateName, Batchname, LineNo);
-                if GenJournalLine."Posting Date" < PurchInvHeader."Posting Date" then
-                    Error(PostingDateErr, DocumentNo, GenJournalLine."Document No.");
+                GenJnlLine.Get(TemplateName, Batchname, LineNo);
+                if GenJnlLine."Posting Date" < PurchInvHeader."Posting Date" then
+                    Error(PostingDateErr, DocumentNo, GenJnlLine."Document No.");
 
-                CheckGSTAccountingPeriod(DocumentNo, GenJournalLine."Posting Date", PurchInvHeader."Posting Date");
+                CheckGSTAccountingPeriod(DocumentNo, GenJnlLine."Posting Date", PurchInvHeader."Posting Date");
             end;
         end else begin
             DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Purchase);
             DetailedGSTLedgerEntry.SetRange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::"Initial Entry");
             DetailedGSTLedgerEntry.SetRange("Document Type", DetailedGSTLedgerEntry."Document Type"::Invoice);
             DetailedGSTLedgerEntry.SetRange("Document No.", DocumentNo);
-            DetailedGSTLedgerEntry.SetRange("Source No.", GetSourceNo(GenJnlAccType::Vendor, GenJournalLine));
+            DetailedGSTLedgerEntry.SetRange("Source No.", GetSourceNo(GenJnlAccType::Vendor, GenJnlLine));
             DetailedGSTLedgerEntry.SetRange("Journal Entry", true);
             if DetailedGSTLedgerEntry.FindFirst() then begin
-                GenJournalLine.Get(TemplateName, Batchname, LineNo);
-                if GenJournalLine."Posting Date" < DetailedGSTLedgerEntry."Posting Date" then
-                    Error(PostingDateErr, DocumentNo, GenJournalLine."Document No.");
+                GenJnlLine.Get(TemplateName, Batchname, LineNo);
+                if GenJnlLine."Posting Date" < DetailedGSTLedgerEntry."Posting Date" then
+                    Error(PostingDateErr, DocumentNo, GenJnlLine."Document No.");
 
-                CheckGSTAccountingPeriod(DocumentNo, GenJournalLine."Posting Date", DetailedGSTLedgerEntry."Posting Date");
+                CheckGSTAccountingPeriod(DocumentNo, GenJnlLine."Posting Date", DetailedGSTLedgerEntry."Posting Date");
             end;
         end;
     end;
@@ -2068,7 +2025,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        GenJournalLine: Record "Gen. Journal Line";
+        GenJnlLine: Record "Gen. Journal Line";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         GenJnlAccType: Enum "Gen. Journal Account Type";
         PurchDocType: Enum "Purchase Document Type";
@@ -2076,52 +2033,42 @@ codeunit 18435 "Reference Invoice No. Mgt."
         if not InJournal then begin
             if not SalesInvoiceHeader.Get(AppliedDocumentNo) then
                 Error(SalesDocumentErr);
+
             if SalesHeader.Get(SalesDocType, DocumentNo) then begin
                 if SalesHeader."Posting Date" < SalesInvoiceHeader."Posting Date" then
                     Error(PostingDateErr, SalesInvoiceHeader."No.", SalesHeader."No.");
 
-                if IsGSTApplicable(
-                    "Transaction Type Enum"::Sales,
-                    Database::"Sales Header",
-                    PurchDocType,
-                    SalesHeader."Document Type",
-                    SalesHeader."No.")
-                then
-                    if IsGSTApplicable(
-                        "Transaction Type Enum"::Sales,
-                        Database::"Sales Invoice Header",
-                        PurchDocType,
-                        SalesDocType,
-                        SalesInvoiceHeader."No.")
-                    then begin
+                if IsGSTApplicable("Transaction Type Enum"::Sales, PurchDocType, SalesHeader."Document Type", SalesHeader."No.") then
+                    if IsGSTApplicable("Transaction Type Enum"::Sales, PurchDocType, SalesDocType, SalesInvoiceHeader."No.") then begin
                         CheckGSTAccountingPeriod(DocumentNo, SalesHeader."Posting Date", SalesInvoiceHeader."Posting Date");
+
                         if SalesInvoiceHeader."GST Without Payment of Duty" <> SalesHeader."GST Without Payment of Duty" then
                             Error(DiffGSTWithoutPaymentOfDutyErr);
                     end;
             end else
-                if GenJournalLine.Get(TemplateName, Batchname, LineNo) then begin
-                    if GenJournalLine."Posting Date" < SalesInvoiceHeader."Posting Date" then
-                        Error(PostingDateErr, DocumentNo, GenJournalLine."Document No.");
+                if GenJnlLine.Get(TemplateName, Batchname, LineNo) then begin
+                    if GenJnlLine."Posting Date" < SalesInvoiceHeader."Posting Date" then
+                        Error(PostingDateErr, DocumentNo, GenJnlLine."Document No.");
 
-                    CheckGSTAccountingPeriod(DocumentNo, GenJournalLine."Posting Date", SalesInvoiceHeader."Posting Date");
-                    if SalesInvoiceHeader."GST Without Payment of Duty" <> GenJournalLine."GST Without Payment of Duty" then
+                    CheckGSTAccountingPeriod(DocumentNo, GenJnlLine."Posting Date", SalesInvoiceHeader."Posting Date");
+                    if SalesInvoiceHeader."GST Without Payment of Duty" <> GenJnlLine."GST Without Payment of Duty" then
                         Error(DiffGSTWithoutPaymentOfDutyErr);
                 end;
         end else begin
-            GenJournalLine.Get(TemplateName, Batchname, LineNo);
+            GenJnlLine.Get(TemplateName, Batchname, LineNo);
             DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Sales);
             DetailedGSTLedgerEntry.SetRange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::"Initial Entry");
             DetailedGSTLedgerEntry.SetRange("Document Type", DetailedGSTLedgerEntry."Document Type"::Invoice);
             DetailedGSTLedgerEntry.SetRange("Document No.", DocumentNo);
-            DetailedGSTLedgerEntry.SetRange("Source No.", GetSourceNo(genjnlacctype::Customer, GenJournalLine));
+            DetailedGSTLedgerEntry.SetRange("Source No.", GetSourceNo(genjnlacctype::Customer, GenJnlLine));
             DetailedGSTLedgerEntry.SetRange("Journal Entry", true);
             if DetailedGSTLedgerEntry.FindFirst() then begin
-                GenJournalLine.Get(TemplateName, Batchname, LineNo);
-                if GenJournalLine."Posting Date" < DetailedGSTLedgerEntry."Posting Date" then
-                    Error(PostingDateErr, DocumentNo, GenJournalLine."Document No.");
+                GenJnlLine.Get(TemplateName, Batchname, LineNo);
+                if GenJnlLine."Posting Date" < DetailedGSTLedgerEntry."Posting Date" then
+                    Error(PostingDateErr, DocumentNo, GenJnlLine."Document No.");
 
-                CheckGSTAccountingPeriod(DocumentNo, GenJournalLine."Posting Date", DetailedGSTLedgerEntry."Posting Date");
-                if GenJournalLine."GST Without Payment of Duty" <> DetailedGSTLedgerEntry."GST Without Payment of Duty" then
+                CheckGSTAccountingPeriod(DocumentNo, GenJnlLine."Posting Date", DetailedGSTLedgerEntry."Posting Date");
+                if GenJnlLine."GST Without Payment of Duty" <> DetailedGSTLedgerEntry."GST Without Payment of Duty" then
                     Error(DiffGSTWithoutPaymentOfDutyErr);
             end;
         end;
@@ -2142,17 +2089,15 @@ codeunit 18435 "Reference Invoice No. Mgt."
         TransType: Enum "Transaction Type Enum";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
         DocumentNo: Code[20];
         CurrentDocument: Boolean;
-        IsInJournal: Boolean): Code[15]
+        IsInJournal: Boolean): Code[20]
     begin
         exit(
             GetLocationRegistrationNo(
                 TransType,
                 PurchDocType,
                 SalesDocType,
-                ServiceDocType,
                 DocumentNo,
                 CurrentDocument,
                 IsInJournal,
@@ -2165,20 +2110,19 @@ codeunit 18435 "Reference Invoice No. Mgt."
         TransType: Enum "Transaction Type Enum";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
         DocumentNo: Code[20];
         CurrentDocument: Boolean;
         InJournal: Boolean;
         TemplateName: Code[10];
         BatchName: Code[10];
-        LineNo: Integer): Code[15]
+        LineNo: Integer): Code[20]
     var
         SalesHeader: Record "Sales Header";
-        PurchaseHeader: Record "Purchase Header";
         ServiceHeader: Record "Service Header";
+        PurchaseHeader: Record "Purchase Header";
         GenJournalLine: Record "Gen. Journal Line";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
-        GSTDocType: Enum "GST Document Type";
+        ServiceDocType: Enum "Service Document Type";
     begin
         if CurrentDocument then
             case TransType of
@@ -2206,6 +2150,12 @@ codeunit 18435 "Reference Invoice No. Mgt."
                             exit(GenJournalLine."Location GST Reg. No.");
                         end;
                     end;
+                TransType::Service:
+                    if DocumentNo <> '' then begin
+                        ServiceDocType := SalesDocumentType2ServiceDocumentTypeEnum(SalesDocType);
+                        if ServiceHeader.Get(ServiceDocType, DocumentNo) then
+                            exit(ServiceHeader."Location GST Reg. No.");
+                    end;
             end
         else begin
             DetailedGSTLedgerEntry.SetCurrentKey("Transaction Type", "Entry Type", "Document No.", "Document Line No.");
@@ -2213,11 +2163,13 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Purchase)
             else
                 DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Sales);
+
             DetailedGSTLedgerEntry.SetRange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::"Initial Entry");
             DetailedGSTLedgerEntry.SetRange("Document Type", DetailedGSTLedgerEntry."Document Type"::Invoice);
             DetailedGSTLedgerEntry.SetRange("Document No.", DocumentNo);
             DetailedGSTLedgerEntry.SetRange("Journal Entry", InJournal);
             DetailedGSTLedgerEntry.FindFirst();
+
             exit(DetailedGSTLedgerEntry."Location  Reg. No.");
         end;
     end;
@@ -2226,17 +2178,15 @@ codeunit 18435 "Reference Invoice No. Mgt."
         TransType: Enum "Transaction Type Enum";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
         DocumentNo: Code[20];
         CurrentDocument: Boolean;
-        InJournal: Boolean): Code[10]
+        InJournal: Boolean): Enum "GST Jurisdiction Type"
     begin
         exit(
             GetGSTJurisdiction(
                 TransType,
                 PurchDocType,
                 SalesDocType,
-                ServiceDocType,
                 DocumentNo,
                 CurrentDocument,
                 InJournal,
@@ -2249,23 +2199,23 @@ codeunit 18435 "Reference Invoice No. Mgt."
         TransType: Enum "Transaction Type Enum";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
         DocumentNo: Code[20];
         CurrentDocument: Boolean;
         InJournal: Boolean;
         TemplateName: Code[10];
         BatchName: Code[10];
-        LineNo: Integer): Code[10]
+        LineNo: Integer): Enum "GST Jurisdiction Type"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
         GenJournalLine: Record "Gen. Journal Line";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         GSTDocType: Enum "GST Document Type";
+        ServiceDocType: Enum "Service Document Type";
     begin
         if CurrentDocument then
             case TransType of
@@ -2280,11 +2230,12 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         PurchaseLine.SetFilter(Type, '<>%1', Type::" ");
                         PurchaseLine.SetRange("Non-GST Line", false);
                         if PurchaseLine.FindFirst() then
-                            exit(Format(PurchaseLine."GST Jurisdiction Type"));
+                            exit(PurchaseLine."GST Jurisdiction Type");
                     end else
                         if InJournal and (DocumentNo <> '') then begin
                             GenJournalLine.Get(TemplateName, BatchName, LineNo);
-                            exit(Format(GenJournalLine."GST Jurisdiction Type"));
+
+                            exit(GenJournalLine."GST Jurisdiction Type");
                         end;
                 "Transaction Type Enum"::Sales:
                     begin
@@ -2296,16 +2247,30 @@ codeunit 18435 "Reference Invoice No. Mgt."
                                 SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
                                 SalesLine.SetRange("Non-GST Line", false);
                                 if SalesLine.FindFirst() then
-                                    exit(Format(SalesLine."GST Jurisdiction Type"));
+                                    exit(SalesLine."GST Jurisdiction Type");
                             end else begin
                                 GenJournalLine.Get(TemplateName, BatchName, LineNo);
-                                exit(Format(GenJournalLine."GST Jurisdiction Type"));
+                                exit(GenJournalLine."GST Jurisdiction Type");
                             end;
 
                         if InJournal and (DocumentNo <> '') then begin
                             GenJournalLine.Get(TemplateName, BatchName, LineNo);
-                            exit(Format(GenJournalLine."GST Jurisdiction Type"));
+                            exit(GenJournalLine."GST Jurisdiction Type");
                         end;
+                    end;
+                "Transaction Type Enum"::Service:
+                    begin
+                        ServiceDocType := SalesDocumentType2ServiceDocumentTypeEnum(SalesDocType);
+                        if DocumentNo <> '' then
+                            ServiceHeader.Get(ServiceDocType, DocumentNo);
+
+                        ServiceLine.Reset();
+                        ServiceLine.SetRange("Document Type", ServiceDocType);
+                        ServiceLine.SetRange("Document No.", DocumentNo);
+                        ServiceLine.SetFilter(Type, '<>%1', ServiceLine.Type::" ");
+                        ServiceLine.SetRange("Non-GST Line", false);
+                        if ServiceLine.FindFirst() then
+                            exit(ServiceLine."GST Jurisdiction Type");
                     end;
             end
         else begin
@@ -2326,7 +2291,8 @@ codeunit 18435 "Reference Invoice No. Mgt."
             DetailedGSTLedgerEntry.SetRange("Document No.", DocumentNo);
             DetailedGSTLedgerEntry.SetRange("Journal Entry", InJournal);
             DetailedGSTLedgerEntry.FindFirst();
-            exit(Format(DetailedGSTLedgerEntry."GST Jurisdiction Type"));
+
+            exit(DetailedGSTLedgerEntry."GST Jurisdiction Type");
         end;
     end;
 
@@ -2390,11 +2356,12 @@ codeunit 18435 "Reference Invoice No. Mgt."
         GSTAccountingPeriod.SetFilter("Starting Date", '<=%1', InvoicePostingDate);
         GSTAccountingPeriod.SetFilter("Ending Date", '>=%1', InvoicePostingDate);
         GSTAccountingPeriod.FindLast();
+
         if (GSTAccountingPeriod."Credit Memo Locking Date" = 0D) and (GSTAccountingPeriod."Annual Return Filed Date" = 0D) then
             Error(
                 DateErr,
-                GSTAccountingPeriod.FieldName("Credit Memo Locking Date"),
-                GSTAccountingPeriod.FieldName("Annual Return Filed Date"));
+                GSTAccountingPeriod.FieldCaption("Credit Memo Locking Date"),
+                GSTAccountingPeriod.FieldCaption("Annual Return Filed Date"));
 
         if (GSTAccountingPeriod."Annual Return Filed Date" <> 0D) and (GSTAccountingPeriod."Credit Memo Locking Date" <> 0D) then begin
             if (GSTAccountingPeriod."Annual Return Filed Date" = GSTAccountingPeriod."Credit Memo Locking Date") and
@@ -2403,8 +2370,8 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 Error(
                     EqualDateLockErr,
                     DocumentNo,
-                    GSTAccountingPeriod.FieldName("Credit Memo Locking Date"),
-                    GSTAccountingPeriod.FieldName("Annual Return Filed Date"),
+                    GSTAccountingPeriod.FieldCaption("Credit Memo Locking Date"),
+                    GSTAccountingPeriod.FieldCaption("Annual Return Filed Date"),
                     GSTAccountingPeriod."Credit Memo Locking Date");
 
             if (GSTAccountingPeriod."Annual Return Filed Date" > GSTAccountingPeriod."Credit Memo Locking Date") and
@@ -2413,7 +2380,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 Error(
                     DateLockErr,
                     DocumentNo,
-                    GSTAccountingPeriod.FieldName("Credit Memo Locking Date"),
+                    GSTAccountingPeriod.FieldCaption("Credit Memo Locking Date"),
                     GSTAccountingPeriod."Credit Memo Locking Date");
 
             if (GSTAccountingPeriod."Annual Return Filed Date" < GSTAccountingPeriod."Credit Memo Locking Date") and
@@ -2422,7 +2389,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 Error(
                     DateLockErr,
                     DocumentNo,
-                    GSTAccountingPeriod.FieldName("Annual Return Filed Date"),
+                    GSTAccountingPeriod.FieldCaption("Annual Return Filed Date"),
                     GSTAccountingPeriod."Annual Return Filed Date");
         end;
 
@@ -2431,7 +2398,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 Error(
                     DateLockErr,
                     DocumentNo,
-                    GSTAccountingPeriod.FieldName("Credit Memo Locking Date"),
+                    GSTAccountingPeriod.FieldCaption("Credit Memo Locking Date"),
                     GSTAccountingPeriod."Credit Memo Locking Date");
 
         if (GSTAccountingPeriod."Annual Return Filed Date" <> 0D) and (GSTAccountingPeriod."Credit Memo Locking Date" = 0D) then
@@ -2439,7 +2406,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 Error(
                     DateLockErr,
                     DocumentNo,
-                    GSTAccountingPeriod.FieldName("Annual Return Filed Date"),
+                    GSTAccountingPeriod.FieldCaption("Annual Return Filed Date"),
                     GSTAccountingPeriod."Annual Return Filed Date");
     end;
 
@@ -2462,17 +2429,12 @@ codeunit 18435 "Reference Invoice No. Mgt."
         DetailedGSTLedgerEntry.SetRange("Document No.", AppliedDocumentNo);
         DetailedGSTLedgerEntry.SetRange("Journal Entry", true);
         DetailedGSTLedgerEntry.FindFirst();
+
         if PurchaseHeader.Get(PurchDocType, DocumentNo) then begin
             if PurchaseHeader."Posting Date" < DetailedGSTLedgerEntry."Posting Date" then
                 Error(PostingDateErr, DetailedGSTLedgerEntry."No.", PurchaseHeader."No.");
 
-            if IsGSTApplicable(
-                "Transaction Type Enum"::Purchase,
-                Database::"Purchase Header",
-                PurchaseHeader."Document Type",
-                SalesDocType,
-                PurchaseHeader."No.")
-            then
+            if IsGSTApplicable("Transaction Type Enum"::Purchase, PurchaseHeader."Document Type", SalesDocType, PurchaseHeader."No.") then
                 CheckGSTAccountingPeriod(DocumentNo, PurchaseHeader."Posting Date", DetailedGSTLedgerEntry."Posting Date");
         end;
     end;
@@ -2496,17 +2458,12 @@ codeunit 18435 "Reference Invoice No. Mgt."
         DetailedGSTLedgerEntry.SetRange("Document No.", AppliedDocumentNo);
         DetailedGSTLedgerEntry.SetRange("Journal Entry", true);
         DetailedGSTLedgerEntry.FindFirst();
+
         if SalesHeader.Get(SalesDocType, DocumentNo) then begin
             if SalesHeader."Posting Date" < DetailedGSTLedgerEntry."Posting Date" then
                 Error(PostingDateErr, DetailedGSTLedgerEntry."No.", SalesHeader."No.");
 
-            if IsGSTApplicable(
-                "Transaction Type Enum"::Sales,
-                Database::"Sales Header",
-                PurchDocType,
-                SalesHeader."Document Type",
-                SalesHeader."No.")
-            then
+            if IsGSTApplicable("Transaction Type Enum"::Sales, PurchDocType, SalesHeader."Document Type", SalesHeader."No.") then
                 CheckGSTAccountingPeriod(DocumentNo, SalesHeader."Posting Date", DetailedGSTLedgerEntry."Posting Date");
 
             if DetailedGSTLedgerEntry."GST Without Payment of Duty" <> SalesHeader."GST Without Payment of Duty" then
@@ -2518,16 +2475,12 @@ codeunit 18435 "Reference Invoice No. Mgt."
         TransType: Enum "Transaction Type Enum";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
         DocumentNo: Code[20];
         CurrentDocument: Boolean;
-        IsInJournal: Boolean): Code[15]
+        IsInJournal: Boolean): Code[20]
     var
-        Customer: Record Customer;
-        ShipToAddress: Record "Ship-to Address";
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+        ServiceDocType: Enum "Service Document Type";
         GSTDocType: Enum "GST Document Type";
     begin
         if CurrentDocument then
@@ -2536,6 +2489,11 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     exit(GetPlaceOfSupplyRegistrationNoSales(SalesDocType, DocumentNo, IsInJournal, '', '', 0));
                 "Transaction Type Enum"::Purchase:
                     exit(GetPlaceOfSupplyRegistrationNoPurchase(PurchDocType, DocumentNo, IsInJournal, '', '', 0));
+                "Transaction Type Enum"::Service:
+                    begin
+                        ServiceDocType := SalesDocumentType2ServiceDocumentTypeEnum(SalesDocType);
+                        exit(GetPlaceOfSupplyRegistrationNoService(ServiceDocType, DocumentNo));
+                    end;
             end
         else begin
             DetailedGSTLedgerEntry.Reset();
@@ -2552,6 +2510,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
             DetailedGSTLedgerEntry.SetRange("Document No.", DocumentNo);
             DetailedGSTLedgerEntry.SetRange("Journal Entry", true);
             DetailedGSTLedgerEntry.FindFirst();
+
             if (DetailedGSTLedgerEntry."Buyer/Seller Reg. No." = '') and (DetailedGSTLedgerEntry."ARN No." <> '') then
                 Error(UpdateGSTNosErr, DetailedGSTLedgerEntry."Document No.");
 
@@ -2563,17 +2522,15 @@ codeunit 18435 "Reference Invoice No. Mgt."
         TransType: Enum "Transaction Type Enum";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
         DocumentNo: Code[20];
         CurrentDocument: Boolean;
-        IsInJournal: Boolean): Code[15]
+        IsInJournal: Boolean): Code[20]
     begin
         exit(
             GetLocationRegistrationNoDocToJournals(
                 TransType,
                 PurchDocType,
                 SalesDocType,
-                ServiceDocType,
                 DocumentNo,
                 CurrentDocument,
                 IsInJournal,
@@ -2586,19 +2543,19 @@ codeunit 18435 "Reference Invoice No. Mgt."
         TransType: Enum "Transaction Type Enum";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
         DocumentNo: Code[20];
         CurrentDocument: Boolean;
         InJournal: Boolean;
         TemplateName: Code[10];
         BatchName: Code[10];
-        LineNo: Integer): Code[15]
+        LineNo: Integer): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
         ServiceHeader: Record "Service Header";
         GenJournalLine: Record "Gen. Journal Line";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+        ServiceDocType: Enum "Service Document Type";
     begin
         if CurrentDocument then
             case TransType of
@@ -2624,6 +2581,12 @@ codeunit 18435 "Reference Invoice No. Mgt."
                             GenJournalLine.Get(TemplateName, BatchName, LineNo);
                             exit(GenJournalLine."Location GST Reg. No.");
                         end;
+                "Transaction Type Enum"::Service:
+                    if DocumentNo <> '' then begin
+                        ServiceDocType := SalesDocumentType2ServiceDocumentTypeEnum(SalesDocType);
+                        if ServiceHeader.Get(ServiceDocType, DocumentNo) then
+                            exit(ServiceHeader."Location GST Reg. No.");
+                    end;
             end
         else begin
             DetailedGSTLedgerEntry.SetCurrentKey("Transaction Type", "Entry Type", "Document No.", "Document Line No.");
@@ -2631,11 +2594,13 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Purchase)
             else
                 DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Sales);
+
             DetailedGSTLedgerEntry.SetRange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::"Initial Entry");
             DetailedGSTLedgerEntry.SetRange("Document Type", DetailedGSTLedgerEntry."Document Type"::Invoice);
             DetailedGSTLedgerEntry.SetRange("Document No.", DocumentNo);
             DetailedGSTLedgerEntry.SetRange("Journal Entry", true);
             DetailedGSTLedgerEntry.FindFirst();
+
             exit(DetailedGSTLedgerEntry."Location  Reg. No.");
         end;
     end;
@@ -2644,17 +2609,15 @@ codeunit 18435 "Reference Invoice No. Mgt."
         TransType: Enum "Transaction Type Enum";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
         DocumentNo: Code[20];
         CurrentDocument: Boolean;
-        IsInJournal: Boolean): Code[10]
+        IsInJournal: Boolean): Enum "GST Jurisdiction Type"
     begin
         exit(
             GetGSTJurisdictionDocToJournals(
                 TransType,
                 PurchDocType,
                 SalesDocType,
-                ServiceDocType,
                 DocumentNo,
                 CurrentDocument,
                 IsInJournal,
@@ -2668,28 +2631,27 @@ codeunit 18435 "Reference Invoice No. Mgt."
         TransType: Enum "Transaction Type Enum";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
         DocumentNo: Code[20];
         CurrentDocument: Boolean;
         InJournal: Boolean;
         TemplateName: Code[10];
         BatchName: Code[10];
-        LineNo: Integer): Code[10]
+        LineNo: Integer): Enum "GST Jurisdiction Type"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
         GenJournalLine: Record "Gen. Journal Line";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+        ServiceDocType: Enum "Service Document Type";
         GSTDocType: Enum "GST Document Type";
     begin
         if CurrentDocument then
             case TransType of
                 "Transaction Type Enum"::Sales:
-
                     if DocumentNo <> '' then
                         if not InJournal then begin
                             if SalesHeader.Get(SalesDocType, DocumentNo) then begin
@@ -2698,14 +2660,14 @@ codeunit 18435 "Reference Invoice No. Mgt."
                                 SalesLine.SetRange("Document No.", DocumentNo);
                                 SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
                                 if SalesLine.FindFirst() then
-                                    exit(Format(SalesLine."GST Jurisdiction Type"));
+                                    exit(SalesLine."GST Jurisdiction Type");
                             end else begin
                                 GenJournalLine.Get(TemplateName, BatchName, LineNo);
-                                exit(Format(GenJournalLine."GST Jurisdiction Type"));
+                                exit(GenJournalLine."GST Jurisdiction Type");
                             end;
                         end else begin
                             GenJournalLine.Get(TemplateName, BatchName, LineNo);
-                            exit(Format(GenJournalLine."GST Jurisdiction Type"));
+                            exit(GenJournalLine."GST Jurisdiction Type");
                         end;
                 "Transaction Type Enum"::Purchase:
                     if DocumentNo <> '' then
@@ -2717,10 +2679,21 @@ codeunit 18435 "Reference Invoice No. Mgt."
                             PurchaseLine.SetRange("Document No.", DocumentNo);
                             PurchaseLine.SetFilter(Type, '<>%1', Type::" ");
                             if PurchaseLine.FindFirst() then
-                                exit(Format(PurchaseLine."GST Jurisdiction Type"));
+                                exit(PurchaseLine."GST Jurisdiction Type");
                         end else begin
                             GenJournalLine.Get(TemplateName, BatchName, LineNo);
-                            exit(Format(GenJournalLine."GST Jurisdiction Type"));
+                            exit(GenJournalLine."GST Jurisdiction Type");
+                        end;
+                "Transaction Type Enum"::Service:
+                    if DocumentNo <> '' then
+                        if ServiceHeader.Get(ServiceDocType, DocumentNo) then begin
+                            ServiceDocType := SalesDocumentType2ServiceDocumentTypeEnum(SalesDocType);
+                            ServiceLine.Reset();
+                            ServiceLine.SetRange("Document Type", ServiceDocType);
+                            ServiceLine.SetRange("Document No.", DocumentNo);
+                            ServiceLine.SetFilter(Type, '<>%1', ServiceLine.Type::" ");
+                            if ServiceLine.FindFirst() then
+                                exit(ServiceLine."GST Jurisdiction Type");
                         end;
             end
         else begin
@@ -2739,7 +2712,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
             DetailedGSTLedgerEntry.SetRange("Journal Entry", true);
             DetailedGSTLedgerEntry.FindFirst();
 
-            exit(Format(DetailedGSTLedgerEntry."GST Jurisdiction Type"));
+            exit(DetailedGSTLedgerEntry."GST Jurisdiction Type");
         end;
     end;
 
@@ -2748,18 +2721,16 @@ codeunit 18435 "Reference Invoice No. Mgt."
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesLine: Record "Sales Line";
         CurrCustNo: Code[20];
-        CurrDocumentGSTRegNo: Code[15];
-        PostedDocumentGSTRegNo: Code[15];
-        CurrDocLocRegNo: Code[15];
-        PostedDocLocRegNo: Code[15];
-        CurrDocGSTJurisdiction: Code[10];
-        PostedDocGSTJurisdiction: Code[10];
+        CurrDocumentGSTRegNo: Code[20];
+        PostedDocumentGSTRegNo: Code[20];
+        CurrDocLocRegNo: Code[20];
+        PostedDocLocRegNo: Code[20];
+        CurrDocGSTJurisdiction: Enum "GST Jurisdiction Type";
+        PostedDocGSTJurisdiction: Enum "GST Jurisdiction Type";
         PostedCurrencyCode: Code[10];
         InJournal: Boolean;
         SalesDocType: Enum "Sales Document Type";
         PurchDocType: Enum "Purchase Document Type";
-        ServiceDocType: Enum "Service Document Type";
-        GSTDocType: Enum "GST Document Type";
     begin
         if not (GenJournalLine."Document Type" in [
             GenJournalLine."Document Type"::"Credit Memo",
@@ -2776,19 +2747,13 @@ codeunit 18435 "Reference Invoice No. Mgt."
 
                 if not InJournal and
                     SalesInvoiceHeader.Get(ReferenceInvoiceNo) and
-                    IsGSTApplicable(
-                        "Transaction Type Enum"::Sales,
-                        Database::"Sales Invoice Header",
-                        PurchDocType,
-                        SalesDocType,
-                        SalesInvoiceHeader."No.") or
+                    IsGSTApplicable("Transaction Type Enum"::Sales, PurchDocType, SalesDocType, SalesInvoiceHeader."No.") or
                     InJournal
                 then begin
                     CheckGSTAppliedDocument(
                         "Transaction Type Enum"::Sales,
                         PurchDocType,
                         SalesDocType,
-                        ServiceDocType,
                         GenJournalLine."Document No.",
                         ReferenceInvoiceNo,
                         InJournal,
@@ -2800,7 +2765,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Sales,
                         PurchDocType,
                         SalesDocType,
-                        ServiceDocType,
                         GenJournalLine."Document No.",
                         true,
                         InJournal,
@@ -2812,7 +2776,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Sales,
                         PurchDocType,
                         SalesDocType::Invoice,
-                        ServiceDocType,
                         ReferenceInvoiceNo,
                         false,
                         InJournal);
@@ -2821,7 +2784,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Sales,
                         PurchDocType,
                         SalesDocType,
-                        ServiceDocType,
                         GenJournalLine."Document No.",
                         true,
                         InJournal,
@@ -2833,7 +2795,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Sales,
                         PurchDocType,
                         SalesDocType,
-                        ServiceDocType,
                         ReferenceInvoiceNo,
                         false,
                         InJournal);
@@ -2842,7 +2803,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Sales,
                         PurchDocType,
                         SalesDocType,
-                        ServiceDocType,
                         GenJournalLine."Document No.",
                         true,
                         InJournal,
@@ -2854,7 +2814,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         "Transaction Type Enum"::Sales,
                         PurchDocType,
                         SalesDocType::Invoice,
-                        ServiceDocType,
                         ReferenceInvoiceNo,
                         false,
                         InJournal);
@@ -2866,16 +2825,16 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         CurrCustNo);
 
                     if CurrDocumentGSTRegNo <> PostedDocumentGSTRegNo then
-                        Error(DiffGSTRegNoErr, SalesLine.FieldName("GST Place of Supply"), ReferenceInvoiceNo);
+                        Error(DiffGSTRegNoErr, SalesLine.FieldCaption("GST Place of Supply"), ReferenceInvoiceNo);
 
                     if CurrDocLocRegNo <> PostedDocLocRegNo then
-                        Error(DiffGSTRegNoErr, SalesLine.FieldName("Location Code"), ReferenceInvoiceNo);
+                        Error(DiffGSTRegNoErr, SalesLine.FieldCaption("Location Code"), ReferenceInvoiceNo);
 
                     if CurrDocGSTJurisdiction <> PostedDocGSTJurisdiction then
-                        Error(DiffJurisdictionErr, SalesLine.FieldName("GST Jurisdiction Type"));
+                        Error(DiffJurisdictionErr, SalesLine.FieldCaption("GST Jurisdiction Type"));
 
                     if PostedCurrencyCode <> GenJournalLine."Currency Code" then
-                        Error(DiffCurrencyCodeErr, SalesLine.FieldName("Currency Code"));
+                        Error(DiffCurrencyCodeErr, SalesLine.FieldCaption("Currency Code"));
                 end;
             end;
     end;
@@ -2890,11 +2849,10 @@ codeunit 18435 "Reference Invoice No. Mgt."
         CustLedgerEntryCrMemo: Record "Cust. Ledger Entry";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesInvoiceHeader2: Record "Sales Invoice Header";
+        SalesInvHeader: Record "Sales Invoice Header";
         OriginalInvNo: Code[20];
         InvoiceFromJournal: Boolean;
         CrMemoFromJournal: Boolean;
-        TransType: Enum "Transaction Type Enum";
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
     begin
@@ -2916,7 +2874,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
             if SalesCrMemoHeader.Get(CustLedgerEntryCrMemo."Document No.") then;
 
         if (SalesCrMemoHeader."No." = '') and not CrMemoFromJournal then
-            SalesInvoiceHeader2.Get(CustLedgerEntryCrMemo."Document No.");
+            SalesInvHeader.Get(CustLedgerEntryCrMemo."Document No.");
 
         if not InvoiceFromJournal then begin
             if SalesCrMemoHeader."No." <> '' then
@@ -2924,7 +2882,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     CustLedgerEntryInv,
                     CustLedgerEntryCrMemo,
                     Database::"Sales Cr.Memo Header",
-                    SalesInvoiceHeader2,
+                    SalesInvHeader,
                     SalesCrMemoHeader,
                     Entrys,
                     CrMemoFromJournal)
@@ -2933,33 +2891,28 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     CustLedgerEntryInv,
                     CustLedgerEntryCrMemo,
                     Database::"Sales Invoice Header",
-                    SalesInvoiceHeader2,
+                    SalesInvHeader,
                     SalesCrMemoHeader,
                     Entrys,
                     CrMemoFromJournal);
 
-            if IsGSTApplicable(
-                "Transaction Type Enum"::Sales,
-                Database::"Sales Invoice Header",
-                PurchDocType,
-                SalesDocType, SalesInvoiceHeader."No.")
-            then
+            if IsGSTApplicable("Transaction Type Enum"::Sales, PurchDocType, SalesDocType, SalesInvoiceHeader."No.") then
                 if SalesCrMemoHeader."No." <> '' then
                     CheckGSTSalesCrMemoValOfflineSales(
-                      CustLedgerEntryCrMemo,
-                      CustLedgerEntryInv,
-                      Database::"Sales Cr.Memo Header",
-                      SalesInvoiceHeader2,
-                      SalesCrMemoHeader,
-                      InvoiceFromJournal,
-                      ReferenceInvoiceNo,
-                      CrMemoFromJournal)
+                        CustLedgerEntryCrMemo,
+                        CustLedgerEntryInv,
+                        Database::"Sales Cr.Memo Header",
+                        SalesInvHeader,
+                        SalesCrMemoHeader,
+                        InvoiceFromJournal,
+                        ReferenceInvoiceNo,
+                        CrMemoFromJournal)
                 else
                     CheckGSTSalesCrMemoValOfflineSales(
                         CustLedgerEntryCrMemo,
                         CustLedgerEntryInv,
                         Database::"Sales Invoice Header",
-                        SalesInvoiceHeader2,
+                        SalesInvHeader,
                         SalesCrMemoHeader,
                         InvoiceFromJournal,
                         ReferenceInvoiceNo,
@@ -2972,7 +2925,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     CustLedgerEntryInv,
                     CustLedgerEntryCrMemo,
                     Database::"Sales Cr.Memo Header",
-                    SalesInvoiceHeader2,
+                    SalesInvHeader,
                     SalesCrMemoHeader,
                     Entrys,
                     CrMemoFromJournal)
@@ -2981,7 +2934,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     CustLedgerEntryInv,
                     CustLedgerEntryCrMemo,
                     Database::"Sales Invoice Header",
-                    SalesInvoiceHeader2,
+                    SalesInvHeader,
                     SalesCrMemoHeader,
                     Entrys,
                     CrMemoFromJournal);
@@ -2992,25 +2945,27 @@ codeunit 18435 "Reference Invoice No. Mgt."
             if CustLedgerEntryInv."GST in Journal" then
                 if SalesCrMemoHeader."No." <> '' then
                     CheckGSTSalesCrMemoValOfflineSales(
-                      CustLedgerEntryCrMemo,
-                      CustLedgerEntryInv,
-                      Database::"Sales Cr.Memo Header",
-                      SalesInvoiceHeader2,
-                      SalesCrMemoHeader,
-                      InvoiceFromJournal,
-                      ReferenceInvoiceNo,
-                      CrMemoFromJournal)
+                        CustLedgerEntryCrMemo,
+                        CustLedgerEntryInv,
+                        Database::"Sales Cr.Memo Header",
+                        SalesInvHeader,
+                        SalesCrMemoHeader,
+                        InvoiceFromJournal,
+                        ReferenceInvoiceNo,
+                        CrMemoFromJournal)
                 else
                     CheckGSTSalesCrMemoValOfflineSales(
-                      CustLedgerEntryCrMemo,
-                      CustLedgerEntryInv,
-                      Database::"Sales Invoice Header",
-                      SalesInvoiceHeader2,
-                      SalesCrMemoHeader,
-                      InvoiceFromJournal,
-                      ReferenceInvoiceNo,
-                      CrMemoFromJournal);
+                        CustLedgerEntryCrMemo,
+                        CustLedgerEntryInv,
+                        Database::"Sales Invoice Header",
+                        SalesInvHeader,
+                        SalesCrMemoHeader,
+                        InvoiceFromJournal,
+                        ReferenceInvoiceNo,
+                        CrMemoFromJournal);
         end;
+
+        CheckGSTServiceValidation(CustLedgerEntry, ApplyingCustLedgerEntry, CustLedgerEntryInv, CustLedgerEntryCrMemo, ReferenceInvoiceNo, Entrys)
     end;
 
     local procedure CheckPurchAppliedEntries(
@@ -3021,32 +2976,15 @@ codeunit 18435 "Reference Invoice No. Mgt."
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         Entrys: Integer;
         CrMemoFromJournal: Boolean)
-    var
-        PurchDocType: Enum "Purchase Document Type";
-        SalesDocType: Enum "Sales Document Type";
     begin
         if (VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Invoice) and
            (Entrys > 1) and (not CrMemoFromJournal)
         then
-            if TableID = Database::"Purch. Inv. Header" then begin
-                if IsGSTApplicable(
-                    "Transaction Type Enum"::Purchase,
-                    Database::"Purch. Inv. Header",
-                    PurchDocType,
-                    SalesDocType,
-                    PurchInvoiceHeader."No.")
-                then
+            if (TableID = Database::"Purch. Inv. Header") and (IsGSTApplicablePostedPurchaseInvoice(PurchInvoiceHeader."No.")) then
+                Error(OneDocumentErr, VendorLedgerEntryCrMemo."Document Type", VendorLedgerEntryCrMemo."Document No.")
+            else
+                if (TableID = Database::"Purch. Cr. Memo Hdr.") and (IsGSTApplicablePostedPurchaseCrMemo(PurchCrMemoHeader."No.")) then
                     Error(OneDocumentErr, VendorLedgerEntryCrMemo."Document Type", VendorLedgerEntryCrMemo."Document No.");
-            end else
-                if TableID = Database::"Purch. Cr. Memo Hdr." then
-                    if IsGSTApplicable(
-                        "Transaction Type Enum"::Purchase,
-                        Database::"Purch. Cr. Memo Hdr.",
-                        PurchDocType,
-                        SalesDocType,
-                        PurchCrMemoHeader."No.")
-                    then
-                        Error(OneDocumentErr, VendorLedgerEntryCrMemo."Document Type", VendorLedgerEntryCrMemo."Document No.");
 
         if (VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Invoice) and
            (Entrys > 1) and
@@ -3065,21 +3003,19 @@ codeunit 18435 "Reference Invoice No. Mgt."
         NumberOfEntries: Integer;
         CrMemoFromJournal: Boolean)
     var
-        PurchDocType: Enum "Purchase Document Type";
-        SalesDocType: Enum "Sales Document Type";
-        DocNo: Code[20];
+        GSTApplicable: Boolean;
     begin
         if (CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice) and
-             (NumberOfEntries > 1) and
-             (not CrMemoFromJournal)
+            (NumberOfEntries > 1) and
+            (not CrMemoFromJournal)
         then begin
             if TableID = Database::"Sales Invoice Header" then
-                DocNo := SalesInvoiceHeader."No."
+                GSTApplicable := IsGSTApplicablePostedSalesInvoice(SalesInvoiceHeader."No.")
             else
                 if TableID = Database::"Sales Cr.Memo Header" then
-                    DocNo := SalesCrMemoHeader."No.";
+                    GSTApplicable := IsGSTApplicablePostedSalesCrMemo(SalesCrMemoHeader."No.");
 
-            if IsGSTApplicable("Transaction Type Enum"::Sales, TableID, PurchDocType, SalesDocType, DocNo) then
+            if GSTApplicable then
                 Error(OneDocumentErr, CustLedgerEntryCrMemo."Document Type", CustLedgerEntryCrMemo."Document No.");
         end;
 
@@ -3094,20 +3030,18 @@ codeunit 18435 "Reference Invoice No. Mgt."
         CustLedgerEntryCrMemo: Record "Cust. Ledger Entry";
         CustLedgerEntryInv: Record "Cust. Ledger Entry";
         TableID: Integer;
-        SalesInvoiceHeader2: Record "Sales Invoice Header";
+        SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         InvoiceFromJournal: Boolean;
         ReferenceInvoiceNo: Code[20];
         CrMemoFromJournal: Boolean)
     var
-        InvSellerRegNo: Code[15];
-        InvGSTJurisdiction: Code[10];
-        CrMemoSellerRegNo: Code[15];
-        CrMemoGSTJuridiction: Code[10];
+        InvSellerRegNo: Code[20];
+        InvGSTJurisdiction: Enum "GST Jurisdiction Type";
+        CrMemoSellerRegNo: Code[20];
+        CrMemoGSTJuridiction: Enum "GST Jurisdiction Type";
         PurchDocType: Enum "Purchase Document Type";
-        SalesDocType: Enum "Sales Document Type";
-        ServiceDocType: Enum "Service Document Type";
-        DocNo: Code[20];
+        GSTApplicable: Boolean;
     begin
         CheckGSTAppliedDocumentPosted(
             CustLedgerEntryCrMemo."Posting Date",
@@ -3116,14 +3050,12 @@ codeunit 18435 "Reference Invoice No. Mgt."
             CustLedgerEntryInv."Document No.");
 
         if TableID = Database::"Sales Invoice Header" then
-            DocNo := SalesInvoiceHeader2."No."
+            GSTApplicable := IsGSTApplicablePostedSalesInvoice(SalesInvHeader."No.")
         else
             if TableID = Database::"Sales Cr.Memo Header" then
-                DocNo := SalesCrMemoHeader."No.";
+                GSTApplicable := IsGSTApplicablePostedSalesCrMemo(SalesCrMemoHeader."No.");
 
-        if IsGSTApplicable("Transaction Type Enum"::Sales, TableID, PurchDocType, SalesDocType, DocNo) or
-            CustLedgerEntryCrMemo."GST in Journal"
-        then begin
+        if GSTApplicable or CustLedgerEntryCrMemo."GST in Journal" then begin
             if CustLedgerEntryInv."Location GST Reg. No." <> CustLedgerEntryCrMemo."Location GST Reg. No." then
                 Error(DiffLocationGSTRegErr);
 
@@ -3131,7 +3063,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 CustLedgerEntryInv."Document Type",
-                ServiceDocType,
                 CustLedgerEntryInv."Document No.",
                 false,
                 InvoiceFromJournal);
@@ -3140,7 +3071,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 CustLedgerEntryCrMemo."Document Type",
-                ServiceDocType,
                 CustLedgerEntryCrMemo."Document No.",
                 false,
                 CrMemoFromJournal);
@@ -3152,7 +3082,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 CustLedgerEntryInv."Document Type",
-                ServiceDocType,
                 CustLedgerEntryInv."Document No.",
                 false,
                 InvoiceFromJournal);
@@ -3161,7 +3090,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
                 "Transaction Type Enum"::Sales,
                 PurchDocType,
                 CustLedgerEntryCrMemo."Document Type",
-                ServiceDocType,
                 CustLedgerEntryCrMemo."Document No.",
                 false,
                 CrMemoFromJournal);
@@ -3185,32 +3113,33 @@ codeunit 18435 "Reference Invoice No. Mgt."
     local procedure CheckInvoiceNoFromDetGST(CrMemoDocNo: Code[20]; var InvDocNo: Code[20]): Boolean
     var
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
     begin
         DetailedGSTLedgerEntry.SetRange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::"Initial Entry");
         DetailedGSTLedgerEntry.SetRange("Document Type", DetailedGSTLedgerEntry."Document Type"::"Credit Memo");
         DetailedGSTLedgerEntry.SetRange("Document No.", CrMemoDocNo);
-        if DetailedGSTLedgerEntry.FindFirst() then begin
-            InvDocNo := DetailedGSTLedgerEntry."Original Invoice No.";
-            if (DetailedGSTLedgerEntry."Original Invoice No." <> '') and (DetailedGSTLedgerEntry."Original Invoice Date" <> 0D) then
-                exit(true);
-        end;
+        if DetailedGSTLedgerEntry.FindFirst() then
+            if DetailedGSTLedgerEntryInfo.Get(DetailedGSTLedgerEntry."Entry No.") then begin
+                InvDocNo := DetailedGSTLedgerEntry."Original Invoice No.";
+                if (DetailedGSTLedgerEntry."Original Invoice No." <> '') and (DetailedGSTLedgerEntryInfo."Original Invoice Date" <> 0D) then
+                    exit(true);
+            end;
     end;
 
     local procedure IsGSTApplicable(
         TransType: Enum "Transaction Type Enum";
-        TableID: Integer;
         PurchDocType: Enum "Purchase Document Type";
         SalesDocType: Enum "Sales Document Type";
         DocNo: Code[20]): Boolean
     var
-        CompanyInformation: Record "Company Information";
-        TaxTypeSetup: Record "Tax Type Setup";
-        TaxTransactionValue: Record "Tax Transaction Value";
+        GSTSetup: Record "GST Setup";
         PurchLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
+        ServiceLine: Record "Service Line";
+        ServiceDocType: Enum "Service Document Type";
         TaxTransactionFound: Boolean;
     begin
-        if not TaxTypeSetup.Get() then
+        if not GSTSetup.Get() then
             exit;
 
         case TransType of
@@ -3222,12 +3151,8 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     PurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
                     if PurchLine.FindSet() then
                         repeat
-                            TaxTypeSetup.TestField(Code);
-                            TaxTransactionValue.SetRange("Tax Type", TaxTypeSetup.Code);
-                            TaxTransactionValue.SetRange("Tax Record ID", PurchLine.RecordId);
-                            TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
-                            if TaxTransactionValue.FindFirst() then
-                                TaxTransactionFound := true;
+                            GSTSetup.TestField("GST Tax Type");
+                            TaxTransactionFound := FilterTaxTransactionValue(GSTSetup."GST Tax Type", PurchLine.RecordId);
                         until PurchLine.Next() = 0
                     else
                         exit(false);
@@ -3240,13 +3165,24 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
                     if SalesLine.FindSet() then
                         repeat
-                            TaxTypeSetup.TestField(Code);
-                            TaxTransactionValue.SetRange("Tax Type", TaxTypeSetup.Code);
-                            TaxTransactionValue.SetRange("Tax Record ID", SalesLine.RecordId);
-                            TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
-                            if TaxTransactionValue.FindFirst() then
-                                TaxTransactionFound := true;
+                            GSTSetup.TestField("GST Tax Type");
+                            TaxTransactionFound := FilterTaxTransactionValue(GSTSetup."GST Tax Type", SalesLine.RecordId);
                         until SalesLine.Next() = 0
+                    else
+                        exit(false);
+                end;
+            "Transaction Type Enum"::Service:
+                begin
+                    ServiceDocType := SalesDocumentType2ServiceDocumentTypeEnum(SalesDocType);
+                    ServiceLine.Reset();
+                    ServiceLine.SetRange("Document Type", ServiceDocType);
+                    ServiceLine.SetRange("Document No.", DocNo);
+                    ServiceLine.SetFilter(Type, '<>%1', ServiceLine.Type::" ");
+                    if ServiceLine.FindSet() then
+                        repeat
+                            GSTSetup.TestField("GST Tax Type");
+                            TaxTransactionFound := FilterTaxTransactionValue(GSTSetup."GST Tax Type", ServiceLine.RecordId);
+                        until ServiceLine.Next() = 0
                     else
                         exit(false);
                 end;
@@ -3255,29 +3191,40 @@ codeunit 18435 "Reference Invoice No. Mgt."
         if not TaxTransactionFound then
             exit(false);
 
-        CompanyInformation.Get();
-        if (CompanyInformation."GST Registration No." = '') and (CompanyInformation."ARN No." = '') then
-            Error(CompGSTRegNoARNNoErr);
+        CheckCompanyInfoGSTDetails();
 
         exit(true);
+    end;
+
+    local procedure FilterTaxTransactionValue(
+        TaxTypeSetupCode: Code[10];
+        RecordId: RecordId): Boolean
+    var
+        TaxTransactionValue: Record "Tax Transaction Value";
+    begin
+        TaxTransactionValue.SetRange("Tax Type", TaxTypeSetupCode);
+        TaxTransactionValue.SetRange("Tax Record ID", RecordId);
+        TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+        if not TaxTransactionValue.IsEmpty() then
+            exit(true);
     end;
 
     local procedure IsGSTApplicableJournal(GenJournalLine: Record "Gen. Journal Line"): Boolean
     var
         CompanyInformation: Record "Company Information";
-        GenJournalLine2: Record "Gen. Journal Line";
+        GenJournalLineToCheck: Record "Gen. Journal Line";
     begin
         CompanyInformation.Get();
         CompanyInformation.TestField("GST Registration No.");
         if CompanyInformation."GST Registration No." <> '' then begin
-            GenJournalLine2.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
-            GenJournalLine2.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+            GenJournalLineToCheck.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+            GenJournalLineToCheck.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
             if GenJournalLine."Old Document No." <> '' then
-                GenJournalLine2.SetRange("Document No.", GenJournalLine."Old Document No.")
+                GenJournalLineToCheck.SetRange("Document No.", GenJournalLine."Old Document No.")
             else
-                GenJournalLine2.SetRange("Document No.", GenJournalLine."Document No.");
-            GenJournalLine2.SetRange("GST in Journal", true);
-            if GenJournalLine2.FindFirst() then
+                GenJournalLineToCheck.SetRange("Document No.", GenJournalLine."Document No.");
+            GenJournalLineToCheck.SetRange("GST in Journal", true);
+            if not GenJournalLineToCheck.IsEmpty() then
                 exit(true);
         end;
     end;
@@ -3289,13 +3236,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
         SalesDocType: Enum "Sales Document Type";
         GSTDocumentType: Enum "Document Type Enum";
     begin
-        if not IsGSTApplicable(
-            "Transaction Type Enum"::Purchase,
-            Database::"Purchase Header",
-            PurchaseHeader."Document Type",
-            SalesDocType,
-            PurchaseHeader."No.")
-        then
+        if not IsGSTApplicable("Transaction Type Enum"::Purchase, PurchaseHeader."Document Type", SalesDocType, PurchaseHeader."No.") then
             exit;
 
         if (PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Credit Memo") or
@@ -3323,19 +3264,13 @@ codeunit 18435 "Reference Invoice No. Mgt."
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         ReferenceInvoiceNo: Record "Reference Invoice No.";
-        PurchDocType: Enum "Purchase Document Type";
         GSTDocumentType: Enum "Document Type Enum";
     begin
-        if not IsGSTApplicable(
-            "Transaction Type Enum"::Sales,
-            Database::"Sales Header",
-            SalesHeader."Document Type",
-            SalesHeader."Document Type", SalesHeader."No.")
-        then
+        if not IsGSTApplicable("Transaction Type Enum"::Sales, SalesHeader."Document Type", SalesHeader."Document Type", SalesHeader."No.") then
             exit;
 
         if (SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo") or
-            (SalesHeader."document Type" = SalesHeader."document Type"::"Return Order") or
+            (SalesHeader."Document Type" = SalesHeader."Document Type"::"Return Order") or
             (SalesHeader."Invoice Type" in [SalesHeader."Invoice Type"::"Debit Note", SalesHeader."Invoice Type"::Supplementary])
         then begin
             GSTDocumentType := SalesDocumentType2DocumentTypeEnum(SalesHeader."Document Type");
@@ -3360,10 +3295,11 @@ codeunit 18435 "Reference Invoice No. Mgt."
         PurchInvHdrNo: Code[20];
         PurchCrMemoHdrNo: Code[20])
     var
-        PurchaseHeader2: Record "Purchase Header";
+        PurchaseHeaderToCheck: Record "Purchase Header";
         ReferenceInvoiceNo: Record "Reference Invoice No.";
         PostedReferenceInvoiceNo: Record "Reference Invoice No.";
         DocumentType: Enum "Document Type Enum";
+        PostedRefInvCreated: Boolean;
     begin
         DocumentType := PurchDocumentType2DocumentTypeEnum(PurchaseHeader."Document Type");
 
@@ -3378,6 +3314,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     PostedReferenceInvoiceNo."Document Type" := PostedReferenceInvoiceNo."Document Type"::Invoice;
                     PostedReferenceInvoiceNo."Document No." := PurchInvHdrNo;
                     PostedReferenceInvoiceNo.Insert();
+                    PostedRefInvCreated := true;
                 end;
 
                 if PurchCrMemoHdrNo <> '' then begin
@@ -3386,10 +3323,11 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     PostedReferenceInvoiceNo."Document Type" := PostedReferenceInvoiceNo."Document Type"::"Credit Memo";
                     PostedReferenceInvoiceNo."Document No." := PurchCrMemoHdrNo;
                     PostedReferenceInvoiceNo.Insert();
+                    PostedRefInvCreated := true;
                 end;
             until ReferenceInvoiceNo.Next() = 0;
 
-            if not PurchaseHeader2.Get(PurchaseHeader."Document Type", PurchaseHeader."No.") then
+            if PostedRefInvCreated and (not PurchaseHeaderToCheck.Get(PurchaseHeader."Document Type", PurchaseHeader."No.")) then
                 ReferenceInvoiceNo.DeleteAll();
         end;
     end;
@@ -3399,10 +3337,11 @@ codeunit 18435 "Reference Invoice No. Mgt."
         SalesInvHdrNo: Code[20];
         SalesCrMemoHdrNo: Code[20])
     var
-        SalesHeader2: Record "Sales Header";
+        SalesHeaderToCheck: Record "Sales Header";
         ReferenceInvoiceNo: Record "Reference Invoice No.";
         PostedReferenceInvoiceNo: Record "Reference Invoice No.";
         DocumentType: Enum "Document Type Enum";
+        PostedRefInvCreated: Boolean;
     begin
         DocumentType := SalesDocumentType2DocumentTypeEnum(SalesHeader."Document Type");
 
@@ -3417,6 +3356,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     PostedReferenceInvoiceNo."Document Type" := PostedReferenceInvoiceNo."Document Type"::Invoice;
                     PostedReferenceInvoiceNo."Document No." := SalesInvHdrNo;
                     PostedReferenceInvoiceNo.Insert();
+                    PostedRefInvCreated := true;
                 end;
 
                 if SalesCrMemoHdrNo <> '' then begin
@@ -3425,22 +3365,23 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     PostedReferenceInvoiceNo."Document Type" := PostedReferenceInvoiceNo."Document Type"::"Credit Memo";
                     PostedReferenceInvoiceNo."Document No." := SalesCrMemoHdrNo;
                     PostedReferenceInvoiceNo.Insert();
+                    PostedRefInvCreated := true;
                 end;
             until ReferenceInvoiceNo.Next() = 0;
 
-            if not SalesHeader2.Get(SalesHeader."Document Type", SalesHeader."No.") then
+            if PostedRefInvCreated and (not SalesHeaderToCheck.Get(SalesHeader."Document Type", SalesHeader."No.")) then
                 ReferenceInvoiceNo.DeleteAll();
         end;
     end;
 
     local procedure CheckReferenceInvPurchJnl(GenJournalLine: Record "Gen. Journal Line")
     var
-        GenJournalLine2: Record "Gen. Journal Line";
+        GenJournalLineToCheck: Record "Gen. Journal Line";
         ReferenceInvoiceNo: Record "Reference Invoice No.";
         DocumentType: Enum "Document Type Enum";
     begin
-        if GenJournalLine2.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.") then begin
-            if not GenJournalLine2."GST in Journal" then
+        if GenJournalLineToCheck.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.") then begin
+            if not GenJournalLineToCheck."GST in Journal" then
                 exit;
 
             if ((GenJournalLine."Document Type" = GenJournalLine."Document Type"::Invoice) and
@@ -3452,25 +3393,25 @@ codeunit 18435 "Reference Invoice No. Mgt."
             then begin
                 DocumentType := GenJnlDocumentType2DocumentTypeEnum(GenJournalLine."Document Type");
 
-                ReferenceInvoiceNo.SetRange("Document No.", GenJournalLine2."Document No.");
+                ReferenceInvoiceNo.SetRange("Document No.", GenJournalLineToCheck."Document No.");
                 ReferenceInvoiceNo.SetRange("Document Type", DocumentType);
                 ReferenceInvoiceNo.SetRange("Source No.", GenJournalLine."Account No.");
                 ReferenceInvoiceNo.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
                 ReferenceInvoiceNo.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-                if not ReferenceInvoiceNo.FindFirst() then
-                    Error(ReferenceNoErr, GenJournalLine."Document Type", GenJournalLine."Document No.");
+                if ReferenceInvoiceNo.IsEmpty() then
+                    Error(ReferenceNoJnlErr, GenJournalLine."Document Type", GenJournalLine."Document No.");
             end;
         end;
     end;
 
     local procedure CheckReferenceInvSalesJnl(GenJournalLine: Record "Gen. Journal Line")
     var
-        GenJournalLine2: Record "Gen. Journal Line";
+        GenJournalLineToCheck: Record "Gen. Journal Line";
         ReferenceInvoiceNo: Record "Reference Invoice No.";
         DocumentType: Enum "Document Type Enum";
     begin
-        if GenJournalLine2.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.") then begin
-            if not GenJournalLine2."GST in Journal" then
+        if GenJournalLineToCheck.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.") then begin
+            if not GenJournalLineToCheck."GST in Journal" then
                 exit;
 
             if ((GenJournalLine."Document Type" = GenJournalLine."Document Type"::Invoice) and
@@ -3482,36 +3423,36 @@ codeunit 18435 "Reference Invoice No. Mgt."
             then begin
                 DocumentType := GenJnlDocumentType2DocumentTypeEnum(GenJournalLine."Document Type");
 
-                ReferenceInvoiceNo.SetRange("Document No.", GenJournalLine2."Document No.");
+                ReferenceInvoiceNo.SetRange("Document No.", GenJournalLineToCheck."Document No.");
                 ReferenceInvoiceNo.SetRange("Document Type", DocumentType);
                 ReferenceInvoiceNo.SetRange("Source No.", GenJournalLine."Account No.");
                 ReferenceInvoiceNo.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
                 ReferenceInvoiceNo.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-                if not ReferenceInvoiceNo.FindFirst() then
-                    Error(ReferenceNoErr, GenJournalLine."Document Type", GenJournalLine."Document No.");
+                if ReferenceInvoiceNo.IsEmpty() then
+                    Error(ReferenceNoJnlErr, GenJournalLine."Document Type", GenJournalLine."Document No.");
             end;
         end;
     end;
 
     local procedure CreatePostedReferenceInvoiceNoPurchJnl(GenJournalLine: Record "Gen. Journal Line")
     var
-        GenJournalLine2: Record "Gen. Journal Line";
+        GenJournalLineToCheck: Record "Gen. Journal Line";
         ReferenceInvoiceNo: Record "Reference Invoice No.";
         PostedReferenceInvoiceNo: Record "Reference Invoice No.";
         DocumentType: Enum "Document Type Enum";
     begin
-        if GenJournalLine2.Get(
+        if GenJournalLineToCheck.Get(
             GenJournalLine."Journal Template Name",
             GenJournalLine."Journal Batch Name",
             GenJournalLine."Line No.")
         then begin
-            if not GenJournalLine2."GST in Journal" then
+            if not GenJournalLineToCheck."GST in Journal" then
                 exit;
 
             DocumentType := GenJnlDocumentType2DocumentTypeEnum(GenJournalLine."Document Type");
 
             ReferenceInvoiceNo.SetRange("Document Type", DocumentType);
-            ReferenceInvoiceNo.SetRange("Document No.", GenJournalLine2."Document No.");
+            ReferenceInvoiceNo.SetRange("Document No.", GenJournalLineToCheck."Document No.");
             ReferenceInvoiceNo.SetRange("Source No.", GenJournalLine."Account No.");
             ReferenceInvoiceNo.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
             ReferenceInvoiceNo.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
@@ -3536,23 +3477,23 @@ codeunit 18435 "Reference Invoice No. Mgt."
 
     local procedure CreatePostedReferenceInvoiceNoSalesJnl(GenJournalLine: Record "Gen. Journal Line")
     var
-        GenJournalLine2: Record "Gen. Journal Line";
+        GenJournalLineToCheck: Record "Gen. Journal Line";
         ReferenceInvoiceNo: Record "Reference Invoice No.";
         PostedReferenceInvoiceNo: Record "Reference Invoice No.";
         DocumentType: Enum "Document Type Enum";
     begin
-        if GenJournalLine2.Get(
+        if GenJournalLineToCheck.Get(
             GenJournalLine."Journal Template Name",
             GenJournalLine."Journal Batch Name",
             GenJournalLine."Line No.")
         then begin
-            if not GenJournalLine2."GST in Journal" then
+            if not GenJournalLineToCheck."GST in Journal" then
                 exit;
 
             DocumentType := GenJnlDocumentType2DocumentTypeEnum(GenJournalLine."Document Type");
 
             ReferenceInvoiceNo.SetRange("Document Type", DocumentType);
-            ReferenceInvoiceNo.SetRange("Document No.", GenJournalLine2."Document No.");
+            ReferenceInvoiceNo.SetRange("Document No.", GenJournalLineToCheck."Document No.");
             ReferenceInvoiceNo.SetRange("Source No.", GenJournalLine."Account No.");
             ReferenceInvoiceNo.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
             ReferenceInvoiceNo.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
@@ -3572,6 +3513,48 @@ codeunit 18435 "Reference Invoice No. Mgt."
                         PostedReferenceInvoiceNo.Insert();
                     end;
                 until ReferenceInvoiceNo.Next() = 0;
+        end;
+    end;
+
+    local procedure CreatePostedReferenceInvoiceNoService(
+        var ServiceHeader: Record "Service Header";
+        ServInvoiceNo: Code[20];
+        ServCrMemoNo: Code[20])
+    var
+        ServiceHeaderToCheck: Record "Service Header";
+        ReferenceInvoiceNo: Record "Reference Invoice No.";
+        PostedReferenceInvoiceNo: Record "Reference Invoice No.";
+        DocumentType: Enum "Document Type Enum";
+        PostedRefInvCreated: Boolean;
+    begin
+        DocumentType := ServiceDocumentType2DocumentTypeEnum(ServiceHeader."Document Type");
+
+        ReferenceInvoiceNo.SetRange("Document Type", DocumentType);
+        ReferenceInvoiceNo.SetRange("Document No.", ServiceHeader."No.");
+        ReferenceInvoiceNo.SetRange("Source No.", ServiceHeader."Bill-to Customer No.");
+        if ReferenceInvoiceNo.FindSet() then begin
+            repeat
+                if (ServInvoiceNo <> '') and (ServInvoiceNo <> ServiceHeader."No.") then begin
+                    PostedReferenceInvoiceNo.Init();
+                    PostedReferenceInvoiceNo := ReferenceInvoiceNo;
+                    PostedReferenceInvoiceNo."Document Type" := PostedReferenceInvoiceNo."Document Type"::Invoice;
+                    PostedReferenceInvoiceNo."Document No." := ServInvoiceNo;
+                    PostedReferenceInvoiceNo.Insert();
+                    PostedRefInvCreated := true;
+                end;
+
+                if (ServCrMemoNo <> '') and (ServCrMemoNo <> ServiceHeader."No.") then begin
+                    PostedReferenceInvoiceNo.Init();
+                    PostedReferenceInvoiceNo := ReferenceInvoiceNo;
+                    PostedReferenceInvoiceNo."Document Type" := PostedReferenceInvoiceNo."Document Type"::"Credit Memo";
+                    PostedReferenceInvoiceNo."Document No." := ServCrMemoNo;
+                    PostedReferenceInvoiceNo.Insert();
+                    PostedRefInvCreated := true;
+                end;
+            until ReferenceInvoiceNo.Next() = 0;
+
+            if PostedRefInvCreated and (not ServiceHeaderToCheck.Get(ServiceHeader."Document Type", ServiceHeader."No.")) then
+                ReferenceInvoiceNo.DeleteAll();
         end;
     end;
 
@@ -3681,20 +3664,6 @@ codeunit 18435 "Reference Invoice No. Mgt."
         end;
     end;
 
-    local procedure GenJnlDocumentType2SalesDocumentType(GenJournalDocumentType: Enum "Gen. Journal Document Type"): Enum "Sales Document Type"
-    var
-        ConversionErr: Label 'Document Type %1 is not a valid option.', Comment = '%1 = Gen. Journal Document Type';
-    begin
-        case GenJournalDocumentType of
-            GenJournalDocumentType::"Credit Memo":
-                exit("Sales Document Type"::"Credit Memo");
-            GenJournalDocumentType::Invoice:
-                exit("Sales Document Type"::Invoice);
-            else
-                Error(ConversionErr, GenJournalDocumentType);
-        end;
-    end;
-
     local procedure TransactionTypeEnum2DetailLedgerTransactionType(TransType: Enum "Transaction Type Enum"): Enum "Detail Ledger Transaction Type"
     var
         ConversionErr: Label 'Transaction Type %1 is not a valid option.', Comment = '%1 = Transaction Type Enum';
@@ -3711,6 +3680,784 @@ codeunit 18435 "Reference Invoice No. Mgt."
         end;
     end;
 
+    local procedure ServiceDocumentType2DocumentTypeEnum(ServiceDocumentType: Enum "Service Document Type"): Enum "Document Type Enum"
+    var
+        ConversionErr: Label 'Document Type %1 is not a valid option.', Comment = '%1 = Service Document Type';
+    begin
+        case ServiceDocumentType of
+            ServiceDocumentType::Quote:
+                exit("Document Type Enum"::Quote);
+            ServiceDocumentType::Order:
+                exit("Document Type Enum"::Order);
+            ServiceDocumentType::Invoice:
+                exit("Document Type Enum"::Invoice);
+            ServiceDocumentType::"Credit Memo":
+                exit("Document Type Enum"::"Credit Memo");
+            else
+                Error(ConversionErr, ServiceDocumentType);
+        end;
+    end;
+
+    local procedure SalesDocumentType2ServiceDocumentTypeEnum(SalesDocumentType: Enum "Sales Document Type"): Enum "Service Document Type"
+    var
+        ConversionErr: Label 'Document Type %1 is not a valid option.', Comment = '%1 = Sales Document Type';
+    begin
+        case SalesDocumentType of
+            SalesDocumentType::Quote:
+                exit("Service Document Type"::Quote);
+            SalesDocumentType::Order:
+                exit("Service Document Type"::Order);
+            SalesDocumentType::Invoice:
+                exit("Service Document Type"::Invoice);
+            SalesDocumentType::"Credit Memo":
+                exit("Service Document Type"::"Credit Memo");
+            else
+                Error(ConversionErr, SalesDocumentType);
+        end;
+    end;
+
+    local procedure ServiceDocumentType2SalesDocumentTypeEnum(ServiceDocumentType: Enum "Service Document Type"): Enum "Sales Document Type"
+    var
+        ConversionErr: Label 'Document Type %1 is not a valid option.', Comment = '%1 = Service Document Type';
+    begin
+        case ServiceDocumentType of
+            ServiceDocumentType::Quote:
+                exit("Service Document Type"::Quote);
+            ServiceDocumentType::Order:
+                exit("Service Document Type"::Order);
+            ServiceDocumentType::Invoice:
+                exit("Service Document Type"::Invoice);
+            ServiceDocumentType::"Credit Memo":
+                exit("Service Document Type"::"Credit Memo");
+            else
+                Error(ConversionErr, ServiceDocumentType);
+        end;
+    end;
+
+    local procedure CheckGSTAppliedDocumentService(
+        AppliedDocumentNo: Code[20];
+        ServiceDocType: Enum "Service Document Type";
+        DocumentNo: Code[20])
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+    begin
+        if ServiceInvoiceHeader.Get(AppliedDocumentNo) then begin
+            if not ServiceInvoiceHeader.Get(AppliedDocumentNo) then
+                Error(SalesDocumentErr);
+
+            ServiceHeader.Get(ServiceDocType, DocumentNo);
+            if ServiceHeader."Posting Date" < ServiceInvoiceHeader."Posting Date" then
+                Error(PostingDateErr, ServiceInvoiceHeader."No.", ServiceHeader."No.");
+
+            CheckGSTAccountingPeriod(DocumentNo, ServiceHeader."Posting Date", ServiceInvoiceHeader."Posting Date");
+            if ServiceInvoiceHeader."GST Without Payment of Duty" <> ServiceHeader."GST Without Payment of Duty" then
+                Error(DiffGSTWithoutPaymentOfDutyErr);
+        end;
+
+        if SalesInvoiceHeader.Get(AppliedDocumentNo) then begin
+            if not SalesInvoiceHeader.Get(AppliedDocumentNo) then
+                Error(SalesDocumentErr);
+
+            ServiceHeader.Get(ServiceDocType, DocumentNo);
+            if ServiceHeader."Posting Date" < SalesInvoiceHeader."Posting Date" then
+                Error(PostingDateErr, SalesInvoiceHeader."No.", ServiceHeader."No.");
+
+            CheckGSTAccountingPeriod(DocumentNo, ServiceHeader."Posting Date", SalesInvoiceHeader."Posting Date");
+            if SalesInvoiceHeader."GST Without Payment of Duty" <> ServiceHeader."GST Without Payment of Duty" then
+                Error(DiffGSTWithoutPaymentOfDutyErr);
+        end;
+
+        if (ServiceInvoiceHeader."No." = '') and (SalesInvoiceHeader."No." = '') then begin
+            DetailedGSTLedgerEntry.SetRange("Document No.", AppliedDocumentNo);
+            if DetailedGSTLedgerEntry.FindFirst() then begin
+                ServiceHeader.Get(ServiceDocType, DocumentNo);
+                if ServiceHeader."Posting Date" < DetailedGSTLedgerEntry."Posting Date" then
+                    Error(PostingDateErr, DetailedGSTLedgerEntry."No.", ServiceHeader."No.");
+
+                CheckGSTAccountingPeriod(DocumentNo, ServiceHeader."Posting Date", DetailedGSTLedgerEntry."Posting Date");
+                if DetailedGSTLedgerEntry."GST Without Payment of Duty" <> ServiceHeader."GST Without Payment of Duty" then
+                    Error(DiffGSTWithoutPaymentOfDutyErr);
+            end;
+        end;
+    end;
+
+    local procedure GetPlaceOfSupplyRegistrationNoService(
+        ServiceDocType: Enum "Service Document Type";
+        DocumentNo: Code[20]): Code[20]
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        if DocumentNo <> '' then
+            ServiceHeader.Get(ServiceDocType, DocumentNo);
+
+        ServiceLine.Reset();
+        ServiceLine.SetRange("Document Type", ServiceDocType);
+        ServiceLine.SetRange("Document No.", DocumentNo);
+        ServiceLine.SetFilter(Type, '<>%1', Type::" ");
+        if ServiceLine.FindFirst() then
+            Case ServiceLine."GST Place of Supply" of
+                ServiceLine."GST Place of Supply"::" ", ServiceLine."GST Place of Supply"::"Bill-to Address", ServiceLine."GST Place of Supply"::"Location Address":
+                    begin
+                        if ServiceHeader."Customer GST Reg. No." = '' then
+                            if Customer.Get(ServiceLine."Customer No.") and (Customer."ARN No." <> '') then
+                                ServiceHeader.TestField("Customer GST Reg. No.");
+
+                        exit(ServiceHeader."Customer GST Reg. No.");
+                    end;
+                ServiceLine."GST Place of Supply"::"Ship-to Address":
+                    begin
+                        ServiceHeader.TestField("Ship-to Code");
+                        if ServiceHeader."Ship-to GST Reg. No." = '' then
+                            if ShipToAddress.Get(ServiceLine."Customer No.", ServiceHeader."Ship-to Code") and (ShipToAddress."ARN No." <> '') then
+                                ServiceHeader.TestField("Ship-to GST Reg. No.");
+
+                        exit(ServiceHeader."Ship-to GST Reg. No.");
+                    end;
+            end;
+    end;
+
+    local procedure CheckGSTServiceValidation(
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ApplyingCustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntryInv: Record "Cust. Ledger Entry";
+        CustLedgerEntryCrMemo: Record "Cust. Ledger Entry";
+        ReferenceInvoiceNo: Code[20];
+        Entrys: Integer)
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        ServiceInvoiceHeaderRef: Record "Service Invoice Header";
+        ServiceInvoiceHeaderNo: Code[20];
+        ServiceCrMemoHeaderNo: Code[20];
+        InvGSTJurisdiction: Enum "GST Jurisdiction Type";
+        CrMemoGSTJuridiction: Enum "GST Jurisdiction Type";
+        DummyGSTInJournal: Boolean;
+        PurchDocType: Enum "Purchase Document Type";
+    begin
+        if ServiceInvoiceHeader.Get(CustLedgerEntryInv."Document No.") then
+            ServiceInvoiceHeaderNo := ServiceInvoiceHeader."No.";
+
+        if ServiceCrMemoHeader.Get(CustLedgerEntryCrMemo."Document No.") then
+            ServiceCrMemoHeaderNo := ServiceCrMemoHeader."No.";
+
+        if (ServiceCrMemoHeaderNo = '') and ServiceInvoiceHeaderRef.Get(CustLedgerEntryCrMemo."Document No.") then;
+
+        if CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice then
+            if (Entrys >= 1) and IsGSTApplicablePostedServiceCrMemo(ServiceCrMemoHeaderNo) then
+                Error(OneDocumentErr, ApplyingCustLedgerEntry."Document Type", ApplyingCustLedgerEntry."Document No.");
+
+        if ServiceCrMemoHeaderNo = '' then
+            if (Entrys >= 1) and IsGSTApplicablePostedServiceInvoice(ServiceInvoiceHeaderRef."No.") then
+                Error(OneDocumentErr, ApplyingCustLedgerEntry."Document Type", ApplyingCustLedgerEntry."Document No.");
+
+        if IsGSTApplicablePostedServiceInvoice(ServiceInvoiceHeaderNo) then begin
+            CheckGSTAppliedDocumentPosted(
+                CustLedgerEntryCrMemo."Posting Date",
+                CustLedgerEntryInv."Posting Date",
+                CustLedgerEntryCrMemo."Document No.",
+                CustLedgerEntryInv."Document No.");
+
+            if IsGSTApplicablePostedServiceCrMemo(ServiceCrMemoHeaderNo) or
+                IsGSTApplicablePostedServiceInvoice(ServiceInvoiceHeaderRef."No.")
+            then begin
+                if CustLedgerEntryInv."Location GST Reg. No." <> CustLedgerEntryCrMemo."Location GST Reg. No." then
+                    Error(DiffLocationGSTRegErr);
+
+                if CustLedgerEntryInv."Seller GST Reg. No." <> CustLedgerEntryCrMemo."Seller GST Reg. No." then
+                    Error(DiffGSTRegNoErr, CustLedgerEntryInv.FieldCaption("Seller GST Reg. No."), ReferenceInvoiceNo);
+
+                InvGSTJurisdiction := GetGSTJurisdiction(
+                    "Transaction Type Enum"::Sales,
+                    PurchDocType,
+                    CustLedgerEntryInv."Document Type",
+                    CustLedgerEntryInv."Document No.",
+                    false,
+                    DummyGSTinJournal);
+
+                CrMemoGSTJuridiction := GetGSTJurisdiction(
+                    "Transaction Type Enum"::Sales,
+                    PurchDocType,
+                    CustLedgerEntryCrMemo."Document Type",
+                    CustLedgerEntryCrMemo."Document No.",
+                    false,
+                    DummyGSTinJournal);
+
+                if InvGSTJurisdiction <> CrMemoGSTJuridiction then
+                    Error(DiffJurisdictionErr, CustLedgerEntryInv.FieldCaption("GST Jurisdiction Type"));
+
+                if CustLedgerEntryInv."Currency Code" <> CustLedgerEntryCrMemo."Currency Code" then
+                    Error(DiffCurrencyCodeErr, CustLedgerEntryInv.FieldCaption("Currency Code"));
+            end;
+        end;
+    end;
+
+    local procedure CheckGSTServiceCrMemoValidationReference(ServiceHeader: Record "Service Header"; ReferenceInvoiceNo: Code[20])
+    var
+        ServiceLine: Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CurrDocumentGSTRegNo: Code[20];
+        PostedDocumentGSTRegNo: Code[20];
+        CurrDocLocRegNo: Code[20];
+        PostedDocLocRegNo: Code[20];
+        CurrDocGSTJurisdiction: Enum "GST Jurisdiction Type";
+        PostedDocGSTJurisdiction: Enum "GST Jurisdiction Type";
+        PostedCurrencyCode: Code[10];
+        IsDummy: Boolean;
+        PurchDocType: Enum "Purchase Document Type";
+        SalesDocType: Enum "Sales Document Type";
+    begin
+        if not (ServiceHeader."Document Type" in [
+            ServiceHeader."Document Type"::"Credit Memo",
+            ServiceHeader."Document Type"::Order,
+            ServiceHeader."Document Type"::Invoice])
+        then
+            exit;
+
+        SalesDocType := ServiceDocumentType2SalesDocumentTypeEnum(ServiceHeader."Document Type");
+        if IsGSTApplicable("Transaction Type Enum"::Service, PurchDocType, SalesDocType, ServiceHeader."No.") then
+            if ReferenceInvoiceNo <> '' then
+                if ServiceInvoiceHeader.Get(ReferenceInvoiceNo) and
+                    IsGSTApplicablePostedServiceInvoice(ServiceInvoiceHeader."No.")
+                then begin
+                    CheckGSTAppliedDocument(
+                        "Transaction Type Enum"::Service,
+                        PurchDocType,
+                        SalesDocType,
+                        ServiceHeader."No.",
+                        ReferenceInvoiceNo,
+                        IsDummy,
+                        '',
+                        '',
+                        0);
+
+                    CurrDocumentGSTRegNo := GetPlaceOfSupplyRegistrationNo(
+                        "Transaction Type Enum"::Service,
+                        PurchDocType,
+                        SalesDocType,
+                        ServiceHeader."No.",
+                        true,
+                        IsDummy);
+
+                    PostedDocumentGSTRegNo := GetPlaceOfSupplyRegistrationNo(
+                        "Transaction Type Enum"::Service,
+                        PurchDocType,
+                        SalesDocType::Invoice,
+                        ReferenceInvoiceNo,
+                        false,
+                        IsDummy);
+
+                    CurrDocLocRegNo := GetLocationRegistrationNo(
+                        "Transaction Type Enum"::Service,
+                        PurchDocType,
+                        SalesDocType,
+                        ServiceHeader."No.",
+                        true,
+                        IsDummy);
+
+                    PostedDocLocRegNo := GetLocationRegistrationNo(
+                        "Transaction Type Enum"::Service,
+                        PurchDocType,
+                        SalesDocType::Invoice,
+                        ReferenceInvoiceNo,
+                        false,
+                        IsDummy);
+
+                    CurrDocGSTJurisdiction := GetGSTJurisdiction(
+                        "Transaction Type Enum"::Service,
+                        PurchDocType,
+                        SalesDocType,
+                        ServiceHeader."No.",
+                        true,
+                        IsDummy);
+
+                    PostedDocGSTJurisdiction := GetGSTJurisdiction(
+                        "Transaction Type Enum"::Service,
+                        PurchDocType,
+                        SalesDocType::Invoice,
+                        ReferenceInvoiceNo,
+                        false,
+                        IsDummy);
+
+                    PostedCurrencyCode := GetCurrencyCode(
+                        "Transaction Type Enum"::Service,
+                        "Gen. Journal Document Type"::Invoice,
+                        ReferenceInvoiceNo,
+                        ServiceHeader."Customer No.");
+
+                    if CurrDocGSTJurisdiction <> PostedDocGSTJurisdiction then
+                        Error(DiffJurisdictionErr, ServiceLine.FieldCaption("GST Jurisdiction Type"));
+
+                    if CurrDocumentGSTRegNo <> PostedDocumentGSTRegNo then
+                        Error(DiffGSTRegNoErr, ServiceLine.FieldCaption("GST Place Of Supply"), ReferenceInvoiceNo);
+
+                    if CurrDocLocRegNo <> PostedDocLocRegNo then
+                        Error(DiffGSTRegNoErr, ServiceLine.FieldCaption("Location Code"), ReferenceInvoiceNo);
+
+                    if ServiceHeader."Currency Code" <> PostedCurrencyCode then
+                        Error(DiffCurrencyCodeErr, ServiceHeader."Currency Code");
+                end else
+                    if SalesInvoiceHeader.Get(ReferenceInvoiceNo) and IsGSTApplicablePostedSalesInvoice(SalesInvoiceHeader."No.") then begin
+                        CheckGSTAppliedDocument("Transaction Type Enum"::Service,
+                            PurchDocType,
+                            SalesDocType,
+                            ServiceHeader."No.",
+                            ReferenceInvoiceNo,
+                            IsDummy,
+                            '',
+                            '',
+                            0);
+
+                        CurrDocumentGSTRegNo := GetPlaceOfSupplyRegistrationNo(
+                            "Transaction Type Enum"::Service,
+                            PurchDocType,
+                            SalesDocType,
+                            ServiceHeader."No.",
+                            true,
+                            IsDummy);
+
+                        PostedDocumentGSTRegNo := GetPlaceOfSupplyRegistrationNo(
+                            "Transaction Type Enum"::Sales,
+                            PurchDocType,
+                            SalesDocType::Invoice,
+                            ReferenceInvoiceNo,
+                            false,
+                            IsDummy);
+
+                        CurrDocLocRegNo := GetLocationRegistrationNo(
+                            "Transaction Type Enum"::Service,
+                            PurchDocType,
+                            SalesDocType,
+                            ServiceHeader."No.",
+                            true,
+                            IsDummy);
+
+                        PostedDocLocRegNo := GetLocationRegistrationNo(
+                            "Transaction Type Enum"::Sales,
+                            PurchDocType,
+                            SalesDocType,
+                            ReferenceInvoiceNo,
+                            false,
+                            IsDummy);
+
+                        CurrDocGSTJurisdiction := GetGSTJurisdiction(
+                            "Transaction Type Enum"::Service,
+                            PurchDocType,
+                            SalesDocType,
+                            ServiceHeader."No.",
+                            true,
+                            IsDummy);
+
+                        PostedDocGSTJurisdiction := GetGSTJurisdiction(
+                            "Transaction Type Enum"::Sales,
+                            PurchDocType,
+                            SalesDocType::Invoice,
+                            ReferenceInvoiceNo,
+                            false,
+                            IsDummy);
+
+                        PostedCurrencyCode := GetCurrencyCode(
+                            "Transaction Type Enum"::Sales,
+                            "Gen. Journal Document Type"::Invoice,
+                            ReferenceInvoiceNo,
+                            ServiceHeader."Customer No.");
+
+                        if CurrDocumentGSTRegNo <> PostedDocumentGSTRegNo then
+                            Error(DiffGSTRegNoErr, SalesInvoiceHeader.FieldCaption("No."), ReferenceInvoiceNo);
+
+                        if CurrDocLocRegNo <> PostedDocLocRegNo then
+                            Error(DiffGSTRegNoErr, SalesInvoiceHeader.FieldCaption("Location Code"), ReferenceInvoiceNo);
+
+                        if CurrDocGSTJurisdiction <> PostedDocGSTJurisdiction then
+                            Error(DiffJurisdictionErr, ServiceLine.FieldCaption("GST Jurisdiction Type"));
+
+                        if PostedCurrencyCode <> ServiceHeader."Currency Code" then
+                            Error(DiffCurrencyCodeErr, SalesInvoiceHeader.FieldCaption("Currency Code"));
+                    end else
+                        IsDummy := IsGSTFromJournal("Transaction Type Enum"::Sales, ReferenceInvoiceNo, ServiceHeader."Customer No.");
+
+        if IsGSTApplicable("Transaction Type Enum"::Service, PurchDocType, SalesDocType, ServiceHeader."No.") and (ReferenceInvoiceNo <> '') and IsDummy then begin
+            CheckGSTAppliedDocument(
+                "Transaction Type Enum"::Service,
+                PurchDocType,
+                SalesDocType,
+                ServiceHeader."No.",
+                ReferenceInvoiceNo,
+                IsDummy,
+                '',
+                '',
+                0);
+
+            CurrDocumentGSTRegNo := GetPlaceOfSupplyRegistrationNo(
+                "Transaction Type Enum"::Service,
+                PurchDocType,
+                SalesDocType,
+                ServiceHeader."No.",
+                true,
+                IsDummy);
+
+            PostedDocumentGSTRegNo := GetPlaceOfSupplyRegistrationNo(
+                "Transaction Type Enum"::Service,
+                PurchDocType,
+                SalesDocType::Invoice,
+                ReferenceInvoiceNo,
+                false,
+                IsDummy);
+
+            CurrDocLocRegNo := GetLocationRegistrationNo(
+                "Transaction Type Enum"::Service,
+                PurchDocType,
+                SalesDocType,
+                ServiceHeader."No.",
+                true,
+                IsDummy);
+
+            PostedDocLocRegNo := GetLocationRegistrationNo(
+                "Transaction Type Enum"::Service,
+                PurchDocType,
+                SalesDocType,
+                ReferenceInvoiceNo,
+                false,
+                IsDummy);
+
+            CurrDocGSTJurisdiction := GetGSTJurisdiction(
+                "Transaction Type Enum"::Service,
+                PurchDocType,
+                SalesDocType,
+                ServiceHeader."No.",
+                true,
+                IsDummy);
+
+            PostedDocGSTJurisdiction := GetGSTJurisdiction(
+                "Transaction Type Enum"::Service,
+                PurchDocType,
+                SalesDocType::Invoice,
+                ReferenceInvoiceNo,
+                false,
+                IsDummy);
+
+            PostedCurrencyCode := GetCurrencyCode(
+                "Transaction Type Enum"::Service,
+                "Gen. Journal Document Type"::Invoice,
+                ReferenceInvoiceNo,
+                ServiceHeader."Customer No.");
+
+            if CurrDocGSTJurisdiction <> PostedDocGSTJurisdiction then
+                Error(DiffJurisdictionErr, ServiceLine.FieldCaption("GST Jurisdiction Type"));
+
+            if CurrDocumentGSTRegNo <> PostedDocumentGSTRegNo then
+                Error(DiffGSTRegNoErr, ServiceLine.FieldCaption("GST Place Of Supply"), ReferenceInvoiceNo);
+
+            if CurrDocLocRegNo <> PostedDocLocRegNo then
+                Error(DiffGSTRegNoErr, ServiceLine.FieldCaption("Location Code"), ReferenceInvoiceNo);
+
+            if ServiceHeader."Currency Code" <> PostedCurrencyCode then
+                Error(DiffCurrencyCodeErr, ServiceHeader."Currency Code");
+        end;
+    end;
+
+    local procedure IsGSTApplicablePostedPurchaseInvoice(DocNo: Code[20]): Boolean
+    var
+        PurchInvLine: Record "Purch. Inv. Line";
+        GSTSetup: Record "GST Setup";
+        TaxTransactionValue: Record "Tax Transaction Value";
+        TaxTransactionFound: Boolean;
+    begin
+        if not GSTSetup.Get() then
+            exit;
+
+        PurchInvLine.Reset();
+        PurchInvLine.SetRange("Document No.", DocNo);
+        PurchInvLine.SetFilter(Type, '<>%1', PurchInvLine.Type::" ");
+        if PurchInvLine.FindSet() then
+            repeat
+                GSTSetup.TestField("GST Tax Type");
+                TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
+                TaxTransactionValue.SetRange("Tax Record ID", PurchInvLine.RecordId);
+                TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+                if not TaxTransactionValue.IsEmpty() then
+                    TaxTransactionFound := true;
+            until PurchInvLine.Next() = 0;
+
+        if not TaxTransactionFound then
+            exit(false);
+
+        CheckCompanyInfoGSTDetails();
+
+        exit(true);
+    end;
+
+    local procedure IsGSTApplicablePostedPurchaseCrMemo(DocNo: Code[20]): Boolean
+    var
+        PurchCrMemoLine: Record "Purch. Cr. Memo Line";
+        GSTSetup: Record "GST Setup";
+        TaxTransactionValue: Record "Tax Transaction Value";
+        TaxTransactionFound: Boolean;
+    begin
+        if not GSTSetup.Get() then
+            exit;
+
+        PurchCrMemoLine.Reset();
+        PurchCrMemoLine.SetRange("Document No.", DocNo);
+        PurchCrMemoLine.SetFilter(Type, '<>%1', PurchCrMemoLine.Type::" ");
+        if PurchCrMemoLine.FindSet() then
+            repeat
+                GSTSetup.TestField("GST Tax Type");
+                TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
+                TaxTransactionValue.SetRange("Tax Record ID", PurchCrMemoLine.RecordId);
+                TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+                if not TaxTransactionValue.IsEmpty() then
+                    TaxTransactionFound := true;
+            until PurchCrMemoLine.Next() = 0;
+
+        if not TaxTransactionFound then
+            exit(false);
+
+        CheckCompanyInfoGSTDetails();
+
+        exit(true);
+    end;
+
+    local procedure IsGSTApplicablePostedSalesInvoice(DocNo: Code[20]): Boolean
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        GSTSetup: Record "GST Setup";
+        TaxTransactionValue: Record "Tax Transaction Value";
+        TaxTransactionFound: Boolean;
+    begin
+        if not GSTSetup.Get() then
+            exit;
+
+        SalesInvoiceLine.Reset();
+        SalesInvoiceLine.SetRange("Document No.", DocNo);
+        SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
+        if SalesInvoiceLine.FindSet() then
+            repeat
+                GSTSetup.TestField("GST Tax Type");
+                TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
+                TaxTransactionValue.SetRange("Tax Record ID", SalesInvoiceLine.RecordId);
+                TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+                if not TaxTransactionValue.IsEmpty() then
+                    TaxTransactionFound := true;
+            until SalesInvoiceLine.Next() = 0;
+
+        if not TaxTransactionFound then
+            exit(false);
+
+        CheckCompanyInfoGSTDetails();
+
+        exit(true);
+    end;
+
+    local procedure IsGSTApplicablePostedSalesCrMemo(DocNo: Code[20]): Boolean
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        GSTSetup: Record "GST Setup";
+        TaxTransactionValue: Record "Tax Transaction Value";
+        TaxTransactionFound: Boolean;
+    begin
+        if not GSTSetup.Get() then
+            exit;
+
+        SalesCrMemoLine.Reset();
+        SalesCrMemoLine.SetRange("Document No.", DocNo);
+        SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
+        if SalesCrMemoLine.FindSet() then
+            repeat
+                GSTSetup.TestField("GST Tax Type");
+                TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
+                TaxTransactionValue.SetRange("Tax Record ID", SalesCrMemoLine.RecordId);
+                TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+                if not TaxTransactionValue.IsEmpty() then
+                    TaxTransactionFound := true;
+            until SalesCrMemoLine.Next() = 0;
+
+        if not TaxTransactionFound then
+            exit(false);
+
+        CheckCompanyInfoGSTDetails();
+
+        exit(true);
+    end;
+
+    local procedure IsGSTApplicablePostedServiceInvoice(DocNo: Code[20]): Boolean
+    var
+        ServiceInvoiceLine: Record "Service Invoice Line";
+        GSTSetup: Record "GST Setup";
+        TaxTransactionValue: Record "Tax Transaction Value";
+        TaxTransactionFound: Boolean;
+    begin
+        if not GSTSetup.Get() then
+            exit;
+
+        ServiceInvoiceLine.Reset();
+        ServiceInvoiceLine.SetRange("Document No.", DocNo);
+        ServiceInvoiceLine.SetFilter(Type, '<>%1', ServiceInvoiceLine.Type::" ");
+        if ServiceInvoiceLine.FindSet() then
+            repeat
+                GSTSetup.TestField("GST Tax Type");
+                TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
+                TaxTransactionValue.SetRange("Tax Record ID", ServiceInvoiceLine.RecordId);
+                TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+                if not TaxTransactionValue.IsEmpty() then
+                    TaxTransactionFound := true;
+            until ServiceInvoiceLine.Next() = 0;
+
+        if not TaxTransactionFound then
+            exit(false);
+
+        CheckCompanyInfoGSTDetails();
+
+        exit(true);
+    end;
+
+    local procedure IsGSTApplicablePostedServiceCrMemo(DocNo: Code[20]): Boolean
+    var
+        ServiceCrMemoLine: Record "Service Cr.Memo Line";
+        GSTSetup: Record "GST Setup";
+        TaxTransactionValue: Record "Tax Transaction Value";
+        TaxTransactionFound: Boolean;
+    begin
+        if not GSTSetup.Get() then
+            exit;
+
+        ServiceCrMemoLine.Reset();
+        ServiceCrMemoLine.SetRange("Document No.", DocNo);
+        ServiceCrMemoLine.SetFilter(Type, '<>%1', ServiceCrMemoLine.Type::" ");
+        if ServiceCrMemoLine.FindSet() then
+            repeat
+                GSTSetup.TestField("GST Tax Type");
+                TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
+                TaxTransactionValue.SetRange("Tax Record ID", ServiceCrMemoLine.RecordId);
+                TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+                if not TaxTransactionValue.IsEmpty() then
+                    TaxTransactionFound := true;
+            until ServiceCrMemoLine.Next() = 0;
+
+        if not TaxTransactionFound then
+            exit(false);
+
+        CheckCompanyInfoGSTDetails();
+
+        exit(true);
+    end;
+
+    local procedure CheckCompanyInfoGSTDetails()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        if (CompanyInformation."GST Registration No." = '') and (CompanyInformation."ARN No." = '') then
+            Error(CompGSTRegNoARNNoErr);
+    end;
+
+    local procedure CheckRefInvNoServiceHeader(var ServiceHeader: Record "Service Header")
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ReferenceInvoiceNo: Record "Reference Invoice No.";
+        GSTDocumentType: Enum "Document Type Enum";
+    begin
+        if not IsGSTApplicable("Transaction Type Enum"::Service, ServiceHeader."Document Type", ServiceHeader."Document Type", ServiceHeader."No.") then
+            exit;
+
+        if (ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo") or
+            (ServiceHeader."Invoice Type" in [ServiceHeader."Invoice Type"::"Debit Note", ServiceHeader."Invoice Type"::Supplementary])
+        then begin
+            GSTDocumentType := ServiceDocumentType2DocumentTypeEnum(ServiceHeader."Document Type");
+
+            ReferenceInvoiceNo.SetRange("Document Type", GSTDocumentType);
+            ReferenceInvoiceNo.SetRange("Document No.", ServiceHeader."No.");
+            ReferenceInvoiceNo.SetRange("Source No.", ServiceHeader."Bill-to Customer No.");
+            if ReferenceInvoiceNo.FindSet() then
+                repeat
+                    CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+                    CustLedgerEntry.SetRange("Document No.", ReferenceInvoiceNo."Reference Invoice Nos.");
+                    if CustLedgerEntry.FindFirst() then
+                        CheckGSTAccountingPeriod(ServiceHeader."No.", ServiceHeader."Posting Date", CustLedgerEntry."Posting Date");
+                until ReferenceInvoiceNo.Next() = 0
+            else
+                Error(ReferenceInvNoServiceErr, ServiceHeader."Document Type", ServiceHeader."No.");
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Credit Memo", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
+    local procedure PurchCrMemoOnAfterUpdateRefInvNo(var Rec: Record "Purchase Header")
+    begin
+        UpdateReferenceInvoiceNoPurchHeader(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Invoice", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
+    local procedure PurchInvOnAfterUpdateRefInvNo(var Rec: Record "Purchase Header")
+    begin
+        UpdateReferenceInvoiceNoPurchHeader(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Order", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
+    local procedure PurchOrdOnAfterUpdateRefInvNo(var Rec: Record "Purchase Header")
+    begin
+        UpdateReferenceInvoiceNoPurchHeader(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Return Order", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
+    local procedure PurchRetOrdOnAfterUpdateRefInvNo(var Rec: Record "Purchase Header")
+    begin
+        UpdateReferenceInvoiceNoPurchHeader(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Sales Credit Memo", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
+    local procedure SalesCrMemoOnAfterUpdateRefInvNo(var Rec: Record "Sales Header")
+    begin
+        UpdateReferenceInvoiceNoSalesHeader(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Sales Invoice", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
+    local procedure SalesInvOnAfterUpdateRefInvNo(var Rec: Record "Sales Header")
+    begin
+        UpdateReferenceInvoiceNoSalesHeader(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Sales Order", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
+    local procedure SalesOrdOnAfterUpdateRefInvNo(var Rec: Record "Sales Header")
+    begin
+        UpdateReferenceInvoiceNoSalesHeader(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Sales Return Order", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
+    local procedure SalesRetOrdOnAfterUpdateRefInvNo(var Rec: Record "Sales Header")
+    begin
+        UpdateReferenceInvoiceNoSalesHeader(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"General Journal", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
+    local procedure GenJnlOnAfterUpdateRefInvNo(var Rec: Record "Gen. Journal Line")
+    begin
+        UpdateReferenceInvoiceNoGenJournal(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Journal", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
+    local procedure PurchJnlOnAfterUpdateRefInvNo(var Rec: Record "Gen. Journal Line")
+    begin
+        UpdateReferenceInvoiceNoGenJournal(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Sales Journal", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
+    local procedure SalesJnlOnAfterUpdateRefInvNo(var Rec: Record "Gen. Journal Line")
+    begin
+        UpdateReferenceInvoiceNoGenJournal(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Fixed Asset G/L Journal", 'OnAfterActionEvent', 'Update Reference Invoice No.', false, false)]
+    local procedure FAGLJnlOnAfterUpdateRefInvNo(var Rec: Record "Gen. Journal Line")
+    begin
+        UpdateReferenceInvoiceNoGenJournal(Rec);
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Reference Invoice No.", 'OnAfterValidateEvent', 'Reference Invoice Nos.', false, false)]
     local procedure OnAfterValidateReferenceInvoiceNo(
         var Rec: Record "Reference Invoice No.";
@@ -3718,11 +4465,11 @@ codeunit 18435 "Reference Invoice No. Mgt."
     var
         PurchaseHeader: Record "Purchase Header";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
-        VendorLedgerEntry2: Record "Vendor Ledger Entry";
-        VendorLedgerEntry3: Record "Vendor Ledger Entry";
+        VendorLedgerEntryToCheck: Record "Vendor Ledger Entry";
+        VendorLedgerEntryCopy: Record "Vendor Ledger Entry";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
-        GenJournalLine: Record "Gen. Journal Line";
+        GenJnlLine: Record "Gen. Journal Line";
     begin
         if (xRec."Reference Invoice Nos." <> '') and (xRec."Reference Invoice Nos." <> Rec."Reference Invoice Nos.") and Rec.Verified then
             Error(RefNoAlterErr);
@@ -3732,64 +4479,64 @@ codeunit 18435 "Reference Invoice No. Mgt."
 
         if Rec."Reference Invoice Nos." <> '' then
             if Rec."Source Type" = Rec."Source Type"::Vendor then begin
-                VendorLedgerEntry2.SetRange("Document No.", Rec."Reference Invoice Nos.");
-                if not VendorLedgerEntry2.FindFirst() then
+                VendorLedgerEntryToCheck.SetRange("Document No.", Rec."Reference Invoice Nos.");
+                if VendorLedgerEntryToCheck.IsEmpty() then
                     Error(VendInvNoErr, Rec."Reference Invoice Nos.");
             end else begin
                 CustLedgerEntry.SetRange("Document No.", Rec."Reference Invoice Nos.");
-                if not CustLedgerEntry.FindFirst() then
+                if CustLedgerEntry.IsEmpty() then
                     Error(CustInvNoErr, Rec."Reference Invoice Nos.");
             end;
 
         if Rec."Source Type" <> "Source Type"::Customer then begin
             if PurchaseHeader.Get(Rec."Document Type", Rec."Document No.") then begin
-                VendorLedgerEntry2.SetRange("Document No.", Rec."Reference Invoice Nos.");
-                if VendorLedgerEntry2.FindFirst() then
-                    if not (VendorLedgerEntry2."Document Type" = VendorLedgerEntry2."Document Type"::Invoice) then
+                VendorLedgerEntryToCheck.SetRange("Document No.", Rec."Reference Invoice Nos.");
+                if VendorLedgerEntryToCheck.FindFirst() then
+                    if not (VendorLedgerEntryToCheck."Document Type" = VendorLedgerEntryToCheck."Document Type"::Invoice) then
                         Error(DocumentTypeErr);
 
                 DetailedGSTLedgerEntry.SetRange("Document No.", Rec."Reference Invoice Nos.");
-                DetailedGSTLedgerEntry.SetRange("Source No.", VendorLedgerEntry2."Vendor No.");
-                if not DetailedGSTLedgerEntry.FindFirst() then
+                DetailedGSTLedgerEntry.SetRange("Source No.", VendorLedgerEntryToCheck."Vendor No.");
+                if DetailedGSTLedgerEntry.IsEmpty() then
                     Error(ReferenceInvoiceErr);
 
                 CheckGSTPurchCrMemoValidationReference(PurchaseHeader, Rec."Reference Invoice Nos.");
             end else begin
-                GenJournalLine.SetRange("Journal Template Name", Rec."Journal Template Name");
-                GenJournalLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
-                GenJournalLine.SetRange("Document No.", Rec."Document No.");
-                if GenJournalLine.FindFirst() then begin
-                    VendorLedgerEntry2.SetRange("Document No.", Rec."Reference Invoice Nos.");
-                    if VendorLedgerEntry2.FindFirst() then
-                        if not (VendorLedgerEntry2."Document Type" = VendorLedgerEntry2."Document Type"::Invoice) then
+                GenJnlLine.SetRange("Journal Template Name", Rec."Journal Template Name");
+                GenJnlLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
+                GenJnlLine.SetRange("Document No.", Rec."Document No.");
+                if GenJnlLine.FindFirst() then begin
+                    VendorLedgerEntryToCheck.SetRange("Document No.", Rec."Reference Invoice Nos.");
+                    if VendorLedgerEntryToCheck.FindFirst() then
+                        if not (VendorLedgerEntryToCheck."Document Type" = VendorLedgerEntryToCheck."Document Type"::Invoice) then
                             Error(DocumentTypeErr);
 
                     DetailedGSTLedgerEntry.SetRange("Document No.", Rec."Reference Invoice Nos.");
-                    DetailedGSTLedgerEntry.SetRange("Source No.", VendorLedgerEntry2."Vendor No.");
-                    if not DetailedGSTLedgerEntry.FindFirst() then
+                    DetailedGSTLedgerEntry.SetRange("Source No.", VendorLedgerEntryToCheck."Vendor No.");
+                    if DetailedGSTLedgerEntry.IsEmpty() then
                         Error(ReferenceInvoiceErr);
 
-                    CheckGSTPurchCrMemoValidationsJournalReference(GenJournalLine, Rec."Reference Invoice Nos.");
+                    CheckGSTPurchCrMemoValidationsJournalReference(GenJnlLine, Rec."Reference Invoice Nos.");
                 end;
             end;
 
-            VendorLedgerEntry2.SetRange("Document No.", Rec."Document No.");
-            if VendorLedgerEntry2.FindFirst() then begin
-                VendorLedgerEntry3.Copy(VendorLedgerEntry2);
+            VendorLedgerEntryToCheck.SetRange("Document No.", Rec."Document No.");
+            if VendorLedgerEntryToCheck.FindFirst() then begin
+                VendorLedgerEntryCopy.Copy(VendorLedgerEntryToCheck);
                 VendorLedgerEntry.SetRange("Document No.", Rec."Reference Invoice Nos.");
                 if VendorLedgerEntry.FindFirst() then begin
                     if not (VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Invoice) then
                         Error(DocumentTypeErr);
 
-                    if VendorLedgerEntry2."Vendor No." <> Rec."Source No." then
+                    if VendorLedgerEntryToCheck."Vendor No." <> Rec."Source No." then
                         Error(DiffVendNoErr);
 
                     DetailedGSTLedgerEntry.SetRange("Document No.", Rec."Reference Invoice Nos.");
                     DetailedGSTLedgerEntry.SetRange("Source No.", VendorLedgerEntry."Vendor No.");
-                    if not DetailedGSTLedgerEntry.FindFirst() then
+                    if DetailedGSTLedgerEntry.IsEmpty() then
                         Error(ReferenceInvoiceErr);
 
-                    CheckGSTPurchCrMemoValidationsOffline(VendorLedgerEntry3, VendorLedgerEntry, 0, Rec."Reference Invoice Nos.");
+                    CheckGSTPurchCrMemoValidationsOffline(VendorLedgerEntryCopy, VendorLedgerEntry, 0, Rec."Reference Invoice Nos.");
                 end;
             end;
         end;
@@ -3862,29 +4609,57 @@ codeunit 18435 "Reference Invoice No. Mgt."
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calculate Tax", 'OnAfterValidateGenJnlLineFields', '', false, false)]
     local procedure UpdateGenJnlLineGSTInJournal(var GenJnlLine: Record "Gen. Journal Line")
     var
-        TaxTypeSetup: Record "Tax Type Setup";
-        TaxTransactionValue: Record "Tax Transaction Value";
+        GSTSetup: Record "GST Setup";
     begin
         if GenJnlLine."GST Group Code" = '' then
             exit;
+
         if (GenJnlLine."Journal Template Name" <> '') and (GenJnlLine."Journal Batch Name" <> '') and (GenJnlLine."Line No." <> 0) then begin
-            if not TaxTypeSetup.Get() then
+            if not GSTSetup.Get() then
                 exit;
 
-            TaxTypeSetup.TestField(Code);
+            GSTSetup.TestField("GST Tax Type");
             if not (GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Invoice, GenJnlLine."Document Type"::"Credit Memo"]) then begin
                 GenJnlLine."GST in Journal" := false;
                 GenJnlLine.Modify();
                 exit;
             end;
 
-            TaxTransactionValue.SetRange("Tax Type", TaxTypeSetup.Code);
-            TaxTransactionValue.SetRange("Tax Record ID", GenJnlLine.RecordId);
-            TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
-            if TaxTransactionValue.FindFirst() then begin
-                GenJnlLine."GST in Journal" := true;
-                GenJnlLine.Modify();
-            end;
+            GenJnlLine."GST in Journal" := FilterTaxTransactionValue(GSTSetup."GST Tax Type", GenJnlLine.RecordId);
+            GenJnlLine.Modify();
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Service Order", 'OnActionUpdateRefInvNo', '', false, false)]
+    local procedure ServiceOrdOnAfterUpdateRefInvNo(Rec: Record "Service Header")
+    begin
+        UpdateReferenceInvoiceNoServiceHeader(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Service Invoice", 'OnActionUpdateRefInvNo', '', false, false)]
+    local procedure ServiceInvOnAfterUpdateRefInvNo(Rec: Record "Service Header")
+    begin
+        UpdateReferenceInvoiceNoServiceHeader(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Service Credit Memo", 'OnActionUpdateRefInvNo', '', false, false)]
+    local procedure ServiceCrMemoOnAfterUpdateRefInvNo(Rec: Record "Service Header")
+    begin
+        UpdateReferenceInvoiceNoServiceHeader(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Service-Post", 'OnAfterValidatePostingAndDocumentDate', '', false, false)]
+    local procedure ServicePostOnAfterValidatePostingAndDocumentDate(var ServiceHeader: Record "Service Header")
+    begin
+        CheckRefInvNoServiceHeader(ServiceHeader);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Service-Post", 'OnAfterPostServiceDoc', '', false, false)]
+    local procedure ServicePostOnAfterPostServiceDoc(
+        var ServiceHeader: Record "Service Header";
+        ServInvoiceNo: Code[20];
+        ServCrMemoNo: Code[20])
+    begin
+        CreatePostedReferenceInvoiceNoService(ServiceHeader, ServInvoiceNo, ServCrMemoNo);
     end;
 }

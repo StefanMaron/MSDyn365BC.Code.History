@@ -2,7 +2,7 @@ enum 18012 "Detail GST Document Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Payment)
     {

@@ -5,7 +5,6 @@ codeunit 136755 "Script Serialization Tests"
 
     trigger OnRun()
     begin
-        //[NOT READY FOR REVIEW]
         // [FEATURE] [TaxEngine] [Script Serialization] [UT]
     end;
 
@@ -70,7 +69,7 @@ codeunit 136755 "Script Serialization Tests"
         LibraryScriptTests: Codeunit "Library - Script Tests";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
         ScriptSerialization: Codeunit "Script Serialization";
-        CaseID, ScriptID, ActionID, LookupID : Guid;
+        CaseID, ScriptID, ActionID : Guid;
         Text: Text;
         NValue: Decimal;
         MessageTxt: Label 'Loop: (''%1'') times', Comment = '%1 = NValue';
@@ -159,7 +158,7 @@ codeunit 136755 "Script Serialization Tests"
         LibraryScriptTests: Codeunit "Library - Script Tests";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
         ScriptSerialization: Codeunit "Script Serialization";
-        CaseID, ScriptID, ActionID, LookupID : Guid;
+        CaseID, ScriptID, ActionID : Guid;
         Text: Text;
         ObjectID: Decimal;
         MessageTxt: Label 'Loop through %1 ', Comment = '%1 = Table Name';
@@ -192,7 +191,7 @@ codeunit 136755 "Script Serialization Tests"
         LibraryScriptTests: Codeunit "Library - Script Tests";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
         ScriptSerialization: Codeunit "Script Serialization";
-        CaseID, ScriptID, ActionID, LookupID : Guid;
+        CaseID, ScriptID, ActionID : Guid;
         Text: Text;
         ExpectedText: Text[250];
     begin
@@ -432,7 +431,6 @@ codeunit 136755 "Script Serialization Tests"
     procedure TestConcatenateToString()
     var
         ActionConcatenate: Record "Action Concatenate";
-        ActionConcatenateLine: Record "Action Concatenate Line";
         ScriptSymbolLookup: Record "Script Symbol Lookup";
         LibraryScriptTests: Codeunit "Library - Script Tests";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -782,43 +780,6 @@ codeunit 136755 "Script Serialization Tests"
         UnbindSubscription(LibraryScriptSymbolLookup);
 
         // [THEN] It should return Date To DateTime as text
-        Assert.AreEqual(ExpectedText, Text, StrSubstNo('%1 - expected', ExpectedText));
-    end;
-
-    [Test]
-    procedure TestGetRecordToString()
-    var
-        ActionGetRecord: Record "Action Get Record";
-        LibraryScriptTests: Codeunit "Library - Script Tests";
-        LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
-        ScriptSerialization: Codeunit "Script Serialization";
-        CaseID, ScriptID, ActionID : Guid;
-        Record_ID: Integer;
-        Text: Text;
-        ExpectedText: Text;
-    begin
-        // [SCENARIO] Serialize 'Action Get Record' to String
-
-        // [GIVEN] Action ID of 'Action Get Record' Record
-        BindSubscription(LibraryScriptSymbolLookup);
-        LibraryScriptTests.CreateGetRecord(CaseID, ScriptID, ActionID);
-        Record_ID := 1000;
-
-        LibraryScriptTests.CreateScriptVariable(CaseID, ScriptID, Record_ID, 'a', "Symbol Data Type"::RECORD);
-
-        ActionGetRecord.Get(CaseID, ScriptID, ActionID);
-        ActionGetRecord."Record Variable" := Record_ID;
-        ActionGetRecord."Table ID" := Database::AllObj;
-        ActionGetRecord.Method := ActionGetRecord.Method::First;
-        ActionGetRecord.Modify();
-
-        ExpectedText := 'Get a record from AllObj Assign Values to Variable: a';
-
-        // [WHEN] The function GetRecordToString is called
-        Text := ScriptSerialization.RuleActionToText(CaseID, ScriptID, "Action Type"::GETRECORD, ActionID, "Action Group Type"::" ");
-        UnbindSubscription(LibraryScriptSymbolLookup);
-
-        // [THEN] It should return Get Record as text
         Assert.AreEqual(ExpectedText, Text, StrSubstNo('%1 - expected', ExpectedText));
     end;
 
@@ -1227,7 +1188,7 @@ codeunit 136755 "Script Serialization Tests"
         LibraryScriptTests: Codeunit "Library - Script Tests";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
         ScriptSerialization: Codeunit "Script Serialization";
-        CaseID, ScriptID, ActionID, TableFilterID, StringLookupID : Guid;
+        CaseID, ScriptID, TableFilterID, StringLookupID : Guid;
         Text: Text;
         ExpectedText: Text;
     begin
@@ -1260,7 +1221,6 @@ codeunit 136755 "Script Serialization Tests"
     procedure TestTableSortingToString()
     var
         AllObj: Record AllObj;
-        LookupTableSorting: Record "Lookup Table Sorting";
         LibraryScriptTests: Codeunit "Library - Script Tests";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
         ScriptSerialization: Codeunit "Script Serialization";

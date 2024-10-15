@@ -10,7 +10,7 @@ table 20247 "Tax Component Formula"
         }
         field(2; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
         }
         field(3; Expression; Text[250])
         {

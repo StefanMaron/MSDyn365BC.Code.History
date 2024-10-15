@@ -8,12 +8,12 @@ table 20307 "Use Case Attribute Mapping"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(3; "Tax Type"; Code[20])
@@ -43,7 +43,7 @@ table 20307 "Use Case Attribute Mapping"
         }
         field(6; "Switch Statement ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Switch Statement ID';
         }
     }

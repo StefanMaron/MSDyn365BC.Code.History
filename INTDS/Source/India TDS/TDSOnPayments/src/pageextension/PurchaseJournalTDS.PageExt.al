@@ -4,24 +4,26 @@ pageextension 18768 "Purchase Journal TDS" extends "Purchase Journal"
     {
         addafter("Account No.")
         {
-            field("Provisional Entry"; "Provisional Entry")
+            field("Provisional Entry"; Rec."Provisional Entry")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies whether this is a provisional entry or not.';
+
                 trigger OnValidate()
                 begin
                     UpdateTaxAmount();
                 end;
             }
-            field("Applied Provisional Entry"; "Applied Provisional Entry")
+            field("Applied Provisional Entry"; Rec."Applied Provisional Entry")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the applied provisional entry number.';
             }
-            field("TDS Section Code"; "TDS Section Code")
+            field("TDS Section Code"; Rec."TDS Section Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the Section Codes as per the Income Tax Act 1961 for e tds returns';
+
                 trigger OnValidate()
                 begin
                     UpdateTaxAmount();
@@ -29,47 +31,45 @@ pageextension 18768 "Purchase Journal TDS" extends "Purchase Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    TDSSectionCodeLookupGenLine(Rec, "Account No.", true);
+                    Rec.TDSSectionCodeLookupGenLine(Rec, Rec."Account No.", true);
                     UpdateTaxAmount();
                 end;
             }
-            field("Nature of Remittance"; "Nature of Remittance")
+            field("Include GST in TDS Base"; Rec."Include GST in TDS Base")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Select this field to include GST value in the TDS Base.';
+
+                trigger OnValidate()
+                begin
+                    UpdateTaxAmount();
+                end;
+            }
+            field("Nature of Remittance"; Rec."Nature of Remittance")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specify the type of Remittance deductee deals with for which the journal line has been created.';
+
                 trigger OnValidate()
                 begin
-                    CheckNonResidentsPaymentSelection();
+                    Rec.CheckNonResidentsPaymentSelection();
                     UpdateTaxAmount();
                 end;
             }
-            field("Act Applicable"; "Act Applicable")
+            field("Act Applicable"; Rec."Act Applicable")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specify the tax rates prescribed under the IT Act or DTAA for which the journal line has been created.';
-                trigger OnValidate()
-                begin
-                    CheckNonResidentsPaymentSelection();
-                    UpdateTaxAmount();
-                end;
-            }
-            field("Work Tax Nature Of Deduction"; "Work Tax Nature Of Deduction")
-            {
-                ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the Work Tax Nature of Deduction for the journal line.';
-                trigger OnValidate()
-                begin
-                    UpdateTaxAmount();
-                end;
 
-                trigger OnLookup(var Text: Text): Boolean
+                trigger OnValidate()
                 begin
-                    TDSSectionCodeLookupGenLine(Rec, "Account No.", false);
+                    Rec.CheckNonResidentsPaymentSelection();
                     UpdateTaxAmount();
                 end;
             }
         }
     }
+
     actions
     {
         addafter("F&unctions")
@@ -79,34 +79,36 @@ pageextension 18768 "Purchase Journal TDS" extends "Purchase Journal"
                 ApplicationArea = Basic, Suite;
                 Image = Apply;
                 ToolTip = 'Select this option to apply provisional entry against purchase invoice (actual entry).';
+
                 trigger OnAction()
                 var
                     ProvisionalEntry: Record "Provisional Entry";
                     ApplyProvisionalEntries: Page "Apply Provisional Entries";
                     AmtNegErr: Label 'Amount must be Negative.';
                 begin
-                    TestField("Account Type", "Account Type"::Vendor);
-                    TestField("Account No.");
-                    TestField("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-                    TestField("Document Type", "Document Type"::Invoice);
-                    TestField("Work Tax Nature Of Deduction", '');
-                    TestField("TDS Section Code", '');
-                    IF Amount > 0 THEN
-                        ERROR(AmtNegErr);
+                    Rec.TestField("Account Type", Rec."Account Type"::Vendor);
+                    Rec.TestField("Account No.");
+                    Rec.TestField("Bal. Account Type", Rec."Bal. Account Type"::"G/L Account");
+                    Rec.TestField("Document Type", Rec."Document Type"::Invoice);
+                    Rec.TestField("Work Tax Nature Of Deduction", '');
+                    Rec.TestField("TDS Section Code", '');
+                    if Rec.Amount > 0 then
+                        Error(AmtNegErr);
 
                     ProvisionalEntry.SetRange("Party Type", ProvisionalEntry."Party Type"::Vendor);
-                    ProvisionalEntry.SetRange("Party Code", "Account No.");
-                    ProvisionalEntry.SetRange(Open, TRUE);
-                    ProvisionalEntry.SetRange(Reversed, FALSE);
-                    ProvisionalEntry.SetRange("Reversed After TDS Paid", FALSE);
+                    ProvisionalEntry.SetRange("Party Code", Rec."Account No.");
+                    ProvisionalEntry.SetRange(Open, true);
+                    ProvisionalEntry.SetRange(Reversed, false);
+                    ProvisionalEntry.SetRange("Reversed After TDS Paid", false);
                     ApplyProvisionalEntries.SetGenJnlLine(Rec);
-                    ApplyProvisionalEntries.SETTABLEVIEW(ProvisionalEntry);
-                    ApplyProvisionalEntries.LOOKUPMODE(TRUE);
-                    ProvisionalEntry.Update := ApplyProvisionalEntries.RunModal() = ACTION::LookupOK;
+                    ApplyProvisionalEntries.SetTableView(ProvisionalEntry);
+                    ApplyProvisionalEntries.LookupMode(true);
+                    ProvisionalEntry.Update := ApplyProvisionalEntries.RunModal() = Action::LookupOK;
                 end;
             }
         }
     }
+
     local procedure UpdateTaxAmount()
     var
         CalculateTax: Codeunit "Calculate Tax";

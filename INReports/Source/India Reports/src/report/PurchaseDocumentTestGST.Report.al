@@ -1995,7 +1995,6 @@ report 18022 "Purchase Document - Test GST"
         PurchHeaderFilter: Text;
         ErrorText: array[99] of Text[250];
         DimText: Text[120];
-        OldDimText: Text[75];
         ReceiveInvoiceText: Text[50];
         ShipInvoiceText: Text[50];
         TotalText: Text[50];

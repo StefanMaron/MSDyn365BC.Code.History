@@ -6,24 +6,23 @@ page 18558 Parties
     UsageCategory = Lists;
     ApplicationArea = Basic, Suite;
 
-
     layout
     {
         area(content)
         {
             repeater(General)
             {
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code of the party.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the Parties name. This name will appear on all documents for the party.';
                 }
-                field(Address; Address)
+                field(Address; Rec.Address)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the Parties address. This address will appear on all documents for the party.';

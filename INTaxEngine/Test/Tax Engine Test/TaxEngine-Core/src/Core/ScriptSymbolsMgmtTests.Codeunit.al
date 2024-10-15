@@ -16,7 +16,6 @@ codeunit 136703 "Script Symbols Mgmt. Tests"
     var
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
-        SymbolType: Enum "Symbol Type";
         SymbolID: Integer;
         SymbolName: Text[30];
     begin
@@ -41,7 +40,6 @@ codeunit 136703 "Script Symbols Mgmt. Tests"
     var
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
-        SymbolType: Enum "Symbol Type";
         SymbolID: Integer;
         SymbolName: Text[30];
     begin
@@ -65,7 +63,6 @@ codeunit 136703 "Script Symbols Mgmt. Tests"
     var
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
-        SymbolType: Enum "Symbol Type";
         SymbolID: Integer;
         SymbolName: Text[30];
         ExpectedResult: Text;
@@ -93,8 +90,6 @@ codeunit 136703 "Script Symbols Mgmt. Tests"
     var
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
-
-        SymbolType: Enum "Symbol Type";
         SymbolID: Integer;
         SymbolName: Text[30];
         ExpectedResult: Text;
@@ -123,7 +118,6 @@ codeunit 136703 "Script Symbols Mgmt. Tests"
     var
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
-        SymbolType: Enum "Symbol Type";
         SymbolID: Integer;
         DataType: Enum "Symbol Data Type";
     begin
@@ -147,7 +141,6 @@ codeunit 136703 "Script Symbols Mgmt. Tests"
     var
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
-        SymbolType: Enum "Symbol Type";
         SymbolID: Integer;
         SymbolName: Text;
     begin
@@ -171,7 +164,6 @@ codeunit 136703 "Script Symbols Mgmt. Tests"
     var
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
-        SymbolType: Enum "Symbol Type";
         SymbolID: Integer;
         SymbolName: Text[30];
     begin
@@ -196,7 +188,6 @@ codeunit 136703 "Script Symbols Mgmt. Tests"
     var
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
-        SymbolType: Enum "Symbol Type";
         SymbolID: Integer;
         SymbolName: Text[30];
     begin
@@ -221,7 +212,6 @@ codeunit 136703 "Script Symbols Mgmt. Tests"
     var
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
-        SymbolType: Enum "Symbol Type";
         SymbolID: Integer;
         SymbolName: Text[30];
     begin
@@ -246,7 +236,6 @@ codeunit 136703 "Script Symbols Mgmt. Tests"
     var
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
-        SymbolType: Enum "Symbol Type";
         SymbolID: Integer;
         SymbolName: Text[30];
     begin
@@ -272,7 +261,6 @@ codeunit 136703 "Script Symbols Mgmt. Tests"
     var
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
-        SymbolType: Enum "Symbol Type";
         SymbolID: Integer;
         SymbolName: Text[30];
     begin

@@ -139,7 +139,7 @@ codeunit 2380 "O365 Email Customer Data"
                 if ShouldFieldBeExported(TableNo, Field."No.") then
                     if not FieldExistsInBuffer(Field."No.") then
                         AddColumnToList(ColNo, Field."No.", '');
-            until Field.Next = 0;
+            until Field.Next() = 0;
     end;
 
     local procedure AddRemainingColumnsToListIfNotEmpty(var ColNo: Integer; RecRef: RecordRef)
@@ -197,7 +197,7 @@ codeunit 2380 "O365 Email Customer Data"
                     TempNameValueBuffer.Get(TempLineNumberBuffer."New Line Number");
                     EnterCell(RowNo, TempLineNumberBuffer."Old Line Number", TempNameValueBuffer.Name, true);
                 end;
-            until TempLineNumberBuffer.Next = 0;
+            until TempLineNumberBuffer.Next() = 0;
     end;
 
     local procedure WriteHeaderFieldsAsColumn(ColNo: Integer; TableNo: Integer)
@@ -213,7 +213,7 @@ codeunit 2380 "O365 Email Customer Data"
                     TempNameValueBuffer.Get(TempLineNumberBuffer."New Line Number");
                     EnterCell(TempLineNumberBuffer."Old Line Number", ColNo, TempNameValueBuffer.Name, true);
                 end;
-            until TempLineNumberBuffer.Next = 0;
+            until TempLineNumberBuffer.Next() = 0;
     end;
 
     local procedure WriteDataFields(RowNo: Integer; RecRef: RecordRef)
@@ -231,7 +231,7 @@ codeunit 2380 "O365 Email Customer Data"
                     EnterCell(
                       RowNo, TempLineNumberBuffer."Old Line Number",
                       GetCustomValue(RecRef, TempLineNumberBuffer."New Line Number"), false);
-            until TempLineNumberBuffer.Next = 0;
+            until TempLineNumberBuffer.Next() = 0;
     end;
 
     local procedure WriteDataFieldsAsColumn(ColNo: Integer; RecRef: RecordRef)
@@ -249,7 +249,7 @@ codeunit 2380 "O365 Email Customer Data"
                     EnterCell(
                       TempLineNumberBuffer."Old Line Number", ColNo,
                       GetCustomValue(RecRef, TempLineNumberBuffer."New Line Number"), false);
-            until TempLineNumberBuffer.Next = 0;
+            until TempLineNumberBuffer.Next() = 0;
     end;
 
     local procedure WriteToSheet(var RecRef: RecordRef; SheetName: Text)
@@ -263,7 +263,7 @@ codeunit 2380 "O365 Email Customer Data"
         repeat
             RowNo += 1;
             WriteDataFields(RowNo, RecRef);
-        until RecRef.Next = 0;
+        until RecRef.Next() = 0;
 
         TempExcelBuffer.SelectOrAddSheet(SheetName);
         TempExcelBuffer.WriteAllToCurrentSheet(TempExcelBuffer);

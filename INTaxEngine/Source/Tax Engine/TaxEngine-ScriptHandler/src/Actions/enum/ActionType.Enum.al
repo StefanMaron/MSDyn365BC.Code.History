@@ -23,7 +23,6 @@ enum 20157 "Action Type"
     value(22; DATECALCULATION) { }
     value(23; EXTRACTDATEPART) { }
     value(24; FINDINTERVALBETWEENDATES) { }
-    value(25; GETRECORD) { }
     value(46; EXITLOOP) { }
     value(47; CONTINUE) { }
     value(55; EXTRACTDATETIMEPART) { }

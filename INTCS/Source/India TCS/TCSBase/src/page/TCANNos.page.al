@@ -11,12 +11,12 @@ page 18809 "T.C.A.N. Nos."
         {
             repeater(General)
             {
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'T.C.A.N. number is allotted by Income Tax Department to the collector.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the T.C.A.N. Number.';

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition">
+<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:cl="http://schemas.microsoft.com/sqlserver/reporting/2010/01/componentdefinition" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition">
   <AutoRefresh>0</AutoRefresh>
   <DataSources>
     <DataSource Name="DataSource">
@@ -65,6 +65,7 @@
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <Style>
@@ -91,6 +92,7 @@
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <Style>
@@ -117,6 +119,7 @@
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <Style>
@@ -143,6 +146,7 @@
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <Style>
@@ -169,6 +173,7 @@
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <Style>
@@ -195,6 +200,7 @@
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <Style>
@@ -295,7 +301,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.03125in</Height>
+                  <Height>0.07938cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -311,6 +317,7 @@
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <Visibility>
@@ -340,6 +347,7 @@
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <Visibility>
@@ -369,6 +377,7 @@
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <Visibility>
@@ -398,6 +407,7 @@
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <Visibility>
@@ -428,6 +438,7 @@
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <rd:DefaultName>textbox33</rd:DefaultName>
@@ -455,6 +466,7 @@
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <rd:DefaultName>textbox34</rd:DefaultName>
@@ -773,7 +785,7 @@
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Right</TextAlign>
+                                <TextAlign>Left</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
@@ -798,6 +810,9 @@
                                   <Style />
                                 </TextRun>
                               </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
                             </Paragraph>
                           </Paragraphs>
                           <Style>
@@ -812,7 +827,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.423cm</Height>
+                  <Height>0.13196cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -826,6 +841,7 @@
                                   <Style />
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <Style>
@@ -863,7 +879,7 @@
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Right</TextAlign>
+                                <TextAlign>Left</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
@@ -878,7 +894,7 @@
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.714cm</Height>
+                  <Height>0.66108cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -892,6 +908,7 @@
                                   <Style />
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <Style>
@@ -925,6 +942,7 @@
                                   </Style>
                                 </TextRun>
                               </TextRuns>
+                              <Style />
                             </Paragraph>
                           </Paragraphs>
                           <Style>
@@ -955,7 +973,7 @@
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Right</TextAlign>
+                                <TextAlign>Left</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
@@ -986,7 +1004,7 @@
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>Right</TextAlign>
+                                <TextAlign>Left</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
@@ -1049,6 +1067,9 @@
                       </TablixMembers>
                     </TablixMember>
                     <TablixMember>
+                      <Visibility>
+                        <Hidden>true</Hidden>
+                      </Visibility>
                       <KeepWithGroup>Before</KeepWithGroup>
                       <KeepTogether>true</KeepTogether>
                     </TablixMember>
@@ -1061,9 +1082,13 @@
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>DataSet_Result</DataSetName>
+            <Height>3.25342cm</Height>
+            <Width>19.2cm</Width>
+            <Style />
           </Tablix>
         </ReportItems>
-        <Height>3.59737cm</Height>
+        <Height>3.25342cm</Height>
+        <Style />
       </Body>
       <Width>19.2cm</Width>
       <Page>
@@ -1072,13 +1097,108 @@
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
-            <Textbox Name="PageNumberTextBox">
+            <Textbox Name="CurrReport_PAGENOCaption1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Globals!PageNumber</Value>
+                      <Value>=ReportItems!CurrReport_PAGENOCaption.Value</Value>
+                      <Style>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <Top>0.423cm</Top>
+              <Left>18cm</Left>
+              <Height>0.423cm</Height>
+              <Width>0.75cm</Width>
+              <Style>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="Summary_of_TDS_Certificate_Received_from_Customer______PostingDateFilter1">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=ReportItems!Summary_of_TDS_Certificate_Received_from_Customer______PostingDateFilter.Value</Value>
+                      <Style>
+                        <FontSize>8pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <Top>0.618cm</Top>
+              <Height>0.423cm</Height>
+              <Width>16.052cm</Width>
+              <ZIndex>1</ZIndex>
+              <Style>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="GETFILTERS1">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=ReportItems!GETFILTERS.Value</Value>
+                      <Style>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>1.268cm</Top>
+              <Height>0.423cm</Height>
+              <Width>16.95cm</Width>
+              <ZIndex>2</ZIndex>
+              <Style>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="CompanyInfo_Name1">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=ReportItems!CompanyInfo_Name.Value</Value>
+                      <Style>
+                        <FontSize>9pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <Height>0.423cm</Height>
+              <Width>7.5cm</Width>
+              <ZIndex>3</ZIndex>
+              <Style>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="ExecutionTimeTextBox">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Globals!ExecutionTime</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>
@@ -1089,10 +1209,10 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.423cm</Top>
-              <Left>18.75cm</Left>
+              <Left>14.805cm</Left>
               <Height>0.423cm</Height>
-              <ZIndex>6</ZIndex>
+              <Width>4.395cm</Width>
+              <ZIndex>4</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -1118,18 +1238,19 @@
               <Top>0.846cm</Top>
               <Left>14.805cm</Left>
               <Height>0.423cm</Height>
+              <Width>4.395cm</Width>
               <ZIndex>5</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="ExecutionTimeTextBox">
+            <Textbox Name="PageNumberTextBox">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Globals!ExecutionTime</Value>
+                      <Value>=Globals!PageNumber</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>
@@ -1140,105 +1261,17 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Left>14.805cm</Left>
-              <Height>0.423cm</Height>
-              <ZIndex>4</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfo_Name1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=ReportItems!CompanyInfo_Name.Value</Value>
-                      <Style>
-                        <FontSize>9pt</FontSize>
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                </Paragraph>
-              </Paragraphs>
-              <Height>0.423cm</Height>
-              <Width>7.5cm</Width>
-              <ZIndex>3</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="GETFILTERS1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=ReportItems!GETFILTERS.Value</Value>
-                      <Style>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Left</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>1.268cm</Top>
-              <Width>16.95cm</Width>
-              <ZIndex>2</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="Summary_of_TDS_Certificate_Received_from_Customer______PostingDateFilter1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=ReportItems!Summary_of_TDS_Certificate_Received_from_Customer______PostingDateFilter.Value</Value>
-                      <Style>
-                        <FontSize>8pt</FontSize>
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                </Paragraph>
-              </Paragraphs>
-              <Top>0.618cm</Top>
-              <Height>0.423cm</Height>
-              <Width>16.052cm</Width>
-              <ZIndex>1</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CurrReport_PAGENOCaption1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=ReportItems!CurrReport_PAGENOCaption.Value</Value>
-                      <Style>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                </Paragraph>
-              </Paragraphs>
               <Top>0.423cm</Top>
-              <Left>18cm</Left>
+              <Left>18.75cm</Left>
               <Height>0.423cm</Height>
-              <Width>0.75cm</Width>
+              <Width>0.45cm</Width>
+              <ZIndex>6</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
           </ReportItems>
+          <Style />
         </PageHeader>
         <PageHeight>29.7cm</PageHeight>
         <PageWidth>21cm</PageWidth>
@@ -1248,6 +1281,7 @@
         <RightMargin>0cm</RightMargin>
         <TopMargin>2cm</TopMargin>
         <BottomMargin>2cm</BottomMargin>
+        <Style />
       </Page>
     </ReportSection>
   </ReportSections>
@@ -1288,7 +1322,7 @@ End Function
 </Code>
   <Language>=User!Language</Language>
   <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
-  <rd:ReportUnitType>Invalid</rd:ReportUnitType>
+  <rd:ReportUnitType>Cm</rd:ReportUnitType>
   <rd:ReportID>0d9bbf02-643c-4a0e-bcf6-56ae5898969c</rd:ReportID>
   <DataSets>
     <DataSet Name="DataSet_Result">
@@ -1298,9 +1332,6 @@ End Function
         </Field>
         <Field Name="CompanyInfo_Name">
           <DataField>CompanyInfo_Name</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
         </Field>
         <Field Name="USERID">
           <DataField>USERID</DataField>

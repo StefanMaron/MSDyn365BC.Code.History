@@ -2,7 +2,8 @@ table 18004 "GST Group"
 {
     Caption = 'GST Group';
     DataCaptionFields = Code, Description;
-    DataClassification = EndUserIdentifiableInformation;
+    DrillDownPageId = "GST Group";
+    LookupPageId = "GST Group";
 
     fields
     {
@@ -10,29 +11,46 @@ table 18004 "GST Group"
         {
             Caption = 'Code';
             NotBlank = true;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; "GST Group Type"; Enum "GST Group Type")
         {
             Caption = 'GST Group Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(3; "GST Place Of Supply"; enum "GST Place Of Supply")
+        field(3; "GST Place Of Supply"; enum "GST Dependency Type")
         {
             Caption = 'GST Place Of Supply';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(4; "Description"; Code[250])
         {
             Caption = 'Description';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(5; "Reverse Charge"; Boolean)
         {
             Caption = 'Reverse Charge';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+        }
+        field(6; "Component Calc. Type"; Enum "Component Calc Type")
+        {
+            Caption = 'Component Calc. Type';
+            DataClassification = CustomerContent;
+        }
+        field(7; "Cess Credit"; Enum "GST Credit")
+        {
+            Caption = 'Cess Credit';
+            DataClassification = CustomerContent;
+        }
+        field(8; "Cess UOM"; Code[10])
+        {
+            Caption = 'Cess UOM';
+            DataClassification = CustomerContent;
+            TableRelation = "Unit of Measure";
         }
     }
+
     keys
     {
         key(PK; Code)

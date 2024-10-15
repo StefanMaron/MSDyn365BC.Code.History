@@ -355,6 +355,33 @@ page 1292 "Payment Application"
                         if FindFirst then;
                     end;
                 }
+                action(SortEntriesBasedOnProbability)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Suggest Entries';
+                    Image = Suggest;
+                    Promoted = true;
+                    Visible = SortEntriesBasedOnProbabilityVisible;
+                    PromotedCategory = Category4;
+                    ToolTip = 'Sort the list based on the probability that it is a match.';
+
+                    trigger OnAction()
+                    var
+                        GetBankStmtLineCandidates: Codeunit "Get Bank Stmt. Line Candidates";
+                    begin
+                        Rec.Reset();
+                        Rec.DeleteAll();
+                        Rec.TransferFromBankAccReconLine(BankAccReconLine);
+
+                        GetBankStmtLineCandidates.SetSuggestEntries(true);
+                        GetBankStmtLineCandidates.Run(Rec);
+                        Rec.SetCurrentKey("Sorting Order", "Stmt To Rem. Amount Difference");
+                        Rec.Ascending(true);
+
+                        if Rec.FindFirst() then;
+                        CurrPage.Update();
+                    end;
+                }
                 action(RelatedPartyOpenEntries)
                 {
                     ApplicationArea = Basic, Suite;
@@ -453,12 +480,33 @@ page 1292 "Payment Application"
     end;
 
     trigger OnOpenPage()
+    var
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+        GetBankStmtLineCandidates: Codeunit "Get Bank Stmt. Line Candidates";
+        StartTime: DateTime;
+        TImePassed: Duration;
+        OpeningPageDuration: Duration;
     begin
+
+        BankPmtApplSettings.GetOrInsert();
+        if not BankPmtApplSettings."Apply Man. Disable Suggestions" then
+            StartTime := CurrentDateTime();
+
+        SortEntriesBasedOnProbabilityVisible := BankPmtApplSettings."Apply Man. Disable Suggestions";
+
         CODEUNIT.Run(CODEUNIT::"Get Bank Stmt. Line Candidates", Rec);
         SetCurrentKey("Sorting Order", "Stmt To Rem. Amount Difference");
         Ascending(true);
 
         if FindFirst then;
+
+        if not BankPmtApplSettings."Apply Man. Disable Suggestions" then begin
+            TimePassed := CurrentDateTime - StartTime;
+            OpeningPageDuration := 1000 * 10;
+
+            if TimePassed > OpeningPageDuration then
+                GetBankStmtLineCandidates.ShowDisableAutomaticSuggestionsNotification();
+        end;
     end;
 
     var
@@ -471,6 +519,7 @@ page 1292 "Payment Application"
         AppliedAutomaticallyStatusTxt: Label 'Applied Automatically - Match Confidence: %1';
         AcceptedStatusTxt: Label 'Accepted';
         LineEditable: Boolean;
+        SortEntriesBasedOnProbabilityVisible: Boolean;
         ExcessiveAmountErr: Label 'The remaining amount to apply is %1.', Comment = '%1 is the amount that is not applied (there is filed on the page named Remaining Amount To Apply)';
 
     procedure SetBankAccReconcLine(NewBankAccReconLine: Record "Bank Acc. Reconciliation Line")

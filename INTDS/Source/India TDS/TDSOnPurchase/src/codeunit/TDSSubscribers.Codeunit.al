@@ -1,11 +1,15 @@
 codeunit 18716 "TDS Subscribers"
 {
+    var
+        VedPANNoErr: Label 'Vendor P.A.N. is invalid.';
+        CustPANNoErr: Label 'Customer P.A.N. is invalid.';
+
     [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterValidateEvent', 'No.', false, false)]
     local procedure AssignTDSSectionCodePurchaseLine(var Rec: Record "Purchase Line"; var xRec: Record "Purchase Line")
     var
         AllowedSections: Record "Allowed Sections";
     begin
-        if Rec."Document Type" IN [Rec."Document Type"::Order, Rec."Document Type"::Invoice] then begin
+        if Rec."Document Type" in [Rec."Document Type"::Order, Rec."Document Type"::Invoice] then begin
             AllowedSections.Reset();
             AllowedSections.SetRange("Vendor No", Rec."Buy-from Vendor No.");
             AllowedSections.SetRange("Default Section", true);
@@ -22,41 +26,46 @@ codeunit 18716 "TDS Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostVendorEntry', '', false, false)]
-    local procedure InsertTDSSectionCodeGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header")
+    local procedure InsertTDSSectionCodeGenJnlLine(
+        var GenJnlLine: Record "Gen. Journal Line";
+        var PurchHeader: Record "Purchase Header")
     var
-        PurchLine: Record "Purchase Line";
+        PurchaseLine: Record "Purchase Line";
         Location: Record Location;
-        CompanyInfo: Record "Company Information";
+        CompanyInformation: Record "Company Information";
     begin
-        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
-        PurchLine.SetRange("Document No.", PurchHeader."No.");
-        if PurchLine.FindFirst() then
-            GenJnlLine."TDS Section Code" := PurchLine."TDS Section Code";
+        PurchaseLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchHeader."No.");
+        if PurchaseLine.FindFirst() then
+            GenJnlLine."TDS Section Code" := PurchaseLine."TDS Section Code";
+
         if GenJnlLine."Location Code" <> '' then begin
-            Location.GET(GenJnlLine."Location Code");
-            IF Location."T.A.N. No." <> '' then
+            Location.Get(GenJnlLine."Location Code");
+            if Location."T.A.N. No." <> '' then
                 GenJnlLine."T.A.N. No." := Location."T.A.N. No."
         end else begin
-            CompanyInfo.GET();
-            GenJnlLine."T.A.N. No." := CompanyInfo."T.A.N. No.";
+            CompanyInformation.Get();
+            GenJnlLine."T.A.N. No." := CompanyInformation."T.A.N. No.";
         end
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostPurchaseDoc', '', false, false)]
     local procedure CheckTANNo(var PurchaseHeader: Record "Purchase Header")
     var
-        CompanyInfo: Record "Company Information";
+        CompanyInformation: Record "Company Information";
         Location: Record Location;
-        PurchLine: Record "Purchase Line";
+        PurchaseLine: Record "Purchase Line";
     begin
-        PurchLine.Reset();
-        PurchLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchLine.SetFilter("TDS Section Code", '<>%1', '');
-        if PurchLine.IsEmpty then
+        PurchaseLine.Reset();
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetFilter("TDS Section Code", '<>%1', '');
+        if PurchaseLine.IsEmpty then
             exit;
-        CompanyInfo.GET();
-        CompanyInfo.TestField("T.A.N. No.");
+
+        CompanyInformation.Get();
+        CompanyInformation.TestField("T.A.N. No.");
+
         if PurchaseHeader."Location Code" <> '' then begin
             Location.Get(PurchaseHeader."Location Code");
             if Location."T.A.N. No." = '' then
@@ -65,7 +74,9 @@ codeunit 18716 "TDS Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Vendor Ledger Entry", 'OnAfterCopyVendLedgerEntryFromGenJnlLine', '', false, false)]
-    local procedure InsertTDSSectionCodeinVendLedgerEntry(GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    local procedure InsertTDSSectionCodeinVendLedgerEntry(
+        GenJournalLine: Record "Gen. Journal Line";
+        var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         VendorLedgerEntry."TDS Section Code" := GenJournalLine."TDS Section Code";
     end;
@@ -109,6 +120,7 @@ codeunit 18716 "TDS Subscribers"
 
         if not Vendor.Get(Rec."Pay-to Vendor No.") then
             exit;
+
         if (Vendor."P.A.N. Status" = Vendor."P.A.N. Status"::" ") and (Vendor."P.A.N. No." <> '') then
             if StrLen(Vendor."P.A.N. No.") <> 10 then
                 Error(PANNoErr);
@@ -122,123 +134,86 @@ codeunit 18716 "TDS Subscribers"
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'TDS Section Code', false, false)]
     local procedure CheckPANDetailsOnGenJnlLine(var Rec: Record "Gen. Journal Line")
-    var
-        Vendor: Record Vendor;
-        Customer: Record Customer;
-        VedPANNoErr: Label 'Vendor P.A.N. is invalid.';
-        CustPANNoErr: Label 'Customer P.A.N. is invalid.';
     begin
         if Rec."TDS Section Code" = '' then
             exit;
-        if Rec."Account Type" = Rec."Account Type"::Vendor then begin
-            Vendor.Get(Rec."Account No.");
-            if (Vendor."P.A.N. Status" = Vendor."P.A.N. Status"::" ") and (Vendor."P.A.N. No." <> '') then
-                if StrLen(Vendor."P.A.N. No.") <> 10 then
-                    Error(VedPANNoErr);
 
-            if (Vendor."P.A.N. No." = '') and (Vendor."P.A.N. Status" = Vendor."P.A.N. Status"::" ") then
-                Error(VedPANNoErr);
-
-            if (Vendor."P.A.N. Status" <> Vendor."P.A.N. Status"::" ") and (Vendor."P.A.N. Reference No." = '') then
-                Error(VedPANNoErr);
-        end else
-            if Rec."Account Type" = Rec."Account Type"::Customer then begin
-                Customer.Get(Rec."Account No.");
-                if (Customer."P.A.N. Status" = Customer."P.A.N. Status"::" ") and (Customer."P.A.N. No." <> '') then
-                    if StrLen(Customer."P.A.N. No.") <> 10 then
-                        Error(CustPANNoErr);
-
-                if (Customer."P.A.N. No." = '') and (Customer."P.A.N. Status" = Customer."P.A.N. Status"::" ") then
-                    Error(CustPANNoErr);
-
-                if (Customer."P.A.N. Status" <> Customer."P.A.N. Status"::" ") and (Customer."P.A.N. Reference No." = '') then
-                    Error(CustPANNoErr);
-            end;
+        case Rec."Account Type" of
+            Rec."Account Type"::Vendor:
+                CheckVendorPANDetails(Rec);
+            Rec."Account Type"::Customer:
+                CheckCustomerPANDetails(Rec);
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Tax Base Subscribers", 'OnBeforeCallingTaxEngineFromPurchLine', '', false, false)]
-    local procedure OnBeforeCallingTaxEngineFromPurchLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    local procedure OnBeforeCallingTaxEngineFromPurchLine(
+        var PurchaseHeader: Record "Purchase Header";
+        var PurchaseLine: Record "Purchase Line")
     begin
         ValidatePurchLine(PurchaseHeader, PurchaseLine);
     end;
 
+    local procedure CheckVendorPANDetails(GenJournalLine: Record "Gen. Journal Line")
+    var
+        Vendor: Record Vendor;
+    begin
+        if (GenJournalLine."Account Type" <> GenJournalLine."Account Type"::Vendor) or (GenJournalLine."Account No." = '') then
+            exit;
+
+        Vendor.Get(GenJournalLine."Account No.");
+        if (Vendor."P.A.N. Status" = Vendor."P.A.N. Status"::" ") and (Vendor."P.A.N. No." <> '') then
+            if StrLen(Vendor."P.A.N. No.") <> 10 then
+                Error(VedPANNoErr);
+
+        if (Vendor."P.A.N. No." = '') and (Vendor."P.A.N. Status" = Vendor."P.A.N. Status"::" ") then
+            Error(VedPANNoErr);
+
+        if (Vendor."P.A.N. Status" <> Vendor."P.A.N. Status"::" ") and (Vendor."P.A.N. Reference No." = '') then
+            Error(VedPANNoErr);
+    end;
+
+    local procedure CheckCustomerPANDetails(GenJournalLine: Record "Gen. Journal Line")
+    var
+        Customer: Record Customer;
+    begin
+        if (GenJournalLine."Account Type" <> GenJournalLine."Account Type"::Customer) or (GenJournalLine."Account No." = '') then
+            exit;
+
+        Customer.Get(GenJournalLine."Account No.");
+        if (Customer."P.A.N. Status" = Customer."P.A.N. Status"::" ") and (Customer."P.A.N. No." <> '') then
+            if StrLen(Customer."P.A.N. No.") <> 10 then
+                Error(CustPANNoErr);
+
+        if (Customer."P.A.N. No." = '') and (Customer."P.A.N. Status" = Customer."P.A.N. Status"::" ") then
+            Error(CustPANNoErr);
+
+        if (Customer."P.A.N. Status" <> Customer."P.A.N. Status"::" ") and (Customer."P.A.N. Reference No." = '') then
+            Error(CustPANNoErr);
+    end;
+
     local procedure ValidatePurchLine(PurchaseHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line")
     var
-        VendLedgerEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         if PurchLine."TDS Section Code" = '' then
             exit;
-        if PurchaseHeader."Applies-to Doc. No." <> '' then begin
-            VendLedgerEntry.SetRange("Document Type", PurchaseHeader."Applies-to Doc. Type");
-            VendLedgerEntry.SetRange("Document No.", PurchaseHeader."Applies-to Doc. No.");
-            if VendLedgerEntry.FindFirst() then
-                VendLedgerEntry.testfield("TDS Section Code", PurchLine."TDS Section Code");
-        end;
-    end;
 
-    procedure GetStatiticsAmount(PurchaseHeader: Record "Purchase Header"; var TotalTaxAmount: Decimal; var TDSAmount: Decimal)
-    var
-        PurchaseLine: Record "Purchase Line";
-        TDSValidations: Codeunit "TDS Validations";
-        RecordIDList: List of [RecordID];
-        i: Integer;
-    begin
-        Clear(TotalTaxAmount);
-        Clear(TDSAmount);
-
-        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.SetRange("Document no.", PurchaseHeader."No.");
-        if PurchaseLine.FindSet() then
-            repeat
-                RecordIDList.Add(PurchaseLine.RecordId());
-                TotalTaxAmount += PurchaseLine.Amount;
-            until PurchaseLine.Next() = 0;
-
-        for i := 1 to RecordIDList.Count() do
-            TDSAmount += GetTDSAmount(RecordIDList.Get(i));
-
-        TDSAmount := TDSValidations.RoundTDSAmount(TDSAmount);
-        TotalTaxAmount := TotalTaxAmount - TDSAmount;
-    end;
-
-    procedure GetStatiticsPostedAmount(PurchInvHeader: Record "Purch. Inv. Header"; var TotalTaxAmount: Decimal; var TDSAmount: Decimal)
-    var
-        PurchInvLine: Record "Purch. Inv. Line";
-        TDSValidations: Codeunit "TDS Validations";
-        RecordIDList: List of [RecordID];
-        i: Integer;
-    begin
-        Clear(TotalTaxAmount);
-        Clear(TDSAmount);
-
-        PurchInvLine.SetRange("Document no.", PurchInvHeader."No.");
-        if PurchInvLine.FindSet() then
-            repeat
-                RecordIDList.Add(PurchInvLine.RecordId());
-                TotalTaxAmount += PurchInvLine.Amount;
-            until PurchInvLine.Next() = 0;
-
-        for i := 1 to RecordIDList.Count() do
-            TDSAmount += GetTDSAmount(RecordIDList.Get(i));
-
-        TDSAmount := TDSValidations.RoundTDSAmount(TDSAmount);
-        TotalTaxAmount := TotalTaxAmount - TDSAmount;
-    end;
-
-    local procedure GetTDSAmount(RecID: RecordId): Decimal
-    var
-        TaxTransactionValue: Record "Tax Transaction Value";
-        TDSSetup: Record "TDS Setup";
-    begin
-        if not TDSSetup.Get() then
+        if PurchaseHeader."Applies-to Doc. No." = '' then
             exit;
 
-        TaxTransactionValue.SetRange("Tax Record ID", RecID);
-        TaxTransactionValue.SetRange("Value Type", TaxTransactionValue."Value Type"::COMPONENT);
-        TaxTransactionValue.SetRange("Tax Type", TDSSetup."Tax Type");
-        TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
-        if not TaxTransactionValue.IsEmpty() then
-            TaxTransactionValue.CalcSums(Amount);
-        exit(TaxTransactionValue.Amount);
+        VendorLedgerEntry.SetRange("Document Type", PurchaseHeader."Applies-to Doc. Type");
+        VendorLedgerEntry.SetRange("Document No.", PurchaseHeader."Applies-to Doc. No.");
+        if VendorLedgerEntry.FindFirst() then
+            VendorLedgerEntry.TestField("TDS Section Code", PurchLine."TDS Section Code");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", 'OnCopyPurchDocPurchLineOnAfterCopyPurchLine', '', false, false)]
+    local procedure CallTaxEngineOnCopyPurchDocPurchLineOnAfterCopyPurchLine(var ToPurchLine: Record "Purchase Line"; RecalculateLines: Boolean)
+    var
+        CalculateTax: Codeunit "Calculate Tax";
+    begin
+        if not RecalculateLines then
+            CalculateTax.CallTaxEngineOnPurchaseLine(ToPurchLine, ToPurchLine);
     end;
 }

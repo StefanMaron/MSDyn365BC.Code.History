@@ -16,6 +16,7 @@ page 18689 "Section Details Factbox"
                 Style = StandardAccent;
                 ToolTip = 'Specify additional details for the TDS section.';
 
+
                 trigger OnDrillDown()
                 var
                     SectionDetail: Page "Section Detail";
@@ -27,6 +28,7 @@ page 18689 "Section Details Factbox"
         }
     }
 
+
     trigger OnAfterGetrecord()
     begin
         formatline();
@@ -37,13 +39,13 @@ page 18689 "Section Details Factbox"
         formatline();
     end;
 
+    var
+        SectionDetail: Text;
+
     local procedure formatline()
     var
         TDSEntityManagement: Codeunit "TDS Entity Management";
     begin
         SectionDetail := TDSEntityManagement.GetDetailTxt(Rec);
     end;
-
-    var
-        SectionDetail: Text;
 }

@@ -16,6 +16,7 @@ page 18932 "Gen. Journal Voucher Narration"
                 Editable = false;
                 ApplicationArea = Basic, Suite;
                 Caption = 'Document No.';
+                ToolTip = 'Specifies document number for which the voucher lines will be posted.';
             }
             repeater(Control1500000)
             {
@@ -23,6 +24,7 @@ page 18932 "Gen. Journal Voucher Narration"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Narration';
+                    ToolTip = 'Select narration option to enter narration for a particular line.';
                 }
             }
         }

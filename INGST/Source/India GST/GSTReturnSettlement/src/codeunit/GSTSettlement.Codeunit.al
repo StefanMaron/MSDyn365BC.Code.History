@@ -1,5 +1,48 @@
 codeunit 18318 "GST Settlement"
 {
+    var
+        TempGSTPostingBuffer: array[2] of Record "GST Posting Buffer" temporary;
+        TempGSTPostingBuffer1: array[2] of Record "GST Posting Buffer" temporary;
+        DimensionManagement: Codeunit DimensionManagement;
+        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        ChequeNo: Code[10];
+        ChequeDate: Date;
+        PostedDocumentNo: Code[20];
+        PostingDate: Date;
+        Window: Dialog;
+        NoPostErr: Label 'There is Nothing to post.';
+        GSTPaymentFieldSameErr: Label '%1 must be same in all the GST Payment Lines.', Comment = '%1 = Field Refrence';
+        CrAdjstPostedMsg: Label 'Credit Adjustment Journal posted successfully.';
+        AdjustmentDateErr: Label 'Document No. %1 already has been adjusted on %2. Please change the date and try again.', Comment = '%1 = Document No, %2 = Posting Date';
+        GSTCrAdjFilterErr: Label 'Filter Criteria is not matching with Detailed GST Ledger Entry.';
+        PostCrAdjQst: Label 'Do you want to post Credit Adjustment Journal?';
+        GSTINErr: Label 'GSTIN No. can not be blank.';
+        PostingDateErr: Label 'Posting Date can not be blank.';
+        PaymentDocErr: Label 'DocumentNo %1 has already been posted, you can not enter duplicate Document No.', Comment = '%1 = Payment Document No.';
+        PostGSTPaymentQst: Label 'Do you want to post GST Payment?';
+        PaymentBufferMsg: Label 'Generating Payment Lines : GST Component#1##############\', Comment = '%1 = GST Component Code.';
+        CreditSetoffErr: Label 'Credit Utilized can not exceed Total Credit Available.There is no Claim-Setoff available for GST Compoment %1.', Comment = '%1 =GST Component Code.';
+        CreditUtilizedErr: Label 'Credit Utilized %1 can not exceed Payment Liability %2 for GST Compoment %3.', Comment = '%1 = Credit Utilized, %2 = Payment Liability, %3 =GST Component Code.';
+        CreditAvailableErr: Label 'There is no sufficient Claim-Setoff available for GST Compoment %1, required Credit Utilized is %2, Total Credit Available is %3.', Comment = '%1 =GST Component Code., %2 = Credit Amount, %3  = Availabe Credit Amount';
+        DimCombinationErr: Label 'The combination of dimensions used for GST Component %1 is blocked. %2.', Comment = '%1 = GST Component, %2 = Dimension Value';
+        LiabilityExceedErr: Label 'Total of Credit Utilize, GST TDS Credit Utilized, GST TCS Credit Utilized and Payment Amount %1 must be equal to Net Payment Liability %2 in GST Component %3.', Comment = '%1 = Credit Utilized and Payment Amount,  %2 = Net Payment Liability, %3 = GST Component';
+        InvaidDimensionErr: Label 'The dimensions used are invalid. %2.', Comment = '%1 = Dimension Value';
+        UpdatingLedgersMsg: Label 'Updating GST Ledger : GST Component#1##############\', Comment = '%1 =GST Component Code.';
+        GSTPaymentTypeTxt: Label 'Component %1 & Type: %2.', Comment = '%1 = GST Component, %2 = Tax Type';
+        GstTxt: Label 'Gst';
+        NetPaymentLibTxt: Label 'Net Payment Liability';
+        UnadjustedCreditTxt: Label 'Unadjusted Credit';
+        ReverseChargePaymentTxt: Label 'Rev. Charge Payment';
+        CreditUtilizedTxt: Label 'Credit';
+        TotalPaymentTxt: Label 'Total Payment Amount';
+        RemCreditAmtupdatedMsg: Label 'Remaining GST Credit Amount updated.';
+        NothingtoUpdateMsg: Label 'Nothing to update.';
+
+    local procedure GetDetailedGSTLedgerEnfo(DetailedGSTLedgerEntryNo: Integer; Var DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info")
+    begin
+        if DetailedGSTLedgerEntryInfo.Get(DetailedGSTLedgerEntryNo) then;
+    end;
+
     procedure FillAdjustmentJournal(
         GSTINNo: Code[20];
         VendorNo: Code[20];
@@ -7,13 +50,14 @@ codeunit 18318 "GST Settlement"
         PeriodYear: Integer;
         PostingDate: Date;
         DocumentNo2: Code[20];
-        ExternalDocNo: Code[35];
+        ExternalDocNo: Code[40];
         NatureOfAdj: Enum "Credit Adjustment Type";
         AdjDocNo: Code[20];
         ReverseCharge: Boolean;
         AdjustmentPerc: Decimal)
     var
         DetailedGSTLedgerEntry: array[2] of Record "Detailed GST Ledger Entry";
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
         TotalGSTAmount: Decimal;
         DocumentNo: Code[20];
         DocumentLineNo: Integer;
@@ -35,40 +79,40 @@ codeunit 18318 "GST Settlement"
             "Document No.",
             "Document Line No.");
 
-        DetailedGSTLedgerEntry[1].setrange("Location  Reg. No.", GSTINNo);
-        DetailedGSTLedgerEntry[1].setrange("Transaction Type", DetailedGSTLedgerEntry[1]."Transaction Type"::Purchase);
+        DetailedGSTLedgerEntry[1].SetRange("Location  Reg. No.", GSTINNo);
+        DetailedGSTLedgerEntry[1].SetRange("Transaction Type", DetailedGSTLedgerEntry[1]."Transaction Type"::Purchase);
 
         ApplyReverseChargeFilter(DetailedGSTLedgerEntry, NatureOfAdj, ReverseCharge, PeriodMonth, PeriodYear); //Function Break
 
         if VendorNo <> '' then
-            DetailedGSTLedgerEntry[1].setrange("Source No.", VendorNo);
+            DetailedGSTLedgerEntry[1].SetRange("Source No.", VendorNo);
         if ReverseCharge then
-            DetailedGSTLedgerEntry[1].setrange("Document Type", DetailedGSTLedgerEntry[1]."Document Type"::Invoice)
+            DetailedGSTLedgerEntry[1].SetRange("Document Type", DetailedGSTLedgerEntry[1]."Document Type"::Invoice)
         else
             DetailedGSTLedgerEntry[1].SetFilter("Document Type", '%1|%2',
               DetailedGSTLedgerEntry[1]."Document Type"::Invoice, DetailedGSTLedgerEntry[1]."Document Type"::"Credit Memo");
         if DocumentNo2 <> '' then
-            DetailedGSTLedgerEntry[1].setrange("Document No.", DocumentNo2);
+            DetailedGSTLedgerEntry[1].SetRange("Document No.", DocumentNo2);
         if ExternalDocNo <> '' then
-            DetailedGSTLedgerEntry[1].setrange("External Document No.", ExternalDocNo);
+            DetailedGSTLedgerEntry[1].SetRange("External Document No.", ExternalDocNo);
         if not (NatureOfAdj in [NatureOfAdj::"Credit Availment", NatureOfAdj::"Reversal of Availment"]) then
-            DetailedGSTLedgerEntry[1].setrange("Credit Availed", true);
-        DetailedGSTLedgerEntry[1].setrange(Distributed, false);
+            DetailedGSTLedgerEntry[1].SetRange("Credit Availed", true);
+        DetailedGSTLedgerEntry[1].SetRange(Distributed, false);
         if ReverseCharge then begin
-            DetailedGSTLedgerEntry[1].setrange("Reverse Charge", true);
-            DetailedGSTLedgerEntry[1].setrange("GST Group Type", DetailedGSTLedgerEntry[1]."GST Group Type"::Service);
-            DetailedGSTLedgerEntry[1].setrange("Item Charge Entry", false);
+            DetailedGSTLedgerEntry[1].SetRange("Reverse Charge", true);
+            DetailedGSTLedgerEntry[1].SetRange("GST Group Type", DetailedGSTLedgerEntry[1]."GST Group Type"::Service);
+            DetailedGSTLedgerEntry[1].SetRange("Item Charge Entry", false);
         end else
-            DetailedGSTLedgerEntry[1].setrange("Reverse Charge", false);
-        DetailedGSTLedgerEntry[1].setrange("GST Exempted Goods", false);
-        DetailedGSTLedgerEntry[1].setrange("Input Service Distribution", false);
+            DetailedGSTLedgerEntry[1].SetRange("Reverse Charge", false);
+        DetailedGSTLedgerEntry[1].SetRange("GST Exempted Goods", false);
+        DetailedGSTLedgerEntry[1].SetRange("Input Service Distribution", false);
         AppyNatureofAdjFilters(DetailedGSTLedgerEntry, NatureOfAdj); //Function Break
-        if DetailedGSTLedgerEntry[1].findset() then
+        if DetailedGSTLedgerEntry[1].FindSet() then
             repeat
-                if DetailedGSTLedgerEntry[1]."Last Credit Adjusted Date" > PostingDate then
-                    Error(
-                      AdjustmentDateErr, DetailedGSTLedgerEntry[1]."Document No.",
-                      DetailedGSTLedgerEntry[1]."Last Credit Adjusted Date");
+                GetDetailedGSTLedgerEnfo(DetailedGSTLedgerEntry[1]."Entry No.", DetailedGSTLedgerEntryInfo);
+
+                if DetailedGSTLedgerEntryInfo."Last Credit Adjusted Date" > PostingDate then
+                    Error(AdjustmentDateErr, DetailedGSTLedgerEntry[1]."Document No.", DetailedGSTLedgerEntryInfo."Last Credit Adjusted Date");
 
                 if GetCAJLines(DetailedGSTLedgerEntry[1], NatureOfAdj) then begin
                     if ReverseCharge and
@@ -82,11 +126,11 @@ codeunit 18318 "GST Settlement"
                             DocumentLineNo := DetailedGSTLedgerEntry[1]."Document Line No.";
 
                             DetailedGSTLedgerEntry[2].CopyFilters(DetailedGSTLedgerEntry[1]);
-                            DetailedGSTLedgerEntry[2].setrange("Source No.", DetailedGSTLedgerEntry[1]."Source No.");
-                            DetailedGSTLedgerEntry[2].setrange("Document Type", DetailedGSTLedgerEntry[1]."Document Type");
-                            DetailedGSTLedgerEntry[2].setrange("Document No.", DetailedGSTLedgerEntry[1]."Document No.");
-                            DetailedGSTLedgerEntry[2].setrange("Document Line No.", DetailedGSTLedgerEntry[1]."Document Line No.");
-                            if DetailedGSTLedgerEntry[2].findset() then begin
+                            DetailedGSTLedgerEntry[2].SetRange("Source No.", DetailedGSTLedgerEntry[1]."Source No.");
+                            DetailedGSTLedgerEntry[2].SetRange("Document Type", DetailedGSTLedgerEntry[1]."Document Type");
+                            DetailedGSTLedgerEntry[2].SetRange("Document No.", DetailedGSTLedgerEntry[1]."Document No.");
+                            DetailedGSTLedgerEntry[2].SetRange("Document Line No.", DetailedGSTLedgerEntry[1]."Document Line No.");
+                            if DetailedGSTLedgerEntry[2].FindSet() then begin
                                 Cnt += 1;
                                 DetailedGSTLedgerEntry[2].CalcSums("GST Amount");
                                 DetailedGSTLedgerEntry[2].CalcSums("CAJ Amount");
@@ -110,11 +154,11 @@ codeunit 18318 "GST Settlement"
                         DocumentNo := DetailedGSTLedgerEntry[1]."Document No.";
                         DocumentLineNo := DetailedGSTLedgerEntry[1]."Document Line No.";
                         DetailedGSTLedgerEntry[2].CopyFilters(DetailedGSTLedgerEntry[1]);
-                        DetailedGSTLedgerEntry[2].setrange("Source No.", DetailedGSTLedgerEntry[1]."Source No.");
-                        DetailedGSTLedgerEntry[2].setrange("Document Type", DetailedGSTLedgerEntry[1]."Document Type");
-                        DetailedGSTLedgerEntry[2].setrange("Document No.", DetailedGSTLedgerEntry[1]."Document No.");
-                        DetailedGSTLedgerEntry[2].setrange("Document Line No.", DetailedGSTLedgerEntry[1]."Document Line No.");
-                        if DetailedGSTLedgerEntry[2].findset() then begin
+                        DetailedGSTLedgerEntry[2].SetRange("Source No.", DetailedGSTLedgerEntry[1]."Source No.");
+                        DetailedGSTLedgerEntry[2].SetRange("Document Type", DetailedGSTLedgerEntry[1]."Document Type");
+                        DetailedGSTLedgerEntry[2].SetRange("Document No.", DetailedGSTLedgerEntry[1]."Document No.");
+                        DetailedGSTLedgerEntry[2].SetRange("Document Line No.", DetailedGSTLedgerEntry[1]."Document Line No.");
+                        if DetailedGSTLedgerEntry[2].FindSet() then begin
                             Cnt += 1;
                             DetailedGSTLedgerEntry[2].CalcSums("GST Amount");
                             DetailedGSTLedgerEntry[2].CalcSums("CAJ Amount");
@@ -150,6 +194,9 @@ codeunit 18318 "GST Settlement"
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         GenLedgerSetup: Record "General Ledger Setup";
         GenJournalPostLine: Codeunit "Gen. Jnl.-Post Line";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        GSTHelpers: Codeunit "GST Helpers";
+        GSTBaseValidation: Codeunit "GST Base Validation";
         EntryNo: Integer;
         BalAccountNo: Code[20];
     begin
@@ -160,13 +207,13 @@ codeunit 18318 "GST Settlement"
         TempGSTPostingBuffer[1].DeleteAll();
         TempGSTPostingBuffer[2].DeleteAll();
         GenLedgerSetup.Get();
-        GSTHelpers.CheckGSTAccountingPeriod(GSTCreditAdjustmentJournal."Adjustment Posting Date");
+        GSTBaseValidation.CheckGSTAccountingPeriod(GSTCreditAdjustmentJournal."Adjustment Posting Date", false);
         if GSTCreditAdjustmentJournal."Reverse Charge" then
             EntryNo := PostReverseChargeCrAdjJournal(GSTCreditAdjustmentJournal)
         else begin
             Clear(GenJournalPostLine);
             GSTCreditAdjustmentJournal.SetFilter("Nature of Adjustment", '<>%1', GSTCreditAdjustmentJournal."Nature of Adjustment"::" ");
-            if GSTCreditAdjustmentJournal.findset() then begin
+            if GSTCreditAdjustmentJournal.FindSet() then begin
                 repeat
                     GSTCreditAdjustmentJournal.Validate("Adjustment %");
                     GSTCreditAdjustmentJournal.Validate("Adjustment Amount");
@@ -174,21 +221,21 @@ codeunit 18318 "GST Settlement"
                     TempGSTPostingBuffer[2].DeleteAll();
                     DetailedGSTLedgerEntry.SetCurrentKey("Transaction Type", "GST Jurisdiction Type",
                       "Source No.", "Document Type", "Document No.", "Document Line No.", "Posting Date");
-                    DetailedGSTLedgerEntry.setrange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Purchase);
-                    DetailedGSTLedgerEntry.setrange("GST Jurisdiction Type", GSTCreditAdjustmentJournal."GST Jurisdiction Type");
-                    DetailedGSTLedgerEntry.setrange("Source No.", GSTCreditAdjustmentJournal."Vendor No.");
+                    DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Purchase);
+                    DetailedGSTLedgerEntry.SetRange("GST Jurisdiction Type", GSTCreditAdjustmentJournal."GST Jurisdiction Type");
+                    DetailedGSTLedgerEntry.SetRange("Source No.", GSTCreditAdjustmentJournal."Vendor No.");
                     if GSTCreditAdjustmentJournal."Document Type" = GSTCreditAdjustmentJournal."Document Type"::Invoice then
-                        DetailedGSTLedgerEntry.setrange("Document Type", DetailedGSTLedgerEntry."Document Type"::Invoice)
+                        DetailedGSTLedgerEntry.SetRange("Document Type", DetailedGSTLedgerEntry."Document Type"::Invoice)
                     else
-                        DetailedGSTLedgerEntry.setrange("Document Type", DetailedGSTLedgerEntry."Document Type"::"Credit Memo");
-                    DetailedGSTLedgerEntry.setrange("Document No.", GSTCreditAdjustmentJournal."Document No.");
-                    DetailedGSTLedgerEntry.setrange("Document Line No.", GSTCreditAdjustmentJournal."Document Line No.");
-                    DetailedGSTLedgerEntry.setrange("Posting Date", GSTCreditAdjustmentJournal."Posting Date");
-                    DetailedGSTLedgerEntry.setrange("GST Credit", DetailedGSTLedgerEntry."GST Credit"::Availment);
-                    DetailedGSTLedgerEntry.setrange(Distributed, false);
-                    DetailedGSTLedgerEntry.setrange("Reverse Charge", false);
-                    DetailedGSTLedgerEntry.setrange("GST Exempted Goods", false);
-                    if DetailedGSTLedgerEntry.findset() then
+                        DetailedGSTLedgerEntry.SetRange("Document Type", DetailedGSTLedgerEntry."Document Type"::"Credit Memo");
+                    DetailedGSTLedgerEntry.SetRange("Document No.", GSTCreditAdjustmentJournal."Document No.");
+                    DetailedGSTLedgerEntry.SetRange("Document Line No.", GSTCreditAdjustmentJournal."Document Line No.");
+                    DetailedGSTLedgerEntry.SetRange("Posting Date", GSTCreditAdjustmentJournal."Posting Date");
+                    DetailedGSTLedgerEntry.SetRange("GST Credit", DetailedGSTLedgerEntry."GST Credit"::Availment);
+                    DetailedGSTLedgerEntry.SetRange(Distributed, false);
+                    DetailedGSTLedgerEntry.SetRange("Reverse Charge", false);
+                    DetailedGSTLedgerEntry.SetRange("GST Exempted Goods", false);
+                    if DetailedGSTLedgerEntry.FindSet() then
                         repeat
                             TempGSTPostingBuffer[1]."Transaction Type" := TempGSTPostingBuffer[1]."Transaction Type"::Purchase;
                             TempGSTPostingBuffer[1]."GST Component Code" := DetailedGSTLedgerEntry."GST Component Code";
@@ -283,7 +330,7 @@ codeunit 18318 "GST Settlement"
             Error(NoPostErr);
     end;
 
-    procedure GetNoSeriesCode(CreditLiability: Boolean): Code[10]
+    procedure GetNoSeriesCode(CreditLiability: Boolean): Code[20]
     var
         GeneLedgerSetup: Record "General Ledger Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -321,23 +368,23 @@ codeunit 18318 "GST Settlement"
         if NatureOfAdj = NatureOfAdj::Generate then begin
             VendorLedgerEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
             if DocumentNo1 <> '' then
-                VendorLedgerEntry.setrange("Document No.", DocumentNo1);
-            VendorLedgerEntry.setrange("Document Type", "Document Type Enum"::Invoice);
+                VendorLedgerEntry.SetRange("Document No.", DocumentNo1);
+            VendorLedgerEntry.SetRange("Document Type", "Document Type Enum"::Invoice);
             if VendorNo <> '' then
-                VendorLedgerEntry.setrange("Vendor No.", VendorNo);
-            VendorLedgerEntry.setrange(Open, true);
+                VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+            VendorLedgerEntry.SetRange(Open, true);
             VendorLedgerEntry.SetFilter("Posting Date", '..%1', LiabilityDate);
             if ExternalDocNo <> '' then
-                VendorLedgerEntry.setrange("External Document No.", ExternalDocNo);
+                VendorLedgerEntry.SetRange("External Document No.", ExternalDocNo);
             VendorLedgerEntry.SetFilter(
               VendorLedgerEntry."GST Vendor Type", '%1|%2|%3|%4',
               "GST Vendor Type"::Registered, "GST Vendor Type"::Unregistered, "GST Vendor Type"::Import, "GST Vendor Type"::SEZ);
             VendorLedgerEntry.CalcFields("Remaining Amt. (LCY)");
             VendorLedgerEntry.SetFilter("Remaining Amt. (LCY)", '<>%1', 0);
-            VendorLedgerEntry.setrange("Location GST Reg. No.", GSTINNo);
-            if VendorLedgerEntry.findset() then
+            VendorLedgerEntry.SetRange("Location GST Reg. No.", GSTINNo);
+            if VendorLedgerEntry.FindSet() then
                 repeat
-                    VendorLedgerEntry.CALCFIELDS("Remaining Amt. (LCY)");
+                    VendorLedgerEntry.CalcFields("Remaining Amt. (LCY)");
                     RemainingAmount := VendorLedgerEntry."Remaining Amt. (LCY)" - VendorLedgerEntry."Total TDS Including SHE CESS";
                     FillAppBufferInvoice(
                         VendorLedgerEntry."Document No.",
@@ -352,21 +399,21 @@ codeunit 18318 "GST Settlement"
         end;
 
         if NatureOfAdj = NatureOfAdj::Reverse then begin
-            DetailedGSTLedgerEntry.setrange("Document Type", DetailedGSTLedgerEntry."Document Type"::Invoice);
-            DetailedGSTLedgerEntry.setrange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Purchase);
-            DetailedGSTLedgerEntry.setrange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::"Initial Entry");
+            DetailedGSTLedgerEntry.SetRange("Document Type", DetailedGSTLedgerEntry."Document Type"::Invoice);
+            DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Purchase);
+            DetailedGSTLedgerEntry.SetRange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::"Initial Entry");
             if DocumentNo1 <> '' then
-                DetailedGSTLedgerEntry.setrange("Document No.", DocumentNo1);
+                DetailedGSTLedgerEntry.SetRange("Document No.", DocumentNo1);
             if VendorNo <> '' then
-                DetailedGSTLedgerEntry.setrange("Source No.", VendorNo);
-            DetailedGSTLedgerEntry.setrange("Location  Reg. No.", GSTINNo);
+                DetailedGSTLedgerEntry.SetRange("Source No.", VendorNo);
+            DetailedGSTLedgerEntry.SetRange("Location  Reg. No.", GSTINNo);
             DetailedGSTLedgerEntry.SetFilter("Posting Date", '..%1', LiabilityDate);
-            DetailedGSTLedgerEntry.setrange("Cr. & Libty. Adjustment Type", DetailedGSTLedgerEntry."Cr. & Libty. Adjustment Type"::Generate);
-            if DetailedGSTLedgerEntry.findset() then
+            DetailedGSTLedgerEntry.SetRange("Cr. & Liab. Adjustment Type", DetailedGSTLedgerEntry."Cr. & Liab. Adjustment Type"::Generate);
+            if DetailedGSTLedgerEntry.FindSet() then
                 repeat
                     if DocumentNo2 <> DetailedGSTLedgerEntry."Document No." then begin
-                        PostedGSTLiabilityAdj.setrange("Document No.", DetailedGSTLedgerEntry."Document No.");
-                        PostedGSTLiabilityAdj.setrange("Credit Adjustment Type", DetailedGSTLedgerEntry."Cr. & Libty. Adjustment Type");
+                        PostedGSTLiabilityAdj.SetRange("Document No.", DetailedGSTLedgerEntry."Document No.");
+                        PostedGSTLiabilityAdj.SetRange("Credit Adjustment Type", DetailedGSTLedgerEntry."Cr. & Liab. Adjustment Type");
                         if PostedGSTLiabilityAdj.FindLast() then
                             if PostedGSTLiabilityAdj."Posting Date" <= AdjPostingDate then begin
                                 FillAppBufferInvoice(
@@ -394,101 +441,91 @@ codeunit 18318 "GST Settlement"
     var
         GSTLiabilityBuffer: array[2] of Record "GST Liability Buffer";
         DetailedGSTLedgerEntry: array[2] of Record "Detailed GST Ledger Entry";
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
+        GSTBaseValidation: Codeunit "GST Base Validation";
         CurrencyFactor: Decimal;
-        GSTBufferTransactionTypeEnum: Enum "GST Buffer Transaction Type";
-        CurrentDocTypeEnum: Enum "Current Doc. Type";
-        GSTBufferGroupTypeEnum: Enum "GST Buffer Group Type";
-        TransType: Text;
-        GroupType: Text;
     begin
         DetailedGSTLedgerEntry[1].SetCurrentKey(
           "Location  Reg. No.", "Transaction Type", "Entry Type", "GST Vendor Type", "GST Credit",
           "Posting Date", "Source No.", "Document Type", "Document No.");
-        DetailedGSTLedgerEntry[1].setrange("Location  Reg. No.", LocationRegNo);
-        DetailedGSTLedgerEntry[1].setrange("Document No.", DocumentNo);
-        DetailedGSTLedgerEntry[1].setrange("Transaction Type", DetailedGSTLedgerEntry[1]."Transaction Type"::Purchase);
-        DetailedGSTLedgerEntry[1].setrange("GST Group Type", DetailedGSTLedgerEntry[1]."GST Group Type"::Service);
-        DetailedGSTLedgerEntry[1].setrange("Reverse Charge", true);
-        DetailedGSTLedgerEntry[1].setrange("RCM Exempt", false);
-        DetailedGSTLedgerEntry[1].setrange("Associated Enterprises", false);
+        DetailedGSTLedgerEntry[1].SetRange("Location  Reg. No.", LocationRegNo);
+        DetailedGSTLedgerEntry[1].SetRange("Document No.", DocumentNo);
+        DetailedGSTLedgerEntry[1].SetRange("Transaction Type", DetailedGSTLedgerEntry[1]."Transaction Type"::Purchase);
+        DetailedGSTLedgerEntry[1].SetRange("GST Group Type", DetailedGSTLedgerEntry[1]."GST Group Type"::Service);
+        DetailedGSTLedgerEntry[1].SetRange("Reverse Charge", true);
+        DetailedGSTLedgerEntry[1].SetRange("Associated Enterprises", false);
         DetailedGSTLedgerEntry[1].SetFilter("Posting Date", '..%1', LiabilityDate);
         if NatureOfAdj = NatureOfAdj::Reverse then
-            DetailedGSTLedgerEntry[1].setrange("Cr. & Libty. Adjustment Type", NatureOfAdj::Generate);
-        if DetailedGSTLedgerEntry[1].findset() then
+            DetailedGSTLedgerEntry[1].SetRange("Cr. & Liab. Adjustment Type", NatureOfAdj::Generate);
+        if DetailedGSTLedgerEntry[1].FindSet() then
             repeat
                 if (NatureOfAdj = NatureOfAdj::Generate) and
-                   (DetailedGSTLedgerEntry[1]."Cr. & Libty. Adjustment Type" =
-                    DetailedGSTLedgerEntry[1]."Cr. & Libty. Adjustment Type"::Generate) and
+                   (DetailedGSTLedgerEntry[1]."Cr. & Liab. Adjustment Type" =
+                    DetailedGSTLedgerEntry[1]."Cr. & Liab. Adjustment Type"::Generate) and
                    (DetailedGSTLedgerEntry[1]."Remaining Base Amount" = 0)
                 then
                     exit;
 
-                if (DetailedGSTLedgerEntry[1]."Cr. & Libty. Adjustment Type" =
-                    DetailedGSTLedgerEntry[1]."Cr. & Libty. Adjustment Type"::Generate) and
+                if (DetailedGSTLedgerEntry[1]."Cr. & Liab. Adjustment Type" =
+                    DetailedGSTLedgerEntry[1]."Cr. & Liab. Adjustment Type"::Generate) and
                    (DetailedGSTLedgerEntry[1]."Remaining Base Amount" <> 0) and
                    (DetailedGSTLedgerEntry[1]."Remaining Base Amount" = DetailedGSTLedgerEntry[1]."AdjustmentBase Amount")
                 then begin
                     DetailedGSTLedgerEntry[1]."Remaining Base Amount" := 0;
                     DetailedGSTLedgerEntry[1]."Remaining GST Amount" := 0;
-                    DetailedGSTLedgerEntry[1].modify();
+                    DetailedGSTLedgerEntry[1].Modify();
                     exit;
                 end;
 
+                GetDetailedGSTLedgerEnfo(DetailedGSTLedgerEntry[1]."Entry No.", DetailedGSTLedgerEntryInfo);
                 Clear(GSTLiabilityBuffer[1]);
 
-                // TODO: "Detail Ledger Transaction Type" should be inherited from "GST Buffer Transaction Type"
-                TransType := Format(DetailedGSTLedgerEntry[1]."Transaction Type");
-                Evaluate(GSTBufferTransactionTypeEnum, TransType);
-
-                // TODO: "GST Buffer Group Type" enum should removed
-                GroupType := Format(DetailedGSTLedgerEntry[1]."GST Group Type");
-                Evaluate(GSTBufferGroupTypeEnum, GroupType);
-
                 CurrencyFactor := 1;
-
-                GSTLiabilityBuffer[1]."Transaction Type" := GSTBufferTransactionTypeEnum;
+                GSTLiabilityBuffer[1]."Transaction Type" := DetailedGSTLedgerEntry[1]."Transaction Type";
                 GSTLiabilityBuffer[1]."Original Document Type" := GSTLiabilityBuffer[1]."Original Document Type"::Invoice;
                 GSTLiabilityBuffer[1]."Original Document No." := DetailedGSTLedgerEntry[1]."Document No.";
                 GSTLiabilityBuffer[1]."Account No." := DetailedGSTLedgerEntry[1]."Source No.";
-                GSTLiabilityBuffer[1]."GST Cess" := DetailedGSTLedgerEntry[1].Cess;
+                GSTLiabilityBuffer[1]."GST Cess" := DetailedGSTLedgerEntryInfo.Cess;
                 GSTLiabilityBuffer[1]."GST Component Code" := DetailedGSTLedgerEntry[1]."GST Component Code";
-                GSTLiabilityBuffer[1]."Current Doc. Type" := GSTLiabilityBuffer[1]."Current Doc. Type"::Invoice;
-                GSTLiabilityBuffer[1]."Current Doc. Type" := CurrentDocTypeEnum;
+                GSTLiabilityBuffer[1]."Current Doc. Type" := DetailedGSTLedgerEntry[1]."Document Type";
                 GSTLiabilityBuffer[1]."Currency Code" := DetailedGSTLedgerEntry[1]."Currency Code";
                 GSTLiabilityBuffer[1]."Currency Factor" := DetailedGSTLedgerEntry[1]."Currency Factor";
                 GSTLiabilityBuffer[1]."GST Rounding Precision" := DetailedGSTLedgerEntry[1]."GST Rounding Precision";
                 GSTLiabilityBuffer[1]."GST Rounding Type" := DetailedGSTLedgerEntry[1]."GST Rounding Type";
-                GSTLiabilityBuffer[1]."GST Group Type" := GSTBufferGroupTypeEnum;
+                GSTLiabilityBuffer[1]."GST Group Type" := DetailedGSTLedgerEntry[1]."GST Group Type";
                 GSTLiabilityBuffer[1]."GST Group Code" := DetailedGSTLedgerEntry[1]."GST Group Code";
                 GSTLiabilityBuffer[1]."GST Jurisdiction Type" := DetailedGSTLedgerEntry[1]."GST Jurisdiction Type";
                 GSTLiabilityBuffer[1]."Original Line No." := DetailedGSTLedgerEntry[1]."Document Line No.";
                 GSTLiabilityBuffer[1].Exempted := DetailedGSTLedgerEntry[1]."GST Exempted Goods";
                 GSTLiabilityBuffer[1]."GST %" := DetailedGSTLedgerEntry[1]."GST %";
                 GSTLiabilityBuffer[1]."GST Credit" := DetailedGSTLedgerEntry[1]."GST Credit";
+
                 if GSTLiabilityBuffer[1]."Currency Code" <> '' then
                     GSTLiabilityBuffer[1]."GST Base Amount" := Round(DetailedGSTLedgerEntry[1]."GST Base Amount" * CurrencyFactor, 0.01)
                 else
                     GSTLiabilityBuffer[1]."GST Base Amount" := DetailedGSTLedgerEntry[1]."GST Base Amount";
 
-                GSTLiabilityBuffer[1]."GST Amount" := DetailedGSTLedgerEntry[1]."GST Amount" * CurrencyFactor;
+                GSTLiabilityBuffer[1]."GST Amount" := GSTBaseValidation.RoundGSTPrecision(DetailedGSTLedgerEntry[1]."GST Amount" * CurrencyFactor);
 
-                if (DetailedGSTLedgerEntry[1]."Cr. & Libty. Adjustment Type" =
-                    DetailedGSTLedgerEntry[1]."Cr. & Libty. Adjustment Type"::Generate) and
+                if (DetailedGSTLedgerEntry[1]."Cr. & Liab. Adjustment Type" =
+                    DetailedGSTLedgerEntry[1]."Cr. & Liab. Adjustment Type"::Generate) and
                    (DetailedGSTLedgerEntry[1]."Remaining Base Amount" <> 0)
-                then
+                then begin
                     if GSTLiabilityBuffer[1]."Currency Code" <> '' then
                         GSTLiabilityBuffer[1]."GST Base Amount" := Round(DetailedGSTLedgerEntry[1]."Remaining Base Amount" * CurrencyFactor, 0.01)
                     else
                         GSTLiabilityBuffer[1]."GST Base Amount" := DetailedGSTLedgerEntry[1]."Remaining Base Amount";
 
-                GSTLiabilityBuffer[1]."GST Amount" := DetailedGSTLedgerEntry[1]."Remaining GST Amount" * CurrencyFactor;
+                    GSTLiabilityBuffer[1]."GST Amount" := GSTBaseValidation.RoundGSTPrecision(DetailedGSTLedgerEntry[1]."Remaining GST Amount" * CurrencyFactor);
+                end;
 
                 if NatureOfAdj = NatureOfAdj::Reverse then begin
                     if GSTLiabilityBuffer[1]."Currency Code" <> '' then
                         GSTLiabilityBuffer[1]."Applied Base Amount" := Round(DetailedGSTLedgerEntry[1]."AdjustmentBase Amount" * CurrencyFactor, 0.01)
                     else
                         GSTLiabilityBuffer[1]."Applied Base Amount" := DetailedGSTLedgerEntry[1]."AdjustmentBase Amount";
-                    GSTLiabilityBuffer[1]."Applied Amount" := DetailedGSTLedgerEntry[1]."Adjustment Amount" * CurrencyFactor;
+
+                    GSTLiabilityBuffer[1]."Applied Amount" := GSTBaseValidation.RoundGSTPrecision(DetailedGSTLedgerEntry[1]."Adjustment Amount" * CurrencyFactor);
                     if DetailedGSTLedgerEntry[1]."GST Credit" = DetailedGSTLedgerEntry[1]."GST Credit"::Availment then
                         GSTLiabilityBuffer[1]."Credit Amount" := GSTLiabilityBuffer[1]."Applied Amount";
                 end;
@@ -504,7 +541,7 @@ codeunit 18318 "GST Settlement"
                         GSTLiabilityBuffer[2]."Applied Amount" += GSTLiabilityBuffer[1]."Applied Amount"
                     end;
 
-                    GSTLiabilityBuffer[2].modify(true);
+                    GSTLiabilityBuffer[2].Modify(true);
                 end else
                     GSTLiabilityBuffer[2].Insert(true);
             until DetailedGSTLedgerEntry[1].Next() = 0;
@@ -515,6 +552,7 @@ codeunit 18318 "GST Settlement"
         GSTLiabilityBuffer: Record "GST Liability Buffer";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         GenJnlLine: Record "Gen. Journal Line";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
         AppliedBase: Decimal;
         AppliedAmount: Decimal;
         RemainingBase: Decimal;
@@ -525,34 +563,33 @@ codeunit 18318 "GST Settlement"
         BalanceAccountNo2: Code[20];
     begin
         GSTLiabilityAdjustment.SetFilter("Nature of Adjustment", '<>%1', GSTLiabilityAdjustment."Nature of Adjustment"::" ");
-        if GSTLiabilityAdjustment.findset() then begin
+        if GSTLiabilityAdjustment.FindSet() then begin
             repeat
                 TempGSTPostingBuffer1[1].DeleteAll();
 
-                GSTLiabilityBuffer.setrange("Original Document No.", GSTLiabilityAdjustment."Document No.");
-                GSTLiabilityBuffer.setrange("Account No.", GSTLiabilityAdjustment."Vendor No.");
+                GSTLiabilityBuffer.SetRange("Original Document No.", GSTLiabilityAdjustment."Document No.");
+                GSTLiabilityBuffer.SetRange("Account No.", GSTLiabilityAdjustment."Vendor No.");
                 if GSTLiabilityAdjustment."Nature of Adjustment" = GSTLiabilityAdjustment."Nature of Adjustment"::Generate then
                     GSTLiabilityBuffer.SetFilter("Applied Amount", '<>%1', 0);
                 if GSTLiabilityAdjustment."Nature of Adjustment" = GSTLiabilityAdjustment."Nature of Adjustment"::Reverse then
                     GSTLiabilityBuffer.SetFilter("GST Amount", '<>%1', 0);
-                if GSTLiabilityBuffer.findset() then
+                if GSTLiabilityBuffer.FindSet() then
                     repeat
                         DetailedGSTLedgerEntry.SetCurrentKey(
                           "Transaction Type",
                           "Source No.",
-                          "CLE/VLE Entry No.",
                           "Document Type",
                           "Document No.",
                           "GST Group Code");
-                        DetailedGSTLedgerEntry.setrange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Purchase);
-                        DetailedGSTLedgerEntry.setrange("Source No.", GSTLiabilityBuffer."Account No.");
-                        DetailedGSTLedgerEntry.setrange("Document Type", DetailedGSTLedgerEntry."Document Type"::Invoice);
-                        DetailedGSTLedgerEntry.setrange("Document No.", GSTLiabilityBuffer."Original Document No.");
-                        DetailedGSTLedgerEntry.setrange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::"Initial Entry");
-                        DetailedGSTLedgerEntry.setrange("GST Group Code", GSTLiabilityBuffer."GST Group Code");
-                        DetailedGSTLedgerEntry.setrange("GST Component Code", GSTLiabilityBuffer."GST Component Code");
-                        DetailedGSTLedgerEntry.setrange("GST Exempted Goods", GSTLiabilityBuffer.Exempted);
-                        if DetailedGSTLedgerEntry.findset() then begin
+                        DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Purchase);
+                        DetailedGSTLedgerEntry.SetRange("Source No.", GSTLiabilityBuffer."Account No.");
+                        DetailedGSTLedgerEntry.SetRange("Document Type", DetailedGSTLedgerEntry."Document Type"::Invoice);
+                        DetailedGSTLedgerEntry.SetRange("Document No.", GSTLiabilityBuffer."Original Document No.");
+                        DetailedGSTLedgerEntry.SetRange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::"Initial Entry");
+                        DetailedGSTLedgerEntry.SetRange("GST Group Code", GSTLiabilityBuffer."GST Group Code");
+                        DetailedGSTLedgerEntry.SetRange("GST Component Code", GSTLiabilityBuffer."GST Component Code");
+                        DetailedGSTLedgerEntry.SetRange("GST Exempted Goods", GSTLiabilityBuffer.Exempted);
+                        if DetailedGSTLedgerEntry.FindSet() then begin
                             RemainingBase := GSTLiabilityBuffer."Applied Base Amount";
                             RemainingAmount := GSTLiabilityBuffer."Applied Amount";
 
@@ -678,7 +715,7 @@ codeunit 18318 "GST Settlement"
     procedure ApplyGSTSettlement(
         GSTINNo: Code[20];
         PostingDate: Date;
-        AccountType: Option "G/L Account",,,"Bank Account";
+        AccountType: Enum "GST Settlement Account Type";
         AccountNo: Code[20];
         BankRefNo: Code[10];
         BankRefDate: Date)
@@ -690,13 +727,12 @@ codeunit 18318 "GST Settlement"
         CheckSettlementInputValidations(GSTINNo, PostingDate);
 
         ApplyDocumentNo := GetSettlementDocumentNo(PostingDate, false);
-        GSTPaymentBuffer.setrange("Document No.", ApplyDocumentNo);
+        GSTPaymentBuffer.SetRange("Document No.", ApplyDocumentNo);
         GSTPaymentBuffer.DeleteAll();
         IsDuplicateDocumentNo(ApplyDocumentNo);
 
         CreateGSTPaymentBuffer(GSTINNo, ApplyDocumentNo, PostingDate, AccountType, AccountNo, BankRefNo, BankRefDate);
         UpdateCreditAmount(GSTINNo, ApplyDocumentNo);
-        UpdateSurplusUtilized(GSTINNo, ApplyDocumentNo);
         Commit();
 
         PayGST.SetParameter(GSTINNo, ApplyDocumentNo);
@@ -711,7 +747,7 @@ codeunit 18318 "GST Settlement"
             exit;
 
         DetailedGSTLedgerEntry.SetCurrentKey("Payment Document No.");
-        DetailedGSTLedgerEntry.setrange("Payment Document No.", DocumentNo);
+        DetailedGSTLedgerEntry.SetRange("Payment Document No.", DocumentNo);
         if not DetailedGSTLedgerEntry.IsEmpty() then
             Error(PaymentDocErr, DocumentNo);
     end;
@@ -719,76 +755,80 @@ codeunit 18318 "GST Settlement"
     procedure UpdateCreditAmount(GSTINNo: Code[20]; DocumentNo: Code[20])
     var
         GSTPaymentBuffer: Record "GST Payment Buffer";
-        GSTPaymentBuffer2: Record "GST Payment Buffer";
-        GSTClaimSetoff: Record "GST Claim Setoff";
-        AvailableAmount: Decimal;
-        PaymentAmount: Decimal;
     begin
-        GSTPaymentBuffer.setrange("GST Registration No.", GSTINNo);
-        GSTPaymentBuffer.setrange("Document No.", DocumentNo);
-        if GSTPaymentBuffer.findset() then
+        GSTPaymentBuffer.SetRange("GST Registration No.", GSTINNo);
+        GSTPaymentBuffer.SetRange("Document No.", DocumentNo);
+        if GSTPaymentBuffer.FindSet() then
             repeat
-                if GSTPaymentBuffer."Payment Amount" > 0 then begin
-                    AvailableAmount := 0;
-
-                    GSTClaimSetoff.Reset();
-                    GSTClaimSetoff.SetCurrentKey(Priority);
-                    GSTClaimSetoff.setrange("GST Component Code", GSTPaymentBuffer."GST Component Code");
-                    GSTClaimSetoff.SetFilter("Set Off Component Code", '<>%1', GSTPaymentBuffer."GST Component Code");
-                    if GSTClaimSetoff.findset() then
-                        repeat
-                            GSTPaymentBuffer2.Get(GSTINNo, DocumentNo, GSTClaimSetoff."Set Off Component Code");
-                            if GSTPaymentBuffer2."Total Credit Available" > 0 then begin
-                                if GSTPaymentBuffer2."Net Payment Liability" > 0 then
-                                    AvailableAmount +=
-                                      GSTPaymentBuffer2."Total Credit Available" -
-                                      (GSTPaymentBuffer2."Surplus Cr. Utilized" + GSTPaymentBuffer2."Net Payment Liability")
-                                else
-                                    AvailableAmount +=
-                                      GSTPaymentBuffer2."Total Credit Available" - GSTPaymentBuffer2."Surplus Cr. Utilized";
-
-                                PaymentAmount := GSTPaymentBuffer."Payment Amount";
-
-                                if AvailableAmount > 0 then begin
-                                    if AvailableAmount >= PaymentAmount then begin
-                                        GSTPaymentBuffer2."Surplus Cr. Utilized" += PaymentAmount;
-                                        GSTPaymentBuffer2."Surplus Credit" -= PaymentAmount;
-                                        GSTPaymentBuffer.Validate("Payment Amount", 0);
-                                        GSTPaymentBuffer.Validate("Credit Utilized", GSTPaymentBuffer."Credit Utilized" + PaymentAmount);
-                                    end else begin
-                                        GSTPaymentBuffer.Validate("Payment Amount", GSTPaymentBuffer."Payment Amount" - AvailableAmount);
-                                        GSTPaymentBuffer.Validate("Credit Utilized", GSTPaymentBuffer."Credit Utilized" + AvailableAmount);
-                                        GSTPaymentBuffer2."Surplus Cr. Utilized" += AvailableAmount;
-                                        GSTPaymentBuffer2."Surplus Credit" -= AvailableAmount;
-                                        AvailableAmount := 0;
-                                    end;
-
-                                    GSTPaymentBuffer2."Carry Forward" :=
-                                      GSTPaymentBuffer2."Surplus Credit" - GSTPaymentBuffer2."Surplus Cr. Utilized";
-                                    GSTPaymentBuffer2.modify(true);
-                                    GSTPaymentBuffer.modify(true);
-                                end;
-                            end;
-                        until (GSTClaimSetoff.Next() = 0) or (GSTPaymentBuffer."Payment Amount" = 0);
-                end;
+                UpdateGSTPaymentBufferPriorityAmount(GSTPaymentBuffer, GSTINNo, DocumentNo);
             until GSTPaymentBuffer.Next() = 0;
     end;
 
-    procedure UpdateSurplusUtilized(
-        GSTINNo: Code[20];
-        DocumentNo: Code[20])
+    local procedure UpdateGSTPaymentBufferPriorityAmount(var GSTPaymentBuffer: Record "GST Payment Buffer"; GSTINNo: Code[20]; DocumentNo: Code[20])
     var
-        GSTPaymentBuffer: Record "GST Payment Buffer";
+        GSTClaimSetoff: Record "GST Claim Setoff";
+        GSTPaymentBuffer2: Record "GST Payment Buffer";
+        AvailableAmount: Decimal;
+        PaymentAmount: Decimal;
     begin
-        GSTPaymentBuffer.setrange("GST Registration No.", GSTINNo);
-        GSTPaymentBuffer.setrange("Document No.", DocumentNo);
-        if GSTPaymentBuffer.findset() then
-            repeat
-                GSTPaymentBuffer."Surplus Cr. Utilized" := 0;
-                GSTPaymentBuffer.Validate("Credit Utilized");
-                GSTPaymentBuffer.Validate("Carry Forward", 0);
-                GSTPaymentBuffer.modify(true);
-            until GSTPaymentBuffer.Next() = 0;
+        if GSTPaymentBuffer."Payment Amount" > 0 then begin
+            AvailableAmount := 0;
+
+            GSTClaimSetoff.Reset();
+            GSTClaimSetoff.SetCurrentKey(Priority);
+            GSTClaimSetoff.SetRange("GST Component Code", GSTPaymentBuffer."GST Component Code");
+            if GSTClaimSetoff.FindSet() then
+                repeat
+                    GSTPaymentBuffer2.Get(GSTINNo, DocumentNo, GSTClaimSetoff."Set Off Component Code");
+                    if GSTPaymentBuffer2."Total Credit Available" > 0 then begin
+                        AvailableAmount += GSTPaymentBuffer2."Total Credit Available" - GSTPaymentBuffer2."Surplus Cr. Utilized";
+                        PaymentAmount := GSTPaymentBuffer."Payment Amount";
+
+                        if AvailableAmount > 0 then begin
+                            if AvailableAmount >= PaymentAmount then begin
+                                if GSTPaymentBuffer."GST Component Code" = GSTPaymentBuffer2."GST Component Code" then begin
+                                    UpdateGSTPaymentSameComponentAmount(GSTPaymentBuffer, PaymentAmount);
+                                    GSTPaymentBuffer2.Get(GSTINNo, DocumentNo, GSTClaimSetoff."Set Off Component Code");
+                                end else
+                                    UpdateGSTPaymentDiffComponentAmount(GSTPaymentBuffer2, PaymentAmount);
+
+                                GSTPaymentBuffer.Validate("Payment Amount", 0);
+                                GSTPaymentBuffer."Credit Utilized" := GSTPaymentBuffer."Credit Utilized" + PaymentAmount;
+                                GSTPaymentBuffer.Modify();
+                            end else begin
+                                if GSTPaymentBuffer."GST Component Code" = GSTPaymentBuffer2."GST Component Code" then begin
+                                    UpdateGSTPaymentSameComponentAmount(GSTPaymentBuffer, AvailableAmount);
+                                    GSTPaymentBuffer2.Get(GSTINNo, DocumentNo, GSTClaimSetoff."Set Off Component Code");
+                                end else
+                                    UpdateGSTPaymentDiffComponentAmount(GSTPaymentBuffer2, AvailableAmount);
+
+                                GSTPaymentBuffer.Validate("Payment Amount", GSTPaymentBuffer."Payment Amount" - AvailableAmount);
+                                GSTPaymentBuffer."Credit Utilized" := GSTPaymentBuffer."Credit Utilized" + AvailableAmount;
+                                GSTPaymentBuffer.Modify();
+                                AvailableAmount := 0;
+                            end;
+
+                            GSTPaymentBuffer2."Carry Forward" := GSTPaymentBuffer2."Surplus Credit";
+                            GSTPaymentBuffer2.Modify(true);
+                            GSTPaymentBuffer.Modify(true);
+                        end;
+                    end;
+                until (GSTClaimSetoff.Next() = 0) or (GSTPaymentBuffer."Payment Amount" = 0);
+        end;
+    end;
+
+    local procedure UpdateGSTPaymentSameComponentAmount(var GSTPaymentBuffer: Record "GST Payment Buffer"; SurplusCredit: Decimal)
+    begin
+        GSTPaymentBuffer."Surplus Cr. Utilized" += SurplusCredit;
+        GSTPaymentBuffer."Surplus Credit" -= SurplusCredit;
+        GSTPaymentBuffer."Carry Forward" := GSTPaymentBuffer."Surplus Credit";
+        GSTPaymentBuffer.Modify(true);
+    end;
+
+    local procedure UpdateGSTPaymentDiffComponentAmount(var GSTPaymentBuffer2: Record "GST Payment Buffer"; SurplusCredit: Decimal)
+    begin
+        GSTPaymentBuffer2."Surplus Cr. Utilized" += SurplusCredit;
+        GSTPaymentBuffer2."Surplus Credit" -= SurplusCredit;
     end;
 
     procedure GetPeriodendDate(PostingDate: Date): Date
@@ -800,13 +840,15 @@ codeunit 18318 "GST Settlement"
     var
         GSTPaymentBuffer: Record "GST Payment Buffer";
     begin
-        GSTPaymentBuffer.setrange("GST Registration No.", GSTINNo);
-        GSTPaymentBuffer.setrange("Document No.", DocumentNo);
+        GSTPaymentBuffer.SetRange("GST Registration No.", GSTINNo);
+        GSTPaymentBuffer.SetRange("Document No.", DocumentNo);
         if GSTPaymentBuffer.IsEmpty() then
             exit(false);
+
         CopyDocDimToTempDocDim(GSTINNo, DocumentNo);
+        ValidateCreditUtilizedAmt(GSTINNo, DocumentNo);
         CheckSettlementValidations(GSTINNo, DocumentNo);
-        if not CONFIRM(PostGSTPaymentQst, false) then begin
+        if not Confirm(PostGSTPaymentQst, false) then begin
             NoMsg := true;
             exit(false);
         end;
@@ -841,6 +883,44 @@ codeunit 18318 "GST Settlement"
         exit(false);
     end;
 
+    procedure UpdateAdjRemAmt()
+    var
+        DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+        DetailedCrAdjstmntEntry: Record "Detailed Cr. Adjstmnt. Entry";
+        DetailedCrAdjstmntEntry2: Record "Detailed Cr. Adjstmnt. Entry";
+        SourceType: Text;
+        SourceTypeEnum: Enum "Source Type";
+    begin
+        DetailedCrAdjstmntEntry.SetRange("Rem. Amt. Updated in DGLE", false);
+        if DetailedCrAdjstmntEntry.FindSet() then begin
+            repeat
+                SourceType := Format(DetailedCrAdjstmntEntry."Source Type");
+                Evaluate(SourceTypeEnum, SourceType);
+                DetailedGSTLedgerEntry.SetRange("Document Type", DetailedCrAdjstmntEntry."Adjusted Doc. Type");
+                DetailedGSTLedgerEntry.SetRange("Document No.", DetailedCrAdjstmntEntry."Adjusted Doc. No.");
+                DetailedGSTLedgerEntry.SetRange("Document Line No.", DetailedCrAdjstmntEntry."Adjusted Doc. Line No.");
+                DetailedGSTLedgerEntry.SetRange("Source Type", SourceTypeEnum);
+                DetailedGSTLedgerEntry.SetRange("Source No.", DetailedCrAdjstmntEntry."Source No.");
+                DetailedGSTLedgerEntry.SetRange(Type, DetailedCrAdjstmntEntry.Type);
+                DetailedGSTLedgerEntry.SetRange("GST Component Code", DetailedCrAdjstmntEntry."GST Component Code");
+                if DetailedGSTLedgerEntry.FindFirst() then begin
+                    DetailedGSTLedgerEntry."CAJ Base Amount" := Abs(DetailedGSTLedgerEntry."CAJ Amount" * 100) /
+                      DetailedGSTLedgerEntry."GST %";
+                    DetailedGSTLedgerEntry."Remaining CAJ Adj. Base Amt" :=
+                      Abs(Abs(DetailedGSTLedgerEntry."GST Base Amount") - Abs(DetailedGSTLedgerEntry."CAJ Base Amount"));
+                    DetailedGSTLedgerEntry."Remaining CAJ Adj. Amt" :=
+                      Abs(Abs(DetailedGSTLedgerEntry."GST Amount") - Abs(DetailedGSTLedgerEntry."CAJ Amount"));
+                    DetailedGSTLedgerEntry.Modify();
+                    DetailedCrAdjstmntEntry2.Get(DetailedCrAdjstmntEntry."Entry No.");
+                    DetailedCrAdjstmntEntry2."Rem. Amt. Updated in DGLE" := true;
+                    DetailedCrAdjstmntEntry2.Modify();
+                end;
+            until DetailedCrAdjstmntEntry.Next() = 0;
+            Message(RemCreditAmtupdatedMsg);
+        end else
+            Message(NothingtoUpdateMsg);
+    end;
+
     local procedure ApplyReverseChargeFilter(
         var DetailedGSTLedgerEntry: array[2] of Record "Detailed GST Ledger Entry";
         NatureOfAdj: Enum "Credit Adjustment Type";
@@ -849,19 +929,19 @@ codeunit 18318 "GST Settlement"
         PeriodYear: Integer)
     begin
         if ReverseCharge then begin
-            DetailedGSTLedgerEntry[1].setrange("Entry Type", DetailedGSTLedgerEntry[1]."Entry Type"::Application);
+            DetailedGSTLedgerEntry[1].SetRange("Entry Type", DetailedGSTLedgerEntry[1]."Entry Type"::Application);
             if NatureOfAdj in [NatureOfAdj::"Credit Reversal", NatureOfAdj::"Credit Re-Availment"] then
-                DetailedGSTLedgerEntry[1].setrange("GST Credit", DetailedGSTLedgerEntry[1]."GST Credit"::Availment)
+                DetailedGSTLedgerEntry[1].SetRange("GST Credit", DetailedGSTLedgerEntry[1]."GST Credit"::Availment)
             else
                 if NatureOfAdj in [NatureOfAdj::"Credit Availment", NatureOfAdj::"Reversal of Availment"] then
-                    DetailedGSTLedgerEntry[1].setrange("GST Credit", DetailedGSTLedgerEntry[1]."GST Credit"::"Non-Availment");
+                    DetailedGSTLedgerEntry[1].SetRange("GST Credit", DetailedGSTLedgerEntry[1]."GST Credit"::"Non-Availment");
         end else begin
-            DetailedGSTLedgerEntry[1].setrange("Entry Type", DetailedGSTLedgerEntry[1]."Entry Type"::"Initial Entry");
-            DetailedGSTLedgerEntry[1].setrange("GST Vendor Type", DetailedGSTLedgerEntry[1]."GST Vendor Type"::Registered);
-            DetailedGSTLedgerEntry[1].setrange("GST Credit", DetailedGSTLedgerEntry[1]."GST Credit"::Availment);
+            DetailedGSTLedgerEntry[1].SetRange("Entry Type", DetailedGSTLedgerEntry[1]."Entry Type"::"Initial Entry");
+            DetailedGSTLedgerEntry[1].SetRange("GST Vendor Type", DetailedGSTLedgerEntry[1]."GST Vendor Type"::Registered);
+            DetailedGSTLedgerEntry[1].SetRange("GST Credit", DetailedGSTLedgerEntry[1]."GST Credit"::Availment);
         end;
 
-        DetailedGSTLedgerEntry[1].SetFilter("Posting Date", '<=%1', CalcDate('<CM>', DMY2DATE(1, PeriodMonth, PeriodYear)));
+        DetailedGSTLedgerEntry[1].SetFilter("Posting Date", '<=%1', CalcDate('<CM>', DMY2Date(1, PeriodMonth, PeriodYear)));
 
     end;
 
@@ -944,39 +1024,42 @@ codeunit 18318 "GST Settlement"
     end;
 
     local procedure InitCreditAdjustmentJournal(
-        DetailedGSTLedgerEntry2: Record "Detailed GST Ledger Entry";
+        DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         NatureOfAdj: Enum "Credit Adjustment Type";
-        AdjDocNo: Code[20];
-        PostingDate: Date;
-        ReverseCharge: Boolean;
-        TotalGSTAmount: Decimal;
-        AdjustmentPerc: Decimal;
-        CAJAmt: Decimal;
-        CAJPermanentReversalAmt: Decimal)
+                         AdjDocNo: Code[20];
+                         PostingDate: Date;
+                         ReverseCharge: Boolean;
+                         TotalGSTAmount: Decimal;
+                         AdjustmentPerc: Decimal;
+                         CAJAmt: Decimal;
+                         CAJPermanentReversalAmt: Decimal)
     var
         GSTCreditAdjustmentJournal: Record "GST Credit Adjustment Journal";
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
     begin
         if TotalGSTAmount = 0 then
             exit;
 
+        GetDetailedGSTLedgerEnfo(DetailedGSTLedgerEntry."Entry No.", DetailedGSTLedgerEntryInfo);
+
         GSTCreditAdjustmentJournal.Init();
-        GSTCreditAdjustmentJournal."GST Registration No." := DetailedGSTLedgerEntry2."Location  Reg. No.";
-        GSTCreditAdjustmentJournal."Vendor No." := DetailedGSTLedgerEntry2."Source No.";
-        GSTCreditAdjustmentJournal."Posting Date" := DetailedGSTLedgerEntry2."Posting Date";
-        if DetailedGSTLedgerEntry2."Document Type" = DetailedGSTLedgerEntry2."Document Type"::Invoice then
+        GSTCreditAdjustmentJournal."GST Registration No." := DetailedGSTLedgerEntry."Location  Reg. No.";
+        GSTCreditAdjustmentJournal."Vendor No." := DetailedGSTLedgerEntry."Source No.";
+        GSTCreditAdjustmentJournal."Posting Date" := DetailedGSTLedgerEntry."Posting Date";
+        if DetailedGSTLedgerEntry."Document Type" = DetailedGSTLedgerEntry."Document Type"::Invoice then
             GSTCreditAdjustmentJournal."Document Type" := GSTCreditAdjustmentJournal."Document Type"::Invoice
         else
             GSTCreditAdjustmentJournal."Document Type" := GSTCreditAdjustmentJournal."Document Type"::"Credit Memo";
-        GSTCreditAdjustmentJournal."Document No." := DetailedGSTLedgerEntry2."Document No.";
-        GSTCreditAdjustmentJournal."Document Line No." := DetailedGSTLedgerEntry2."Document Line No.";
-        GSTCreditAdjustmentJournal.Type := DetailedGSTLedgerEntry2.Type;
-        GSTCreditAdjustmentJournal.Validate("No.", DetailedGSTLedgerEntry2."No.");
-        GSTCreditAdjustmentJournal."Gen. Bus. Posting Group" := DetailedGSTLedgerEntry2."Gen. Bus. Posting Group";
-        GSTCreditAdjustmentJournal."Gen. Prod. Posting Group" := DetailedGSTLedgerEntry2."Gen. Prod. Posting Group";
+        GSTCreditAdjustmentJournal."Document No." := DetailedGSTLedgerEntry."Document No.";
+        GSTCreditAdjustmentJournal."Document Line No." := DetailedGSTLedgerEntry."Document Line No.";
+        GSTCreditAdjustmentJournal.Type := DetailedGSTLedgerEntry.Type;
+        GSTCreditAdjustmentJournal.Validate("No.", DetailedGSTLedgerEntry."No.");
+        GSTCreditAdjustmentJournal."Gen. Bus. Posting Group" := DetailedGSTLedgerEntryInfo."Gen. Bus. Posting Group";
+        GSTCreditAdjustmentJournal."Gen. Prod. Posting Group" := DetailedGSTLedgerEntryInfo."Gen. Prod. Posting Group";
         GSTCreditAdjustmentJournal."Reverse Charge" := ReverseCharge;
-        GSTCreditAdjustmentJournal."External Document No." := DetailedGSTLedgerEntry2."External Document No.";
-        GSTCreditAdjustmentJournal."GST Jurisdiction Type" := DetailedGSTLedgerEntry2."GST Jurisdiction Type";
-        GSTCreditAdjustmentJournal."Location State Code" := DetailedGSTLedgerEntry2."Location State Code";
+        GSTCreditAdjustmentJournal."External Document No." := DetailedGSTLedgerEntry."External Document No.";
+        GSTCreditAdjustmentJournal."GST Jurisdiction Type" := DetailedGSTLedgerEntry."GST Jurisdiction Type";
+        GSTCreditAdjustmentJournal."Location State Code" := DetailedGSTLedgerEntryInfo."Location State Code";
         GSTCreditAdjustmentJournal."Total GST Credit Amount" := TotalGSTAmount;
         GSTCreditAdjustmentJournal."Nature of Adjustment" := NatureOfAdj;
         GSTCreditAdjustmentJournal."Selected Nature of Adjustment" := NatureOfAdj;
@@ -1005,7 +1088,7 @@ codeunit 18318 "GST Settlement"
             GSTCreditAdjustmentJournal."Total GST Amount" := GSTCreditAdjustmentJournal."Adjustment Amount";
         end;
 
-        GSTCreditAdjustmentJournal."Input Service Distribution" := DetailedGSTLedgerEntry2."Input Service Distribution";
+        GSTCreditAdjustmentJournal."Input Service Distribution" := DetailedGSTLedgerEntry."Input Service Distribution";
         GSTCreditAdjustmentJournal."Adjustment Posting Date" := PostingDate;
         GSTCreditAdjustmentJournal."Adjust Document No." := AdjDocNo;
         if GSTCreditAdjustmentJournal."Available Adjustment %" = 0 then
@@ -1016,17 +1099,20 @@ codeunit 18318 "GST Settlement"
 
     local procedure PostReverseChargeCrAdjJournal(GSTCreditAdjustmentJournal: Record "GST Credit Adjustment Journal") EntryNo: Integer
     var
+        GLSetup: Record "General Ledger Setup";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         GeneralPostingSetup: Record "General Posting Setup";
         GenJournalLine: Record "Gen. Journal Line";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        GSTHelpers: Codeunit "GST Helpers";
         TotalGSTAmt: Decimal;
         TotalGSTAmt1: Decimal;
     begin
         Clear(GenJournalLine);
         GLSetup.Get();
-        GSTCreditAdjustmentJournal.setrange("Reverse Charge", true);
+        GSTCreditAdjustmentJournal.SetRange("Reverse Charge", true);
         GSTCreditAdjustmentJournal.SetFilter("Nature of Adjustment", '<>%1', GSTCreditAdjustmentJournal."Nature of Adjustment"::" ");
-        if GSTCreditAdjustmentJournal.findset() then begin
+        if GSTCreditAdjustmentJournal.FindSet() then begin
             repeat
                 GSTCreditAdjustmentJournal.Validate("Adjustment %");
                 GSTCreditAdjustmentJournal.Validate("Adjustment Amount");
@@ -1044,29 +1130,29 @@ codeunit 18318 "GST Settlement"
                     "Document No.",
                     "Document Line No.",
                     "Posting Date");
-                DetailedGSTLedgerEntry.setrange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Purchase);
-                DetailedGSTLedgerEntry.setrange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::Application);
-                DetailedGSTLedgerEntry.setrange("GST Jurisdiction Type", GSTCreditAdjustmentJournal."GST Jurisdiction Type");
-                DetailedGSTLedgerEntry.setrange("Source No.", GSTCreditAdjustmentJournal."Vendor No.");
-                DetailedGSTLedgerEntry.setrange("Document Type", DetailedGSTLedgerEntry."Document Type"::Invoice);
-                DetailedGSTLedgerEntry.setrange("Document No.", GSTCreditAdjustmentJournal."Document No.");
-                DetailedGSTLedgerEntry.setrange("Document Line No.", GSTCreditAdjustmentJournal."Document Line No.");
-                DetailedGSTLedgerEntry.setrange("Posting Date", GSTCreditAdjustmentJournal."Posting Date");
+                DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Purchase);
+                DetailedGSTLedgerEntry.SetRange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::Application);
+                DetailedGSTLedgerEntry.SetRange("GST Jurisdiction Type", GSTCreditAdjustmentJournal."GST Jurisdiction Type");
+                DetailedGSTLedgerEntry.SetRange("Source No.", GSTCreditAdjustmentJournal."Vendor No.");
+                DetailedGSTLedgerEntry.SetRange("Document Type", DetailedGSTLedgerEntry."Document Type"::Invoice);
+                DetailedGSTLedgerEntry.SetRange("Document No.", GSTCreditAdjustmentJournal."Document No.");
+                DetailedGSTLedgerEntry.SetRange("Document Line No.", GSTCreditAdjustmentJournal."Document Line No.");
+                DetailedGSTLedgerEntry.SetRange("Posting Date", GSTCreditAdjustmentJournal."Posting Date");
                 if GSTCreditAdjustmentJournal."Nature of Adjustment" in [
                     GSTCreditAdjustmentJournal."Nature of Adjustment"::"Credit Reversal",
                     GSTCreditAdjustmentJournal."Nature of Adjustment"::"Credit Re-Availment"]
                 then
-                    DetailedGSTLedgerEntry.setrange("GST Credit", DetailedGSTLedgerEntry."GST Credit"::Availment)
+                    DetailedGSTLedgerEntry.SetRange("GST Credit", DetailedGSTLedgerEntry."GST Credit"::Availment)
                 else
                     if GSTCreditAdjustmentJournal."Nature of Adjustment" in [
                         GSTCreditAdjustmentJournal."Nature of Adjustment"::"Credit Availment",
                         GSTCreditAdjustmentJournal."Nature of Adjustment"::"Reversal of Availment"]
                     then
-                        DetailedGSTLedgerEntry.setrange("GST Credit", DetailedGSTLedgerEntry."GST Credit"::"Non-Availment");
-                DetailedGSTLedgerEntry.setrange(Distributed, false);
-                DetailedGSTLedgerEntry.setrange("Reverse Charge", true);
-                DetailedGSTLedgerEntry.setrange("GST Exempted Goods", false);
-                if DetailedGSTLedgerEntry.findset() then
+                        DetailedGSTLedgerEntry.SetRange("GST Credit", DetailedGSTLedgerEntry."GST Credit"::"Non-Availment");
+                DetailedGSTLedgerEntry.SetRange(Distributed, false);
+                DetailedGSTLedgerEntry.SetRange("Reverse Charge", true);
+                DetailedGSTLedgerEntry.SetRange("GST Exempted Goods", false);
+                if DetailedGSTLedgerEntry.FindSet() then
                     repeat
                         if IsComponentNonAvailment(DetailedGSTLedgerEntry."Entry No.") then begin
                             TempGSTPostingBuffer[1]."Transaction Type" := TempGSTPostingBuffer[1]."Transaction Type"::Purchase;
@@ -1189,34 +1275,39 @@ codeunit 18318 "GST Settlement"
         if TempGSTPostingBuffer[2].Find() then begin
             TempGSTPostingBuffer[2]."GST Base Amount" += TempGSTPostingBuffer[1]."GST Base Amount";
             TempGSTPostingBuffer[2]."GST Amount" += TempGSTPostingBuffer[1]."GST Amount";
-            TempGSTPostingBuffer[2].modify();
+            TempGSTPostingBuffer[2].Modify();
         end else
             TempGSTPostingBuffer[1].Insert();
     end;
 
     local procedure UpdateDetailedGSTLedgerEntry(
         TypeOfAdjustment: Enum "Credit Adjustment Type";
-        EntryNo: Integer;
-        PostingDate: Date;
-        CAJAmt: Decimal;
-        CAJPerc: Decimal;
-        CAJBaseAmt: Decimal)
+                              EntryNo: Integer;
+                              PostingDate: Date;
+                              CAJAmt: Decimal;
+                              CAJPerc: Decimal;
+                              CAJBaseAmt: Decimal)
     var
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
     begin
         DetailedGSTLedgerEntry.Get(EntryNo);
         DetailedGSTLedgerEntry."Credit Adjustment Type" := TypeOfAdjustment;
-        DetailedGSTLedgerEntry."Last Credit Adjusted Date" := PostingDate;
         UpdateDetGSTLedgPartialAmt(DetailedGSTLedgerEntry, TypeOfAdjustment, CAJAmt, CAJPerc, CAJBaseAmt);
-        DetailedGSTLedgerEntry.modify();
+        DetailedGSTLedgerEntry.Modify();
+
+        if DetailedGSTLedgerEntryInfo.Get(DetailedGSTLedgerEntry."Entry No.") then begin
+            DetailedGSTLedgerEntryInfo."Last Credit Adjusted Date" := PostingDate;
+            DetailedGSTLedgerEntryInfo.Modify();
+        end;
     end;
 
     local procedure UpdateDetGSTLedgPartialAmt(
         var DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         TypeOfAdjustment: Enum "Credit Adjustment Type";
-        CAJAmt: Decimal;
-        CAJPerc: Decimal;
-        CAJBaseAmt: Decimal)
+                              CAJAmt: Decimal;
+                              CAJPerc: Decimal;
+                              CAJBaseAmt: Decimal)
     begin
         if TypeOfAdjustment in [TypeOfAdjustment::"Credit Reversal", TypeOfAdjustment::"Credit Availment"] then begin
             DetailedGSTLedgerEntry."CAJ Base Amount" := DetailedGSTLedgerEntry."CAJ Base Amount" + Abs(CAJBaseAmt);
@@ -1249,10 +1340,10 @@ codeunit 18318 "GST Settlement"
         GSTAmt: Decimal;
         PostingDate: Date;
         DocumentType: Enum "Gen. Journal Document Type";
-        GSTJurisdictionType: Enum "GST Jurisdiction Type";
-        Liability: Boolean;
-        FixedAsset: Boolean;
-        DimensionSetID: Integer)
+                          GSTJurisdictionType: Enum "GST Jurisdiction Type";
+                          Liability: Boolean;
+                          FixedAsset: Boolean;
+                          DimensionSetID: Integer)
     begin
         GenJournalLine.Init();
         GenJournalLine."Line No." += 10000;
@@ -1309,28 +1400,17 @@ codeunit 18318 "GST Settlement"
         GSTCreditAdjustmentJournal: Record "GST Credit Adjustment Journal")
     var
         DetailedCrAdjstmntEntry: Record "Detailed Cr. Adjstmnt. Entry";
-        DetailedEntryType: Text;
-        AdjustedDocEntryTypeEnum: Enum "Entry Type";
-        DetailedSoureTye: Text;
-        AdjustmentEntrySourceTypeEnum: Enum "Adjustment Entry Source Type";
-        DetailGSTCredit: Text;
-        AdjustmentEntryGSTCreditEnum: Enum "Adjustment Entry GST Credit";
-
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
+        GSTHelpers: Codeunit "GST Helpers";
     begin
-        // TODO: "Detail Ledger Entry Type" should extend Entry Type enum
-        DetailedEntryType := Format(DetailedGSTLedgerEntry."Entry Type");
-        Evaluate(AdjustedDocEntryTypeEnum, DetailedEntryType);
-
-        // TODO: "Adjustment Entry Source Type" should extend "Source Type" enum
-        DetailedSoureTye := Format(DetailedGSTLedgerEntry."Source Type");
-        Evaluate(AdjustmentEntrySourceTypeEnum, DetailedSoureTye);
+        GetDetailedGSTLedgerEnfo(DetailedGSTLedgerEntry."Entry No.", DetailedGSTLedgerEntryInfo);
 
         DetailedCrAdjstmntEntry.Init();
         DetailedCrAdjstmntEntry."Posting Date" := GSTCreditAdjustmentJournal."Adjustment Posting Date";
         DetailedCrAdjstmntEntry."Credit Adjustment Type" := GSTCreditAdjustmentJournal."Nature of Adjustment";
         DetailedCrAdjstmntEntry."Document No." := GSTCreditAdjustmentJournal."Adjust Document No.";
         DetailedCrAdjstmntEntry."Adjusted Doc. Entry No." := DetailedGSTLedgerEntry."Entry No.";
-        DetailedCrAdjstmntEntry."Adjusted Doc. Entry Type" := AdjustedDocEntryTypeEnum;
+        DetailedCrAdjstmntEntry."Adjusted Doc. Entry Type" := DetailedGSTLedgerEntry."Entry Type";
         DetailedCrAdjstmntEntry."Adjusted Doc. Transaction Type" := DetailedGSTLedgerEntry."Transaction Type";
         DetailedCrAdjstmntEntry."Adjusted Doc. Type" := DetailedGSTLedgerEntry."Document Type";
         DetailedCrAdjstmntEntry."Adjusted Doc. No." := DetailedGSTLedgerEntry."Document No.";
@@ -1339,7 +1419,7 @@ codeunit 18318 "GST Settlement"
         DetailedCrAdjstmntEntry.Type := DetailedGSTLedgerEntry.Type;
         DetailedCrAdjstmntEntry."No." := DetailedGSTLedgerEntry."No.";
         DetailedCrAdjstmntEntry."Product Type" := DetailedGSTLedgerEntry."Product Type";
-        DetailedCrAdjstmntEntry."Source Type" := AdjustmentEntrySourceTypeEnum;
+        DetailedCrAdjstmntEntry."Source Type" := DetailedGSTLedgerEntry."Source Type";
         DetailedCrAdjstmntEntry."Source No." := DetailedGSTLedgerEntry."Source No.";
         DetailedCrAdjstmntEntry."HSN/SAC Code" := DetailedGSTLedgerEntry."HSN/SAC Code";
         DetailedCrAdjstmntEntry."GST Component Code" := DetailedGSTLedgerEntry."GST Component Code";
@@ -1367,7 +1447,7 @@ codeunit 18318 "GST Settlement"
             DetailedCrAdjstmntEntry."Adjustment %" := GSTCreditAdjustmentJournal."Adjustment %";
 
         DetailedCrAdjstmntEntry."External Document No." := DetailedGSTLedgerEntry."External Document No.";
-        DetailedCrAdjstmntEntry."Location State Code" := DetailedGSTLedgerEntry."Location State Code";
+        DetailedCrAdjstmntEntry."Location State Code" := DetailedGSTLedgerEntryInfo."Location State Code";
 
         case GSTCreditAdjustmentJournal."Nature of Adjustment" of
             GSTCreditAdjustmentJournal."Nature of Adjustment"::"Credit Reversal",
@@ -1418,14 +1498,11 @@ codeunit 18318 "GST Settlement"
 
         DetailedCrAdjstmntEntry."User ID" := CopyStr(UserId(), 1, StrLen(UserId()));
         if not DetailedGSTLedgerEntry."Reverse Charge" then begin
-            DetailedCrAdjstmntEntry.Positive := DetailedGSTLedgerEntry.Positive;
-
-            DetailGSTCredit := Format(DetailedGSTLedgerEntry."GST Credit");
-            Evaluate(AdjustmentEntryGSTCreditEnum, DetailGSTCredit);
-            DetailedCrAdjstmntEntry."GST Credit" := AdjustmentEntryGSTCreditEnum;
+            DetailedCrAdjstmntEntry.Positive := DetailedGSTLedgerEntryInfo.Positive;
+            DetailedCrAdjstmntEntry."GST Credit" := DetailedGSTLedgerEntry."GST Credit";
         end;
 
-        DetailedCrAdjstmntEntry."Buyer/Seller State Code" := DetailedGSTLedgerEntry."Buyer/Seller State Code";
+        DetailedCrAdjstmntEntry."Buyer/Seller State Code" := DetailedGSTLedgerEntryInfo."Buyer/Seller State Code";
         DetailedCrAdjstmntEntry."Location  Reg. No." := DetailedGSTLedgerEntry."Location  Reg. No.";
         DetailedCrAdjstmntEntry."Buyer/Seller Reg. No." := DetailedGSTLedgerEntry."Buyer/Seller Reg. No.";
         DetailedCrAdjstmntEntry."GST Group Type" := DetailedGSTLedgerEntry."GST Group Type";
@@ -1435,7 +1512,7 @@ codeunit 18318 "GST Settlement"
         DetailedCrAdjstmntEntry."GST Rounding Type" := DetailedGSTLedgerEntry."GST Rounding Type";
         DetailedCrAdjstmntEntry."Location Code" := DetailedGSTLedgerEntry."Location Code";
         DetailedCrAdjstmntEntry."GST Vendor Type" := DetailedGSTLedgerEntry."GST Vendor Type";
-        DetailedCrAdjstmntEntry.Cess := DetailedGSTLedgerEntry.Cess;
+        DetailedCrAdjstmntEntry.Cess := DetailedGSTLedgerEntryInfo.Cess;
         DetailedCrAdjstmntEntry."Input Service Distribution" := DetailedGSTLedgerEntry."Input Service Distribution";
         DetailedCrAdjstmntEntry."Reverse Charge" := DetailedGSTLedgerEntry."Reverse Charge";
         DetailedCrAdjstmntEntry."Rem. Amt. Updated in DGLE" := true;
@@ -1461,9 +1538,9 @@ codeunit 18318 "GST Settlement"
         Ctr: Integer;
     begin
         ValueEntry.Reset();
-        ValueEntry.setrange("Document No.", GSTCreditAdjustmentJournal."Document No.");
-        ValueEntry.setrange("Document Line No.", GSTCreditAdjustmentJournal."Document Line No.");
-        ValueEntry.setrange("Item No.", GSTCreditAdjustmentJournal."No.");
+        ValueEntry.SetRange("Document No.", GSTCreditAdjustmentJournal."Document No.");
+        ValueEntry.SetRange("Document Line No.", GSTCreditAdjustmentJournal."Document Line No.");
+        ValueEntry.SetRange("Item No.", GSTCreditAdjustmentJournal."No.");
         if ValueEntry.FindFirst() then begin
             ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.");
             if GSTCreditAdjustmentJournal."Total GST Amount" <> 0 then begin
@@ -1474,7 +1551,7 @@ codeunit 18318 "GST Settlement"
                 ItemJournalLine."Document Date" := GSTCreditAdjustmentJournal."Adjustment Posting Date";
                 ItemJournalLine.Validate("Document No.", GSTCreditAdjustmentJournal."Adjust Document No.");
                 ItemJournalLine."Document Line No." := GSTCreditAdjustmentJournal."Document Line No.";
-                ItemJournalLine."External Document No." := GSTCreditAdjustmentJournal."External Document No.";
+                ItemJournalLine."External Document No." := CopyStr(GSTCreditAdjustmentJournal."External Document No.", 1, MaxStrLen(ItemJournalLine."External Document No."));
                 ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::Purchase);
                 ItemJournalLine."Value Entry Type" := ItemJournalLine."Value Entry Type"::Revaluation;
                 ItemJournalLine.Validate("Item No.", GSTCreditAdjustmentJournal."No.");
@@ -1521,11 +1598,11 @@ codeunit 18318 "GST Settlement"
         Sign: Integer;
         GSTExempted: Boolean;
     begin
-        GSTLiabilityBuffer.setrange("Transaction Type", GSTLiabilityBuffer."Transaction Type"::Purchase);
-        GSTLiabilityBuffer.setrange("Account No.", VendNo);
-        GSTLiabilityBuffer.setrange("Original Document Type", GSTLiabilityBuffer."Original Document Type"::Invoice);
-        GSTLiabilityBuffer.setrange("Original Document No.", DocumentNo);
-        if GSTLiabilityBuffer.findset() then begin
+        GSTLiabilityBuffer.SetRange("Transaction Type", GSTLiabilityBuffer."Transaction Type"::Purchase);
+        GSTLiabilityBuffer.SetRange("Account No.", VendNo);
+        GSTLiabilityBuffer.SetRange("Original Document Type", GSTLiabilityBuffer."Original Document Type"::Invoice);
+        GSTLiabilityBuffer.SetRange("Original Document No.", DocumentNo);
+        if GSTLiabilityBuffer.FindSet() then begin
             Sign := RemainingAmount / Abs(RemainingAmount);
             repeat
                 if (GSTGroupCode <> GSTLiabilityBuffer."GST Group Code") or (GSTExempted <> GSTLiabilityBuffer.Exempted) then begin
@@ -1549,8 +1626,7 @@ codeunit 18318 "GST Settlement"
                         GSTLiabilityBuffer."Credit Amount" := GSTLiabilityBuffer."Applied Amount";
                 end;
 
-                GSTLiabilityBuffer.modify(true);
-
+                GSTLiabilityBuffer.Modify(true);
                 GSTGroupCode := GSTLiabilityBuffer."GST Group Code";
                 GSTExempted := GSTLiabilityBuffer.Exempted;
                 Clear(AppliedAmount);
@@ -1563,7 +1639,7 @@ codeunit 18318 "GST Settlement"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         AdjDocNo: Code[20];
         AdjPostingDate: Date;
-        NatureOfAdj: enum "Cr Libty Adjustment Type")
+        NatureOfAdj: Enum "Cr Libty Adjustment Type")
     var
         GSTLiabilityBuffer: array[2] of Record "GST Liability Buffer";
         GSTLiabilityAdjustment: Record "GST Liability Adjustment";
@@ -1571,9 +1647,9 @@ codeunit 18318 "GST Settlement"
         TotalGSTAmount: Decimal;
         TotalCreditAmount: Decimal;
     begin
-        GSTLiabilityBuffer[1].setrange("Original Document No.", VendorLedgerEntry."Document No.");
+        GSTLiabilityBuffer[1].SetRange("Original Document No.", VendorLedgerEntry."Document No.");
         GSTLiabilityBuffer[1].SetFilter("Applied Amount", '>%1', 0);
-        if GSTLiabilityBuffer[1].findset() then
+        if GSTLiabilityBuffer[1].FindSet() then
             repeat
                 if DocumentNo <> GSTLiabilityBuffer[1]."Original Document No." then begin
                     TotalGSTAmount := 0;
@@ -1581,8 +1657,8 @@ codeunit 18318 "GST Settlement"
                     DocumentNo := GSTLiabilityBuffer[1]."Original Document No.";
 
                     GSTLiabilityBuffer[2].CopyFilters(GSTLiabilityBuffer[1]);
-                    GSTLiabilityBuffer[2].setrange("Original Document No.", GSTLiabilityBuffer[1]."Original Document No.");
-                    if GSTLiabilityBuffer[2].findset() then
+                    GSTLiabilityBuffer[2].SetRange("Original Document No.", GSTLiabilityBuffer[1]."Original Document No.");
+                    if GSTLiabilityBuffer[2].FindSet() then
                         repeat
                             if GSTLiabilityBuffer[2]."GST Credit" = GSTLiabilityBuffer[2]."GST Credit"::Availment then
                                 TotalCreditAmount += GSTLiabilityBuffer[2]."Credit Amount";
@@ -1620,12 +1696,15 @@ codeunit 18318 "GST Settlement"
     var
         GSTLiabilityBuffer: array[2] of Record "GST Liability Buffer";
         GSTLiabilityAdjustment: Record "GST Liability Adjustment";
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
         DocumentNo: Code[20];
         TotalGSTAmount: Decimal;
         TotalCreditAmount: Decimal;
     begin
-        GSTLiabilityBuffer[1].setrange("Original Document No.", DetailedGSTLedgerEntry."Document No.");
-        if GSTLiabilityBuffer[1].findset() then
+        GetDetailedGSTLedgerEnfo(DetailedGSTLedgerEntry."Entry No.", DetailedGSTLedgerEntryInfo);
+
+        GSTLiabilityBuffer[1].SetRange("Original Document No.", DetailedGSTLedgerEntry."Document No.");
+        if GSTLiabilityBuffer[1].FindSet() then
             repeat
                 if DocumentNo <> GSTLiabilityBuffer[1]."Original Document No." then begin
                     TotalGSTAmount := 0;
@@ -1633,8 +1712,8 @@ codeunit 18318 "GST Settlement"
                     DocumentNo := GSTLiabilityBuffer[1]."Original Document No.";
 
                     GSTLiabilityBuffer[2].CopyFilters(GSTLiabilityBuffer[1]);
-                    GSTLiabilityBuffer[2].setrange("Original Document No.", GSTLiabilityBuffer[1]."Original Document No.");
-                    if GSTLiabilityBuffer[2].findset() then
+                    GSTLiabilityBuffer[2].SetRange("Original Document No.", GSTLiabilityBuffer[1]."Original Document No.");
+                    if GSTLiabilityBuffer[2].FindSet() then
                         repeat
                             if GSTLiabilityBuffer[2]."GST Credit" = GSTLiabilityBuffer[2]."GST Credit"::Availment then
                                 TotalCreditAmount += GSTLiabilityBuffer[2]."Credit Amount";
@@ -1652,7 +1731,7 @@ codeunit 18318 "GST Settlement"
                     GSTLiabilityAdjustment."Document No." := DetailedGSTLedgerEntry."Document No.";
                     GSTLiabilityAdjustment."Document Posting Date" := DetailedGSTLedgerEntry."Posting Date";
                     GSTLiabilityAdjustment."External Document No." := DetailedGSTLedgerEntry."External Document No.";
-                    GSTLiabilityAdjustment."Location State Code" := DetailedGSTLedgerEntry."Location State Code";
+                    GSTLiabilityAdjustment."Location State Code" := DetailedGSTLedgerEntryInfo."Location State Code";
                     GSTLiabilityAdjustment."GST Jurisdiction Type" := GSTLiabilityBuffer[2]."GST Jurisdiction Type";
                     GSTLiabilityAdjustment."Adjustment Posting Date" := AdjPostingDate;
                     GSTLiabilityAdjustment."Adjustment Amount" := TotalGSTAmount;
@@ -1673,12 +1752,12 @@ codeunit 18318 "GST Settlement"
     var
         GSTLiabilityBuffer2: Record "GST Liability Buffer";
     begin
-        GSTLiabilityBuffer2.setrange("Transaction Type", GSTLiabilityBuffer."Transaction Type");
-        GSTLiabilityBuffer2.setrange("Account No.", GSTLiabilityBuffer."Account No.");
-        GSTLiabilityBuffer2.setrange("Original Document Type", GSTLiabilityBuffer."Original Document Type");
-        GSTLiabilityBuffer2.setrange("Original Document No.", GSTLiabilityBuffer."Original Document No.");
-        GSTLiabilityBuffer2.setrange("GST Group Code", GSTLiabilityBuffer."GST Group Code");
-        GSTLiabilityBuffer2.setrange(Exempted, GSTLiabilityBuffer.Exempted);
+        GSTLiabilityBuffer2.SetRange("Transaction Type", GSTLiabilityBuffer."Transaction Type");
+        GSTLiabilityBuffer2.SetRange("Account No.", GSTLiabilityBuffer."Account No.");
+        GSTLiabilityBuffer2.SetRange("Original Document Type", GSTLiabilityBuffer."Original Document Type");
+        GSTLiabilityBuffer2.SetRange("Original Document No.", GSTLiabilityBuffer."Original Document No.");
+        GSTLiabilityBuffer2.SetRange("GST Group Code", GSTLiabilityBuffer."GST Group Code");
+        GSTLiabilityBuffer2.SetRange(Exempted, GSTLiabilityBuffer.Exempted);
         GSTLiabilityBuffer2.SetFilter("GST Base Amount", '<>%1', 0);
         if GSTLiabilityBuffer2.FindFirst() then
             GSTBaseAmount := GSTLiabilityBuffer2."GST Base Amount";
@@ -1687,18 +1766,18 @@ codeunit 18318 "GST Settlement"
     local procedure GetInvoiceGSTComponentWise(
         var GSTLiabilityBuffer: Record "GST Liability Buffer";
         DocumentType: Enum "Current Doc. Type";
-        DocumentNo: Code[20];
-        Base: Boolean): Decimal
+                          DocumentNo: Code[20];
+                          Base: Boolean): Decimal
     var
         GSTLiabilityBuffer2: Record "GST Liability Buffer";
     begin
-        GSTLiabilityBuffer2.setrange("Transaction Type", GSTLiabilityBuffer."Transaction Type");
-        GSTLiabilityBuffer2.setrange("Account No.", GSTLiabilityBuffer."Account No.");
-        GSTLiabilityBuffer2.setrange("Original Document Type", DocumentType);
-        GSTLiabilityBuffer2.setrange("Original Document No.", DocumentNo);
-        GSTLiabilityBuffer2.setrange("GST Component Code", GSTLiabilityBuffer."GST Component Code");
-        GSTLiabilityBuffer2.setrange("GST Group Code", GSTLiabilityBuffer."GST Group Code");
-        GSTLiabilityBuffer2.setrange(Exempted, GSTLiabilityBuffer.Exempted);
+        GSTLiabilityBuffer2.SetRange("Transaction Type", GSTLiabilityBuffer."Transaction Type");
+        GSTLiabilityBuffer2.SetRange("Account No.", GSTLiabilityBuffer."Account No.");
+        GSTLiabilityBuffer2.SetRange("Original Document Type", DocumentType);
+        GSTLiabilityBuffer2.SetRange("Original Document No.", DocumentNo);
+        GSTLiabilityBuffer2.SetRange("GST Component Code", GSTLiabilityBuffer."GST Component Code");
+        GSTLiabilityBuffer2.SetRange("GST Group Code", GSTLiabilityBuffer."GST Group Code");
+        GSTLiabilityBuffer2.SetRange(Exempted, GSTLiabilityBuffer.Exempted);
         if GSTLiabilityBuffer2.FindFirst() then begin
             if Base then
                 exit(GSTLiabilityBuffer2."GST Base Amount");
@@ -1728,6 +1807,8 @@ codeunit 18318 "GST Settlement"
         AppliedBaseAmount: Decimal;
         AppliedAmount: Decimal;
         DimensionSetID: Integer)
+    var
+        GSTBaseValidation: Codeunit "GST Base Validation";
     begin
         TempGSTPostingBuffer1[1]."Transaction Type" := TempGSTPostingBuffer1[1]."Transaction Type"::Purchase;
         TempGSTPostingBuffer1[1].Type := DetailedGSTLedgerEntry.Type;
@@ -1738,8 +1819,8 @@ codeunit 18318 "GST Settlement"
         TempGSTPostingBuffer1[1]."GST Group Code" := '';
         TempGSTPostingBuffer1[1].Availment := DetailedGSTLedgerEntry."GST Credit" = DetailedGSTLedgerEntry."GST Credit"::Availment;
         TempGSTPostingBuffer1[1]."GST Group Type" := TempGSTPostingBuffer1[1]."GST Group Type"::Service;
-        TempGSTPostingBuffer1[1]."GST Base Amount" := RoundGSTPrecision(AppliedBaseAmount);
-        TempGSTPostingBuffer1[1]."GST Amount" := RoundGSTPrecision(AppliedAmount);
+        TempGSTPostingBuffer1[1]."GST Base Amount" := GSTBaseValidation.RoundGSTPrecision(AppliedBaseAmount);
+        TempGSTPostingBuffer1[1]."GST Amount" := GSTBaseValidation.RoundGSTPrecision(AppliedAmount);
         TempGSTPostingBuffer1[1]."GST %" := DetailedGSTLedgerEntry."GST %";
         TempGSTPostingBuffer1[1]."Normal Payment" := DetailedGSTLedgerEntry."Payment Type" = "Payment Type"::Normal;
         TempGSTPostingBuffer1[1]."Dimension Set ID" := DimensionSetID;
@@ -1756,38 +1837,22 @@ codeunit 18318 "GST Settlement"
     var
         PostedGSTLiabilityAdj: Record "Posted GST Liability Adj.";
         PostedGSTLiabilityAdj1: Record "Posted GST Liability Adj.";
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
         EntryNo: Integer;
-        AdjEntryTypeEnum: Enum "Entry Type";
-        AdjustmentEntrySourceType: Enum "Adjustment Entry Source Type";
-        AdjustmentEntryGSTCredit: Enum "Adjustment Entry GST Credit";
-        EntryType: Text;
-        SourceType: Text;
-        GstCredit: Text;
     begin
         if PostedGSTLiabilityAdj1.FindLast() then
             EntryNo := PostedGSTLiabilityAdj1."Entry No." + 1
         else
             EntryNo := 1;
 
+        GetDetailedGSTLedgerEnfo(DetailedGSTLedgerEntry."Entry No.", DetailedGSTLedgerEntryInfo);
         if AppliedBaseAmount <> 0 then begin
-            // TODO:  "Detail Ledger Entry Type" should be corrected
-            EntryType := Format(DetailedGSTLedgerEntry."Entry Type");
-            Evaluate(AdjEntryTypeEnum, EntryType);
-
-            // TODO:  "Adjustment Entry Source Type" should be corrected
-            SourceType := Format(DetailedGSTLedgerEntry."Source Type");
-            Evaluate(AdjustmentEntrySourceType, SourceType);
-
-            // TODO:  "Adjustment Entry GST Credit" should be corrected
-            GstCredit := Format(DetailedGSTLedgerEntry."GST Credit");
-            Evaluate(AdjustmentEntryGSTCredit, GstCredit);
-
             PostedGSTLiabilityAdj.Init();
             PostedGSTLiabilityAdj."Entry No." := EntryNo;
             PostedGSTLiabilityAdj."Posting Date" := GSTLiabilityAdjustment."Adjustment Posting Date";
-            PostedGSTLiabilityAdj."USER ID" := copystr(USERID(), 1, MaxStrLen(DetailedGSTLedgerEntry."USER ID"));
+            PostedGSTLiabilityAdj."USER ID" := CopyStr(UserId(), 1, MaxStrLen(DetailedGSTLedgerEntryInfo."USER ID"));
             PostedGSTLiabilityAdj."Adjusted Doc. Entry No." := DetailedGSTLedgerEntry."Entry No.";
-            PostedGSTLiabilityAdj."Adjusted Doc. Entry Type" := AdjEntryTypeEnum;
+            PostedGSTLiabilityAdj."Adjusted Doc. Entry Type" := DetailedGSTLedgerEntry."Entry Type";
             PostedGSTLiabilityAdj."Transaction Type" := DetailedGSTLedgerEntry."Transaction Type";
             PostedGSTLiabilityAdj."Document Type" := DetailedGSTLedgerEntry."Document Type";
             PostedGSTLiabilityAdj."Document No." := DetailedGSTLedgerEntry."Document No.";
@@ -1795,7 +1860,7 @@ codeunit 18318 "GST Settlement"
             PostedGSTLiabilityAdj.Type := DetailedGSTLedgerEntry.Type;
             PostedGSTLiabilityAdj."No." := DetailedGSTLedgerEntry."No.";
             PostedGSTLiabilityAdj."Product Type" := DetailedGSTLedgerEntry."Product Type";
-            PostedGSTLiabilityAdj."Source Type" := AdjustmentEntrySourceType;
+            PostedGSTLiabilityAdj."Source Type" := DetailedGSTLedgerEntry."Source Type";
             PostedGSTLiabilityAdj."Source No." := DetailedGSTLedgerEntry."Source No.";
             PostedGSTLiabilityAdj."HSN/SAC Code" := DetailedGSTLedgerEntry."HSN/SAC Code";
             PostedGSTLiabilityAdj."GST Component Code" := DetailedGSTLedgerEntry."GST Component Code";
@@ -1805,7 +1870,7 @@ codeunit 18318 "GST Settlement"
                 PostedGSTLiabilityAdj."GST Base Amount" := AppliedBaseAmount;
                 PostedGSTLiabilityAdj."GST Amount" := AppliedAmount;
                 PostedGSTLiabilityAdj."Adjustment Amount" := AppliedAmount;
-                PostedGSTLiabilityAdj.Positive := DetailedGSTLedgerEntry.Positive;
+                PostedGSTLiabilityAdj.Positive := DetailedGSTLedgerEntryInfo.Positive;
             end else begin
                 PostedGSTLiabilityAdj."GST Base Amount" := -AppliedBaseAmount;
                 PostedGSTLiabilityAdj."GST Amount" := -AppliedAmount;
@@ -1819,11 +1884,11 @@ codeunit 18318 "GST Settlement"
             PostedGSTLiabilityAdj."Location  Reg. No." := DetailedGSTLedgerEntry."Location  Reg. No.";
             PostedGSTLiabilityAdj."Buyer/Seller Reg. No." := DetailedGSTLedgerEntry."Buyer/Seller Reg. No.";
             PostedGSTLiabilityAdj."GST Group Type" := DetailedGSTLedgerEntry."GST Group Type";
-            PostedGSTLiabilityAdj."GST Credit" := AdjustmentEntryGSTCredit;
+            PostedGSTLiabilityAdj."GST Credit" := DetailedGSTLedgerEntry."GST Credit";
             PostedGSTLiabilityAdj."GST Rounding Precision" := DetailedGSTLedgerEntry."GST Rounding Precision";
             PostedGSTLiabilityAdj."GST Rounding Type" := DetailedGSTLedgerEntry."GST Rounding Type";
             PostedGSTLiabilityAdj."GST Vendor Type" := DetailedGSTLedgerEntry."GST Vendor Type";
-            PostedGSTLiabilityAdj.Cess := DetailedGSTLedgerEntry.Cess;
+            PostedGSTLiabilityAdj.Cess := DetailedGSTLedgerEntryInfo.Cess;
             PostedGSTLiabilityAdj."Input Service Distribution" := DetailedGSTLedgerEntry."Input Service Distribution";
             if DetailedGSTLedgerEntry."GST Credit" = DetailedGSTLedgerEntry."GST Credit"::Availment then
                 PostedGSTLiabilityAdj."Credit Availed" := true;
@@ -1841,14 +1906,14 @@ codeunit 18318 "GST Settlement"
 
     local procedure UpdateServiceLiabilityDetailedGSTLedgerEntry(
         TypeOfAdjustment: Enum "Cr Libty Adjustment Type";
-        EntryNo: Integer;
-        AppliedBaseAmount: Decimal;
-        AppliedAmount: Decimal)
+                              EntryNo: Integer;
+                              AppliedBaseAmount: Decimal;
+                              AppliedAmount: Decimal)
     var
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
     begin
         DetailedGSTLedgerEntry.Get(EntryNo);
-        DetailedGSTLedgerEntry."Cr. & Libty. Adjustment Type" := TypeOfAdjustment;
+        DetailedGSTLedgerEntry."Cr. & Liab. Adjustment Type" := TypeOfAdjustment;
         if TypeOfAdjustment = TypeOfAdjustment::Reverse then begin
             DetailedGSTLedgerEntry."AdjustmentBase Amount" := 0;
             DetailedGSTLedgerEntry."Adjustment Amount" := 0;
@@ -1862,7 +1927,7 @@ codeunit 18318 "GST Settlement"
             DetailedGSTLedgerEntry."Remaining GST Amount" -= AppliedAmount;
         end;
 
-        DetailedGSTLedgerEntry.modify();
+        DetailedGSTLedgerEntry.Modify();
     end;
 
     local procedure GetCreditAccountNormalPayment(
@@ -1872,32 +1937,24 @@ codeunit 18318 "GST Settlement"
         var AccountNo2: Code[20];
         var BalanceAccountNo: Code[20];
         var BalanceAccountNo2: Code[20])
+    var
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
+        GSTHelpers: Codeunit "GST Helpers";
     begin
         Clear(AccountNo);
         Clear(AccountNo2);
         Clear(BalanceAccountNo);
         Clear(BalanceAccountNo2);
 
+        GetDetailedGSTLedgerEnfo(DetailedGSTLedgerEntry."Entry No.", DetailedGSTLedgerEntryInfo);
         if GSTPostingBuffer.Availment then begin
-            AccountNo := GSTHelpers.GetGSTPayableAccountNo(
-                DetailedGSTLedgerEntry."Location State Code",
-                GSTPostingBuffer."GST Component Code");
-            AccountNo2 := GSTHelpers.GetGSTRcvblInterimAccountNo(
-                DetailedGSTLedgerEntry."Location State Code",
-                GSTPostingBuffer."GST Component Code");
-            BalanceAccountNo := GSTHelpers.GetGSTPayableInterimAccountNo(
-                DetailedGSTLedgerEntry."Location State Code",
-                GSTPostingBuffer."GST Component Code");
-            BalanceAccountNo2 := GSTHelpers.GetGSTReceivableAccountNo(
-                DetailedGSTLedgerEntry."Location State Code",
-                GSTPostingBuffer."GST Component Code");
+            AccountNo := GSTHelpers.GetGSTPayableAccountNo(DetailedGSTLedgerEntryInfo."Location State Code", GSTPostingBuffer."GST Component Code");
+            AccountNo2 := GSTHelpers.GetGSTRcvblInterimAccountNo(DetailedGSTLedgerEntryInfo."Location State Code", GSTPostingBuffer."GST Component Code");
+            BalanceAccountNo := GSTHelpers.GetGSTPayableInterimAccountNo(DetailedGSTLedgerEntryInfo."Location State Code", GSTPostingBuffer."GST Component Code");
+            BalanceAccountNo2 := GSTHelpers.GetGSTReceivableAccountNo(DetailedGSTLedgerEntryInfo."Location State Code", GSTPostingBuffer."GST Component Code");
         end else begin
-            AccountNo := GSTHelpers.GetGSTPayableAccountNo(
-                DetailedGSTLedgerEntry."Location State Code",
-                GSTPostingBuffer."GST Component Code");
-            BalanceAccountNo := GSTHelpers.GetGSTPayableInterimAccountNo(
-                DetailedGSTLedgerEntry."Location State Code",
-                GSTPostingBuffer."GST Component Code");
+            AccountNo := GSTHelpers.GetGSTPayableAccountNo(DetailedGSTLedgerEntryInfo."Location State Code", GSTPostingBuffer."GST Component Code");
+            BalanceAccountNo := GSTHelpers.GetGSTPayableInterimAccountNo(DetailedGSTLedgerEntryInfo."Location State Code", GSTPostingBuffer."GST Component Code");
         end;
     end;
 
@@ -1907,7 +1964,7 @@ codeunit 18318 "GST Settlement"
         if TempGSTPostingBuffer1[2].Find() then begin
             TempGSTPostingBuffer1[2]."GST Base Amount" += TempGSTPostingBuffer1[1]."GST Base Amount";
             TempGSTPostingBuffer1[2]."GST Amount" += TempGSTPostingBuffer1[1]."GST Amount";
-            TempGSTPostingBuffer1[2].modify();
+            TempGSTPostingBuffer1[2].Modify();
         end else
             TempGSTPostingBuffer1[1].Insert();
     end;
@@ -1935,10 +1992,10 @@ codeunit 18318 "GST Settlement"
         GSTINNo: Code[20];
         DocumentNo: Code[20];
         PostingDate: Date;
-        AccountType: Option "G/L Account",,,"Bank Account";
-        AccountNo: Code[20];
-        BankRefNo: Code[10];
-        BankRefDate: Date)
+        AccountType: Enum "GST Settlement Account Type";
+                         AccountNo: Code[20];
+                         BankRefNo: Code[10];
+                         BankRefDate: Date)
     var
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         ReturnRecoComponent: Record "Retrun & Reco. Components";
@@ -1964,7 +2021,7 @@ codeunit 18318 "GST Settlement"
     begin
         Window.Open(PaymentBufferMsg);
         DetailedGSTLedgerEntry.LockTable();
-        if ReturnRecoComponent.findset() then
+        if ReturnRecoComponent.FindSet() then
             repeat
                 Window.Update(1, ReturnRecoComponent."Component Name");
                 InsertGSTPaymentBuffer(
@@ -2024,43 +2081,7 @@ codeunit 18318 "GST Settlement"
                 end;
 
                 if GSTPaymentBuffer."Net Payment Liability" >= 0 then
-                    if GSTPaymentBuffer."Net Payment Liability" <= GSTPaymentBuffer."Total Credit Available" then
-                        GSTPaymentBuffer.Validate("Credit Utilized", GSTPaymentBuffer."Net Payment Liability")
-                    else begin
-                        GSTPaymentBuffer.Validate("Credit Utilized", GSTPaymentBuffer."Total Credit Available");
-                        if GSTPaymentBuffer."Credit Utilized" > 0 then begin
-                            if GSTPaymentBuffer."GST TDS Credit Available" > 0 then
-                                if GSTPaymentBuffer."GST TDS Credit Available" <
-                                   (GSTPaymentBuffer."Net Payment Liability" - GSTPaymentBuffer."Credit Utilized")
-                                then
-                                    GSTPaymentBuffer.Validate("GST TDS Credit Utilized", GSTPaymentBuffer."GST TDS Credit Available")
-                                else
-                                    GSTPaymentBuffer.Validate(
-                                      "GST TDS Credit Utilized",
-                                      GSTPaymentBuffer."Net Payment Liability" - GSTPaymentBuffer."Credit Utilized");
-
-                            if GSTPaymentBuffer."GST TCS Credit Available" > 0 then
-                                if GSTPaymentBuffer."GST TCS Credit Available" <
-                                   (GSTPaymentBuffer."Net Payment Liability" - GSTPaymentBuffer."Credit Utilized" -
-                                    GSTPaymentBuffer."GST TDS Credit Utilized")
-                                then
-                                    GSTPaymentBuffer.Validate("GST TCS Credit Utilized", GSTPaymentBuffer."GST TCS Credit Available")
-                                else
-                                    GSTPaymentBuffer.Validate(
-                                      "GST TCS Credit Utilized",
-                                      GSTPaymentBuffer."Net Payment Liability" -
-                                        GSTPaymentBuffer."Credit Utilized" -
-                                        GSTPaymentBuffer."GST TDS Credit Utilized");
-
-                            GSTPaymentBuffer.Validate(
-                                "Payment Amount",
-                                GSTPaymentBuffer."Net Payment Liability" -
-                                GSTPaymentBuffer."Credit Utilized" -
-                                GSTPaymentBuffer."GST TDS Credit Utilized" -
-                                GSTPaymentBuffer."GST TCS Credit Utilized")
-                        end else
-                            GSTPaymentBuffer.Validate("Payment Amount", GSTPaymentBuffer."Net Payment Liability");
-                    end
+                    GSTPaymentBuffer.Validate("Payment Amount", GSTPaymentBuffer."Net Payment Liability")
                 else begin
                     GSTPaymentBuffer.Validate("Credit Utilized", 0);
                     GSTPaymentBuffer.Validate("Payment Amount", 0);
@@ -2070,7 +2091,7 @@ codeunit 18318 "GST Settlement"
                     GSTPaymentBuffer.Validate("Net Payment Liability", 0);
                 end;
 
-                GSTPaymentBuffer.modify(true);
+                GSTPaymentBuffer.Modify(true);
             until ReturnRecoComponent.Next() = 0;
 
         Window.Close();
@@ -2078,14 +2099,14 @@ codeunit 18318 "GST Settlement"
 
     local procedure InsertGSTPaymentBuffer(
         var GSTPaymentBuffer: Record "GST Payment Buffer";
-        GSTComponent: Code[10];
+        GSTComponent: Code[30];
         GSTINNo: Code[20];
         DocumentNo: Code[20];
-        AccountType: Option "G/L Account""Bank Account";
-        AccountNo: Code[20];
-        PostingDate: Date;
-        BankRefNo: Code[10];
-        BankRefDate: Date)
+        AccountType: Enum "GST Settlement Account Type";
+                         AccountNo: Code[20];
+                         PostingDate: Date;
+                         BankRefNo: Code[10];
+                         BankRefDate: Date)
     var
         GSTRegistrationNos: Record "GST Registration Nos.";
     begin
@@ -2097,7 +2118,7 @@ codeunit 18318 "GST Settlement"
         GSTPaymentBuffer.Description := GSTComponent;
         GSTPaymentBuffer."Document No." := DocumentNo;
         GSTPaymentBuffer."Location State Code" := GetGSTNState(GSTINNo);
-        GSTPaymentBuffer."Account Type" := AccountType;
+        GSTPaymentBuffer."Account Type" := GSTSettlementAccTypeEnum2GenJnlAccType(AccountType);
         GSTPaymentBuffer."Account No." := AccountNo;
         GSTPaymentBuffer."Posting Date" := PostingDate;
         GSTPaymentBuffer."Period end Date" := GetPeriodendDate(PostingDate);
@@ -2119,7 +2140,7 @@ codeunit 18318 "GST Settlement"
         Clear(CreditAvailable);
 
         FilterDetailedGSTLedgerEntry(GSTPaymentBuffer, DetailedGSTLedgerEntry);
-        if DetailedGSTLedgerEntry.findset() then
+        if DetailedGSTLedgerEntry.FindSet() then
             repeat
                 if not ((DetailedGSTLedgerEntry."ARN No." <> '') and (DetailedGSTLedgerEntry."Buyer/Seller Reg. No." = '')) then
                     case DetailedGSTLedgerEntry."Reverse Charge" of
@@ -2159,11 +2180,11 @@ codeunit 18318 "GST Settlement"
         var DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry")
     begin
         DetailedGSTLedgerEntry.SetCurrentKey("Location  Reg. No.", "GST Component Code", Paid, "Posting Date");
-        DetailedGSTLedgerEntry.setrange("Location  Reg. No.", GSTPaymentBuffer."GST Registration No.");
-        DetailedGSTLedgerEntry.setrange("GST Component Code", GSTPaymentBuffer."GST Component Code");
-        DetailedGSTLedgerEntry.setrange(Paid, false);
+        DetailedGSTLedgerEntry.SetRange("Location  Reg. No.", GSTPaymentBuffer."GST Registration No.");
+        DetailedGSTLedgerEntry.SetRange("GST Component Code", GSTPaymentBuffer."GST Component Code");
+        DetailedGSTLedgerEntry.SetRange(Paid, false);
         DetailedGSTLedgerEntry.SetFilter("Posting Date", '..%1', GSTPaymentBuffer."Period end Date");
-        DetailedGSTLedgerEntry.setrange("Input Service Distribution", false);
+        DetailedGSTLedgerEntry.SetRange("Input Service Distribution", false);
         DetailedGSTLedgerEntry.SetFilter("Entry Type", '<>%1', DetailedGSTLedgerEntry."Entry Type"::"Adjustment Entry");
     end;
 
@@ -2186,7 +2207,7 @@ codeunit 18318 "GST Settlement"
         Clear(CreditAmount);
 
         FilterPostedCreditAdjustmentEntry(GSTPaymentBuffer, DetailedCrAdjstmntEntry);
-        if DetailedCrAdjstmntEntry.findset() then
+        if DetailedCrAdjstmntEntry.FindSet() then
             repeat
                 if DetailedCrAdjstmntEntry."Liable to Pay" then
                     LiableAmount += DetailedCrAdjstmntEntry."GST Amount";
@@ -2200,9 +2221,9 @@ codeunit 18318 "GST Settlement"
         var DetailedCrAdjstmntEntry: Record "Detailed Cr. Adjstmnt. Entry")
     begin
         DetailedCrAdjstmntEntry.SetCurrentKey("Location  Reg. No.", "GST Component Code", Paid, "Posting Date");
-        DetailedCrAdjstmntEntry.setrange("Location  Reg. No.", GSTPaymentBuffer."GST Registration No.");
-        DetailedCrAdjstmntEntry.setrange("GST Component Code", GSTPaymentBuffer."GST Component Code");
-        DetailedCrAdjstmntEntry.setrange(Paid, false);
+        DetailedCrAdjstmntEntry.SetRange("Location  Reg. No.", GSTPaymentBuffer."GST Registration No.");
+        DetailedCrAdjstmntEntry.SetRange("GST Component Code", GSTPaymentBuffer."GST Component Code");
+        DetailedCrAdjstmntEntry.SetRange(Paid, false);
         DetailedCrAdjstmntEntry.SetFilter("Posting Date", '..%1', GSTPaymentBuffer."Posting Date");
     end;
 
@@ -2217,7 +2238,7 @@ codeunit 18318 "GST Settlement"
         Clear(CreditAmount);
 
         FilterPostedCreditandLiabilityEntry(GSTPaymentBuffer, PostedGSTLiabilityAdj);
-        if PostedGSTLiabilityAdj.findset() then
+        if PostedGSTLiabilityAdj.FindSet() then
             repeat
                 if PostedGSTLiabilityAdj."Liable to Pay" then
                     LiableAmount += PostedGSTLiabilityAdj."GST Amount";
@@ -2232,7 +2253,7 @@ codeunit 18318 "GST Settlement"
     begin
         Clear(Liability);
         FilterDetailedGSTLedgerEntryforAdjustment(GSTPaymentBuffer, DetailedGSTLedgerEntry);
-        if DetailedGSTLedgerEntry.findset() then
+        if DetailedGSTLedgerEntry.FindSet() then
             repeat
                 if not ((DetailedGSTLedgerEntry."ARN No." <> '') and (DetailedGSTLedgerEntry."Buyer/Seller Reg. No." = '')) then
                     Liability += Abs(DetailedGSTLedgerEntry."GST Amount");
@@ -2245,7 +2266,7 @@ codeunit 18318 "GST Settlement"
     begin
         Clear(CreditAmount);
         FilterDetGSTDistEntry(GSTPaymentBuffer, DetailedGSTDistEntry, true);
-        if DetailedGSTDistEntry.findset() then
+        if DetailedGSTDistEntry.FindSet() then
             repeat
                 if DetailedGSTDistEntry."Credit Availed" then
                     CreditAmount += DetailedGSTDistEntry."Distribution Amount";
@@ -2257,12 +2278,12 @@ codeunit 18318 "GST Settlement"
         var DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry")
     begin
         DetailedGSTLedgerEntry.SetCurrentKey("Location  Reg. No.", "GST Component Code", Paid, "Posting Date");
-        DetailedGSTLedgerEntry.setrange("Location  Reg. No.", GSTPaymentBuffer."GST Registration No.");
-        DetailedGSTLedgerEntry.setrange("GST Component Code", GSTPaymentBuffer."GST Component Code");
-        DetailedGSTLedgerEntry.setrange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::"Adjustment Entry");
-        DetailedGSTLedgerEntry.setrange(Paid, false);
+        DetailedGSTLedgerEntry.SetRange("Location  Reg. No.", GSTPaymentBuffer."GST Registration No.");
+        DetailedGSTLedgerEntry.SetRange("GST Component Code", GSTPaymentBuffer."GST Component Code");
+        DetailedGSTLedgerEntry.SetRange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::"Adjustment Entry");
+        DetailedGSTLedgerEntry.SetRange(Paid, false);
         DetailedGSTLedgerEntry.SetFilter("Posting Date", '..%1', GSTPaymentBuffer."Period end Date");
-        DetailedGSTLedgerEntry.setrange("Input Service Distribution", false);
+        DetailedGSTLedgerEntry.SetRange("Input Service Distribution", false);
     end;
 
     local procedure GetGSTTDSTCSCreditAmount(
@@ -2278,7 +2299,7 @@ codeunit 18318 "GST Settlement"
             FilterGSTTDSTCSEntry(GSTPaymentBuffer, GSTTdsTcsEntry, EntryType::TDS, false)
         else
             FilterGSTTDSTCSEntry(GSTPaymentBuffer, GSTTdsTcsEntry, EntryType::TCS, false);
-        if GSTTdsTcsEntry.findset() then
+        if GSTTdsTcsEntry.FindSet() then
             repeat
                 CreditAmount += GSTTdsTcsEntry."GST TDS/TCS Amount (LCY)";
             until GSTTdsTcsEntry.Next() = 0;
@@ -2292,7 +2313,7 @@ codeunit 18318 "GST Settlement"
         Clear(LiabilityAmount);
 
         FilterGSTTDSTCSEntry(GSTPaymentBuffer, GSTTdsTcsEntry, EntryType::TCS, true);
-        if GSTTdsTcsEntry.findset() then
+        if GSTTdsTcsEntry.FindSet() then
             repeat
                 LiabilityAmount += Abs(GSTTdsTcsEntry."GST TDS/TCS Amount (LCY)");
             until GSTTdsTcsEntry.Next() = 0;
@@ -2303,9 +2324,9 @@ codeunit 18318 "GST Settlement"
         var PostedGSTLiabilityAdj: Record "Posted GST Liability Adj.")
     begin
         PostedGSTLiabilityAdj.SetCurrentKey("Location  Reg. No.", "GST Component Code", Paid, "Posting Date");
-        PostedGSTLiabilityAdj.setrange("Location  Reg. No.", GSTPaymentBuffer."GST Registration No.");
-        PostedGSTLiabilityAdj.setrange("GST Component Code", GSTPaymentBuffer."GST Component Code");
-        PostedGSTLiabilityAdj.setrange(Paid, false);
+        PostedGSTLiabilityAdj.SetRange("Location  Reg. No.", GSTPaymentBuffer."GST Registration No.");
+        PostedGSTLiabilityAdj.SetRange("GST Component Code", GSTPaymentBuffer."GST Component Code");
+        PostedGSTLiabilityAdj.SetRange(Paid, false);
         PostedGSTLiabilityAdj.SetFilter("Posting Date", '..%1', GSTPaymentBuffer."Posting Date");
     end;
 
@@ -2316,22 +2337,22 @@ codeunit 18318 "GST Settlement"
         VendorGSTTCS: Boolean)
     begin
         GSTTdsTcsEntry.SetCurrentKey("Location GST Reg. No.", "GST Component Code", Paid, "Posting Date");
-        GSTTdsTcsEntry.setrange("Location GST Reg. No.", GSTPaymentBuffer."GST Registration No.");
-        GSTTdsTcsEntry.setrange("GST Component Code", GSTPaymentBuffer."GST Component Code");
-        GSTTdsTcsEntry.setrange(Paid, false);
+        GSTTdsTcsEntry.SetRange("Location GST Reg. No.", GSTPaymentBuffer."GST Registration No.");
+        GSTTdsTcsEntry.SetRange("GST Component Code", GSTPaymentBuffer."GST Component Code");
+        GSTTdsTcsEntry.SetRange(Paid, false);
         GSTTdsTcsEntry.SetFilter("Posting Date", '..%1', GSTPaymentBuffer."Posting Date");
         if EntryType = EntryType::TDS then begin
-            GSTTdsTcsEntry.setrange(Type, GSTTdsTcsEntry.Type::TDS);
-            GSTTdsTcsEntry.setrange("Certificate Received", true);
-            GSTTdsTcsEntry.setrange("Credit Availed", true);
+            GSTTdsTcsEntry.SetRange(Type, GSTTdsTcsEntry.Type::TDS);
+            GSTTdsTcsEntry.SetRange("Certificate Received", true);
+            GSTTdsTcsEntry.SetRange("Credit Availed", true);
         end else begin
-            GSTTdsTcsEntry.setrange(Type, GSTTdsTcsEntry.Type::TCS);
+            GSTTdsTcsEntry.SetRange(Type, GSTTdsTcsEntry.Type::TCS);
             if VendorGSTTCS then
-                GSTTdsTcsEntry.setrange("Liable to Pay", true)
+                GSTTdsTcsEntry.SetRange("Liable to Pay", true)
             else
-                GSTTdsTcsEntry.setrange("Credit Availed", true);
+                GSTTdsTcsEntry.SetRange("Credit Availed", true);
         end;
-        GSTTdsTcsEntry.setrange(Reversed, false);
+        GSTTdsTcsEntry.SetRange(Reversed, false);
     end;
 
     local procedure GetPostedAmount(
@@ -2348,8 +2369,8 @@ codeunit 18318 "GST Settlement"
         Clear(CreditAvailed);
         Clear(PaymentLiabilityRev);
 
-        PostedSettlementEntries.setrange("GST Registration No.", GSTPaymentBuffer."GST Registration No.");
-        PostedSettlementEntries.setrange("GST Component Code", GSTPaymentBuffer."GST Component Code");
+        PostedSettlementEntries.SetRange("GST Registration No.", GSTPaymentBuffer."GST Registration No.");
+        PostedSettlementEntries.SetRange("GST Component Code", GSTPaymentBuffer."GST Component Code");
         if PostedSettlementEntries.FindLast() then begin
             PaymentLiability := PostedSettlementEntries."UnAdjutsed Liability";
             CreditAvailed := PostedSettlementEntries."Carry Forward";
@@ -2364,11 +2385,11 @@ codeunit 18318 "GST Settlement"
         var DetailedGSTDistEntry: Record "Detailed GST Dist. Entry";
         FilterAvailment: Boolean)
     begin
-        DetailedGSTDistEntry.setrange("Rcpt. GST Reg. No.", GSTPaymentBuffer."GST Registration No.");
-        DetailedGSTDistEntry.setrange("Rcpt. Component Code", GSTPaymentBuffer."GST Component Code");
+        DetailedGSTDistEntry.SetRange("Rcpt. GST Reg. No.", GSTPaymentBuffer."GST Registration No.");
+        DetailedGSTDistEntry.SetRange("Rcpt. Component Code", GSTPaymentBuffer."GST Component Code");
         if FilterAvailment then
-            DetailedGSTDistEntry.setrange("Rcpt. GST Credit", DetailedGSTDistEntry."Rcpt. GST Credit"::Availment);
-        DetailedGSTDistEntry.setrange(Paid, false);
+            DetailedGSTDistEntry.SetRange("Rcpt. GST Credit", DetailedGSTDistEntry."Rcpt. GST Credit"::Availment);
+        DetailedGSTDistEntry.SetRange(Paid, false);
         DetailedGSTDistEntry.SetFilter("Posting Date", '..%1', GSTPaymentBuffer."Period end Date");
         DetailedGSTDistEntry.SetFilter("ISD Posting Date", '<=%1', GSTPaymentBuffer."Posting Date");
     end;
@@ -2376,19 +2397,17 @@ codeunit 18318 "GST Settlement"
     local procedure CheckSettlementValidations(GSTINNo: Code[20]; DocumentNo: Code[20])
     var
         GSTPaymentBuffer: Record "GST Payment Buffer";
-        GSTPaymentBuffer2: Record "GST Payment Buffer";
         GSTClaimSetoff: Record "GST Claim Setoff";
-        AvailableAmount: Decimal;
+        GSTBaseValidation: Codeunit "GST Base Validation";
     begin
         IsDifferentAccountTypeAndNo(GSTINNo, DocumentNo);
 
-        GSTPaymentBuffer.setrange("GST Registration No.", GSTINNo);
-        GSTPaymentBuffer.setrange("Document No.", DocumentNo);
-        if GSTPaymentBuffer.findset() then
+        GSTPaymentBuffer.SetRange("GST Registration No.", GSTINNo);
+        GSTPaymentBuffer.SetRange("Document No.", DocumentNo);
+        if GSTPaymentBuffer.FindSet() then
             repeat
-                UseSettlement := true;
-                CheckGSTAccountingPeriod(GSTPaymentBuffer."Posting Date");
-                CheckGSTAccountingPeriod(GSTPaymentBuffer."Period end Date");
+                GSTBaseValidation.CheckGSTAccountingPeriod(GSTPaymentBuffer."Posting Date", true);
+                GSTBaseValidation.CheckGSTAccountingPeriod(GSTPaymentBuffer."Period end Date", true);
                 if GSTPaymentBuffer."Credit Utilized" > GSTPaymentBuffer."Net Payment Liability" then
                     Error(
                         CreditUtilizedErr,
@@ -2412,47 +2431,15 @@ codeunit 18318 "GST Settlement"
                             GSTPaymentBuffer."Net Payment Liability",
                             GSTPaymentBuffer."GST Component Code");
 
-                if GSTPaymentBuffer."Total Credit Available" >= 0 then
-                    GSTPaymentBuffer."Surplus Credit" := GSTPaymentBuffer."Total Credit Available" - GSTPaymentBuffer."Credit Utilized";
-
                 if GSTPaymentBuffer."Surplus Credit" > 0 then
-                    GSTPaymentBuffer."Carry Forward" := GSTPaymentBuffer."Surplus Credit" - GSTPaymentBuffer."Surplus Cr. Utilized";
+                    GSTPaymentBuffer."Carry Forward" := GSTPaymentBuffer."Surplus Credit";
 
-                if (GSTPaymentBuffer."Credit Utilized" > 0) and (GSTPaymentBuffer."Surplus Credit" < 0) then begin
-                    AvailableAmount := 0;
+                if (GSTPaymentBuffer."Credit Utilized" > 0) then begin
 
                     GSTClaimSetoff.Reset();
                     GSTClaimSetoff.SetCurrentKey(Priority);
-                    GSTClaimSetoff.setrange("GST Component Code", GSTPaymentBuffer."GST Component Code");
-                    GSTClaimSetoff.SetFilter("Set Off Component Code", '<>%1', GSTPaymentBuffer."GST Component Code");
-                    if GSTClaimSetoff.findset() then begin
-                        repeat
-                            GSTPaymentBuffer2.Get(GSTINNo, DocumentNo, GSTClaimSetoff."Set Off Component Code");
-                            if GSTPaymentBuffer2."Total Credit Available" > 0 then begin
-                                if GSTPaymentBuffer2."Net Payment Liability" > 0 then
-                                    AvailableAmount +=
-                                      GSTPaymentBuffer2."Total Credit Available" -
-                                      (GSTPaymentBuffer2."Surplus Cr. Utilized" + GSTPaymentBuffer2."Net Payment Liability")
-                                else
-                                    AvailableAmount +=
-                                      GSTPaymentBuffer2."Total Credit Available" - GSTPaymentBuffer2."Surplus Cr. Utilized";
-                                if AvailableAmount > 0 then begin
-                                    if AvailableAmount >= Abs(GSTPaymentBuffer."Surplus Credit") then begin
-                                        GSTPaymentBuffer2."Surplus Cr. Utilized" += Abs(GSTPaymentBuffer."Surplus Credit");
-                                        GSTPaymentBuffer."Surplus Credit" := 0;
-                                    end else begin
-                                        GSTPaymentBuffer."Surplus Credit" += AvailableAmount;
-                                        GSTPaymentBuffer2."Surplus Cr. Utilized" += AvailableAmount;
-                                        AvailableAmount := 0;
-                                    end;
-                                    GSTPaymentBuffer2."Carry Forward" :=
-                                      GSTPaymentBuffer2."Surplus Credit" - GSTPaymentBuffer2."Surplus Cr. Utilized";
-                                    GSTPaymentBuffer2.modify(true);
-                                    GSTPaymentBuffer.modify(true);
-                                end;
-                            end;
-                        until (GSTClaimSetoff.Next() = 0) or (GSTPaymentBuffer."Surplus Credit" = 0);
-
+                    GSTClaimSetoff.SetRange("GST Component Code", GSTPaymentBuffer."GST Component Code");
+                    if not GSTClaimSetoff.IsEmpty() then begin
                         if GSTPaymentBuffer."Surplus Credit" < 0 then
                             Error(
                                 CreditAvailableErr,
@@ -2460,13 +2447,11 @@ codeunit 18318 "GST Settlement"
                                 GSTPaymentBuffer."Credit Utilized",
                                 GSTPaymentBuffer."Credit Utilized" + GSTPaymentBuffer."Surplus Credit");
                     end else
-                        if (GSTPaymentBuffer."Credit Utilized" > 0) and
-                            (GSTPaymentBuffer."Credit Utilized" > GSTPaymentBuffer."Total Credit Available")
-                        then
+                        if (GSTPaymentBuffer."Credit Utilized" > 0) then
                             Error(CreditSetoffErr, GSTPaymentBuffer."GST Component Code");
                 end;
 
-                GSTPaymentBuffer.modify(true);
+                GSTPaymentBuffer.Modify(true);
                 if GSTPaymentBuffer."Payment Liability - Rev. Chrg." >= 0 then
                     GSTPaymentBuffer.TestField("Payment Amount - Rev. Chrg.", GSTPaymentBuffer."Payment Liability - Rev. Chrg.")
                 else
@@ -2499,23 +2484,23 @@ codeunit 18318 "GST Settlement"
         GSTPaymentBuffer: Record "GST Payment Buffer";
         GSTPaymentBuffer2: Record "GST Payment Buffer";
     begin
-        GSTPaymentBuffer.setrange("GST Registration No.", GSTINNo);
-        GSTPaymentBuffer.setrange("Document No.", DocumentNo);
+        GSTPaymentBuffer.SetRange("GST Registration No.", GSTINNo);
+        GSTPaymentBuffer.SetRange("Document No.", DocumentNo);
         if GSTPaymentBuffer.FindFirst() then begin
-            GSTPaymentBuffer2.setrange("GST Registration No.", GSTINNo);
-            GSTPaymentBuffer2.setrange("Document No.", DocumentNo);
+            GSTPaymentBuffer2.SetRange("GST Registration No.", GSTINNo);
+            GSTPaymentBuffer2.SetRange("Document No.", DocumentNo);
             GSTPaymentBuffer2.SetFilter("Account Type", '<>%1', GSTPaymentBuffer."Account Type");
             if not GSTPaymentBuffer2.IsEmpty() then
-                Error(GSTPaymentFieldSameErr, FORMAT(GSTPaymentBuffer.FieldCaption("Account Type")));
-            GSTPaymentBuffer2.setrange("Account Type");
+                Error(GSTPaymentFieldSameErr, Format(GSTPaymentBuffer.FieldCaption("Account Type")));
+            GSTPaymentBuffer2.SetRange("Account Type");
             GSTPaymentBuffer2.SetFilter("Account No.", '<>%1', GSTPaymentBuffer."Account No.");
             if not GSTPaymentBuffer2.IsEmpty() then
                 Error(GSTPaymentFieldSameErr, GSTPaymentBuffer.FieldCaption("Account No."));
-            GSTPaymentBuffer2.setrange("Account No.");
+            GSTPaymentBuffer2.SetRange("Account No.");
             GSTPaymentBuffer2.SetFilter("Bank Reference No.", '<>%1', GSTPaymentBuffer."Bank Reference No.");
             if not GSTPaymentBuffer2.IsEmpty() then
                 Error(GSTPaymentFieldSameErr, GSTPaymentBuffer.FieldCaption("Bank Reference No."));
-            GSTPaymentBuffer2.setrange("Bank Reference No.");
+            GSTPaymentBuffer2.SetRange("Bank Reference No.");
             GSTPaymentBuffer2.SetFilter("Bank Reference Date", '<>%1', GSTPaymentBuffer."Bank Reference Date");
             if not GSTPaymentBuffer2.IsEmpty() then
                 Error(GSTPaymentFieldSameErr, GSTPaymentBuffer.FieldCaption("Bank Reference Date"));
@@ -2528,9 +2513,9 @@ codeunit 18318 "GST Settlement"
         IsError: Boolean;
         ErrText: Text[250];
     begin
-        GSTPaymentBuffer.setrange("GST Registration No.", GSTINNo);
-        GSTPaymentBuffer.setrange("Document No.", DocumentNo);
-        if GSTPaymentBuffer.findset() then
+        GSTPaymentBuffer.SetRange("GST Registration No.", GSTINNo);
+        GSTPaymentBuffer.SetRange("Document No.", DocumentNo);
+        if GSTPaymentBuffer.FindSet() then
             repeat
                 CheckDimComb(GSTPaymentBuffer."Dimension Set ID", IsError, ErrText);
                 if IsError then
@@ -2553,9 +2538,9 @@ codeunit 18318 "GST Settlement"
     var
         GSTPaymentBuffer: Record "GST Payment Buffer";
     begin
-        GSTPaymentBuffer.setrange("GST Registration No.", GSTINNo);
-        GSTPaymentBuffer.setrange("Document No.", DocumentNo);
-        if GSTPaymentBuffer.findset() then
+        GSTPaymentBuffer.SetRange("GST Registration No.", GSTINNo);
+        GSTPaymentBuffer.SetRange("Document No.", DocumentNo);
+        if GSTPaymentBuffer.FindSet() then
             repeat
                 if not ((GSTPaymentBuffer."UnAdjutsed Credit" = 0) and
                     (GSTPaymentBuffer."Total Payment Amount" = 0) and
@@ -2586,7 +2571,7 @@ codeunit 18318 "GST Settlement"
         GSTPostingSetup: Record "GST Posting Setup";
         SourceCodeSetup: Record "Source Code Setup";
         EntryType: Option ,TDS,TCS;
-        AccountType: Option "G/L Account""Bank Account";
+        AccountType: Enum "Gen. Journal Account Type";
         AccountNo: Code[20];
         TotalPaymentAmount: Decimal;
         ReceivableAmount: Decimal;
@@ -2601,9 +2586,9 @@ codeunit 18318 "GST Settlement"
         Clear(GenJnlPostLine);
         Clear(DimensionManagement);
 
-        GSTPaymentBuffer.setrange("GST Registration No.", GSTINNo);
-        GSTPaymentBuffer.setrange("Document No.", PaymentDocumentNo);
-        if GSTPaymentBuffer.findset() then begin
+        GSTPaymentBuffer.SetRange("GST Registration No.", GSTINNo);
+        GSTPaymentBuffer.SetRange("Document No.", PaymentDocumentNo);
+        if GSTPaymentBuffer.FindSet() then begin
             GSTPaymentBuffer."Document No." := GetSettlementDocumentNo(GSTPaymentBuffer."Posting Date", true);
             repeat
                 if GSTPaymentBuffer."Surplus Credit" < 0 then
@@ -2632,7 +2617,7 @@ codeunit 18318 "GST Settlement"
                             GSTPaymentBuffer."Account Type"::"G/L Account",
                             GetPayableAccount(GSTPostingSetup),
                             GSTPaymentBuffer."Payment Amount - Rev. Chrg.",
-                            StrSubStNo(GSTPaymentTypeTxt, GSTPaymentBuffer."GST Component Code", ReverseChargePaymentTxt));
+                            StrSubstNo(GSTPaymentTypeTxt, GSTPaymentBuffer."GST Component Code", ReverseChargePaymentTxt));
                     end;
 
                     if GSTPaymentBuffer."Net Payment Liability" > 0 then
@@ -2640,14 +2625,14 @@ codeunit 18318 "GST Settlement"
                             GSTPaymentBuffer."Account Type"::"G/L Account",
                             GetPayableAccount(GSTPostingSetup),
                             GSTPaymentBuffer."Net Payment Liability",
-                            StrSubStNo(GSTPaymentTypeTxt, GSTPaymentBuffer."GST Component Code", NetPaymentLibTxt));
+                            StrSubstNo(GSTPaymentTypeTxt, GSTPaymentBuffer."GST Component Code", NetPaymentLibTxt));
 
                     if GSTPaymentBuffer."GST TDS Credit Utilized" > 0 then
                         CreateAndPostGenJournalLine(
                             GSTPaymentBuffer."Account Type"::"G/L Account",
                             GetGSTTDSReceivableAccount(GSTPostingSetup),
                             GSTPaymentBuffer."GST TDS Credit Utilized" * Sign,
-                            StrSubStNo(
+                            StrSubstNo(
                                 GSTPaymentTypeTxt,
                                 GSTPaymentBuffer."GST Component Code",
                                 GSTPaymentBuffer.FieldCaption("GST TDS Credit Utilized")));
@@ -2657,7 +2642,7 @@ codeunit 18318 "GST Settlement"
                             GSTPaymentBuffer."Account Type"::"G/L Account",
                             GetGSTTCSReceivableAccount(GSTPostingSetup),
                             GSTPaymentBuffer."GST TCS Credit Utilized" * Sign,
-                            StrSubStNo(
+                            StrSubstNo(
                                 GSTPaymentTypeTxt,
                                 GSTPaymentBuffer."GST Component Code",
                                 GSTPaymentBuffer.FieldCaption("GST TCS Credit Utilized")));
@@ -2667,7 +2652,7 @@ codeunit 18318 "GST Settlement"
                           GSTPaymentBuffer."Account Type"::"G/L Account",
                           GetGSTTCSPayableAccount(GSTPostingSetup),
                           GSTPaymentBuffer."GST TCS Liability",
-                          StrSubStNo(
+                          StrSubstNo(
                               GSTPaymentTypeTxt,
                               GSTPaymentBuffer."GST Component Code",
                               GSTPaymentBuffer.FieldCaption("GST TCS Liability")));
@@ -2677,7 +2662,7 @@ codeunit 18318 "GST Settlement"
                             GSTPaymentBuffer."Account Type"::"G/L Account",
                             GSTPaymentBuffer."Interest Account No.",
                             GSTPaymentBuffer.Interest,
-                            StrSubStNo(
+                            StrSubstNo(
                                 GSTPaymentTypeTxt,
                                 GSTPaymentBuffer."GST Component Code",
                                 GSTPaymentBuffer.FieldCaption(Interest)));
@@ -2687,7 +2672,7 @@ codeunit 18318 "GST Settlement"
                             GSTPaymentBuffer."Account Type"::"G/L Account",
                             GSTPaymentBuffer."Penalty Account No.",
                             GSTPaymentBuffer.Penalty,
-                            StrSubStNo(
+                            StrSubstNo(
                                 GSTPaymentTypeTxt,
                                 GSTPaymentBuffer."GST Component Code",
                                 GSTPaymentBuffer.FieldCaption(Penalty)));
@@ -2697,7 +2682,7 @@ codeunit 18318 "GST Settlement"
                             GSTPaymentBuffer."Account Type"::"G/L Account",
                             GSTPaymentBuffer."Fees Account No.",
                             GSTPaymentBuffer.Fees,
-                            StrSubStNo(
+                            StrSubstNo(
                                 GSTPaymentTypeTxt,
                                 GSTPaymentBuffer."GST Component Code",
                                 GSTPaymentBuffer.FieldCaption(Fees)));
@@ -2707,22 +2692,20 @@ codeunit 18318 "GST Settlement"
                             GSTPaymentBuffer."Account Type"::"G/L Account",
                             GSTPaymentBuffer."Others Account No.",
                             GSTPaymentBuffer.Others,
-                            StrSubStNo(
+                            StrSubstNo(
                                 GSTPaymentTypeTxt,
                                 GSTPaymentBuffer."GST Component Code",
                                 GSTPaymentBuffer.FieldCaption(Others)));
 
-                    if (GSTPaymentBuffer."Credit Utilized" <> 0) or (GSTPaymentBuffer."Surplus Cr. Utilized" <> 0) then begin
-                        if GSTPaymentBuffer."Credit Availed" < GSTPaymentBuffer."Credit Utilized" then
-                            ReceivableAmount := GSTPaymentBuffer."Credit Availed" + GSTPaymentBuffer."Surplus Cr. Utilized"
-                        else
-                            ReceivableAmount := GSTPaymentBuffer."Credit Utilized" + GSTPaymentBuffer."Surplus Cr. Utilized";
+                    if (GSTPaymentBuffer."Surplus Cr. Utilized" <> 0) then begin
+                        ReceivableAmount := GSTPaymentBuffer."Surplus Cr. Utilized";
+
                         if ReceivableAmount > 0 then
                             CreateAndPostGenJournalLine(
                                 GSTPaymentBuffer."Account Type"::"G/L Account",
                                 GetRecAccount(GSTPostingSetup),
                                 ReceivableAmount * Sign,
-                                StrSubStNo(GSTPaymentTypeTxt, GSTPaymentBuffer."GST Component Code", CreditUtilizedTxt));
+                                StrSubstNo(GSTPaymentTypeTxt, GSTPaymentBuffer."GST Component Code", CreditUtilizedTxt));
                     end;
 
                     if GSTPaymentBuffer."UnAdjutsed Credit" < 0 then begin
@@ -2730,7 +2713,7 @@ codeunit 18318 "GST Settlement"
                             GSTPaymentBuffer."Account Type"::"G/L Account",
                             GetPayableAccount(GSTPostingSetup),
                             GSTPaymentBuffer."UnAdjutsed Credit",
-                            StrSubStNo(
+                            StrSubstNo(
                                 GSTPaymentTypeTxt,
                                 GSTPaymentBuffer."GST Component Code",
                                 UnadjustedCreditTxt));
@@ -2739,7 +2722,7 @@ codeunit 18318 "GST Settlement"
                             GSTPaymentBuffer."Account Type"::"G/L Account",
                             GetRecAccount(GSTPostingSetup),
                             GSTPaymentBuffer."UnAdjutsed Credit" * Sign,
-                            StrSubStNo(
+                            StrSubstNo(
                                 GSTPaymentTypeTxt,
                                 GSTPaymentBuffer."GST Component Code",
                                 UnadjustedCreditTxt));
@@ -2761,27 +2744,25 @@ codeunit 18318 "GST Settlement"
                     AccountType,
                     AccountNo,
                     TotalPaymentAmount * Sign,
-                    StrSubStNo(GSTPaymentTypeTxt, GstTxt, TotalPaymentTxt));
+                    StrSubstNo(GSTPaymentTypeTxt, GstTxt, TotalPaymentTxt));
         end;
 
         Window.Close();
     end;
 
     local procedure CreateAndPostGenJournalLine(
-        AccountType: Option "G/L Account","Bank Account";
-        AccountNo: Code[20];
-        PaymentAmount: Decimal;
-        AmountType: Text[100])
+                        AccountType: Enum "Gen. Journal Account Type";
+                                         AccountNo: Code[20];
+                                         PaymentAmount: Decimal;
+                                         AmountType: Text[100])
     var
         GenJournalLine2: Record "Gen. Journal Line";
         AmountType2: Text[50];
-        AccountTypeEnum: enum "Gen. Journal Account Type";
     begin
         AmountType2 := CopyStr(AmountType, 1, 50);
-        Evaluate(AccountTypeEnum, Format(AccountType)); // TODO: Enum should be corrected
 
         GenJournalLine2.Init();
-        GenJournalLine2."Account Type" := AccountTypeEnum;
+        GenJournalLine2."Account Type" := AccountType;
         GenJournalLine2."Account No." := AccountNo;
         if AccountType = AccountType::"Bank Account" then begin
             GenJournalLine2."Bank Payment Type" := "Bank Payment Type"::"Manual Check";
@@ -2803,19 +2784,19 @@ codeunit 18318 "GST Settlement"
         GenJnlPostLine.RunWithCheck(GenJournalLine2);
     end;
 
-    local procedure GetComponentId(GSTGroupCode: code[10]): Integer
+    local procedure GetComponentId(GSTGroupCode: Code[30]): Integer
     var
-        TaxTypeSetup: Record "Tax Type Setup";
+        GSTSetup: Record "GST Setup";
         TaxComponent: Record "Tax Component";
     begin
-        if not TaxTypeSetup.Get() then
+        if not GSTSetup.Get() then
             exit;
-        TaxTypeSetup.TestField(Code);
+        GSTSetup.TestField("GST Tax Type");
 
-        TaxComponent.setrange("Tax Type", TaxTypeSetup.Code);
-        TaxComponent.setrange(Name, GSTGroupCode);
+        TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
+        TaxComponent.SetRange(Name, GSTGroupCode);
         if TaxComponent.FindFirst() then
-            exit(TaxComponent.ID);
+            exit(TaxComponent.Id);
     end;
 
     local procedure GetPayableAccount(GSTPostingSetup: Record "GST Posting Setup"): Code[20]
@@ -2852,16 +2833,20 @@ codeunit 18318 "GST Settlement"
     var
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         DetailedGSTLedgerEntry2: Record "Detailed GST Ledger Entry";
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
     begin
         FilterDetailedGSTLedgerEntry(GSTPaymentBuffer, DetailedGSTLedgerEntry);
-        if DetailedGSTLedgerEntry.findset() then
+        if DetailedGSTLedgerEntry.FindSet() then
             repeat
                 if not ((DetailedGSTLedgerEntry."ARN No." <> '') and (DetailedGSTLedgerEntry."Buyer/Seller Reg. No." = '')) then begin
                     DetailedGSTLedgerEntry2.Get(DetailedGSTLedgerEntry."Entry No.");
                     DetailedGSTLedgerEntry2."Payment Document No." := GSTPaymentBuffer."Document No.";
-                    DetailedGSTLedgerEntry2."Payment Document Date" := GSTPaymentBuffer."Posting Date";
                     DetailedGSTLedgerEntry2.Paid := true;
-                    DetailedGSTLedgerEntry2.modify();
+                    DetailedGSTLedgerEntry2.Modify();
+
+                    GetDetailedGSTLedgerEnfo(DetailedGSTLedgerEntry."Entry No.", DetailedGSTLedgerEntryInfo);
+                    DetailedGSTLedgerEntryInfo."Payment Document Date" := GSTPaymentBuffer."Posting Date";
+                    DetailedGSTLedgerEntryInfo.Modify();
                 end;
             until DetailedGSTLedgerEntry.Next() = 0;
         InsertPostedSettlementEntries(GSTPaymentBuffer);
@@ -2882,13 +2867,13 @@ codeunit 18318 "GST Settlement"
         DetailedCrAdjstmntEntry2: Record "Detailed Cr. Adjstmnt. Entry";
     begin
         FilterPostedCreditAdjustmentEntry(GSTPaymentBuffer, DetailedCrAdjstmntEntry);
-        if DetailedCrAdjstmntEntry.findset() then
+        if DetailedCrAdjstmntEntry.FindSet() then
             repeat
                 DetailedCrAdjstmntEntry2.Get(DetailedCrAdjstmntEntry."Entry No.");
                 DetailedCrAdjstmntEntry2.Paid := true;
                 DetailedCrAdjstmntEntry2."Payment Document No." := GSTPaymentBuffer."Document No.";
                 DetailedCrAdjstmntEntry2."Payment Document Date" := GSTPaymentBuffer."Posting Date";
-                DetailedCrAdjstmntEntry2.modify();
+                DetailedCrAdjstmntEntry2.Modify();
             until DetailedCrAdjstmntEntry.Next() = 0;
     end;
 
@@ -2898,13 +2883,13 @@ codeunit 18318 "GST Settlement"
         PostedGSTLiabilityAdj2: Record "Posted GST Liability Adj.";
     begin
         FilterPostedCreditandLiabilityEntry(GSTPaymentBuffer, PostedGSTLiabilityAdj);
-        if PostedGSTLiabilityAdj.findset() then
+        if PostedGSTLiabilityAdj.FindSet() then
             repeat
                 PostedGSTLiabilityAdj2.Get(PostedGSTLiabilityAdj."Entry No.");
                 PostedGSTLiabilityAdj2.Paid := true;
                 PostedGSTLiabilityAdj2."Payment Document No." := GSTPaymentBuffer."Document No.";
                 PostedGSTLiabilityAdj2."Payment Document Date" := GSTPaymentBuffer."Posting Date";
-                PostedGSTLiabilityAdj2.modify();
+                PostedGSTLiabilityAdj2.Modify();
             until PostedGSTLiabilityAdj.Next() = 0;
     end;
 
@@ -2914,13 +2899,13 @@ codeunit 18318 "GST Settlement"
         DetailedGSTDistEntry2: Record "Detailed GST Dist. Entry";
     begin
         FilterDetGSTDistEntry(GSTPaymentBuffer, DetailedGSTDistEntry, false);
-        if DetailedGSTDistEntry.findset() then
+        if DetailedGSTDistEntry.FindSet() then
             repeat
                 DetailedGSTDistEntry2.Get(DetailedGSTDistEntry."Entry No.");
                 DetailedGSTDistEntry2.Paid := true;
                 DetailedGSTDistEntry2."Payment Document No." := GSTPaymentBuffer."Document No.";
                 DetailedGSTDistEntry2."Payment Document Date" := GSTPaymentBuffer."Posting Date";
-                DetailedGSTDistEntry2.modify();
+                DetailedGSTDistEntry2.Modify();
             until DetailedGSTDistEntry.Next() = 0;
     end;
 
@@ -2940,13 +2925,13 @@ codeunit 18318 "GST Settlement"
             else
                 FilterGSTTDSTCSEntry(GSTPaymentBuffer, GSTTdsTcsEntry, EntryType::TCS, false);
 
-        if GSTTdsTcsEntry.findset() then
+        if GSTTdsTcsEntry.FindSet() then
             repeat
                 GSTTdsTcsEntry2.Get(GSTTdsTcsEntry."Entry No.");
                 GSTTdsTcsEntry2.Paid := true;
                 GSTTdsTcsEntry2."Payment Document No." := GSTPaymentBuffer."Document No.";
                 GSTTdsTcsEntry2."Payment Document Date" := GSTPaymentBuffer."Posting Date";
-                GSTTdsTcsEntry2.modify();
+                GSTTdsTcsEntry2.Modify();
             until GSTTdsTcsEntry.Next() = 0;
     end;
 
@@ -2954,193 +2939,133 @@ codeunit 18318 "GST Settlement"
     var
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         DetailedGSTLedgerEntry2: Record "Detailed GST Ledger Entry";
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
     begin
         FilterDetailedGSTLedgerEntryforAdjustment(GSTPaymentBuffer, DetailedGSTLedgerEntry);
-        if DetailedGSTLedgerEntry.findset() then
+        if DetailedGSTLedgerEntry.FindSet() then
             repeat
                 if not ((DetailedGSTLedgerEntry."ARN No." <> '') and (DetailedGSTLedgerEntry."Buyer/Seller Reg. No." = '')) then begin
                     DetailedGSTLedgerEntry2.Get(DetailedGSTLedgerEntry."Entry No.");
                     DetailedGSTLedgerEntry2."Payment Document No." := GSTPaymentBuffer."Document No.";
-                    DetailedGSTLedgerEntry2."Payment Document Date" := GSTPaymentBuffer."Posting Date";
                     DetailedGSTLedgerEntry2.Paid := true;
-                    DetailedGSTLedgerEntry2.modify();
+                    DetailedGSTLedgerEntry2.Modify();
+
+                    GetDetailedGSTLedgerEnfo(DetailedGSTLedgerEntry."Entry No.", DetailedGSTLedgerEntryInfo);
+                    DetailedGSTLedgerEntryInfo."Payment Document Date" := GSTPaymentBuffer."Posting Date";
+                    DetailedGSTLedgerEntryInfo.Modify();
                 end;
             until DetailedGSTLedgerEntry.Next() = 0;
     end;
 
-    local procedure GetLastClosedSubAccPeriod(): Date
+    local procedure GSTSettlementAccTypeEnum2GenJnlAccType(GSTSettAccType: Enum "GST Settlement Account Type"): Enum "Gen. Journal Account Type"
     var
-        TaxAccountingPeriod: Record "Tax Accounting Period";
-        TaxTypeSetup: Record "Tax Type Setup";
+        ConversionErr: Label 'Account Type %1 is not a valid option.', Comment = '%1 = GST Settlement Account Type';
     begin
-        if not TaxTypeSetup.Get() then
-            exit;
-        TaxTypeSetup.TestField(Code);
-
-        TaxAccountingPeriod.setrange("Tax Type Code", TaxTypeSetup.Code);
-        TaxAccountingPeriod.setrange(Closed, true);
-        if TaxAccountingPeriod.FindLast() then
-            exit(TaxAccountingPeriod."Starting Date");
-    end;
-
-    local procedure CheckGSTAccountingPeriod(PostingDate: Date)
-    var
-        TaxAccountingPeriod: Record "Tax Accounting Period";
-        TaxTypeSetup: Record "Tax Type Setup";
-        LastClosedDate: Date;
-    begin
-        LastClosedDate := GetLastClosedSubAccPeriod();
-
-        if not TaxTypeSetup.Get() then
-            exit;
-        TaxTypeSetup.TestField(Code);
-
-        TaxAccountingPeriod.Reset();
-        TaxAccountingPeriod.setrange("Tax Type Code", TaxTypeSetup.Code);
-        TaxAccountingPeriod.SetFilter("Starting Date", '<=%1', PostingDate);
-        if TaxAccountingPeriod.FindLast() then begin
-            TaxAccountingPeriod.SetFilter("Starting Date", '>=%1', PostingDate);
-            if not TaxAccountingPeriod.FindFirst() then
-                Error(AccountingPeriodErr, PostingDate);
-
-            if not UseSettlement then
-                if LastClosedDate <> 0D then
-                    if PostingDate < CalcDate('<1M>', LastClosedDate) then
-                        Error(
-                            PeriodClosedErr,
-                            CalcDate('<-1D>', CalcDate('<1M>', LastClosedDate)),
-                            CalcDate('<1M>',
-                            LastClosedDate));
-        end else
-            Error(AccountingPeriodErr, PostingDate);
-
-        if not UseSettlement then
-            TaxAccountingPeriod.setrange(Closed, false);
-
-        TaxAccountingPeriod.SetFilter("Starting Date", '<=%1', PostingDate);
-        if TaxAccountingPeriod.FindLast() then begin
-            TaxAccountingPeriod.SetFilter("Starting Date", '>=%1', PostingDate);
-            if not TaxAccountingPeriod.FindFirst() then
-                if LastClosedDate <> 0D then
-                    if PostingDate < CalcDate('<1M>', LastClosedDate) then
-                        Error(
-                            PeriodClosedErr,
-                            CalcDate('<-1D>', CalcDate('<1M>', LastClosedDate)),
-                            CalcDate('<1M>',
-                            LastClosedDate));
-
-            if not UseSettlement then
-                TaxAccountingPeriod.TestField(Closed, false);
-        end else
-            if LastClosedDate <> 0D then
-                if PostingDate < CalcDate('<1M>', LastClosedDate) then
-                    Error(
-                        PeriodClosedErr, CalcDate('<-1D>', CalcDate('<1M>', LastClosedDate)),
-                        CalcDate('<1M>', LastClosedDate));
-    end;
-
-    procedure UpdateAdjRemAmt()
-    var
-        DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
-        DetailedCrAdjstmntEntry: Record "Detailed Cr. Adjstmnt. Entry";
-        DetailedCrAdjstmntEntry2: Record "Detailed Cr. Adjstmnt. Entry";
-        SourceType: text;
-        SourceTypeEnum: enum "Source Type";
-    begin
-        DetailedCrAdjstmntEntry.setrange("Rem. Amt. Updated in DGLE", false);
-        if DetailedCrAdjstmntEntry.findset() then begin
-            repeat
-                SourceType := format(DetailedCrAdjstmntEntry."Source Type");
-                Evaluate(SourceTypeEnum, SourceType);
-                DetailedGSTLedgerEntry.setrange("Document Type", DetailedCrAdjstmntEntry."Adjusted Doc. Type");
-                DetailedGSTLedgerEntry.setrange("Document No.", DetailedCrAdjstmntEntry."Adjusted Doc. No.");
-                DetailedGSTLedgerEntry.setrange("Document Line No.", DetailedCrAdjstmntEntry."Adjusted Doc. Line No.");
-                DetailedGSTLedgerEntry.setrange("Source Type", SourceTypeEnum);
-                DetailedGSTLedgerEntry.setrange("Source No.", DetailedCrAdjstmntEntry."Source No.");
-                DetailedGSTLedgerEntry.setrange(Type, DetailedCrAdjstmntEntry.Type);
-                DetailedGSTLedgerEntry.setrange("GST Component Code", DetailedCrAdjstmntEntry."GST Component Code");
-                if DetailedGSTLedgerEntry.FindFirst() then begin
-                    DetailedGSTLedgerEntry."CAJ Base Amount" := ABS(DetailedGSTLedgerEntry."CAJ Amount" * 100) /
-                      DetailedGSTLedgerEntry."GST %";
-                    DetailedGSTLedgerEntry."Remaining CAJ Adj. Base Amt" :=
-                      ABS(ABS(DetailedGSTLedgerEntry."GST Base Amount") - ABS(DetailedGSTLedgerEntry."CAJ Base Amount"));
-                    DetailedGSTLedgerEntry."Remaining CAJ Adj. Amt" :=
-                      ABS(ABS(DetailedGSTLedgerEntry."GST Amount") - ABS(DetailedGSTLedgerEntry."CAJ Amount"));
-                    DetailedGSTLedgerEntry.Modify();
-                    DetailedCrAdjstmntEntry2.GET(DetailedCrAdjstmntEntry."Entry No.");
-                    DetailedCrAdjstmntEntry2."Rem. Amt. Updated in DGLE" := TRUE;
-                    DetailedCrAdjstmntEntry2.Modify();
-                end;
-            until DetailedCrAdjstmntEntry.NEXT() = 0;
-            MESSAGE(RemCreditAmtupdatedMsg);
-        end else
-            MESSAGE(NothingtoUpdateMsg);
-    end;
-
-    local procedure RoundGSTPrecision(GSTAmount: Decimal): Decimal
-    var
-        GLSetup: Record "General Ledger Setup";
-        GSTRoundingDirection: Text[1];
-        GSTRoundingPrecision: Decimal;
-    Begin
-        GLSetup.Get();
-        GLSetup.TestField("GST Rounding Precision");
-        case GLSetup."GST Rounding Type" of
-            GLSetup."GST Rounding Type"::Nearest:
-                GSTRoundingDirection := '=';
-            GLSetup."GST Rounding Type"::Up:
-                GSTRoundingDirection := '>';
-            GLSetup."GST Rounding Type"::Down:
-                GSTRoundingDirection := '<';
+        case GSTSettAccType of
+            GSTSettAccType::"G/L Account":
+                exit("Gen. Journal Account Type"::"G/L Account");
+            GSTSettAccType::"Bank Account":
+                exit("Gen. Journal Account Type"::"Bank Account");
+            else
+                Error(ConversionErr, GSTSettAccType);
         end;
-        GSTRoundingPrecision := GLSetup."GST Rounding Precision";
-
-        exit(Round(GSTAmount, GSTRoundingPrecision, GSTRoundingDirection));
     end;
 
+    procedure ValidateCreditUtilizedAmt(GSTINNo: Code[20]; DocumentNo: Code[20])
     var
-        GLSetup: Record "General Ledger Setup";
-        TempGSTPostingBuffer: array[2] of Record "GST Posting Buffer" Temporary;
-        TempGSTPostingBuffer1: array[2] of Record "GST Posting Buffer" Temporary;
-        GSTHelpers: Codeunit "GST Helpers";
-        DimensionManagement: Codeunit DimensionManagement;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
-        ChequeNo: Code[10];
-        ChequeDate: Date;
-        PostedDocumentNo: Code[20];
-        PostingDate: Date;
-        UseSettlement: Boolean;
-        NoPostErr: Label 'There is Nothing to post.';
-        GSTPaymentFieldSameErr: Label '%1 must be same in all the GST Payment Lines.', Comment = '%1 = Field Refrence';
-        CrAdjstPostedMsg: Label 'Credit Adjustment Journal posted successfully.';
-        AdjustmentDateErr: Label 'Document No. %1 already has been adjusted on %2. Please change the date and try again.', Comment = '%1 = Document No, %2 = Posting Date';
-        GSTCrAdjFilterErr: Label 'Filter Criteria is not matching with Detailed GST Ledger Entry.';
-        PostCrAdjQst: Label 'Do you want to post Credit Adjustment Journal?';
-        GSTINErr: Label 'GSTIN No. can not be blank.';
-        PostingDateErr: Label 'Posting Date can not be blank.';
-        PaymentDocErr: Label 'DocumentNo %1 has already been posted, you can not enter duplicate Document No.', Comment = '%1 = Payment Document No.';
-        PostGSTPaymentQst: Label 'Do you want to post GST Payment?';
-        PaymentBufferMsg: Label 'Generating Payment Lines : GST Component#1##############\', Comment = '1 =GST Component Code.';
-        CreditSetoffErr: Label 'Credit Utilized can not exceed Total Credit Available.There is no Claim-Setoff available for GST Compoment %1.', Comment = '%1 =GST Component Code.';
-        CreditUtilizedErr: Label 'Credit Utilized %1 can not exceed Payment Liability %2 for GST Compoment %3.', Comment = '%1 = Credit Utilized, %2 = Payment Liability, %3 =GST Component Code.';
-        CreditAvailableErr: Label 'There is no sufficient Claim-Setoff available for GST Compoment %1, required Credit Utilized is %2, Total Credit Available is %3.', Comment = '%1 =GST Component Code., %2 = Credit Amount, %3  = Availabe Credit Amount';
-        DimCombinationErr: Label 'The combination of dimensions used for GST Component %1 is blocked. %2.', Comment = '%1 = GST Component, %2 = Dimension Value';
-        LiabilityExceedErr: Label 'Total of Credit Utilize, GST TDS Credit Utilized, GST TCS Credit Utilized and Payment Amount %1 must be equal to Net Payment Liability %2 in GST Component %3.', Comment = '%1 = Credit Utilized and Payment Amount,  %2 = Net Payment Liability, %3 = GST Component';
-        InvaidDimensionErr: Label 'The dimensions used are invalid. %2.', Comment = '%1 = Dimension Value';
-        UpdatingLedgersMsg: Label 'Updating GST Ledger : GST Component#1##############\', Comment = '%1 =GST Component Code.';
-        GSTPaymentTypeTxt: Label 'Component %1 & Type: %2.', Comment = '%1 = GST Component, %2 = Tax Type';
-        AccountingPeriodErr: Label 'GST Accounting Period does not exist for the given Date %1.', Comment = '%1 = Posting Date';
-        PeriodClosedErr: Label 'Accounting Period has been closed till %1, Document Posting Date must be greater than or equal to %2.',
-        Comment = '%1 = Last Closed Date ; %2 = Document Posting Date';
-        GstTxt: Label 'Gst';
-        NetPaymentLibTxt: Label 'Net Payment Liability';
-        UnadjustedCreditTxt: Label 'Unadjusted Credit';
-        ReverseChargePaymentTxt: Label 'Rev. Charge Payment';
-        CreditUtilizedTxt: Label 'Credit';
-        TotalPaymentTxt: Label 'Total Payment Amount';
-        RemCreditAmtupdatedMsg: label 'Remaining GST Credit Amount updated.';
-        NothingtoUpdateMsg: Label 'Nothing to update.';
+        GSTPaymentBuffer: Record "GST Payment Buffer";
+        GSTPaymentBuffer2: Record "GST Payment Buffer";
+        GSTClaimSetoff: Record "GST Claim Setoff";
+        GSTPaymentBufferDetails: Record "GST Payment Buffer Details";
+        AvailableAmount: Decimal;
+        CreditUtilizedAmount: Decimal;
+        LineNo: Integer;
+    begin
+        GSTPaymentBuffer.SetRange("GST Registration No.", GSTINNo);
+        GSTPaymentBuffer.SetRange("Document No.", DocumentNo);
+        if GSTPaymentBuffer.FindSet() then
+            repeat
+                GSTPaymentBuffer."Surplus Cr. Utilized" := 0;
+                GSTPaymentBuffer."Carry Forward" := 0;
+                GSTPaymentBuffer."Surplus Credit" := GSTPaymentBuffer."Total Credit Available";
+                GSTPaymentBuffer.Modify(true);
+            Until GSTPaymentBuffer.Next() = 0;
 
-        Window: Dialog;
+        GSTPaymentBufferDetails.Reset();
+        if GSTPaymentBufferDetails.FindFirst() then
+            GSTPaymentBufferDetails.DeleteAll();
+
+        GSTPaymentBuffer.Reset();
+        GSTPaymentBuffer.SetRange("GST Registration No.", GSTINNo);
+        GSTPaymentBuffer.SetRange("Document No.", DocumentNo);
+        if GSTPaymentBuffer.FindSet() then
+            repeat
+                if GSTPaymentBuffer."Credit Utilized" > 0 then begin
+                    AvailableAmount := 0;
+                    CreditUtilizedAmount := GSTPaymentBuffer."Credit Utilized";
+
+                    GSTClaimSetoff.Reset();
+                    GSTClaimSetoff.SETCURRENTKEY(Priority);
+                    GSTClaimSetoff.SetRange("GST Component Code", GSTPaymentBuffer."GST Component Code");
+                    if GSTClaimSetoff.FindSet() then
+                        repeat
+                            GSTPaymentBuffer2.Get(GSTINNo, DocumentNo, GSTClaimSetoff."Set Off Component Code");
+                            GSTPaymentBufferDetails.Init();
+                            GSTPaymentBufferDetails."GST Registration No." := GSTPaymentBuffer."GST Registration No.";
+                            GSTPaymentBufferDetails."Document No." := GSTPaymentBuffer."Document No.";
+                            GSTPaymentBufferDetails."GST Component Code" := GSTPaymentBuffer."GST Component Code";
+                            GSTPaymentBufferDetails."Net Payment Liability" := GSTPaymentBuffer."Net Payment Liability";
+                            GSTPaymentBufferDetails."Payment Liability" := GSTPaymentBuffer."Payment Liability";
+                            GSTPaymentBufferDetails."SetOff Component Code" := GSTPaymentBuffer2."GST Component Code";
+                            if GSTPaymentBuffer2."Total Credit Available" > 0 then begin
+                                AvailableAmount += GSTPaymentBuffer2."Total Credit Available" - GSTPaymentBuffer2."Surplus Cr. Utilized";
+                                if AvailableAmount > 0 then begin
+                                    GSTPaymentBufferDetails."Total Credit Available" := AvailableAmount;
+
+                                    if AvailableAmount >= CreditUtilizedAmount then begin
+                                        if GSTPaymentBuffer."GST Component Code" = GSTPaymentBuffer2."GST Component Code" then begin
+                                            GSTPaymentBuffer."Surplus Cr. Utilized" += CreditUtilizedAmount;
+                                            GSTPaymentBuffer."Surplus Credit" -= CreditUtilizedAmount;
+                                            GSTPaymentBuffer."Carry Forward" := GSTPaymentBuffer."Surplus Credit";
+                                            GSTPaymentBuffer.Modify(true);
+                                            GSTPaymentBuffer2.Get(GSTINNo, DocumentNo, GSTClaimSetoff."Set Off Component Code");
+                                        end else begin
+                                            GSTPaymentBuffer2."Surplus Cr. Utilized" += CreditUtilizedAmount;
+                                            GSTPaymentBuffer2."Surplus Credit" -= CreditUtilizedAmount;
+                                        end;
+
+                                        GSTPaymentBufferDetails."Credit Utilized" := CreditUtilizedAmount;
+                                        GSTPaymentBufferDetails."Surplus Credit" := GSTPaymentBuffer2."Surplus Credit";
+                                        CreditUtilizedAmount := 0;
+                                    end else begin
+                                        if GSTPaymentBuffer."GST Component Code" = GSTPaymentBuffer2."GST Component Code" then begin
+                                            GSTPaymentBuffer."Surplus Cr. Utilized" += AvailableAmount;
+                                            GSTPaymentBuffer."Surplus Credit" -= AvailableAmount;
+                                            GSTPaymentBuffer."Carry Forward" := GSTPaymentBuffer."Surplus Credit";
+                                            GSTPaymentBuffer.Modify(true);
+                                            GSTPaymentBuffer2.Get(GSTINNo, DocumentNo, GSTClaimSetoff."Set Off Component Code");
+                                        end else begin
+                                            GSTPaymentBuffer2."Surplus Cr. Utilized" += AvailableAmount;
+                                            GSTPaymentBuffer2."Surplus Credit" -= AvailableAmount;
+                                        end;
+
+                                        GSTPaymentBufferDetails."Credit Utilized" := AvailableAmount;
+                                        GSTPaymentBufferDetails."Surplus Credit" := GSTPaymentBuffer2."Surplus Credit";
+                                        CreditUtilizedAmount -= AvailableAmount;
+                                        AvailableAmount := 0;
+                                    end;
+
+                                    GSTPaymentBuffer2."Carry Forward" := GSTPaymentBuffer2."Surplus Credit";
+                                    GSTPaymentBuffer2.Modify(true);
+                                    GSTPaymentBuffer.Modify(true);
+                                end;
+                            end;
+                            LineNo += 10000;
+                            GSTPaymentBufferDetails."Line No." := LineNo;
+                            GSTPaymentBufferDetails.Insert();
+                        Until (GSTClaimSetoff.Next() = 0) OR (CreditUtilizedAmount = 0);
+                end;
+            Until GSTPaymentBuffer.Next() = 0;
+    end;
+
 }

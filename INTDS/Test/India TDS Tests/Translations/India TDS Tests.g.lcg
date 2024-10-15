@@ -5,13 +5,49 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
-  <Item ItemId=";Codeunit 662924787 - Method 48770508 - NamedType 1947391627" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3298992789 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is incorrect in %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 and %2 = TDS% and TDS field Caption]D;]A;(LookupHint=Codeunit Library-TDS - Method VerifyTDSEntry - NamedType AmountErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = TDS Amount and TDS field Caption]D;]A;(LookupHint=Codeunit TDS Adjustment Jnl Automation - NamedType AmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3298992789 - NamedType 1747334883" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The entries were successfully reversed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Adjustment Jnl Automation - NamedType ReverseMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3298992789 - NamedType 1556380518" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Journal lines posted successfully.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Adjustment Jnl Automation - NamedType SuccessMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3298992789 - Method 3899969083 - NamedType 1287808147" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TDS Paid must be equal to No before Adjustment]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Adjustment Jnl Automation - Method PostTDSAdjustmentForTDSEntriesAlreadyDeductedandPaid - NamedType PaidErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3227056880 - NamedType 2572654342" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is incorrect in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = Field Caption and Table Caption]D;]A;(LookupHint=Codeunit TDS On General Jnl - NamedType VerifyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3227056880 - Method 48770508 - NamedType 1947391627" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -32,13 +68,13 @@
       <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TDS On Payment Jnl - Method VerifyTDSEntry - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1067633339 - Method 48770508 - NamedType 1947391627" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 156744124 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is incorrect in %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TDS On Purchase Jnl - Method VerifyTDSEntry - NamedType AmountErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TDS On Purchase Invoice - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 156744124 - NamedType 412084838" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -50,22 +86,22 @@
       <Cmt Name="Dev"><![CDATA[%1= No.]D;]A;(LookupHint=Codeunit TDS On Purchase Invoice - NamedType ChargeItemErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 156744124 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 156744124 - NamedType 2572654342" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is incorrect in %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TDS On Purchase Invoice - NamedType AmountErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = Field Caption and Table Caption]D;]A;(LookupHint=Codeunit TDS On Purchase Invoice - NamedType VerifyErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3846366209 - NamedType 412084838" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1067633339 - Method 48770508 - NamedType 1947391627" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must assign item charge %1 if you want to invoice it.]]></Val>
+      <Val><![CDATA[%1 is incorrect in %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1= No.]D;]A;(LookupHint=Codeunit TDS On Purchase Order - NamedType ChargeItemErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TDS On Purchase Jnl - Method VerifyTDSEntry - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3846366209 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -77,6 +113,15 @@
       <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TDS On Purchase Order - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3846366209 - NamedType 412084838" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must assign item charge %1 if you want to invoice it.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= No.]D;]A;(LookupHint=Codeunit TDS On Purchase Order - NamedType ChargeItemErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2601441065 - Method 2451571566 - NamedType 599053096" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The feild value is false]]></Val>
@@ -86,67 +131,184 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS On Sales Tests - Method CheckTDSCertificateReceivableInCustomerLedger - NamedType ReceivableFalseErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2601441065 - NamedType 3041985414" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TDS Certificate Receivable is false]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS On Sales Tests - NamedType CertifcateValidationErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2601441065 - NamedType 2895079328" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The row does not exist on the TestPage.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS On Sales Tests - NamedType RowNotFoundErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3298992789 - Method 3899969083 - NamedType 1287808147" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TDS Paid must be equal to No before Adjustment]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Adjustment Jnl Automation - Method PostTDSAdjustmentForTDSEntriesAlreadyDeductedandPaid - NamedType PaidErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3298992789 - NamedType 2988992997" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Not paid]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Adjustment Jnl Automation - NamedType TDSNotPaidMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3298992789 - NamedType 1556380518" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Journal lines posted successfully.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Adjustment Jnl Automation - NamedType SuccessMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3298992789 - NamedType 1747334883" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The entries were successfully reversed.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Adjustment Jnl Automation - NamedType ReverseMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3298992789 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2338110662 - NamedType 4150595463" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is incorrect in %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TDS Adjustment Jnl Automation - NamedType AmountErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = Field Caption and Table Caption]D;]A;(LookupHint=Codeunit TDS Purchase Resource - NamedType TDSEntryVerifyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 298801195" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ActApplicable]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType ActApplicableLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 156853089" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CountryCode]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType CountryCodeLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 2483667755" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[eCessPercentage]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType eCessPercentageLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 2999410741" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[EffectiveDate]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType EffectiveDateLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 2936615614" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Please make TDS Section Code blank before selecting Include GST in TDS Base.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType GSTTDSIncErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 1101951655" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[T.A.N. No. must have a value in Company Information]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType LocationCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 1746216676" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[NatureOfRemittance]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType NatureOfRemittanceLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 2404822723" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[NonPANTDSPercentage]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType NonPANTDSPercentageLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 3255313783" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Non Resident Payments is not selected for Vendor No. %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 is Vendor No.]D;]A;(LookupHint=Codeunit TDS Validations Tests - NamedType NonResidentPaymentsSelectionErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 4134734490" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[SectionCode]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType SectionCodeLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 867477350" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[SHECessPercentage]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType SHECessPercentageLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 3933148416" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[SurchargePercentage]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType SurchargePercentageLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 235120305" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[SurchargeThresholdAmount]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType SurchargeThresholdAmountLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 841562404" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TDSAssesseeCode]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType TDSAssesseeCodeLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 3439542503" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TDSConcessionalCode]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType TDSConcessionalCodeLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 3347970987" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TDSPercentage]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType TDSPercentageLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 737306822" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TDSThresholdAmount]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType TDSThresholdAmountLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - NamedType 807217974" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TemplateName]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Validations Tests - NamedType TemplateLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4235076906 - Method 48770508 - NamedType 1947391627" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is incorrect in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TDS Validations Tests - Method VerifyTDSEntry - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

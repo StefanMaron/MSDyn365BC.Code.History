@@ -788,7 +788,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
         // Post 1 PCS of the inventory pick
         WhseActivityHeader.Get(WhseActivityLine."Activity Type", WhseActivityLine."No.");
-        WhseActivityLine.FindSet;
+        WhseActivityLine.FindSet();
         repeat
             WhseActivityLine.Validate("Qty. to Handle", 1);
             WhseActivityLine.Modify(true);
@@ -992,7 +992,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         WhseActivityHeader.SetRange("Source Subtype", AsmHeader2."Document Type"::Order);
         WhseActivityHeader.SetFilter("Source No.", '%1|%2|%3', AsmHeader1."No.", AsmHeader2."No.", AsmHeader3."No.");
         Assert.AreEqual(3, WhseActivityHeader.Count, 'Inventory movements will now exist for all the asm orders.');
-        WhseActivityHeader.FindSet;
+        WhseActivityHeader.FindSet();
         repeat
             if WhseActivityHeader."Source No." in [AsmHeader1."No.", AsmHeader2."No.", AsmHeader3."No."] then begin
                 LibraryWarehouse.AutoFillQtyInventoryActivity(WhseActivityHeader);
@@ -1774,7 +1774,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         SalesLine.AsmToOrderExists(AsmHeader);
         AsmLine.SetRange("Document Type", AsmHeader."Document Type");
         AsmLine.SetRange("Document No.", AsmHeader."No.");
-        AsmLine.FindSet;
+        AsmLine.FindSet();
         repeat
             Assert.AreEqual(WhseActivityLine.Quantity, AsmLine."Qty. Picked", '');
             Assert.AreEqual(WhseActivityLine.Quantity, AsmLine."Qty. Picked (Base)", '');

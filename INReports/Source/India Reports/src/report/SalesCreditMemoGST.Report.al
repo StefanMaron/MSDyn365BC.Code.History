@@ -3,7 +3,6 @@ report 18015 "Sales - Credit Memo GST"
     DefaultLayout = RDLC;
     RDLCLayout = './rdlc/SalesCreditMemo.rdl';
     Caption = 'Sales - Credit Memo';
-    Permissions = TableData 7190 = rimd;
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = Basic, Suite;
 
@@ -51,7 +50,7 @@ report 18015 "Sales - Credit Memo GST"
                     column(CompanyRegistrationLbl; CompanyRegistrationLbl)
                     {
                     }
-                    column(CompanyInfo_GST_RegistrationNo; CompanyInfo."GST Registration No.")
+                    column(CompanyInfo_GST_RegistrationNo; CompanyInformation."GST Registration No.")
                     {
                     }
                     column(CustomerRegistrationLbl; CustomerRegistrationLbl)
@@ -114,28 +113,28 @@ report 18015 "Sales - Credit Memo GST"
                     column(CustAddr5; CustAddr[5])
                     {
                     }
-                    column(CompanyInfoPhoneNo; CompanyInfo."Phone No.")
+                    column(CompanyInfoPhoneNo; CompanyInformation."Phone No.")
                     {
                     }
                     column(CustAddr6; CustAddr[6])
                     {
                     }
-                    column(CompanyInfoEmail; CompanyInfo."E-Mail")
+                    column(CompanyInfoEmail; CompanyInformation."E-Mail")
                     {
                     }
-                    column(CompanyInfoHomePage; CompanyInfo."Home Page")
+                    column(CompanyInfoHomePage; CompanyInformation."Home Page")
                     {
                     }
-                    column(CompanyInfoVATRegNo; CompanyInfo."VAT Registration No.")
+                    column(CompanyInfoVATRegNo; CompanyInformation."VAT Registration No.")
                     {
                     }
-                    column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
+                    column(CompanyInfoGiroNo; CompanyInformation."Giro No.")
                     {
                     }
-                    column(CompanyInfoBankName; CompanyInfo."Bank Name")
+                    column(CompanyInfoBankName; CompanyInformation."Bank Name")
                     {
                     }
-                    column(CompanyInfoBankAccNo; CompanyInfo."Bank Account No.")
+                    column(CompanyInfoBankAccNo; CompanyInformation."Bank Account No.")
                     {
                     }
                     column(BilltoCustNo_SalesCrMemoHeader; "Sales Cr.Memo Header"."Bill-to Customer No.")
@@ -466,7 +465,7 @@ report 18015 "Sales - Credit Memo GST"
                         column(IGSTAmt; IGSTAmt)
                         {
                         }
-                        column(UGSTAmt; UGSTAmt)
+                        column(CessAmt; CessAmt)
                         {
                         }
                         column(TCSAmt; TCSAmt)
@@ -520,8 +519,6 @@ report 18015 "Sales - Credit Memo GST"
                         }
 
                         trigger OnAfterGetRecord()
-                        var
-                            TCSEntry: Record "TCS Entry";
                         begin
                             TempSalesShipmentBuffer.DeleteAll();
                             PostedReceiptDate := 0D;
@@ -541,39 +538,15 @@ report 18015 "Sales - Credit Memo GST"
                             TempVATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
                             TempVATAmountLine.InsertLine();
 
-                            DetailedGSTLedger.Reset();
-                            DetailedGSTLedger.SetRange("Document No.", "Sales Cr.Memo Line"."Document No.");
-                            DetailedGSTLedger.SetRange("Entry Type", DetailedGSTLedger."Entry Type"::"Initial Entry");
-                            if DetailedGSTLedger.FindSet() then
-                                repeat
-                                    if DetailedGSTLedger."GST Component Code" = 'CGST' then
-                                        CGSTAmt += Abs(DetailedGSTLedger."GST Amount");
-                                    if DetailedGSTLedger."GST Component Code" = 'SGST' then
-                                        SGSTAmt += Abs(DetailedGSTLedger."GST Amount");
-                                    if DetailedGSTLedger."GST Component Code" = 'IGST' then
-                                        IGSTAmt += Abs(DetailedGSTLedger."GST Amount");
-                                    if DetailedGSTLedger."GST Component Code" = 'UGST' then
-                                        UGSTAmt += Abs(DetailedGSTLedger."GST Amount");
-                                until DetailedGSTLedger.Next() = 0;
+                            GetSalesCrMemoGSTAmount("Sales Cr.Memo Header", "Sales Cr.Memo Line");
 
-                            TCSAmt := 0;
-                            TCSEntry.Reset();
-                            TCSEntry.SetRange("Document No.", "Sales Cr.Memo Line"."Document No.");
-                            if TCSEntry.FindFirst() then
-                                repeat
-                                    if "Sales Cr.Memo Header"."Currency Code" <> '' then
-                                        TcsAmt += "Sales Cr.Memo Header"."Currency Factor" * TCSEntry."Total TCS Including SHE CESS"
-                                    else
-                                        TcsAmt += TCSEntry."Total TCS Including SHE CESS";
-
-                                    TcsAmt := Round(TcsAmt, 1);
-                                until TCSEntry.Next() = 0;
+                            GetTCSAmt("Sales Cr.Memo Header", "Sales Cr.Memo Line");
 
                             NNC_TotalLineAmount += "Line Amount";
                             NNC_TotalAmountInclVat += "Amount Including VAT";
                             NNC_TotalInvDiscAmount += "Inv. Discount Amount";
                             NNC_TotalAmount += Amount;
-                            NNC_TotalAmountToCustomer += "Line Amount" + CGSTAmt + SGSTAmt + IGSTAmt + UGSTAmt;
+                            NNC_TotalAmountToCustomer += "Line Amount" + CGSTAmt + SGSTAmt + IGSTAmt + CessAmt;
                             NNC_TotalTaxAmount += 0;
                         end;
 
@@ -709,16 +682,16 @@ report 18015 "Sales - Credit Memo GST"
 
                         trigger OnPreDataItem()
                         begin
-                            if (not GLSetup."Print VAT specification in LCY") or
+                            if (not GeneralLedgerSetup."Print VAT specification in LCY") or
                                ("Sales Cr.Memo Header"."Currency Code" = '')
                             then
                                 CurrReport.Break();
 
                             SetRange(Number, 1, TempVATAmountLine.Count);
-                            if GLSetup."LCY Code" = '' then
+                            if GeneralLedgerSetup."LCY Code" = '' then
                                 VALSpecLCYHeader := VatAmtLbl + LocalCurrLbl
                             else
-                                VALSpecLCYHeader := VatAmtLbl + Format(GLSetup."LCY Code");
+                                VALSpecLCYHeader := VatAmtLbl + Format(GeneralLedgerSetup."LCY Code");
 
                             CurrExchRate.FindCurrency("Sales Cr.Memo Header"."Posting Date", "Sales Cr.Memo Header"."Currency Code", 1);
                             CalculatedExchRate := Round(1 / "Sales Cr.Memo Header"."Currency Factor" * CurrExchRate."Exchange Rate Amount", 0.000001);
@@ -795,13 +768,11 @@ report 18015 "Sales - Credit Memo GST"
                     NNC_TSTaxeCessAmount := 0;
                     NNC_TSTSHECessAmount := 0;
                     NNC_TTDSTCSISHECESS := 0;
-
                     CGSTAmt := 0;
                     SGSTAmt := 0;
                     IGSTAmt := 0;
-                    UGSTAmt := 0;
+                    CessAmt := 0;
                     TCSAmt := 0;
-
                     ChargesAmount := 0;
                     OtherTaxesAmount := 0;
                     NNC_TotalServiceTaxSBCAmount := 0;
@@ -827,17 +798,16 @@ report 18015 "Sales - Credit Memo GST"
             var
                 SalesCrMemoLine: Record "Sales Cr.Memo Line";
             begin
-                CurrReport.Language := Language.GetLanguageID("Language Code");
                 IsGSTApplicable := CheckGSTDoc(SalesCrMemoLine);
                 Customer.Get("Bill-to Customer No.");
-                CompanyInfo.Get();
+                CompanyInformation.Get();
 
                 if RespCenter.Get("Responsibility Center") then begin
-                    FormatAddr.RespCenter(CompanyAddr, RespCenter);
-                    CompanyInfo."Phone No." := RespCenter."Phone No.";
-                    CompanyInfo."Fax No." := RespCenter."Fax No.";
+                    FormatAddress.RespCenter(CompanyAddr, RespCenter);
+                    CompanyInformation."Phone No." := RespCenter."Phone No.";
+                    CompanyInformation."Fax No." := RespCenter."Fax No.";
                 end else
-                    FormatAddr.Company(CompanyAddr, CompanyInfo);
+                    FormatAddress.Company(CompanyAddr, CompanyInformation);
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
@@ -865,17 +835,17 @@ report 18015 "Sales - Credit Memo GST"
                     VATNoText := CopyStr(FieldCaption("VAT Registration No."), 1, 80);
 
                 if "Currency Code" = '' then begin
-                    GLSetup.TestField("LCY Code");
-                    TotalText := StrSubstNo(TotalLbl, GLSetup."LCY Code");
-                    TotalInclVATText := StrSubstNo(TotalIncTaxLbl, GLSetup."LCY Code");
-                    TotalExclVATText := StrSubstNo(TotalExclTaxLbl, GLSetup."LCY Code");
+                    GeneralLedgerSetup.TestField("LCY Code");
+                    TotalText := StrSubstNo(TotalLbl, GeneralLedgerSetup."LCY Code");
+                    TotalInclVATText := StrSubstNo(TotalIncTaxLbl, GeneralLedgerSetup."LCY Code");
+                    TotalExclVATText := StrSubstNo(TotalExclTaxLbl, GeneralLedgerSetup."LCY Code");
                 end else begin
                     TotalText := StrSubstNo(TotalLbl, "Currency Code");
                     TotalInclVATText := StrSubstNo(TotalIncTaxLbl, "Currency Code");
                     TotalExclVATText := StrSubstNo(TotalExclTaxLbl, "Currency Code");
                 end;
 
-                FormatAddr.SalesCrMemoBillTo(CustAddr, "Sales Cr.Memo Header");
+                FormatAddress.SalesCrMemoBillTo(CustAddr, "Sales Cr.Memo Header");
                 if "Applies-to Doc. No." = '' then
                     AppliedToText := ''
                 else
@@ -907,7 +877,6 @@ report 18015 "Sales - Credit Memo GST"
 
     requestpage
     {
-        SaveValues = true;
 
         layout
         {
@@ -948,7 +917,7 @@ report 18015 "Sales - Credit Memo GST"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get();
+        GeneralLedgerSetup.Get();
         SalesSetup.Get();
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":
@@ -978,9 +947,9 @@ report 18015 "Sales - Credit Memo GST"
     end;
 
     var
-        GLSetup: Record "General Ledger Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         SalesPurchPerson: Record "Salesperson/Purchaser";
-        CompanyInfo: Record "Company Information";
+        CompanyInformation: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
         CompanyInfo3: Record "Company Information";
@@ -992,10 +961,8 @@ report 18015 "Sales - Credit Memo GST"
         TempSalesShipmentBuffer: Record "Sales Shipment Buffer" temporary;
         CurrExchRate: Record "Currency Exchange Rate";
         RespCenter: Record "Responsibility Center";
-        DetailedGSTLedger: Record "Detailed GST Ledger Entry";
         SalesCrMemoCountPrinted: Codeunit "Sales Cr. Memo-Printed";
-        FormatAddr: Codeunit "Format Address";
-        Language: Codeunit Language;
+        FormatAddress: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;
         CustAddr: array[8] of Text[50];
         ShipToAddr: array[8] of Text[50];
@@ -1016,7 +983,6 @@ report 18015 "Sales - Credit Memo GST"
         ShowShippingAddr: Boolean;
         i: Integer;
         DimText: Text[120];
-        OldDimText: Text[75];
         Continue: Boolean;
         LogIntaction: Boolean;
         FirstValueEntryNo: Integer;
@@ -1053,7 +1019,7 @@ report 18015 "Sales - Credit Memo GST"
         SGSTAmt: Decimal;
         IGSTAmt: Decimal;
         TCSAmt: Decimal;
-        UGSTAmt: Decimal;
+        CessAmt: Decimal;
         SalesPersLbl: Label 'Salesperson';
         TotalLbl: Label 'Total %1', Comment = '%1 Amt';
         AppliestoLbl: Label '(Applies to %1 %2)', Comment = '%1 Doc Type %2 Doc No.';
@@ -1107,6 +1073,10 @@ report 18015 "Sales - Credit Memo GST"
         DocumentDateCaptionLbl: Label 'Document Date';
         ServTaxSBCAmtCaptionLbl: Label 'SBC Amount';
         KKCessAmtCaptionLbl: Label 'KK Cess Amount';
+        CGSTLbl: Label 'CGST';
+        SGSTLbl: Label 'SGST';
+        IGSTLbl: Label 'IGST';
+        CessLbl: Label 'CESS';
         CompanyRegistrationLbl: Label 'Company Registration No.';
         CustomerRegistrationLbl: Label 'Customer GST Reg No.';
 
@@ -1358,5 +1328,83 @@ report 18015 "Sales - Credit Memo GST"
         until DimSetEntry.Next() = 0;
 
         exit(DimensionText)
+    end;
+
+    procedure GetGSTRoundingPrecision(ComponentName: Code[30]): Decimal
+    var
+        TaxComponent: Record "Tax Component";
+        GSTSetup: Record "GST Setup";
+        GSTRoundingPrecision: Decimal;
+    begin
+        if not GSTSetup.Get() then
+            exit;
+        GSTSetup.TestField("GST Tax Type");
+
+        TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
+        TaxComponent.SetRange(Name, ComponentName);
+        TaxComponent.FindFirst();
+        if TaxComponent."Rounding Precision" <> 0 then
+            GSTRoundingPrecision := TaxComponent."Rounding Precision"
+        else
+            GSTRoundingPrecision := 1;
+        exit(GSTRoundingPrecision);
+    end;
+
+    local procedure GetSalesCrMemoGSTAmount(SalesCrMemoHdr: Record "Sales Cr.Memo Header";
+        SalesCrMemoLine: Record "Sales Cr.Memo Line")
+    var
+        DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+    begin
+        Clear(IGSTAmt);
+        Clear(CGSTAmt);
+        Clear(SGSTAmt);
+        Clear(CessAmt);
+        DetailedGSTLedgerEntry.Reset();
+        DetailedGSTLedgerEntry.SetRange("Document No.", SalesCrMemoLine."Document No.");
+        if DetailedGSTLedgerEntry.FindSet() then
+            repeat
+                if (DetailedGSTLedgerEntry."GST Component Code" = CGSTLbl) And (SalesCrMemoHdr."Currency Code" <> '') then
+                    CGSTAmt += Round((Abs(DetailedGSTLedgerEntry."GST Amount") * SalesCrMemoHdr."Currency Factor"), GetGSTRoundingPrecision(DetailedGSTLedgerEntry."GST Component Code"))
+                else
+                    if (DetailedGSTLedgerEntry."GST Component Code" = CGSTLbl) then
+                        CGSTAmt += Abs(DetailedGSTLedgerEntry."GST Amount");
+
+                if (DetailedGSTLedgerEntry."GST Component Code" = SGSTLbl) And (SalesCrMemoHdr."Currency Code" <> '') then
+                    SGSTAmt += Round((Abs(DetailedGSTLedgerEntry."GST Amount") * SalesCrMemoHdr."Currency Factor"), GetGSTRoundingPrecision(DetailedGSTLedgerEntry."GST Component Code"))
+                else
+                    if (DetailedGSTLedgerEntry."GST Component Code" = SGSTLbl) then
+                        SGSTAmt += Abs(DetailedGSTLedgerEntry."GST Amount");
+
+                if (DetailedGSTLedgerEntry."GST Component Code" = IGSTLbl) And (SalesCrMemoHdr."Currency Code" <> '') then
+                    IGSTAmt += Round((Abs(DetailedGSTLedgerEntry."GST Amount") * SalesCrMemoHdr."Currency Factor"), GetGSTRoundingPrecision(DetailedGSTLedgerEntry."GST Component Code"))
+                else
+                    if (DetailedGSTLedgerEntry."GST Component Code" = IGSTLbl) then
+                        IGSTAmt += Abs(DetailedGSTLedgerEntry."GST Amount");
+
+                if (DetailedGSTLedgerEntry."GST Component Code" = CessLbl) And (SalesCrMemoHdr."Currency Code" <> '') then
+                    CessAmt += Round((Abs(DetailedGSTLedgerEntry."GST Amount") * SalesCrMemoHdr."Currency Factor"), GetGSTRoundingPrecision(DetailedGSTLedgerEntry."GST Component Code"))
+                else
+                    if (DetailedGSTLedgerEntry."GST Component Code" = CessLbl) then
+                        CessAmt += Abs(DetailedGSTLedgerEntry."GST Amount");
+            until DetailedGSTLedgerEntry.Next() = 0;
+    end;
+
+    local procedure GetTCSAmt(SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesCrMemoLine: Record "Sales Cr.Memo Line")
+    var
+        TCSEntry: Record "TCS Entry";
+    begin
+        TCSAmt := 0;
+        TCSEntry.Reset();
+        TCSEntry.SetRange("Document No.", SalesCrMemoLine."Document No.");
+        if TCSEntry.FindSet() then
+            repeat
+                if SalesCrMemoHeader."Currency Code" <> '' then
+                    TcsAmt += SalesCrMemoHeader."Currency Factor" * TCSEntry."Total TCS Including SHE CESS"
+                else
+                    TcsAmt += TCSEntry."Total TCS Including SHE CESS";
+
+                TcsAmt := Round(TcsAmt, 1);
+            until TCSEntry.Next() = 0;
     end;
 }

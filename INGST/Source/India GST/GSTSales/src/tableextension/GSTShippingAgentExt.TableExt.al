@@ -4,9 +4,8 @@ tableextension 18156 "GST Shipping Agent Ext" extends "Shipping Agent"
     {
         field(18141; "GST Registration No."; Code[20])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'GST Registration No.';
         }
     }
-
 }

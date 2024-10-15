@@ -80,7 +80,7 @@ page 20309 "Use Case Rate Column Relation"
             SetupColumnName := '';
 
         MappingTxt := '';
-        Clear(MappingTxt);
+
         SwitchCase.SetRange("Case ID", "Case ID");
         SwitchCase.SetRange("Switch Statement ID", "Switch Statement ID");
         if SwitchCase.FindSet() then

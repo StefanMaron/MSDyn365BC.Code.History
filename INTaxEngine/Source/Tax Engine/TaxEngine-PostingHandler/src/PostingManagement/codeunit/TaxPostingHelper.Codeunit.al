@@ -21,7 +21,7 @@ codeunit 20346 "Tax Posting Helper"
         InsertRecord.ID := CreateGuid();
         InsertRecord.Insert();
 
-        Exit(InsertRecord.ID);
+        exit(InsertRecord.ID);
     end;
 
     procedure DeleteInsertRecord(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -80,7 +80,7 @@ codeunit 20346 "Tax Posting Helper"
                 RecordFieldText += FieldRecordText;
             until InsertRecordField.Next() = 0;
 
-        Exit(StrSubstNo(ToStringFormatTxt, VariableToString(TableName), RecordFieldText));
+        exit(StrSubstNo(ToStringFormatTxt, VariableToString(TableName), RecordFieldText));
     end;
 
     local procedure VariableToString(VariableName: Text): Text;
@@ -90,14 +90,13 @@ codeunit 20346 "Tax Posting Helper"
     begin
         VariableName2 := DELCHR(VariableName, '<>=', '."\/''%][ ');
         if VariableName2 <> VariableName then
-            Exit(StrSubstNo(VariableFormatTxt, VariableName))
+            exit(StrSubstNo(VariableFormatTxt, VariableName))
         else
-            Exit(VariableName);
+            exit(VariableName);
     end;
 
     var
         AppObjectHelper: Codeunit "App Object Helper";
         LookupSerialization: Codeunit "Lookup Serialization";
         ScriptDatatypeMgmt: Codeunit "Script Data Type Mgmt.";
-        EmptyGuid: Guid;
 }

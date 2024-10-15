@@ -2,7 +2,7 @@ enum 18010 "Cr Libty Adjustment Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Generate)
     {

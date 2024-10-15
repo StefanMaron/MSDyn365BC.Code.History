@@ -10,7 +10,6 @@ page 18000 "Detailed GST Ledger Entry"
     PageType = List;
     SourceTable = "Detailed GST Ledger Entry";
 
-
     layout
     {
         area(content)
@@ -142,16 +141,6 @@ page 18000 "Detailed GST Ledger Entry"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the transaction has been reversed or not.';
                 }
-                field("User ID"; Rec."User ID")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the user who posted the transaction.';
-                }
-                field(Positive; Rec.Positive)
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether the amount in the line is positive or not.';
-                }
                 field("Document Line No."; Rec."Document Line No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -172,11 +161,6 @@ page 18000 "Detailed GST Ledger Entry"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if GST is required to be calculated on Advance Payment.';
                 }
-                field("Nature of Supply"; Rec."Nature of Supply")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the nature of GST transaction. For example, B2B/B2C.';
-                }
                 field("Payment Document No."; Rec."Payment Document No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -192,342 +176,167 @@ page 18000 "Detailed GST Ledger Entry"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the GST % on the GST ledger entry.';
                 }
-                field("Location State Code"; Rec."Location State Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the state code of location.';
-                }
-                field("Buyer/Seller State Code"; Rec."Buyer/Seller State Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer/vendor state code.';
-                }
-                field("Shipping Address State Code"; Rec."Shipping Address State Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the state code for the shipping address.';
-                }
                 field("Location  Reg. No."; Rec."Location  Reg. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the GSTIN of location.';
                 }
-                field("Buyer/Seller Reg. No."; "Buyer/Seller Reg. No.")
+                field("Buyer/Seller Reg. No."; Rec."Buyer/Seller Reg. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer/vendor GST Registration number.';
                 }
-                field("GST Group Type"; "GST Group Type")
+                field("GST Group Type"; Rec."GST Group Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the GST group is assigned for goods or service.';
                 }
-                field("GST Credit"; "GST Credit")
+                field("GST Credit"; Rec."GST Credit")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the GST credit has to be availed or not.';
                 }
-                field("Adv. Pmt. Adjustment"; "Adv. Pmt. Adjustment")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when an adjustment is made to a posted advance payment.';
-                }
-                field("Original Adv. Pmt Doc. No."; "Original Adv. Pmt Doc. No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the original advance payment document number if the same is adjusted.';
-                }
-                field("Original Adv. Pmt Doc. Date"; "Original Adv. Pmt Doc. Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the original advance payment document date.';
-                }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code on GST ledger entry.';
                 }
-                field("GST Rounding Precision"; "GST Rounding Precision")
+                field("GST Rounding Precision"; Rec."GST Rounding Precision")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the GST Rounding precesion for the GST Ledger Entry';
+                    ToolTip = 'Specifies the GST Rounding precision for the GST Ledger Entry';
                 }
-                field("GST Rounding Type"; "GST Rounding Type")
+                field("GST Rounding Type"; Rec."GST Rounding Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the GST Rounding type for the GST Ledger Entry';
                 }
-                field("GST Customer Type"; "GST Customer Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of the customer. For example, Registered, Unregistered, Export etc..';
-                }
-                field("GST Vendor Type"; "GST Vendor Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of the vendor. For example,  Registered, Unregistered, Composite, Import etc..';
-                }
-                field("Original Invoice Date"; "Original Invoice Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Original invoice date of the GST ledger entry.';
-                }
-                field("Bill Of Export No."; "Bill Of Export No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the bill of export number. It is a document number which is submitted to custom department .';
-                }
-                field("Bill Of Export Date"; "Bill Of Export Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the entry date defined in bill of export document.';
-                }
-                field("e-Comm. Merchant Id"; "e-Comm. Merchant Id")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the merchant ID given by the e-commerce operator.';
-                }
-                field("e-Comm. Operator GST Reg. No."; "e-Comm. Operator GST Reg. No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the registration number of an e-commerce operator.';
-                }
-                field("Sales Invoice Type"; "Sales Invoice Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the invoice type of the sales transaction.';
-                }
-                field("Purchase Invoice Type"; "Purchase Invoice Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the invoice type of the purchase transaction.';
-                }
-                field("Original Invoice No."; "Original Invoice No.")
+                field("Original Invoice No."; Rec."Original Invoice No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Original invoice number on the GST ledger entry.';
                 }
-                field("Payment Document Date"; "Payment Document Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the settlement posting date when GST is paid through GST settlement.';
-                }
-                field("Credit Reversal"; "Credit Reversal")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Credit reversal.';
-                }
-                field("Reconciliation Month"; "Reconciliation Month")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the year in which the transaction is reconciled through GST Reconciliation feature.';
-                }
-                field("Reconciliation Year"; "Reconciliation Year")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the year in which the transaction is reconciled through GST Reconciliation feature.';
-                }
-                field(Reconciled; Reconciled)
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the transaction has been reconciled.';
-                }
-                field("Credit Adjustment Type"; "Credit Adjustment Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of credit adjustment. For example, credit reversal, credit re-availment etc.';
-                }
-                field("Credit Availed"; "Credit Availed")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the GST credit has been availed or not.';
-                }
-                field("Liable to Pay"; "Liable to Pay")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether the payment liability occurs  for the transaction or not.';
-                }
-                field("Payment Type"; "Payment Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of payment.';
-                }
-                field("Component Calc. Type"; "Component Calc. Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Component Calc. Type for the ledger Entry.';
-                }
-                field("Cess Amount Per Unit Factor"; "Cess Amount Per Unit Factor")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Cess Amount per Unit Factor for the ledger entry.';
-                }
-                field("Cess UOM"; "Cess UOM")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Cess Unit of Measure for the ledger entry.';
-                }
-                field("Cess Factor Quantity"; "Cess Factor Quantity")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Cess Factor Quantity for the ledger entry.';
-                }
-                field("Bill of Entry No."; "Bill of Entry No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the bill of entry number. It is a document number which is submitted to custom department.';
-                }
-                field("Bill of Entry Date"; "Bill of Entry Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Bill of entry date on the GST ledger entry.';
-                }
-                field("Eligibility for ITC"; "Eligibility for ITC")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Eligibility for ITC on the GST ledger entry.';
-                }
-                field("GST Assessable Value"; "GST Assessable Value")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the GST assessable value on the GST ledger entry.';
-                }
-                field("Custom Duty Amount"; "Custom Duty Amount")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Custom duty amount on the GST ledger entry.';
-                }
-                field("Foreign Exchange"; "Foreign Exchange")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether it is a foreign currency transaction or not.';
-                }
-                field("Bank Charge Entry"; "Bank Charge Entry")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the entry is a bank charge transaction.';
-                }
-                field("Jnl. Bank Charge"; "Jnl. Bank Charge")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the bank charge code.';
-                }
-                field("RCM Exempt"; "RCM Exempt")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the RCM exempt on the GST ledger entry.';
-                }
-                field("Cr. & Libty. Adjustment Type"; "Cr. & Libty. Adjustment Type")
+                field("Cr. & Liab. Adjustment Type"; Rec."Cr. & Liab. Adjustment Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the credit and liability adjustment type for the ledger entry.';
                 }
-                field("Bill to-Location(POS)"; "Bill to-Location(POS)")
+                field("GST Customer Type"; Rec."GST Customer Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the billing location for the ledger entry.';
+                    ToolTip = 'Specifies the type of the customer. For example, Registered, Unregistered, Export etc..';
                 }
-                field("Journal Entry"; "Journal Entry")
+                field("GST Vendor Type"; Rec."GST Vendor Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the type of the vendor. For example,  Registered, Unregistered, Composite, Import etc..';
+                }
+                field("Reconciliation Month"; Rec."Reconciliation Month")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the year in which the transaction is Reconciled through GST Reconciliation feature.';
+                }
+                field("Reconciliation Year"; Rec."Reconciliation Year")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the year in which the transaction is Reconciled through GST Reconciliation feature.';
+                }
+                field(Reconciled; Rec.Reconciled)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the transaction has been Reconciled.';
+                }
+                field("Credit Adjustment Type"; Rec."Credit Adjustment Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the type of credit adjustment. For example, credit reversal, credit re-availment etc.';
+                }
+                field("Credit Availed"; Rec."Credit Availed")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the GST credit has been availed or not.';
+                }
+                field("Liable to Pay"; Rec."Liable to Pay")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether the payment liability occurs  for the transaction or not.';
+                }
+                field("Payment Type"; Rec."Payment Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the type of payment.';
+                }
+                field("Eligibility for ITC"; Rec."Eligibility for ITC")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the Eligibility for ITC on the GST ledger entry.';
+                }
+                field("GST Assessable Value"; Rec."GST Assessable Value")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the GST assessable value on the GST ledger entry.';
+                }
+                field("Custom Duty Amount"; Rec."Custom Duty Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the Custom duty amount on the GST ledger entry.';
+                }
+                field("Journal Entry"; Rec."Journal Entry")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the transaction is posted from Journal with document type Invoice or Credit Memo.';
                 }
-                field("ARN No."; "ARN No.")
+                field("ARN No."; Rec."ARN No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Customer/Vendor ARN number.';
                 }
-                field("FA Journal Entry"; "FA Journal Entry")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the transaction is posted from FA Journal.';
-                }
-                field("Without Bill Of Entry"; "Without Bill Of Entry")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the ledger entry is created with or without Bill of entry.';
-                }
-                field("Finance Charge Memo"; "Finance Charge Memo")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Finance charge memo on the ledger entry.';
-                }
-                field("Forex Fluctuation"; "Forex Fluctuation")
+                field("Forex Fluctuation"; Rec."Forex Fluctuation")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Forex fluctuation on the ledger entry.';
                 }
-                field("CAJ %"; "CAJ %")
+                field("CAJ %"; Rec."CAJ %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the CAJ % which is updated from credit adjustment journal line.';
                 }
-                field("CAJ Amount"; "CAJ Amount")
+                field("CAJ Amount"; Rec."CAJ Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the CAJ amount which is updated from credit adjustment journal line, displays the adjusted GST amount.';
                 }
-                field("CAJ % Permanent Reversal"; "CAJ % Permanent Reversal")
+                field("CAJ % Permanent Reversal"; Rec."CAJ % Permanent Reversal")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the CAJ % of payment reversal which is updated from credit adjustment journal line if Adjustment Type is selected as Permanent Reversal. ';
                 }
-                field("CAJ Amount Permanent Reversal"; "CAJ Amount Permanent Reversal")
+                field("CAJ Amount Permanent Reversal"; Rec."CAJ Amount Permanent Reversal")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of permanent reversal which is  updated from credit adjustment journal line, displays the GST amount for Adjustment Type - Permanent Reversal.';
                 }
-                field("Location ARN No."; "Location ARN No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the location ARN number.';
-                }
-                field("Rate Change Applicable"; "Rate Change Applicable")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the rate change applicable on the GST ledger entry.';
-                }
-                field("Remaining CAJ Adj. Base Amt"; "Remaining CAJ Adj. Base Amt")
+                field("Remaining CAJ Adj. Base Amt"; Rec."Remaining CAJ Adj. Base Amt")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the remaining GST base amount after posting adjustments which is updated on posting credit adjustment journal. ';
                 }
-                field("Remaining CAJ Adj. Amt"; "Remaining CAJ Adj. Amt")
+                field("Remaining CAJ Adj. Amt"; Rec."Remaining CAJ Adj. Amt")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the remaining GST amount after posting adjustments which is updated on posting credit adjustment journal. ';
                 }
-                field("POS as Vendor State"; "POS as Vendor State")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the POS as vendor state on the GST ledger entry.';
-                }
-                field("POS Out Of India"; "POS Out Of India")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the POS out of India on the GST ledger entry.';
-                }
-                field("Transaction No."; "Transaction No.")
+                field("Transaction No."; Rec."Transaction No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the transaction number that the Detailed GST entry belongs to.';
                 }
-                field("GST Base Amount FCY"; "GST Base Amount FCY")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Displays the tax amount computed by applying GST percentage on GST base in foreign currency';
-                }
-                field("GST Amount FCY"; "GST Amount FCY")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Displays the tax amount in foreign currency, computed by applying GST percentage on GST base.';
-                }
-                field("Currency Factor"; "Currency Factor")
+                field("Currency Factor"; Rec."Currency Factor")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies currency factor for this transactions.';
                 }
-                field("GST Place of Supply"; "GST Place of Supply")
+                field("GST Place of Supply"; Rec."GST Place of Supply")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the GST Place of Supply. For example Bill-to Address, Ship-to Address, Location Address etc.';
@@ -535,9 +344,18 @@ page 18000 "Detailed GST Ledger Entry"
             }
         }
     }
-
-
-
-
+    actions
+    {
+        area(Navigation)
+        {
+            action("Show Related Information")
+            {
+                Image = Info;
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Display the additional information of detailed GST ledger entry.';
+                RunObject = page "Detailed GST Ledger Entry Info";
+                RunPageLink = "Entry No." = field("Entry No.");
+            }
+        }
+    }
 }
-

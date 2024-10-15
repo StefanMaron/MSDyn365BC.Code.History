@@ -1,7 +1,5 @@
 codeunit 20299 "Use Case Tree-Indent"
 {
-    TableNo = "Use Case Tree Node";
-
     trigger OnRun()
     begin
         Indent();
@@ -9,7 +7,6 @@ codeunit 20299 "Use Case Tree-Indent"
 
     var
         UseCaseTreeNode: Record "Use Case Tree Node";
-        NodeValueIndentedMsg: Label 'All Node values between a Begin and the matching End are indented by one level. ';
         IndentingNodeValueMsg: Label 'Indenting Node Values @1@@@@@@@@@@@@@@@@@@';
         MissingBeginTotalErr: Label 'End %1 is missing a matching Begin.', Comment = '%1 = Node value';
         ArrayExceededErr: Label 'You can only indent %1 levels for node values of the type Begin.', Comment = '%1 = A number bigger than 1';
@@ -160,12 +157,14 @@ codeunit 20299 "Use Case Tree-Indent"
         JToken: JsonToken;
         property: Text;
     begin
-        UseCaseTree.Init();
         foreach property in JObject.Keys() do begin
             JObject.Get(property, JToken);
             case property of
                 'Code':
-                    UseCaseTree.Code := JToken.AsValue().AsCode();
+                    if not UseCaseTree.Get(JToken.AsValue().AsCode()) then begin
+                        UseCaseTree.Code := JToken.AsValue().AsCode();
+                        UseCaseTree.Insert(true);
+                    end;
                 'Name':
                     UseCaseTree.Name := JToken.AsValue().AsText();
                 'NodeType':
@@ -190,6 +189,6 @@ codeunit 20299 "Use Case Tree-Indent"
                     UseCaseTree."Is Tax Type Root" := JToken.AsValue().AsBoolean();
             end;
         end;
-        UseCaseTree.Insert();
+        UseCaseTree.Modify(true);
     end;
 }

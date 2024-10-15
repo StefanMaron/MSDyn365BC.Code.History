@@ -4,7 +4,6 @@ page 20286 "Tax Table Relation Dialog"
     PageType = StandardDialog;
     DataCaptionExpression = '';
     SourceTable = "Tax Table Relation";
-
     layout
     {
         area(Content)
@@ -12,25 +11,34 @@ page 20286 "Tax Table Relation Dialog"
             group(Group5)
             {
                 Caption = 'Lookup Table';
+                field("Is Current Record"; "Is Current Record")
+                {
+                    Caption = 'Is Current Record';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether the attribute is mapped with the curent record of the use case.';
+                    trigger OnValidate()
+                    begin
+                        UpdatePageControls();
+                    end;
+                }
                 field("Lookup Table"; LookupTableName)
                 {
                     Caption = 'Table Name';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the table name for table relation.';
-
+                    Editable = not IsCurrentRecord;
                     trigger OnValidate();
                     var
                         xTableID: Integer;
                     begin
                         xTableID := "Source ID";
-                        UseCase.Get("Case ID");
+                        TaxUseCase.Get("Case ID");
                         TaxTypeObjectHelper.SearchTaxTypeTable(
                             "Source ID",
                             LookupTableName,
-                            UseCase."Tax Type",
+                            TaxUseCase."Tax Type",
                             false);
-                        HandleTableChange(xTableID)
-
+                        HandleTableChange(xTableID);
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean;
@@ -38,12 +46,12 @@ page 20286 "Tax Table Relation Dialog"
                         xTableID: Integer;
                     begin
                         xTableID := "Source ID";
-                        UseCase.Get("Case ID");
+                        TaxUseCase.Get("Case ID");
                         TaxTypeObjectHelper.OpenTaxTypeTableLookup(
                             "Source ID",
                             LookupTableName,
                             LookupTableName,
-                            UseCase."Tax Type");
+                            TaxUseCase."Tax Type");
 
                         HandleTableChange(xTableID);
                     end;
@@ -56,7 +64,6 @@ page 20286 "Tax Table Relation Dialog"
                     Editable = false;
                     Width = 1024;
                     ApplicationArea = Basic, Suite;
-
                     trigger OnAssistEdit();
                     begin
                         if "Source ID" = 0 then
@@ -114,12 +121,8 @@ page 20286 "Tax Table Relation Dialog"
             LookupTableFilters := LookupSerialization.TableFilterToString("Case ID", EmptyGuid, Rec."Table Filter ID")
         else
             LookupTableFilters := '';
-    end;
 
-    procedure SetDatatype(ExpectedDatatype2: Integer);
-    begin
-        ExpectedDatatype := ExpectedDatatype2;
-        ApplyDatatypeFilter := true;
+        IsCurrentRecord := Rec."Is Current Record";
     end;
 
     trigger OnAfterGetCurrRecord();
@@ -129,7 +132,7 @@ page 20286 "Tax Table Relation Dialog"
 
     var
         TaxTableRelation: Record "Tax Table Relation";
-        UseCase: Record "Tax Use Case";
+        TaxUseCase: Record "Tax Use Case";
         LookupEntityMgmt: Codeunit "Lookup Entity Mgmt.";
         LookupSerialization: Codeunit "Lookup Serialization";
         TaxTypeObjectHelper: Codeunit "Tax Type Object Helper";
@@ -139,6 +142,5 @@ page 20286 "Tax Table Relation Dialog"
         LookupTableName: Text[30];
         LookupTableFieldName: Text[30];
         LookupTableFilters: Text;
-        ExpectedDatatype: Integer;
-        ApplyDatatypeFilter: Boolean;
+        IsCurrentRecord: Boolean;
 }

@@ -13,43 +13,36 @@ page 18749 "TDS Journal Template List"
         {
             repeater(General)
             {
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the tax journal template.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the tax journal template.';
                 }
-                field(Type; Type)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Visible = false;
-                    ToolTip = 'Specifies the type of the tax journal template.';
-
-                }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     Visible = false;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code that defines where the entry was created.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     Visible = false;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                 }
-                field("Form ID"; "Form ID")
+                field("Form ID"; Rec."Form ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Objects;
                     Visible = false;
                     ToolTip = 'Specifies Form ID';
                 }
-                field("Form Name"; "Form Name")
+                field("Form Name"; Rec."Form Name")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -60,4 +53,3 @@ page 18749 "TDS Journal Template List"
         }
     }
 }
-

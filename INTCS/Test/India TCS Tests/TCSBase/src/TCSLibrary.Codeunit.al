@@ -1,6 +1,17 @@
 codeunit 18911 "TCS - Library"
 {
-    procedure CreateTCSSetup(var Customer: Record Customer; var TCSPostingSetup: Record "TCS Posting Setup"; var ConcessionalCode: Record "Concessional Code")
+    var
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryERM: Codeunit "Library - ERM";
+        Assert: Codeunit Assert;
+        AmountErr: Label '%1 is incorrect in %2.', Comment = '%1 and %2 = TCS% and TCS field Caption';
+
+    procedure CreateTCSSetup(
+        var Customer: Record Customer;
+        var TCSPostingSetup: Record "TCS Posting Setup";
+        var ConcessionalCode: Record "Concessional Code")
     var
         AssesseeCode: Record "Assessee Code";
         TCSNatureOfCollection: Record "TCS Nature Of Collection";
@@ -11,51 +22,20 @@ codeunit 18911 "TCS - Library"
         AttachConcessionalWithCustomer(Customer."No.", ConcessionalCode.Code, TCSNatureOfCollection.Code);
     end;
 
-    local procedure CreateCommmonSetup(var AssesseeCode: Record "Assessee Code"; var ConcessionalCode: Record "Concessional Code")
-    begin
-        if IsTaxAccountingPeriodEmpty() then
-            CreateTCSAccountingPeriod();
-        FillCompanyInformation();
-        CreateConcessionalCode(ConcessionalCode);
-        CreateAssesseeCode(AssesseeCode);
-    end;
-
-    local procedure IsTaxAccountingPeriodEmpty(): Boolean
-    var
-        TCSSetup: Record "TCS Setup";
-        TaxType: Record "Tax Type";
-        TaxAccountingPeriod: Record "Tax Accounting Period";
-    begin
-        if not TCSSetup.Get() then
-            exit;
-        TCSSetup.TestField("Tax Type");
-
-        TaxType.Get(TCSSetup."Tax Type");
-
-        TaxAccountingPeriod.SetRange("Tax Type Code", TaxType."Accounting Period");
-        TaxAccountingPeriod.SetFilter("Starting Date", '<=%1', WorkDate());
-        TaxAccountingPeriod.SetFilter("Ending Date", '>=%1', WorkDate());
-        if TaxAccountingPeriod.IsEmpty then
-            exit(true);
-    end;
-
-    local procedure CreateTCSCustomer(var Customer: Record Customer; AssesseeCode: Code[10]; TCSNOC: Code[10]);
-    begin
-        LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("VAT Bus. Posting Group", GetVATBusPostingWithNOVAT());
-        Customer.Validate("Assessee Code", AssesseeCode);
-        UpdateNOCOnCustomer(Customer."No.", TCSNOC);
-        Customer.Modify(true);
-    end;
-
-    procedure UpdateCustomerWithPANWithConcessional(Var Customer: Record Customer; ThresholdOverlook: Boolean; SurchargeOverlook: Boolean)
+    procedure UpdateCustomerWithPANWithConcessional(
+        var Customer: Record Customer;
+        ThresholdOverlook: Boolean;
+        SurchargeOverlook: Boolean)
     begin
         Customer.Validate("P.A.N. No.", LibraryUtility.GenerateRandomCode(Customer.FieldNo("P.A.N. No."), Database::"Customer"));
         Customer.Modify(true);
         UpdateNOCOnCustomer(Customer."No.", ThresholdOverlook, SurchargeOverlook);
     end;
 
-    procedure UpdateCustomerWithPANWithOutConcessional(Var Customer: Record Customer; ThresholdOverlook: Boolean; SurchargeOverlook: Boolean)
+    procedure UpdateCustomerWithPANWithOutConcessional(
+        var Customer: Record Customer;
+        ThresholdOverlook: Boolean;
+        SurchargeOverlook: Boolean)
     var
         CustomerConcessionalCode: Record "Customer Concessional Code";
     begin
@@ -67,7 +47,10 @@ codeunit 18911 "TCS - Library"
         CustomerConcessionalCode.DeleteAll(true);
     end;
 
-    procedure UpdateCustomerWithoutPANWithConcessional(Var Customer: Record Customer; ThresholdOverlook: Boolean; SurchargeOverlook: Boolean)
+    procedure UpdateCustomerWithoutPANWithConcessional(
+        var Customer: Record Customer;
+        ThresholdOverlook: Boolean;
+        SurchargeOverlook: Boolean)
     begin
         Customer.Validate("P.A.N. Status", Customer."P.A.N. Status"::PANAPPLIED);
         Customer.Validate("P.A.N. Reference No.", LibraryRandom.RandText(10));
@@ -75,7 +58,10 @@ codeunit 18911 "TCS - Library"
         UpdateNOCOnCustomer(Customer."No.", ThresholdOverlook, SurchargeOverlook);
     end;
 
-    procedure UpdateCustomerWithoutPANWithoutConcessional(Var Customer: Record Customer; ThresholdOverlook: Boolean; SurchargeOverlook: Boolean)
+    procedure UpdateCustomerWithoutPANWithoutConcessional(
+        var Customer: Record Customer;
+        ThresholdOverlook: Boolean;
+        SurchargeOverlook: Boolean)
     var
         CustomerConcessionalCode: Record "Customer Concessional Code";
     begin
@@ -88,44 +74,16 @@ codeunit 18911 "TCS - Library"
         CustomerConcessionalCode.DeleteAll(true);
     end;
 
-    procedure UpdateCustomerWithNOCWithOutConcessional(Var Customer: Record Customer; ThresholdOverlook: Boolean; SurchargeOverlook: Boolean)
+    procedure UpdateCustomerWithNOCWithOutConcessional(
+        var Customer: Record Customer;
+        ThresholdOverlook: Boolean;
+        SurchargeOverlook: Boolean)
     var
         CustomerConcessionalCode: Record "Customer Concessional Code";
     begin
         UpdateNOCOnCustomer(Customer."No.", ThresholdOverlook, SurchargeOverlook);
         CustomerConcessionalCode.SetRange("Customer No.", Customer."No.");
         CustomerConcessionalCode.DeleteAll(true);
-    end;
-
-    local procedure UpdateNOCOnCustomer(CustomerNo: Code[20]; ThresholdOverLook: Boolean; SurchargeOverlook: Boolean)
-    var
-        AllowedNOC: Record "Allowed NOC";
-    begin
-        AllowedNOC.SetRange("Customer No.", CustomerNo);
-        AllowedNOC.FindFirst();
-        AllowedNOC.Validate("Threshold Overlook", ThresholdOverlook);
-        AllowedNOC.Validate("Surcharge Overlook", SurchargeOverlook);
-        AllowedNOC.Modify(true);
-    end;
-
-    local procedure UpdateNOCOnCustomer(CustomerNo: Code[20]; NOCType: Code[10])
-    var
-        AllowedNOC: Record "Allowed Noc";
-    begin
-        AllowedNOC.Init();
-        AllowedNOC.Validate("Customer No.", CustomerNo);
-        AllowedNOC.Validate("TCS Nature of Collection", NOCType);
-        AllowedNOC.Validate("Default Noc", true);
-        AllowedNOC.Insert(true);
-    end;
-
-    local procedure GetVATBusPostingWithNOVAT(): Code[20]
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        VATPostingSetup.SetFilter("VAT %", '%1', 0);
-        if VATPostingSetup.FindFirst() then
-            exit(VATPostingSetup."VAT Bus. Posting Group");
     end;
 
     procedure CreateAssesseeCode(var AssesseeCode: Record "Assessee Code")
@@ -141,7 +99,7 @@ codeunit 18911 "TCS - Library"
         TCANNo: Record "T.C.A.N. No.";
     begin
         TCANNo.Init();
-        TCANNo.Validate(Code, LibraryUtility.GenerateRandomCode(TCANNo.FIELDNO(Code), DATABASE::"T.C.A.N. No."));
+        TCANNo.Validate(Code, LibraryUtility.GenerateRandomCode(TCANNo.FieldNo(Code), Database::"T.C.A.N. No."));
         TCANNo.Validate(Description, TCANNo.Code);
         TCANNo.Insert(true);
         exit(TCANNo.Code);
@@ -150,12 +108,14 @@ codeunit 18911 "TCS - Library"
     procedure CreateTCSNatureOfCollection(var TCSNatureOfCollection: Record "TCS Nature Of Collection")
     begin
         TCSNatureOfCollection.Init();
-        TCSNatureOfCollection.Validate(Code, LibraryUtility.GenerateRandomCode(TCSNatureOfCollection.FIELDNO(Code), DATABASE::"TCS Nature Of Collection"));
+        TCSNatureOfCollection.Validate(Code, LibraryUtility.GenerateRandomCode(TCSNatureOfCollection.FieldNo(Code), Database::"TCS Nature Of Collection"));
         TCSNatureOfCollection.Validate(Description, TCSNatureOfCollection.Code);
         TCSNatureOfCollection.Insert(true);
     end;
 
-    procedure CreateTCSPostingSetup(var TCSPostingSetup: Record "TCS Posting Setup"; TCSNatureOfCollectionCode: Code[20])
+    procedure CreateTCSPostingSetup(
+        var TCSPostingSetup: Record "TCS Posting Setup";
+        TCSNatureOfCollectionCode: Code[20])
     begin
         TCSPostingSetup.Init();
         TCSPostingSetup.Validate("TCS Nature of Collection", TCSNatureOfCollectionCode);
@@ -164,7 +124,9 @@ codeunit 18911 "TCS - Library"
         TCSPostingSetup.Insert(true);
     end;
 
-    procedure CreateTCSPostingSetupWithNOC(var TCSPostingSetup: Record "TCS Posting Setup"; var TCSNOC: Record "TCS Nature Of Collection")
+    procedure CreateTCSPostingSetupWithNOC(
+        var TCSPostingSetup: Record "TCS Posting Setup";
+        var TCSNOC: Record "TCS Nature Of Collection")
     begin
         CreateTCSNatureOfCollection(TCSNOC);
         CreateTCSPostingSetup(TCSPostingSetup, TCSNOC.Code);
@@ -191,12 +153,15 @@ codeunit 18911 "TCS - Library"
     procedure CreateConcessionalCode(var ConcessionalCode: Record "Concessional Code")
     begin
         ConcessionalCode.Init();
-        ConcessionalCode.Validate(Code, LibraryUtility.GenerateRandomCode(ConcessionalCode.FIELDNO(Code), DATABASE::"Concessional Code"));
+        ConcessionalCode.Validate(Code, LibraryUtility.GenerateRandomCode(ConcessionalCode.FieldNo(Code), Database::"Concessional Code"));
         ConcessionalCode.Validate(Description, ConcessionalCode.Code);
         ConcessionalCode.Insert(true);
     end;
 
-    procedure AttachConcessionalWithCustomer(CustomerNo: Code[20]; ConcessionalCode: Code[10]; TCSNatureOfCollection: Code[10])
+    procedure AttachConcessionalWithCustomer(
+        CustomerNo: Code[20];
+        ConcessionalCode: Code[10];
+        TCSNatureOfCollection: Code[10])
     var
         CustomerConcessionalCode: Record "Customer Concessional Code";
     begin
@@ -208,7 +173,7 @@ codeunit 18911 "TCS - Library"
         CustomerConcessionalCode.Insert(true);
     end;
 
-    Procedure CreateTCSAccountingPeriod();
+    procedure CreateTCSAccountingPeriod()
     var
         TaxType: Record "Tax Type";
         TCSSetup: Record "TCS Setup";
@@ -222,7 +187,7 @@ codeunit 18911 "TCS - Library"
 
         Date.SetRange("Period Type", Date."Period Type"::Year);
         Date.SetRange("Period No.", Date2DMY(WorkDate(), 3));
-        if Date.FindFirst() then;
+        Date.FindFirst();
 
         Clear(CreateTaxAccountingPeriod);
         Evaluate(PeriodLength, '<1M>');
@@ -235,16 +200,10 @@ codeunit 18911 "TCS - Library"
     procedure FillCompanyInformation()
     var
         CompInfo: Record "Company Information";
-        GSTRegistrationNos: Record "GST Registration Nos.";
     begin
-        Compinfo.get();
-        if Compinfo."GST Registration No." = '' then begin
-            if GSTRegistrationNos.FindFirst() then
-                CompInfo.Validate("P.A.N. No.", CopyStr(GSTRegistrationNos.Code, 3, 10))
-            else
-                CompInfo.Validate("P.A.N. No.", LibraryUtility.GenerateRandomCode(CompInfo.FieldNo("P.A.N. No."), Database::"Company Information"));
-        end else
-            CompInfo.Validate("P.A.N. No.", CopyStr(CompInfo."GST Registration No.", 3, 10));
+        Compinfo.Get();
+        if CompInfo."P.A.N. No." = '' then
+            CompInfo."P.A.N. No." := LibraryUtility.GenerateRandomCode(CompInfo.FieldNo("P.A.N. No."), Database::"Company Information");
         CompInfo.Validate("Circle No.", LibraryUtility.GenerateRandomText(30));
         CompInfo.Validate("Ward No.", LibraryUtility.GenerateRandomText(30));
         CompInfo.Validate("Assessing Officer", LibraryUtility.GenerateRandomText(30));
@@ -253,21 +212,6 @@ codeunit 18911 "TCS - Library"
             CompInfo.Validate("State Code", CreateStateCode());
         CompInfo.Validate("T.C.A.N. No.", CreateTCANNo());
         CompInfo.Modify(true);
-    end;
-
-    local procedure CreateStateCode(): Code[10]
-    var
-        State: Record State;
-    begin
-        if State.FindFirst() then
-            exit(State.Code)
-        else begin
-            State.Init();
-            State.Validate(Code, LibraryRandom.RandText(2));
-            State.Validate(Description, State.Code);
-            State.Insert(true);
-            exit(State.Code);
-        end;
     end;
 
     procedure CreateDeductorCategory(): Code[20]
@@ -289,7 +233,10 @@ codeunit 18911 "TCS - Library"
         end;
     end;
 
-    procedure VerifyTCSEntry(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; TCSBaseAmount: Decimal)
+    procedure VerifyTCSEntry(
+        DocumentNo: Code[20];
+        DocumentType: Enum "Sales Document Type";
+        TCSBaseAmount: Decimal)
     var
         TCSEntry: Record "TCS Entry";
     begin
@@ -298,7 +245,7 @@ codeunit 18911 "TCS - Library"
         TCSEntry.FindFirst();
         Assert.AreNearlyEqual(
           TCSBaseAmount, TCSEntry."TCS Base Amount", GetTCSRoundingPrecision(),
-           STRSUBSTNO(AmountErr, TCSBaseAmount, TCSEntry.FieldCaption("TCS Base Amount")));
+           StrSubstNo(AmountErr, TCSBaseAmount, TCSEntry.FieldCaption("TCS Base Amount")));
     end;
 
     procedure VerifyGLEntryCount(DocumentNo: Code[20]; ExpectedCount: Integer)
@@ -341,12 +288,16 @@ codeunit 18911 "TCS - Library"
     var
         CompInfo: Record "Company Information";
     begin
-        CompInfo.get();
+        CompInfo.Get();
         CompInfo.Validate("T.C.A.N. No.", '');
         CompInfo.Modify(true);
     end;
 
-    procedure VerifyTCSEntryCount(DocumentNo: Code[20]; FilterOnBaseAmount: Boolean; TCSBaseAmount: Decimal; ExpectedCount: Integer)
+    procedure VerifyTCSEntryCount(
+        DocumentNo: Code[20];
+        FilterOnBaseAmount: Boolean;
+        TCSBaseAmount: Decimal;
+        ExpectedCount: Integer)
     var
         DummyTCSEntry: Record "TCS Entry";
     begin
@@ -356,7 +307,7 @@ codeunit 18911 "TCS - Library"
         Assert.RecordCount(DummyTCSEntry, ExpectedCount);
     end;
 
-    procedure CreateTCSPostingSetupWithDifferentEffectiveDate(TCSNatureOfCollectionCode: Code[20]; EffectiveDate: Date; AccountNo: code[20])
+    procedure CreateTCSPostingSetupWithDifferentEffectiveDate(TCSNatureOfCollectionCode: Code[20]; EffectiveDate: Date; AccountNo: Code[20])
     var
         TCSPostingSetup: Record "TCS Posting Setup";
     begin
@@ -374,9 +325,7 @@ codeunit 18911 "TCS - Library"
         FillCompanyInformation();
     end;
 
-    procedure CreateNOCWithCustomer(
-            NOCType: Code[10];
-            var Customer: Record Customer)
+    procedure CreateNOCWithCustomer(NOCType: Code[10]; var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("VAT Bus. Posting Group", '');
@@ -397,7 +346,10 @@ codeunit 18911 "TCS - Library"
         AllowedNOC.Insert(true);
     end;
 
-    procedure CreateGSTTCSSetup(var Customer: Record Customer; var TCSPostingSetup: Record "TCS Posting Setup"; var ConcessionalCode: Record "Concessional Code")
+    procedure CreateGSTTCSSetup(
+        var Customer: Record Customer;
+        var TCSPostingSetup: Record "TCS Posting Setup";
+        var ConcessionalCode: Record "Concessional Code")
     var
         AssesseeCode: Record "Assessee Code";
         TCSNatureOfCollection: Record "TCS Nature Of Collection";
@@ -408,32 +360,10 @@ codeunit 18911 "TCS - Library"
         AttachConcessionalWithCustomer(Customer."No.", ConcessionalCode.Code, TCSNatureOfCollection.Code);
     end;
 
-    local procedure CreateGSTTCSCommmonSetup(var AssesseeCode: Record "Assessee Code"; var ConcessionalCode: Record "Concessional Code")
-    var
-        CompanyInfo: Record "Company Information";
-    begin
-        if IsTaxAccountingPeriodEmpty() then
-            CreateTCSAccountingPeriod();
-        CompanyInfo.Get();
-        CompanyInfo.Validate("Circle No.", LibraryUtility.GenerateRandomText(30));
-        CompanyInfo.Validate("Ward No.", LibraryUtility.GenerateRandomText(30));
-        CompanyInfo.Validate("Assessing Officer", LibraryUtility.GenerateRandomText(30));
-        CompanyInfo.Validate("Deductor Category", CreateDeductorCategory());
-        CompanyInfo.Validate("T.C.A.N. No.", CreateTCANNo());
-        CompanyInfo.Modify(true);
-        CreateConcessionalCode(ConcessionalCode);
-        CreateAssesseeCode(AssesseeCode);
-    end;
-
-    local procedure CreateGSTTCSCustomer(var Customer: Record Customer; AssesseeCode: Code[10]; TCSNOC: Code[10]);
-    begin
-        Customer.Validate("VAT Bus. Posting Group", GetVATBusPostingWithNOVAT());
-        Customer.Validate("Assessee Code", AssesseeCode);
-        UpdateNOCOnCustomer(Customer."No.", TCSNOC);
-        Customer.Modify(true);
-    end;
-
-    procedure UpdateCustomerWithNOCWithOutConcessionalGST(Var Customer: Record Customer; ThresholdOverlook: Boolean; SurchargeOverlook: Boolean)
+    procedure UpdateCustomerWithNOCWithOutConcessionalGST(
+        var Customer: Record Customer;
+        ThresholdOverlook: Boolean;
+        SurchargeOverlook: Boolean)
     var
         CustomerConcessionalCode: Record "Customer Concessional Code";
     begin
@@ -443,9 +373,10 @@ codeunit 18911 "TCS - Library"
     end;
 
     procedure UpdateCustomerAssesseeAndConcessionalCode(
-                var Customer: Record Customer;
-                var AssesseeCode: record "Assessee Code";
-                Var ConcessionalCode: Record "Concessional Code"; NOCType: code[10])
+        var Customer: Record Customer;
+        var AssesseeCode: Record "Assessee Code";
+        var ConcessionalCode: Record "Concessional Code";
+        NOCType: Code[10])
     begin
         CreateAssesseeCode(AssesseeCode);
         Customer.Validate("Assessee Code", AssesseeCode.Code);
@@ -471,25 +402,25 @@ codeunit 18911 "TCS - Library"
         AdjustAddReportingCurrency: Report "Adjust Add. Reporting Currency";
     begin
         CreateCurrencyAndExchangeRate(Currency);
-        GeneralLedgerSetup.get();
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := Currency.Code;
         GeneralLedgerSetup.Modify(true);
         Clear(AdjustAddReportingCurrency);
         AdjustAddReportingCurrency.InitializeRequest('Test123', LibraryERM.CreateGLAccountNoWithDirectPosting());
         AdjustAddReportingCurrency.SetAddCurr(Currency.Code);
-        AdjustAddReportingCurrency.USEREQUESTPAGE(FALSE);
-        AdjustAddReportingCurrency.RUN();
+        AdjustAddReportingCurrency.USEREQUESTPAGE(false);
+        AdjustAddReportingCurrency.Run();
     end;
 
-    procedure CreateCurrencyAndExchangeRate(VAR Currency: Record Currency)
+    procedure CreateCurrencyAndExchangeRate(var Currency: Record Currency)
     var
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.FindGLAccount(GLAccount);
-        Currency.VALIDATE("Residual Gains Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
-        Currency.VALIDATE("Residual Losses Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
-        Currency.MODIFY(TRUE);
+        Currency.Validate("Residual Gains Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        Currency.Validate("Residual Losses Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        Currency.Modify(true);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
     end;
 
@@ -502,11 +433,11 @@ codeunit 18911 "TCS - Library"
         else
             GLEntry.SetRange("Journal Batch Name", JnlBatchName);
         GLEntry.SetFilter("Additional-Currency Amount", '<>%1', 0);
-        if GLEntry.FindFirst() then;
+        GLEntry.FindFirst();
         Assert.RecordIsNotEmpty(GLEntry);
     end;
 
-    Procedure RoundTCSAmount(TCSAmount: Decimal): Decimal
+    procedure RoundTCSAmount(TCSAmount: Decimal): Decimal
     var
         TaxComponent: Record "Tax Component";
         TCSSetup: Record "TCS Setup";
@@ -556,11 +487,121 @@ codeunit 18911 "TCS - Library"
         exit(TCSRoundingPrecision);
     end;
 
+    local procedure CreateCommmonSetup(
+        var AssesseeCode: Record "Assessee Code";
+        var ConcessionalCode: Record "Concessional Code")
+    begin
+        if IsTaxAccountingPeriodEmpty() then
+            CreateTCSAccountingPeriod();
+        FillCompanyInformation();
+        CreateConcessionalCode(ConcessionalCode);
+        CreateAssesseeCode(AssesseeCode);
+    end;
+
+    local procedure IsTaxAccountingPeriodEmpty(): Boolean
     var
-        LibrarySales: Codeunit "Library - Sales";
-        LibraryUtility: Codeunit "Library - Utility";
-        LibraryRandom: Codeunit "Library - Random";
-        LibraryERM: Codeunit "Library - ERM";
-        Assert: codeunit Assert;
-        AmountErr: Label '%1 is incorrect in %2.', Comment = '%1 and %2 = TCS% and TCS field Caption';
+        TCSSetup: Record "TCS Setup";
+        TaxType: Record "Tax Type";
+        TaxAccountingPeriod: Record "Tax Accounting Period";
+    begin
+        if not TCSSetup.Get() then
+            exit;
+        TCSSetup.TestField("Tax Type");
+
+        TaxType.Get(TCSSetup."Tax Type");
+
+        TaxAccountingPeriod.SetRange("Tax Type Code", TaxType."Accounting Period");
+        TaxAccountingPeriod.SetFilter("Starting Date", '<=%1', WorkDate());
+        TaxAccountingPeriod.SetFilter("Ending Date", '>=%1', WorkDate());
+        if TaxAccountingPeriod.IsEmpty then
+            exit(true);
+    end;
+
+    local procedure CreateTCSCustomer(var Customer: Record Customer; AssesseeCode: Code[10]; TCSNOC: Code[10])
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", GetVATBusPostingWithNOVAT());
+        Customer.Validate("Assessee Code", AssesseeCode);
+        UpdateNOCOnCustomer(Customer."No.", TCSNOC);
+        Customer.Modify(true);
+    end;
+
+    procedure UpdateNOCOnCustomer(
+        CustomerNo: Code[20];
+        ThresholdOverLook: Boolean;
+        SurchargeOverlook: Boolean)
+    var
+        AllowedNOC: Record "Allowed NOC";
+    begin
+        AllowedNOC.SetRange("Customer No.", CustomerNo);
+        AllowedNOC.FindFirst();
+        AllowedNOC.Validate("Threshold Overlook", ThresholdOverlook);
+        AllowedNOC.Validate("Surcharge Overlook", SurchargeOverlook);
+        AllowedNOC.Modify(true);
+    end;
+
+    procedure UpdateNOCOnCustomer(CustomerNo: Code[20]; NOCType: Code[10])
+    var
+        AllowedNOC: Record "Allowed Noc";
+    begin
+        AllowedNOC.Init();
+        AllowedNOC.Validate("Customer No.", CustomerNo);
+        AllowedNOC.Validate("TCS Nature of Collection", NOCType);
+        AllowedNOC.Validate("Default Noc", true);
+        AllowedNOC.Insert(true);
+    end;
+
+    local procedure GetVATBusPostingWithNOVAT(): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        VATPostingSetup.SetFilter("VAT %", '%1', 0);
+        if VATPostingSetup.FindFirst() then
+            exit(VATPostingSetup."VAT Bus. Posting Group");
+    end;
+
+    local procedure CreateStateCode(): Code[10]
+    var
+        State: Record State;
+    begin
+        if State.FindFirst() then
+            exit(State.Code)
+        else begin
+            State.Init();
+            State.Validate(Code, LibraryRandom.RandText(2));
+            State.Validate(Description, State.Code);
+            State.Insert(true);
+            exit(State.Code);
+        end;
+    end;
+
+    procedure CreateGSTTCSCommmonSetup(
+        var AssesseeCode: Record "Assessee Code";
+        var ConcessionalCode: Record "Concessional Code")
+    var
+        CompanyInfo: Record "Company Information";
+    begin
+        if IsTaxAccountingPeriodEmpty() then
+            CreateTCSAccountingPeriod();
+        CompanyInfo.Get();
+        CompanyInfo.Validate("Circle No.", LibraryUtility.GenerateRandomText(30));
+        CompanyInfo.Validate("Ward No.", LibraryUtility.GenerateRandomText(30));
+        CompanyInfo.Validate("Assessing Officer", LibraryUtility.GenerateRandomText(30));
+        CompanyInfo.Validate("Deductor Category", CreateDeductorCategory());
+        CompanyInfo.Validate("T.C.A.N. No.", CreateTCANNo());
+        CompanyInfo.Modify(true);
+        CreateConcessionalCode(ConcessionalCode);
+        CreateAssesseeCode(AssesseeCode);
+    end;
+
+    local procedure CreateGSTTCSCustomer(
+        var Customer: Record Customer;
+        AssesseeCode: Code[10];
+        TCSNOC: Code[10])
+    begin
+        Customer.Validate("VAT Bus. Posting Group", GetVATBusPostingWithNOVAT());
+        Customer.Validate("Assessee Code", AssesseeCode);
+        UpdateNOCOnCustomer(Customer."No.", TCSNOC);
+        Customer.Modify(true);
+    end;
 }

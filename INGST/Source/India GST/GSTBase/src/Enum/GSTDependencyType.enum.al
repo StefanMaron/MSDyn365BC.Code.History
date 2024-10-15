@@ -1,8 +1,8 @@
 enum 18051 "GST Dependency Type"
 {
-    value(0; "")
+    value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; "Bill-to Address")
     {

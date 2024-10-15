@@ -2,7 +2,7 @@ pageextension 20249 "Purchase Credit Memo Ext" extends "Purchase Credit Memo"
 {
     layout
     {
-        addbefore(Control1900383207)
+        addfirst(factboxes)
         {
             part("Tax Information"; "Tax Information Factbox")
             {

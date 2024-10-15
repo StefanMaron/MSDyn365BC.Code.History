@@ -8,47 +8,48 @@ table 18243 "Bank Charge"
         field(1; Code; Code[10])
         {
             Caption = 'Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; Description; text[50])
         {
             Caption = 'Description';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(3; Account; code[20])
         {
             Caption = 'Account';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "G/L Account";
         }
         field(4; "Foreign Exchange"; Boolean)
         {
             Caption = 'Foreign Exchange';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(5; "GST Group Code"; code[10])
         {
             Caption = 'GST Group Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "GST Group";
         }
         field(6; "HSN/SAC Code"; Code[10])
         {
             Caption = 'HSN/SAC Code';
-            DataClassification = EndUserIdentifiableInformation;
-            TableRelation = "HSN/SAC".Code WHERE("GST Group Code" = FIELD("GST Group Code"));
+            DataClassification = CustomerContent;
+            TableRelation = "HSN/SAC".Code where("GST Group Code" = field("GST Group Code"));
         }
         field(7; "GST Credit"; Enum "GST Credit")
         {
             Caption = 'GST Credit Availment';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(8; Exempted; boolean)
         {
             Caption = 'Exempted';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
+
     keys
     {
         key(PK; Code)

@@ -5,43 +5,51 @@
         // Add changes to page layout here
         addlast(General)
         {
-            field("Service Transfer Shipment"; "Service Transfer Shipment")
+            field("Service Transfer Shipment"; Rec."Service Transfer Shipment")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the code for Service transfer shipment.';
             }
-            field("Service Transfer Receipt"; "Service Transfer Receipt")
+            field("Service Transfer Receipt"; Rec."Service Transfer Receipt")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the code for Service transfer receipt.';
             }
-            field("GST Credit Adjustment Journal"; "GST Credit Adjustment Journal")
+            field("GST Credit Adjustment Journal"; Rec."GST Credit Adjustment Journal")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the code for GST credit adjustment journal';
             }
-            field("GST Settlement"; "GST Settlement")
+            field("GST Settlement"; Rec."GST Settlement")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the code for GST settlement.';
             }
-            field("GST Distribution"; "GST Distribution")
+            field("GST Distribution"; Rec."GST Distribution")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the code for GST distribution.';
             }
-            field("GST Liability Adjustment"; "GST Liability Adjustment")
+            field("GST Liability Adjustment"; Rec."GST Liability Adjustment")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the code for GST liability adjustment.';
             }
-            field("GST Adjustment Journal"; "GST Adjustment Journal")
+            field("GST Adjustment Journal"; Rec."GST Adjustment Journal")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the code for the GST adjustment journal.';
             }
+            field("GST Liability - Job Work"; Rec."GST Liability - Job Work")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the identification code for GST liability for job work transaction.';
+            }
+            field("GST Receipt - Job Work"; Rec."GST Receipt - Job Work")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the identification code for GST receipt for job work transaction.';
+            }
         }
     }
-
-
 }

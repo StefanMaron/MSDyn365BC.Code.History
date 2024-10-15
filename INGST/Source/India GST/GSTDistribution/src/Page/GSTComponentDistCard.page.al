@@ -23,25 +23,25 @@ page 18201 "GST Component Dist. Card"
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
-                        TaxTypeSetup: Record "Tax Type Setup";
+                        GSTSetup: Record "GST Setup";
                         TaxComponent: Record "Tax Component";
                     begin
-                        if not TaxTypeSetup.Get() then
+                        if not GSTSetup.Get() then
                             exit;
-                        TaxComponent.SetRange("Tax Type", TaxTypeSetup.Code);
+                        TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
                         if Page.RunModal(0, TaxComponent) = Action::LookupOK then
                             Rec.Validate("GST Component Code", TaxComponent.Name);
                     end;
 
                     trigger OnValidate()
                     var
-                        TaxTypeSetup: Record "Tax Type Setup";
+                        GSTSetup: Record "GST Setup";
                         TaxComponent: Record "Tax Component";
                     begin
                         if Rec."GST Component Code" <> '' then begin
-                            if not TaxTypeSetup.Get() then
+                            if not GSTSetup.Get() then
                                 exit;
-                            TaxComponent.SetRange("Tax Type", TaxTypeSetup.Code);
+                            TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
                             TaxComponent.SetRange(Name, Rec."GST Component Code");
                             if TaxComponent.IsEmpty() then
                                 Rec.FieldError("GST Component Code");
@@ -56,25 +56,25 @@ page 18201 "GST Component Dist. Card"
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
-                        TaxTypeSetup: Record "Tax Type Setup";
+                        GSTSetup: Record "GST Setup";
                         TaxComponent: Record "Tax Component";
                     begin
-                        if not TaxTypeSetup.Get() then
+                        if not GSTSetup.Get() then
                             exit;
-                        TaxComponent.SetRange("Tax Type", TaxTypeSetup.Code);
+                        TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
                         if Page.RunModal(0, TaxComponent) = Action::LookupOK then
                             Rec.Validate("Distribution Component Code", TaxComponent.Name);
                     end;
 
                     trigger OnValidate()
                     var
-                        TaxTypeSetup: Record "Tax Type Setup";
+                        GSTSetup: Record "GST Setup";
                         TaxComponent: Record "Tax Component";
                     begin
                         if Rec."Distribution Component Code" <> '' then begin
-                            if not TaxTypeSetup.Get() then
+                            if not GSTSetup.Get() then
                                 exit;
-                            TaxComponent.SetRange("Tax Type", TaxTypeSetup.Code);
+                            TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
                             TaxComponent.SetRange(Name, Rec."Distribution Component Code");
                             if TaxComponent.IsEmpty() then
                                 Rec.FieldError("Distribution Component Code");

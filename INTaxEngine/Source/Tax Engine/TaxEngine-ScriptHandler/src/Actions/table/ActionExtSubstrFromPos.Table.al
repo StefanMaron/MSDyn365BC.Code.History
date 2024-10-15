@@ -8,12 +8,12 @@ table 20166 "Action Ext. Substr. From Pos."
     {
         field(1; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(2; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(3; "Variable ID"; Integer)
@@ -35,13 +35,13 @@ table 20166 "Action Ext. Substr. From Pos."
         }
         field(6; "String Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'String Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
         field(7; Position; Option)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Position';
             OptionMembers = start,end;
         }
@@ -58,13 +58,13 @@ table 20166 "Action Ext. Substr. From Pos."
         }
         field(12; "Length Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Length Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
         field(13; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
     }

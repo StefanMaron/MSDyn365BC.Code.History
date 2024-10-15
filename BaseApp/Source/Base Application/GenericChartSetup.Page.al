@@ -112,7 +112,7 @@ page 9183 "Generic Chart Setup"
                     trigger OnAssistEdit()
                     begin
                         ShowChartFiltersPage;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -806,7 +806,7 @@ page 9183 "Generic Chart Setup"
                 trigger OnAction()
                 begin
                     ShowChartFiltersPage;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }
@@ -979,7 +979,7 @@ page 9183 "Generic Chart Setup"
                     CurrentCaptionCode := GenericChartMgt.OptionalMeasure1Code
                 else
                     CurrentCaptionCode := IncStr(CurrentCaptionCode)
-            until TempGenericChartYAxis.Next = 0;
+            until TempGenericChartYAxis.Next() = 0;
         end
     end;
 
@@ -1036,7 +1036,7 @@ page 9183 "Generic Chart Setup"
                     GenericChartMgt.BuildFilterText(FilterText,
                       CopyStr(
                         TempGenericChartFilter."Filter Field Name" + ' : ' + TempGenericChartFilter."Filter Value", 1, MaxStrLen(FilterText)));
-            until TempGenericChartFilter2.Next = 0;
+            until TempGenericChartFilter2.Next() = 0;
         GenericChartMgt.FinalizeFilterText(FilterText);
         TempGenericChartSetup."Filter Text" := FilterText;
         if TempGenericChartSetup.Modify then;

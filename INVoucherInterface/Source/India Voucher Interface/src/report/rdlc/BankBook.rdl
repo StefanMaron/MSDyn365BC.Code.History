@@ -43,19 +43,16 @@
                   <Width>0.82677in</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>0.82677in</Width>
+                  <Width>1.12267in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.40017in</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>1.06299in</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>1.06299in</Width>
-                </TablixColumn>
-                <TablixColumn>
-                  <Width>1.06299in</Width>
-                </TablixColumn>
-                <TablixColumn>
-                  <Width>0.29528in</Width>
+                  <Width>0.78486in</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -209,34 +206,7 @@
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
-                      <CellContents>
-                        <Textbox Name="LocationFilter">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!LocationFilter.Value</Value>
-                                  <Style>
-                                    <Color>#ff0000</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Visibility>
-                            <Hidden>true</Hidden>
-                          </Visibility>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
+                      <CellContents />
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
@@ -247,36 +217,6 @@
                               <TextRuns>
                                 <TextRun>
                                   <Value>=Fields!Bank_Book_.Value</Value>
-                                  <Style>
-                                    <Color>#ff0000</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Visibility>
-                            <Hidden>true</Hidden>
-                          </Visibility>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="CurrReport_PAGENOCaption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=Fields!CurrReport_PAGENOCaption.Value</Value>
                                   <Style>
                                     <Color>#ff0000</Color>
                                   </Style>
@@ -670,46 +610,6 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Location_CodeCaption">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>=First(Fields!Location_CodeCaption.Value)</Value>
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <ZIndex>1</ZIndex>
-                          <Style>
-                            <Border>
-                              <Width>0.25pt</Width>
-                            </Border>
-                            <TopBorder>
-                              <Style>Solid</Style>
-                            </TopBorder>
-                            <BottomBorder>
-                              <Style>Solid</Style>
-                            </BottomBorder>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
                         <Textbox Name="Voucher_TypeCaption">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1042,31 +942,6 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="TextBox137">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>0.2115cm</PaddingTop>
-                            <PaddingBottom>0.2115cm</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="TextBox138">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -1431,36 +1306,6 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="G_L_Entry__G_L_Entry___Location_Code_">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
                         <Textbox Name="SourceDesc">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -1777,13 +1622,13 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Bank_Account_Ledger_Entry___Cheque_No___Control1500021">
+                        <Textbox Name="Bank_Account_Ledger_Entry___Cheque_No__2">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Bank_Account_Ledger_Entry___Cheque_No.Value</Value>
+                                  <Value>=Fields!Bank_Account_Ledger_Entry___Cheque_No__.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -1803,52 +1648,21 @@
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
-                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Bank_Account_Ledger_Entry___Cheque_Date__Control1500023">
+                        <Textbox Name="Bank_Account_Ledger_Entry___Cheque_Date_2">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Bank_Account_Ledger_Entry___Cheque_Date.Value</Value>
+                                  <Value>=Fields!Bank_Account_Ledger_Entry___Cheque_Date_.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
                                     <Format>d</Format>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style>
-                                <TextAlign>Left</TextAlign>
-                              </Style>
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="G_L_Entry___Location_Code_">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style>
-                                    <FontSize>7pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -2225,31 +2039,6 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="TextBox12">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
                         <Textbox Name="TextBox13">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -2562,32 +2351,6 @@
                           </Paragraphs>
                           <rd:DefaultName>textbox29</rd:DefaultName>
                           <Style>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="textbox30">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>textbox30</rd:DefaultName>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -2915,32 +2678,6 @@
                           </Paragraphs>
                           <rd:DefaultName>textbox47</rd:DefaultName>
                           <Style>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
-                        <Textbox Name="textbox48">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <rd:DefaultName>textbox48</rd:DefaultName>
-                          <Style>
-                            <VerticalAlign>Middle</VerticalAlign>
                             <PaddingLeft>2pt</PaddingLeft>
                             <PaddingRight>2pt</PaddingRight>
                             <PaddingTop>2pt</PaddingTop>
@@ -3334,40 +3071,6 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="TextBox150">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value />
-                                  <Style />
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Style>
-                            <Border>
-                              <Width>0.25pt</Width>
-                            </Border>
-                            <TopBorder>
-                              <Style>Solid</Style>
-                            </TopBorder>
-                            <BottomBorder>
-                              <Style>Solid</Style>
-                            </BottomBorder>
-                            <VerticalAlign>Middle</VerticalAlign>
-                            <PaddingLeft>2pt</PaddingLeft>
-                            <PaddingRight>2pt</PaddingRight>
-                            <PaddingTop>2pt</PaddingTop>
-                            <PaddingBottom>2pt</PaddingBottom>
-                          </Style>
-                        </Textbox>
-                      </CellContents>
-                    </TablixCell>
-                    <TablixCell>
-                      <CellContents>
                         <Textbox Name="TextBox151">
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
@@ -3580,7 +3283,6 @@
                 <TablixMember />
                 <TablixMember />
                 <TablixMember />
-                <TablixMember />
               </TablixMembers>
             </TablixColumnHierarchy>
             <TablixRowHierarchy>
@@ -3693,14 +3395,14 @@
             </TablixRowHierarchy>
             <DataSetName>DataSet_Result</DataSetName>
             <Height>3.88637cm</Height>
-            <Width>10.68898in</Width>
+            <Width>10.74865in</Width>
             <Style />
           </Tablix>
         </ReportItems>
         <Height>3.88637cm</Height>
         <Style />
       </Body>
-      <Width>27.30159cm</Width>
+      <Width>27.3016cm</Width>
       <Page>
         <PageHeader>
           <Height>2.072cm</Height>
@@ -3755,29 +3457,6 @@
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="LocationFilter1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=ReportItems!LocationFilter.Value</Value>
-                      <Style>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>1.649cm</Top>
-              <Height>0.423cm</Height>
-              <Width>25.2cm</Width>
-              <ZIndex>2</ZIndex>
-              <Style>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
             <Textbox Name="GETFILTERS1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
@@ -3796,7 +3475,7 @@
               <Top>1.226cm</Top>
               <Height>0.423cm</Height>
               <Width>25.2cm</Width>
-              <ZIndex>3</ZIndex>
+              <ZIndex>2</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -3821,7 +3500,7 @@
               <Top>0.741cm</Top>
               <Height>0.475cm</Height>
               <Width>27.30159cm</Width>
-              <ZIndex>4</ZIndex>
+              <ZIndex>3</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -3843,7 +3522,7 @@
               </Paragraphs>
               <Height>0.423cm</Height>
               <Width>21.6cm</Width>
-              <ZIndex>5</ZIndex>
+              <ZIndex>4</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -3869,7 +3548,7 @@
               <Left>24.15cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15159cm</Width>
-              <ZIndex>6</ZIndex>
+              <ZIndex>5</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -3896,7 +3575,7 @@
               <Left>23.9cm</Left>
               <Height>0.423cm</Height>
               <Width>3.25cm</Width>
-              <ZIndex>7</ZIndex>
+              <ZIndex>6</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -3922,7 +3601,7 @@
               <Left>26.85cm</Left>
               <Height>0.423cm</Height>
               <Width>0.45159cm</Width>
-              <ZIndex>8</ZIndex>
+              <ZIndex>7</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -4001,9 +3680,6 @@ End Function
         </Field>
         <Field Name="GETFILTERS">
           <DataField>GETFILTERS</DataField>
-        </Field>
-        <Field Name="LocationFilter">
-          <DataField>LocationFilter</DataField>
         </Field>
         <Field Name="Bank_Book_">
           <DataField>Bank_Book_</DataField>
@@ -4100,9 +3776,6 @@ End Function
         </Field>
         <Field Name="Voucher_TypeCaption">
           <DataField>Voucher_TypeCaption</DataField>
-        </Field>
-        <Field Name="Location_CodeCaption">
-          <DataField>Location_CodeCaption</DataField>
         </Field>
         <Field Name="Cheque_NoCaption">
           <DataField>Cheque_NoCaption</DataField>

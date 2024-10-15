@@ -13,13 +13,13 @@ report 18929 "Day Book"
             DataItemTableView = sorting("Posting Date", "Transaction No.");
             RequestFilterFields = "Posting Date", "Document No.", "Global Dimension 1 Code", "Global Dimension 2 Code";
 
-            column(TodayFormatted; FORMAT(TODAY(), 0, 4))
+            column(TodayFormatted; Format(TODAY(), 0, 4))
             {
             }
             column(Time; TIME())
             {
             }
-            column(CompinfoName; Compinfo.Name)
+            column(CompinfoName; CompanyInformation.Name)
             {
             }
             column(GetFilters; GETFILTERS())
@@ -37,7 +37,7 @@ report 18929 "Day Book"
             column(DocNo; DocNo)
             {
             }
-            column(PostingDate_GLEntry; FORMAT(PostingDate))
+            column(PostingDate_GLEntry; Format(PostingDate))
             {
             }
             column(SourceDesc; SourceDesc)
@@ -83,7 +83,7 @@ report 18929 "Day Book"
             {
                 DataItemLink = "Entry No." = field("Entry No.");
                 DataItemTableView = sorting("Entry No.", "Transaction No.", "Line No.")
-                                         ORDER(ascending);
+                                    order(ascending);
 
                 column(Narration_PostedNarration; Narration)
                 {
@@ -99,7 +99,7 @@ report 18929 "Day Book"
             {
                 DataItemLink = "Transaction No." = field("Transaction No.");
                 DataItemTableView = sorting("Entry No.", "Transaction No.", "Line No.")
-                                         where("Entry No." = filter(0));
+                                    where("Entry No." = filter(0));
 
                 column(Narration_PostedNarration1; Narration)
                 {
@@ -119,7 +119,6 @@ report 18929 "Day Book"
                         CurrReport.Break();
                 end;
             }
-
             trigger OnPreDataItem()
             begin
                 SetCurrentKey("Posting Date", "Source Code", "Transaction No.");
@@ -153,8 +152,8 @@ report 18929 "Day Book"
                     end;
 
                 if Amount > 0 then
-                    TransDebits := TransDebits + Amount;
-                if Amount < 0 then
+                    TransDebits := TransDebits + Amount
+                else
                     TransCredits := TransCredits - Amount;
             end;
         }
@@ -189,11 +188,11 @@ report 18929 "Day Book"
 
     trigger OnPreReport()
     begin
-        Compinfo.Get();
+        CompanyInformation.Get();
     end;
 
     var
-        Compinfo: Record "Company Information";
+        CompanyInformation: Record "Company Information";
         GLEntry: Record "G/L Entry";
         SourceCode: Record "Source Code";
         GLAccName: Text[50];
@@ -220,49 +219,49 @@ report 18929 "Day Book"
         "Source No.": Code[20];
         "G/L Account No.": Code[20]): Text[50]
     var
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        Vend: Record Vendor;
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        Cust: Record Customer;
-        BankLedgEntry: Record "Bank Account Ledger Entry";
-        Bank: Record "Bank Account";
-        FALedgEntry: Record "FA Ledger Entry";
-        FA: Record "Fixed Asset";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Vendor: Record Vendor;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Customer: Record Customer;
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccount: Record "Bank Account";
+        FALedgerEntry: Record "FA Ledger Entry";
+        FixedAsset: Record "Fixed Asset";
         GLAccount: Record "G/L Account";
         AccName: Text[50];
     begin
         case "Source Type" of
             "Source Type"::Vendor:
-                if VendLedgEntry.Get("Entry No.") then begin
-                    Vend.Get("Source No.");
-                    AccName := CopyStr(Vend.Name, 1, MaxStrLen(AccName));
+                if VendorLedgerEntry.Get("Entry No.") then begin
+                    Vendor.Get("Source No.");
+                    AccName := CopyStr(Vendor.Name, 1, MaxStrLen(AccName));
                 end else begin
                     GLAccount.Get("G/L Account No.");
                     AccName := CopyStr(GLAccount.Name, 1, MaxStrLen(AccName));
                 end;
             "Source Type"::Customer:
-                if CustLedgEntry.Get("Entry No.") then begin
-                    Cust.Get("Source No.");
-                    AccName := CopyStr(Cust.Name, 1, MaxStrLen(AccName));
+                if CustLedgerEntry.Get("Entry No.") then begin
+                    Customer.Get("Source No.");
+                    AccName := CopyStr(Customer.Name, 1, MaxStrLen(AccName));
                 end else begin
                     GLAccount.Get("G/L Account No.");
                     AccName := CopyStr(GLAccount.Name, 1, MaxStrLen(AccName));
                 end;
             "Source Type"::"Bank Account":
-                if BankLedgEntry.Get("Entry No.") then begin
-                    Bank.Get("Source No.");
-                    AccName := CopyStr(Bank.Name, 1, MaxStrLen(AccName));
+                if BankAccountLedgerEntry.Get("Entry No.") then begin
+                    BankAccount.Get("Source No.");
+                    AccName := CopyStr(BankAccount.Name, 1, MaxStrLen(AccName));
                 end else begin
                     GLAccount.Get("G/L Account No.");
                     AccName := CopyStr(GLAccount.Name, 1, MaxStrLen(AccName));
                 end;
             "Source Type"::"Fixed Asset":
                 begin
-                    FALedgEntry.Reset();
-                    FALedgEntry.SetRange("G/L Entry No.", "Entry No.");
-                    if FALedgEntry.FindFirst() then begin
-                        FA.Get("Source No.");
-                        AccName := CopyStr(FA.Description, 1, MaxStrLen(AccName));
+                    FALedgerEntry.Reset();
+                    FALedgerEntry.SetRange("G/L Entry No.", "Entry No.");
+                    if FALedgerEntry.FindFirst() then begin
+                        FixedAsset.Get("Source No.");
+                        AccName := CopyStr(FixedAsset.Description, 1, MaxStrLen(AccName));
                     end else begin
                         GLAccount.Get("G/L Account No.");
                         AccName := CopyStr(GLAccount.Name, 1, MaxStrLen(AccName));

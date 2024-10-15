@@ -8,17 +8,17 @@ table 20182 "Action Round Number"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(4; "Number Value Type"; Option)
@@ -34,7 +34,7 @@ table 20182 "Action Round Number"
         }
         field(6; "Number Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Number Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
@@ -57,13 +57,13 @@ table 20182 "Action Round Number"
         }
         field(10; "Precision Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Precision Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
         field(11; Direction; Option)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Direction';
             OptionMembers = Nearest,Up,Down;
         }

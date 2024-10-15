@@ -119,27 +119,6 @@ page 18942 "Check Preview Custom"
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the posting date for the entry.';
                         }
-                        field(Placeholder; PlaceHolderLbl)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Visible = false;
-                            Caption = 'Placeholder';
-                            ToolTip = '';
-                        }
-                        field(Placeholder2; PlaceHolderLbl)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Visible = false;
-                            Caption = 'Placeholder';
-                            ToolTip = '';
-                        }
-                        field(Placeholder3; PlaceHolderLbl)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Visible = false;
-                            Caption = 'Placeholder';
-                            ToolTip = '';
-                        }
                     }
                     group(Control1900724401)
                     {

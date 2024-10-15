@@ -7,28 +7,30 @@ table 18351 "Service Transfer Line"
         field(1; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; "Line No."; Integer)
         {
             Caption = 'Line No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(3; "Transfer From G/L Account No."; Code[20])
         {
             Caption = 'Transfer From G/L Account No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "G/L Account" where("Direct Posting" = const(true));
 
             trigger OnValidate()
+            var
+                GSTBaseValidation: Codeunit "GST Base Validation";
             begin
                 TestField(Shipped, false);
                 TestStatusOpen();
                 GetServiceTransferHeader();
                 GetGLAccountGSTInfo();
                 GeneralLedgerSetup.Get();
-                "GST Rounding Type" := GeneralLedgerSetup."GST Rounding Type";
-                "GST Rounding Precision" := GeneralLedgerSetup."GST Rounding Precision";
+                "GST Rounding Type" := GSTBaseValidation.GenLedInvRoundingType2GSTInvRoundingTypeEnum(GeneralLedgerSetup."Inv. Rounding Type (LCY)");
+                "GST Rounding Precision" := GeneralLedgerSetup."Inv. Rounding Precision (LCY)";
                 "Dimension Set ID" := ServiceTransferHeader."Dimension Set ID";
                 DimensionManagement.UpdateGlobalDimFromDimSetID(
                     "Dimension Set ID",
@@ -39,12 +41,12 @@ table 18351 "Service Transfer Line"
         field(4; "Transfer To G/L Account No."; Code[20])
         {
             Caption = 'Transfer To G/L Account No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "G/L Account" where("Direct Posting" = const(true));
 
             trigger OnValidate()
             var
-                GLAccount: Record 15;
+                GLAccount: Record "G/L Account";
             begin
                 GLAccount.Get("Transfer To G/L Account No.");
                 GLAccount.TestField(Blocked, false);
@@ -55,7 +57,7 @@ table 18351 "Service Transfer Line"
         field(5; "Transfer Price"; Decimal)
         {
             Caption = 'Transfer Price';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -68,21 +70,21 @@ table 18351 "Service Transfer Line"
         field(6; "Ship Control A/C No."; Code[20])
         {
             Caption = 'Ship Control A/C No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
             TableRelation = "G/L Account" where("Direct Posting" = const(true));
         }
         field(7; "Receive Control A/C No."; Code[20])
         {
             Caption = 'Receive Control A/C No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
             TableRelation = "G/L Account" where("Direct Posting" = const(true));
         }
         field(8; Shipped; Boolean)
         {
             Caption = 'Shipped';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(9; "Shortcut Dimension 1 Code"; Code[20])
@@ -90,7 +92,7 @@ table 18351 "Service Transfer Line"
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -102,53 +104,51 @@ table 18351 "Service Transfer Line"
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
         }
-
         field(11; "GST Group Code"; Code[20])
         {
             Caption = 'GST Group Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(12; "SAC Code"; Code[10])
         {
             Caption = 'SAC Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
-
         field(16; "GST Rounding Type"; enum "GST Inv Rounding Type")
         {
             Caption = 'GST Rounding Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(17; "GST Rounding Precision"; Decimal)
         {
             Caption = 'GST Rounding Precision';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(18; "From G/L Account Description"; Text[100])
         {
             Caption = 'From G/L Account Description';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(19; "To G/L Account Description"; Text[100])
         {
             Caption = 'To G/L Account Description';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(20; Exempted; Boolean)
         {
             Caption = 'Exempted';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -159,7 +159,7 @@ table 18351 "Service Transfer Line"
         {
             Caption = 'Dimension Set ID';
             TableRelation = "Dimension Set Entry";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
 
             trigger OnLookup()
             begin
@@ -183,19 +183,35 @@ table 18351 "Service Transfer Line"
     end;
 
     trigger OnInsert()
+    var
+        ServiceTransferLine: Record "Service Transfer Line";
     begin
         TestStatusOpen();
         TestShipped();
-        ServiceTransferLine2.RESET();
-        ServiceTransferLine2.SetFilter("Document No.", ServiceTransferHeader."No.");
-        if ServiceTransferLine2.FindLast() then
-            "Line No." := ServiceTransferLine2."Line No." + 10000;
+        ServiceTransferLine.Reset();
+        ServiceTransferLine.SetFilter("Document No.", ServiceTransferHeader."No.");
+        if ServiceTransferLine.FindLast() then
+            "Line No." := ServiceTransferLine."Line No." + 10000;
     end;
 
     trigger OnRename()
     begin
         Error(RenameErr, TableCaption());
     end;
+
+    var
+        ServiceTransferHeader: Record "Service Transfer Header";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DimensionManagement: Codeunit DimensionManagement;
+        DimChangeQst: Label 'You have changed one or more dimensions on the %1, which is already shipped.\\Do you want to keep the changed dimension?', Comment = '%1 = Document No';
+        CancellErr: Label 'Cancelled.';
+        CompanyGSTRegNoErr: Label 'Please specify GST Registration No. in Company Information.';
+        LocGSTRegNoARNNoErr: Label 'Location must have either GST Registration No. or Location ARN No.';
+        RenameErr: Label 'You cannot rename a %1.', Comment = '%1 = Table Name';
+        TransPriceErr: Label 'Transfer Price can not be Negative.';
+        GSTGroupReverseChargeErr: Label 'GST Group Code %1 with Reverse Charge cannot be selected for Service Transfers.',
+        Comment = '%1 = GST Group Code';
+        DimensionSetMsg: Label '%1,%2', Comment = '%1=Document No.,%2=Line No.';
 
     procedure IsShippedDimChanged(): Boolean
     begin
@@ -205,7 +221,7 @@ table 18351 "Service Transfer Line"
 
     procedure ConfirmShippedDimChange(): Boolean
     begin
-        if not CONFIRM(DimChangeQst, false, TableCaption()) then
+        if not Confirm(DimChangeQst, false, TableCaption()) then
             Error(CancellErr);
 
         exit(true);
@@ -233,7 +249,7 @@ table 18351 "Service Transfer Line"
     procedure GSTApplicableOnServiceTransfer(ServTransHeader: Record "Service Transfer Header"): Boolean
     var
         CompanyInformation: Record "Company Information";
-        location: record Location;
+        location: Record Location;
     begin
         CompanyInformation.Get();
         if (CompanyInformation."ARN No." <> '') and (CompanyInformation."GST Registration No." = '') then
@@ -256,6 +272,8 @@ table 18351 "Service Transfer Line"
     end;
 
     local procedure TestShipped()
+    var
+        ServiceTransferLine: Record "Service Transfer Line";
     begin
         ServiceTransferLine.SetRange("Document No.", "Document No.");
         ServiceTransferLine.SetRange(Shipped, true);
@@ -284,10 +302,10 @@ table 18351 "Service Transfer Line"
     begin
         TestField("Transfer From G/L Account No.");
         GLAccount.Get("Transfer From G/L Account No.");
-        GLAccount.TestField(Blocked, FALSE);
+        GLAccount.TestField(Blocked, false);
         "GST Group Code" := GLAccount."GST Group Code";
-        IF GSTGroup.Get("GST Group Code") AND GSTGroup."Reverse Charge" THEN
-            ERROR(GSTGroupReverseChargeErr, "GST Group Code");
+        if GSTGroup.Get("GST Group Code") and GSTGroup."Reverse Charge" then
+            Error(GSTGroupReverseChargeErr, "GST Group Code");
         "SAC Code" := GLAccount."HSN/SAC Code";
         Exempted := GLAccount.Exempted;
         "From G/L Account Description" := GLAccount.Name;
@@ -333,23 +351,4 @@ table 18351 "Service Transfer Line"
 
         exit(FromLocationARNNo <> ToLocationARNNo);
     end;
-
-    var
-
-        ServiceTransferLine: Record "Service Transfer Line";
-        ServiceTransferHeader: Record "Service Transfer Header";
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        ServiceTransferLine2: Record "Service Transfer Line";
-        DimensionManagement: Codeunit DimensionManagement;
-        DimChangeQst: Label 'You have changed one or more dimensions on the %1, which is already shipped.\\Do you want to keep the changed dimension?', Comment = '%1 = Document No';
-        CancellErr: Label 'Cancelled.';
-        CompanyGSTRegNoErr: Label 'Please specify GST Registration No. in Company Information.';
-        LocGSTRegNoARNNoErr: Label 'Location must have either GST Registration No. or Location ARN No.';
-        RenameErr: Label 'You cannot rename a %1.', Comment = '%1 = Table Name';
-        TransPriceErr: Label 'Transfer Price can not be Negative.';
-        GSTGroupReverseChargeErr: Label 'GST Group Code %1 with Reverse Charge cannot be selected for Service Transfers.',
-        Comment = '%1 = GST Group Code';
-
-        DimensionSetMsg: Label '%1,%2', Comment = '%1=Document No.,%2=Line No.';
 }
-

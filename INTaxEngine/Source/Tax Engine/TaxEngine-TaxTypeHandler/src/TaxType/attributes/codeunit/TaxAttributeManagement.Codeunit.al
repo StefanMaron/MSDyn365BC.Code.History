@@ -6,7 +6,7 @@ codeunit 20234 "Tax Attribute Management"
     begin
         TaxAttribute.SetRange(ID, AttributeID);
         if TaxAttribute.FindFirst() then
-            Exit(TaxAttribute.Name);
+            exit(TaxAttribute.Name);
     end;
 
     procedure GetAttributeOptionValue(TaxType: Code[20]; AttributeID: Integer; var Value: Text[250]);
@@ -28,8 +28,6 @@ codeunit 20234 "Tax Attribute Management"
     procedure GetTaxRateAttributeLookupValue(AttributeName: Text; var Value: Text): Boolean
     var
         TaxRateSetup: Record "Tax Rate Column Setup";
-        RecRef: RecordRef;
-        RecordVariant: Variant;
         OldValue: Text;
         AttributeID: Integer;
     begin
@@ -136,7 +134,6 @@ codeunit 20234 "Tax Attribute Management"
     var
         TaxAttributeValue: Record "Tax Attribute Value";
     begin
-
         TaxAttributeValue.SetFilter("Tax Type", '%1|%2', TaxType, '');
         TaxAttributeValue.SetRange("Attribute ID", AttributeID);
         TaxAttributeValue.SetRange(id, Index);
@@ -160,10 +157,11 @@ codeunit 20234 "Tax Attribute Management"
         EntityAttributeMapping.SetFilter("Mapping Field ID", '%1', 0);
         if EntityAttributeMapping.FindSet() then
             repeat
-                RecordAttributeMapping.Reset();
                 TaxAttribute.Reset();
                 TaxAttribute.SetRange(ID, EntityAttributeMapping."Attribute ID");
                 TaxAttribute.FindFirst();
+
+                RecordAttributeMapping.Reset();
                 RecordAttributeMapping.SetRange("Tax Type", TaxAttribute."Tax Type");
                 RecordAttributeMapping.SetRange("Attribute ID", EntityAttributeMapping."Attribute ID");
                 RecordAttributeMapping.SetRange("Attribute Record ID", RecRef.RecordId());

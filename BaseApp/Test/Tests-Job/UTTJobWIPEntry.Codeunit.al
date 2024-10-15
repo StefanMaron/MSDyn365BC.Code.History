@@ -207,7 +207,7 @@ codeunit 136356 "UT T Job WIP Entry"
         end;
     end;
 
-    local procedure VerifyJobWIPEntryAmount(JobNo: Code[20]; ExpectedType: Option; ExpectedAmount: Decimal)
+    local procedure VerifyJobWIPEntryAmount(JobNo: Code[20]; ExpectedType: Enum "Job WIP Buffer Type"; ExpectedAmount: Decimal)
     var
         JobWIPEntry: Record "Job WIP Entry";
     begin

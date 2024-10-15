@@ -4,7 +4,7 @@ pageextension 20244 "Posted Purchase Invoice Ext" extends "Posted Purchase Invoi
     layout
     {
 
-        addbefore(IncomingDocAttachFactBox)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

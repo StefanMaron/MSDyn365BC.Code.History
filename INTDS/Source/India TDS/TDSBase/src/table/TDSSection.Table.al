@@ -1,7 +1,6 @@
 table 18692 "TDS Section"
 {
     Caption = 'Section';
-    DataClassification = EndUserIdentifiableInformation;
     DrillDownPageId = "TDS Sections";
     LookupPageId = "TDS Sections";
     DataCaptionFields = "Code", "Description";
@@ -14,43 +13,42 @@ table 18692 "TDS Section"
         {
             Caption = 'Code';
             NotBlank = true;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; Description; Text[100])
         {
             Caption = 'Description';
-            DataClassification = EndUserIdentifiableInformation;
-
+            DataClassification = CustomerContent;
         }
         field(3; ecode; Code[10])
         {
             Caption = 'ecode';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(4; Detail; Blob)
         {
             Caption = 'Detail';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(5; "Presentation Order"; Integer)
         {
             Caption = 'Presentation Order';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(6; "Indentation Level"; Integer)
         {
             Caption = 'Indentation Level';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(7; "Parent Code"; Code[20])
         {
             Caption = 'Parent Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(8; "Section Order"; Integer)
         {
             Caption = 'Section Order';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
 
@@ -65,29 +63,29 @@ table 18692 "TDS Section"
 
     trigger OnInsert()
     var
-        Sections: Record "TDS Section";
-        SubSection: Record "TDS Section";
+        TDSSection: Record "TDS Section";
+        SubTDSSection: Record "TDS Section";
     begin
         if "Presentation Order" = 0 then begin
-            Sections.SetCurrentKey("Presentation Order");
-            if Sections.FindLast() then begin
-                SubSection.Reset();
-                SubSection.SetCurrentKey("Presentation Order");
-                SubSection.SetRange("Parent Code", Code);
-                if SubSection.FindLast() then
-                    "Presentation Order" := SubSection."Presentation Order" + 1
+            TDSSection.SetCurrentKey("Presentation Order");
+            if TDSSection.FindLast() then begin
+                SubTDSSection.Reset();
+                SubTDSSection.SetCurrentKey("Presentation Order");
+                SubTDSSection.SetRange("Parent Code", Code);
+                if SubTDSSection.FindLast() then
+                    "Presentation Order" := SubTDSSection."Presentation Order" + 1
                 else
-                    "Presentation Order" := Sections."Presentation Order" + 20
+                    "Presentation Order" := TDSSection."Presentation Order" + 20
             end else
                 "Presentation Order" := 1;
         end;
 
         if "Section Order" = 0 then begin
-            Sections.Reset();
-            Sections.SetCurrentKey("Presentation Order");
-            Sections.SetRange("Parent Code", "Parent Code");
-            if Sections.FindLast() then
-                "Section Order" := Sections."Section Order" + 1
+            TDSSection.Reset();
+            TDSSection.SetCurrentKey("Presentation Order");
+            TDSSection.SetRange("Parent Code", "Parent Code");
+            if TDSSection.FindLast() then
+                "Section Order" := TDSSection."Section Order" + 1
             else
                 "Section Order" := 1;
         end;

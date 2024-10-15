@@ -270,7 +270,6 @@ codeunit 136708 "Lookup Mgmt Tests"
     [Test]
     procedure TestGetLookupDatatypeForStringWithBlankFieldID()
     var
-        SalesLine: Record "Sales Line";
         LookupMgmt: Codeunit "Lookup Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
         RecRef: RecordRef;
@@ -364,7 +363,6 @@ codeunit 136708 "Lookup Mgmt Tests"
     var
         SalesLine: Record "Sales Line";
         SalesHeadr: Record "Sales Header";
-        ScriptSymbolLookup: Record "Script Symbol Lookup";
         LookupFieldFilter: Record "Lookup Field Filter";
         LookupMgmt: Codeunit "Lookup Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -419,7 +417,6 @@ codeunit 136708 "Lookup Mgmt Tests"
     var
         SalesLine: Record "Sales Line";
         SalesHeadr: Record "Sales Header";
-        ScriptSymbolLookup: Record "Script Symbol Lookup";
         LookupFieldFilter: Record "Lookup Field Filter";
         LookupMgmt: Codeunit "Lookup Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -475,7 +472,6 @@ codeunit 136708 "Lookup Mgmt Tests"
     var
         SalesLine: Record "Sales Line";
         SalesHeadr: Record "Sales Header";
-        ScriptSymbolLookup: Record "Script Symbol Lookup";
         LookupFieldFilter: Record "Lookup Field Filter";
         LookupMgmt: Codeunit "Lookup Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -531,7 +527,6 @@ codeunit 136708 "Lookup Mgmt Tests"
     var
         SalesLine: Record "Sales Line";
         SalesHeadr: Record "Sales Header";
-        ScriptSymbolLookup: Record "Script Symbol Lookup";
         LookupFieldFilter: Record "Lookup Field Filter";
         LookupMgmt: Codeunit "Lookup Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -587,7 +582,6 @@ codeunit 136708 "Lookup Mgmt Tests"
     var
         JobQueueEntry: Record "Job Queue Entry";
         SalesHeadr: Record "Sales Header";
-        ScriptSymbolLookup: Record "Script Symbol Lookup";
         LookupFieldFilter: Record "Lookup Field Filter";
         LookupMgmt: Codeunit "Lookup Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -703,7 +697,6 @@ codeunit 136708 "Lookup Mgmt Tests"
     var
         ChangeLogEntry: Record "Change Log Entry";
         JobQueueEntry: Record "Job Queue Entry";
-        ScriptSymbolLookup: Record "Script Symbol Lookup";
         LookupFieldFilter: Record "Lookup Field Filter";
         LookupMgmt: Codeunit "Lookup Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -761,7 +754,6 @@ codeunit 136708 "Lookup Mgmt Tests"
     var
         SalesLine: Record "Sales Line";
         SalesHeadr: Record "Sales Header";
-        ScriptSymbolLookup: Record "Script Symbol Lookup";
         LookupFieldFilter: Record "Lookup Field Filter";
         LookupMgmt: Codeunit "Lookup Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -811,9 +803,7 @@ codeunit 136708 "Lookup Mgmt Tests"
     [HandlerFunctions('LookupToConstantHandlerForYes')]
     procedure TestConvertConstantToLookupConfirmYes()
     var
-        SalesLine: Record "Sales Line";
         SalesHeadr: Record "Sales Header";
-        ScriptSymbolLookup: Record "Script Symbol Lookup";
         LookupFieldFilter: Record "Lookup Field Filter";
         LookupMgmt: Codeunit "Lookup Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -848,15 +838,13 @@ codeunit 136708 "Lookup Mgmt Tests"
     [HandlerFunctions('LookupToConstantHandlerForNo')]
     procedure TestConvertConstantToLookupConfirmNo()
     var
-        SalesLine: Record "Sales Line";
         SalesHeadr: Record "Sales Header";
-        ScriptSymbolLookup: Record "Script Symbol Lookup";
         LookupFieldFilter: Record "Lookup Field Filter";
         LookupMgmt: Codeunit "Lookup Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
         RecRef: RecordRef;
         FieldRef: FieldRef;
-        CaseID, ScriptID, LookupID, TableFilterID, EmptyGuid : Guid;
+        CaseID, ScriptID, TableFilterID, EmptyGuid : Guid;
     begin
         // [SCENARIO] To convert a constant value to a Lookup value.
 

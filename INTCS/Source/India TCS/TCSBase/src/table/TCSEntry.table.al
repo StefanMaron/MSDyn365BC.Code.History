@@ -20,9 +20,9 @@ table 18810 "TCS Entry"
         field(3; "Account No."; Code[20])
         {
             DataClassification = EndUserIdentifiableInformation;
-            TableRelation = IF ("Account Type" = CONST("G/L Account")) "G/L Account"
-            ELSE
-            IF ("Account Type" = CONST(Customer)) Customer;
+            TableRelation = if ("Account Type" = const("G/L Account")) "G/L Account"
+            else
+            if ("Account Type" = const(Customer)) Customer;
         }
         field(4; "Posting Date"; Date)
         {
@@ -65,10 +65,6 @@ table 18810 "TCS Entry"
         {
             DataClassification = EndUserIdentifiableInformation;
         }
-        field(14; "Applied To"; Code[20])
-        {
-            DataClassification = EndUserIdentifiableInformation;
-        }
         field(15; "Challan Date"; Date)
         {
             DataClassification = EndUserIdentifiableInformation;
@@ -98,10 +94,6 @@ table 18810 "TCS Entry"
             DataClassification = EndUserIdentifiableInformation;
         }
         field(22; "Pay TCS Document No."; Code[20])
-        {
-            DataClassification = EndUserIdentifiableInformation;
-        }
-        field(23; "Applies To"; Boolean)
         {
             DataClassification = EndUserIdentifiableInformation;
         }
@@ -266,6 +258,21 @@ table 18810 "TCS Entry"
         {
             DataClassification = EndUserIdentifiableInformation;
         }
+        field(63; "BSR Code"; Code[20])
+        {
+            Caption = 'BSR Code';
+            DataClassification = EndUserIdentifiableInformation;
+        }
+        field(64; "Minor Head Code"; Enum "Minor Head Type")
+        {
+            Caption = 'Minor Head Code';
+            DataClassification = EndUserIdentifiableInformation;
+        }
+        field(65; "TCS on Recpt. Of Pmt."; Boolean)
+        {
+            Caption = 'TCS on Recpt. Of Pmt.';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -301,10 +308,27 @@ table 18810 "TCS Entry"
         {
         }
     }
+
+
     trigger OnInsert()
     var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
         TCSManagement: Codeunit "TCS Management";
     begin
+        CustLedgerEntry.SetRange("Transaction No.", Rec."Transaction No.");
+        CustLedgerEntry.SetRange("Document No.", Rec."Document No.");
+        if CustLedgerEntry.FindFirst() then begin
+            if Rec."Document Type" in [Rec."Document Type"::Invoice, Rec."Document Type"::Payment] then
+                CustLedgerEntry."Total TCS Including SHE CESS" -= Abs(Rec."Total TCS Including SHE CESS");
+
+            if CustLedgerEntry."TCS Nature of Collection" = '' then
+                CustLedgerEntry."TCS Nature of Collection" := Rec."TCS Nature of Collection";
+
+            if IsMultiSectionTransaction() then
+                CustLedgerEntry."TCS Nature of Collection" := '';
+            CustLedgerEntry.Modify();
+        end;
+
         if "Currency Code" <> '' then begin
             "TCS Base Amount" := TCSManagement.ConvertTCSAmountToLCY(Rec."Currency Code", Rec."TCS Base Amount", Rec."Currency Factor", Rec."Posting Date");
             "TCS Amount" := TCSManagement.ConvertTCSAmountToLCY(Rec."Currency Code", Rec."TCS Amount", Rec."Currency Factor", Rec."Posting Date");
@@ -321,5 +345,16 @@ table 18810 "TCS Entry"
             "Total TCS Including SHE CESS" := TCSManagement.ConvertTCSAmountToLCY(Rec."Currency Code", Rec."Total TCS Including SHE CESS", Rec."Currency Factor", Rec."Posting Date");
         end;
     end;
-}
 
+    local procedure IsMultiSectionTransaction(): Boolean
+    var
+        TCSEntry: Record "TCS Entry";
+    begin
+        TCSEntry.Reset();
+        TCSEntry.SetCurrentKey("Transaction No.");
+        TCSEntry.SetRange("Transaction No.", "Transaction No.");
+        TCSEntry.SetFilter("Entry No.", '<>%1', "Entry No.");
+        TCSEntry.SetFilter("TCS Nature of Collection", '<>%1', "TCS Nature of Collection");
+        exit(not TCSEntry.IsEmpty);
+    end;
+}

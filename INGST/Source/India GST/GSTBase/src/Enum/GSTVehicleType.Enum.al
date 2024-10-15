@@ -2,7 +2,7 @@ enum 18035 "GST Vehicle Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Regular)
     {

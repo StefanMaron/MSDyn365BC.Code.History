@@ -39,13 +39,10 @@ report 18021 "Archived Purchase Order GST"
                     column(STRSUBSTNO_Text004_CopyText_; StrSubstNo(PurchOrderArchLbl, CopyText))
                     {
                     }
-                    column(STRSUBSTNO_Text005_FORMAT_CurrReport_PAGENO__; StrSubstNo(PageLbl, Format(CurrReport.PageNo())))
-                    {
-                    }
                     column(CompanyRegistrationLbl; CompanyRegistrationLbl)
                     {
                     }
-                    column(CompanyInfo_GST_RegistrationNo; CompanyInfo."GST Registration No.")
+                    column(CompanyInfo_GST_RegistrationNo; CompanyInformation."GST Registration No.")
                     {
                     }
                     column(VendorRegistrationLbl; VendorRegistrationLbl)
@@ -66,22 +63,22 @@ report 18021 "Archived Purchase Order GST"
                     column(CompanyAddr_4_; CompanyAddr[4])
                     {
                     }
-                    column(CompanyInfo__Phone_No__; CompanyInfo."Phone No.")
+                    column(CompanyInfo__Phone_No__; CompanyInformation."Phone No.")
                     {
                     }
-                    column(CompanyInfo__Fax_No__; CompanyInfo."Fax No.")
+                    column(CompanyInfo__Fax_No__; CompanyInformation."Fax No.")
                     {
                     }
-                    column(CompanyInfo__VAT_Registration_No__; CompanyInfo."VAT Registration No.")
+                    column(CompanyInfo__VAT_Registration_No__; CompanyInformation."VAT Registration No.")
                     {
                     }
-                    column(CompanyInfo__Giro_No__; CompanyInfo."Giro No.")
+                    column(CompanyInfo__Giro_No__; CompanyInformation."Giro No.")
                     {
                     }
-                    column(CompanyInfo__Bank_Name_; CompanyInfo."Bank Name")
+                    column(CompanyInfo__Bank_Name_; CompanyInformation."Bank Name")
                     {
                     }
-                    column(CompanyInfo__Bank_Account_No__; CompanyInfo."Bank Account No.")
+                    column(CompanyInfo__Bank_Account_No__; CompanyInformation."Bank Account No.")
                     {
                     }
                     column(FORMAT__Purchase_Header_Archive___Document_Date__0_4_; Format("Purchase Header Archive"."Document Date", 0, 4))
@@ -213,34 +210,9 @@ report 18021 "Archived Purchase Order GST"
 
                         trigger OnAfterGetRecord()
                         begin
-                            if Number = 1 then begin
-                                if not DimSetEntry1.FindSet() then
-                                    CurrReport.Break();
-                            end else
-                                if not Continue then
-                                    CurrReport.Break();
-
-                            Clear(DimText);
-                            Continue := false;
-                            repeat
-                                OldDimText := CopyStr((DimText), 1, 75);
-                                if DimText = '' then
-                                    DimText := StrSubstNo(DimensionTextTxt, DimSetEntry1."Dimension Code", DimSetEntry1."Dimension Value Code")
-                                else
-                                    DimText := CopyStr(
-                                        StrSubstNo(
-                                            AppendDimensionTextTxt,
-                                            DimText,
-                                            DimSetEntry1."Dimension Code",
-                                            DimSetEntry1."Dimension Value Code"),
-                                        1,
-                                        120);
-                                if StrLen(DimText) > MaxStrLen(OldDimText) then begin
-                                    DimText := OldDimText;
-                                    Continue := true;
-                                    exit;
-                                end;
-                            until DimSetEntry1.Next() = 0;
+                            DimText := GetDimensionText(DimSetEntry1, Number, Continue);
+                            if not Continue then
+                                CurrReport.Break();
                         end;
 
                         trigger OnPreDataItem()
@@ -469,35 +441,9 @@ report 18021 "Archived Purchase Order GST"
 
                             trigger OnAfterGetRecord()
                             begin
-                                if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet() then
-                                        CurrReport.Break();
-                                end else
-                                    if not Continue then
-                                        CurrReport.Break();
-
-                                Clear(DimText);
-                                Continue := false;
-                                repeat
-                                    OldDimText := CopyStr(DimText, 1, 75);
-                                    if DimText = '' then
-                                        DimText := StrSubstNo(DimensionTextTxt, DimSetEntry2."Dimension Code", DimSetEntry2."Dimension Value Code")
-                                    else
-                                        DimText := CopyStr(
-                                            StrSubstNo(
-                                                AppendDimensionTextTxt,
-                                                DimText,
-                                                DimSetEntry2."Dimension Code",
-                                                DimSetEntry2."Dimension Value Code"),
-                                            1,
-                                            120);
-
-                                    if StrLen(DimText) > MaxStrLen(OldDimText) then begin
-                                        DimText := OldDimText;
-                                        Continue := true;
-                                        exit;
-                                    end;
-                                until DimSetEntry2.Next() = 0;
+                                DimText := GetDimensionText(DimSetEntry2, Number, Continue);
+                                if not Continue then
+                                    CurrReport.Break();
                             end;
 
                             trigger OnPreDataItem()
@@ -524,6 +470,7 @@ report 18021 "Archived Purchase Order GST"
 
                             if (TempPurchLineArch.Type = TempPurchLineArch.Type::"G/L Account") and (not ShowIntInfo) then
                                 "Purchase Line Archive"."No." := '';
+
                             AllowInvDisctxt := Format("Purchase Line Archive"."Allow Invoice Disc.");
                             PurchaseLineArchiveType := "Purchase Line Archive".Type.AsInteger();
 
@@ -539,11 +486,12 @@ report 18021 "Archived Purchase Order GST"
 
                         trigger OnPreDataItem()
                         begin
-                            MoreLines := TempPurchLineArch.Find('+');
-
-                            while MoreLines and (TempPurchLineArch.Description = '') and (TempPurchLineArch."Description 2" = '') and
-                                  (TempPurchLineArch."No." = '') and (TempPurchLineArch.Quantity = 0) and
-                                  (TempPurchLineArch.Amount = 0)
+                            while MoreLines and
+                                (TempPurchLineArch.Description = '') and
+                                (TempPurchLineArch."Description 2" = '') and
+                                (TempPurchLineArch."No." = '') and
+                                (TempPurchLineArch.Quantity = 0) and
+                                (TempPurchLineArch.Amount = 0)
                             do
                                 MoreLines := TempPurchLineArch.Next(-1) <> 0;
 
@@ -552,7 +500,6 @@ report 18021 "Archived Purchase Order GST"
 
                             TempPurchLineArch.SetRange("Line No.", 0, TempPurchLineArch."Line No.");
                             SetRange(Number, 1, TempPurchLineArch.Count);
-                            //CurrReport.CREATETOTALS(PurchLineArch."Line Amount", PurchLineArch."Inv. Discount Amount");
                         end;
                     }
                     dataitem(VATCounter; Integer)
@@ -713,9 +660,6 @@ report 18021 "Archived Purchase Order GST"
                             if VATAmount = 0 then
                                 CurrReport.Break();
                             SetRange(Number, 1, TempVATAmountLine.Count);
-                            // CurrReport.CREATETOTALS(
-                            //   VATAmountLine."Line Amount", VATAmountLine."Inv. Disc. Base Amount",
-                            //   VATAmountLine."Invoice Discount Amount", VATAmountLine."VAT Base", VATAmountLine."VAT Amount");
                         end;
                     }
                     dataitem(VATCounterLCY; Integer)
@@ -797,29 +741,32 @@ report 18021 "Archived Purchase Order GST"
                             TempVATAmountLine.GetLine(Number);
                             VALVATBaseLCY :=
                               TempVATAmountLine.GetBaseLCY(
-                                "Purchase Header Archive"."Posting Date", "Purchase Header Archive"."Currency Code",
-                                "Purchase Header Archive"."Currency Factor");
+                                  "Purchase Header Archive"."Posting Date",
+                                  "Purchase Header Archive"."Currency Code",
+                                  "Purchase Header Archive"."Currency Factor");
                             VALVATAmountLCY :=
                               TempVATAmountLine.GetAmountLCY(
-                                "Purchase Header Archive"."Posting Date", "Purchase Header Archive"."Currency Code",
-                                "Purchase Header Archive"."Currency Factor");
+                                  "Purchase Header Archive"."Posting Date",
+                                  "Purchase Header Archive"."Currency Code",
+                                  "Purchase Header Archive"."Currency Factor");
                         end;
 
                         trigger OnPreDataItem()
+                        var
+                            CurrExchRate: Record "Currency Exchange Rate";
                         begin
-                            if (not GLSetup."Print VAT specification in LCY") or
+                            if (not GeneralLedgerSetup."Print VAT specification in LCY") or
                                ("Purchase Header Archive"."Currency Code" = '') or
                                (TempVATAmountLine.GetTotalVATAmount() = 0)
                             then
                                 CurrReport.Break();
 
                             SetRange(Number, 1, TempVATAmountLine.Count);
-                            //CurrReport.CREATETOTALS(VALVATBaseLCY, VALVATAmountLCY);
 
-                            if GLSetup."LCY Code" = '' then
+                            if GeneralLedgerSetup."LCY Code" = '' then
                                 VALSpecLCYHeader := VATAmtSpecLbl + LocalCurrLbl
                             else
-                                VALSpecLCYHeader := VATAmtSpecLbl + Format(GLSetup."LCY Code");
+                                VALSpecLCYHeader := VATAmtSpecLbl + Format(GeneralLedgerSetup."LCY Code");
 
                             CurrExchRate.FindCurrency("Purchase Header Archive"."Posting Date", "Purchase Header Archive"."Currency Code", 1);
                             VALExchRate := StrSubstNo(ExchRateLbl, CurrExchRate."Relational Exch. Rate Amount", CurrExchRate."Exchange Rate Amount");
@@ -1056,34 +1003,9 @@ report 18021 "Archived Purchase Order GST"
 
                             trigger OnAfterGetRecord()
                             begin
-                                if Number = 1 then begin
-                                    if not PrepmtDimSetEntry.FindSet() then
-                                        CurrReport.Break();
-                                end else
-                                    if not Continue then
-                                        CurrReport.Break();
-
-                                Clear(DimText);
-                                Continue := false;
-                                repeat
-                                    OldDimText := CopyStr(DimText, 1, 75);
-                                    if DimText = '' then
-                                        DimText := StrSubstNo(DimensionTextTxt, PrepmtDimSetEntry."Dimension Code", PrepmtDimSetEntry."Dimension Value Code")
-                                    else
-                                        DimText := CopyStr(
-                                            StrSubstNo(
-                                                AppendDimensionTextTxt,
-                                                DimText,
-                                                PrepmtDimSetEntry."Dimension Code",
-                                                PrepmtDimSetEntry."Dimension Value Code"),
-                                            1,
-                                            120);
-                                    if StrLen(DimText) > MaxStrLen(OldDimText) then begin
-                                        DimText := OldDimText;
-                                        Continue := true;
-                                        exit;
-                                    end;
-                                until PrepmtDimSetEntry.Next() = 0
+                                DimText := GetDimensionText(PrepmtDimSetEntry, Number, Continue);
+                                if not Continue then
+                                    CurrReport.Break();
                             end;
                         }
 
@@ -1103,15 +1025,6 @@ report 18021 "Archived Purchase Order GST"
                                 PrepmtLineAmount := TempPrepmtInvBuf."Amount Incl. VAT"
                             else
                                 PrepmtLineAmount := TempPrepmtInvBuf.Amount;
-                        end;
-
-                        trigger OnPreDataItem()
-                        begin
-                            // CurrReport.CREATETOTALS(
-                            //   PrepmtInvBuf.Amount, PrepmtInvBuf."Amount Incl. VAT",
-                            //   PrepmtVATAmountLine."Line Amount", PrepmtVATAmountLine."VAT Base",
-                            //   PrepmtVATAmountLine."VAT Amount",
-                            //   PrepmtLineAmount);
                         end;
                     }
                     dataitem(PrepmtVATCounter; Integer)
@@ -1283,14 +1196,14 @@ report 18021 "Archived Purchase Order GST"
                     TempPurchLine.CalcVATAmountLines(0, TempPurchHeader, TempPurchLine, TempVATAmountLine);
                     VATAmount := TempVATAmountLine.GetTotalVATAmount();
                     VATBaseAmount := TempVATAmountLine.GetTotalVATBase();
-                    VATDiscountAmount :=
-                      TempVATAmountLine.GetTotalVATDiscount(TempPurchHeader."Currency Code", TempPurchHeader."Prices Including VAT");
+                    VATDiscountAmount := TempVATAmountLine.GetTotalVATDiscount(
+                        TempPurchHeader."Currency Code",
+                        TempPurchHeader."Prices Including VAT");
                     TotalAmountInclVAT := TempVATAmountLine.GetTotalAmountInclVAT();
 
                     if Number > 1 then
                         CopyText := CopyLbl;
 
-                    CurrReport.PageNo := 1;
                     OutputNo := OutputNo + 1;
                     TotalSubTotal := 0;
                     TotalInvoiceDiscountAmount := 0;
@@ -1298,6 +1211,8 @@ report 18021 "Archived Purchase Order GST"
                 end;
 
                 trigger OnPostDataItem()
+                var
+                    PurchCountPrintedArch: Codeunit "Purch.HeaderArch-Printed";
                 begin
                     if not CurrReport.Preview then
                         PurchCountPrintedArch.Run("Purchase Header Archive");
@@ -1313,17 +1228,21 @@ report 18021 "Archived Purchase Order GST"
             }
 
             trigger OnAfterGetRecord()
+            var
+                ResponsibilityCenter: Record "Responsibility Center";
+                Language: Codeunit "Language";
+                FormatAddress: Codeunit "Format Address";
             begin
-                CurrReport.LANGUAGE := Language.GetLanguageID("Language Code");
+                CurrReport.Language := Language.GetLanguageID("Language Code");
                 Vendor.Get("Buy-from Vendor No.");
-                CompanyInfo.Get();
+                CompanyInformation.Get();
 
-                if RespCenter.Get("Responsibility Center") then begin
-                    FormatAddr.RespCenter(CompanyAddr, RespCenter);
-                    CompanyInfo."Phone No." := RespCenter."Phone No.";
-                    CompanyInfo."Fax No." := RespCenter."Fax No.";
+                if ResponsibilityCenter.Get("Responsibility Center") then begin
+                    FormatAddress.RespCenter(CompanyAddr, ResponsibilityCenter);
+                    CompanyInformation."Phone No." := ResponsibilityCenter."Phone No.";
+                    CompanyInformation."Fax No." := ResponsibilityCenter."Fax No.";
                 end else
-                    FormatAddr.Company(CompanyAddr, CompanyInfo);
+                    FormatAddress.Company(CompanyAddr, CompanyInformation);
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
@@ -1334,40 +1253,46 @@ report 18021 "Archived Purchase Order GST"
                     SalesPurchPerson.Get("Purchaser Code");
                     PurchaserText := PurchasTextLbl
                 end;
+
                 if "Your Reference" = '' then
                     ReferenceText := ''
                 else
                     ReferenceText := CopyStr(FieldCaption("Your Reference"), 1, 80);
+
                 if "VAT Registration No." = '' then
                     VATNoText := ''
                 else
                     VATNoText := CopyStr(FieldCaption("VAT Registration No."), 1, 80);
+
                 if "Currency Code" = '' then begin
-                    GLSetup.TestField("LCY Code");
-                    TotalText := StrSubstNo(TotalTextLbl, GLSetup."LCY Code");
-                    TotalInclVATText := StrSubstNo(TotalInclVatLbl, GLSetup."LCY Code");
-                    TotalExclVATText := StrSubstNo(TotalExclLbl, GLSetup."LCY Code");
+                    GeneralLedgerSetup.TestField("LCY Code");
+                    TotalText := StrSubstNo(TotalTextLbl, GeneralLedgerSetup."LCY Code");
+                    TotalInclVATText := StrSubstNo(TotalInclVatLbl, GeneralLedgerSetup."LCY Code");
+                    TotalExclVATText := StrSubstNo(TotalExclLbl, GeneralLedgerSetup."LCY Code");
                 end else begin
                     TotalText := StrSubstNo(TotalTextLbl, "Currency Code");
                     TotalInclVATText := StrSubstNo(TotalInclVatLbl, "Currency Code");
                     TotalExclVATText := StrSubstNo(TotalExclLbl, "Currency Code");
                 end;
 
-                FormatAddr.PurchHeaderBuyFromArch(BuyFromAddr, "Purchase Header Archive");
+                FormatAddress.PurchHeaderBuyFromArch(BuyFromAddr, "Purchase Header Archive");
                 if "Buy-from Vendor No." <> "Pay-to Vendor No." then
-                    FormatAddr.PurchHeaderPayToArch(VendAddr, "Purchase Header Archive");
+                    FormatAddress.PurchHeaderPayToArch(VendAddr, "Purchase Header Archive");
+
                 if "Payment Terms Code" = '' then
                     PaymentTerms.Init()
                 else begin
                     PaymentTerms.Get("Payment Terms Code");
                     PaymentTerms.TranslateDescription(PaymentTerms, "Language Code");
                 end;
+
                 if "Prepmt. Payment Terms Code" = '' then
                     PrepmtPaymentTerms.Init()
                 else begin
                     PrepmtPaymentTerms.Get("Prepmt. Payment Terms Code");
                     PrepmtPaymentTerms.TranslateDescription(PrepmtPaymentTerms, "Language Code");
                 end;
+
                 if "Shipment Method Code" = '' then
                     PrepmtPaymentTerms.Init()
                 else begin
@@ -1376,7 +1301,7 @@ report 18021 "Archived Purchase Order GST"
                 end;
 
                 CalcFields("No. of Archived Versions");
-                FormatAddr.PurchHeaderShipToArch(ShipToAddr, "Purchase Header Archive");
+                FormatAddress.PurchHeaderShipToArch(ShipToAddr, "Purchase Header Archive");
                 PricesInclVATtxt := Format("Prices Including VAT");
             end;
         }
@@ -1397,13 +1322,13 @@ report 18021 "Archived Purchase Order GST"
                     {
                         Caption = 'No. of Copies';
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Number Of Copies';
+                        ToolTip = 'Specifies the number of copies that need to be printed.';
                     }
                     field(ShowInternalInfo; ShowIntInfo)
                     {
                         Caption = 'Show Internal Information';
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Show Internal Information';
+                        ToolTip = 'Specifies the inforamtion of prepayment dimension entries';
                     }
                 }
             }
@@ -1414,19 +1339,17 @@ report 18021 "Archived Purchase Order GST"
         }
     }
 
-    labels
-    {
-    }
+
 
 
     trigger OnInitReport()
     begin
-        GLSetup.Get();
+        GeneralLedgerSetup.Get();
     end;
 
     var
-        GLSetup: Record "General Ledger Setup";
-        CompanyInfo: Record "Company Information";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        CompanyInformation: Record "Company Information";
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
         PrepmtPaymentTerms: Record "Payment Terms";
@@ -1439,11 +1362,6 @@ report 18021 "Archived Purchase Order GST"
         DimSetEntry2: Record "Dimension Set Entry";
         PrepmtDimSetEntry: Record "Dimension Set Entry";
         TempPrepmtInvBuf: Record "Prepayment Inv. Line Buffer" temporary;
-        RespCenter: Record "Responsibility Center";
-        CurrExchRate: Record "Currency Exchange Rate";
-        FormatAddr: Codeunit "Format Address";
-        Language: Codeunit "Language";
-        PurchCountPrintedArch: Codeunit "Purch.HeaderArch-Printed";
         VendAddr: array[8] of Text[50];
         ShipToAddr: array[8] of Text[50];
         CompanyAddr: array[8] of Text[50];
@@ -1460,7 +1378,6 @@ report 18021 "Archived Purchase Order GST"
         CopyText: Text[30];
         OutputNo: Integer;
         DimText: Text[120];
-        OldDimText: Text[75];
         ShowIntInfo: Boolean;
         Continue: Boolean;
         VATAmount: Decimal;
@@ -1486,7 +1403,6 @@ report 18021 "Archived Purchase Order GST"
         TotalInclVatLbl: Label 'Total %1 Incl. VAT', Comment = '%1 = LCY Code';
         CopyLbl: Label 'COPY', Locked = true;
         PurchOrderArchLbl: Label 'Purchase Order Archived %1', Comment = ' %1 = CopyText';
-        PageLbl: Label 'Page %1', Comment = '%1 = Page No.';
         TotalExclLbl: Label 'Total %1 Excl. VAT', Comment = '%1 = Currency Code';
         VATAmtSpecLbl: Label 'VAT Amount Specification in ', Locked = true;
         LocalCurrLbl: Label 'Local Currency', Locked = true;
@@ -1552,6 +1468,42 @@ report 18021 "Archived Purchase Order GST"
         PrepmtPaymentTerms_DescriptionCaptionLbl: Label 'Prepmt. Payment Terms', Locked = true;
         CompanyRegistrationLbl: Label 'Company Registration No.', Locked = true;
         VendorRegistrationLbl: Label 'Vendor GST Reg No.', Locked = true;
-        AppendDimensionTextTxt: Label '%1, %2 %3', Locked = true;
-        DimensionTextTxt: Label '%1 %2', Locked = true;
+
+    local procedure GetDimensionText(
+        var DimSetEntry: Record "Dimension Set Entry";
+        Number: Integer;
+        var Continue: Boolean): Text[120]
+    var
+        DimensionText: Text[120];
+        PrevDimText: Text[75];
+        DimensionTextLbl: Label '%1; %2 - %3', Comment = ' %1 = DimText, %2 = Dimension Code, %3 = Dimension Value Code';
+        DimensionLbl: Label '%1 - %2', Comment = '%1 = Dimension Code, %2 = Dimension Value Code';
+    begin
+        Continue := false;
+        if Number = 1 then
+            if not DimSetEntry.FindSet() then
+                exit;
+
+        repeat
+            PrevDimText := CopyStr((DimensionText), 1, 75);
+            if DimensionText = '' then
+                DimensionText := StrSubstNo(DimensionLbl, DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code")
+            else
+                DimensionText := CopyStr(
+                    StrSubstNo(
+                        DimensionTextLbl,
+                        DimensionText,
+                        DimSetEntry."Dimension Code",
+                        DimSetEntry."Dimension Value Code"),
+                    1,
+                    120);
+
+            if StrLen(DimensionText) > MaxStrLen(PrevDimText) then begin
+                Continue := true;
+                exit(PrevDimText);
+            end;
+        until DimSetEntry.Next() = 0;
+
+        exit(DimensionText)
+    end;
 }

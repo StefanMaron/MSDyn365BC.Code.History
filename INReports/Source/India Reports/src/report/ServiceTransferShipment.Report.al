@@ -158,7 +158,6 @@ report 18040 "Service Transfer Shipment"
                         column(HdrDimCaption; HdrDimCaptionLbl)
                         {
                         }
-
                         trigger OnAfterGetRecord()
                         begin
                             DimText := GetDimensionText(DimensionSetEntry1, Number, Continue);
@@ -252,7 +251,6 @@ report 18040 "Service Transfer Shipment"
                                     CurrReport.Break();
                             end;
                         }
-
                         trigger OnAfterGetRecord()
                         begin
                             DimensionSetEntry2.SetRange("Dimension Set ID", "Dimension Set ID");
@@ -292,7 +290,6 @@ report 18040 "Service Transfer Shipment"
                         end;
                     }
                 }
-
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 1 then begin
@@ -309,7 +306,6 @@ report 18040 "Service Transfer Shipment"
                     OutputNo := 1;
                 end;
             }
-
             trigger OnAfterGetRecord()
             begin
                 DimensionSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
@@ -377,7 +373,6 @@ report 18040 "Service Transfer Shipment"
         NoOfLoops: Integer;
         CopyText: Text[30];
         DimText: Text[120];
-        OldDimText: Text[120];
         ShowIntInfo: Boolean;
         Continue: Boolean;
         OutputNo: Integer;

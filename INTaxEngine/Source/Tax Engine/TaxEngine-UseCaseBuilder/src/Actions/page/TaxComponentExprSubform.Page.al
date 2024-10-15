@@ -42,9 +42,7 @@ page 20285 "Tax Component Expr. Subform"
                         FormatLine();
                     end;
 
-                    trigger OnAssistEdit();
-                    var
-
+                    trigger OnAssistEdit()
                     begin
                         if LookupMgmt.ConvertConstantToLookup(
                             "Case ID",

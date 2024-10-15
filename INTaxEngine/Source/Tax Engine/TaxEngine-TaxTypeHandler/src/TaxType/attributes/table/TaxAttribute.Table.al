@@ -18,7 +18,7 @@ table 20241 "Tax Attribute"
         }
         field(2; Name; Text[30])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Name';
             NotBlank = true;
             trigger OnValidate();
@@ -35,7 +35,7 @@ table 20241 "Tax Attribute"
         }
         field(7; Type; Option)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Type';
             InitValue = "Text";
             OptionMembers = Option,Text,Integer,Decimal,Boolean,Date;
@@ -71,7 +71,7 @@ table 20241 "Tax Attribute"
 
         field(16; "Visible on Interface"; Boolean)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Visible on Interface';
         }
         field(17; "Refrence Table ID"; Integer)
@@ -103,7 +103,7 @@ table 20241 "Tax Attribute"
         }
         field(20; "Grouped In SubLedger"; Boolean)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Grouped in SubLedger';
         }
     }
@@ -129,7 +129,7 @@ table 20241 "Tax Attribute"
         TaxAttributeValue: Record "Tax Attribute Value";
     begin
         if Type <> Type::Option then
-            Exit('');
+            exit('');
         TaxAttributeValue.SetRange("Attribute ID", ID);
         if TaxAttributeValue.FindSet() then
             repeat
@@ -144,22 +144,7 @@ table 20241 "Tax Attribute"
         AttributeValueMapping: Record "Tax Attribute Value Mapping";
     begin
         AttributeValueMapping.SetRange("Attribute ID", ID);
-        Exit(not AttributeValueMapping.IsEmpty());
-    end;
-
-    procedure RemoveUnusedArbitraryValues();
-    var
-        GenericAttributeValue: Record "Tax Attribute Value";
-    begin
-        if Type = Type::Option then
-            Exit;
-
-        GenericAttributeValue.SetRange("Attribute ID", ID);
-        if GenericAttributeValue.FindSet() then
-            repeat
-                if not GenericAttributeValue.HasBeenUsed() then
-                    GenericAttributeValue.Delete();
-            until GenericAttributeValue.Next() = 0;
+        exit(not AttributeValueMapping.IsEmpty());
     end;
 
     procedure OpenAttributeValues();
@@ -192,7 +177,7 @@ table 20241 "Tax Attribute"
     begin
         TaxAttribute.SetFilter("Tax Type", '%1|%2', TaxType, '');
         TaxAttribute.SetRange(Name, NameToCheck);
-        Exit(not TaxAttribute.IsEmpty());
+        exit(not TaxAttribute.IsEmpty());
     end;
 
     local procedure DeleteValuesAndMapping();
@@ -227,17 +212,6 @@ table 20241 "Tax Attribute"
             Error(AttributeUsedInRecordErr, Name, Format(RecordAttributeMapping."Attribute Record ID", 9));
     end;
 
-    trigger OnRename();
-    var
-        GenericAttributeValue: Record "Tax Attribute Value";
-    begin
-        GenericAttributeValue.SetRange("Attribute ID", xRec.ID);
-        if GenericAttributeValue.FindSet() then
-            repeat
-                GenericAttributeValue.RENAME(ID, GenericAttributeValue.ID);
-            until GenericAttributeValue.Next() = 0;
-    end;
-
     local procedure FillAttributeValues(TaxType: Code[20]; AttributeID: Integer; OptionString: Text)
     var
         TaxAttributeValue: Record "Tax Attribute Value";
@@ -255,7 +229,7 @@ table 20241 "Tax Attribute"
         Counter := 0;
         for i := 1 to OptionList.Count() do begin
             TaxAttributeValue.Init();
-            TaxAttributeValue.validate("Tax Type", TaxType);
+            TaxAttributeValue.Validate("Tax Type", TaxType);
             TaxAttributeValue.Validate("Attribute ID", AttributeID);
             TaxAttributeValue.Validate(ID, Counter);
             OptionList.Get(i, Value);

@@ -112,7 +112,6 @@ page 20172 "Action Loop Thr. Rec. Field"
         AppObjectHelper: Codeunit "App Object Helper";
         ScriptDataTypeMgmt: Codeunit "Script Data Type Mgmt.";
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
-        EmptyGuid: Guid;
         TableFieldName2: Text[30];
         VariableName2: Text[30];
 }

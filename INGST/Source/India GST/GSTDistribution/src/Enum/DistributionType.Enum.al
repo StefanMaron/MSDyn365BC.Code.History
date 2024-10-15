@@ -4,7 +4,7 @@ enum 18200 "Distribution Type"
 
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; "G/L Account")
     {

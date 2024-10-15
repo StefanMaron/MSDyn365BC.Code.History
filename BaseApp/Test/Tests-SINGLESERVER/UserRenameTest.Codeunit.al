@@ -181,6 +181,7 @@ codeunit 132904 UserRenameTest
         Field.SetRange(RelationTableNo, DATABASE::User);
         Field.SetRange(RelationFieldNo, User.FieldNo("User Name"));
         Field.SetFilter(Type, '%1|%2', Field.Type::Code, Field.Type::Text);
+        SetTableNoExclusionFilter(Field);
         if Field.FindSet then
             repeat
                 RecRef.Open(Field.TableNo);
@@ -195,6 +196,12 @@ codeunit 132904 UserRenameTest
                 Assert.IsTrue(RecRef.FindFirst, StrSubstNo(NewUserNameNotFound, Field.TableName, Field.FieldName));
                 RecRef.Close;
             until Field.Next = 0;
+    end;
+
+    local procedure SetTableNoExclusionFilter(var "Field": Record "Field")
+    begin
+        // table 18203 "GST Distribution Header" - User Name is replaced by UserId() in OnBeforeInsertEvent subscriber.
+        Field.SetFilter(TableNo, '<>%1', 18203);
     end;
 
     [ConfirmHandler]

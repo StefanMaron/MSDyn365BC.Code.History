@@ -24,9 +24,4 @@ enum 18006 "Component Calc Type"
     {
         Caption = 'Amount / Unit Factor';
     }
-    value(6; "Amount / Unit")
-    {
-        Caption = 'Amount / Unit';
-    }
-
 }

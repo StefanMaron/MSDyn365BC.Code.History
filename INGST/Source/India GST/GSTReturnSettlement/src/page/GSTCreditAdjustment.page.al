@@ -6,12 +6,12 @@ page 18317 "GST Credit Adjustment"
 
     layout
     {
-
         area(content)
         {
             group(General)
             {
                 Caption = 'General';
+
                 field(AdjDocNo2; AdjDocNo)
                 {
                     Caption = 'Adjustment  Document No.';
@@ -25,7 +25,6 @@ page 18317 "GST Credit Adjustment"
                     ApplicationArea = Basic, Suite;
                     TableRelation = "GST Registration Nos." where("Input Service Distributor" = const(false));
                     ToolTip = 'Specifies the companies GST registration number issued by authorized body.';
-
 
                     trigger OnValidate()
                     var
@@ -59,7 +58,7 @@ page 18317 "GST Credit Adjustment"
 
                     trigger OnValidate()
                     begin
-                        if StrLen(FORMAT(PeriodYear)) <> 4 then
+                        if StrLen(Format(PeriodYear)) <> 4 then
                             Error(YearFormatErr);
                     end;
                 }
@@ -134,6 +133,8 @@ page 18317 "GST Credit Adjustment"
                 ToolTip = 'Apply Entries';
 
                 trigger OnAction()
+                var
+                    GSTCreditAdjustmentJournal: Record "GST Credit Adjustment Journal";
                 begin
                     CheckMandatoryFields();
                     CheckCreditAdjForPeriod();
@@ -160,6 +161,8 @@ page 18317 "GST Credit Adjustment"
     }
 
     trigger OnOpenPage()
+    var
+        NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         AdjDocNo := NoSeriesManagement.GetNextNo(
             GSTSettlement.GetNoSeriesCode(false),
@@ -167,6 +170,34 @@ page 18317 "GST Credit Adjustment"
             false);
         AdjustmentPerc := 100;
     end;
+
+    var
+        GSTSettlement: Codeunit "GST Settlement";
+        NatureOfAdjustment: Enum "Credit Adjustment Type";
+        PeriodMonth: Integer;
+        PeriodYear: Integer;
+        AdjDocNo: Code[20];
+        GSTINNo: Code[20];
+        VendorNo: Code[20];
+        ExternalDocNo: Code[35];
+        DocumentNo: Code[20];
+        ReverseCharge: Boolean;
+        InputSerDist: Boolean;
+        PostingDate: Date;
+        AdjustmentPerc: Decimal;
+        GSTINNoErr: Label 'GSTIN No. must not be empty.';
+        MonthErr: Label 'Period Month must not be empty.';
+        YearErr: Label 'Period Year must not be empty.';
+        PostingDateErr: Label 'Posting Date must not be blank.';
+        YearFormatErr: Label 'Year format must be YYYY.';
+        MonthFormatErr: Label 'Month must be within 1 to 12.';
+        AdjDocErr: Label 'Adjust Document No. must not be empty.';
+        NatureOfAdjErr: Label 'Nature of Adjustment can not be blank.';
+        AdjPeriodErr: Label 'Posting Date must be after Period Month & Period Year.';
+        ISDGSTRegNoErr: Label 'You must select GST Registration No. that has ISD set to False.';
+        ReverseChargeAdjstTypeErr: Label 'Permanent Reversal is not allowed for Reverse Charge transactions.';
+        RegisteredAdjstTypeErr: Label 'Credit Availment and Reversal of Availment is allowed for Reverse Charge Vendors.';
+        AdjPercErr: Label 'Adjustment Percentage must have some value.';
 
     local procedure CheckMandatoryFields()
     begin
@@ -207,38 +238,7 @@ page 18317 "GST Credit Adjustment"
         if (PeriodMonth >= Date2DMY(PostingDate, 2)) and (PeriodYear = Date2DMY(PostingDate, 3)) then
             Error(AdjPeriodErr);
 
-        if PeriodYear > DATE2DMY(PostingDate, 3) then
+        if PeriodYear > Date2DMY(PostingDate, 3) then
             Error(AdjPeriodErr);
     end;
-
-
-    var
-        GSTCreditAdjustmentJournal: Record "GST Credit Adjustment Journal";
-        GSTSettlement: Codeunit "GST Settlement";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        NatureOfAdjustment: Enum "Credit Adjustment Type";
-        PeriodMonth: Integer;
-        PeriodYear: Integer;
-        AdjDocNo: Code[20];
-        GSTINNo: Code[20];
-        VendorNo: Code[20];
-        ExternalDocNo: Code[35];
-        DocumentNo: Code[20];
-        ReverseCharge: Boolean;
-        InputSerDist: Boolean;
-        PostingDate: Date;
-        AdjustmentPerc: Decimal;
-        GSTINNoErr: Label 'GSTIN No. must not be empty.';
-        MonthErr: Label 'Period Month must not be empty.';
-        YearErr: Label 'Period Year must not be empty.';
-        PostingDateErr: Label 'Posting Date must not be blank.';
-        YearFormatErr: Label 'Year format must be YYYY.';
-        MonthFormatErr: Label 'Month must be within 1 to 12.';
-        AdjDocErr: Label 'Adjust Document No. must not be empty.';
-        NatureOfAdjErr: Label 'Nature of Adjustment can not be blank.';
-        AdjPeriodErr: Label 'Posting Date must be after Period Month & Period Year.';
-        ISDGSTRegNoErr: Label 'You must select GST Registration No. that has ISD set to False.';
-        ReverseChargeAdjstTypeErr: Label 'Permanent Reversal is not allowed for Reverse Charge transactions.';
-        RegisteredAdjstTypeErr: Label 'Credit Availment and Reversal of Availment is allowed for Reverse Charge Vendors.';
-        AdjPercErr: Label 'Adjustment Percentage must have some value.';
 }

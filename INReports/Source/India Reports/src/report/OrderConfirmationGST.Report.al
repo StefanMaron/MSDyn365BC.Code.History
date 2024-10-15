@@ -75,28 +75,34 @@ report 18009 "Order Confirmation GST"
                     column(DocumentCaptionCopyText; StrSubstNo(OrderConfLbl, CopyText))
                     {
                     }
-                    column(GSTComponentCode1; GSTComponentCodeName[2] + ' Amount')
+                    column(GSTComponentCode1; GSTComponentCodeName[6] + ' Amount')
                     {
                     }
-                    column(GSTComponentCode2; GSTComponentCodeName[3] + ' Amount')
+                    column(GSTComponentCode2; GSTComponentCodeName[2] + ' Amount')
                     {
                     }
-                    column(GSTComponentCode3; GSTComponentCodeName[5] + ' Amount')
+                    column(GSTComponentCode3; GSTComponentCodeName[3] + ' Amount')
                     {
                     }
-                    column(GSTComponentCode4; GSTComponentCodeName[6] + ' Amount')
+                    column(GSTComponentCode4; GSTComponentCodeName[5] + ' Amount')
                     {
                     }
-                    column(GSTCompAmount1; Abs(GSTCompAmount[2]))
+                    column(GSTCompAmount1; Abs(SGSTAmt))
                     {
                     }
-                    column(GSTCompAmount2; Abs(GSTCompAmount[3]))
+                    column(GSTCompAmount2; Abs(CGSTAmt))
                     {
                     }
-                    column(GSTCompAmount3; Abs(GSTCompAmount[5]))
+                    column(GSTCompAmount3; Abs(IGSTAmt))
                     {
                     }
-                    column(GSTCompAmount4; Abs(GSTCompAmount[6]))
+                    column(GSTCompAmount4; Abs(0.00))
+                    {
+                    }
+                    column(CessAmount; CessAmount)
+                    {
+                    }
+                    column(GLAccountNo; GLAccountNo)
                     {
                     }
                     column(TCSGSTCompAmount1; Abs(TCSGSTCompAmount))
@@ -551,108 +557,66 @@ report 18009 "Order Confirmation GST"
                             }
 
                             trigger OnAfterGetRecord()
+                            var
+                                GSTSetup: Record "GST Setup";
                             begin
                                 DimText := GetDimensionText(DimSetEntry2, Number, Continue);
                                 if not Continue then
                                     CurrReport.Break();
 
-                                if ShowInterInf then begin
-                                    j := 1;
-                                    TaxTrnasactionValue.Reset();
-                                    TaxTrnasactionValue.SetRange("Tax Record ID", TempSalesLine.RecordId);
-                                    TaxTrnasactionValue.SetRange("Tax Type", 'GST');
-                                    TaxTrnasactionValue.SetRange("Value Type", TaxTrnasactionValue."Value Type"::COMPONENT);
-                                    TaxTrnasactionValue.SetFilter(Percent, '<>%1', 0);
-                                    if TaxTrnasactionValue.FindSet() then
-                                        repeat
-                                            j := TaxTrnasactionValue."Value ID";
-                                            GSTComponentCode[j] := TaxTrnasactionValue."Value ID";
-                                            TaxTrnasactionValue1.Reset();
-                                            TaxTrnasactionValue1.SetRange("Tax Record ID", TempSalesLine.RecordId);
-                                            TaxTrnasactionValue1.SetRange("Tax Type", 'GST');
-                                            TaxTrnasactionValue1.SetRange("Value Type", TaxTrnasactionValue1."Value Type"::COMPONENT);
-                                            TaxTrnasactionValue1.SetRange("Value ID", GSTComponentCode[j]);
-                                            if TaxTrnasactionValue1.FindSet() then
-                                                repeat
-                                                    GSTCompAmount[j] += TaxTrnasactionValue1.Amount;
-                                                    NNC_SalesLineTaxAmt += TaxTrnasactionValue1.Amount;
-                                                    NNC_TotalGST += TaxTrnasactionValue1.Amount;
-                                                until TaxTrnasactionValue1.Next() = 0;
-                                            j += 1;
-                                        until TaxTrnasactionValue.Next() = 0;
+                                if not GSTSetup.Get() then
+                                    exit;
 
+                                if ShowInterInf then begin
+
+                                    GetGSTCaptions(TaxTrnasactionValue, TempSalesLine, GSTSetup);
+
+                                    GetGSTAmounts(TaxTrnasactionValue, TempSalesLine, GSTSetup);
 
                                     TotalAmount := NNC_SalesLineLineAmt - NNC_SalesLineInvDiscAmt + NNC_SalesLineExciseAmt + NNC_SalesLineTaxAmt +
                                     NNC_SalesLineSvcTaxAmt + NNC_SalesLineSvcTaxeCessAmt + ChargesAmount +
                                     OtherTaxesAmount +
                                     NNC_SalesLineTDSTCSSHECESS + NNC_SalesLineSvcSHECessAmt +
-                                    NNC_SalesLineSvcTaxSBCAmt + NNC_SalesLineKKCessAmt + NNC_TotalGST;
+                                    NNC_SalesLineSvcTaxSBCAmt + NNC_SalesLineKKCessAmt;
                                 end;
                             end;
 
                             trigger OnPostDataItem()
+                            var
+                                GSTSetup: Record "GST Setup";
+                                TCSSetup: Record "TCS Setup";
                             begin
                                 if not ShowInterInf then begin
-                                    j := 1;
-                                    TaxTrnasactionValue.Reset();
-                                    TaxTrnasactionValue.SetRange("Tax Record ID", TempSalesLine.RecordId);
-                                    TaxTrnasactionValue.SetRange("Tax Type", 'GST');
-                                    TaxTrnasactionValue.SetRange("Value Type", TaxTrnasactionValue."Value Type"::COMPONENT);
-                                    TaxTrnasactionValue.SetFilter(Percent, '<>%1', 0);
-                                    if TaxTrnasactionValue.FindSet() then
-                                        repeat
-                                            j := TaxTrnasactionValue."Value ID";
-                                            GSTComponentCode[j] := TaxTrnasactionValue."Value ID";
-                                            TaxTrnasactionValue1.Reset();
-                                            TaxTrnasactionValue1.SetRange("Tax Record ID", TempSalesLine.RecordId);
-                                            TaxTrnasactionValue1.SetRange("Tax Type", 'GST');
-                                            TaxTrnasactionValue1.SetRange("Value Type", TaxTrnasactionValue1."Value Type"::COMPONENT);
-                                            TaxTrnasactionValue1.SetRange("Value ID", GSTComponentCode[j]);
-                                            if TaxTrnasactionValue1.FindSet() then
-                                                repeat
-                                                    GSTCompAmount[j] += TaxTrnasactionValue1.Amount;
-                                                    NNC_SalesLineTaxAmt += TaxTrnasactionValue1.Amount;
-                                                    NNC_TotalGST += TaxTrnasactionValue1.Amount;
-                                                until TaxTrnasactionValue1.Next() = 0;
-                                            j += 1;
-                                        until TaxTrnasactionValue.Next() = 0;
+                                    if not GSTSetup.Get() then
+                                        exit;
 
-                                    TaxTrnasactionValue.Reset();
-                                    TaxTrnasactionValue.SetRange("Tax Record ID", TempSalesLine.RecordId);
-                                    TaxTrnasactionValue.SetRange("Tax Type", 'TCS');
-                                    TaxTrnasactionValue.SetRange("Value Type", TaxTrnasactionValue."Value Type"::COMPONENT);
-                                    TaxTrnasactionValue.SetFilter(Percent, '<>%1', 0);
-                                    if TaxTrnasactionValue.FindSet() then
-                                        repeat
-                                            j := TaxTrnasactionValue."Value ID";
-                                            TCSComponentCode[j] := TaxTrnasactionValue."Value ID";
-                                            TaxTrnasactionValue2.Reset();
-                                            TaxTrnasactionValue2.SetRange("Tax Record ID", TempSalesLine.RecordId);
-                                            TaxTrnasactionValue2.SetRange("Tax Type", 'TCS');
-                                            TaxTrnasactionValue2.SetRange("Value Type", TaxTrnasactionValue2."Value Type"::COMPONENT);
-                                            TaxTrnasactionValue2.SetRange("Value ID", TCSComponentCode[j]);
-                                            if TaxTrnasactionValue2.FindSet() then
-                                                repeat
-                                                    TCSGSTCompAmount += TaxTrnasactionValue2.Amount;
-                                                until TaxTrnasactionValue2.Next() = 0;
+                                    if not TCSSetup.Get() then
+                                        exit;
 
-                                            TCSGSTCompAmount := Round(TCSGSTCompAmount, 1);
-                                            j += 1;
-                                        until TaxTrnasactionValue.Next() = 0;
+                                    GetGSTCaptions(TaxTrnasactionValue, TempSalesLine, GSTSetup);
 
-                                    TotalAmount := NNC_SalesLineLineAmt -
-                                        NNC_SalesLineInvDiscAmt +
-                                        NNC_SalesLineExciseAmt +
-                                        NNC_SalesLineTaxAmt +
-                                        NNC_SalesLineSvcTaxAmt +
-                                        NNC_SalesLineSvcTaxeCessAmt +
-                                        ChargesAmount +
-                                        OtherTaxesAmount +
-                                        NNC_SalesLineTDSTCSSHECESS +
-                                        NNC_SalesLineSvcSHECessAmt +
-                                        NNC_SalesLineSvcTaxSBCAmt +
-                                        NNC_SalesLineKKCessAmt +
-                                        TCSGSTCompAmount;
+                                    GetGSTAmounts(TaxTrnasactionValue, TempSalesLine, GSTSetup);
+
+                                    GetCessAmount(TaxTrnasactionValue, TempSalesLine, GSTSetup);
+
+                                    GetTCSAmount(TaxTrnasactionValue, TempSalesLine, TCSSetup);
+
+                                    GetInvoiceRoundingAmount("Sales Header");
+
+                                    if "Sales Line"."No." <> GLAccountNo then
+                                        TotalAmount := NNC_SalesLineLineAmt -
+                                            NNC_SalesLineInvDiscAmt +
+                                            NNC_SalesLineExciseAmt +
+                                            NNC_SalesLineTaxAmt +
+                                            NNC_SalesLineSvcTaxAmt +
+                                            NNC_SalesLineSvcTaxeCessAmt +
+                                            ChargesAmount +
+                                            OtherTaxesAmount +
+                                            NNC_SalesLineTDSTCSSHECESS +
+                                            NNC_SalesLineSvcSHECessAmt +
+                                            NNC_SalesLineSvcTaxSBCAmt +
+                                            NNC_SalesLineKKCessAmt +
+                                            TCSGSTCompAmount;
                                 end;
                             end;
 
@@ -1132,6 +1096,10 @@ report 18009 "Order Confirmation GST"
                     NNC_SalesLineLineAmt := 0;
                     NNC_SalesLineInvDiscAmt := 0;
                     TCSGSTCompAmount := 0;
+                    SGSTAmt := 0;
+                    CGSTAmt := 0;
+                    IGSTAmt := 0;
+                    CessAmount := 0;
                     ChargesAmount := 0;
                     TotalAmount := 0;
                     OtherTaxesAmount := 0;
@@ -1154,7 +1122,6 @@ report 18009 "Order Confirmation GST"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageID("Language Code");
                 IsGSTApplicable := CheckGSTDoc("Sales Line");
                 Customer.Get("Bill-to Customer No.");
                 if RespCenter.Get("Responsibility Center") then begin
@@ -1230,30 +1197,12 @@ report 18009 "Order Confirmation GST"
                     if ShipToAddr[i] <> CustAddr[i] then
                         ShowShippingAddr := true;
 
-                if Print then begin
-                    if ShowRequestPage and ArchiveDoc or
-                       not ShowRequestPage and SalesSetup."Archive Orders"
-                    then
-                        ArchiveManagement.StoreSalesDocument("Sales Header", LogInterac);
-
-                    if LogInterac then begin
-                        CalcFields("No. of Archived Versions");
-                        if "Bill-to Contact No." <> '' then
-                            SegManagement.LogDocument(
-                              SegManagement.SalesOrderConfirmInterDocType(), "No.", "Doc. No. Occurrence",
-                              "No. of Archived Versions", Database::Contact, "Bill-to Contact No."
-                              , "Salesperson Code", "Campaign No.", "Posting Description", "Opportunity No.")
-                        else
-                            SegManagement.LogDocument(
-                              SegManagement.SalesOrderConfirmInterDocType(), "No.", "Doc. No. Occurrence",
-                              "No. of Archived Versions", Database::Customer, "Bill-to Customer No.",
-                              "Salesperson Code", "Campaign No.", "Posting Description", "Opportunity No.");
-                    end;
-                end;
-
-                Clear(GSTCompAmount);
+                Clear(CessAmount);
+                Clear(SGSTAmt);
+                Clear(CGSTAmt);
+                Clear(IGSTAmt);
+                Clear(CessAmount);
                 Clear(GSTComponentCodeName);
-                Clear(GSTComponentCode);
             end;
 
             trigger OnPreDataItem()
@@ -1266,8 +1215,6 @@ report 18009 "Order Confirmation GST"
 
     requestpage
     {
-        SaveValues = true;
-
         layout
         {
             area(content)
@@ -1287,31 +1234,6 @@ report 18009 "Order Confirmation GST"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the line internal information';
                     }
-                    field(ArchiveDocument; ArchiveDoc)
-                    {
-                        Caption = 'Archive Document';
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies whether the document is archived or not.';
-
-                        trigger OnValidate()
-                        begin
-                            if not ArchiveDoc then
-                                LogInterac := false;
-                        end;
-                    }
-                    field(LogInteraction; LogInterac)
-                    {
-                        Caption = 'Log Interaction';
-                        Enabled = LogInteractionEnable;
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the log Interaction for archived document to be done or not.';
-
-                        trigger OnValidate()
-                        begin
-                            if LogInterac then
-                                ArchiveDoc := ArchiveDocumentEnable;
-                        end;
-                    }
                     field(ShowAssemblyComponents; DisplayAssemblyInformation)
                     {
                         Caption = 'Show Assembly Components';
@@ -1323,21 +1245,7 @@ report 18009 "Order Confirmation GST"
             }
         }
 
-        trigger OnInit()
-        begin
-            LogInteractionEnable := true;
-            ArchiveDocumentEnable := false;
-        end;
-
-        trigger OnOpenPage()
-        begin
-            ArchiveDoc := SalesSetup."Archive Orders";
-            LogInterac := SegManagement.FindInteractTmplCode(3) <> '';
-            LogInteractionEnable := LogInterac;
-            ShowRequestPage := true;
-        end;
     }
-
 
     trigger OnInitReport()
     begin
@@ -1391,19 +1299,21 @@ report 18009 "Order Confirmation GST"
         AsmHeader: Record "Assembly Header";
         AsmLine: Record "Assembly Line";
         TaxTrnasactionValue: Record "Tax Transaction Value";
-        TaxTrnasactionValue1: Record "Tax Transaction Value";
-        TaxTrnasactionValue2: Record "Tax Transaction Value";
-        Language: Codeunit Language;
         SalesCountPrinted: Codeunit "Sales-Printed";
         FormatAddr: Codeunit "Format Address";
-        SegManagement: Codeunit SegManagement;
-        ArchiveManagement: Codeunit ArchiveManagement;
         SalesPostPrepmt: Codeunit "Sales-Post Prepayments";
         DimMgt: Codeunit DimensionManagement;
-        GSTCompAmount: array[20] of Decimal;
         TCSGSTCompAmount: Decimal;
-        TCSComponentCode: array[20] of Integer;
-        GSTComponentCode: array[20] of Integer;
+        IGSTLbl: Label 'IGST';
+        SGSTLbl: Label 'SGST';
+        CGSTLbl: Label 'CGST';
+        CESSLbl: Label 'CESS';
+        GSTLbl: Label 'GST';
+        GSTCESSLbl: Label 'GST CESS';
+        CGSTAmt: Decimal;
+        SGSTAmt: Decimal;
+        IGSTAmt: Decimal;
+        CessAmount: Decimal;
         CustAddr: array[8] of Text[50];
         ShipToAddr: array[8] of Text[50];
         CompanyAddr: array[8] of Text[50];
@@ -1420,11 +1330,8 @@ report 18009 "Order Confirmation GST"
         ShowShippingAddr: Boolean;
         i: Integer;
         DimText: Text[120];
-        OldDimText: Text[75];
         ShowInterInf: Boolean;
         Continue: Boolean;
-        ArchiveDoc: Boolean;
-        LogInterac: Boolean;
         VATAmount: Decimal;
         VATBaseAmount: Decimal;
         VATDiscountAmount: Decimal;
@@ -1439,9 +1346,7 @@ report 18009 "Order Confirmation GST"
         PrepmtLineAmount: Decimal;
         OutputNo: Integer;
         NNC_TotalLCY: Decimal;
-        NNC_TotalExclVAT: Decimal;
         NNC_VATAmt: Decimal;
-        NNC_TotalInclVAT: Decimal;
         NNC_PmtDiscOnVAT: Decimal;
         NNC_TotalInclVAT2: Decimal;
         NNC_VatAmt2: Decimal;
@@ -1452,22 +1357,16 @@ report 18009 "Order Confirmation GST"
         ChargesAmount: Decimal;
         OtherTaxesAmount: Decimal;
         TotalAmount: Decimal;
+        GLAccountNo: Code[20];
         NNC_SalesLineSvcTaxeCessAmt: Decimal;
         NNC_SalesLineExciseAmt: Decimal;
         NNC_SalesLineTaxAmt: Decimal;
         NNC_SalesLineSvcTaxAmt: Decimal;
         NNC_SalesLineSvcSHECessAmt: Decimal;
         NNC_SalesLineTDSTCSSHECESS: Decimal;
-        NNC_SalesLineAmtToCustomer: Decimal;
-        NNC_TotalGST: Decimal;
-        [InDataSet]
-        ArchiveDocumentEnable: Boolean;
-        [InDataSet]
-        LogInteractionEnable: Boolean;
         DisplayAssemblyInformation: Boolean;
         AsmInfoExistsForLine: Boolean;
         GSTComponentCodeName: array[10] of Code[20];
-        ShowRequestPage: Boolean;
         NNC_SalesLineSvcTaxSBCAmt: Decimal;
         NNC_SalesLineKKCessAmt: Decimal;
         IsGSTApplicable: Boolean;
@@ -1533,15 +1432,11 @@ report 18009 "Order Confirmation GST"
     procedure InitializeRequest(
         NoOfCopiesFrom: Integer;
         ShowInternalInfoFrom: Boolean;
-        ArchiveDocumentFrom: Boolean;
-        LogInteractionFrom: Boolean;
         PrintFrom: Boolean;
         DisplAsmInfo: Boolean)
     begin
         NoOfCopy := NoOfCopiesFrom;
         ShowInterInf := ShowInternalInfoFrom;
-        ArchiveDoc := ArchiveDocumentFrom;
-        LogInterac := LogInteractionFrom;
         Print := PrintFrom;
         DisplayAssemblyInformation := DisplAsmInfo;
     end;
@@ -1608,5 +1503,138 @@ report 18009 "Order Confirmation GST"
         until DimSetEntry.Next() = 0;
 
         exit(DimensionText)
+    end;
+
+    procedure GetGSTRoundingPrecision(ComponentName: Code[30]): Decimal
+    var
+        TaxComponent: Record "Tax Component";
+        GSTSetup: Record "GST Setup";
+        GSTRoundingPrecision: Decimal;
+    begin
+        if not GSTSetup.Get() then
+            exit;
+        GSTSetup.TestField("GST Tax Type");
+
+        TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
+        TaxComponent.SetRange(Name, ComponentName);
+        TaxComponent.FindFirst();
+        if TaxComponent."Rounding Precision" <> 0 then
+            GSTRoundingPrecision := TaxComponent."Rounding Precision"
+        else
+            GSTRoundingPrecision := 1;
+        exit(GSTRoundingPrecision);
+    end;
+
+    local procedure GetInvoiceRoundingAmount(SalesHeader: Record "Sales Header")
+    var
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        Customer.SetRange("No.", SalesHeader."Sell-to Customer No.");
+        Customer.SetRange("Customer Posting Group", SalesHeader."Customer Posting Group");
+        if Customer.FindFirst() then begin
+            CustomerPostingGroup.SetRange(Code, Customer."Customer Posting Group");
+            if CustomerPostingGroup.FindFirst() then
+                GLAccountNo := CustomerPostingGroup."Invoice Rounding Account";
+        end;
+    end;
+
+    local procedure GetGSTAmounts(TaxTransactionValue: Record "Tax Transaction Value";
+       SalesLine: Record "Sales Line";
+       GSTSetup: Record "GST Setup")
+    var
+        ComponentName: Code[30];
+    begin
+        ComponentName := GetComponentName(SalesLine, GSTSetup);
+
+        if (SalesLine.Type <> SalesLine.Type::" ") then begin
+            TaxTransactionValue.Reset();
+            TaxTransactionValue.SetRange("Tax Record ID", SalesLine.RecordId);
+            TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
+            TaxTransactionValue.SetRange("Value Type", TaxTransactionValue."Value Type"::COMPONENT);
+            TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+            if TaxTransactionValue.FindSet() then
+                repeat
+                    case TaxTransactionValue."Value ID" of
+                        6:
+                            SGSTAmt += Round(TaxTransactionValue.Amount, GetGSTRoundingPrecision(ComponentName));
+                        2:
+                            CGSTAmt += Round(TaxTransactionValue.Amount, GetGSTRoundingPrecision(ComponentName));
+                        3:
+                            IGSTAmt += Round(TaxTransactionValue.Amount, GetGSTRoundingPrecision(ComponentName));
+                    end;
+                until TaxTransactionValue.Next() = 0;
+        end;
+    end;
+
+    local procedure GetCessAmount(TaxTransactionValue: Record "Tax Transaction Value";
+        SalesLine: Record "Sales Line";
+        GSTSetup: Record "GST Setup")
+    begin
+        if (SalesLine.Type <> SalesLine.Type::" ") then begin
+            TaxTransactionValue.Reset();
+            TaxTransactionValue.SetRange("Tax Record ID", SalesLine.RecordId);
+            TaxTransactionValue.SetRange("Tax Type", GSTSetup."Cess Tax Type");
+            TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+            if TaxTransactionValue.FindSet() then
+                repeat
+                    CessAmount += Round(TaxTransactionValue.Amount, GetGSTRoundingPrecision(GetComponentName(SalesLine, GSTSetup)));
+                until TaxTransactionValue.Next() = 0;
+        end;
+    end;
+
+    local procedure GetGSTCaptions(TaxTransactionValue: Record "Tax Transaction Value";
+        SalesLine: Record "Sales Line";
+        GSTSetup: Record "GST Setup")
+    begin
+        TaxTransactionValue.Reset();
+        TaxTransactionValue.SetRange("Tax Record ID", SalesLine.RecordId);
+        TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
+        TaxTransactionValue.SetRange("Value Type", TaxTransactionValue."Value Type"::COMPONENT);
+        TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+        if TaxTransactionValue.FindSet() then
+            repeat
+                case TaxTransactionValue."Value ID" of
+                    6:
+                        GSTComponentCodeName[6] := SGSTLbl;
+                    2:
+                        GSTComponentCodeName[2] := CGSTLbl;
+                    3:
+                        GSTComponentCodeName[3] := IGSTLbl;
+                end;
+            until TaxTransactionValue.Next() = 0;
+    end;
+
+    local procedure GetComponentName(SalesLine: Record "Sales Line";
+        GSTSetup: Record "GST Setup"): Code[30]
+    var
+        ComponentName: Code[30];
+    begin
+        if GSTSetup."GST Tax Type" = GSTLbl then
+            if SalesLine."GST Jurisdiction Type" = SalesLine."GST Jurisdiction Type"::Interstate then
+                ComponentName := IGSTLbl
+            else
+                ComponentName := CGSTLbl
+        else
+            if GSTSetup."Cess Tax Type" = GSTCESSLbl then
+                ComponentName := CESSLbl;
+        exit(ComponentName)
+    end;
+
+    local procedure GetTCSAmount(TaxTransactionValue: Record "Tax Transaction Value";
+        SalesLine: Record "Sales Line";
+        TCSSetup: Record "TCS Setup")
+    begin
+        if (SalesLine.Type <> SalesLine.Type::" ") then begin
+            TaxTransactionValue.Reset();
+            TaxTransactionValue.SetRange("Tax Record ID", SalesLine.RecordId);
+            TaxTransactionValue.SetRange("Tax Type", TCSSetup."Tax Type");
+            TaxTransactionValue.SetRange("Value Type", TaxTransactionValue."Value Type"::COMPONENT);
+            TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+            if TaxTransactionValue.FindSet() then
+                repeat
+                    TCSGSTCompAmount += TaxTransactionValue.Amount;
+                until TaxTransactionValue.Next() = 0;
+        end;
+        TCSGSTCompAmount := Round(TCSGSTCompAmount, 1);
     end;
 }

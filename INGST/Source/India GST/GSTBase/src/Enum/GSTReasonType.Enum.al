@@ -2,7 +2,7 @@ enum 18033 "GST Reason Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; "Sales Return")
     {
@@ -32,6 +32,4 @@ enum 18033 "GST Reason Type"
     {
         Caption = 'Others';
     }
-
-
 }

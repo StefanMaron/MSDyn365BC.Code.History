@@ -95,7 +95,7 @@ codeunit 7308 Replenishment
                                 RemainQtyToReplenishBase := RemainQtyToReplenishBase - MovementQtyBase;
                             end;
                         end;
-                until (FromBinContent.Next = 0) or (RemainQtyToReplenishBase = 0);
+                until (FromBinContent.Next() = 0) or (RemainQtyToReplenishBase = 0);
                 TempWhseWkshLine.Copy(WhseWkshLine2);
             end;
         end;
@@ -154,10 +154,10 @@ codeunit 7308 Replenishment
                                 RemainQtyToReplenishBase := RemainQtyToReplenishBase - MovementQtyBase;
                             end;
                         end;
-                    until (FromBinContent.Next = 0) or (RemainQtyToReplenishBase = 0);
+                    until (FromBinContent.Next() = 0) or (RemainQtyToReplenishBase = 0);
                     TempWhseWkshLine.Copy(WhseWkshLine2);
                 end;
-            until (ItemUnitOfMeasure.Next = 0) or (RemainQtyToReplenishBase = 0);
+            until (ItemUnitOfMeasure.Next() = 0) or (RemainQtyToReplenishBase = 0);
     end;
 
     local procedure CreateWhseWkshLine(ToBinContent: Record "Bin Content"; FromBinContent: Record "Bin Content"; MovementQtyBase: Decimal)
@@ -218,7 +218,7 @@ codeunit 7308 Replenishment
                 end;
                 WhseWkshLine.Insert();
                 OnInsertWhseWkshLineOnAfterWhseWkshLineInsert(WhseWkshLine);
-            until TempWhseWkshLine.Next = 0;
+            until TempWhseWkshLine.Next() = 0;
             exit(true);
         end;
         exit(false);
@@ -283,6 +283,7 @@ codeunit 7308 Replenishment
 
     local procedure PickAccordingToFEFO(ItemNo: Code[20]; VariantCode: Code[10]): Boolean
     var
+        DummyItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         EntriesExist: Boolean;
         IsHandled: Boolean;
@@ -302,7 +303,7 @@ codeunit 7308 Replenishment
         if ItemTrackingMgt.ExistingExpirationDate(ItemNo, VariantCode, '', '', false, EntriesExist) <> 0D then
             exit(true);
 
-        if ItemTrackingMgt.WhseExistingExpirationDate(ItemNo, VariantCode, Location, '', '', EntriesExist) <> 0D then
+        if ItemTrackingMgt.WhseExistingExpirationDate(ItemNo, VariantCode, Location, DummyItemTrackingSetup, EntriesExist) <> 0D then
             exit(true);
 
         exit(false);

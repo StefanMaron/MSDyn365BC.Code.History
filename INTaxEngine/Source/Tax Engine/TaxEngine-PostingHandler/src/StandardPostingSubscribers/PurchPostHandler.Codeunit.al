@@ -17,7 +17,6 @@ codeunit 20335 "Purch.-Post Handler"
         PurchLine: Record "Purchase Line";
         var PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     var
-        TaxTransactionValue: Record "Tax Transaction Value";
         TempTaxTransactionValue: Record "Tax Transaction Value" temporary;
         TaxDocumentGLPosting: Codeunit "Tax Document GL Posting";
         TaxPostingBufferMgmt: Codeunit "Tax Posting Buffer Mgmt.";
@@ -60,7 +59,6 @@ codeunit 20335 "Purch.-Post Handler"
             PurchLine: Record "Purchase Line";
             var PurchInvLine: Record "Purch. Inv. Line")
     var
-        TaxTransactionValue: Record "Tax Transaction Value";
         TempTaxTransactionValue: Record "Tax Transaction Value" temporary;
         TaxDocumentGLPosting: Codeunit "Tax Document GL Posting";
         TaxPostingBufferMgmt: Codeunit "Tax Posting Buffer Mgmt.";
@@ -97,13 +95,31 @@ codeunit 20335 "Purch.-Post Handler"
             TempTaxTransactionValue);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforeInvoiceRoundingAmount', '', false, false)]
+    local procedure OnBeforeInvoiceRoundingAmount(PurchHeader: Record "Purchase Header"; TotalAmountIncludingVAT: Decimal; var InvoiceRoundingAmount: Decimal)
+    var
+        Currency: Record Currency;
+        TaxPostingHandler: Codeunit "Tax Posting Handler";
+        TaxPostingBufferMgmt: Codeunit "Tax Posting Buffer Mgmt.";
+        TotalAmount: Decimal;
+    begin
+        TaxPostingHandler.GetCurrency(PurchHeader."Currency Code", Currency);
+        Currency.TestField("Invoice Rounding Precision");
+        TotalAmount := TotalAmountIncludingVAT + TaxPostingBufferMgmt.GetTotalTaxAmount();
+
+        InvoiceRoundingAmount :=
+          -Round(
+            TotalAmount -
+            Round(
+              TotalAmount, Currency."Invoice Rounding Precision", Currency.InvoiceRoundingDirection()),
+            Currency."Amount Rounding Precision");
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostVendorEntry', '', false, false)]
     local procedure OnBeforePostVendorEntry(
         var GenJnlLine: Record "Gen. Journal Line";
         var PurchHeader: Record "Purchase Header")
     var
-        PurchaseLine: Record "Purchase Line";
-        TaxDocumentGLPosting: Codeunit "Tax Document GL Posting";
         TaxPostingBufferMgmt: Codeunit "Tax Posting Buffer Mgmt.";
     begin
         GenJnlLine."Tax ID" := TaxPostingBufferMgmt.GetTaxID();

@@ -8,17 +8,17 @@ table 20160 "Action Convert Case"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(4; "Value Type"; Option)
@@ -34,7 +34,7 @@ table 20160 "Action Convert Case"
         }
         field(6; "Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
@@ -46,7 +46,7 @@ table 20160 "Action Convert Case"
         }
         field(8; "Convert To Case"; Option)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Convert To Case';
             OptionMembers = "Upper Case","Lower Case";
         }

@@ -4,13 +4,13 @@ pageextension 18905 "Payment Journal TCS" extends "Payment Journal"
     {
         addbefore(Amount)
         {
-            field("TCS Nature of Collection"; "TCS Nature Of Collection")
+            field("TCS Nature of Collection"; Rec."TCS Nature Of Collection")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the TCS Nature of collection on which the TCS will be calculated for the journal line.';
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    AllowedNOCLookup(Rec, "Account No.");
+                    Rec.AllowedNOCLookup(Rec, Rec."Account No.");
                     UpdateTaxAmount();
                 end;
 
@@ -20,7 +20,7 @@ pageextension 18905 "Payment Journal TCS" extends "Payment Journal"
                     UpdateTaxAmount();
                 end;
             }
-            field("T.C.A.N. No."; "T.C.A.N. No.")
+            field("T.C.A.N. No."; Rec."T.C.A.N. No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the T.C.A.N. number of the location for which the entry will be posted.';

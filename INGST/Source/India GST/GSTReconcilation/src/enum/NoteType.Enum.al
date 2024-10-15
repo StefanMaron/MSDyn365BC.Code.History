@@ -1,7 +1,5 @@
 enum 18284 NoteType
 {
-    Extensible = true;
-
     value(0; Debit)
     {
         Caption = 'Debit';

@@ -492,7 +492,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         Assert.AreEqual(WorkflowStep.Count, CompareToWorkflowStep.Count, 'Number of workflow steps are not same');
 
         if WorkflowStep.FindSet then begin
-            CompareToWorkflowStep.FindSet;
+            CompareToWorkflowStep.FindSet();
             repeat
                 if not IsNullGuid(WorkflowStep.Argument) then begin
                     Assert.AreNotEqual(WorkflowStep.Argument, CompareToWorkflowStep.Argument, 'Arguments are equal');
@@ -571,7 +571,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         Assert.AreEqual(WorkflowRule.Count, CompareToWorkflowRule.Count, 'Number of rules are different');
 
         if WorkflowRule.FindSet then begin
-            CompareToWorkflowRule.FindSet;
+            CompareToWorkflowRule.FindSet();
             repeat
                 Assert.AreEqual(WorkflowRule."Field No.", CompareToWorkflowRule."Field No.", 'Field No. are different');
                 Assert.AreEqual(WorkflowRule.Operator, CompareToWorkflowRule.Operator, 'Operator is different');

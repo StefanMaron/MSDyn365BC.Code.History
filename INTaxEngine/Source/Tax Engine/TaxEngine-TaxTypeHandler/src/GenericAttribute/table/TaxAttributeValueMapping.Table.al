@@ -41,7 +41,6 @@ table 20234 "Tax Attribute Value Mapping"
         }
     }
     trigger OnDelete();
-
     var
         GenericAttribute: Record "Tax Attribute";
         GenericAttributeValue: Record "Tax Attribute Value";

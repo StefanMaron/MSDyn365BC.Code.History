@@ -4,7 +4,7 @@ pageextension 18551 "Purchase Journal" extends "Purchase Journal"
     {
         addbefore(Amount)
         {
-            field("T.A.N. No."; "T.A.N. No.")
+            field("T.A.N. No."; Rec."T.A.N. No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the T.A.N. number.';
@@ -13,7 +13,7 @@ pageextension 18551 "Purchase Journal" extends "Purchase Journal"
                     UpdateTaxAmount();
                 end;
             }
-            field("Location Code"; "Location Code")
+            field("Location Code"; Rec."Location Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the receiving location for the purchase journal.';

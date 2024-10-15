@@ -2,6 +2,7 @@ report 18543 "Create Tax Accounting Period"
 {
     Caption = 'Create Tax Accounting Period';
     ProcessingOnly = true;
+
     requestpage
     {
         SaveValues = true;
@@ -46,10 +47,11 @@ report 18543 "Create Tax Accounting Period"
                 NoOfPeriods := 12;
                 Evaluate(PeriodLength, '<1M>');
             end;
-            if AccountingPeriod.Find('+') then
-                FiscalYearStartDate := AccountingPeriod."Starting Date";
+            if TaxAccountingPeriod.Find('+') then
+                FiscalYearStartDate := TaxAccountingPeriod."Starting Date";
         end;
     }
+
     trigger OnPreReport()
     var
         ConfirmManagement: Codeunit "Confirm Management";
@@ -63,15 +65,15 @@ report 18543 "Create Tax Accounting Period"
         CreateAndCloseQst: Label 'The new fiscal year begins before an existing fiscal year, so the new year will be closed automatically.\\Do you want to create and close the fiscal year?';
         CreateQst: Label 'After you create the new fiscal year, you cannot change its starting date.\\Do you want to create the fiscal year?';
     begin
-        AccountingPeriod."Tax Type Code" := TaxType;
-        AccountingPeriod."Starting Date" := FiscalYearStartDate;
-        AccountingPeriod.TestField("Starting Date");
+        TaxAccountingPeriod."Tax Type Code" := TaxType;
+        TaxAccountingPeriod."Starting Date" := FiscalYearStartDate;
+        TaxAccountingPeriod.TestField("Starting Date");
 
-        AccountingPeriod.SetRange(Closed, false);
-        AccountingPeriod.SetRange("Tax Type Code", TaxType);
-        if AccountingPeriod.Find('-') then begin
-            FirstPeriodStartDate := AccountingPeriod."Starting Date";
-            FirstPeriodLocked := AccountingPeriod."Date Locked";
+        TaxAccountingPeriod.SetRange(Closed, false);
+        TaxAccountingPeriod.SetRange("Tax Type Code", TaxType);
+        if TaxAccountingPeriod.Find('-') then begin
+            FirstPeriodStartDate := TaxAccountingPeriod."Starting Date";
+            FirstPeriodLocked := TaxAccountingPeriod."Date Locked";
             if (not HideDialog) and (FiscalYearStartDate < FirstPeriodStartDate) and FirstPeriodLocked then
                 if not ConfirmManagement.GetResponseOrDefault(CreateAndCloseQst, false) then
                     exit;
@@ -80,7 +82,7 @@ report 18543 "Create Tax Accounting Period"
                 if not ConfirmManagement.GetResponseOrDefault(CreateQst, false) then
                     exit;
 
-        AccountingPeriod.SetRange(Closed);
+        TaxAccountingPeriod.SetRange(Closed);
         FiscalYearStartDate2 := FiscalYearStartDate;
 
         EndDate := CalcDate('<1Y>', FiscalYearStartDate2);
@@ -89,42 +91,58 @@ report 18543 "Create Tax Accounting Period"
             if (FiscalYearStartDate <= FirstPeriodStartDate) and (i = NoOfPeriods + 1) then
                 exit;
 
-            AccountingPeriod.Init();
-            AccountingPeriod."Tax Type Code" := TaxType;
-            AccountingPeriod."Starting Date" := FiscalYearStartDate;
-            AccountingPeriod.Validate("Starting Date");
-            AccountingPeriod."Ending Date" := CalcDate('<CM>', FiscalYearStartDate);
+            if TaxType = '' then
+                Error(TaxTypeNotBlankErr);
+
+            TaxAccountingPeriod.Init();
+            TaxAccountingPeriod."Tax Type Code" := TaxType;
+            TaxAccountingPeriod."Starting Date" := FiscalYearStartDate;
+            TaxAccountingPeriod.Validate("Starting Date");
+            TaxAccountingPeriod."Ending Date" := CalcDate('<CM>', FiscalYearStartDate);
             FinancialYear := Date2DMY(EndDate, 3);
             if i = NoOfPeriods + 1 then begin
                 FinancialYear := FinancialYear + 1;
                 Year := Year + 1;
             end;
-            AccountingPeriod."Financial Year" := Format(Year) + '-' + Format(FinancialYear);
+            TaxAccountingPeriod."Financial Year" := Format(Year) + '-' + Format(FinancialYear);
 
-            IF (i = 1) OR (i = NoOfPeriods + 1) then
-                AccountingPeriod."New Fiscal Year" := true;
+            if (i = 1) or (i = NoOfPeriods + 1) then
+                TaxAccountingPeriod."New Fiscal Year" := true;
 
-            AccountingPeriod.Quarter := GetQuarters(i);
+            TaxAccountingPeriod.Quarter := GetQuarters(i);
             if (FirstPeriodStartDate = 0D) and (i = 1) then
-                AccountingPeriod."Date Locked" := true;
-            if (AccountingPeriod."Starting Date" < FirstPeriodStartDate) and FirstPeriodLocked then begin
-                AccountingPeriod.Closed := true;
-                AccountingPeriod."Date Locked" := true;
+                TaxAccountingPeriod."Date Locked" := true;
+            if (TaxAccountingPeriod."Starting Date" < FirstPeriodStartDate) and FirstPeriodLocked then begin
+                TaxAccountingPeriod.Closed := true;
+                TaxAccountingPeriod."Date Locked" := true;
             end;
-            if not AccountingPeriod.Find('=') then
-                AccountingPeriod.Insert();
+            if not TaxAccountingPeriod.Find('=') then
+                TaxAccountingPeriod.Insert();
             FiscalYearStartDate := CalcDate(PeriodLength, FiscalYearStartDate);
         end;
-        AccountingPeriod.Get(TaxType, FiscalYearStartDate2);
+        TaxAccountingPeriod.Get(TaxType, FiscalYearStartDate2);
     end;
 
-    procedure InitializeRequest(NewNoOfPeriods: Integer; NewPeriodLength: DateFormula; StartingDate: Date; NewTaxType: Code[20])
+    var
+        TaxAccountingPeriod: Record "Tax Accounting Period";
+        PeriodLength: DateFormula;
+        FiscalYearStartDate: Date;
+        NoOfPeriods: Integer;
+        TaxType: Code[10];
+        HideDialog: Boolean;
+        TaxTypeNotBlankErr: Label 'Tax Type Code must have a value', Locked = true;
+
+    procedure InitializeRequest(
+        NewNoOfPeriods: Integer;
+        NewPeriodLength: DateFormula;
+        StartingDate: Date;
+        NewTaxType: Code[10])
     begin
         NoOfPeriods := NewNoOfPeriods;
         PeriodLength := NewPeriodLength;
-        AccountingPeriod.SetRange("Tax Type Code", NewTaxType);
-        if AccountingPeriod.FindLast() then
-            FiscalYearStartDate := AccountingPeriod."Starting Date"
+        TaxAccountingPeriod.SetRange("Tax Type Code", NewTaxType);
+        if TaxAccountingPeriod.FindLast() then
+            FiscalYearStartDate := TaxAccountingPeriod."Starting Date"
         else
             FiscalYearStartDate := StartingDate;
         TaxType := NewTaxType;
@@ -139,24 +157,16 @@ report 18543 "Create Tax Accounting Period"
     var
         Quarter: Code[10];
     begin
-        CASE i OF
+        case i of
             1 .. 3, 13:
                 Quarter := 'Q1';
             4 .. 6:
                 Quarter := 'Q2';
             7 .. 9:
                 Quarter := 'Q3';
-            ELSE
+            else
                 Quarter := 'Q4';
-        END;
+        end;
         exit(Quarter);
     end;
-
-    var
-        AccountingPeriod: Record "Tax Accounting Period";
-        PeriodLength: DateFormula;
-        FiscalYearStartDate: Date;
-        NoOfPeriods: Integer;
-        TaxType: Code[10];
-        HideDialog: Boolean;
 }

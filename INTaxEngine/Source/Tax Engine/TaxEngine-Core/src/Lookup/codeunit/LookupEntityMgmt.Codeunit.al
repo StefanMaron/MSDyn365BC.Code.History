@@ -14,7 +14,7 @@ codeunit 20141 "Lookup Entity Mgmt."
         LookupTableSorting."Table ID" := TableID;
         LookupTableSorting.Insert(true);
         Commit();
-        Exit(LookupTableSorting.ID);
+        exit(LookupTableSorting.ID);
     end;
 
     procedure DeleteTableSorting(CaseID: Guid; ScriptID: Guid; var ID: Guid): Guid;
@@ -45,7 +45,7 @@ codeunit 20141 "Lookup Entity Mgmt."
         LookupTableFilter."Table ID" := TableID;
         LookupTableFilter.Insert(true);
         Commit();
-        Exit(LookupTableFilter.ID);
+        exit(LookupTableFilter.ID);
     end;
 
     procedure DeleteTableFilters(CaseID: Guid; ScriptID: Guid; var ID: Guid): Guid;
@@ -74,8 +74,8 @@ codeunit 20141 "Lookup Entity Mgmt."
         ScriptSymbolLookup."Script ID" := ScriptID;
         ScriptSymbolLookup.ID := CreateGuid();
         ScriptSymbolLookup."Source Type" := ScriptSymbolLookup."Source Type"::Database;
-        ScriptSymbolLookup.Insert();
-        Exit(ScriptSymbolLookup.ID);
+        ScriptSymbolLookup.Insert(true);
+        exit(ScriptSymbolLookup.ID);
     end;
 
     procedure DeleteLookup(CaseID: Guid; ScriptID: Guid; var ID: Guid);

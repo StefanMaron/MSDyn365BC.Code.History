@@ -8,22 +8,22 @@ table 20144 "Script Symbol Lookup"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(4; "Source Type"; Enum "Symbol Type")
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Source Type';
             trigger OnValidate();
             begin
@@ -44,18 +44,18 @@ table 20144 "Script Symbol Lookup"
         }
         field(7; "Table Filter ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Table Filter ID';
         }
         field(8; "Table Method"; Option)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Table Method';
             OptionMembers = " ",First,Last,"Sum","Average","Min","Max","Count","Exist";
         }
         field(9; "Table Sorting ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Table Sorting ID';
         }
     }
@@ -70,7 +70,6 @@ table 20144 "Script Symbol Lookup"
 
     var
         EntityMgmt: Codeunit "Lookup Entity Mgmt.";
-        EmptyGuid: Guid;
 
     trigger OnInsert();
     var

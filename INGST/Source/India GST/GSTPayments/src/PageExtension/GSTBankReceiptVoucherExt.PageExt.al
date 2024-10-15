@@ -8,6 +8,7 @@ pageextension 18244 "GST Bank Receipt Voucher Ext" extends "Bank Receipt Voucher
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the location code for which the journal lines will be posted.';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
@@ -17,6 +18,7 @@ pageextension 18244 "GST Bank Receipt Voucher Ext" extends "Bank Receipt Voucher
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies if GST is required to be calculated on Advance Payment.';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
@@ -26,31 +28,47 @@ pageextension 18244 "GST Bank Receipt Voucher Ext" extends "Bank Receipt Voucher
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the amount excluding GST for the journal line.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
-            field("GST TCS"; Rec."GST TCS")
+            field("GST TDS/GST TCS"; Rec."GST TDS/GST TCS")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies if GST TCS is calculated on the journal line.';
+                ToolTip = 'Specifies if GST TCS or GST TDS is calculated on the journal line.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("GST TCS State Code"; Rec."GST TCS State Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the state code for which GST TCS is applicable.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("GST TDS/TCS Base Amount"; Rec."GST TDS/TCS Base Amount")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the GST TDS/TCS base amount for the journal line.';
-            }
-            field("GST TDS"; Rec."GST TDS")
-            {
-                ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies if GST TDS is calculated on the journal line.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("GST Group Code"; Rec."GST Group Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the GST group code for the calculation of GST on journal line.';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
@@ -60,6 +78,7 @@ pageextension 18244 "GST Bank Receipt Voucher Ext" extends "Bank Receipt Voucher
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the HSN/SAC code for the calculation of GST on journal line.';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
@@ -89,6 +108,11 @@ pageextension 18244 "GST Bank Receipt Voucher Ext" extends "Bank Receipt Voucher
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the type of GST registration or the vendor. For example, Registered/Un-registered/Import/Composite/Exempted/SEZ.';
+            }
+            field("Bank Charge"; Rec."Bank Charge")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies whether the entry is related to bank charges or not.';
             }
         }
         modify(Amount)
@@ -126,6 +150,13 @@ pageextension 18244 "GST Bank Receipt Voucher Ext" extends "Bank Receipt Voucher
                 CallTaxEngine();
             end;
         }
+        modify("Currency Code")
+        {
+            trigger OnAfterValidate()
+            begin
+                CallTaxEngine();
+            end;
+        }
     }
     actions
     {
@@ -152,5 +183,4 @@ pageextension 18244 "GST Bank Receipt Voucher Ext" extends "Bank Receipt Voucher
         CurrPage.SaveRecord();
         CalculateTax.CallTaxEngineOnGenJnlLine(Rec, xRec);
     end;
-
 }

@@ -19,13 +19,13 @@ codeunit 18920 "TCS Sales - Library"
     end;
 
     procedure CreateAndPostSalesDocumentAgainstAdvancePayment(
-                var SalesHeader: Record "Sales Header";
-                DocumentType: Enum "Sales Document Type";
-                CustomerNo: Code[20];
-                PostingDate: Date;
-                LineType: Enum "Sales Line Type";
-                PaymentDocNo: Code[20];
-                LineDiscount: Boolean): Code[20]
+        var SalesHeader: Record "Sales Header";
+        DocumentType: Enum "Sales Document Type";
+        CustomerNo: Code[20];
+        PostingDate: Date;
+        LineType: Enum "Sales Line Type";
+        PaymentDocNo: Code[20];
+        LineDiscount: Boolean): Code[20]
     var
         SalesLine: Record "Sales Line";
     begin
@@ -41,13 +41,13 @@ codeunit 18920 "TCS Sales - Library"
     end;
 
     procedure CreateAndPostSalesDocumentAgainstPartialAdvancePayment(
-                    var SalesHeader: Record "Sales Header";
-                    DocumentType: Enum "Sales Document Type";
-                    CustomerNo: Code[20];
-                    PostingDate: Date;
-                    LineType: Enum "Sales Line Type";
-                    PaymentDocNo: Code[20];
-                    LineDiscount: Boolean): Code[20]
+        var SalesHeader: Record "Sales Header";
+        DocumentType: Enum "Sales Document Type";
+        CustomerNo: Code[20];
+        PostingDate: Date;
+        LineType: Enum "Sales Line Type";
+        PaymentDocNo: Code[20];
+        LineDiscount: Boolean): Code[20]
     var
         SalesLine: Record "Sales Line";
     begin
@@ -74,12 +74,12 @@ codeunit 18920 "TCS Sales - Library"
     end;
 
     procedure CreateAndPostSalesDocumentWithFCY(
-                var SalesHeader: Record "Sales Header";
-                DocumentType: Enum "Sales Document Type";
-                CustomerNo: Code[20];
-                PostingDate: Date;
-                LineType: Enum "Sales Line Type";
-                LineDiscount: Boolean): Code[20]
+        var SalesHeader: Record "Sales Header";
+        DocumentType: Enum "Sales Document Type";
+        CustomerNo: Code[20];
+        PostingDate: Date;
+        LineType: Enum "Sales Line Type";
+        LineDiscount: Boolean): Code[20]
     var
         SalesLine: Record "Sales Line";
     begin
@@ -255,10 +255,10 @@ codeunit 18920 "TCS Sales - Library"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryJournal.CreateGenJournalLine(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
-        GenJournalLine."Document Type"::Payment,
-        GenJournalLine."Account Type"::"Fixed Asset", FixedAssetNo,
-        GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountWithDirectPostingNoVAT(),
-        LibraryRandom.RandDecInRange(10000, 20000, 2));
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::"Fixed Asset", FixedAssetNo,
+            GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountWithDirectPostingNoVAT(),
+            LibraryRandom.RandDecInRange(10000, 20000, 2));
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Bal. Gen. Posting Type", GenJournalLine."Bal. Gen. Posting Type"::Sale);
         GenJournalLine.Validate("FA Posting Type", GenJournalLine."FA Posting Type"::"Acquisition Cost");
@@ -275,10 +275,10 @@ codeunit 18920 "TCS Sales - Library"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryJournal.CreateGenJournalLine(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
-        GenJournalLine."Document Type"::Payment,
-        GenJournalLine."Account Type"::"Fixed Asset", FixedAssetNo,
-        GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountWithDirectPostingNoVAT(),
-        -LibraryRandom.RandDecInRange(1000, 2000, 2));
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::"Fixed Asset", FixedAssetNo,
+            GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountWithDirectPostingNoVAT(),
+            -LibraryRandom.RandDecInRange(1000, 2000, 2));
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Bal. Gen. Posting Type", GenJournalLine."Bal. Gen. Posting Type"::Sale);
         GenJournalLine.Validate("FA Posting Type", GenJournalLine."FA Posting Type"::Depreciation);
@@ -310,25 +310,25 @@ codeunit 18920 "TCS Sales - Library"
     procedure CreateItemChargeAssignment(
         var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
         SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type";
-                                                     DocNo: Code[20];
-                                                     DocLineNo: Integer;
-                                                     ItemNo: Code[20])
+        DocNo: Code[20];
+        DocLineNo: Integer;
+        ItemNo: Code[20])
     var
     begin
         LibraryInventory.CreateItemChargeAssignment(
-                ItemChargeAssignmentSales, SalesLine, DocType,
-                DocNo, SalesLine."Line No.", SalesLine."No.");
+            ItemChargeAssignmentSales, SalesLine, DocType,
+            DocNo, SalesLine."Line No.", SalesLine."No.");
         ItemChargeAssignmentSales.VALIDATE("Qty. to Assign", SalesLine.Quantity);
         ItemChargeAssignmentSales.MODIFY(TRUE);
     end;
 
     procedure CreateSalesDocument(
-                var SalesHeader: Record "Sales Header";
-                DocumentType: Enum "Sales Document Type";
-                                  CustomerNo: Code[20];
-                                  PostingDate: Date;
-                                  LineType: Enum "Sales Line Type";
-                                  LineDiscount: Boolean)
+        var SalesHeader: Record "Sales Header";
+        DocumentType: Enum "Sales Document Type";
+        CustomerNo: Code[20];
+        PostingDate: Date;
+        LineType: Enum "Sales Line Type";
+        LineDiscount: Boolean)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -340,12 +340,12 @@ codeunit 18920 "TCS Sales - Library"
     end;
 
     procedure CreateSalesDocumentWithFCY(
-                var SalesHeader: Record "Sales Header";
-                DocumentType: Enum "Sales Document Type";
-                                  CustomerNo: Code[20];
-                                  PostingDate: Date;
-                                  LineType: Enum "Sales Line Type";
-                                  LineDiscount: Boolean): Code[20]
+        var SalesHeader: Record "Sales Header";
+        DocumentType: Enum "Sales Document Type";
+        CustomerNo: Code[20];
+        PostingDate: Date;
+        LineType: Enum "Sales Line Type";
+        LineDiscount: Boolean): Code[20]
     var
         SalesLine: Record "Sales Line";
     begin

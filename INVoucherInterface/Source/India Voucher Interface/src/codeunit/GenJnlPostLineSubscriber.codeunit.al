@@ -2,8 +2,6 @@ codeunit 18931 "Gen. Jnl. Post Line Subscriber"
 {
     var
         GLSetup: Record "General Ledger Setup";
-        DocNoMustBeEnteredErr: Label 'Document No. must be entered when Bank Payment Type is %1.', Comment = '%1 = GenJournalLine."Bank Payment Type"';
-        CheckAlreadyExistsErr: Label 'Check %1 already exists for this Bank Account.', Comment = '%1= GenJournalLine."Cheque No."';
 
     procedure UpdtCheckLedgEnrtyComputerCheck(
         GenJournalLine: Record "Gen. Journal Line";
@@ -50,17 +48,6 @@ codeunit 18931 "Gen. Jnl. Post Line Subscriber"
         end;
     end;
 
-    procedure InitCheckLedgEntry(
-        BankAccLedgEntry: Record "Bank Account Ledger Entry";
-        var CheckLedgEntry: Record "Check Ledger Entry")
-    var
-        NextCheckEntryNo: Integer;
-    begin
-        CheckLedgEntry.Init();
-        CheckLedgEntry.CopyFromBankAccLedgEntry(BankAccLedgEntry);
-        CheckLedgEntry."Entry No." := NextCheckEntryNo;
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnPostBankAccOnBeforeBankAccLedgEntryInsert', '', false, false)]
     local procedure UpdateChequeDetails(
         BankAccount: Record "Bank Account";
@@ -94,54 +81,5 @@ codeunit 18931 "Gen. Jnl. Post Line Subscriber"
                 GenJournalLine."Bank Payment Type"::"Computer Check":
                     UpdtCheckLedgEnrtyComputerCheck(GenJournalLine, BankAccountLedgerEntry);
             end;
-    end;
-
-    local procedure UpdtCheckLedgEnrtyManualCheck(
-        GenJournalLine: Record "Gen. Journal Line";
-        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-        BankAccount: Record "Bank Account")
-    var
-        CheckLedgEntry: Record "Check Ledger Entry";
-        NextCheckEntryNo: Integer;
-    begin
-        GLSetup.Get();
-        if GenJournalLine."Document No." = '' then
-            Error(DocNoMustBeEnteredErr, GenJournalLine."Bank Payment Type");
-        CheckLedgEntry.Reset();
-        if NextCheckEntryNo = 0 then begin
-            CheckLedgEntry.LockTable();
-            if CheckLedgEntry.FindLast() then
-                NextCheckEntryNo := CheckLedgEntry."Entry No." + 1
-            else
-                NextCheckEntryNo := 1;
-        end;
-        CheckLedgEntry.SetRange("Bank Account No.", GenJournalLine."Account No.");
-        CheckLedgEntry.SetFilter(
-          "Entry Status", '%1|%2|%3', CheckLedgEntry."Entry Status"::Printed, CheckLedgEntry."Entry Status"::Posted,
-          CheckLedgEntry."Entry Status"::"Financially Voided");
-        if not GLSetup."Activate Cheque No." then begin
-            CheckLedgEntry.SetRange("Check No.", GenJournalLine."Document No.");
-            if CheckLedgEntry.FindFirst() then
-                Error(CheckAlreadyExistsErr, GenJournalLine."Document No.");
-        end else begin
-            CheckLedgEntry.SetRange("Check No.", GenJournalLine."Cheque No.");
-            if CheckLedgEntry.Find('-') then
-                Error(CheckAlreadyExistsErr, GenJournalLine."Cheque No.");
-        end;
-        InitCheckLedgEntry(BankAccountLedgerEntry, CheckLedgEntry);
-        CheckLedgEntry."Bank Payment Type" := CheckLedgEntry."Bank Payment Type"::"Manual Check";
-        CheckLedgEntry."Check Date" := BankAccountLedgerEntry."Posting Date";
-        if not GLSetup."Activate Cheque No." then
-            CheckLedgEntry."Check No." := BankAccountLedgerEntry."Document No."
-        else begin
-            CheckLedgEntry."Check No." := BankAccountLedgerEntry."Cheque No.";
-            CheckLedgEntry."Check Date" := BankAccountLedgerEntry."Cheque Date";
-        end;
-        if BankAccount."Currency Code" <> '' then
-            CheckLedgEntry.Amount := -BankAccountLedgerEntry.Amount
-        else
-            CheckLedgEntry.Amount := -BankAccountLedgerEntry."Amount (LCY)";
-        CheckLedgEntry.Insert(true);
-        NextCheckEntryNo := NextCheckEntryNo + 1;
     end;
 }

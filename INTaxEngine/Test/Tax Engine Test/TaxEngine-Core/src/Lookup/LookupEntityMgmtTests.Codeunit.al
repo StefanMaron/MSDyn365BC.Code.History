@@ -40,10 +40,7 @@ codeunit 136707 "Lookup Entity Mgmt Tests"
     var
         LookupTableSorting: Record "Lookup Table Sorting";
         LookupEntityMgmt: Codeunit "Lookup Entity Mgmt.";
-        CaseID: Guid;
-        ScriptID: Guid;
-        TableSortingID: Guid;
-        Found: Boolean;
+        CaseID, ScriptID, TableSortingID : Guid;
     begin
         // [SCENARIO] To check if the Table Sorting is Deleted for G/l Account table.
 

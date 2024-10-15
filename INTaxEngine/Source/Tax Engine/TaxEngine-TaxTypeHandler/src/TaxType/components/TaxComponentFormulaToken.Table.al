@@ -8,13 +8,13 @@ table 20248 "Tax Component Formula Token"
     {
         field(1; "Tax Type"; Code[20])
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Tax Type';
             TableRelation = "Tax Type".Code;
         }
         field(3; "Formula Expr. ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Formula Expr. ID';
             TableRelation = "Tax Component Formula".ID;
         }

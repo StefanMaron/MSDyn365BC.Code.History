@@ -6,7 +6,7 @@ codeunit 20295 "Use Case Object Helper"
         InvalidParentUseCaseErr: Label 'Parent Use Case :%1 does not exist', Comment = '%1= Parent Use Case Description';
     begin
         if UseCaseName = '' then
-            Exit(EmptyGuid);
+            exit(EmptyGuid);
 
         UseCase.SetRange(Description, UseCaseName);
         if not UseCase.FindFirst() then
@@ -20,25 +20,13 @@ codeunit 20295 "Use Case Object Helper"
         UseCase: Record "Tax Use Case";
     begin
         if IsNullGuid(CaseID) then
-            Exit('');
+            exit('');
 
         UseCase.SetRange(ID, CaseID);
         if UseCase.FindFirst() then
-            Exit(UseCase.Description);
+            exit(UseCase.Description);
 
         exit('');
-    end;
-
-    procedure IsTableRelationEmpty(CaseId: Guid; ID: Guid): Boolean
-    var
-        UseCaseFieldLink: Record "Use Case Field Link";
-    begin
-        if IsNullGuid(Id) then
-            exit(true);
-
-        UseCaseFieldLink.SetRange("Case ID", CaseId);
-        UseCaseFieldLink.SetRange("Table Filter ID", ID);
-        exit(UseCaseFieldLink.IsEmpty());
     end;
 
     var

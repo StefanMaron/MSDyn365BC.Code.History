@@ -9,7 +9,7 @@ table 20336 "Transaction Posting Buffer"
     {
         field(1; Id; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
 
@@ -20,7 +20,7 @@ table 20336 "Transaction Posting Buffer"
         }
         field(5; "Tax Id"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Tax ID';
         }
         field(6; Amount; Decimal)
@@ -68,7 +68,7 @@ table 20336 "Transaction Posting Buffer"
         }
         field(14; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(15; "Skip Posting"; Boolean)
@@ -83,7 +83,7 @@ table 20336 "Transaction Posting Buffer"
         }
         field(17; "Group ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Group ID';
         }
         field(18; "Tax Type"; Code[20])

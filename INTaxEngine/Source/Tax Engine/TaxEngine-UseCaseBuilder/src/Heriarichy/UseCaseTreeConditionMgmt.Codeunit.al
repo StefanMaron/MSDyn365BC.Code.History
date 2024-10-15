@@ -24,7 +24,6 @@ codeunit 20300 "Use Case Tree Condition Mgmt."
 
     procedure GetRqeuestFilters(var UseCaseTreeNode: Record "Use Case Tree Node") Filters: Text
     var
-        TypeHelper: Codeunit "Type Helper";
         ConditionInStream: InStream;
         Txt: Text;
     begin

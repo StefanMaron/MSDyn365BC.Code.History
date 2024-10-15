@@ -3,6 +3,7 @@ page 18321 "GST Settlement"
     Caption = 'GST Settlement';
     UsageCategory = Documents;
     ApplicationArea = Basic, Suite;
+
     layout
     {
         area(content)
@@ -10,13 +11,14 @@ page 18321 "GST Settlement"
             group(General)
             {
                 Caption = 'General';
+
                 field("GSTINNo."; GSTINNo)
                 {
                     Caption = 'GST Registration No.';
                     ApplicationArea = Basic, Suite;
                     LookupPageID = "GST Registration Nos.";
                     ShowMandatory = true;
-                    TableRelation = "GST Registration Nos." WHERE("Input Service Distributor" = CONST(false));
+                    TableRelation = "GST Registration Nos." where("Input Service Distributor" = const(false));
                     Tooltip = 'Specifies GST registration number to discharge the tax liability to the government.';
 
                     trigger OnValidate()
@@ -50,7 +52,6 @@ page 18321 "GST Settlement"
                 {
                     Caption = 'Account Type';
                     ApplicationArea = Basic, Suite;
-                    OptionCaption = 'G/L Account","Bank Account';
                     Tooltip = 'Specifies whether account type is G/L account or bank account.';
 
                     trigger OnValidate()
@@ -73,7 +74,7 @@ page 18321 "GST Settlement"
                     begin
                         if AccountType = AccountType::"G/L Account" then begin
                             GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-                            GLAccount.SetRange(Blocked, FALSE);
+                            GLAccount.SetRange(Blocked, false);
                             GLAccountList.SetTableView(GLAccount);
                             GLAccountList.LookupMode := true;
                             if GLAccountList.RunModal() = Action::LookupOK then begin
@@ -82,9 +83,9 @@ page 18321 "GST Settlement"
                                 AccountNo := GLAccount."No.";
                             end;
                         end else begin
-                            BankAccount.SetRange(Blocked, FALSE);
+                            BankAccount.SetRange(Blocked, false);
                             BankAccountList.SetTableView(BankAccount);
-                            BankAccountList.LookupMode := TRUE;
+                            BankAccountList.LookupMode := true;
                             if BankAccountList.RunModal() = Action::LookupOK then begin
                                 BankAccountList.GetRecord(BankAccount);
                                 GSTPaymentBuffer.CheckBank(BankAccount."No.");
@@ -143,7 +144,7 @@ page 18321 "GST Settlement"
                 trigger OnAction()
                 begin
                     GSTSettlement.ApplyGSTSettlement(GSTINNo, PostingDate, AccountType, AccountNo, BankReferenceNo, BankReferenceDate);
-                    CurrPage.CLOSE();
+                    CurrPage.Close();
                 end;
             }
         }
@@ -156,7 +157,7 @@ page 18321 "GST Settlement"
         PostingDate: Date;
         ApplyBtnEnable: Boolean;
         AccountNo: Code[20];
-        AccountType: Option "G/L Account","Bank Account";
+        AccountType: Enum "GST Settlement Account Type";
         BankReferenceNo: Code[10];
         BankReferenceDate: Date;
         DateFilter: Text[30];
@@ -165,8 +166,8 @@ page 18321 "GST Settlement"
 
     local procedure EnableApplyEntries()
     begin
-        ApplyBtnEnable := (GSTINNo <> '') AND (PostingDate <> 0D);
-        CurrPage.UPDATE();
+        ApplyBtnEnable := (GSTINNo <> '') and (PostingDate <> 0D);
+        CurrPage.Update();
     end;
 
     local procedure IsPostingDateAllowed()
@@ -174,15 +175,14 @@ page 18321 "GST Settlement"
         PostedSettlementEntries: Record "Posted Settlement Entries";
     begin
         PostedSettlementEntries.SetRange("GST Registration No.", GSTINNo);
-        if PostedSettlementEntries.FINDLAST() then begin
-            if (Date2DMY(PostingDate, 2) < Date2DMY(PostedSettlementEntries."Posting Date", 2)) AND
+        if PostedSettlementEntries.FindLast() then begin
+            if (Date2DMY(PostingDate, 2) < Date2DMY(PostedSettlementEntries."Posting Date", 2)) and
                (Date2DMY(PostingDate, 3) = Date2DMY(PostedSettlementEntries."Posting Date", 3))
             then
-                ERROR(PostingDateErr, PostedSettlementEntries."Period End Date");
+                Error(PostingDateErr, PostedSettlementEntries."Period End Date");
 
             if Date2DMY(PostingDate, 3) < Date2DMY(PostedSettlementEntries."Posting Date", 3) then
-                ERROR(PostingDateErr, PostedSettlementEntries."Period End Date");
+                Error(PostingDateErr, PostedSettlementEntries."Period End Date");
         end;
     end;
 }
-

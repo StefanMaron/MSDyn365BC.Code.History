@@ -24,7 +24,6 @@ tableextension 18545 "GeneralJournalLineExt" extends "Gen. Journal Line"
         {
             Caption = 'Party Type';
             DataClassification = EndUserIdentifiableInformation;
-
         }
         field(18548; "Party Code"; code[20])
         {
@@ -54,6 +53,7 @@ tableextension 18545 "GeneralJournalLineExt" extends "Gen. Journal Line"
         field(18552; "TDS Certificate Receivable"; Boolean)
         {
             DataClassification = EndUserIdentifiableInformation;
+
             trigger OnValidate()
             begin
                 if "TDS Certificate Receivable" then begin

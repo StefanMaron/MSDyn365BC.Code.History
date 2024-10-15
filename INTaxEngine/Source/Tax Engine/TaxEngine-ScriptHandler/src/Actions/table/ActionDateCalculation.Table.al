@@ -8,17 +8,17 @@ table 20161 "Action Date Calculation"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(4; "Variable ID"; Integer)
@@ -40,19 +40,19 @@ table 20161 "Action Date Calculation"
         }
         field(7; "Date Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Date Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
         field(8; "Arithmetic operators"; Option)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Arithmetic operators';
             OptionMembers = plus,minus;
         }
         field(9; Duration; Option)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Duration';
             OptionMembers = Days,Weeks,Months,Years;
         }
@@ -69,7 +69,7 @@ table 20161 "Action Date Calculation"
         }
         field(12; "Number Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             TableRelation = "Script Symbol Lookup".ID;
             Caption = 'Number Lookup ID';
         }

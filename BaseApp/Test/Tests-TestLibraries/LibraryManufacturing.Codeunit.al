@@ -522,7 +522,7 @@ codeunit 132202 "Library - Manufacturing"
         ProdOrderComponent.Insert(true);
     end;
 
-    procedure CreateProductionOrderFromSalesOrder(SalesHeader: Record "Sales Header"; ProdOrderStatus: Enum "Production Order Status"; OrderType: Option ItemOrder,ProjectOrder)
+    procedure CreateProductionOrderFromSalesOrder(SalesHeader: Record "Sales Header"; ProdOrderStatus: Enum "Production Order Status"; OrderType: Enum "Create Production Order Type")
     var
         SalesLine: Record "Sales Line";
         CreateProdOrderFromSale: Codeunit "Create Prod. Order from Sale";
@@ -530,9 +530,9 @@ codeunit 132202 "Library - Manufacturing"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
-            CreateProdOrderFromSale.CreateProdOrder(SalesLine, ProdOrderStatus, OrderType);
+            CreateProdOrderFromSale.CreateProductionOrder(SalesLine, ProdOrderStatus, OrderType);
             if OrderType = OrderType::ProjectOrder then
                 EndLoop := true;
         until (SalesLine.Next = 0) or EndLoop;
@@ -900,7 +900,7 @@ codeunit 132202 "Library - Manufacturing"
     begin
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             ProdOrderRoutingLine.SetRange("Routing No.", ItemJournalLine."Routing No.");
             case ItemJournalLine.Type of

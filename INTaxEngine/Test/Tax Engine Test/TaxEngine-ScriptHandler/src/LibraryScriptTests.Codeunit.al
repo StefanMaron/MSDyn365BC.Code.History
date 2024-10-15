@@ -202,12 +202,6 @@ codeunit 136756 "Library - Script Tests"
         ActionID := ScriptEntityMgmt.CreateDateToDateTime(CaseID, ScriptID);
     end;
 
-    procedure CreateGetRecord(var CaseID: Guid; var ScriptID: Guid; var ActionID: Guid)
-    begin
-        Init(CaseID, ScriptID);
-        ActionID := ScriptEntityMgmt.CreateGetRecord(CaseID, ScriptID);
-    end;
-
     procedure CreateAlertMessage(var CaseID: Guid; var ScriptID: Guid; var ActionID: Guid)
     begin
         Init(CaseID, ScriptID);

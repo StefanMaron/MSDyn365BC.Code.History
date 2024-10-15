@@ -5,58 +5,121 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
-  <Item ItemId=";Codeunit 2125392620 - Method 894670824 - NamedType 2280487857" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Location are not equal]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Interface Tests - Method CreateJournalVoucherWithSpecficNoSeries - NamedType LocationCompareErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2125392620 - Method 2117982467 - NamedType 2280487857" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Location are not equal]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Interface Tests - Method CheckBankReceiptvVoucherWithsSecificNoseries - NamedType LocationCompareErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2125392620 - Method 1788074935 - NamedType 3897060352" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2125392620 - NamedType 3897060352" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Account No. %1 is not defined as Debit account for the Voucher Sub Type Bank Receipt Voucher and Document No. %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 =Account No., %2= Document No.]D;]A;(LookupHint=Codeunit Voucher Interface Tests - Method CashAccountInBankReceiptVoucher - NamedType AccountTypeErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 =Account No., %2= Document No.]D;]A;(LookupHint=Codeunit Voucher Interface Tests - NamedType AccountTypeErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2125392620 - Method 83552875 - NamedType 1175862885" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2125392620 - NamedType 2280487857" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Location are not equal]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Interface Tests - NamedType LocationCompareErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2125392620 - NamedType 3531135578" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[must be negative]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Interface Tests - Method BankPaymentVoucherWithDebitAccount - NamedType NegativeeAmtErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Interface Tests - NamedType NegativeAmtErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2125392620 - Method 3153136186 - NamedType 2723500562" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2125392620 - NamedType 2723500562" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[must be positive]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Interface Tests - Method CashPaymentVoucherWithDebitAccount - NamedType PositiveAmtErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Interface Tests - NamedType PositiveAmtErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2125392620 - Method 2253787256 - NamedType 1175862885" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2676363268 - NamedType 224007200" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[must be negative]]></Val>
+      <Val><![CDATA[CreditAmount_GLEntry]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Interface Tests - Method BankReceiptVoucherWithCreditAccount - NamedType NegativeeAmtErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Reports Tests - NamedType GLEntryCreditAmountLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2676363268 - NamedType 2211726121" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DebitAmount_GLEntry]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Reports Tests - NamedType GLEntryDebitAmountLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2676363268 - NamedType 3896138853" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DocNo]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Reports Tests - NamedType GLEntryDocumentNoLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2676363268 - NamedType 2044524244" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[LocationSetup]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Reports Tests - NamedType LocationSetupLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2676363268 - NamedType 1253826036" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Noseries]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Reports Tests - NamedType NoseriesLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2676363268 - NamedType 2602220690" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[SourceDesc]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Reports Tests - NamedType SourceDescLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2676363268 - NamedType 1894215559" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TemplateName]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Reports Tests - NamedType TemplateNameLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2676363268 - NamedType 4091979076" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CreditAmount_GLEntry]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Reports Tests - NamedType VoucherRegGLEntryCreditAmtLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2676363268 - NamedType 3315099493" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DebitAmount_GLEntry]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Reports Tests - NamedType VoucherRegGLEntryDebitAmtLbl)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

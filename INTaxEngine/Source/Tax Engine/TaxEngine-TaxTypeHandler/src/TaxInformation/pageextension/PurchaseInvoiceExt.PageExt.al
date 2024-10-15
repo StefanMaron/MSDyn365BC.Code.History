@@ -2,7 +2,7 @@ pageextension 20250 "Purchase Invoice Ext" extends "Purchase Invoice"
 {
     layout
     {
-        addbefore(IncomingDocAttachFactBox)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

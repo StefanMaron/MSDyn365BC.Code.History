@@ -24,7 +24,7 @@ page 5770 "Warehouse Put-away"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(CurrentLocationCode; CurrentLocationCode)
@@ -239,7 +239,7 @@ page 5770 "Warehouse Put-away"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     trigger OnOpenPage()
@@ -273,12 +273,12 @@ page 5770 "Warehouse Put-away"
 
     local procedure SortingMethodOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure BreakbulkFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

@@ -14,7 +14,6 @@ codeunit 20341 "Tax Document GL Posting"
         PostedDocNo: Code[20];
         PostedDocLineNo: Integer)
     var
-        TempTaxPostingBuffer: Record "Transaction Posting Buffer" temporary;
         TempTaxTransactionValue2: Record "Tax Transaction Value" temporary;
         TaxPostingBufferMgmt: Codeunit "Tax Posting Buffer Mgmt.";
         CaseIDList: List of [Guid];
@@ -70,14 +69,12 @@ codeunit 20341 "Tax Document GL Posting"
         var TempTaxTransactionValue: Record "Tax Transaction Value" temporary)
     var
         TaxTransactionValue: Record "Tax Transaction Value";
-        TaxDocumentGLPosting: Codeunit "Tax Document GL Posting";
         TaxPostingBufferMgmt: Codeunit "Tax Posting Buffer Mgmt.";
         IsModified: Boolean;
     begin
         if QtyToInvoice = 0 then
             exit;
 
-        TaxTransactionValue.Reset();
         TaxTransactionValue.SetRange("Tax Record ID", RecID);
         if TaxTransactionValue.FindSet() then
             repeat
@@ -321,8 +318,8 @@ codeunit 20341 "Tax Document GL Posting"
         TaxGenJnlLine: Record "Gen. Journal Line";
         TransactionPostingBuffer: Record "Transaction Posting Buffer" temporary;
         TempTransactionValue: Record "Tax Transaction Value" temporary;
-        GLEntry: Record "G/L Entry";
         TaxPostingBufferMgmt: Codeunit "Tax Posting Buffer Mgmt.";
+        DimensionManagement: Codeunit DimensionManagement;
         ReversalAmount: Decimal;
         ReversalAmountLCY: Decimal;
         DocumentRecord: Variant;
@@ -338,14 +335,23 @@ codeunit 20341 "Tax Document GL Posting"
                     TaxGenJnlLine."System-Created Entry" := true;
                     TaxGenJnlLine.Validate("Document Type", GenJournalLine."Document Type");
                     TaxGenJnlLine.Validate("Document No.", GenJournalLine."Document No.");
-                    TaxGenJnlLine.validate("Posting Date", GenJournalLine."Posting Date");
-                    TaxGenJnlLine.validate("Account type", TaxGenJnlLine."Account Type"::"G/L Account");
-                    TaxGenJnlLine.validate("Account No.", TransactionPostingBuffer."Account No.");
+                    TaxGenJnlLine.Validate("Posting Date", GenJournalLine."Posting Date");
+                    TaxGenJnlLine.Validate("Account type", TaxGenJnlLine."Account Type"::"G/L Account");
+                    TaxGenJnlLine.Validate("Account No.", TransactionPostingBuffer."Account No.");
                     TaxGenJnlLine.Validate("Currency Code", TransactionPostingBuffer."Currency Code");
                     TaxGenJnlLine.Validate("Currency Factor", TransactionPostingBuffer."Currency Factor");
+                    UpdateSourceOnGenJnlLine(TaxGenJnlLine, GenJournalLine);
+                    TaxGenJnlLine."Dimension Set ID" := TransactionPostingBuffer."Dimension Set ID";
+
+                    DimensionManagement.UpdateGlobalDimFromDimSetID(
+                        TaxGenJnlLine."Dimension Set ID",
+                        TaxGenJnlLine."Shortcut Dimension 1 Code",
+                        TaxGenJnlLine."Shortcut Dimension 2 Code");
+                    TaxGenJnlLine."Posting No. Series" := GenJournalLine."Posting No. Series";
+
                     if TransactionPostingBuffer."Amount (LCY)" <> 0 then begin
-                        TaxGenJnlLine.validate("Amount", TransactionPostingBuffer.Amount);
-                        TaxGenJnlLine.validate("Amount (LCY)", TransactionPostingBuffer."Amount (LCY)");
+                        TaxGenJnlLine.Validate("Amount", TransactionPostingBuffer.Amount);
+                        TaxGenJnlLine.Validate("Amount (LCY)", TransactionPostingBuffer."Amount (LCY)");
                     end;
 
                     if TaxGenJnlLine.Amount <> 0 then
@@ -361,17 +367,37 @@ codeunit 20341 "Tax Document GL Posting"
                 if (TransactionPostingBuffer."Reverse Charge") and (TaxGenJnlLine.Amount <> 0) and (TransactionPostingBuffer."Account No." <> '') then begin
                     ReversalAmount := -TaxGenJnlLine.Amount;
                     ReversalAmountLCY := -TaxGenJnlLine."Amount (LCY)";
-                    TaxGenJnlLine.validate("Account No.", TransactionPostingBuffer."Reverse Charge G/L Account");
+                    TaxGenJnlLine.Validate("Account No.", TransactionPostingBuffer."Reverse Charge G/L Account");
                     TaxGenJnlLine.Validate("Currency Code", TransactionPostingBuffer."Currency Code");
                     TaxGenJnlLine.Validate("Currency Factor", TransactionPostingBuffer."Currency Factor");
                     TaxGenJnlLine.Validate(Amount, ReversalAmount);
                     TaxGenJnlLine.Validate("Amount (LCY)", ReversalAmountLCY);
                     TaxGenJnlLine."System-Created Entry" := true;
+                    UpdateSourceOnGenJnlLine(TaxGenJnlLine, GenJournalLine);
+                    TaxGenJnlLine."Dimension Set ID" := TransactionPostingBuffer."Dimension Set ID";
+
+                    DimensionManagement.UpdateGlobalDimFromDimSetID(
+                        TaxGenJnlLine."Dimension Set ID",
+                        TaxGenJnlLine."Shortcut Dimension 1 Code",
+                        TaxGenJnlLine."Shortcut Dimension 2 Code");
+
+                    TaxGenJnlLine."Posting No. Series" := GenJournalLine."Posting No. Series";
                     GenJnlPostLine.RunWithCheck(TaxGenJnlLine);
                 end;
                 TaxPostingBufferMgmt.ClearGroupingBuffers(TransactionPostingBuffer, TempTransactionValue);
             until TransactionPostingBuffer.Next() = 0;
         TaxPostingBufferMgmt.ClearNonGlComponents(GenJournalLine."Tax ID");
+    end;
+
+    local procedure UpdateSourceOnGenJnlLine(var TaxGenJnlLine: Record "Gen. Journal Line"; GenJnlLine: Record "Gen. Journal Line")
+    begin
+        if GenJnlLine."Source No." = '' then begin
+            GenJnlLine."Source Type" := GenJnlLine."Account Type";
+            GenJnlLine."Source No." := GenJnlLine."Account No.";
+        end;
+
+        TaxGenJnlLine."Source Type" := GenJnlLine."Account Type";
+        TaxGenJnlLine."Source No." := GenJnlLine."Account No.";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnAfterRunWithoutCheck', '', false, false)]

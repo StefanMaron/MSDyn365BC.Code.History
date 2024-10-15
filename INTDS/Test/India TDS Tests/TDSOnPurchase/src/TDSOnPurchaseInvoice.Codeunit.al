@@ -1,10 +1,11 @@
 codeunit 18791 "TDS On Purchase Invoice"
 {
     Subtype = Test;
+
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353955- Check if the program is calculating TDS while creating Invoice with Fixed Assets using the Purchase Order/Invoice with no threshold and surcharge overlook for NOD lines of a particular Vendor.
-    procedure PostFromPurchaseInvoicewithFixedAssetWithoutAccountingPeriod()
+    // [SCENARIO] [353920] Check if the program is allowing the posting of Invoice with Item using the Purchase Order/Invoice with TDS information where T.A.N No. has not been defined.
+    procedure PostFromPurchInvwithItemWithoutTANNo()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -12,12 +13,69 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
+        LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
+        LibraryTDS.UpdateVendorWithPANWithOutConcessional(Vendor, true, true);
+        CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
+
+        // [WHEN] Validated T.A.N. No. Verified
+        LibraryTDS.RemoveTANOnCompInfo();
+
+        // [THEN] Assert Error Verified
+        asserterror CreateAndPostPurchaseDocument(PurchaseHeader,
+             PurchaseHeader."Document Type"::Invoice,
+             Vendor."No.",
+             WorkDate(),
+             PurchaseLine.Type::Item, false);
+
+        Assert.ExpectedError(TANNoErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('TaxRatePageHandler')]
+    // [SCENARIO] [353919] Check if the program is allowing the posting of Invoice with Item using the Purchase Order/Invoice with TDS information where Accounting Period has not been specified.
+    procedure PostFromPurchInvwithItemWithoutAccountingPeriod()
+    var
+        ConcessionalCode: Record "Concessional Code";
+        TDSPostingSetup: Record "TDS Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+    begin
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
+        LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
+        LibraryTDS.UpdateVendorWithPANWithOutConcessional(Vendor, true, true);
+        CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
+
+        // [WHEN] Created and Posted Purchase Invoice with Item without Accounting Period
+        asserterror CreateAndPostPurchaseDocument(PurchaseHeader,
+             PurchaseHeader."Document Type"::Invoice,
+             Vendor."No.",
+             CalcDate('<-1Y>', LibraryTDS.FindStartDateOnAccountingPeriod()),
+             PurchaseLine.Type::Item,
+             false);
+
+        // [WHEN] Expected Error Verified
+        Assert.ExpectedError(IncomeTaxAccountingErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('TaxRatePageHandler')]
+    // [SCENARIO] [353955] Check if the program is calculating TDS while creating Invoice with Fixed Assets using the Purchase Order/Invoice with no threshold and surcharge overlook for NOD lines of a particular Vendor.
+    procedure PostFromPurchInvWithFAWithoutAccountingPeriod()
+    var
+        ConcessionalCode: Record "Concessional Code";
+        TDSPostingSetup: Record "TDS Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+    begin
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice with G/L Account Without Accounting Period
+        // [WHEN] Created and Posted Purchase Invoice with G/L Account Without Accounting Period
         asserterror CreateAndPostPurchaseDocument(PurchaseHeader,
              PurchaseHeader."Document Type"::Invoice,
              Vendor."No.",
@@ -25,15 +83,15 @@ codeunit 18791 "TDS On Purchase Invoice"
              PurchaseLine.Type::"Fixed Asset",
              false);
 
-        //[WHEN] Expected Error Verified
+        // [WHEN] Expected Error Verified
         Assert.ExpectedError(IncomeTaxAccountingErr);
     end;
 
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353956- Check if the program is calculating TDS while creating Invoice with Charge (Item) using the Purchase Order/Invoice with no threshold and surcharge overlook for NOD lines of a particular Vendor.
-    procedure PostFromPurchaseInvoicewithChargeItemWithoutAccountingPeriod()
+    // [SCENARIO] [353956] Check if the program is calculating TDS while creating Invoice with Charge (Item) using the Purchase Order/Invoice with no threshold and surcharge overlook for NOD lines of a particular Vendor.
+    procedure PostFromPurchInvwithChargeItemWithoutAccountingPeriod()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -41,12 +99,12 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice with Charge item
+        // [WHEN] Created and Posted Purchase Invoice with Charge item
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, Purchaseline.Type::"Charge (Item)", false);
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
@@ -58,8 +116,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353901- Check if the program is allowing the posting of Invoice with G/L Account using the Purchase Order/Invoice with TDS information where Accounting Period has not been specified..
-    procedure PostFromPurchaseInvoicewithGLAccountWithoutAccountingPeriod()
+    // [SCENARIO] [353901] Check if the program is allowing the posting of Invoice with G/L Account using the Purchase Order/Invoice with TDS information where Accounting Period has not been specified..
+    procedure PostFromPurchInvWithGLAccWithoutAccountingPeriod()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -67,12 +125,12 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice with G/L Account without Accounting Period
+        // [WHEN] Created and Posted Purchase Invoice with G/L Account without Accounting Period
         asserterror CreateAndPostPurchaseDocument(PurchaseHeader,
              PurchaseHeader."Document Type"::Invoice,
              Vendor."No.",
@@ -80,16 +138,16 @@ codeunit 18791 "TDS On Purchase Invoice"
              PurchaseLine.Type::"G/L Account",
              false);
 
-        //[WHEN] Expected Error Verified
+        // [WHEN] Expected Error Verified
         Assert.ExpectedError(IncomeTaxAccountingErr);
     end;
 
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353721- Check if the program is calculating TDS in case an invoice is raised to the Vendor using Purchase Invoice.
-    //Scenario 353923- Check if the program is calculating TDS on Lower rate/zero rate in case an invoice is raised to the Vendor is having a certificate using Purchase Order with Item & Fixed Assets.
-    procedure PostFromPurchaseInvoiceWithItemWithPANWithConCode()
+    // [SCENARIO] [353721] Check if the program is calculating TDS in case an invoice is raised to the Vendor using Purchase Invoice.
+    // [SCENARIO] [353923] Check if the program is calculating TDS on Lower rate/zero rate in case an invoice is raised to the Vendor is having a certificate using Purchase Order with Item & Fixed Assets.
+    procedure PostFromPurchInvWithItemWithPANWithConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -98,12 +156,12 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", ConcessionalCode.Code, WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice
+        // [WHEN] Created and Posted Purchase Invoice
         DocumentNo := CreateAndPostPurchaseDocument(
              PurchaseHeader,
              PurchaseHeader."Document Type"::Invoice,
@@ -111,8 +169,8 @@ codeunit 18791 "TDS On Purchase Invoice"
              WorkDate(),
              PurchaseLine.Type::Item, false);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, true, true);
     end;
@@ -120,8 +178,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353995- Check if the program is calculating TDS while creating Invoice with Item using the Purchase Order/Invoice in case of different rates for same NOD with different effective dates.    
-    procedure PostFromPurchaseInvoiceWithItemWithPANWithoutConCodeWithDifferentEffectiveDates()
+    // [SCENARIO] [353995] Check if the program is calculating TDS while creating Invoice with Item using the Purchase Order/Invoice in case of different rates for same NOD with different effective dates.    
+    procedure PostFromPurchInvWithItemWithPANWithoutConCodeWithDifferentEffectiveDates()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -130,14 +188,14 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overllok.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overllok.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', CalcDate('<1D>', WorkDate()));
         LibraryTDS.CreateTDSPostingSetupWithDifferentEffectiveDate(TDSPostingSetup."TDS Section", CalcDate('<1D>', WorkDate()), TDSPostingSetup."TDS Account");
 
-        //[WHEN] Created and Posted Purchase Invoice
+        // [WHEN] Created and Posted Purchase Invoice
         CreatePurchaseDocument(PurchaseHeader,
                PurchaseHeader."Document Type"::Invoice,
                Vendor."No.",
@@ -146,8 +204,8 @@ codeunit 18791 "TDS On Purchase Invoice"
                false);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        //[THEN]G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, true, true);
     end;
@@ -155,8 +213,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353994- Check if the program is calculating TDS while creating Invoice with G/L Account using the Purchase Order/Invoice in case of different rates for same NOD with different effective dates.    
-    procedure PostFromPurchaseInvoiceWithGLAccountWithPANWithoutConCodeWithDifferentEffectiveDates()
+    // [SCENARIO] [353994] Check if the program is calculating TDS while creating Invoice with G/L Account using the Purchase Order/Invoice in case of different rates for same NOD with different effective dates.    
+    procedure PostFromPurchInvWithGLAccWithPANWithoutConCodeWithDifferentEffectiveDates()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -165,14 +223,14 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overllok.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overllok.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', CalcDate('<1D>', WorkDate()));
         LibraryTDS.CreateTDSPostingSetupWithDifferentEffectiveDate(TDSPostingSetup."TDS Section", CalcDate('<1D>', WorkDate()), TDSPostingSetup."TDS Account");
 
-        //[WHEN] Created and Posted Purchase Invoice
+        // [WHEN] Created and Posted Purchase Invoice
         CreatePurchaseDocument(PurchaseHeader,
                PurchaseHeader."Document Type"::Invoice,
                Vendor."No.",
@@ -181,8 +239,8 @@ codeunit 18791 "TDS On Purchase Invoice"
                false);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        //[THEN]G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, true, true);
     end;
@@ -190,8 +248,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353996- Check if the program is calculating TDS while creating Invoice with Fixed Asset using the Purchase Order/Invoice in case of different rates for same NOD with different effective dates.    
-    procedure PostFromPurchaseInvoiceWithFixedAssetWithPANWithoutConCodeWithDifferentEffectiveDates()
+    // [SCENARIO] [353996] Check if the program is calculating TDS while creating Invoice with Fixed Asset using the Purchase Order/Invoice in case of different rates for same NOD with different effective dates.    
+    procedure PostFromPurchInvWithFAWithPANWithoutConCodeWithDifferentEffectiveDates()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -200,14 +258,14 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overllok.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overllok.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', CalcDate('<1D>', WorkDate()));
         LibraryTDS.CreateTDSPostingSetupWithDifferentEffectiveDate(TDSPostingSetup."TDS Section", CalcDate('<1D>', WorkDate()), TDSPostingSetup."TDS Account");
 
-        //[WHEN] Created and Posted Purchase Invoice
+        // [WHEN] Created and Posted Purchase Invoice
         CreatePurchaseDocument(PurchaseHeader,
                PurchaseHeader."Document Type"::Invoice,
                Vendor."No.",
@@ -216,8 +274,8 @@ codeunit 18791 "TDS On Purchase Invoice"
                false);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        //[THEN]G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, true, true);
     end;
@@ -225,8 +283,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353997- Check if the program is calculating TDS while creating Invoice with Charge(Item) using the Purchase Order/Invoice in case of different rates for same NOD with different effective dates.    
-    procedure PostFromPurchaseInvoiceWithChargeItemWithPANWithoutConCodeWithDifferentEffectiveDates()
+    // [SCENARIO] [353997] Check if the program is calculating TDS while creating Invoice with Charge(Item) using the Purchase Order/Invoice in case of different rates for same NOD with different effective dates.    
+    procedure PostFromPurchInvWithChargeItemWithPANWithoutConCodeWithDifferentEffectiveDates()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -234,7 +292,7 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overllok.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overllok.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", ConcessionalCode.Code, WorkDate());
@@ -255,8 +313,8 @@ codeunit 18791 "TDS On Purchase Invoice"
 
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353721- Check if the program is calculating TDS in case an invoice is raised to the Vendor using Purchase Invoice.
-    procedure PostFromPurchaseInvoicewithGLAccountWithPANWithoutConCode()
+    // [SCENARIO] [353721] Check if the program is calculating TDS in case an invoice is raised to the Vendor using Purchase Invoice.
+    procedure PostFromPurchInvWithGLAccWithPANWithoutConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -265,20 +323,20 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[THEN] Created and Posted purchase Invoice
+        // [THEN] Created and Posted purchase Invoice
         DocumentNo := CreateAndPostPurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
             Vendor."No.", WorkDate(),
             PurchaseLine.Type::"G/L Account", false);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, true, true);
     end;
@@ -286,8 +344,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 354239- Check if the program is calculating TDS while creating Invoice with G/L Account using the Purchase Invoice in case of Foreign Vendor.
-    procedure PostFromPurchaseInvoiceofForeignVendorwithGLAccountWithPANWithoutConCode()
+    // [SCENARIO] [354239] Check if the program is calculating TDS while creating Invoice with G/L Account using the Purchase Invoice in case of Foreign Vendor.
+    procedure PostFromPurchInvofForeignVendorWithGLAccWithPANWithoutConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -299,18 +357,18 @@ codeunit 18791 "TDS On Purchase Invoice"
         DocumentNo: Code[20];
     begin
         IsForeignVendor := true;
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         LibraryTDS.CreateForeignVendorWithPANNoandWithoutConcessional(Vendor);
         LibraryTDS.CreateNatureOfRemittance(TDSNatureOfRemittance);
         LibraryTDS.CreateActApplicable(TDSActApplicable);
         LibraryTDS.AttachSectionWithForeignVendor(TDSPostingSetup."TDS Section", Vendor."No.", true, true, true, true, TDSNatureOfRemittance.Code, TDSActApplicable.Code);
-        Storage.Set('NatureOfRemittance', TDSNatureOfRemittance.Code);
-        Storage.Set('ActApplicable', TDSActApplicable.Code);
-        Storage.Set('CountryCode', Vendor."Country/Region Code");
+        Storage.Set(NatureOfRemittanceLbl, TDSNatureOfRemittance.Code);
+        Storage.Set(ActApplicableLbl, TDSActApplicable.Code);
+        Storage.Set(CountryCodeLbl, Vendor."Country/Region Code");
 
-        //[WHEN] Created and Posted Foreign Vendor Purchase Invoice
+        // [WHEN] Created and Posted Foreign Vendor Purchase Invoice
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
         DocumentNo := CreateAndPostPurchaseDocument(
                             PurchaseHeader,
@@ -319,8 +377,8 @@ codeunit 18791 "TDS On Purchase Invoice"
                             PurchaseLine.Type::"G/L Account",
                             false);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, true, true);
         IsForeignVendor := false
@@ -329,8 +387,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353964- Check if the program is calculating TDS in case an invoice is raised to the foreign Vendor using Purchase Order/Invoice and Threshold and Surcharge Overlook is selected with G/L Account.
-    procedure PostFromPurchaseInvoiceofForeignVendorWithItemWithSurchargeandThresholdOverlook()
+    // [SCENARIO] [353964] Check if the program is calculating TDS in case an invoice is raised to the foreign Vendor using Purchase Order/Invoice and Threshold and Surcharge Overlook is selected with G/L Account.
+    procedure PostFromPurchInvofForeignVendorWithItemWithSurchargeandThresholdOverlook()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -342,119 +400,19 @@ codeunit 18791 "TDS On Purchase Invoice"
         DocumentNo: Code[20];
     begin
         IsForeignVendor := true;
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         LibraryTDS.CreateForeignVendorWithPANNoandWithoutConcessional(Vendor);
         LibraryTDS.CreateNatureOfRemittance(TDSNatureOfRemittance);
         LibraryTDS.CreateActApplicable(TDSActApplicable);
         LibraryTDS.AttachSectionWithForeignVendor(TDSPostingSetup."TDS Section", Vendor."No.", true, true, true, true, TDSNatureOfRemittance.Code, TDSActApplicable.Code);
-        Storage.Set('NatureOfRemittance', TDSNatureOfRemittance.Code);
-        Storage.Set('ActApplicable', TDSActApplicable.Code);
-        Storage.Set('CountryCode', Vendor."Country/Region Code");
+        Storage.Set(NatureOfRemittanceLbl, TDSNatureOfRemittance.Code);
+        Storage.Set(ActApplicableLbl, TDSActApplicable.Code);
+        Storage.Set(CountryCodeLbl, Vendor."Country/Region Code");
 
-        //[WHEN] Created and Posted Foreign Vendor Purchase Invoice
+        // [WHEN] Created and Posted Foreign Vendor Purchase Invoice
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
-        DocumentNo := CreateAndPostPurchaseDocument(
-                           PurchaseHeader,
-                           PurchaseHeader."Document Type"::Invoice,
-                           Vendor."No.",
-                           WorkDate(),
-                           PurchaseLine.Type::Item,
-                           false);
-
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
-        LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
-        VerifyTDSEntry(DocumentNo, true, true, true);
-        IsForeignVendor := false
-    end;
-
-    [Test]
-
-    [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353952- Check if the program is calculating TDS in case an invoice with G/L Account is raised to the Vendor using Purchase Invoice and Threshold Overlook is selected.
-    procedure PostFromPurchaseInvoiceWithGLAccountIncludingThresholdandSurchargeOverlook()
-    var
-        ConcessionalCode: Record "Concessional Code";
-        TDSPostingSetup: Record "TDS Posting Setup";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        Vendor: Record Vendor;
-        DocumentNo: Code[20];
-    begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
-        LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
-        LibraryTDS.UpdateVendorWithPANWithOutConcessional(Vendor, true, true);
-        CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
-
-        //[WHEN] Created and Posted Purchase Invoice.
-        DocumentNo := CreateAndPostPurchaseDocument(
-            PurchaseHeader,
-            PurchaseHeader."Document Type"::Invoice,
-            Vendor."No.",
-            WorkDate(),
-            PurchaseLine.Type::"G/L Account",
-            false);
-
-        //[THEN] G/L Entries and TDS Entries Verified.
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
-        LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
-        VerifyTDSEntry(DocumentNo, true, true, true);
-    end;
-
-    [Test]
-
-    [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353953- Check if the program is calculating TDS in Purchase Order/Invoice with no threshold and surcharge overlook for NOD lines of a particular Vendor with G/L Account.
-    procedure PostFromPurchaseInvoiceWithGLWithoutThresholdandSurchargeOverlook()
-    var
-        ConcessionalCode: Record "Concessional Code";
-        TDSPostingSetup: Record "TDS Posting Setup";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        Vendor: Record Vendor;
-        DocumentNo: Code[20];
-    begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
-        LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
-        LibraryTDS.UpdateVendorWithPANWithOutConcessional(Vendor, false, false);
-        CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
-
-        //[WHEN] Created and Posted Purchase Invoice with G/L Account 
-        DocumentNo := CreateAndPostPurchaseDocument(
-            PurchaseHeader,
-            PurchaseHeader."Document Type"::Invoice,
-            Vendor."No.",
-            WorkDate(),
-            PurchaseLine.Type::"G/L Account",
-            false);
-
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
-        LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
-        VerifyTDSEntry(DocumentNo, true, false, false);
-    end;
-
-    [Test]
-
-    [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353966- Check if the program is calculating TDS while creating Invoice with Item using the Purchase Order/Invoice with no threshold and surcharge overlook for NOD lines of a particular Vendor.
-    procedure PostFromPurchaseInvoiceWithItemWithoutThresholdandandSurchargeOverlook()
-    var
-        ConcessionalCode: Record "Concessional Code";
-        TDSPostingSetup: Record "TDS Posting Setup";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        Vendor: Record Vendor;
-        DocumentNo: Code[20];
-    begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
-        LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
-        LibraryTDS.UpdateVendorWithPANWithOutConcessional(Vendor, false, false);
-        CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
-
-        //[WHEN] Created and Posted Purchase Invoice with Item
         DocumentNo := CreateAndPostPurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
@@ -463,17 +421,18 @@ codeunit 18791 "TDS On Purchase Invoice"
             PurchaseLine.Type::Item,
             false);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
-        VerifyTDSEntry(DocumentNo, true, false, false);
+        VerifyTDSEntry(DocumentNo, true, true, true);
+        IsForeignVendor := false
     end;
 
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353953- Check if the program is calculating TDS in Purchase Order/Invoice with no threshold and surcharge overlook for NOD lines of a particular Vendor with G/L Account.
-    procedure PostFromPurchaseInvoiceWithFixedAssetWithoutThresholdandSurchargeOverlook()
+    // [SCENARIO] [353952] Check if the program is calculating TDS in case an invoice with G/L Account is raised to the Vendor using Purchase Invoice and Threshold Overlook is selected.
+    procedure PostFromPurchInvWithGLAccIncludingThresholdandSurchargeOverlook()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -482,12 +441,111 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
+        LibraryTDS.UpdateVendorWithPANWithOutConcessional(Vendor, true, true);
+        CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
+
+        // [WHEN] Created and Posted Purchase Invoice.
+        DocumentNo := CreateAndPostPurchaseDocument(
+            PurchaseHeader,
+            PurchaseHeader."Document Type"::Invoice,
+            Vendor."No.",
+            WorkDate(),
+            PurchaseLine.Type::"G/L Account",
+            false);
+
+        // [THEN] G/L Entries and TDS Entries Verified.
+        VerifyGLEntryCount(DocumentNo, 3);
+        LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
+        VerifyTDSEntry(DocumentNo, true, true, true);
+    end;
+
+    [Test]
+
+    [HandlerFunctions('TaxRatePageHandler')]
+    // [SCENARIO] [353953] Check if the program is calculating TDS in Purchase Order/Invoice with no threshold and surcharge overlook for NOD lines of a particular Vendor with G/L Account.
+    procedure PostFromPurchInvWithGLWithoutThresholdandSurchargeOverlook()
+    var
+        ConcessionalCode: Record "Concessional Code";
+        TDSPostingSetup: Record "TDS Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        DocumentNo: Code[20];
+    begin
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithOutConcessional(Vendor, false, false);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and posted Purchase Invoice with Fixed Asset
+        // [WHEN] Created and Posted Purchase Invoice with G/L Account 
+        DocumentNo := CreateAndPostPurchaseDocument(
+            PurchaseHeader,
+            PurchaseHeader."Document Type"::Invoice,
+            Vendor."No.",
+            WorkDate(),
+            PurchaseLine.Type::"G/L Account",
+            false);
+
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
+        LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
+        VerifyTDSEntry(DocumentNo, true, false, false);
+    end;
+
+    [Test]
+
+    [HandlerFunctions('TaxRatePageHandler')]
+    // [SCENARIO] [353966] Check if the program is calculating TDS while creating Invoice with Item using the Purchase Order/Invoice with no threshold and surcharge overlook for NOD lines of a particular Vendor.
+    procedure PostFromPurchInvWithItemWithoutThresholdandandSurchargeOverlook()
+    var
+        ConcessionalCode: Record "Concessional Code";
+        TDSPostingSetup: Record "TDS Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        DocumentNo: Code[20];
+    begin
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
+        LibraryTDS.UpdateVendorWithPANWithOutConcessional(Vendor, false, false);
+        CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
+
+        // [WHEN] Created and Posted Purchase Invoice with Item
+        DocumentNo := CreateAndPostPurchaseDocument(
+            PurchaseHeader,
+            PurchaseHeader."Document Type"::Invoice,
+            Vendor."No.",
+            WorkDate(),
+            PurchaseLine.Type::Item,
+            false);
+
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
+        LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
+        VerifyTDSEntry(DocumentNo, true, false, false);
+    end;
+
+    [Test]
+
+    [HandlerFunctions('TaxRatePageHandler')]
+    // [SCENARIO] [353953] Check if the program is calculating TDS in Purchase Order/Invoice with no threshold and surcharge overlook for NOD lines of a particular Vendor with G/L Account.
+    procedure PostFromPurchInvWithFAWithoutThresholdandSurchargeOverlook()
+    var
+        ConcessionalCode: Record "Concessional Code";
+        TDSPostingSetup: Record "TDS Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        DocumentNo: Code[20];
+    begin
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
+        LibraryTDS.UpdateVendorWithPANWithOutConcessional(Vendor, false, false);
+        CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
+
+        // [WHEN] Created and posted Purchase Invoice with Fixed Asset
         DocumentNo := CreateAndPostPurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
@@ -496,8 +554,8 @@ codeunit 18791 "TDS On Purchase Invoice"
             PurchaseLine.Type::"Fixed Asset",
             false);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, false, false);
     end;
@@ -505,8 +563,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353956- Check if the program is calculating TDS while creating Invoice with Charge (Item) using the Purchase Order/Invoice with no threshold and surcharge overlook for NOD lines of a particular Vendor.
-    procedure PostFromPurchaseInvoicewithChargeItemWithoutSurchargeandThresholdOverlook()
+    // [SCENARIO] [353956] Check if the program is calculating TDS while creating Invoice with Charge (Item) using the Purchase Order/Invoice with no threshold and surcharge overlook for NOD lines of a particular Vendor.
+    procedure PostFromPurchInvwithChargeItemWithoutSurchargeandThresholdOverlook()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -531,8 +589,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 354036- Check if the program is calculating TDS on higher rate in case an invoice is raised to the Vendor which is not having PAN No. using Purchase Invoice with G/L Account.
-    procedure PostFromPurchaseInvoicewithGLAccountWithoutPANWithoutConCode()
+    // [SCENARIO] [354036] Check if the program is calculating TDS on higher rate in case an invoice is raised to the Vendor which is not having PAN No. using Purchase Invoice with G/L Account.
+    procedure PostFromPurchInvWithGLAccWithoutPANWithoutConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -541,12 +599,12 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithoutPANWithOutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice.
+        // [WHEN] Created and Posted Purchase Invoice.
         DocumentNo := CreateAndPostPurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
@@ -555,8 +613,8 @@ codeunit 18791 "TDS On Purchase Invoice"
             PurchaseLine.Type::"G/L Account",
             false);
 
-        //[THEN] G/L Entries and TDS Entries Verified.
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified.
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, false, true, true);
     end;
@@ -564,9 +622,9 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 354036- Check if the program is calculating TDS on higher rate in case an invoice is raised to the Vendor which is not having PAN No. using Purchase Invoice with G/L Account.
-    //Scenario 354039- Check if the program is calculating TDS on Lower rate/zero rate in case an invoice is raised to the Vendor is having a certificate using Purchase Invoice with G/L Account.
-    procedure PostFromPurchaseInvoicewithGLAccountWithoutPANWithConCode()
+    // [SCENARIO] [354036] Check if the program is calculating TDS on higher rate in case an invoice is raised to the Vendor which is not having PAN No. using Purchase Invoice with G/L Account.
+    // [SCENARIO] [354039] Check if the program is calculating TDS on Lower rate/zero rate in case an invoice is raised to the Vendor is having a certificate using Purchase Invoice with G/L Account.
+    procedure PostFromPurchInvWithGLAccWithoutPANWithConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -575,12 +633,12 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithoutPANWithConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", ConcessionalCode.Code, WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice
+        // [WHEN] Created and Posted Purchase Invoice
         DocumentNo := CreateAndPostPurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
@@ -589,8 +647,8 @@ codeunit 18791 "TDS On Purchase Invoice"
             PurchaseLine.Type::"G/L Account",
             false);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, false, true, true);
     end;
@@ -598,9 +656,9 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353754- Check if the program is calculating TDS in case an invoice is raised to the Vendor using Purchase Order.
-    //Scenario 353912- Check if the program is calculating TDS on Lower rate/zero rate in case an invoice is raised to the Vendor is having a certificate using Purchase Order with G/L Account.
-    procedure PostFromPurchaseInvoicewithGLAccountWithPANWithConCode()
+    // [SCENARIO] [353754] Check if the program is calculating TDS in case an invoice is raised to the Vendor using Purchase Order.
+    // [SCENARIO] [353912] Check if the program is calculating TDS on Lower rate/zero rate in case an invoice is raised to the Vendor is having a certificate using Purchase Order with G/L Account.
+    procedure PostFromPurchInvWithGLAccWithPANWithConCode()
     var
         Vendor: Record Vendor;
         ConcessionalCode: Record "Concessional Code";
@@ -609,20 +667,20 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", ConcessionalCode.Code, WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice.
+        // [WHEN] Created and Posted Purchase Invoice.
         DocumentNo := CreateAndPostPurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
             Vendor."No.", WorkDate(),
             PurchaseLine.Type::"G/L Account", false);
 
-        //[THEN]G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, true, true);
     end;
@@ -630,8 +688,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353902- Check if the program is allowing the posting of Invoice with G/L Account using the Purchase Order/Invoice with TDS information where T.A.N No. has not been defined..
-    procedure PostFromPurchaseInvoicewithGLAccountWithoutTANNo()
+    // [SCENARIO] [353902] Check if the program is allowing the posting of Invoice with G/L Account using the Purchase Order/Invoice with TDS information where T.A.N No. has not been defined..
+    procedure PostFromPurchInvWithGLAccWithoutTANNo()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -639,15 +697,15 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Validated T.A.N. No.
+        // [WHEN] Validated T.A.N. No.
         LibraryTDS.RemoveTANOnCompInfo();
 
-        //[THEN] Assert Error Verified
+        // [THEN] Assert Error Verified
         asserterror CreateAndPostPurchaseDocument(PurchaseHeader,
              PurchaseHeader."Document Type"::Invoice,
              Vendor."No.",
@@ -659,8 +717,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353796- Check if the program is calculating TDS in case an invoice is raised to the Vendor using Purchase Order with Item.
-    procedure PostFromPurchaseInvoicewithItemWithPANWithoutConCode()
+    // [SCENARIO] [353796] Check if the program is calculating TDS in case an invoice is raised to the Vendor using Purchase Order with Item.
+    procedure PostFromPurchInvwithItemWithPANWithoutConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -669,28 +727,28 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice.
+        // [WHEN] Created and Posted Purchase Invoice.
         DocumentNo := CreateAndPostPurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
             Vendor."No.", WorkDate(),
             PurchaseLine.Type::Item, false);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, true, true);
     end;
 
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353793- Check if the program is calculating TDS in case an invoice is raised to the Vendor using Purchase Order with Fixed Assets.
-    procedure PostFromPurchaseInvoicewithFixedAssetWithPANWithoutConCode()
+    // [SCENARIO] [353793] Check if the program is calculating TDS in case an invoice is raised to the Vendor using Purchase Order with Fixed Assets.
+    procedure PostFromPurchInvWithFAWithPANWithoutConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -699,28 +757,28 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice
+        // [WHEN] Created and Posted Purchase Invoice
         DocumentNo := CreateAndPostPurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
             Vendor."No.", WorkDate(),
             PurchaseLine.Type::"Fixed Asset", false);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, true, true);
     end;
 
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353931- Check if the program is calculating TDS on higher rate in case an invoice with Fixed Asset is raised to the Vendor which is not having PAN No. using Purchase Order.
-    procedure PostFromPurchaseInvoicewithFixedAssetWithoutPANWithoutConCode()
+    // [SCENARIO] [353931] Check if the program is calculating TDS on higher rate in case an invoice with Fixed Asset is raised to the Vendor which is not having PAN No. using Purchase Order.
+    procedure PostFromPurchInvWithFAWithoutPANWithoutConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -729,12 +787,12 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithoutPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice
+        // [WHEN] Created and Posted Purchase Invoice
         DocumentNo := CreateAndPostPurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
@@ -743,8 +801,8 @@ codeunit 18791 "TDS On Purchase Invoice"
             PurchaseLine.Type::"Fixed Asset",
             false);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, false, true, true);
     end;
@@ -752,8 +810,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353931-  Check if the program is calculating TDS on higher rate in case an invoice with Fixed Asset is raised to the Vendor which is not having PAN No. using Purchase Order.
-    procedure PostFromPurchaseInvoicewithFixedAssetWithoutPANWithConCode()
+    // [SCENARIO] [353931]  Check if the program is calculating TDS on higher rate in case an invoice with Fixed Asset is raised to the Vendor which is not having PAN No. using Purchase Order.
+    procedure PostFromPurchInvWithFAWithoutPANWithConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -762,12 +820,12 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithoutPANWithConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", ConcessionalCode.Code, WorkDate());
 
-        //[WHEN] Created and Posted Purchase
+        // [WHEN] Created and Posted Purchase
         DocumentNo := CreateAndPostPurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
@@ -776,8 +834,8 @@ codeunit 18791 "TDS On Purchase Invoice"
             PurchaseLine.Type::"Fixed Asset",
             false);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, false, true, true);
     end;
@@ -785,9 +843,9 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353793- Check if the program is calculating TDS in case an invoice is raised to the Vendor using Purchase Order with Fixed Assets.
-    //Scenario 353923- Check if the program is calculating TDS on Lower rate/zero rate in case an invoice is raised to the Vendor is having a certificate using Purchase Order with Item & Fixed Assets.
-    procedure PostFromPurchaseInvoicewithFixedAssetWithPANWithConCode()
+    // [SCENARIO] [353793] Check if the program is calculating TDS in case an invoice is raised to the Vendor using Purchase Order with Fixed Assets.
+    // [SCENARIO] [353923] Check if the program is calculating TDS on Lower rate/zero rate in case an invoice is raised to the Vendor is having a certificate using Purchase Order with Item & Fixed Assets.
+    procedure PostFromPurchInvWithFAWithPANWithConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -796,12 +854,12 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", ConcessionalCode.Code, WorkDate());
 
-        //[WHEN]Created and Posted Purchase Invoice
+        // [WHEN]Created and Posted Purchase Invoice
         DocumentNo := CreateAndPostPurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
@@ -810,8 +868,8 @@ codeunit 18791 "TDS On Purchase Invoice"
             PurchaseLine.Type::"Fixed Asset",
             false);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, true, true);
     end;
@@ -819,8 +877,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353927-Check if the program is allowing the posting of Invoice with Fixed Assets using the Purchase Order/Invoice with TDS inf
-    procedure PostFromPurchaseInvoicewithFixedAssetWithoutTANNo()
+    // [SCENARIO] [353927] Check if the program is allowing the posting of Invoice with Fixed Assets using the Purchase Order/Invoice with TDS inf
+    procedure PostFromPurchInvWithFAWithoutTANNo()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -828,15 +886,15 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN]Validated T.A.N. No.
+        // [WHEN]Validated T.A.N. No.
         LibraryTDS.RemoveTANOnCompInfo();
 
-        //[THEN] Assert Error Verified
+        // [THEN] Assert Error Verified
         asserterror CreateAndPostPurchaseDocument(PurchaseHeader,
              PurchaseHeader."Document Type"::Invoice,
              Vendor."No.", WorkDate(),
@@ -847,8 +905,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 354037- Check if the program is calculating TDS on higher rate in case an invoice is raised to the Vendor which is not having PAN No. using Purchase Invoice with Item.
-    procedure PostFromPurchaseInvoicewithItemWithoutPANWithoutConCode()
+    // [SCENARIO] [354037] Check if the program is calculating TDS on higher rate in case an invoice is raised to the Vendor which is not having PAN No. using Purchase Invoice with Item.
+    procedure PostFromPurchInvwithItemWithoutPANWithoutConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -857,20 +915,20 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithoutPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice
+        // [WHEN] Created and Posted Purchase Invoice
         DocumentNo := CreateAndPostPurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
             Vendor."No.", WorkDate(),
             PurchaseLine.Type::Item, false);
 
-        //[THEN]G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, false, true, true);
     end;
@@ -878,9 +936,9 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353922- Check if the program is calculating TDS on higher rate in case an invoice is raised to the Vendor which is not having PAN No. using Purchase Order with Item.
-    //Scenario 353923- Check if the program is calculating TDS on Lower rate/zero rate in case an invoice is raised to the Vendor is having a certificate using Purchase Order with Item & Fixed Assets.
-    procedure PostFromPurchaseInvoicewithChargeItemWithoutPANWithConCode()
+    // [SCENARIO] [353922] Check if the program is calculating TDS on higher rate in case an invoice is raised to the Vendor which is not having PAN No. using Purchase Order with Item.
+    // [SCENARIO] [353923] Check if the program is calculating TDS on Lower rate/zero rate in case an invoice is raised to the Vendor is having a certificate using Purchase Order with Item & Fixed Assets.
+    procedure PostFromPurchInvwithChargeItemWithoutPANWithConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -905,9 +963,9 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353794- Check if the program is calculating TDS in case an invoice is raised to the Vendor using Purchase Order with Charge (Item).
-    //Scenario 353939- Check if the program is calculating TDS on Lower rate/zero rate in case an invoice is raised to the Vendor is having a certificate using Purchase Order/Invoice with Charge (Item).
-    procedure PostFromPurchaseInvoicewithChargeItemWithPANWithConCode()
+    // [SCENARIO] [353794] Check if the program is calculating TDS in case an invoice is raised to the Vendor using Purchase Order with Charge (Item).
+    // [SCENARIO] [353939] Check if the program is calculating TDS on Lower rate/zero rate in case an invoice is raised to the Vendor is having a certificate using Purchase Order/Invoice with Charge (Item).
+    procedure PostFromPurchInvwithChargeItemWithPANWithConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -932,8 +990,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 353934- Check if the program is allowing the posting of Invoice with Charge (Item) using the Purchase Order/Invoice with TDS inf
-    procedure PostFromPurchaseInvoicewithChargeItemWithoutTANNo()
+    // [SCENARIO] [353934] Check if the program is allowing the posting of Invoice with Charge (Item) using the Purchase Order/Invoice with TDS inf
+    procedure PostFromPurchInvwithChargeItemWithoutTANNo()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -941,15 +999,15 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Validated T.A.N. No.
+        // [WHEN] Validated T.A.N. No.
         LibraryTDS.RemoveTANOnCompInfo();
 
-        //[THEN] Assert Error Verified
+        // [THEN] Assert Error Verified
         asserterror CreateAndPostPurchaseDocument(PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
             Vendor."No.", WorkDate(),
@@ -960,8 +1018,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //[Scenario 354031 - Check if the program is calculating TDS using Purchase Invoice where TDS is applicable only on selected lines.
-    procedure PostFromPurchaseInvoiceWithTDSApplicableOnSelectedLines()
+    // [SCENARIO] [354031] Check if the program is calculating TDS using Purchase Invoice where TDS is applicable only on selected lines.
+    procedure PostFromPurchInvWithTDSApplicableOnSelectedLines()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -972,14 +1030,14 @@ codeunit 18791 "TDS On Purchase Invoice"
         TDSPostingSetup2: Record "TDS Posting Setup";
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.CreateTDSPostingSetupForMultipleSection(TDSPostingSetup2, TDSSection2);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
         CreateTaxRateSetup(TDSPostingSetup2."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice with Multple Line
+        // [WHEN] Created and Posted Purchase Invoice with Multple Line
         CreatePurchaseDocument(PurchaseHeader,
              PurchaseHeader."Document Type"::Invoice,
              Vendor."No.",
@@ -989,8 +1047,8 @@ codeunit 18791 "TDS On Purchase Invoice"
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, false);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 5);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 5);
     end;
 
     [Test]
@@ -1004,12 +1062,12 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        //[Scenario] 1395 - Check if the program is showing TDS amount should be shown in Statistics while creating Purchase Invoice.
+        // [SCENARIO] [1395] Check if the program is showing TDS amount should be shown in Statistics while creating Purchase Invoice.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted Purchase PurchaseHeader,
+        // [WHEN] Created and Posted Purchase PurchaseHeader,
         CreatePurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
@@ -1018,7 +1076,7 @@ codeunit 18791 "TDS On Purchase Invoice"
             PurchaseLine.Type::Item,
             false);
 
-        //[THEN] Statistics Verified
+        // [THEN] Statistics Verified
         VerifyStatisticsForTDS(PurchaseHeader);
     end;
 
@@ -1032,13 +1090,13 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        //[Scenario] 1395 - Check if the program is showing TDS amount should be shown in Statistics while creating Purchase Invoice.
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [SCENARIO] [1395] Check if the program is showing TDS amount should be shown in Statistics while creating Purchase Invoice.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created Purchase Invoice With G/L Account
+        // [WHEN] Created Purchase Invoice With G/L Account
         CreatePurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
@@ -1047,7 +1105,7 @@ codeunit 18791 "TDS On Purchase Invoice"
             PurchaseLine.Type::"G/L Account",
             false);
 
-        //[THEN] Statistics Verified
+        // [THEN] Statistics Verified
         VerifyStatisticsForTDS(PurchaseHeader);
     end;
 
@@ -1061,13 +1119,13 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        //[Scenario] 1395 - Check if the program is showing TDS amount should be shown in Statistics while creating Purchase Invoice.
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [SCENARIO] [1395] Check if the program is showing TDS amount should be shown in Statistics while creating Purchase Invoice.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created  Purchase Invoice with Fixed Asset
+        // [WHEN] Created  Purchase Invoice with Fixed Asset
         CreatePurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
@@ -1076,7 +1134,7 @@ codeunit 18791 "TDS On Purchase Invoice"
             PurchaseLine.Type::"Fixed Asset",
             false);
 
-        //[THEN] StatistiCS Verified
+        // [THEN] StatistiCS Verified
         VerifyStatisticsForTDS(PurchaseHeader);
     end;
 
@@ -1090,13 +1148,13 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        //[Scenario] 1395 - Check if the program is showing TDS amount should be shown in Statistics while creating Purchase Invoice.
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [SCENARIO] [1395] Check if the program is showing TDS amount should be shown in Statistics while creating Purchase Invoice.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Create PurchaseInvoice with Charge item
+        // [WHEN] Create PurchaseInvoice with Charge item
         CreatePurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
@@ -1105,15 +1163,15 @@ codeunit 18791 "TDS On Purchase Invoice"
             PurchaseLine.Type::"Charge (Item)",
             false);
 
-        //[THEN] Statistics Verified
+        // [THEN] Statistics Verified
         VerifyStatisticsForTDS(PurchaseHeader);
     end;
 
     [Test]
-    //[Scenario 353906 -Check if the program is calculating TDS while creating Invoice with G/L Account using the Purchase Order/Invoice with multiple NOD.
+    // [SCENARIO] [353906] Check if the program is calculating TDS while creating Invoice with G/L Account using the Purchase Order/Invoice with multiple NOD.
 
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromPurchaseInvoiceWithGLAccountWithMultipleline()
+    procedure PostFromPurchInvWithGLAccWithMultipleline()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -1122,12 +1180,12 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice with Multple Line
+        // [WHEN] Created and Posted Purchase Invoice with Multple Line
         CreatePurchaseDocument(PurchaseHeader,
              PurchaseHeader."Document Type"::Invoice,
              Vendor."No.",
@@ -1137,15 +1195,15 @@ codeunit 18791 "TDS On Purchase Invoice"
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::"G/L Account", false);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 4);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 4);
     end;
 
     [Test]
-    //Scenario 354040 - Check if the program is calculating TDS while creating Invoice with Item using the Purchase Order/Invoice with multiple NOD.
-    //Scenario 353940 - Check if the program is calculating TDS while creating Invoice with Item using the Purchase Invoice with multiple NOD..
+    // [SCENARIO] [354040] Check if the program is calculating TDS while creating Invoice with Item using the Purchase Order/Invoice with multiple NOD.
+    // [SCENARIO] [353940] Check if the program is calculating TDS while creating Invoice with Item using the Purchase Invoice with multiple NOD..
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromPurchaseInvoiceWithItemWithMultipleline()
+    procedure PostFromPurchInvWithItemWithMultipleline()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -1154,12 +1212,12 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice with Multple Line
+        // [WHEN] Created and Posted Purchase Invoice with Multple Line
         CreatePurchaseDocument(PurchaseHeader,
              PurchaseHeader."Document Type"::Invoice,
              Vendor."No.",
@@ -1169,14 +1227,14 @@ codeunit 18791 "TDS On Purchase Invoice"
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::"G/L Account", false);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 4);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 4);
     end;
 
     [Test]
-    //[Scenario] 353937 - Check if the program is calculating TDS while creating Invoice with Charge(Item) using the Purchase Order/Invoice with multiple NOD.
+    // [SCENARIO] [353937] Check if the program is calculating TDS while creating Invoice with Charge(Item) using the Purchase Order/Invoice with multiple NOD.
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromPurchaseInvoiceWithChargeItemWithMultipleline()
+    procedure PostFromPurchInvWithChargeItemWithMultipleline()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -1184,7 +1242,7 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
@@ -1199,10 +1257,10 @@ codeunit 18791 "TDS On Purchase Invoice"
     end;
 
     [Test]
-    //[Scenario] 353941 - Check if the program is calculating TDS while creating Invoice with Fixed Asset using the Purchase Order/Invoice with multiple NOD.
+    // [SCENARIO] [353941] Check if the program is calculating TDS while creating Invoice with Fixed Asset using the Purchase Order/Invoice with multiple NOD.
 
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromPurchaseInvoiceWithFixedAssetWithMultipleline()
+    procedure PostFromPurchInvWithFAWithMultipleline()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -1211,12 +1269,12 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[WHEN] Created and Posted Purchase Invoice with Multple Line
+        // [WHEN] Created and Posted Purchase Invoice with Multple Line
         CreatePurchaseDocument(PurchaseHeader,
              PurchaseHeader."Document Type"::Invoice,
              Vendor."No.",
@@ -1226,15 +1284,15 @@ codeunit 18791 "TDS On Purchase Invoice"
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::"G/L Account", false);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 4);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 4);
     end;
 
     [Test]
-    //Scenario 354242-Check if the program is calculating TDS in case an invoice is raised to the foreign Vendor using Purchase Order/Invoice and Surcharge Overlook is selected with Item.
-    //Scenario 353962- Check if the program is calculating TDS in case an invoice is raised to the foreign Vendor using Purchase Order/Invoice and Threshold and Surcharge Overlook is selected with Item.
+    // [SCENARIO] [354242] Check if the program is calculating TDS in case an invoice is raised to the foreign Vendor using Purchase Order/Invoice and Surcharge Overlook is selected with Item.
+    // [SCENARIO] [353962] Check if the program is calculating TDS in case an invoice is raised to the foreign Vendor using Purchase Order/Invoice and Threshold and Surcharge Overlook is selected with Item.
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromForeignVendorPurchaseInvoicewithItemWithPANWithoutConCode()
+    procedure PostFromForeignVendorPurchInvwithItemWithPANWithoutConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -1246,33 +1304,33 @@ codeunit 18791 "TDS On Purchase Invoice"
         DocumentNo: Code[20];
     begin
         IsForeignVendor := true;
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         LibraryTDS.CreateForeignVendorWithPANNoandWithoutConcessional(Vendor);
         LibraryTDS.CreateNatureOfRemittance(TDSNatureOfRemittance);
         LibraryTDS.CreateActApplicable(TDSActApplicable);
         LibraryTDS.AttachSectionWithForeignVendor(TDSPostingSetup."TDS Section", Vendor."No.", true, true, true, true, TDSNatureOfRemittance.Code, TDSActApplicable.Code);
-        Storage.Set('NatureOfRemittance', TDSNatureOfRemittance.Code);
-        Storage.Set('ActApplicable', TDSActApplicable.Code);
-        Storage.Set('CountryCode', Vendor."Country/Region Code");
+        Storage.Set(NatureOfRemittanceLbl, TDSNatureOfRemittance.Code);
+        Storage.Set(ActApplicableLbl, TDSActApplicable.Code);
+        Storage.Set(CountryCodeLbl, Vendor."Country/Region Code");
 
-        //[WHEN] Created and Posted Foreign Vendor Purchase Invoice
+        // [WHEN] Created and Posted Foreign Vendor Purchase Invoice
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.", WorkDate(), PurchaseLine.Type::Item, false);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, true, true);
         IsForeignVendor := false
     end;
 
     [Test]
-    //Scenario 353961-Check if the program is calculating TDS in case an invoice with Fixed Asset is raised to the foreign Vendor using Purchase Invoice and Threshold and Surcharge Overlook is selected.
+    // [SCENARIO] [353961-Check if the program is calculating TDS in case an invoice with Fixed Asset is raised to the foreign Vendor using Purchase Invoice and Threshold and Surcharge Overlook is selected.
 
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromForeignVendorPurchaseInvoicewithFixedAssetWithPANWithoutConCode()
+    procedure PostFromForeignVendorPurchInvWithFAWithPANWithoutConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -1284,33 +1342,33 @@ codeunit 18791 "TDS On Purchase Invoice"
         DocumentNo: Code[20];
     begin
         IsForeignVendor := true;
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         LibraryTDS.CreateForeignVendorWithPANNoandWithoutConcessional(Vendor);
         LibraryTDS.CreateNatureOfRemittance(TDSNatureOfRemittance);
         LibraryTDS.CreateActApplicable(TDSActApplicable);
         LibraryTDS.AttachSectionWithForeignVendor(TDSPostingSetup."TDS Section", Vendor."No.", true, true, true, true, TDSNatureOfRemittance.Code, TDSActApplicable.Code);
-        Storage.Set('NatureOfRemittance', TDSNatureOfRemittance.Code);
-        Storage.Set('ActApplicable', TDSActApplicable.Code);
-        Storage.Set('CountryCode', Vendor."Country/Region Code");
+        Storage.Set(NatureOfRemittanceLbl, TDSNatureOfRemittance.Code);
+        Storage.Set(ActApplicableLbl, TDSActApplicable.Code);
+        Storage.Set(CountryCodeLbl, Vendor."Country/Region Code");
 
-        //[WHEN] Created and Posted Foreign Vendor Purchase Invoice
+        // [WHEN] Created and Posted Foreign Vendor Purchase Invoice
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.", WorkDate(), PurchaseLine.Type::"Fixed Asset", false);
 
-        //[THEN] G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 3);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 3);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, true, true);
         IsForeignVendor := false
     end;
 
     [Test]
-    //Scenario 353949- Check if the program is calculating TDS in case an invoice is raised to the foreign Vendor using Purchase Order/Invoice and Threshold Surcharge Overlook is selected with Charge (Item).
-    //Scenario 353959- Check if the program is calculating TDS in case an invoice is raised to the foreign Vendor using Purchase Order/Invoice and Surcharge Overlook is not selected Charge (Item)
+    // [SCENARIO] [353949] Check if the program is calculating TDS in case an invoice is raised to the foreign Vendor using Purchase Order/Invoice and Threshold Surcharge Overlook is selected with Charge (Item).
+    // [SCENARIO] [353959] Check if the program is calculating TDS in case an invoice is raised to the foreign Vendor using Purchase Order/Invoice and Surcharge Overlook is not selected Charge (Item)
     [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromForeignVendorPurchaseInvoicewithChargeItemWithPANWithoutConCode()
+    procedure PostFromForeignVendorPurchInvwithChargeItemWithPANWithoutConCode()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -1321,16 +1379,16 @@ codeunit 18791 "TDS On Purchase Invoice"
         TDSActApplicable: Record "Act Applicable";
     begin
         IsForeignVendor := true;
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode with Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         LibraryTDS.CreateForeignVendorWithPANNoandWithoutConcessional(Vendor);
         LibraryTDS.CreateNatureOfRemittance(TDSNatureOfRemittance);
         LibraryTDS.CreateActApplicable(TDSActApplicable);
         LibraryTDS.AttachSectionWithForeignVendor(TDSPostingSetup."TDS Section", Vendor."No.", true, true, true, true, TDSNatureOfRemittance.Code, TDSActApplicable.Code);
-        Storage.Set('NatureOfRemittance', TDSNatureOfRemittance.Code);
-        Storage.Set('ActApplicable', TDSActApplicable.Code);
-        Storage.Set('CountryCode', Vendor."Country/Region Code");
+        Storage.Set(NatureOfRemittanceLbl, TDSNatureOfRemittance.Code);
+        Storage.Set(ActApplicableLbl, TDSActApplicable.Code);
+        Storage.Set(CountryCodeLbl, Vendor."Country/Region Code");
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
         //// [WHEN] Create and and Post Purchase Invoice
@@ -1346,8 +1404,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 354022- Check if the program is calculating TDS using Purchase Invoice in case of Line Discount.
-    procedure PostFromPurchaseInvoiceWithGLandLineDiscount()
+    // [SCENARIO] [354022] Check if the program is calculating TDS using Purchase Invoice in case of Line Discount.
+    procedure PostFromPurchInvWithGLandLineDiscount()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -1356,12 +1414,12 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[THEN] Created and Posted Purchase Invoice with Line Discount
+        // [THEN] Created and Posted Purchase Invoice with Line Discount
         DocumentNo := CreateAndPostPurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
@@ -1370,8 +1428,8 @@ codeunit 18791 "TDS On Purchase Invoice"
             PurchaseLine.Type::"G/L Account",
             true);
 
-        //[THEN]G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 4);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 4);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, true, true);
     end;
@@ -1379,8 +1437,8 @@ codeunit 18791 "TDS On Purchase Invoice"
     [Test]
 
     [HandlerFunctions('TaxRatePageHandler')]
-    //Scenario 354022- Check if the program is calculating TDS using Purchase Invoice in case of Line Discount.
-    procedure PostFromPurchaseInvoiceWithItemandLineDiscount()
+    // [SCENARIO] [354022] Check if the program is calculating TDS using Purchase Invoice in case of Line Discount.
+    procedure PostFromPurchInvWithItemandLineDiscount()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -1389,12 +1447,12 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
 
-        //[THEN] Created and Posted Purchase Invoice with Line Discount
+        // [THEN] Created and Posted Purchase Invoice with Line Discount
         DocumentNo := CreateAndPostPurchaseDocument(
             PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
@@ -1403,16 +1461,16 @@ codeunit 18791 "TDS On Purchase Invoice"
             PurchaseLine.Type::Item,
             true);
 
-        //[THEN]G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 4);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 4);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
         VerifyTDSEntry(DocumentNo, true, true, true);
     end;
 
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorInvoiceDiscountPageHandler')]
-    //Scenario 354023- Check if the program is calculating TDS using Purchase Invoice in case of Invoice Discount.
-    procedure PostFromPurchaseInvoiceWithGLandInvoiceDiscount()
+    // [SCENARIO] [354023] Check if the program is calculating TDS using Purchase Invoice in case of Invoice Discount.
+    procedure PostFromPurchInvWithGLandInvoiceDiscount()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -1421,13 +1479,13 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
         CreateVendorInvoiceDiscount(Vendor."No.");
 
-        //[THEN] Created and Posted Purchase Invoice with Invoice Discount
+        // [THEN] Created and Posted Purchase Invoice with Invoice Discount
         CreatePurchaseDocument(PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
             Vendor."No.",
@@ -1444,15 +1502,15 @@ codeunit 18791 "TDS On Purchase Invoice"
         end;
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        //[THEN]G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 4);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 4);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
     end;
 
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorInvoiceDiscountPageHandler')]
-    //Scenario 354023- Check if the program is calculating TDS using Purchase Invoice in case of Invoice Discount.
-    procedure PostFromPurchaseInvoiceWithItemAndInvoiceDiscount()
+    // [SCENARIO] [354023] Check if the program is calculating TDS using Purchase Invoice in case of Invoice Discount.
+    procedure PostFromPurchInvWithItemAndInvoiceDiscount()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -1461,13 +1519,13 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
         CreateVendorInvoiceDiscount(Vendor."No.");
 
-        //[THEN] Created and Posted Purchase Invoice with Invoice Discount
+        // [THEN] Created and Posted Purchase Invoice with Invoice Discount
         CreatePurchaseDocument(PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
             Vendor."No.",
@@ -1484,15 +1542,15 @@ codeunit 18791 "TDS On Purchase Invoice"
         end;
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        //[THEN]G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 4);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 4);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
     end;
 
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorInvoiceDiscountPageHandler')]
-    //Scenario 354023- Check if the program is calculating TDS using Purchase Invoice in case of Invoice Discount.
-    procedure PostFromPurchaseInvoiceWithFixedAssetAndInvoiceDiscount()
+    // [SCENARIO] [354023] Check if the program is calculating TDS using Purchase Invoice in case of Invoice Discount.
+    procedure PostFromPurchInvWithFAAndInvoiceDiscount()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -1501,13 +1559,13 @@ codeunit 18791 "TDS On Purchase Invoice"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
         CreateVendorInvoiceDiscount(Vendor."No.");
 
-        //[THEN] Created and Posted Purchase Invoice with Invoice Discount
+        // [THEN] Created and Posted Purchase Invoice with Invoice Discount
         CreatePurchaseDocument(PurchaseHeader,
             PurchaseHeader."Document Type"::Invoice,
             Vendor."No.",
@@ -1524,15 +1582,15 @@ codeunit 18791 "TDS On Purchase Invoice"
         end;
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        //[THEN]G/L Entries and TDS Entries Verified
-        LibraryTDS.VerifyGLEntryCount(DocumentNo, 4);
+        // [THEN] G/L Entries and TDS Entries Verified
+        VerifyGLEntryCount(DocumentNo, 4);
         LibraryTDS.VerifyGLEntryWithTDS(DocumentNo, TDSPostingSetup."TDS Account");
     end;
 
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorInvoiceDiscountPageHandler')]
-    //Scenario 354023- Check if the program is calculating TDS using Purchase Invoice in case of Invoice Discount.
-    procedure PostFromPurchaseInvoiceWithChargeItemAndInvoiceDiscount()
+    // [SCENARIO] [354023] Check if the program is calculating TDS using Purchase Invoice in case of Invoice Discount.
+    procedure PostFromPurchInvWithChargeItemAndInvoiceDiscount()
     var
         ConcessionalCode: Record "Concessional Code";
         TDSPostingSetup: Record "TDS Posting Setup";
@@ -1540,13 +1598,13 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        //[GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
         LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
         LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
         CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
         CreateVendorInvoiceDiscount(Vendor."No.");
 
-        //[THEN] Created and Purchase Invoice with Invoice Discount
+        // [THEN] Created and Purchase Invoice with Invoice Discount
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, Purchaseline.Type::"Charge (Item)", false);
 
@@ -1560,8 +1618,43 @@ codeunit 18791 "TDS On Purchase Invoice"
         end;
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
 
-        //[THEN] Expected Error Verified
+        // [THEN] Expected Error Verified
         Assert.ExpectedError(StrSubstNo(ChargeItemErr, PurchaseLine."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('TaxRatePageHandler,TDSSectionHandler')]
+    procedure CheckTDSSectionOnPurchaseInvoice()
+    var
+        ConcessionalCode: Record "Concessional Code";
+        TDSPostingSetup: Record "TDS Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+    begin
+        // [GIVEN] Created Setup for AssesseeCode,TDSPostingSetup,TDSSection,ConcessionalCode without Threshold and Surcharge Overlook.
+        LibraryTDS.CreateTDSSetup(Vendor, TDSPostingSetup, ConcessionalCode);
+        Storage.Set(TDSSectionLbl, TDSPostingSetup."TDS Section");
+        LibraryTDS.UpdateVendorWithPANWithoutConcessional(Vendor, true, true);
+        CreateTaxRateSetup(TDSPostingSetup."TDS Section", Vendor."Assessee Code", '', WorkDate());
+
+        // [WHEN] Created and Purchase Invoice with Invoice Discount
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, Purchaseline.Type::Item, false);
+        UpdateTDSSection(PurchaseHeader);
+
+        // [THEN] Verified TDS Section selected on Purchase line
+        Assert.AreEqual(TDSPostingSetup."TDS Section", PurchaseLine."TDS Section Code",
+            StrSubstNo(VerifyErr, PurchaseLine.FieldCaption("TDS Section Code"), PurchaseLine.TableCaption));
+    end;
+
+    local procedure UpdateTDSSection(PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoice.PurchLines."TDS Section Code".Lookup();
     end;
 
     local procedure CreateVendorInvoiceDiscount(VendorNo: Code[20])
@@ -1573,19 +1666,6 @@ codeunit 18791 "TDS On Purchase Invoice"
         VendorTestPage."Invoice &Discounts".Invoke();
     end;
 
-    [PageHandler]
-    procedure VendorInvoiceDiscountPageHandler(var VendInvDisc: TestPage "Vend. Invoice Discounts");
-    begin
-        VendInvDisc."Discount %".SetValue(LibraryRandom.RandIntInRange(1, 4));
-        VendInvDisc.OK().Invoke();
-    end;
-
-    [ConfirmHandler]
-    procedure ConfirmHandler(Question: Text; VAR Reply: Boolean)
-    begin
-        Reply := TRUE;
-    end;
-
     local procedure CreateTaxRateSetup(TDSSection: Code[10]; AssesseeCode: Code[10]; ConcessionlCode: Code[10]; EffectiveDate: Date)
     var
         Section: Code[10];
@@ -1593,24 +1673,24 @@ codeunit 18791 "TDS On Purchase Invoice"
         TDSConcessionlCode: Code[10];
     begin
         Section := TDSSection;
-        Storage.Set('SectionCode', Section);
+        Storage.Set(TDSSectionLbl, Section);
         TDSAssesseeCode := AssesseeCode;
-        Storage.Set('TDSAssesseeCode', TDSAssesseeCode);
+        Storage.Set(TDSAssesseeCodeLbl, TDSAssesseeCode);
         TDSConcessionlCode := ConcessionlCode;
-        Storage.Set('TDSConcessionalCode', TDSConcessionlCode);
-        Storage.Set('EffectiveDate', Format(EffectiveDate));
+        Storage.Set(TDSConcessionalCodeLbl, TDSConcessionlCode);
+        Storage.Set(EffectiveDateLbl, Format(EffectiveDate, 0, 9));
         CreateTaxRate();
     end;
 
     local procedure GenerateTaxComponentsPercentage()
     begin
-        Storage.Set('TDSPercentage', Format(LibraryRandom.RandIntInRange(2, 4)));
-        Storage.Set('NonPANTDSPercentage', Format(LibraryRandom.RandIntInRange(2, 4)));
-        Storage.Set('SurchargePercentage', Format(LibraryRandom.RandIntInRange(2, 4)));
-        Storage.Set('eCessPercentage', Format(LibraryRandom.RandIntInRange(2, 4)));
-        Storage.Set('SHECessPercentage', Format(LibraryRandom.RandIntInRange(2, 4)));
-        Storage.Set('TDSThresholdAmount', Format(LibraryRandom.RandIntInRange(2, 4)));
-        Storage.Set('SurchargeThresholdAmount', Format(LibraryRandom.RandIntInRange(2, 4)));
+        Storage.Set(TDSPercentageLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        Storage.Set(NonPANTDSPercentageLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        Storage.Set(SurchargePercentageLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        Storage.Set(ECessPercentageLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        Storage.Set(SHECessPercentageLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        Storage.Set(TDSThresholdAmountLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
+        Storage.Set(SurchargeThresholdAmountLbl, Format(LibraryRandom.RandIntInRange(2, 4)));
     end;
 
     local procedure CreateTaxRate()
@@ -1623,54 +1703,6 @@ codeunit 18791 "TDS On Purchase Invoice"
         PageTaxtype.OpenEdit();
         PageTaxtype.Filter.SetFilter(Code, TDSSetup."Tax Type");
         PageTaxtype.TaxRates.Invoke();
-    end;
-
-    [PageHandler]
-    procedure TaxRatePageHandler(var TaxRate: TestPage "Tax Rates");
-    var
-        EffectiveDate: Date;
-        TDSPercentage: Decimal;
-        NonPANTDSPercentage: Decimal;
-        SurchargePercentage: Decimal;
-        eCessPercentage: Decimal;
-        SHECessPercentage: Decimal;
-        TDSThresholdAmount: Decimal;
-        SurchargeThresholdAmount: Decimal;
-    begin
-        GenerateTaxComponentsPercentage();
-        Evaluate(EffectiveDate, Storage.Get('EffectiveDate'));
-        Evaluate(TDSPercentage, Storage.Get('TDSPercentage'));
-        Evaluate(NonPANTDSPercentage, Storage.Get('NonPANTDSPercentage'));
-        Evaluate(SurchargePercentage, Storage.Get('SurchargePercentage'));
-        Evaluate(eCessPercentage, Storage.Get('eCessPercentage'));
-        Evaluate(SHECessPercentage, Storage.Get('SHECessPercentage'));
-        Evaluate(TDSThresholdAmount, Storage.Get('TDSThresholdAmount'));
-        Evaluate(SurchargeThresholdAmount, Storage.Get('SurchargeThresholdAmount'));
-
-        TaxRate.AttributeValue1.SetValue(Storage.Get('SectionCode'));
-        TaxRate.AttributeValue2.SetValue(Storage.Get('TDSAssesseeCode'));
-        TaxRate.AttributeValue3.SetValue(EffectiveDate);
-        TaxRate.AttributeValue4.SetValue(Storage.Get('TDSConcessionalCode'));
-        if IsForeignVendor then begin
-            TaxRate.AttributeValue5.SetValue(Storage.Get('NatureOfRemittance'));
-            TaxRate.AttributeValue6.SetValue(Storage.Get('ActApplicable'));
-            TaxRate.AttributeValue7.SetValue(Storage.Get('CountryCode'))
-        end else begin
-            TaxRate.AttributeValue5.SetValue('');
-            TaxRate.AttributeValue6.SetValue('');
-            TaxRate.AttributeValue7.SetValue('');
-        end;
-        TaxRate.AttributeValue8.SetValue(TDSPercentage);
-        TaxRate.AttributeValue9.SetValue(NonPANTDSPercentage);
-        TaxRate.AttributeValue10.SetValue(SurchargePercentage);
-        TaxRate.AttributeValue11.SetValue(eCessPercentage);
-        TaxRate.AttributeValue12.SetValue(SHECessPercentage);
-        TaxRate.AttributeValue13.SetValue(TDSThresholdAmount);
-        TaxRate.AttributeValue14.SetValue(SurchargeThresholdAmount);
-        TaxRate.AttributeValue15.SetValue('');
-        TaxRate.AttributeValue16.SetValue('');
-        TaxRate.AttributeValue17.SetValue(0.00);
-        TaxRate.OK().Invoke();
     end;
 
     local procedure VerifyStatisticsForTDS(var PurchaseHeader: Record "Purchase Header")
@@ -1708,30 +1740,21 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseInvoice.GoToRecord(PurchaseHeader);
         PurchaseInvoiceStatistics.OpenEdit();
         PurchaseInvoice.Statistics.Invoke();
-        if (CopyStr(Storage.Get('TDSAmount'), StrPos(Storage.Get('TDSAmount'), '.'), StrLen(Storage.Get('TDSAmount'))) = '.00') then
-            Evaluate(ActualAmount, CopyStr(Storage.Get('TDSAmount'), 1, StrPos(Storage.Get('TDSAmount'), '.') - 1))
+        if (CopyStr(Storage.Get(TDSAmountLbl), StrPos(Storage.Get(TDSAmountLbl), '.'), StrLen(Storage.Get(TDSAmountLbl))) = '.00') then
+            Evaluate(ActualAmount, CopyStr(Storage.Get(TDSAmountLbl), 1, StrPos(Storage.Get(TDSAmountLbl), '.') - 1))
         else
-            Evaluate(ActualAmount, Storage.Get('TDSAmount'));
+            Evaluate(ActualAmount, Storage.Get(TDSAmountLbl));
         Assert.AreNearlyEqual(Round(ExpectedTDSAmount, 0.01, '='), ActualAmount, 0,
-        STRSUBSTNO(AmountErr, ActualAmount, PurchaseInvoiceStatistics."TDS Amount".Caption()));
-    end;
-
-    [ModalPageHandler]
-    procedure Statistics(var PurchaseStatistics: TestPage "Purchase Statistics")
-    var
-        Amt: Text;
-    begin
-        Amt := (PurchaseStatistics."TDS Amount".Value);
-        Storage.Set('TDSAmount', Amt);
+        StrSubstNo(AmountErr, ActualAmount, PurchaseInvoiceStatistics."TDS Amount".Caption()));
     end;
 
     local procedure CreatePurchaseDocument(
-                var PurchaseHeader: Record "Purchase Header";
-                DocumentType: enum "Purchase Document Type";
-                                  VendorNo: Code[20];
-                                  PostingDate: Date;
-                                  LineType: enum "Purchase Line Type";
-                                  LineDiscount: Boolean)
+        var PurchaseHeader: Record "Purchase Header";
+        DocumentType: enum "Purchase Document Type";
+        VendorNo: Code[20];
+        PostingDate: Date;
+        LineType: enum "Purchase Line Type";
+        LineDiscount: Boolean)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1742,11 +1765,11 @@ codeunit 18791 "TDS On Purchase Invoice"
     end;
 
     procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header";
-                               DocumentType: enum "Purchase Document Type";
-                               VendorNo: Code[20];
-                               PostingDate: Date;
-                               LineType: enum "Purchase Line Type";
-                               LineDiscount: Boolean): Code[20]
+        DocumentType: enum "Purchase Document Type";
+        VendorNo: Code[20];
+        PostingDate: Date;
+        LineType: enum "Purchase Line Type";
+        LineDiscount: Boolean): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1754,20 +1777,18 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, LineType, LineDiscount);
-        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, TRUE, true))
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true))
     end;
 
     local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line";
         Type: enum "Purchase Line Type"; LineDiscount: Boolean)
-    var
-        TDSSectionCode: Code[10];
     begin
         InsertPurchaseLine(PurchaseLine, PurchaseHeader, Type);
         if LineDiscount then
-            PurchaseLine.VALIDATE("Line Discount %", LibraryRandom.RandDecInRange(10, 20, 2));
+            PurchaseLine.Validate("Line Discount %", LibraryRandom.RandDecInRange(10, 20, 2));
 
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInDecimalRange(1000, 1001, 0));
-        PurchaseLine.MODIFY(TRUE);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure InsertPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: record "Purchase Header"; LineType: enum "Purchase Line Type")
@@ -1783,11 +1804,11 @@ codeunit 18791 "TDS On Purchase Invoice"
         PurchaseLine.Validate(Type, LineType);
         PurchaseLine.Validate("No.", GetLineTypeNo(LineType));
         PurchaseLine.Validate(Quantity, LibraryRandom.RandIntInRange(1, 10));
-        TDSSectionCode := CopyStr(Storage.Get('SectionCode'), 1, 10);
+        TDSSectionCode := CopyStr(Storage.Get(TDSSectionLbl), 1, 10);
         PurchaseLine.Validate("TDS Section Code", TDSSectionCode);
         if IsForeignVendor then begin
-            PurchaseLine.Validate("Nature of Remittance", Storage.Get('NatureOfRemittance'));
-            PurchaseLine.Validate("Act Applicable", Storage.Get('ActApplicable'));
+            PurchaseLine.Validate("Nature of Remittance", Storage.Get(NatureOfRemittanceLbl));
+            PurchaseLine.Validate("Act Applicable", Storage.Get(ActApplicableLbl));
         end;
         PurchaseLine.Insert(true);
     end;
@@ -1851,7 +1872,6 @@ codeunit 18791 "TDS On Purchase Invoice"
         DepreciationBook: Record "Depreciation Book";
         FADepreciationBook: Record "FA Depreciation Book";
         FASetup: Record "FA Setup";
-        VATPostingSetup: Record "VAT Posting Setup";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
     begin
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
@@ -1869,7 +1889,7 @@ codeunit 18791 "TDS On Purchase Invoice"
         exit(FixedAsset."No.")
     end;
 
-    procedure UpdateFAPostingGroupGLAccounts(FAPostingGroupCode: Code[20])
+    local procedure UpdateFAPostingGroupGLAccounts(FAPostingGroupCode: Code[20])
     var
         FAPostingGroup: Record "FA Posting Group";
     begin
@@ -1904,6 +1924,14 @@ codeunit 18791 "TDS On Purchase Invoice"
             exit(PurchInvHeader."Currency Factor");
     end;
 
+    local procedure VerifyGLEntryCount(DocumentNo: Code[20]; ExpectedCount: Integer)
+    var
+        DummyGLEntry: Record "G/L Entry";
+    begin
+        DummyGLEntry.SetRange("Document No.", DocumentNo);
+        Assert.RecordCount(DummyGLEntry, ExpectedCount);
+    end;
+
     local procedure VerifyTDSEntry(DocumentNo: Code[20]; WithPAN: Boolean; SurchargeOverlook: Boolean; TDSThresholdOverlook: Boolean)
     var
         TDSEntry: Record "TDS Entry";
@@ -1921,13 +1949,13 @@ codeunit 18791 "TDS On Purchase Invoice"
         SurchargeThresholdAmount: Decimal;
         CurrencyFactor: Decimal;
     begin
-        Evaluate(TDSPercentage, Storage.Get('TDSPercentage'));
-        Evaluate(NonPANTDSPercentage, Storage.Get('NonPANTDSPercentage'));
-        Evaluate(SurchargePercentage, Storage.Get('SurchargePercentage'));
-        Evaluate(eCessPercentage, Storage.Get('eCessPercentage'));
-        Evaluate(SHECessPercentage, Storage.Get('SHECessPercentage'));
-        Evaluate(TDSThresholdAmount, Storage.Get('TDSThresholdAmount'));
-        Evaluate(SurchargeThresholdAmount, Storage.Get('SurchargeThresholdAmount'));
+        Evaluate(TDSPercentage, Storage.Get(TDSPercentageLbl));
+        Evaluate(NonPANTDSPercentage, Storage.Get(NonPANTDSPercentageLbl));
+        Evaluate(SurchargePercentage, Storage.Get(SurchargePercentageLbl));
+        Evaluate(eCessPercentage, Storage.Get(ECessPercentageLbl));
+        Evaluate(SHECessPercentage, Storage.Get(SHECessPercentageLbl));
+        Evaluate(TDSThresholdAmount, Storage.Get(TDSThresholdAmountLbl));
+        Evaluate(SurchargeThresholdAmount, Storage.Get(SurchargeThresholdAmountLbl));
 
         TDSBaseAmount := GetBaseAmountForPurchase(DocumentNo);
         CurrencyFactor := GetCurrencyFactorForPurchase(DocumentNo);
@@ -1948,40 +1976,115 @@ codeunit 18791 "TDS On Purchase Invoice"
             ExpectedSurchargeAmount := ExpectdTDSAmount * SurchargePercentage / 100;
         ExpectedEcessAmount := (ExpectdTDSAmount + ExpectedSurchargeAmount) * eCessPercentage / 100;
         ExpectedSHEcessAmount := (ExpectdTDSAmount + ExpectedSurchargeAmount) * SHECessPercentage / 100;
-        TDSEntry.SETRANGE("Document No.", DocumentNo);
-        TDSEntry.FINDFIRST();
+        TDSEntry.SetRange("Document No.", DocumentNo);
+        TDSEntry.FindFirst();
         Assert.AreNearlyEqual(
          TDSBaseAmount / CurrencyFactor, TDSEntry."TDS Base Amount", LibraryTDS.GetTDSRoundingPrecision(),
-          STRSUBSTNO(AmountErr, TDSEntry.FIELDNAME("TDS Base Amount"), TDSEntry.TABLECAPTION()));
+          StrSubstNo(AmountErr, TDSEntry.FieldName("TDS Base Amount"), TDSEntry.TableCaption()));
         if WithPAN then
             Assert.AreEqual(
-              TDSPercentage, TDSEntry."TDS %",
-              STRSUBSTNO(AmountErr, TDSEntry.FIELDNAME("TDS %"), TDSEntry.TABLECAPTION()))
+                TDSPercentage, TDSEntry."TDS %",
+                StrSubstNo(AmountErr, TDSEntry.FieldName("TDS %"), TDSEntry.TableCaption()))
         else
             Assert.AreEqual(
-            NonPANTDSPercentage, TDSEntry."TDS %",
-            STRSUBSTNO(AmountErr, TDSEntry.FIELDNAME("TDS %"), TDSEntry.TABLECAPTION()));
+                NonPANTDSPercentage, TDSEntry."TDS %",
+                StrSubstNo(AmountErr, TDSEntry.FieldName("TDS %"), TDSEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          ExpectdTDSAmount, TDSEntry."TdS Amount", LibraryTdS.GetTDSRoundingPrecision(),
-          STRSUBSTNO(AmountErr, TDSEntry.FIELDNAME("TDS Amount"), TDSEntry.TABLECAPTION()));
+            ExpectdTDSAmount, TDSEntry."TdS Amount", LibraryTdS.GetTDSRoundingPrecision(),
+            StrSubstNo(AmountErr, TDSEntry.FieldName("TDS Amount"), TDSEntry.TableCaption()));
         Assert.AreEqual(
-          SurchargePercentage, TDSEntry."Surcharge %",
-          STRSUBSTNO(AmountErr, TDSEntry.FIELDNAME("Surcharge %"), TDSEntry.TABLECAPTION()));
+            SurchargePercentage, TDSEntry."Surcharge %",
+            StrSubstNo(AmountErr, TDSEntry.FieldName("Surcharge %"), TDSEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          ExpectedSurchargeAmount, TDSEntry."Surcharge Amount", LibraryTDS.GetTDSRoundingPrecision(),
-          STRSUBSTNO(AmountErr, TDSEntry.FIELDNAME("Surcharge Amount"), TDSEntry.TABLECAPTION()));
+            ExpectedSurchargeAmount, TDSEntry."Surcharge Amount", LibraryTDS.GetTDSRoundingPrecision(),
+            StrSubstNo(AmountErr, TDSEntry.FieldName("Surcharge Amount"), TDSEntry.TableCaption()));
         Assert.AreEqual(
-          eCessPercentage, TDSEntry."eCESS %",
-          STRSUBSTNO(AmountErr, TDSEntry.FIELDNAME("eCESS %"), TDSEntry.TABLECAPTION()));
+            eCessPercentage, TDSEntry."eCESS %",
+            StrSubstNo(AmountErr, TDSEntry.FieldName("eCESS %"), TDSEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          ExpectedEcessAmount, TDSEntry."eCESS Amount", LibraryTDS.GetTDSRoundingPrecision(),
-          STRSUBSTNO(AmountErr, TDSEntry.FIELDNAME("eCESS Amount"), TDSEntry.TABLECAPTION()));
+            ExpectedEcessAmount, TDSEntry."eCESS Amount", LibraryTDS.GetTDSRoundingPrecision(),
+            StrSubstNo(AmountErr, TDSEntry.FieldName("eCESS Amount"), TDSEntry.TableCaption()));
         Assert.AreEqual(
-          SHECessPercentage, TDSEntry."SHE Cess %",
-          STRSUBSTNO(AmountErr, TDSEntry.FIELDNAME("SHE Cess %"), TDSEntry.TABLECAPTION()));
+            SHECessPercentage, TDSEntry."SHE Cess %",
+            StrSubstNo(AmountErr, TDSEntry.FieldName("SHE Cess %"), TDSEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          ExpectedSHEcessAmount, TDSEntry."SHE Cess Amount", LibraryTDS.GetTDSRoundingPrecision(),
-          STRSUBSTNO(AmountErr, TDSEntry.FIELDNAME("SHE Cess Amount"), TDSEntry.TABLECAPTION()));
+            ExpectedSHEcessAmount, TDSEntry."SHE Cess Amount", LibraryTDS.GetTDSRoundingPrecision(),
+            StrSubstNo(AmountErr, TDSEntry.FieldName("SHE Cess Amount"), TDSEntry.TableCaption()));
+    end;
+
+    [ModalPageHandler]
+    procedure TDSSectionHandler(var TDSSections: TestPage "TDS Sections")
+    begin
+        TDSSections.Filter.SetFilter(Code, Storage.Get(TDSSectionLbl));
+    end;
+
+    [PageHandler]
+    procedure VendorInvoiceDiscountPageHandler(var VendInvDisc: TestPage "Vend. Invoice Discounts");
+    begin
+        VendInvDisc."Discount %".SetValue(LibraryRandom.RandIntInRange(1, 4));
+        VendInvDisc.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Question: Text; VAR Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [PageHandler]
+    procedure TaxRatePageHandler(var TaxRates: TestPage "Tax Rates");
+    var
+        EffectiveDate: Date;
+        TDSPercentage: Decimal;
+        NonPANTDSPercentage: Decimal;
+        SurchargePercentage: Decimal;
+        eCessPercentage: Decimal;
+        SHECessPercentage: Decimal;
+        TDSThresholdAmount: Decimal;
+        SurchargeThresholdAmount: Decimal;
+    begin
+        GenerateTaxComponentsPercentage();
+        Evaluate(EffectiveDate, Storage.Get(EffectiveDateLbl), 9);
+        Evaluate(TDSPercentage, Storage.Get(TDSPercentageLbl));
+        Evaluate(NonPANTDSPercentage, Storage.Get(NonPANTDSPercentageLbl));
+        Evaluate(SurchargePercentage, Storage.Get(SurchargePercentageLbl));
+        Evaluate(eCessPercentage, Storage.Get(ECessPercentageLbl));
+        Evaluate(SHECessPercentage, Storage.Get(SHECessPercentageLbl));
+        Evaluate(TDSThresholdAmount, Storage.Get(TDSThresholdAmountLbl));
+        Evaluate(SurchargeThresholdAmount, Storage.Get(SurchargeThresholdAmountLbl));
+
+        TaxRates.New();
+        TaxRates.AttributeValue1.SetValue(Storage.Get(TDSSectionLbl));
+        TaxRates.AttributeValue2.SetValue(Storage.Get(TDSAssesseeCodeLbl));
+        TaxRates.AttributeValue3.SetValue(EffectiveDate);
+        TaxRates.AttributeValue4.SetValue(Storage.Get(TDSConcessionalCodeLbl));
+        if IsForeignVendor then begin
+            TaxRates.AttributeValue5.SetValue(Storage.Get(NatureOfRemittanceLbl));
+            TaxRates.AttributeValue6.SetValue(Storage.Get(ActApplicableLbl));
+            TaxRates.AttributeValue7.SetValue(Storage.Get(CountryCodeLbl))
+        end else begin
+            TaxRates.AttributeValue5.SetValue('');
+            TaxRates.AttributeValue6.SetValue('');
+            TaxRates.AttributeValue7.SetValue('');
+        end;
+        TaxRates.AttributeValue8.SetValue(TDSPercentage);
+        TaxRates.AttributeValue9.SetValue(NonPANTDSPercentage);
+        TaxRates.AttributeValue10.SetValue(SurchargePercentage);
+        TaxRates.AttributeValue11.SetValue(eCessPercentage);
+        TaxRates.AttributeValue12.SetValue(SHECessPercentage);
+        TaxRates.AttributeValue13.SetValue(TDSThresholdAmount);
+        TaxRates.AttributeValue14.SetValue(SurchargeThresholdAmount);
+        TaxRates.AttributeValue15.SetValue(0);
+        TaxRates.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure Statistics(var PurchaseStatistics: TestPage "Purchase Statistics")
+    var
+        Amt: Text;
+    begin
+        Amt := (PurchaseStatistics."TDS Amount".Value);
+        Storage.Set(TDSAmountLbl, Amt);
     end;
 
     var
@@ -1996,8 +2099,24 @@ codeunit 18791 "TDS On Purchase Invoice"
         Storage: Dictionary of [Text, Text];
         ExpectedTDSAmount: Decimal;
         IsForeignVendor: Boolean;
+        EffectiveDateLbl: Label 'EffectiveDate', Locked = true;
+        TDSPercentageLbl: Label 'TDSPercentage', Locked = true;
+        NonPANTDSPercentageLbl: Label 'NonPANTDSPercentage', Locked = true;
+        SurchargePercentageLbl: Label 'SurchargePercentage', Locked = true;
+        ECessPercentageLbl: Label 'ECessPercentage', Locked = true;
+        SHECessPercentageLbl: Label 'SHECessPercentage', Locked = true;
+        TDSThresholdAmountLbl: Label 'TDSThresholdAmount', Locked = true;
+        TDSSectionLbl: Label 'SectionCode', Locked = true;
+        TDSAssesseeCodeLbl: Label 'TDSAssesseeCode', Locked = true;
+        SurchargeThresholdAmountLbl: Label 'SurchargeThresholdAmount', Locked = true;
+        TDSConcessionalCodeLbl: Label 'TDSConcessionalCode', Locked = true;
+        NatureOfRemittanceLbl: Label 'NatureOfRemittance', Locked = true;
+        ActApplicableLbl: Label 'ActApplicable', Locked = true;
+        CountryCodeLbl: Label 'CountryCode', Locked = true;
+        TDSAmountLbl: Label 'TDSAmount', locked = true;
         IncomeTaxAccountingErr: Label 'The Posting Date doesn''t lie in Tax Accounting Period', Locked = true;
         ChargeItemErr: Label 'You must assign item charge %1 if you want to invoice it.', Comment = '%1= No.';
         TANNoErr: Label 'T.A.N. No. must have a value in Company Information', locked = true;
         AmountErr: Label '%1 is incorrect in %2.', Comment = '%1 and %2 = TCS Amount and TCS field Caption';
+        VerifyErr: Label '%1 is incorrect in %2.', Comment = '%1 and %2 = Field Caption and Table Caption';
 }

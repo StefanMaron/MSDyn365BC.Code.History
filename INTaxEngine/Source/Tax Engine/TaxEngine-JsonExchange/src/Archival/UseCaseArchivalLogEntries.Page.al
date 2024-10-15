@@ -25,7 +25,7 @@ page 20360 "Use Case Archival Log Entries"
                     ToolTip = 'Specifies the Description of the use case.';
                     ApplicationArea = Basic, Suite;
                 }
-                field(Version; Rec.Version)
+                field(Version; VersionTxt)
                 {
                     ToolTip = 'Specifies the version of the use case.';
                     ApplicationArea = Basic, Suite;
@@ -91,4 +91,25 @@ page 20360 "Use Case Archival Log Entries"
             }
         }
     }
+    trigger OnAfterGetRecord()
+    begin
+        UpdateVersion();
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        UpdateVersion();
+    end;
+
+    local procedure UpdateVersion()
+    begin
+        if IsNullGuid("Case ID") then
+            VersionTxt := ''
+        else
+            VersionTxt := StrSubstNo(VersionLbl, "Major Version", "Minor Version");
+    end;
+
+    var
+        VersionLbl: Label '%1.%2', Comment = '%1 - Major Version, %2 - Minor Version';
+        VersionTxt: Text;
 }

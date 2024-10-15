@@ -10,7 +10,6 @@ codeunit 20362 "Tax Json Serialization"
         CalledFromCopyUseCase := NewCalledFromCopyUseCase;
     end;
 
-
     procedure ExportUseCases(var UseCase: Record "Tax Use Case"; Var JArray: JsonArray)
     var
         TaxUseCaseJObject: JsonObject;
@@ -19,11 +18,14 @@ codeunit 20362 "Tax Json Serialization"
         if not UseCase.FindSet() then
             exit;
 
+        InitUseCaseProgressWindow();
         repeat
             GlobalUseCase := UseCase;
             WriteSingleUseCase(UseCase, TaxUseCaseJObject);
             JArray.Add(TaxUseCaseJObject);
         until UseCase.Next() = 0;
+
+        CloseUseCaseProgressWindow();
     end;
 
     procedure ExportTaxTypes(var TaxType: Record "Tax Type"; var JArray: JsonArray)
@@ -32,11 +34,13 @@ codeunit 20362 "Tax Json Serialization"
     begin
         if not TaxType.FindSet() then
             exit;
-
+        InitTaxTypeProgressWindow();
         repeat
             ExportTaxType(TaxType, JObject);
             JArray.Add(JObject);
-        until TaxType.Next() = 0
+        until TaxType.Next() = 0;
+
+        CloseTaxTypeProgressWindow();
     end;
 
     procedure ExportTaxType(TaxType: Record "Tax Type"; var JObject: JsonObject)
@@ -55,25 +59,33 @@ codeunit 20362 "Tax Json Serialization"
         AddJsonProperty(TaxTypeJObject, 'Enable', TaxType.Enabled);
 
         WriteTaxTypeEntities(TaxType.Code, JArray);
+        UpdateTaxTypeProgressWindow(TaxType.Code, 'Tax Entities');
         AddJsonProperty(TaxTypeJObject, 'TaxEntities', JArray);
 
         Clear(JArray);
         WriteTaxTypeAttributes(TaxType.Code, JArray);
+        UpdateTaxTypeProgressWindow(TaxType.Code, 'Tax Attributes');
         AddJsonProperty(TaxTypeJObject, 'Attributes', JArray);
 
-        Clear(JArray);
-        WriteTaxAccountingPeriod(TaxType."Accounting Period", AccPeriodJObject);
-        AddJsonProperty(TaxTypeJObject, 'AccountingPeriod', AccPeriodJObject);
+        if TaxType."Accounting Period" <> '' then begin
+            Clear(JArray);
+            UpdateTaxTypeProgressWindow(TaxType.Code, 'Tax Accounting Periods');
+            WriteTaxAccountingPeriod(TaxType."Accounting Period", AccPeriodJObject);
+            AddJsonProperty(TaxTypeJObject, 'AccountingPeriod', AccPeriodJObject);
+        end;
 
         Clear(JArray);
         WriteTaxTypeComponent(TaxType.Code, JArray);
+        UpdateTaxTypeProgressWindow(TaxType.Code, 'Tax Components');
         AddJsonProperty(TaxTypeJObject, 'Components', JArray);
 
         Clear(JArray);
         WriteTaxRateColumnSetup(TaxType.Code, JArray);
+        UpdateTaxTypeProgressWindow(TaxType.Code, 'Tax Rate Setup');
         AddJsonProperty(TaxTypeJObject, 'TaxRateColumnSetup', JArray);
 
         if CanExportUseCases then begin
+            UpdateTaxTypeProgressWindow(TaxType.Code, 'Tax Use Cases');
             Clear(JArray);
             UseCase.Reset();
             UseCase.SetCurrentKey("Presentation Order");
@@ -179,10 +191,11 @@ codeunit 20362 "Tax Json Serialization"
         AddJsonProperty(ComponentJObject, 'Type', TaxComponent.Type);
         AddJsonProperty(ComponentJObject, 'RoundingPrecision', TaxComponent."Rounding Precision");
         AddJsonProperty(ComponentJObject, 'Direction', TaxComponent.Direction);
+        AddJsonProperty(ComponentJObject, 'VisibleOnInterface', TaxComponent."Visible On Interface");
         AddJsonProperty(ComponentJObject, 'SkipPosting', TaxComponent."Skip Posting");
         AddJsonProperty(ComponentJObject, 'ComponentType', TaxComponent."Component Type");
         if TaxComponent."Formula ID" <> EmptyGuid then begin
-            WriteComponentFormulaExpression(TaxComponent."Tax Type", TaxComponent."Formula ID", FormulaJObject);
+            WriteComponentFormulaExpression(TaxComponent."Formula ID", FormulaJObject);
             AddJsonProperty(ComponentJObject, 'Formula', FormulaJObject);
         end;
 
@@ -234,7 +247,9 @@ codeunit 20362 "Tax Json Serialization"
         AddJsonProperty(JObject, 'ID', TaxRateColumnSetup."Column ID");
         AddJsonProperty(JObject, 'ColumnType', TaxRateColumnSetup."Column Type");
         AddJsonProperty(JObject, 'ColumnName', TaxRateColumnSetup."Column Name");
+        AddJsonProperty(JObject, 'VisibleOnInterface', TaxRateColumnSetup."Visible On Interface");
         AddJsonProperty(JObject, 'Type', TaxRateColumnSetup.Type);
+        AddJsonProperty(JObject, 'AllowBlank', TaxRateColumnSetup."Allow Blank");
         if TaxRateColumnSetup."Linked Attribute ID" <> 0 then
             AddJsonProperty(JObject, 'LinkedAttributeName', ScriptSymbolMgmt.GetSymbolName(
                 "Symbol Type"::"Tax Attributes",
@@ -249,11 +264,15 @@ codeunit 20362 "Tax Json Serialization"
         ConditionJObject: JsonObject;
         JArray: JsonArray;
     begin
+        UpdateUseCaseProgressWindow('Preperation');
+
         if not CalledFromCopyUseCase then
             AddJsonProperty(UseCaseJObject, 'CaseID', UseCase.ID);
         AddJsonProperty(UseCaseJObject, 'Description', UseCase.Description);
-        if not CalledFromCopyUseCase then
-            AddJsonProperty(UseCaseJObject, 'Version', UseCase.Version);
+        if not CalledFromCopyUseCase then begin
+            AddJsonProperty(UseCaseJObject, 'Version', UseCase."Major Version");
+            AddJsonProperty(UseCaseJObject, 'MinorVersion', UseCase."Minor Version");
+        end;
         AddJsonProperty(UseCaseJObject, 'TaxType', UseCase."Tax Type");
         AddJsonProperty(UseCaseJObject, 'ChangedBy', UseCase."Changed By");
         AddJsonProperty(UseCaseJObject, 'Code', UseCase.Code);
@@ -271,6 +290,7 @@ codeunit 20362 "Tax Json Serialization"
         ScriptSymbolMgmt.UseStrict();
         ScriptSymbolMgmt.SetContext(UseCase.ID, EmptyGuid);
         if UseCase."Posting Table ID" <> 0 then begin
+            UpdateUseCaseProgressWindow('Posting Table Filters');
             AddJsonProperty(UseCaseJObject, 'PostingTableName', AppObjectHelper.GetObjectName(
                 ObjectType::Table,
                 UseCase."Posting Table ID"));
@@ -281,11 +301,13 @@ codeunit 20362 "Tax Json Serialization"
         end;
 
         Clear(JArray);
+        UpdateUseCaseProgressWindow('Attribute Mapping');
         WriteAttributeMapping(UseCase.ID, JArray);
         AddJsonProperty(UseCaseJObject, 'Attributes', JArray);
 
         Clear(JArray);
         WriteRateColumnMapping(UseCase.ID, JArray);
+        UpdateUseCaseProgressWindow('Rate Setup');
         AddJsonProperty(UseCaseJObject, 'RateColumns', JArray);
 
         Clear(ScriptSymbolMgmt);
@@ -296,6 +318,7 @@ codeunit 20362 "Tax Json Serialization"
         AddJsonProperty(UseCaseJObject, 'ComputationVariables', JArray);
 
         if not IsNullGuid(UseCase."Computation Script ID") then begin
+            UpdateUseCaseProgressWindow('Computation Script');
             Clear(JArray);
             WriteActionContainer(
                 UseCase.ID,
@@ -317,6 +340,7 @@ codeunit 20362 "Tax Json Serialization"
         AddJsonProperty(UseCaseJObject, 'PostingVariables', JArray);
 
         if not IsNullGuid(UseCase."Posting Script ID") then begin
+            UpdateUseCaseProgressWindow('Posting Script');
             Clear(JArray);
             WriteActionContainer(
                 UseCase.ID,
@@ -329,11 +353,14 @@ codeunit 20362 "Tax Json Serialization"
         Clear(ScriptSymbolMgmt);
         ScriptSymbolMgmt.UseStrict();
         ScriptSymbolMgmt.SetContext(UseCase.ID, UseCase."Computation Script ID");
+
+        UpdateUseCaseProgressWindow('Calculated Components');
         Clear(JArray);
         WriteComponentCalculation(UseCase.ID, JArray);
         AddJsonProperty(UseCaseJObject, 'Components', JArray);
 
         if not IsNullGuid(UseCase."Condition ID") then begin
+            UpdateUseCaseProgressWindow('Preconditions');
             WriteCondition(UseCase.ID, EmptyGuid, UseCase."Condition ID", ConditionJObject);
             AddJsonProperty(UseCaseJObject, 'Condition', ConditionJObject);
         end;
@@ -342,15 +369,12 @@ codeunit 20362 "Tax Json Serialization"
             Clear(JArray);
             Clear(ScriptSymbolMgmt);
 
+            UpdateUseCaseProgressWindow('Tax Posting Setup');
             ScriptSymbolMgmt.UseStrict();
             ScriptSymbolMgmt.SetContext(UseCase.ID, UseCase."Posting Script ID");
             WriteTaxPostingSetup(UseCase.ID, JArray);
             AddJsonProperty(UseCaseJObject, 'TaxPostingSetup', JArray);
         end;
-
-        Clear(JArray);
-        WriteUseCaseEventMapping(UseCase.ID, JArray);
-        AddJsonProperty(UseCaseJObject, 'AttachedEvents', JArray);
 
         JObject := UseCaseJObject;
     end;
@@ -375,34 +399,6 @@ codeunit 20362 "Tax Json Serialization"
             repeat
                 WriteSingleRateColumnMapping(UseCaseRateColumnRelation, JArray);
             until UseCaseRateColumnRelation.Next() = 0;
-    end;
-
-    local procedure WriteUseCaseEventMapping(CaseId: Guid; var JArray: JsonArray)
-    var
-        UseCaseEventRelation: Record "Use Case Event Relation";
-        AttibuteJObject: JsonObject;
-        TableRelationJArray: JsonArray;
-    begin
-        UseCaseEventRelation.SetRange("Case ID", CaseId);
-        if UseCaseEventRelation.FindSet() then
-            repeat
-                WriteSingleUseCaseEventMapping(UseCaseEventRelation, JArray);
-            until UseCaseEventRelation.Next() = 0;
-    end;
-
-    local procedure WriteSingleUseCaseEventMapping(UseCaseEventRelation: Record "Use Case Event Relation"; var JArray: JsonArray)
-    var
-        EventJObject: JsonObject;
-        TableRelationJArray: JsonArray;
-    begin
-        AddJsonProperty(EventJObject, 'EventName', UseCaseEventRelation."Event Name");
-        AddJsonProperty(EventJObject, 'Enabled', UseCaseEventRelation.Enabled);
-        AddJsonProperty(EventJObject, 'Sequence', UseCaseEventRelation.Sequence);
-        if not IsNullGuid(UseCaseEventRelation."Table Relation ID") then begin
-            WriteTableLinking(UseCaseEventRelation."Case ID", UseCaseEventRelation."Table Relation ID", TableRelationJArray);
-            AddJsonProperty(EventJObject, 'TableRelation', UseCaseEventRelation.Description);
-        end;
-        JArray.Add(EventJObject);
     end;
 
     local procedure WriteSinglerAttributeMapping(
@@ -688,6 +684,7 @@ codeunit 20362 "Tax Json Serialization"
         end;
 
         AddJsonProperty(JObject, 'ValueType', SwitchCase."Action Type");
+        AddJsonProperty(JObject, 'Sequence', SwitchCase.Sequence);
         case SwitchCase."Action Type" of
             SwitchCase."Action Type"::Lookup:
                 begin
@@ -794,22 +791,6 @@ codeunit 20362 "Tax Json Serialization"
         AddJsonProperty(JObject, 'FieldName', AppObjectHelper.GetFieldName(LookupFieldSorting."Table ID", LookupFieldSorting."Field ID"));
     end;
 
-    local procedure WriteFieldLink(UseCaseFieldLink: Record "Use Case Field Link"; var JObject: JsonObject)
-    var
-        LookupJObject: JsonObject;
-        FieldJObject: JsonObject;
-    begin
-        AddJsonProperty(FieldJObject, 'FiterTableName', AppObjectHelper.GetObjectName(ObjectType::Table, UseCaseFieldLink."Table ID"));
-        AddJsonProperty(FieldJObject, 'FiterFieldName', AppObjectHelper.GetFieldName(UseCaseFieldLink."Table ID", UseCaseFieldLink."Field ID"));
-        AddJsonProperty(FieldJObject, 'FilterType', UseCaseFieldLink."Filter Type");
-        AddJsonProperty(FieldJObject, 'ValueType', UseCaseFieldLink."Value Type");
-        AddJsonProperty(FieldJObject, 'Value', UseCaseFieldLink.Value);
-        AddJsonProperty(FieldJObject, 'LookupTableName', AppObjectHelper.GetObjectName(ObjectType::Table, UseCaseFieldLink."Lookup Table ID"));
-        AddJsonProperty(FieldJObject, 'LookupFieldName', AppObjectHelper.GetFieldName(UseCaseFieldLink."Lookup Table ID", UseCaseFieldLink."Lookup Field ID"));
-
-        JObject := FieldJObject
-    end;
-
     local procedure WriteLookupFieldFilter(CaseID: Guid; ID: Guid; var JArray: JsonArray)
     var
         LookupFieldFilter: Record "Lookup Field Filter";
@@ -836,21 +817,6 @@ codeunit 20362 "Tax Json Serialization"
             repeat
                 JArray.Add(WriteFieldSorting(LookupFieldSorting));
             until LookupFieldSorting.Next() = 0;
-    end;
-
-    local procedure WriteTableLinking(CaseID: Guid; ID: Guid; var JArray: JsonArray)
-    var
-        UseCaseFieldLink: Record "Use Case Field Link";
-        JObject: JsonObject;
-    begin
-        UseCaseFieldLink.Reset();
-        UseCaseFieldLink.SetRange("Case ID", CaseID);
-        UseCaseFieldLink.SetRange("Table Filter ID", ID);
-        if UseCaseFieldLink.FindSet() then
-            repeat
-                WriteFieldLink(UseCaseFieldLink, JObject);
-                JArray.Add(JObject);
-            until UseCaseFieldLink.Next() = 0;
     end;
 
     local procedure WriteConstantOrLookup(
@@ -952,11 +918,15 @@ codeunit 20362 "Tax Json Serialization"
             Exit;
 
         TaxTableRelation.GET(CaseID, ID);
+        AddJsonProperty(JObject, 'IsCurrentRecord', TaxTableRelation."Is Current Record");
         AddJsonProperty(JObject, 'TableName', AppObjectHelper.GetObjectName(
             ObjectType::Table,
             TaxTableRelation."Source ID"));
-        WriteLookupFieldFilter(CaseID, TaxTableRelation."Table Filter ID", JArray);
-        AddJsonProperty(JObject, 'TableFilters', JArray);
+
+        if not IsNullGuid(TaxTableRelation."Table Filter ID") then begin
+            WriteLookupFieldFilter(CaseID, TaxTableRelation."Table Filter ID", JArray);
+            AddJsonProperty(JObject, 'TableFilters', JArray);
+        end;
     end;
 
     local procedure WriteLookupTable(ScriptSymbolLookup: Record "Script Symbol Lookup"; var JObject: JsonObject)
@@ -1191,14 +1161,13 @@ codeunit 20362 "Tax Json Serialization"
         ActionConcatenateLine.SetRange("Concatenate ID", ID);
         if ActionConcatenateLine.FindSet() then
             repeat
-                WriteConcatenateLine(ActionConcatenateLine, JArray);
+                WriteConcatenateLine(ActionConcatenateLine);
             until ActionConcatenateLine.Next() = 0;
         AddJsonProperty(JObject, 'Concatenate', JArray);
     end;
 
     local procedure WriteConcatenateLine(
-        ActionConcatenateLine: Record "Action Concatenate Line";
-        var JArray: JsonArray)
+        ActionConcatenateLine: Record "Action Concatenate Line")
     var
         LookupObject: JsonObject;
         JObject: JsonObject;
@@ -1389,41 +1358,6 @@ codeunit 20362 "Tax Json Serialization"
         AddJsonProperty(JObject, 'TimeText', LookupJObject);
     end;
 
-    local procedure WriteGetRecord(CaseID: Guid; ScriptID: Guid; ID: Guid; var JObject: JsonObject)
-    var
-        ActionGetRecord: Record "Action Get Record";
-        ActionGetRecordField: Record "Action Get Record Field";
-        RecordFieldJObject: JsonObject;
-        JArray: JsonArray;
-    begin
-        ActionGetRecord.GET(CaseID, ScriptID, ID);
-        AddJsonProperty(JObject, 'TableName', AppObjectHelper.GetObjectName(ObjectType::Table, ActionGetRecord."Table ID"));
-        WriteLookupFieldFilter(ActionGetRecord."Script ID", ActionGetRecord."Table Filter ID", JArray);
-        AddJsonProperty(JObject, 'TableFilters', JArray);
-
-        AddJsonProperty(JObject, 'RecordVariableName', ScriptSymbolMgmt.GetSymbolName(
-            "Symbol Type"::"Record Variable",
-            ActionGetRecord."Record Variable"));
-
-        Clear(JArray);
-        ActionGetRecordField.Reset();
-        ActionGetRecordField.SetRange("Case ID", CaseID);
-        ActionGetRecordField.SetRange("Script ID", ScriptID);
-        ActionGetRecordField.SetRange("Get Record ID", ID);
-        if ActionGetRecordField.FindSet() then
-            repeat
-                Clear(RecordFieldJObject);
-                AddJsonProperty(RecordFieldJObject, 'FieldName', AppObjectHelper.GetFieldName(
-                    ActionGetRecordField."Table ID",
-                    ActionGetRecordField."Field ID"));
-                AddJsonProperty(RecordFieldJObject, 'VariableName', ScriptSymbolMgmt.GetSymbolName(
-                    "Symbol Type"::Variable,
-                    ActionGetRecordField."Variable ID"));
-                JArray.Add(RecordFieldJObject);
-            until ActionGetRecordField.Next() = 0;
-        AddJsonProperty(JObject, 'GetRecordFields', JArray);
-    end;
-
     local procedure WriteMessage(CaseID: Guid; ScriptID: Guid; ID: Guid; var JObject: JsonObject)
     var
         ActionMessage: Record "Action Message";
@@ -1527,7 +1461,6 @@ codeunit 20362 "Tax Json Serialization"
 
         AddJsonProperty(JObject, 'LookupVariableName', LookupJObject);
         AddJsonProperty(JObject, 'ConvertToCase', Format(ActionConvertCase."Convert To Case"));
-
     end;
 
     local procedure WriteRoundNumber(CaseID: Guid; ScriptID: Guid; ID: Guid; var JObject: JsonObject)
@@ -1562,7 +1495,7 @@ codeunit 20362 "Tax Json Serialization"
         AddJsonProperty(JObject, 'Direction', Format(ActionRoundNumber.Direction));
     end;
 
-    local procedure WriteComponentFormulaExpression(TaxType: Code[20]; ID: Guid; var JObject: JsonObject)
+    local procedure WriteComponentFormulaExpression(ID: Guid; var JObject: JsonObject)
     var
         TaxComponentFormula: Record "Tax Component Formula";
         JArray: JsonArray;
@@ -1582,7 +1515,6 @@ codeunit 20362 "Tax Json Serialization"
             var JArray: JsonArray)
     var
         TaxComponentFormulaToken: Record "Tax Component Formula Token";
-        LookupJObject: JsonObject;
         ExpressionsJObject: JsonObject;
         ComponentName: Text[30];
     begin
@@ -1727,9 +1659,6 @@ codeunit 20362 "Tax Json Serialization"
             ActionLoopThroughRecords."Table ID"));
         WriteLookupFieldFilter(CaseID, ActionLoopThroughRecords."Table Filter ID", JArray);
         AddJsonProperty(JObject, 'TableFilters', JArray);
-        AddJsonProperty(JObject, 'RecordVariableName', ScriptSymbolMgmt.GetSymbolName(
-            "Symbol Type"::"Record Variable",
-            ActionLoopThroughRecords."Record Variable"));
         Clear(JArray);
 
         ActionLoopThroughRecField.Reset();
@@ -1803,8 +1732,6 @@ codeunit 20362 "Tax Json Serialization"
                 WriteDateCalculation(CaseID, ScriptID, ActionID, ActionJObject);
             ActionType::DATETODATETIME:
                 WriteDateToDateTime(CaseID, ScriptID, ActionID, ActionJObject);
-            ActionType::GETRECORD:
-                WriteGetRecord(CaseID, ScriptID, ActionID, ActionJObject);
             ActionType::ALERTMESSAGE:
                 WriteMessage(CaseID, ScriptID, ActionID, ActionJObject);
             ActionType::EXTRACTDATEPART:
@@ -1924,9 +1851,6 @@ codeunit 20362 "Tax Json Serialization"
             ObjectType::Table,
             InsertRecord."Table ID"));
         AddJsonProperty(InsertJObject, 'RunTrigger', InsertRecord."Run Trigger");
-        AddJsonProperty(InsertJObject, 'RecordVariable', ScriptSymbolMgmt.GetSymbolName(
-            "Symbol Type"::"Record Variable",
-            InsertRecord."Record Variable"));
         AddJsonProperty(InsertJObject, 'SubLedgerGrpBy', InsertRecord."Sub Ledger Group By");
 
         InsertRecordField.Reset();
@@ -1941,12 +1865,81 @@ codeunit 20362 "Tax Json Serialization"
         JObject := InsertJObject;
     end;
 
+    procedure InitTaxTypeProgressWindow()
+    begin
+        if not GuiAllowed() then
+            exit;
+
+        TaxTypeDialog.Open(
+             ExportingLbl +
+             ValueLbl +
+             TaxTypeImportStageLbl);
+    end;
+
+    local procedure UpdateTaxTypeProgressWindow(TaxType: Code[20]; Stage: Text)
+    begin
+        if not GuiAllowed() then
+            exit;
+        TaxTypeDialog.Update(1, TaxTypesLbl);
+        TaxTypeDialog.Update(2, TaxType);
+        TaxTypeDialog.Update(3, Stage);
+    end;
+
+    local procedure CloseTaxTypeProgressWindow()
+    begin
+        if not GuiAllowed() then
+            exit;
+        TaxTypeDialog.close();
+    end;
+
+    procedure InitUseCaseProgressWindow()
+    begin
+        if not GuiAllowed() then
+            exit;
+
+        UseCaseDialog.Open(
+             ExportingLbl +
+             SpaceLbl +
+             ValueLbl +
+             SpaceLbl +
+             UseCaseNameLbl +
+             SpaceLbl +
+             UseCaseImportStageLbl);
+    end;
+
+    local procedure UpdateUseCaseProgressWindow(Stage: Text)
+    begin
+        if not GuiAllowed() then
+            exit;
+        UseCaseDialog.Update(1, UseCasesLbl);
+        UseCaseDialog.Update(2, GlobalUseCase."Tax Type");
+        UseCaseDialog.Update(3, GlobalUseCase.Description);
+        UseCaseDialog.Update(4, Stage);
+    end;
+
+    local procedure CloseUseCaseProgressWindow()
+    begin
+        if not GuiAllowed() then
+            exit;
+        UseCaseDialog.close();
+    end;
+
     var
         GlobalUseCase: Record "Tax Use Case";
         UseCaseObjectHelper: Codeunit "Use Case Object Helper";
         ScriptSymbolMgmt: Codeunit "Script Symbols Mgmt.";
         AppObjectHelper: Codeunit "App Object Helper";
+        TaxTypeDialog: Dialog;
+        UseCaseDialog: Dialog;
         EmptyGuid: Guid;
         CalledFromCopyUseCase: Boolean;
         CanExportUseCases: Boolean;
+        TaxTypesLbl: Label 'Tax Types';
+        UseCasesLbl: Label 'Use Cases';
+        SpaceLbl: Label '              #######\';
+        ExportingLbl: Label 'Exporting              #1######\', Comment = 'Tax Type or Use Cases';
+        ValueLbl: Label 'Tax Type              #2######\', Comment = 'Tax Type';
+        UseCaseNameLbl: Label 'Name              #3######\', Comment = 'Use Case Description';
+        TaxTypeImportStageLbl: Label 'Stage      #3######\', Comment = 'Stage of Import for Tax Type';
+        UseCaseImportStageLbl: Label 'Stage      #4######\', Comment = 'Stage of Import for Use Case';
 }

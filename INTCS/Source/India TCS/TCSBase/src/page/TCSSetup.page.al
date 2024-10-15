@@ -6,13 +6,14 @@ page 18813 "TCS Setup"
     SourceTable = "TCS Setup";
     InsertAllowed = false;
     DeleteAllowed = false;
+
     layout
     {
         area(Content)
         {
             group(General)
             {
-                field("Tax Type"; "Tax Type")
+                field("Tax Type"; Rec."Tax Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies Tax Type for Tax Collected at Source.';
@@ -20,10 +21,11 @@ page 18813 "TCS Setup"
             }
         }
     }
+
     trigger OnOpenPage()
     begin
-        Reset();
-        if not Get() then
-            Insert();
+        Rec.Reset();
+        if not Rec.Get() then
+            Rec.Insert();
     end;
 }

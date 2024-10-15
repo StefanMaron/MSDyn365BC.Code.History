@@ -8,17 +8,17 @@ table 20168 "Action Find Substring"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(4; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(5; "Variable ID"; Integer)
@@ -40,7 +40,7 @@ table 20168 "Action Find Substring"
         }
         field(8; "Substring Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Substring Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
@@ -57,7 +57,7 @@ table 20168 "Action Find Substring"
         }
         field(11; "String Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'String Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }

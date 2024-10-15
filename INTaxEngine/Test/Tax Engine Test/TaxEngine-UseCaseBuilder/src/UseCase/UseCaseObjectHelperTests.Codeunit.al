@@ -2,6 +2,10 @@ codeunit 136865 "Use Case Object Helper Tests"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    trigger OnRun()
+    begin
+        // [FEATURE] [TaxEngine] [Use Case Object Helper] [UT]
+    end;
 
     var
         Assert: Codeunit Assert;
@@ -72,29 +76,5 @@ codeunit 136865 "Use Case Object Helper Tests"
 
         // [THEN] it should return the description of that use case
         Assert.AreEqual('Test Use Case', ExpectedName, 'Description should be same');
-    end;
-
-    [Test]
-    procedure TestIsTableRelationEmpty()
-    var
-        LibraryUseCase: Codeunit "Library - Use Case Tests";
-        LibraryTaxTypeTests: Codeunit "Library - Tax Type Tests";
-        UseCaseObjectHelper: Codeunit "Use Case Object Helper";
-        CaseID, FilterID, EmptyGuid : Guid;
-        Exist: Boolean;
-    begin
-        // [SCENARIO] To check if function is returning true is the table relation is for use case event is empty
-
-        // [GIVEN] There should be a record in tax use case table
-        CaseID := CreateGuid();
-        FilterID := CreateGuid();
-        LibraryTaxTypeTests.CreateTaxType('VAT', 'VAT');
-        LibraryUseCase.CreateUseCase('VAT', CaseID, Database::"Sales Line", 'Test Use Case', EmptyGuid);
-
-        // [WHEN] function IsTableRelationEmpty is called
-        Exist := UseCaseObjectHelper.IsTableRelationEmpty(CaseID, FilterID);
-
-        // [THEN] it should return the Case id of that use case
-        Assert.AreEqual(true, Exist, 'value should be true');
     end;
 }

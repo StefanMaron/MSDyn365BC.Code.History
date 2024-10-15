@@ -4,13 +4,14 @@ pageextension 18809 "General Journal TCS" extends "General Journal"
     {
         addafter("Account No.")
         {
-            field("TCS Nature of Collection"; "TCS Nature of Collection")
+            field("TCS Nature of Collection"; Rec."TCS Nature of Collection")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the Nature of Collection for the journal line.';
+
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    AllowedNocLookup(Rec, "Account No.");
+                    Rec.AllowedNocLookup(Rec, Rec."Account No.");
                     UpdateTaxAmount();
                 end;
 
@@ -19,10 +20,21 @@ pageextension 18809 "General Journal TCS" extends "General Journal"
                     UpdateTaxAmount();
                 end;
             }
-            field("T.C.A.N. No."; "T.C.A.N. No.")
+            field("Excl. GST in TCS Base"; Rec."Excl. GST in TCS Base")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Select this field to exclude GST value in the TCS Base.';
+
+                trigger OnValidate()
+                begin
+                    UpdateTaxAmount();
+                end;
+            }
+            field("T.C.A.N. No."; Rec."T.C.A.N. No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the T.C.A.N. number of the person who is responsible for collecting tax.';
+
                 trigger OnValidate()
                 begin
                     UpdateTaxAmount();
@@ -37,6 +49,7 @@ pageextension 18809 "General Journal TCS" extends "General Journal"
             end;
         }
     }
+
     local procedure UpdateTaxAmount()
     var
         CalculateTax: Codeunit "Calculate Tax";

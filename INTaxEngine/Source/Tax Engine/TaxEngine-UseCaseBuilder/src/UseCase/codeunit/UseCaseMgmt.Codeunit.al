@@ -1,15 +1,5 @@
 codeunit 20294 "Use Case Mgmt."
 {
-    procedure OpenTableLinkingDialog(CaseID: Guid; ID: Guid);
-    var
-        UseCaseEventTableLink: Record "Use Case Event Table Link";
-        TaxTableLinkingDialog: Page "Use Case Table Link Dialog";
-    begin
-        UseCaseEventTableLink.GET(CaseID, ID);
-        TaxTableLinkingDialog.SetCurrentRecord(UseCaseEventTableLink);
-        TaxTableLinkingDialog.RunModal();
-    end;
-
     procedure OpenTableRelationDialog(CaseID: Guid; ID: Guid);
     var
         TaxTableRelation: Record "Tax Table Relation";
@@ -28,31 +18,6 @@ codeunit 20294 "Use Case Mgmt."
         TaxComponentExpression.GET(CaseID, ID);
         TaxComponentExprDialog.SetCurrentRecord(TaxComponentExpression);
         TaxComponentExprDialog.RunModal();
-    end;
-
-    procedure ApplyTableLinkFilters(var RecordRef: RecordRef; CaseID: Guid; TableFilterID: Guid; LookupRecRef: RecordRef);
-    var
-        UseCaseEventTableLink: Record "Use Case Event Table Link";
-        UseCaseFieldLink: Record "Use Case Field Link";
-        LookupFieldRef: FieldRef;
-    begin
-        if IsNullGuid(TableFilterID) then
-            Exit;
-
-        UseCaseEventTableLink.GET(CaseID, TableFilterID);
-        UseCaseFieldLink.Reset();
-        UseCaseFieldLink.SetRange("Case ID", CaseID);
-        UseCaseFieldLink.SetRange("Table Filter ID", TableFilterID);
-        if UseCaseFieldLink.FindSet() then
-            repeat
-                LookupFieldRef := LookupRecRef.Field(UseCaseFieldLink."Lookup Field ID");
-                RecRefHelper.SetFieldLinkFilter(
-                    RecordRef,
-                    UseCaseFieldLink."Field ID",
-                    UseCaseFieldLink."Filter Type",
-                    LookupFieldRef.Value());
-            until UseCaseFieldLink.Next() = 0;
-
     end;
 
     procedure CreateAndOpenChildUseCaseCard(FromUseCase: Record "Tax Use Case")
@@ -133,6 +98,5 @@ codeunit 20294 "Use Case Mgmt."
     end;
 
     var
-        RecRefHelper: Codeunit "RecRef Handler";
         EmptyGuid: Guid;
 }

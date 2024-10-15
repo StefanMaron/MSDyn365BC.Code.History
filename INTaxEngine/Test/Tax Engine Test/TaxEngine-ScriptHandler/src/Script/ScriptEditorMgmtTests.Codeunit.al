@@ -58,7 +58,6 @@ codeunit 136753 "Script Editor Mgmt Tests"
     [Test]
     procedure TestSearchActionType()
     var
-        ScriptAction: Record "Script Action";
         ScriptEditorMgmt: Codeunit "Script Editor Mgmt.";
         ActionType: Enum "Action Type";
         ActionText: Text;
@@ -80,7 +79,6 @@ codeunit 136753 "Script Editor Mgmt Tests"
     [HandlerFunctions('ScriptActionPageHandler')]
     procedure TestSearchActionTypeWithPage()
     var
-        ScriptAction: Record "Script Action";
         ScriptEditorMgmt: Codeunit "Script Editor Mgmt.";
         ActionType: Enum "Action Type";
         ActionText: Text;
@@ -171,7 +169,6 @@ codeunit 136753 "Script Editor Mgmt Tests"
     procedure TestAddContainerItemsToEditorLinesForUSECASE()
     var
         ScriptEditorLine: Record "Script Editor Line";
-        ActionContainer: Record "Action Container";
         ScriptEditorMgmt: Codeunit "Script Editor Mgmt.";
         LibraryScriptTests: Codeunit "Library - Script Tests";
         ScriptEntityMgmt: Codeunit "Script Entity Mgmt.";
@@ -203,7 +200,6 @@ codeunit 136753 "Script Editor Mgmt Tests"
     procedure TestAddContainerItemsToEditorLinesForIFSTATEMENT()
     var
         ScriptEditorLine: Record "Script Editor Line";
-        ActionContainer: Record "Action Container";
         ActionIfStatement: Record "Action If Statement";
         ScriptEditorMgmt: Codeunit "Script Editor Mgmt.";
         LibraryScriptTests: Codeunit "Library - Script Tests";
@@ -244,7 +240,6 @@ codeunit 136753 "Script Editor Mgmt Tests"
     procedure TestAddContainerItemsToEditorLinesForLOOPNTIMES()
     var
         ScriptEditorLine: Record "Script Editor Line";
-        ActionContainer: Record "Action Container";
         ScriptEditorMgmt: Codeunit "Script Editor Mgmt.";
         ScriptEntityMgmt: Codeunit "Script Entity Mgmt.";
         LibraryScriptTests: Codeunit "Library - Script Tests";
@@ -283,7 +278,6 @@ codeunit 136753 "Script Editor Mgmt Tests"
     procedure TestAddContainerItemsToEditorLinesForLOOPTHROUGHRECORDS()
     var
         ScriptEditorLine: Record "Script Editor Line";
-        ActionContainer: Record "Action Container";
         ScriptEditorMgmt: Codeunit "Script Editor Mgmt.";
         ScriptEntityMgmt: Codeunit "Script Entity Mgmt.";
         LibraryScriptTests: Codeunit "Library - Script Tests";
@@ -322,7 +316,6 @@ codeunit 136753 "Script Editor Mgmt Tests"
     procedure TestAddContainerItemsToEditorLinesForLOOPWITHCONDITION()
     var
         ScriptEditorLine: Record "Script Editor Line";
-        ActionContainer: Record "Action Container";
         ScriptEditorMgmt: Codeunit "Script Editor Mgmt.";
         ScriptEntityMgmt: Codeunit "Script Entity Mgmt.";
         LibraryScriptTests: Codeunit "Library - Script Tests";

@@ -8,51 +8,51 @@ table 18203 "GST Distribution Header"
         {
             Caption = 'No.';
             NotBlank = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; "From GSTIN No."; Code[20])
         {
             Caption = 'From GSTIN No.';
             Editable = false;
             TableRelation = "GST Registration Nos." where("Input Service Distributor" = filter(true));
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(6; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(7; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(8; "Creation Date"; Date)
         {
             Caption = 'Creation Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(9; "User ID"; Code[50])
         {
             Caption = 'User ID';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = User."User Name";
         }
         field(10; "Dist. Document Type"; Enum "BankCharges DocumentType")
         {
             Caption = 'Dist. Document Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(11; Reversal; Boolean)
         {
             Caption = 'Reversal';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(12; "Reversal Invoice No."; Code[20])
         {
             Caption = 'Reversal Invoice No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "Posted GST Distribution Header"
                 where(
                     Reversal = const(false),
@@ -62,19 +62,18 @@ table 18203 "GST Distribution Header"
         {
             Caption = 'ISD Document Type';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(14; "From Location Code"; Code[10])
         {
             Caption = 'From Location Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = Location where("GST Input Service Distributor" = filter(true));
-
         }
-        field(16; "Dist. Credit Type"; Enum "GST Distribution Credit Type")
+        field(16; "Dist. Credit Type"; Enum "GST Credit")
         {
             Caption = 'Dist. Credit Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -84,39 +83,38 @@ table 18203 "GST Distribution Header"
         field(17; "Posting No. Series"; Code[20])
         {
             Caption = 'Posting No. Series';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(18; "Total Amout Applied for Dist."; Decimal)
         {
             Caption = 'Total Amout Applied for Dist.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(19; "Distribution Basis"; Text[50])
         {
             Caption = 'Distribution Basis';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(25; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(26; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
-
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
 
             trigger OnLookup()
             begin
@@ -132,6 +130,12 @@ table 18203 "GST Distribution Header"
             Clustered = true;
         }
     }
+
+    var
+        GLSetup: Record "General Ledger Setup";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        UpdateDimQst: Label 'You may have changed a dimension.Do you want to update the lines?';
+        DimensionSetMsg: Label '%1', Comment = '%1 =Dimension Set No.';
 
     procedure AssistEdit(GSTDistributionHeader: Record "GST Distribution Header"): Boolean
     begin
@@ -179,7 +183,7 @@ table 18203 "GST Distribution Header"
     begin
         if NewParentDimSetID = OldParentDimSetID then
             exit;
-        if not CONFIRM(UpdateDimQst) then
+        if not Confirm(UpdateDimQst) then
             exit;
 
         GSTDistributionLine.SetRange("Distribution No.", "No.");
@@ -199,12 +203,5 @@ table 18203 "GST Distribution Header"
                     GSTDistributionLine.Modify();
                 end;
             until GSTDistributionLine.Next() = 0;
-
     end;
-
-    var
-        GLSetup: Record "General Ledger Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        UpdateDimQst: Label 'You may have changed a dimension.Do you want to update the lines?';
-        DimensionSetMsg: Label '%1', Comment = '%1 =Dimension Set No.';
 }

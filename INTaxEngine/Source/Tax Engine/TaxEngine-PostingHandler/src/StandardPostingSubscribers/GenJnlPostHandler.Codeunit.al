@@ -7,6 +7,7 @@ codeunit 20334 "Gen. Jnl.-Post Handler"
         TempTaxTransactionValue: Record "Tax Transaction Value" temporary;
         TaxDocumentGLPosting: Codeunit "Tax Document GL Posting";
         TaxPostingBufferMgmt: Codeunit "Tax Posting Buffer Mgmt.";
+        RecRef: RecordRef;
     begin
         OnBeforeGenJnlLinePostFromTaxEngine(GenJnlLine);
         TaxTransactionValue.SetRange("Tax Record ID", GenJnlLine.RecordId());
@@ -15,8 +16,8 @@ codeunit 20334 "Gen. Jnl.-Post Handler"
 
         GenJnlLine."Tax ID" := CreateGuid();
         TaxPostingBufferMgmt.ClearPostingInstance();
-
-        TaxPostingBufferMgmt.SetDocument(GenJnlLine);
+        RecRef.GetTable(GenJnlLine);
+        TaxPostingBufferMgmt.SetDocument(RecRef);
 
         // Prepares Transaction value based on Quantity and and Qty to Invoice
         TaxDocumentGLPosting.PrepareTransactionValueToPost(

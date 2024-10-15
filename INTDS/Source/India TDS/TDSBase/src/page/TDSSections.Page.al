@@ -9,6 +9,7 @@ page 18695 "TDS Sections"
     SourceTable = "TDS Section";
     SourceTableView = sorting("presentation Order");
     CardPageId = "TDS Section Card";
+
     layout
     {
         area(Content)
@@ -16,21 +17,22 @@ page 18695 "TDS Sections"
             repeater(General)
             {
                 ShowAsTree = true;
-                IndentationColumn = "Indentation Level";
+                IndentationColumn = Rec."Indentation Level";
                 IndentationControls = Description;
-                field(Code; Code)
+
+                field(Code; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = DescriptionStyle;
                     ToolTip = 'Specify the section codes as per the Income Tax Act of 1961 for eTDS Returns.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = DescriptionStyle;
                     ToolTip = 'Specifies the Section Description ';
                 }
-                field(ecode; ecode)
+                field(ecode; Rec.ecode)
                 {
                     Caption = 'eTDS';
                     ApplicationArea = Basic, Suite;
@@ -48,6 +50,7 @@ page 18695 "TDS Sections"
             }
         }
     }
+
     actions
     {
         area(Processing)
@@ -90,7 +93,7 @@ page 18695 "TDS Sections"
                         CurrPage.Update();
                     end;
                 }
-                action("Add TDS Nature of Deduction")
+                action("Add Sub Section")
                 {
                     ApplicationArea = Basic, Suite;
                     Promoted = true;
@@ -98,32 +101,12 @@ page 18695 "TDS Sections"
                     PromotedCategory = Process;
                     PromotedIsBig = true;
                     ToolTip = 'View or add sub categories of TDS section for the record.';
+
                     trigger OnAction()
                     var
-                        ToSection: Record "TDS Section";
-                        SubSection: Record "TDS Section";
+                        TDSEntityMgmt: Codeunit "TDS Entity Management";
                     begin
-                        ToSection.Init();
-
-                        SubSection.Reset();
-                        SubSection.SetCurrentKey("Section Order");
-                        SubSection.SetRange("Parent Code", Code);
-                        if SubSection.FindLast() then
-                            ToSection."Section Order" := SubSection."Section Order" + 1
-                        else
-                            ToSection."Section Order" := 1;
-                        ToSection.Code := format(Rec.Code) + '-' + format(ToSection."Section Order");
-                        ToSection.Description := Rec.Description;
-                        ToSection."Parent Code" := Rec.Code;
-                        SubSection.Reset();
-                        SubSection.SetCurrentKey("Presentation Order");
-                        SubSection.SetRange("Parent Code", Code);
-                        if SubSection.FindLast() then
-                            ToSection."Presentation Order" := SubSection."Presentation Order" + 1
-                        else
-                            ToSection."Presentation Order" := Rec."Presentation Order" + 1;
-                        ToSection."Indentation Level" := Rec."Indentation Level" + 1;
-                        ToSection.Insert(true);
+                        TDSEntityMgmt.AddTDSSubSection(Rec);
                     end;
                 }
             }
@@ -132,7 +115,7 @@ page 18695 "TDS Sections"
 
     trigger OnAfterGetRecord()
     begin
-        if "Parent Code" = '' then
+        if Rec."Parent Code" = '' then
             DescriptionStyle := 'Strong'
         else
             DescriptionStyle := 'Standard';

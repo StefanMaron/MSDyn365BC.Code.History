@@ -16,6 +16,7 @@ table 18549 "Tax Accounting Period"
         {
             NotBlank = true;
             DataClassification = EndUserIdentifiableInformation;
+
             trigger OnValidate()
             var
                 MonthTextLbl: Label '<Month Text>', Locked = true;
@@ -30,6 +31,7 @@ table 18549 "Tax Accounting Period"
         field(4; "New Fiscal Year"; Boolean)
         {
             DataClassification = EndUserIdentifiableInformation;
+
             trigger OnValidate()
             begin
                 TestField("Date Locked", false);
@@ -58,6 +60,7 @@ table 18549 "Tax Accounting Period"
             DataClassification = EndUserIdentifiableInformation;
         }
     }
+
     keys
     {
         key(Key1; "Tax Type Code", "Starting Date")
@@ -71,12 +74,14 @@ table 18549 "Tax Accounting Period"
         {
         }
     }
+
     fieldgroups
     {
         fieldgroup(Brick; "Tax Type Code", "Starting Date", Name, "New Fiscal Year", Closed)
         {
         }
     }
+
     trigger OnDelete()
     begin
         TestField("Date Locked", false);
@@ -100,31 +105,4 @@ table 18549 "Tax Accounting Period"
         if TaxAccountingPeriod.Find('>') then
             TaxAccountingPeriod.TestField("Date Locked", false);
     end;
-
-    procedure GetFiscalYearEndDate(ReferenceDate: Date): Date
-    var
-        TaxAccountingPeriod: Record "Tax Accounting Period";
-    begin
-        if TaxAccountingPeriod.IsEmpty() then
-            exit(CalcDate('<CY>', ReferenceDate));
-        TaxAccountingPeriod.SetRange("New Fiscal Year", true);
-        TaxAccountingPeriod.SetRange("Starting Date", 0D, ReferenceDate);
-        if TaxAccountingPeriod.FindLast() then
-            TaxAccountingPeriod.SetRange("Starting Date");
-        if TaxAccountingPeriod.Find('>') then
-            exit(TaxAccountingPeriod."Starting Date" - 1);
-    end;
-
-    procedure GetFiscalYearStartDate(ReferenceDate: Date): Date
-    var
-        TaxAccountingPeriod: Record "Tax Accounting Period";
-    begin
-        if TaxAccountingPeriod.IsEmpty() then
-            exit(CalcDate('<-CY>', ReferenceDate));
-        TaxAccountingPeriod.SetRange("New Fiscal Year", true);
-        TaxAccountingPeriod.SetRange("Starting Date", 0D, ReferenceDate);
-        if TaxAccountingPeriod.FindLast() then
-            exit(TaxAccountingPeriod."Starting Date")
-    end;
-
 }

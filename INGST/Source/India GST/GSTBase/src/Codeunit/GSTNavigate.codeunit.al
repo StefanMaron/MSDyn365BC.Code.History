@@ -1,40 +1,53 @@
 codeunit 18002 "GST Navigate"
 {
     [EventSubscriber(ObjectType::Page, Page::Navigate, 'OnAfterNavigateFindRecords', '', false, false)]
-    Local Procedure FindDetailedGSTEntries(
+    local procedure FindDetailedGSTEntries(
         var DocumentEntry: Record "Document Entry";
-        DocNoFilter: Text; PostingDateFilter: Text)
+        DocNoFilter: Text;
+        PostingDateFilter: Text)
     var
-        DetailedGSTLedgerEntries: Record "Detailed GST Ledger Entry";
-        GSTLedgerEntries: Record "GST Ledger Entry";
+        DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+        GSTLedgerEntry: Record "GST Ledger Entry";
+        GSTTDSTCSEntry: Record "GST TDS/TCS Entry";
         Navigate: Page Navigate;
-    Begin
-        If GSTLedgerEntries.ReadPermission() Then Begin
-            GSTLedgerEntries.Reset();
-            GSTLedgerEntries.SetCurrentKey("Document No.", "Posting Date");
-            GSTLedgerEntries.SetFilter("Document No.", DocNoFilter);
-            GSTLedgerEntries.SetFilter("Posting Date", PostingDateFilter);
+    begin
+        if GSTLedgerEntry.ReadPermission() then begin
+            GSTLedgerEntry.Reset();
+            GSTLedgerEntry.SetCurrentKey("Document No.", "Posting Date");
+            GSTLedgerEntry.SetFilter("Document No.", DocNoFilter);
+            GSTLedgerEntry.SetFilter("Posting Date", PostingDateFilter);
             Navigate.InsertIntoDocEntry(
                 DocumentEntry,
-                DATABASE::"GST Ledger Entry",
+                Database::"GST Ledger Entry",
                 0,
-                Copystr(GSTLedgerEntries.TableCaption(), 1, 1024),
-                GSTLedgerEntries.Count());
-        End;
+                CopyStr(GSTLedgerEntry.TableCaption(), 1, 1024),
+                GSTLedgerEntry.Count());
+        end;
 
-        If DetailedGSTLedgerEntries.ReadPermission() Then Begin
-            DetailedGSTLedgerEntries.Reset();
-            DetailedGSTLedgerEntries.SetCurrentKey("Document No.", "Posting Date");
-            DetailedGSTLedgerEntries.SetFilter("Document No.", DocNoFilter);
-            DetailedGSTLedgerEntries.SetFilter("Posting Date", PostingDateFilter);
+        if DetailedGSTLedgerEntry.ReadPermission() then begin
+            DetailedGSTLedgerEntry.Reset();
+            DetailedGSTLedgerEntry.SetCurrentKey("Document No.", "Posting Date");
+            DetailedGSTLedgerEntry.SetFilter("Document No.", DocNoFilter);
+            DetailedGSTLedgerEntry.SetFilter("Posting Date", PostingDateFilter);
             Navigate.InsertIntoDocEntry(
                 DocumentEntry,
-                DATABASE::"Detailed GST Ledger Entry",
+                Database::"Detailed GST Ledger Entry",
                 0,
-                Copystr(DetailedGSTLedgerEntries.TableCaption(), 1, 1024),
-                DetailedGSTLedgerEntries.Count());
-        End;
-    End;
+                CopyStr(DetailedGSTLedgerEntry.TableCaption(), 1, 1024),
+                DetailedGSTLedgerEntry.Count());
+        end;
 
-
+        if GSTTDSTCSEntry.ReadPermission() then begin
+            GSTTDSTCSEntry.Reset();
+            GSTTDSTCSEntry.SetCurrentKey("Document No.", "Posting Date");
+            GSTTDSTCSEntry.SetFilter("Document No.", DocNoFilter);
+            GSTTDSTCSEntry.SetFilter("Posting Date", PostingDateFilter);
+            Navigate.InsertIntoDocEntry(
+                DocumentEntry,
+                Database::"GST TDS/TCS Entry",
+                0,
+                CopyStr(GSTTDSTCSEntry.TableCaption(), 1, 1024),
+                GSTTDSTCSEntry.Count());
+        end;
+    end;
 }

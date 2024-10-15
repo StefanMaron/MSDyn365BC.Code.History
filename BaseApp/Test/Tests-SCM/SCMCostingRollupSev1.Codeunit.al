@@ -476,7 +476,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
 
         // validation
         ValueEntry.SetRange("Item No.", Item."No.");
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             GLItemLedgerRelation.SetRange("Value Entry No.", ValueEntry."Entry No.");
             if ValueEntry."Cost Amount (Actual)" <> 0 then

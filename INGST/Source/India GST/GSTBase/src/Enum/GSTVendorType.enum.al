@@ -2,7 +2,7 @@ enum 18036 "GST Vendor Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Registered)
     {

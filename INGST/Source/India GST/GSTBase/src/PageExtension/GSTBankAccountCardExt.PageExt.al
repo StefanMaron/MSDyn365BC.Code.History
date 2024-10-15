@@ -10,19 +10,16 @@ pageextension 18001 "GST Bank Account Card Ext" extends "Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the state code of the bank.';
-
                 }
                 field("GST Registration Status"; Rec."GST Registration Status")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the GST Registration Status of the bank.';
-
                 }
                 field("GST Registration No."; Rec."GST Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Species the GST Registration number of the bank.';
-
                 }
             }
         }

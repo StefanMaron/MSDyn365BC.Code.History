@@ -520,6 +520,9 @@ page 1152 "COHUB Company Summary"
         COHUBCore1: Codeunit "COHUB Core";
         NoEnviromentsEnteredNotification: Notification;
     begin
+        if COHUBCore.ShowNotSupportedOnPremNotification() then
+            exit;
+
         // Give users access to records with their security id or the sample data
         Rec.SetFilter("Assigned To", '%1|%2', UserSecurityId(), '00000000-0000-0000-0000-000000000000');
 

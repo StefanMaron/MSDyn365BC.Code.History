@@ -125,7 +125,6 @@ codeunit 136751 "Action Dialog Mgmt. Tests"
         ActionDialogMgmt: Codeunit "Action Dialog Mgmt.";
         VariableID: Integer;
         CaseID, ScriptID, ActionID : Guid;
-        EmptyGuid: Guid;
     begin
         // [SCENARIO] Open Loop With Condition Dialog via OpenActionAssistEdit function.
 
@@ -153,7 +152,6 @@ codeunit 136751 "Action Dialog Mgmt. Tests"
         ActionDialogMgmt: Codeunit "Action Dialog Mgmt.";
         VariableID: Integer;
         CaseID, ScriptID, ActionID : Guid;
-        EmptyGuid: Guid;
     begin
         // [SCENARIO] Open Concatenate Dialog via OpenActionAssistEdit function.
 
@@ -181,14 +179,13 @@ codeunit 136751 "Action Dialog Mgmt. Tests"
         ActionDialogMgmt: Codeunit "Action Dialog Mgmt.";
         VariableID: Integer;
         CaseID, ScriptID, ActionID : Guid;
-        EmptyGuid: Guid;
     begin
         // [SCENARIO] Open Find Substr In String Dialog via OpenActionAssistEdit function.
 
         // [GIVEN] Case ID, Script ID, Action Type - FindSubstrInString, ActionID - ActionFindSubstring's ID
         BindSubscription(LibraryScriptTests);
         VariableID := 1;
-        LibraryScriptTests.CreateScriptVariable(CaseID, ScriptID, VariableID, 'Output Variable', "Symbol Data Type"::NUMBER);
+        LibraryScriptTests.CreateScriptVariable(CaseID, ScriptID, VariableID, 'Output Variable', "Symbol Data Type"::String);
         LibraryScriptTests.CreateFindSubstrInString(CaseID, ScriptID, ActionID);
 
         // [WHEN] The function OpenActionAssistEdit is called.
@@ -209,7 +206,6 @@ codeunit 136751 "Action Dialog Mgmt. Tests"
         ActionDialogMgmt: Codeunit "Action Dialog Mgmt.";
         VariableID: Integer;
         CaseID, ScriptID, ActionID : Guid;
-        EmptyGuid: Guid;
     begin
         // [SCENARIO] Open Replace Substring Dialog via OpenActionAssistEdit function.
 
@@ -237,7 +233,6 @@ codeunit 136751 "Action Dialog Mgmt. Tests"
         ActionDialogMgmt: Codeunit "Action Dialog Mgmt.";
         VariableID: Integer;
         CaseID, ScriptID, ActionID : Guid;
-        EmptyGuid: Guid;
     begin
         // [SCENARIO] Open Extract Substring From Index Dialog via OpenActionAssistEdit function.
 
@@ -365,45 +360,12 @@ codeunit 136751 "Action Dialog Mgmt. Tests"
     end;
 
     [Test]
-    [HandlerFunctions('ActionGetRecordDialogHandler')]
-    procedure TestOpenGetRecordDialog()
-    var
-        ActionGetRecord: Record "Action Get Record";
-        ScriptVariable: Record "Script Variable";
-        LibraryScriptTests: Codeunit "Library - Script Tests";
-        ActionDialogMgmt: Codeunit "Action Dialog Mgmt.";
-        VariableID: Integer;
-        CaseID, ScriptID, ActionID : Guid;
-    begin
-        // [SCENARIO] Open Action Get Rrcord Dialog via OpenActionAssistEdit function.
-
-        // [GIVEN] Case ID, Script ID, Action Type - Get Record, ActionID - Action Get Record's ID
-        BindSubscription(LibraryScriptTests);
-        VariableID := 1;
-        LibraryScriptTests.CreateScriptVariable(CaseID, ScriptID, VariableID, 'Output Variable', "Symbol Data Type"::RECORD);
-        ScriptVariable.Get(CaseID, ScriptID, VariableID);
-        ScriptVariable."Table ID" := Database::AllObj;
-        ScriptVariable.Modify();
-
-        LibraryScriptTests.CreateGetRecord(CaseID, ScriptID, ActionID);
-
-        // [WHEN] The function OpenActionAssistEdit is called.
-        ActionDialogMgmt.OpenActionAssistEdit(CaseID, ScriptID, "Action Type"::GETRECORD, ActionID, "Action Group Type"::" ");
-        UnBindSubscription(LibraryScriptTests);
-
-        // [THEN] it should open Action Get Record Dialog
-        ActionGetRecord.Get(CaseID, ScriptID, ActionID);
-        Assert.AreEqual(VariableID, ActionGetRecord."Record Variable", 'Variable ID should be 1');
-    end;
-
-    [Test]
     [HandlerFunctions('ActionMessageDialogHandler')]
     procedure TestOpenAlertMessageDialog()
     var
         ActionMessage: Record "Action Message";
         LibraryScriptTests: Codeunit "Library - Script Tests";
         ActionDialogMgmt: Codeunit "Action Dialog Mgmt.";
-        VariableID: Integer;
         CaseID, ScriptID, ActionID : Guid;
     begin
         // [SCENARIO] Open Action Message Dialog via OpenActionAssistEdit function.
@@ -450,7 +412,7 @@ codeunit 136751 "Action Dialog Mgmt. Tests"
 
         // [THEN] it should open Action Loop Through Records Dialog
         ActionLoopThroughRecords.Get(CaseID, ScriptID, ActionID);
-        Assert.AreEqual(VariableID, ActionLoopThroughRecords."Record Variable", 'Variable ID should be 1');
+        Assert.AreEqual(Database::AllObj, ActionLoopThroughRecords."Table ID", 'Variable ID should be 1');
     end;
 
     [Test]
@@ -729,15 +691,6 @@ codeunit 136751 "Action Dialog Mgmt. Tests"
     end;
 
     [ModalPageHandler]
-    procedure ActionGetRecordDialogHandler(var ActionGetRecordDialog: TestPage "Action Get Record Dialog")
-    begin
-        ActionGetRecordDialog.GetRecordFromTableName.Value('AllObj');
-        ActionGetRecordDialog.RecordVariable.Value('Output Variable');
-        ActionGetRecordDialog.OK().Invoke();
-    end;
-
-
-    [ModalPageHandler]
     procedure ActionMessageDialogHandler(var ActionMessageDialog: TestPage "Action Message Dialog")
     begin
         ActionMessageDialog.Message.Value('Hello');
@@ -748,7 +701,6 @@ codeunit 136751 "Action Dialog Mgmt. Tests"
     procedure ActionLoopThroughRecDlgHandler(var ActionLoopThroughRecDlg: TestPage "Action Loop Through Rec. Dlg")
     begin
         ActionLoopThroughRecDlg.GetRecordFromTableName.Value('AllObj');
-        ActionLoopThroughRecDlg.RecordVariable.Value('Record Variable');
         ActionLoopThroughRecDlg.OK().Invoke();
     end;
 

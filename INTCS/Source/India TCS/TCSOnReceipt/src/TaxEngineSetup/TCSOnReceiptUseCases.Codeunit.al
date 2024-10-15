@@ -1,5 +1,8 @@
 codeunit 18902 "TCS On Receipt Use Cases"
 {
+    var
+        TCSOnReceiptUseCasesLbl: Label 'TCS on Receipt Use Cases';
+
     procedure GetJObject(): JsonObject
     var
         JObject: JsonObject;
@@ -12,7 +15,4 @@ codeunit 18902 "TCS On Receipt Use Cases"
     begin
         exit(TCSOnReceiptUseCasesLbl);
     end;
-
-    var
-        TCSOnReceiptUseCasesLbl: Label 'TCS on Receipt Use Cases';
 }

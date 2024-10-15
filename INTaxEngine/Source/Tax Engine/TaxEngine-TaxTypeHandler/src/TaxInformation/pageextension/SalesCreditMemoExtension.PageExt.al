@@ -2,7 +2,7 @@ pageextension 20255 "Sales Credit Memo Extension" extends "Sales Credit Memo"
 {
     layout
     {
-        addbefore(Control1900383207)
+        addfirst(factboxes)
         {
             part("Tax Information"; "Tax Information Factbox")
             {

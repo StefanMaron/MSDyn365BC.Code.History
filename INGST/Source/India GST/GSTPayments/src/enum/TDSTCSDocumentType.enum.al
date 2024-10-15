@@ -3,7 +3,7 @@ enum 18247 "TDSTCS Document Type"
     Extensible = true;
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Payment)
     {

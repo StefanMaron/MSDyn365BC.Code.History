@@ -33,11 +33,12 @@ table 18550 "Gen. Journal Narration"
 
             trigger OnLookup()
             begin
-                if Page.RunModal(0, StdTxt) = Action::LookupOK then
-                    Narration := StdTxt.Description;
+                if Page.RunModal(0, StandardText) = Action::LookupOK then
+                    Narration := StandardText.Description;
             end;
         }
     }
+
     keys
     {
         key(Key1; "Journal Template Name", "Journal Batch Name", "Document No.", "Gen. Journal Line No.", "Line No.")
@@ -45,6 +46,7 @@ table 18550 "Gen. Journal Narration"
             Clustered = true;
         }
     }
+
     var
-        StdTxt: Record "Standard Text";
+        StandardText: Record "Standard Text";
 }

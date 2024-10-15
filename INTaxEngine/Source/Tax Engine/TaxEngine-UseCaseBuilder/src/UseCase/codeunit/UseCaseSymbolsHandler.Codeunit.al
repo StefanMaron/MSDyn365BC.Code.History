@@ -8,18 +8,18 @@ codeunit 20297 "Use Case Symbols Handler"
         var Symbols: Record "Script Symbol" temporary);
     begin
         if TaxType <> '' then begin
-            InsertTaxAttributes(sender, TaxType, Symbols);
-            InsertTaxComponents(sender, TaxType, Symbols);
-            InsertTaxRateColumns(sender, TaxType, Symbols);
+            InsertTaxAttributes(sender, TaxType);
+            InsertTaxComponents(sender, TaxType);
+            InsertTaxRateColumns(sender, TaxType);
         end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Script Symbol Store", 'OnInitSymbols', '', false, false)]
     local procedure OnInitSymbols(sender: Codeunit "Script Symbol Store"; CaseID: Guid; ScriptID: Guid; var Symbols: Record "Script Symbol Value")
     begin
-        InitTaxAttributes(sender, CaseID, ScriptID, Symbols);
-        InitTaxComponent(sender, CaseID, ScriptID, Symbols);
-        InitTaxColumn(sender, CaseID, ScriptID, Symbols);
+        InitTaxAttributes(sender, CaseID, Symbols);
+        InitTaxComponent(sender, CaseID, Symbols);
+        InitTaxColumn(sender, CaseID, Symbols);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Script Symbol Store", 'OnGetLookupValue', '', false, false)]
@@ -108,7 +108,7 @@ codeunit 20297 "Use Case Symbols Handler"
         if not RunTrigger then
             exit;
 
-        BuildUseCaseTree(rec."Tax Type", Rec);
+        BuildUseCaseTree(rec."Tax Type");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Lookup Mgmt.", 'OnGetLookupSourceTableID', '', false, false)]
@@ -169,8 +169,7 @@ codeunit 20297 "Use Case Symbols Handler"
 
     local procedure InsertTaxAttributes(
             var sender: Codeunit "Script Symbols Mgmt.";
-            TaxType: Code[20];
-            var Symbols: Record "Script Symbol" temporary);
+            TaxType: Code[20]);
     var
         TaxAttribute: Record "Tax Attribute";
     begin
@@ -200,8 +199,7 @@ codeunit 20297 "Use Case Symbols Handler"
 
     local procedure InsertTaxComponents(
         var sender: Codeunit "Script Symbols Mgmt.";
-        TaxType: Code[20];
-        var Symbols: Record "Script Symbol" temporary);
+        TaxType: Code[20]);
     var
         TaxComponent: Record "Tax Component";
     begin
@@ -245,8 +243,7 @@ codeunit 20297 "Use Case Symbols Handler"
 
     local procedure InsertTaxRateColumns(
         var sender: Codeunit "Script Symbols Mgmt.";
-        TaxType: Code[20];
-        var Symbols: Record "Script Symbol" temporary);
+        TaxType: Code[20]);
     var
         TaxRateSetup: Record "Tax Rate Column Setup";
     begin
@@ -268,7 +265,7 @@ codeunit 20297 "Use Case Symbols Handler"
             until TaxRateSetup.Next() = 0;
     end;
 
-    local procedure InitTaxAttributes(sender: Codeunit "Script Symbol Store"; CaseID: Guid; ScriptID: Guid; var Symbols: Record "Script Symbol Value");
+    local procedure InitTaxAttributes(sender: Codeunit "Script Symbol Store"; CaseID: Guid; var Symbols: Record "Script Symbol Value");
     var
         UseCase: Record "Tax Use Case";
         TaxAttribute: Record "Tax Attribute";
@@ -306,7 +303,7 @@ codeunit 20297 "Use Case Symbols Handler"
             until TaxAttribute.Next() = 0;
     end;
 
-    local procedure InitTaxComponent(sender: Codeunit "Script Symbol Store"; CaseID: Guid; ScriptID: Guid; var Symbols: Record "Script Symbol Value");
+    local procedure InitTaxComponent(sender: Codeunit "Script Symbol Store"; CaseID: Guid; var Symbols: Record "Script Symbol Value");
     var
         TaxComponent: Record "Tax Component";
         UseCase: Record "Tax Use Case";
@@ -340,7 +337,7 @@ codeunit 20297 "Use Case Symbols Handler"
                     sender.GetSymbolValue(Symbols, Value);
                     sender.InsertSymbolValue("Symbol Type"::"Component Code", "Symbol Data Type"::Number, TaxComponent.ID, Value);
                 end else
-                    sender.InsertSymbolValue("Symbol Type"::"Component Code", "Symbol Data Type"::Number, TaxComponent.ID, TaxComponent.Name);
+                    sender.InsertSymbolValue("Symbol Type"::"Component Code", "Symbol Data Type"::Number, TaxComponent.ID, TaxComponent.ID);
 
                 Symbols.SetRange("Symbol ID", TaxComponent.ID);
                 Symbols.SetRange(Type, Symbols.Type::"Component Name");
@@ -360,7 +357,7 @@ codeunit 20297 "Use Case Symbols Handler"
             until TaxComponent.Next() = 0;
     end;
 
-    local procedure InitTaxColumn(sender: Codeunit "Script Symbol Store"; CaseID: Guid; ScriptID: Guid; var Symbols: Record "Script Symbol Value");
+    local procedure InitTaxColumn(sender: Codeunit "Script Symbol Store"; CaseID: Guid; var Symbols: Record "Script Symbol Value");
     var
         TaxRateColumnSetup: Record "Tax Rate Column Setup";
         UseCase: Record "Tax Use Case";
@@ -377,9 +374,18 @@ codeunit 20297 "Use Case Symbols Handler"
                 Symbols.SetRange(Type, Symbols.Type::Column);
                 if Symbols.FindFirst() then begin
                     sender.GetSymbolValue(Symbols, Value);
-                    sender.InsertSymbolValue("Symbol Type"::Column, UseCaseDataTypeMgmt.GetAttributeDataTypeToVariableDataType(TaxRateColumnSetup.Type), TaxRateColumnSetup."Column ID", Value);
+
+                    sender.InsertSymbolValue(
+                        "Symbol Type"::Column,
+                        UseCaseDataTypeMgmt.GetAttributeDataTypeToVariableDataType(TaxRateColumnSetup.Type),
+                        TaxRateColumnSetup."Column ID",
+                        Value);
                 end else
-                    sender.InsertSymbolValue("Symbol Type"::Column, UseCaseDataTypeMgmt.GetAttributeDataTypeToVariableDataType(TaxRateColumnSetup.Type), TaxRateColumnSetup."Column ID");
+                    sender.InsertSymbolValue(
+                        "Symbol Type"::Column,
+                        UseCaseDataTypeMgmt.GetAttributeDataTypeToVariableDataType(TaxRateColumnSetup.Type),
+                        TaxRateColumnSetup."Column ID");
+
             until TaxRateColumnSetup.Next() = 0;
     end;
 
@@ -426,7 +432,7 @@ codeunit 20297 "Use Case Symbols Handler"
             Error(AttributeUsedInUseCaseErr, AttributeName, UseCase.Description);
     end;
 
-    local procedure BuildUseCaseTree(TaxType: Code[20]; var UseCase: Record "Tax Use Case")
+    local procedure BuildUseCaseTree(TaxType: Code[20])
     var
         PresentationOrder: Integer;
     begin

@@ -121,6 +121,9 @@ table 20261 "Tax Transaction Value"
         {
             Clustered = true;
         }
+        key(K1; "Tax Record ID", "Tax Type")
+        {
+        }
     }
     procedure GetAttributeColumName(): Text
     var
@@ -149,23 +152,28 @@ table 20261 "Tax Transaction Value"
                         exit(TaxRateColumnSetup."Column Name");
                 end;
         end;
-        exit('');
     end;
 
     procedure ShouldAttributeBeVisible(): Boolean
     var
         TaxAttribute: Record "Tax Attribute";
+        TaxComponent: Record "Tax Component";
         TaxRateColumnSetup: Record "Tax Rate Column Setup";
     begin
         case "Value Type" of
             "Value Type"::COMPONENT:
-                exit(true);
+                begin
+                    TaxComponent.SetRange("Tax Type", "Tax Type");
+                    TaxComponent.SetRange(ID, "Value ID");
+                    if TaxComponent.FindFirst() then
+                        exit(TaxComponent."Visible On Interface");
+                end;
             "Value Type"::COLUMN:
                 begin
                     TaxRateColumnSetup.SetRange("Column ID", "Value ID");
                     TaxRateColumnSetup.FindFirst();
                     if TaxRateColumnSetup."Column Type" <> TaxRateColumnSetup."Column Type"::"Tax Attributes" then
-                        exit(true);
+                        exit(TaxRateColumnSetup."Visible On Interface");
                 end;
             "Value Type"::ATTRIBUTE:
                 begin
@@ -178,16 +186,6 @@ table 20261 "Tax Transaction Value"
 
     procedure GetRecordID(var TaxRecordID: RecordId)
     var
-        SalesLine: Record "Sales Line";
-        SalesInvLine: Record "Sales Invoice Line";
-        SalesCrMemoLine: Record "Sales Cr.Memo Line";
-        PurchaseLine: Record "Purchase Line";
-        PurchInvLine: Record "Purch. Inv. Line";
-        PurchCrMemoLine: Record "Purch. Cr. Memo Line";
-        TransferLine: Record "Transfer Line";
-        TransferShptLine: Record "Transfer Shipment Line";
-        TransferRcptLine: Record "Transfer Receipt Line";
-        GenJnlLine: Record "Gen. Journal Line";
         TableIDFilter: Integer;
         DocumentTypeFilter: Integer;
         DocumentNoFilter: Text;
@@ -220,7 +218,7 @@ table 20261 "Tax Transaction Value"
             Database::"Purchase Line", Database::"Purch. Inv. Line", database::"Purch. Cr. Memo Line":
                 GetTaxRecIDForPurchDocument(TableIDFilter, DocumentTypeFilter, DocumentNoFilter, LineNoFilter, TaxRecordID);
             Database::"Transfer Line", Database::"Transfer Shipment Line", Database::"Transfer Receipt Line":
-                GetTaxRecIDForTransferDocument(TableIDFilter, DocumentTypeFilter, DocumentNoFilter, LineNoFilter, TaxRecordID);
+                GetTaxRecIDForTransferDocument(TableIDFilter, DocumentNoFilter, LineNoFilter, TaxRecordID);
             database::"Gen. Journal Line":
                 GetTaxRecIDForGenJnlLine(TemplateNameFilter, BatchFilter, LineNoFilter, TaxRecordID);
             else
@@ -287,7 +285,7 @@ table 20261 "Tax Transaction Value"
         end;
     end;
 
-    local procedure GetTaxRecIDForTransferDocument(TableID: Integer; DocumentTypeFilter: Integer; DocumentNoFilter: Text; LineNoFilter: Integer; var TaxRecordID: RecordId)
+    local procedure GetTaxRecIDForTransferDocument(TableID: Integer; DocumentNoFilter: Text; LineNoFilter: Integer; var TaxRecordID: RecordId)
     var
         TransferLine: Record "Transfer Line";
         TransferShptLine: Record "Transfer Shipment Line";

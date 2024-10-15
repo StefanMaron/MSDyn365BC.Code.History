@@ -5,11 +5,6 @@ codeunit 20287 "Use Case Event Library"
         OnAfterAddUseCaseEventToLibrary(FunctionName, TableID, Description);
     end;
 
-    procedure HandleBusinessUseCaseEvent(EventName: Text[150]; Record: Variant);
-    begin
-        OnAfterHandleBusinessUseCaseEvent(EventName, Record, '', 0);
-    end;
-
     procedure HandleBusinessUseCaseEvent(EventName: Text[150]; Record: Variant; CurrencyCode: Code[20]; CurrencyFactor: Decimal);
     begin
         OnAfterHandleBusinessUseCaseEvent(EventName, Record, CurrencyCode, CurrencyFactor);

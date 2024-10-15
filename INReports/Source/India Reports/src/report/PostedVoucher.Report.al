@@ -11,7 +11,7 @@ report 18041 "Posted Voucher"
         dataitem("G/L Entry"; "G/L Entry")
         {
             DataItemTableView = sorting("Document No.", "Posting Date")
-                                ORDER(descending);
+                                order(descending);
             RequestFilterFields = "Posting Date", "Document No.";
 
             column(VoucherSourceDesc; SourceDesc)
@@ -20,7 +20,7 @@ report 18041 "Posted Voucher"
             column(DocumentNo_GLEntry; "Document No.")
             {
             }
-            column(PostingDateFormatted; 'Date: ' + FORMAT("Posting Date"))
+            column(PostingDateFormatted; DateLbl + FORMAT("Posting Date"))
             {
             }
             column(CompanyInformationAddress; CompanyInformation.Address + ' ' + CompanyInformation."Address 2" + '  ' + CompanyInformation.City)
@@ -50,7 +50,7 @@ report 18041 "Posted Voucher"
             column(CreditAmountTotal; CreditAmountTotal)
             {
             }
-            column(ChequeDetail; 'Cheque No: ' + ChequeNo + '  Dated: ' + FORMAT(ChequeDate))
+            column(ChequeDetail; ChequeNoLbl + ChequeNo + DatedLbl + FORMAT(ChequeDate))
             {
             }
             column(ChequeNo; ChequeNo)
@@ -59,7 +59,7 @@ report 18041 "Posted Voucher"
             column(ChequeDate; ChequeDate)
             {
             }
-            column(RsNumberText1NumberText2; 'Rs. ' + NumberText[1] + ' ' + NumberText[2])
+            column(RsNumberText1NumberText2; RsLbl + NumberText[1] + ' ' + NumberText[2])
             {
             }
             column(EntryNo_GLEntry; "Entry No.")
@@ -172,12 +172,13 @@ report 18041 "Posted Voucher"
                 BankAccLedgEntry: Record "Bank Account Ledger Entry";
             begin
                 GLAccName := FindGLAccName("Source Type", "Entry No.", "Source No.", "G/L Account No.");
+
                 if Amount < 0 then begin
-                    CrText := 'To';
+                    CrText := ToLbl;
                     DrText := '';
                 end else begin
                     CrText := '';
-                    DrText := 'Dr';
+                    DrText := DrLbl;
                 end;
 
                 SourceDesc := '';
@@ -192,6 +193,7 @@ report 18041 "Posted Voucher"
                     PageLoop := PageLoop - 1;
                     LinesPrinted := LinesPrinted + 1;
                 end;
+
                 ChequeNo := '';
                 ChequeDate := 0D;
                 if ("Source No." <> '') and ("Source Type" = "Source Type"::"Bank Account") then
@@ -204,6 +206,7 @@ report 18041 "Posted Voucher"
                     PostingDate := "Posting Date";
                     TotalDebitAmt := 0;
                 end;
+
                 if DocumentNo <> "Document No." then begin
                     DocumentNo := "Document No.";
                     TotalDebitAmt := 0;
@@ -216,6 +219,7 @@ report 18041 "Posted Voucher"
                     PageLoop := NUMLines;
                     LinesPrinted := 0;
                 end;
+
                 if (PrePostingDate <> "Posting Date") or (PreDocumentNo <> "Document No.") then begin
                     DebitAmountTotal := 0;
                     CreditAmountTotal := 0;
@@ -241,7 +245,6 @@ report 18041 "Posted Voucher"
 
     requestpage
     {
-
         layout
         {
             area(content)
@@ -257,10 +260,6 @@ report 18041 "Posted Voucher"
                     }
                 }
             }
-        }
-
-        actions
-        {
         }
     }
     trigger OnPreReport()
@@ -294,6 +293,15 @@ report 18041 "Posted Voucher"
         PrePostingDate: Date;
         PreDocumentNo: Code[50];
         ZeroLbl: Label 'ZERO';
+        OnlyLbl: Label 'ONLY';
+        DrLbl: Label 'Dr';
+        ToLbl: Label 'To';
+        RupeesLbl: Label 'RUPEES';
+        PaisaOnlyLbl: Label ' PAISA ONLY';
+        DatedLbl: Label '  Dated: ';
+        RsLbl: Label 'Rs. ';
+        ChequeNoLbl: Label 'Cheque No: ';
+        DateLbl: Label 'Date: ';
         HundreadLbl: Label 'HUNDRED';
         AndLbl: Label 'AND';
         ExceededStringErr: Label '%1 results in a written number that is too long.', Comment = '%1= AddText';
@@ -345,23 +353,23 @@ report 18041 "Posted Voucher"
         "G/L Account No.": Code[20]): Text[100]
     var
         GLAccount: Record "G/L Account";
-        Vend: Record "Vendor";
+        Vendor: Record "Vendor";
         CustLedgerEntry: Record "Cust. Ledger Entry";
-        Cust: Record Customer;
-        BankLedgerEntry: Record "Bank Account Ledger Entry";
-        Bank: Record "Bank Account";
-        VendLedgerEntry: Record "Vendor Ledger Entry";
+        Customer: Record Customer;
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccount: Record "Bank Account";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
         AccName: Text[100];
     begin
         case "Source Type" of
             "Source Type"::Vendor:
-                if VendLedgerEntry.Get("Entry No.") then
-                    if IsGSTDocument(VendLedgerEntry."Document Type", VendLedgerEntry."Document No.") then begin
+                if VendorLedgerEntry.Get("Entry No.") then
+                    if IsGSTDocument(VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.") then begin
                         GLAccount.Get("G/L Account No.");
                         AccName := GLAccount.Name;
                     end else begin
-                        Vend.Get("Source No.");
-                        AccName := Vend.Name;
+                        Vendor.Get("Source No.");
+                        AccName := Vendor.Name;
                     end
                 else begin
                     GLAccount.Get("G/L Account No.");
@@ -373,17 +381,17 @@ report 18041 "Posted Voucher"
                         GLAccount.Get("G/L Account No.");
                         AccName := GLAccount.Name;
                     end else begin
-                        Cust.Get("Source No.");
-                        AccName := Cust.Name;
+                        Customer.Get("Source No.");
+                        AccName := Customer.Name;
                     end
                 else begin
                     GLAccount.Get("G/L Account No.");
                     AccName := GLAccount.Name;
                 end;
             "Source Type"::"Bank Account":
-                if BankLedgerEntry.Get("Entry No.") then begin
-                    Bank.Get("Source No.");
-                    AccName := Bank.Name;
+                if BankAccountLedgerEntry.Get("Entry No.") then begin
+                    BankAccount.Get("Source No.");
+                    AccName := BankAccount.Name;
                 end else begin
                     GLAccount.Get("G/L Account No.");
                     AccName := GLAccount.Name;
@@ -392,7 +400,6 @@ report 18041 "Posted Voucher"
                     GLAccount.Get("G/L Account No.");
                     AccName := GLAccount.Name;
                 end;
-
                 GLAccount.Get("G/L Account No.");
                 AccName := GLAccount.Name;
         end;
@@ -454,7 +461,7 @@ report 18041 "Posted Voucher"
             Currency.Get(CurrencyCode);
             AddToNoText(NoText, NoTextIndex, PrintExponent, ' ');
         end else
-            AddToNoText(NoText, NoTextIndex, PrintExponent, 'RUPEES');
+            AddToNoText(NoText, NoTextIndex, PrintExponent, RupeesLbl);
 
         AddToNoText(NoText, NoTextIndex, PrintExponent, AndLbl);
 
@@ -470,9 +477,9 @@ report 18041 "Posted Voucher"
             else
                 AddToNoText(NoText, NoTextIndex, PrintExponent, ZeroLbl);
         if (CurrencyCode <> '') then
-            AddToNoText(NoText, NoTextIndex, PrintExponent, 'ONLY')
+            AddToNoText(NoText, NoTextIndex, PrintExponent, OnlyLbl)
         else
-            AddToNoText(NoText, NoTextIndex, PrintExponent, ' PAISA ONLY');
+            AddToNoText(NoText, NoTextIndex, PrintExponent, PaisaOnlyLbl);
     end;
 
     procedure InitTextVariable()

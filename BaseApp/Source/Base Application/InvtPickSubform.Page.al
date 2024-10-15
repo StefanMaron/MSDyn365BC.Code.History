@@ -15,42 +15,42 @@ page 7378 "Invt. Pick Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Action Type"; "Action Type")
+                field("Action Type"; Rec."Action Type")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the action type for the warehouse activity line.';
                     Visible = false;
                 }
-                field("Source Document"; "Source Document")
+                field("Source Document"; Rec."Source Document")
                 {
                     ApplicationArea = Warehouse;
                     BlankZero = true;
                     ToolTip = 'Specifies the type of document that the line relates to.';
                     Visible = false;
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the item number of the item to be handled, such as picked or put away.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a description of the item on the line.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number to handle in the document.';
@@ -61,13 +61,13 @@ page 7378 "Invt. Pick Subform"
                         SerialNoOnAfterValidate();
                     end;
                 }
-                field("Serial No. Blocked"; "Serial No. Blocked")
+                field("Serial No. Blocked"; Rec."Serial No. Blocked")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number is blocked, on its information card.';
                     Visible = false;
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the lot number to handle in the document.';
@@ -78,26 +78,32 @@ page 7378 "Invt. Pick Subform"
                         LotNoOnAfterValidate();
                     end;
                 }
-                field("Lot No. Blocked"; "Lot No. Blocked")
+                field("Lot No. Blocked"; Rec."Lot No. Blocked")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the lot number is blocked, on its information card.';
                     Visible = false;
                 }
-                field("Expiration Date"; "Expiration Date")
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the package number to handle in the document.';
+                    Visible = PackageTrackingVisible;
+                }
+                field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
                     ToolTip = 'Specifies the expiration date of the serial/lot numbers if you are putting items away.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the location where the activity occurs.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
@@ -107,7 +113,7 @@ page 7378 "Invt. Pick Subform"
                         BinCodeOnAfterValidate;
                     end;
                 }
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shelf number of the item for informational use.';
@@ -118,13 +124,13 @@ page 7378 "Invt. Pick Subform"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the item to be handled, such as received, put-away, or assigned.';
                 }
-                field("Qty. (Base)"; "Qty. (Base)")
+                field("Qty. (Base)"; Rec."Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the item to be handled, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. to Handle"; "Qty. to Handle")
+                field("Qty. to Handle"; Rec."Qty. to Handle")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how many units to handle in this warehouse activity.';
@@ -134,96 +140,96 @@ page 7378 "Invt. Pick Subform"
                         QtytoHandleOnAfterValidate;
                     end;
                 }
-                field("Qty. Handled"; "Qty. Handled")
+                field("Qty. Handled"; Rec."Qty. Handled")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of items on the line that have been handled in this warehouse activity.';
                     Visible = true;
                 }
-                field("Qty. to Handle (Base)"; "Qty. to Handle (Base)")
+                field("Qty. to Handle (Base)"; Rec."Qty. to Handle (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of items to be handled in this warehouse activity.';
                     Visible = false;
                 }
-                field("Qty. Handled (Base)"; "Qty. Handled (Base)")
+                field("Qty. Handled (Base)"; Rec."Qty. Handled (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of items on the line that have been handled in this warehouse activity.';
                     Visible = false;
                 }
-                field("Qty. Outstanding"; "Qty. Outstanding")
+                field("Qty. Outstanding"; Rec."Qty. Outstanding")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of items that have not yet been handled for this warehouse activity line.';
                     Visible = true;
                 }
-                field("Qty. Outstanding (Base)"; "Qty. Outstanding (Base)")
+                field("Qty. Outstanding (Base)"; Rec."Qty. Outstanding (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of items, expressed in the base unit of measure, that have not yet been handled for this warehouse activity line.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the warehouse activity must be completed.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity per unit of measure of the item on the line.';
                     Visible = false;
                 }
-                field("Shipping Advice"; "Shipping Advice")
+                field("Shipping Advice"; Rec."Shipping Advice")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shipping advice, informing whether partial deliveries are acceptable, copied from the source document header.';
                     Visible = false;
                 }
-                field("Destination Type"; "Destination Type")
+                field("Destination Type"; Rec."Destination Type")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies information about the type of destination, such as customer or vendor, associated with the warehouse activity line.';
                     Visible = false;
                 }
-                field("Destination No."; "Destination No.")
+                field("Destination No."; Rec."Destination No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number or code of the customer, vendor or location related to the activity line.';
                     Visible = false;
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                     Visible = false;
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                     Visible = false;
                 }
-                field("Shipment Method Code"; "Shipment Method Code")
+                field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                     Visible = false;
                 }
-                field("Special Equipment Code"; "Special Equipment Code")
+                field("Special Equipment Code"; Rec."Special Equipment Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the equipment required when you perform the action on the line.';
                     Visible = false;
                 }
-                field("Assemble to Order"; "Assemble to Order")
+                field("Assemble to Order"; Rec."Assemble to Order")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies that the inventory pick line is for assembly items that are assembled to a sales order before being shipped.';
@@ -251,7 +257,7 @@ page 7378 "Invt. Pick Subform"
 
                     trigger OnAction()
                     begin
-                        CallSplitLine;
+                        CallSplitLine();
                     end;
                 }
             }
@@ -268,7 +274,7 @@ page 7378 "Invt. Pick Subform"
 
                     trigger OnAction()
                     begin
-                        ShowSourceLine;
+                        ShowSourceLine();
                     end;
                 }
                 action("Bin Contents List")
@@ -280,7 +286,7 @@ page 7378 "Invt. Pick Subform"
 
                     trigger OnAction()
                     begin
-                        ShowBinContents;
+                        ShowBinContents();
                     end;
                 }
                 group("Item Availability by")
@@ -296,7 +302,7 @@ page 7378 "Invt. Pick Subform"
 
                         trigger OnAction()
                         begin
-                            ShowItemAvailabilityByEvent;
+                            Rec.ShowItemAvailabilityByEvent();
                         end;
                     }
                     action(Period)
@@ -308,7 +314,7 @@ page 7378 "Invt. Pick Subform"
 
                         trigger OnAction()
                         begin
-                            ShowItemAvailabilityByPeriod;
+                            Rec.ShowItemAvailabilityByPeriod();
                         end;
                     }
                     action(Variant)
@@ -320,7 +326,7 @@ page 7378 "Invt. Pick Subform"
 
                         trigger OnAction()
                         begin
-                            ShowItemAvailabilityByVariant;
+                            Rec.ShowItemAvailabilityByVariant();
                         end;
                     }
                     action(Location)
@@ -333,8 +339,19 @@ page 7378 "Invt. Pick Subform"
 
                         trigger OnAction()
                         begin
-                            ShowItemAvailabilityByLocation;
+                            Rec.ShowItemAvailabilityByLocation();
                         end;
+                    }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
                     }
                 }
             }
@@ -348,22 +365,30 @@ page 7378 "Invt. Pick Subform"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Activity Type" := xRec."Activity Type";
+        Rec."Activity Type" := xRec."Activity Type";
+    end;
+
+    trigger OnOpenPage()
+    begin
+        SetPackageTrackingVisibility();
     end;
 
     var
         WMSMgt: Codeunit "WMS Management";
+        [InDataSet]
+        PackageTrackingVisible: Boolean;
 
     local procedure ShowSourceLine()
     begin
-        WMSMgt.ShowSourceDocLine("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
+        WMSMgt.ShowSourceDocLine(
+            Rec."Source Type", Rec."Source Subtype", Rec."Source No.", Rec."Source Line No.", Rec."Source Subline No.");
     end;
 
     local procedure ShowBinContents()
     var
         BinContent: Record "Bin Content";
     begin
-        BinContent.ShowBinContents("Location Code", "Item No.", "Variant Code", '')
+        BinContent.ShowBinContents(Rec."Location Code", Rec."Item No.", Rec."Variant Code", '')
     end;
 
     procedure AutofillQtyToHandle()
@@ -371,7 +396,7 @@ page 7378 "Invt. Pick Subform"
         WhseActivLine: Record "Warehouse Activity Line";
     begin
         WhseActivLine.Copy(Rec);
-        AutofillQtyToHandle(WhseActivLine);
+        Rec.AutofillQtyToHandle(WhseActivLine);
     end;
 
     procedure DeleteQtyToHandle()
@@ -379,7 +404,7 @@ page 7378 "Invt. Pick Subform"
         WhseActivLine: Record "Warehouse Activity Line";
     begin
         WhseActivLine.Copy(Rec);
-        DeleteQtyToHandle(WhseActivLine);
+        Rec.DeleteQtyToHandle(WhseActivLine);
     end;
 
     local procedure CallSplitLine()
@@ -387,8 +412,8 @@ page 7378 "Invt. Pick Subform"
         WhseActivLine: Record "Warehouse Activity Line";
     begin
         WhseActivLine.Copy(Rec);
-        SplitLine(WhseActivLine);
-        Copy(WhseActivLine);
+        Rec.SplitLine(WhseActivLine);
+        Rec.Copy(WhseActivLine);
         CurrPage.Update(false);
     end;
 
@@ -414,7 +439,7 @@ page 7378 "Invt. Pick Subform"
 
     procedure UpdateForm()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     protected procedure SerialNoOnAfterValidate()
@@ -423,12 +448,13 @@ page 7378 "Invt. Pick Subform"
         ExpDate: Date;
         EntriesExist: Boolean;
     begin
-        if "Serial No." <> '' then
-            ExpDate := ItemTrackingMgt.ExistingExpirationDate("Item No.", "Variant Code",
-                "Lot No.", "Serial No.", false, EntriesExist);
+        if Rec."Serial No." <> '' then
+            ExpDate :=
+                ItemTrackingMgt.ExistingExpirationDate(
+                    Rec."Item No.", Rec."Variant Code", Rec."Lot No.", Rec."Serial No.", false, EntriesExist);
 
         if ExpDate <> 0D then
-            "Expiration Date" := ExpDate;
+            Rec."Expiration Date" := ExpDate;
     end;
 
     protected procedure LotNoOnAfterValidate()
@@ -437,22 +463,30 @@ page 7378 "Invt. Pick Subform"
         ExpDate: Date;
         EntriesExist: Boolean;
     begin
-        if "Lot No." <> '' then
-            ExpDate := ItemTrackingMgt.ExistingExpirationDate("Item No.", "Variant Code",
-                "Lot No.", "Serial No.", false, EntriesExist);
+        if Rec."Lot No." <> '' then
+            ExpDate :=
+                ItemTrackingMgt.ExistingExpirationDate(
+                    Rec."Item No.", Rec."Variant Code", Rec."Lot No.", Rec."Serial No.", false, EntriesExist);
 
         if ExpDate <> 0D then
-            "Expiration Date" := ExpDate;
+            Rec."Expiration Date" := ExpDate;
     end;
 
     protected procedure BinCodeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     protected procedure QtytoHandleOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
+    end;
+
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
+    begin
+        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 }
 

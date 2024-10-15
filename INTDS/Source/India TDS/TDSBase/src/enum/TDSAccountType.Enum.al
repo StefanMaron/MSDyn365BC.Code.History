@@ -22,5 +22,4 @@ enum 18686 "TDS Account Type"
     {
         Caption = 'Fixed Asset';
     }
-
 }

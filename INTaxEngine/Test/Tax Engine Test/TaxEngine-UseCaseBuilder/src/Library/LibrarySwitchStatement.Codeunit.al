@@ -5,7 +5,7 @@ codeunit 136852 "Library - Switch Statement"
         SwitchCase: Record "Switch Case";
     begin
         SwitchCase.Init();
-        SwitchCase.validate("Case ID", CaseID);
+        SwitchCase.Validate("Case ID", CaseID);
         SwitchCase.Validate("Switch Statement ID", SwitchStatementID);
         SwitchCase.Validate("Action ID", ActionID);
         SwitchCase.Validate("Action Type", ActionType);

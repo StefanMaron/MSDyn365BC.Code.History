@@ -103,7 +103,7 @@ codeunit 20232 "Tax Type Object Helper"
         TaxComponentFormula."Component ID" := ID;
         TaxComponentFormula.Insert(true);
 
-        Exit(TaxComponentFormula.ID);
+        exit(TaxComponentFormula.ID);
     end;
 
     procedure DeleteComponentFormula(ID: Guid);
@@ -142,19 +142,10 @@ codeunit 20232 "Tax Type Object Helper"
             until TaxType.Next() = 0;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Script Symbol Store", 'OnEvaluateSymbolFormula', '', false, false)]
-    local procedure OnEvaluateSymbolFormula(
-        SymbolType: Enum "Symbol Type";
-        SymbolID: Integer;
-        sender: Codeunit "Script Symbol Store";
-        FormulaID: Guid;
-        var Symbols: Record "Script Symbol Value";
-        var Value: Variant;
-        var Handled: Boolean)
+    procedure GetFormulaValue(FromTransactionValue: Record "Tax Transaction Value"; SymbolID: Integer; FormulaID: Guid) Value: Decimal
     var
         TaxComponentFormula: Record "Tax Component Formula";
         TaxComponentFormulaToken: Record "Tax Component Formula Token";
-        TaxComponent: Record "Tax Component";
         ScriptDataTypeMgmt: Codeunit "Script Data Type Mgmt.";
         Values: Dictionary of [Text, Decimal];
         ValueVariant: Variant;
@@ -167,17 +158,97 @@ codeunit 20232 "Tax Type Object Helper"
         TaxComponentFormulaToken.SetRange("Formula Expr. ID", FormulaID);
         if TaxComponentFormulaToken.FindSet() then
             repeat
-                if TaxComponentFormulaToken."Value Type" = TaxComponentFormulaToken."Value Type"::Component then begin
-                    Symbols.Get(SymbolType, TaxComponentFormulaToken."Component ID");
-                    sender.GetSymbolValue(Symbols, ValueVariant);
-                end else
+                if TaxComponentFormulaToken."Value Type" = TaxComponentFormulaToken."Value Type"::Component then
+                    ValueVariant := GetComponentAmount(FromTransactionValue."Tax Type", TaxComponentFormulaToken."Component ID", FromTransactionValue."Tax Record ID")
+                else
                     ValueVariant := TaxComponentFormulaToken.Value;
 
                 Values.Add(TaxComponentFormulaToken.Token, ValueVariant)
             until TaxComponentFormulaToken.Next() = 0;
 
         Value := ScriptDataTypeMgmt.EvaluateExpression(TaxComponentFormula.Expression, Values);
+    end;
+
+    local procedure GetComponentAmount(TaxType: Code[20]; ValueID: Integer; RecID: RecordId) Amount: Decimal
+    var
+        TaxTransactionValue: Record "Tax Transaction Value";
+        TaxComponent: Record "Tax Component";
+        TaxRateComputation: Codeunit "Tax Rate Computation";
+    begin
+        TaxTransactionValue.SetRange("Tax Record ID", RecID);
+        TaxTransactionValue.SetRange("Tax Type", TaxType);
+        TaxTransactionValue.SetRange("Value Type", TaxTransactionValue."Value Type"::COMPONENT);
+        TaxTransactionValue.SetRange("Value ID", ValueID);
+        if TaxTransactionValue.FindFirst() then begin
+            TaxComponent.Get(TaxType, ValueID);
+            Amount := TaxRateComputation.RoundAmount(TaxTransactionValue.Amount, TaxComponent."Rounding Precision", TaxComponent.Direction);
+        end;
+    end;
+
+    procedure GetComponentAmountFrmTransValue(TaxTransactionValue: Record "Tax Transaction Value"): Decimal
+    var
+        TaxComponent: Record "Tax Component";
+        TaxRateComputation: Codeunit "Tax Rate Computation";
+        ComponentAmt: Decimal;
+    begin
+        TaxComponent.Get(TaxTransactionValue."Tax Type", TaxTransactionValue."Value ID");
+        if TaxComponent."Component Type" = TaxComponent."Component Type"::Formula then
+            ComponentAmt := GetFormulaValue(TaxTransactionValue, TaxTransactionValue."Value ID", TaxComponent."Formula ID")
+        else
+            ComponentAmt := TaxTransactionValue.Amount;
+
+        exit(TaxRateComputation.RoundAmount(ComponentAmt, TaxComponent."Rounding Precision", TaxComponent.Direction));
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Script Symbol Store", 'OnEvaluateSymbolFormula', '', false, false)]
+    local procedure OnEvaluateSymbolFormula(
+        SymbolType: Enum "Symbol Type";
+        SymbolID: Integer;
+        sender: Codeunit "Script Symbol Store";
+        FormulaID: Guid;
+        var Symbols: Record "Script Symbol Value";
+        var Value: Variant;
+        var Handled: Boolean)
+    var
+        TaxComponentFormula: Record "Tax Component Formula";
+        TaxComponentFormulaToken: Record "Tax Component Formula Token";
+        ScriptDataTypeMgmt: Codeunit "Script Data Type Mgmt.";
+        Values: Dictionary of [Text, Decimal];
+    begin
+        if not TaxComponentFormula.Get(FormulaID) then
+            exit;
+
+        TaxComponentFormulaToken.Reset();
+        TaxComponentFormulaToken.SetRange("Tax Type", TaxComponentFormula."Tax Type");
+        TaxComponentFormulaToken.SetRange("Formula Expr. ID", FormulaID);
+        if TaxComponentFormulaToken.FindSet() then
+            repeat
+                GetFormulaValue(Values, Symbols, sender, SymbolType, TaxComponentFormulaToken);
+            until TaxComponentFormulaToken.Next() = 0;
+
+        Value := ScriptDataTypeMgmt.EvaluateExpression(TaxComponentFormula.Expression, Values);
         Handled := true;
+    end;
+
+    local procedure GetFormulaValue(
+        var Values: Dictionary of [Text, Decimal];
+        var Symbols: Record "Script Symbol Value";
+        var ScriptSymbolStore: Codeunit "Script Symbol Store";
+        SymbolType: Enum "Symbol Type";
+        TaxComponentFormulaToken: Record "Tax Component Formula Token")
+    var
+        ValueVariant: Variant;
+    begin
+        if TaxComponentFormulaToken."Value Type" = TaxComponentFormulaToken."Value Type"::Component then begin
+            //This if block is needed as a component defined on formula may not be used in use case.
+            if Symbols.Get(SymbolType, TaxComponentFormulaToken."Component ID") then
+                ScriptSymbolStore.GetSymbolValue(Symbols, ValueVariant)
+            else
+                ValueVariant := 0;
+        end else
+            ValueVariant := TaxComponentFormulaToken.Value;
+
+        Values.Add(TaxComponentFormulaToken.Token, ValueVariant)
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Script Symbol Lookup Dialog", 'OnValidateLookupTableName', '', false, false)]

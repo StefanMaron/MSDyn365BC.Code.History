@@ -688,9 +688,6 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                                             </Paragraphs>
                                             <rd:DefaultName>No_PurchaseLine</rd:DefaultName>
                                             <ZIndex>115</ZIndex>
-                                            <Visibility>
-                                              <Hidden>=IIF(Fields!PurchaseLineType.Value="2" OR Fields!PurchaseLineType.Value="4" OR Fields!PurchaseLineType.Value="1" OR Fields!PurchaseLineType.Value="5",FALSE,TRUE)</Hidden>
-                                            </Visibility>
                                             <DataElementOutput>NoOutput</DataElementOutput>
                                             <Style>
                                               <Border>
@@ -700,6 +697,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                                               <PaddingRight>5pt</PaddingRight>
                                             </Style>
                                           </Textbox>
+                                          <rd:Selected>true</rd:Selected>
                                         </CellContents>
                                       </TablixCell>
                                       <TablixCell>
@@ -2498,246 +2496,6 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox56">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox56</rd:DefaultName>
-                                            <ZIndex>59</ZIndex>
-                                            <Style>
-                                              <VerticalAlign>Top</VerticalAlign>
-                                              <PaddingRight>5pt</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="textbox104">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox104</rd:DefaultName>
-                                            <ZIndex>58</ZIndex>
-                                            <Style>
-                                              <VerticalAlign>Top</VerticalAlign>
-                                              <PaddingLeft>5pt</PaddingLeft>
-                                              <PaddingRight>5pt</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="textbox164">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox164</rd:DefaultName>
-                                            <ZIndex>57</ZIndex>
-                                            <Style>
-                                              <VerticalAlign>Top</VerticalAlign>
-                                              <PaddingLeft>5pt</PaddingLeft>
-                                              <PaddingRight>5pt</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="textbox165">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox165</rd:DefaultName>
-                                            <ZIndex>56</ZIndex>
-                                            <Style>
-                                              <VerticalAlign>Top</VerticalAlign>
-                                              <PaddingLeft>5pt</PaddingLeft>
-                                              <PaddingRight>5pt</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="textbox166">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox166</rd:DefaultName>
-                                            <ZIndex>55</ZIndex>
-                                            <Style>
-                                              <VerticalAlign>Top</VerticalAlign>
-                                              <PaddingLeft>5pt</PaddingLeft>
-                                              <PaddingRight>5pt</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="textbox167">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox167</rd:DefaultName>
-                                            <ZIndex>54</ZIndex>
-                                            <Style>
-                                              <VerticalAlign>Top</VerticalAlign>
-                                              <PaddingLeft>5pt</PaddingLeft>
-                                              <PaddingRight>5pt</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="textbox168">
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!ExciseAmtCaption.Value</Value>
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Right</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox168</rd:DefaultName>
-                                            <ZIndex>53</ZIndex>
-                                            <Style>
-                                              <VerticalAlign>Top</VerticalAlign>
-                                              <PaddingLeft>5pt</PaddingLeft>
-                                              <PaddingRight>5pt</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                          <ColSpan>3</ColSpan>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="textbox1712">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Last(Fields!TotalExciseAmount.Value)</Value>
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!TotalExciseAmountFormat.Value</Format>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox171</rd:DefaultName>
-                                            <ZIndex>52</ZIndex>
-                                            <Style>
-                                              <VerticalAlign>Top</VerticalAlign>
-                                              <PaddingLeft>5pt</PaddingLeft>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                    </TablixCells>
-                                  </TablixRow>
-                                  <TablixRow>
-                                    <Height>0.31832cm</Height>
-                                    <TablixCells>
-                                      <TablixCell>
-                                        <CellContents>
                                           <Textbox Name="textbox267">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
@@ -2956,7 +2714,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!PurchLineTotalTDSIncludingSheCessFormat.Value</Format>
+                                                      <Format>n2</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -2968,10 +2726,14 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                                             <rd:DefaultName>TDSAmt</rd:DefaultName>
                                             <ZIndex>92</ZIndex>
                                             <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
                                               <VerticalAlign>Top</VerticalAlign>
                                               <PaddingLeft>5pt</PaddingLeft>
                                             </Style>
                                           </Textbox>
+                                          <rd:Selected>true</rd:Selected>
                                         </CellContents>
                                       </TablixCell>
                                     </TablixCells>
@@ -3929,6 +3691,235 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
+                                          <Textbox Name="Textbox3">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value />
+                                                    <Style>
+                                                      <FontFamily>Segoe UI</FontFamily>
+                                                      <FontSize>8pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox3</rd:DefaultName>
+                                            <Style>
+                                              <PaddingRight>5pt</PaddingRight>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox7">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value />
+                                                    <Style>
+                                                      <FontFamily>Segoe UI</FontFamily>
+                                                      <FontSize>8pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox7</rd:DefaultName>
+                                            <Style>
+                                              <PaddingLeft>5pt</PaddingLeft>
+                                              <PaddingRight>5pt</PaddingRight>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox11">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value />
+                                                    <Style>
+                                                      <FontFamily>Segoe UI</FontFamily>
+                                                      <FontSize>8pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox11</rd:DefaultName>
+                                            <Style>
+                                              <PaddingLeft>5pt</PaddingLeft>
+                                              <PaddingRight>5pt</PaddingRight>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox13">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value />
+                                                    <Style>
+                                                      <FontFamily>Segoe UI</FontFamily>
+                                                      <FontSize>8pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox13</rd:DefaultName>
+                                            <Style>
+                                              <PaddingLeft>5pt</PaddingLeft>
+                                              <PaddingRight>5pt</PaddingRight>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox19">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value />
+                                                    <Style>
+                                                      <FontFamily>Segoe UI</FontFamily>
+                                                      <FontSize>8pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox19</rd:DefaultName>
+                                            <Style>
+                                              <PaddingLeft>5pt</PaddingLeft>
+                                              <PaddingRight>5pt</PaddingRight>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox20">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value />
+                                                    <Style>
+                                                      <FontFamily>Segoe UI</FontFamily>
+                                                      <FontSize>8pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox20</rd:DefaultName>
+                                            <Style>
+                                              <PaddingLeft>5pt</PaddingLeft>
+                                              <PaddingRight>5pt</PaddingRight>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox22">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>Cess Amount</Value>
+                                                    <Style>
+                                                      <FontFamily>Segoe UI</FontFamily>
+                                                      <FontSize>8pt</FontSize>
+                                                      <FontWeight>Bold</FontWeight>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Right</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox22</rd:DefaultName>
+                                            <Style>
+                                              <PaddingLeft>5pt</PaddingLeft>
+                                              <PaddingRight>5pt</PaddingRight>
+                                            </Style>
+                                          </Textbox>
+                                          <ColSpan>3</ColSpan>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox25">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Last(Fields!CessAmount.Value)</Value>
+                                                    <Style>
+                                                      <FontFamily>Segoe UI</FontFamily>
+                                                      <FontSize>8pt</FontSize>
+                                                      <Format>n2</Format>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox25</rd:DefaultName>
+                                            <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <PaddingLeft>5pt</PaddingLeft>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                    </TablixCells>
+                                  </TablixRow>
+                                  <TablixRow>
+                                    <Height>0.31832cm</Height>
+                                    <TablixCells>
+                                      <TablixCell>
+                                        <CellContents>
                                           <Textbox Name="textbox213">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
@@ -4733,7 +4724,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Last(Fields!TotalAmount.Value+Fields!GSTCompAmount1.Value+Fields!GSTCompAmount2.Value+Fields!GSTCompAmount3.Value+Fields!GSTCompAmount4.Value)-Fields!TDSAmt.Value</Value>
+                                                    <Value>=(Last(Fields!TotalAmount.Value)+Last(Fields!GSTCompAmount1.Value)+Last(Fields!GSTCompAmount2.Value)+Last(Fields!GSTCompAmount3.Value)+Last(Fields!GSTCompAmount4.Value)+ Last(Fields!CessAmount.Value))-Fields!TDSAmt.Value</Value>
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
@@ -5972,6 +5963,9 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                                     </SortExpressions>
                                     <TablixMembers>
                                       <TablixMember>
+                                        <Visibility>
+                                          <Hidden>=iif(Fields!No_PurchaseLine.Value = Fields!GLAccountNo.Value,true,false)</Hidden>
+                                        </Visibility>
                                         <KeepWithGroup>After</KeepWithGroup>
                                       </TablixMember>
                                       <TablixMember>
@@ -6034,12 +6028,8 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                                   </TablixMember>
                                   <TablixMember>
                                     <Visibility>
-                                      <Hidden>=iif(Fields!TotalExciseAmount.Value&lt;&gt;0,False,True)</Hidden>
+                                      <Hidden>=iif(Fields!TDSAmt.Value&lt;&gt;0,False,True)</Hidden>
                                     </Visibility>
-                                    <KeepWithGroup>Before</KeepWithGroup>
-                                    <KeepTogether>true</KeepTogether>
-                                  </TablixMember>
-                                  <TablixMember>
                                     <KeepWithGroup>Before</KeepWithGroup>
                                     <KeepTogether>true</KeepTogether>
                                   </TablixMember>
@@ -6064,6 +6054,12 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                                   <TablixMember>
                                     <Visibility>
                                       <Hidden>=iif(last(Fields!GSTCompAmount4.Value)&lt;&gt;0,false,true)</Hidden>
+                                    </Visibility>
+                                    <KeepWithGroup>Before</KeepWithGroup>
+                                  </TablixMember>
+                                  <TablixMember>
+                                    <Visibility>
+                                      <Hidden>=iif(Last(Fields!CessAmount.Value)&lt;&gt;0,False,True)</Hidden>
                                     </Visibility>
                                     <KeepWithGroup>Before</KeepWithGroup>
                                   </TablixMember>
@@ -7354,7 +7350,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
         <Height>18.35181cm</Height>
         <Style />
       </Body>
-      <Width>18.04539cm</Width>
+      <Width>18.04988cm</Width>
       <Page>
         <PageHeader>
           <Height>8.87024cm</Height>
@@ -7427,7 +7423,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>5.59556cm</Top>
+              <Top>5.27806cm</Top>
               <Left>3.15535cm</Left>
               <Height>0.38806cm</Height>
               <Width>4.57cm</Width>
@@ -7452,7 +7448,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>5.59556cm</Top>
+              <Top>5.27806cm</Top>
               <Height>0.38806cm</Height>
               <Width>3.09999cm</Width>
               <ZIndex>3</ZIndex>
@@ -7478,8 +7474,8 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.15646cm</Top>
-              <Left>13.81382cm</Left>
+              <Top>6.8125cm</Top>
+              <Left>13.81831cm</Left>
               <Height>11pt</Height>
               <Width>4.21967cm</Width>
               <ZIndex>4</ZIndex>
@@ -7505,86 +7501,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.15646cm</Top>
-              <Left>11.57922cm</Left>
+              <Top>6.8125cm</Top>
+              <Left>11.58371cm</Left>
               <Height>11pt</Height>
               <Width>2.1711cm</Width>
               <ZIndex>5</ZIndex>
-              <Style>
-                <VerticalAlign>Top</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="PurchaseHeaderVATRegNo1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(23,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>4.80621cm</Top>
-              <Left>3.15535cm</Left>
-              <Height>0.38806cm</Height>
-              <Width>4.57cm</Width>
-              <ZIndex>6</ZIndex>
-              <Style>
-                <VerticalAlign>Top</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="VATNoText1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(22,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>4.80621cm</Top>
-              <Height>11pt</Height>
-              <Width>3.09999cm</Width>
-              <ZIndex>7</ZIndex>
-              <Style>
-                <VerticalAlign>Top</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="SalesHeaderNoCaption1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(32,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Left</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>7.65161cm</Top>
-              <Height>11pt</Height>
-              <Width>3.09999cm</Width>
-              <ZIndex>8</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -7605,10 +7526,10 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>5.20089cm</Top>
+              <Top>4.88339cm</Top>
               <Height>11pt</Height>
               <Width>3.09999cm</Width>
-              <ZIndex>9</ZIndex>
+              <ZIndex>6</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -7631,11 +7552,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.74746cm</Top>
-              <Left>11.57922cm</Left>
+              <Top>6.4035cm</Top>
+              <Left>11.58371cm</Left>
               <Height>11pt</Height>
               <Width>2.1711cm</Width>
-              <ZIndex>10</ZIndex>
+              <ZIndex>7</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -7658,11 +7579,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.32446cm</Top>
-              <Left>11.57922cm</Left>
+              <Top>5.9805cm</Top>
+              <Left>11.58371cm</Left>
               <Height>11pt</Height>
               <Width>2.1711cm</Width>
-              <ZIndex>11</ZIndex>
+              <ZIndex>8</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -7685,38 +7606,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.13947cm</Top>
-              <Left>11.57922cm</Left>
+              <Top>4.79551cm</Top>
+              <Left>11.58371cm</Left>
               <Height>11pt</Height>
               <Width>2.1711cm</Width>
-              <ZIndex>12</ZIndex>
-              <Style>
-                <VerticalAlign>Top</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="textbox149">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(37,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Left</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>4.74822cm</Top>
-              <Left>11.57922cm</Left>
-              <Height>11pt</Height>
-              <Width>2.1711cm</Width>
-              <ZIndex>13</ZIndex>
+              <ZIndex>9</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -7743,7 +7637,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Left>11.57922cm</Left>
               <Height>11pt</Height>
               <Width>2.1711cm</Width>
-              <ZIndex>14</ZIndex>
+              <ZIndex>10</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -7770,7 +7664,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Left>11.57922cm</Left>
               <Height>11pt</Height>
               <Width>6.45875cm</Width>
-              <ZIndex>15</ZIndex>
+              <ZIndex>11</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -7797,34 +7691,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Left>11.57922cm</Left>
               <Height>11pt</Height>
               <Width>6.45875cm</Width>
-              <ZIndex>16</ZIndex>
-              <Style>
-                <VerticalAlign>Top</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="SalesHeaderNo1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(20,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Left</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>7.65161cm</Top>
-              <Left>3.15535cm</Left>
-              <Height>11pt</Height>
-              <Width>4.57cm</Width>
-              <ZIndex>17</ZIndex>
+              <ZIndex>12</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -7847,11 +7714,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.20089cm</Top>
+              <Top>4.88339cm</Top>
               <Left>3.15535cm</Left>
               <Height>0.38806cm</Height>
               <Width>4.57cm</Width>
-              <ZIndex>18</ZIndex>
+              <ZIndex>13</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -7874,11 +7741,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.74746cm</Top>
-              <Left>13.82572cm</Left>
+              <Top>6.4035cm</Top>
+              <Left>13.83021cm</Left>
               <Height>11pt</Height>
               <Width>4.21967cm</Width>
-              <ZIndex>19</ZIndex>
+              <ZIndex>14</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -7901,11 +7768,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.32447cm</Top>
-              <Left>13.82572cm</Left>
+              <Top>5.98051cm</Top>
+              <Left>13.83021cm</Left>
               <Height>11pt</Height>
               <Width>4.21967cm</Width>
-              <ZIndex>20</ZIndex>
+              <ZIndex>15</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -7928,38 +7795,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.13947cm</Top>
-              <Left>13.82572cm</Left>
+              <Top>4.79551cm</Top>
+              <Left>13.83021cm</Left>
               <Height>11pt</Height>
               <Width>4.21967cm</Width>
-              <ZIndex>21</ZIndex>
-              <Style>
-                <VerticalAlign>Top</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="textbox119">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(17,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>4.74822cm</Top>
-              <Left>13.82572cm</Left>
-              <Height>11pt</Height>
-              <Width>4.21967cm</Width>
-              <ZIndex>22</ZIndex>
+              <ZIndex>16</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -7986,7 +7826,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Left>13.82572cm</Left>
               <Height>11pt</Height>
               <Width>4.21967cm</Width>
-              <ZIndex>23</ZIndex>
+              <ZIndex>17</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8013,7 +7853,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Left>11.57922cm</Left>
               <Height>11pt</Height>
               <Width>6.45875cm</Width>
-              <ZIndex>24</ZIndex>
+              <ZIndex>18</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8040,7 +7880,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Left>11.57922cm</Left>
               <Height>11pt</Height>
               <Width>6.45875cm</Width>
-              <ZIndex>25</ZIndex>
+              <ZIndex>19</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8067,7 +7907,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Left>11.57922cm</Left>
               <Height>11pt</Height>
               <Width>6.45875cm</Width>
-              <ZIndex>26</ZIndex>
+              <ZIndex>20</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8094,7 +7934,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Left>11.57922cm</Left>
               <Height>11pt</Height>
               <Width>6.45875cm</Width>
-              <ZIndex>27</ZIndex>
+              <ZIndex>21</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8121,7 +7961,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Left>11.57922cm</Left>
               <Height>20pt</Height>
               <Width>6.45875cm</Width>
-              <ZIndex>28</ZIndex>
+              <ZIndex>22</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8148,7 +7988,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Left>11.57922cm</Left>
               <Height>11pt</Height>
               <Width>6.45875cm</Width>
-              <ZIndex>29</ZIndex>
+              <ZIndex>23</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8172,11 +8012,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.00411cm</Top>
+              <Top>5.68661cm</Top>
               <Left>3.15535cm</Left>
               <Height>11pt</Height>
               <Width>4.57cm</Width>
-              <ZIndex>30</ZIndex>
+              <ZIndex>24</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8200,7 +8040,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Top>3.59581cm</Top>
               <Height>11pt</Height>
               <Width>7.72875cm</Width>
-              <ZIndex>31</ZIndex>
+              <ZIndex>25</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8224,7 +8064,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Top>3.1728cm</Top>
               <Height>11pt</Height>
               <Width>7.72875cm</Width>
-              <ZIndex>32</ZIndex>
+              <ZIndex>26</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8248,7 +8088,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Top>2.7498cm</Top>
               <Height>11pt</Height>
               <Width>7.72875cm</Width>
-              <ZIndex>33</ZIndex>
+              <ZIndex>27</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8272,7 +8112,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Top>2.32713cm</Top>
               <Height>11pt</Height>
               <Width>7.72875cm</Width>
-              <ZIndex>34</ZIndex>
+              <ZIndex>28</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8296,7 +8136,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Top>1.9038cm</Top>
               <Height>11pt</Height>
               <Width>7.72875cm</Width>
-              <ZIndex>35</ZIndex>
+              <ZIndex>29</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8320,7 +8160,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Top>1.4808cm</Top>
               <Height>11pt</Height>
               <Width>7.72875cm</Width>
-              <ZIndex>36</ZIndex>
+              <ZIndex>30</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8344,7 +8184,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Top>1.08955cm</Top>
               <Height>11pt</Height>
               <Width>7.72875cm</Width>
-              <ZIndex>37</ZIndex>
+              <ZIndex>31</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8368,7 +8208,7 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
               <Top>0.70871cm</Top>
               <Height>11pt</Height>
               <Width>7.72875cm</Width>
-              <ZIndex>38</ZIndex>
+              <ZIndex>32</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8392,10 +8232,10 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.00411cm</Top>
+              <Top>5.68661cm</Top>
               <Height>11pt</Height>
               <Width>3.09999cm</Width>
-              <ZIndex>39</ZIndex>
+              <ZIndex>33</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -8422,11 +8262,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.50546cm</Top>
-              <Left>11.57922cm</Left>
+              <Top>5.1615cm</Top>
+              <Left>11.58371cm</Left>
               <Height>11pt</Height>
               <Width>2.1711cm</Width>
-              <ZIndex>40</ZIndex>
+              <ZIndex>34</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -8453,11 +8293,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.48958cm</Top>
-              <Left>13.82572cm</Left>
+              <Top>5.14562cm</Top>
+              <Left>13.83021cm</Left>
               <Height>11pt</Height>
               <Width>4.21967cm</Width>
-              <ZIndex>41</ZIndex>
+              <ZIndex>35</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -8485,11 +8325,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox21</rd:DefaultName>
-              <Top>5.9182cm</Top>
-              <Left>11.57922cm</Left>
+              <Top>5.57424cm</Top>
+              <Left>11.58371cm</Left>
               <Height>11pt</Height>
               <Width>2.1711cm</Width>
-              <ZIndex>42</ZIndex>
+              <ZIndex>36</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -8517,11 +8357,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox29</rd:DefaultName>
-              <Top>5.9038cm</Top>
-              <Left>13.82572cm</Left>
+              <Top>5.55984cm</Top>
+              <Left>13.83021cm</Left>
               <Height>11pt</Height>
               <Width>4.21967cm</Width>
-              <ZIndex>43</ZIndex>
+              <ZIndex>37</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -8546,10 +8386,10 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>7.24572cm</Top>
+              <Top>6.92822cm</Top>
               <Height>11pt</Height>
               <Width>3.09999cm</Width>
-              <ZIndex>44</ZIndex>
+              <ZIndex>38</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -8576,11 +8416,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.24572cm</Top>
+              <Top>6.92822cm</Top>
               <Left>3.15535cm</Left>
               <Height>11pt</Height>
               <Width>4.57cm</Width>
-              <ZIndex>45</ZIndex>
+              <ZIndex>39</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -8605,10 +8445,10 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>6.42621cm</Top>
+              <Top>6.10871cm</Top>
               <Height>11pt</Height>
               <Width>3.09999cm</Width>
-              <ZIndex>46</ZIndex>
+              <ZIndex>40</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -8636,11 +8476,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox370</rd:DefaultName>
-              <Top>6.42621cm</Top>
+              <Top>6.10871cm</Top>
               <Left>3.15535cm</Left>
               <Height>11pt</Height>
               <Width>4.57cm</Width>
-              <ZIndex>47</ZIndex>
+              <ZIndex>41</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -8665,10 +8505,10 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>6.83898cm</Top>
+              <Top>6.52148cm</Top>
               <Height>11pt</Height>
               <Width>3.09999cm</Width>
-              <ZIndex>48</ZIndex>
+              <ZIndex>42</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -8695,11 +8535,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.83898cm</Top>
+              <Top>6.52148cm</Top>
               <Left>3.15535cm</Left>
               <Height>11pt</Height>
               <Width>4.57cm</Width>
-              <ZIndex>49</ZIndex>
+              <ZIndex>43</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -8724,11 +8564,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox76</rd:DefaultName>
-              <Top>7.62213cm</Top>
-              <Left>11.57922cm</Left>
+              <Top>7.27817cm</Top>
+              <Left>11.58371cm</Left>
               <Height>11pt</Height>
               <Width>3.08208cm</Width>
-              <ZIndex>50</ZIndex>
+              <ZIndex>44</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -8755,11 +8595,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox77</rd:DefaultName>
-              <Top>7.62213cm</Top>
-              <Left>14.73186cm</Left>
+              <Top>7.27817cm</Top>
+              <Left>14.73635cm</Left>
               <Height>0.38737cm</Height>
               <Width>3.30163cm</Width>
-              <ZIndex>51</ZIndex>
+              <ZIndex>45</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -8783,11 +8623,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox76</rd:DefaultName>
-              <Top>8.08284cm</Top>
-              <Left>11.57922cm</Left>
+              <Top>7.73888cm</Top>
+              <Left>11.58371cm</Left>
               <Height>11pt</Height>
               <Width>3.07692cm</Width>
-              <ZIndex>52</ZIndex>
+              <ZIndex>46</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -8815,11 +8655,11 @@ Cstr(Fields!Vendor_GST_RegistrationNo.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox81</rd:DefaultName>
-              <Top>8.08284cm</Top>
-              <Left>14.73186cm</Left>
+              <Top>7.73888cm</Top>
+              <Left>14.73635cm</Left>
               <Height>0.38737cm</Height>
               <Width>3.30163cm</Width>
-              <ZIndex>53</ZIndex>
+              <ZIndex>47</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -9055,6 +8895,15 @@ End Function
         <Field Name="TDSAmtFormat">
           <DataField>TDSAmtFormat</DataField>
         </Field>
+        <Field Name="CessAmount">
+          <DataField>CessAmount</DataField>
+        </Field>
+        <Field Name="CessAmountFormat">
+          <DataField>CessAmountFormat</DataField>
+        </Field>
+        <Field Name="GLAccountNo">
+          <DataField>GLAccountNo</DataField>
+        </Field>
         <Field Name="IsGSTApplicable">
           <DataField>IsGSTApplicable</DataField>
         </Field>
@@ -9259,15 +9108,6 @@ End Function
         <Field Name="PurchLineAmountToVendor">
           <DataField>PurchLineAmountToVendor</DataField>
         </Field>
-        <Field Name="PurchLineExciseAmount">
-          <DataField>PurchLineExciseAmount</DataField>
-        </Field>
-        <Field Name="PurchLineTaxAmount">
-          <DataField>PurchLineTaxAmount</DataField>
-        </Field>
-        <Field Name="PurchLineServiceTaxAmount">
-          <DataField>PurchLineServiceTaxAmount</DataField>
-        </Field>
         <Field Name="OtherTaxesAmount">
           <DataField>OtherTaxesAmount</DataField>
         </Field>
@@ -9282,18 +9122,6 @@ End Function
         </Field>
         <Field Name="PurchLineTotalTDSIncludingSheCess">
           <DataField>PurchLineTotalTDSIncludingSheCess</DataField>
-        </Field>
-        <Field Name="PurchLineTotalTDSIncludingSheCessFormat">
-          <DataField>PurchLineTotalTDSIncludingSheCessFormat</DataField>
-        </Field>
-        <Field Name="PurchLineWorkTaxAmount">
-          <DataField>PurchLineWorkTaxAmount</DataField>
-        </Field>
-        <Field Name="PurchLineSerTaxeCessAmt">
-          <DataField>PurchLineSerTaxeCessAmt</DataField>
-        </Field>
-        <Field Name="PurchLineSerTaxSHECessAmt">
-          <DataField>PurchLineSerTaxSHECessAmt</DataField>
         </Field>
         <Field Name="VATDiscountAmount">
           <DataField>VATDiscountAmount</DataField>
@@ -9343,42 +9171,6 @@ End Function
         <Field Name="TotalAmountFormat">
           <DataField>TotalAmountFormat</DataField>
         </Field>
-        <Field Name="TotalServiceTaxAmount">
-          <DataField>TotalServiceTaxAmount</DataField>
-        </Field>
-        <Field Name="TotalServiceTaxAmountFormat">
-          <DataField>TotalServiceTaxAmountFormat</DataField>
-        </Field>
-        <Field Name="TotalServiceTaxeCessAmount">
-          <DataField>TotalServiceTaxeCessAmount</DataField>
-        </Field>
-        <Field Name="TotalServiceTaxeCessAmountFormat">
-          <DataField>TotalServiceTaxeCessAmountFormat</DataField>
-        </Field>
-        <Field Name="TotalServiceTaxSHE2CessAmt">
-          <DataField>TotalServiceTaxSHE2CessAmt</DataField>
-        </Field>
-        <Field Name="TotalServiceTaxSHE2CessAmtFormat">
-          <DataField>TotalServiceTaxSHE2CessAmtFormat</DataField>
-        </Field>
-        <Field Name="TotalSerTaxTDSSHEeCessAmt">
-          <DataField>TotalSerTaxTDSSHEeCessAmt</DataField>
-        </Field>
-        <Field Name="TotalSerTaxTDSSHEeCessAmtFormat">
-          <DataField>TotalSerTaxTDSSHEeCessAmtFormat</DataField>
-        </Field>
-        <Field Name="TotalServiceWorkTaxAmount">
-          <DataField>TotalServiceWorkTaxAmount</DataField>
-        </Field>
-        <Field Name="TotalServiceWorkTaxAmountFormat">
-          <DataField>TotalServiceWorkTaxAmountFormat</DataField>
-        </Field>
-        <Field Name="TotalExciseAmount">
-          <DataField>TotalExciseAmount</DataField>
-        </Field>
-        <Field Name="TotalExciseAmountFormat">
-          <DataField>TotalExciseAmountFormat</DataField>
-        </Field>
         <Field Name="TotalTaxAmount">
           <DataField>TotalTaxAmount</DataField>
         </Field>
@@ -9400,14 +9192,8 @@ End Function
         <Field Name="SubtotalCaption">
           <DataField>SubtotalCaption</DataField>
         </Field>
-        <Field Name="ExciseAmtCaption">
-          <DataField>ExciseAmtCaption</DataField>
-        </Field>
         <Field Name="TaxAmtCaption">
           <DataField>TaxAmtCaption</DataField>
-        </Field>
-        <Field Name="ServTaxAmtCaption">
-          <DataField>ServTaxAmtCaption</DataField>
         </Field>
         <Field Name="OtherTaxesAmtCaption">
           <DataField>OtherTaxesAmtCaption</DataField>
@@ -9417,15 +9203,6 @@ End Function
         </Field>
         <Field Name="TotalTDSIncleSHECessCaption">
           <DataField>TotalTDSIncleSHECessCaption</DataField>
-        </Field>
-        <Field Name="WorkTaxAmtCaption">
-          <DataField>WorkTaxAmtCaption</DataField>
-        </Field>
-        <Field Name="ServTaxeCessAmtCaption">
-          <DataField>ServTaxeCessAmtCaption</DataField>
-        </Field>
-        <Field Name="ServTaxeSHECessAmtCaption">
-          <DataField>ServTaxeSHECessAmtCaption</DataField>
         </Field>
         <Field Name="VATDiscAmtCaption">
           <DataField>VATDiscAmtCaption</DataField>
@@ -9441,30 +9218,6 @@ End Function
         </Field>
         <Field Name="UnitofMeasure_PurchaseLineCaption">
           <DataField>UnitofMeasure_PurchaseLineCaption</DataField>
-        </Field>
-        <Field Name="ServTaxeSBCAmt">
-          <DataField>ServTaxeSBCAmt</DataField>
-        </Field>
-        <Field Name="ServTaxSBCAmtCaption">
-          <DataField>ServTaxSBCAmtCaption</DataField>
-        </Field>
-        <Field Name="TotalServiceTaxSBCAmount">
-          <DataField>TotalServiceTaxSBCAmount</DataField>
-        </Field>
-        <Field Name="TotalServiceTaxSBCAmountFormat">
-          <DataField>TotalServiceTaxSBCAmountFormat</DataField>
-        </Field>
-        <Field Name="KKCessAmt">
-          <DataField>KKCessAmt</DataField>
-        </Field>
-        <Field Name="KKCessAmtCaption">
-          <DataField>KKCessAmtCaption</DataField>
-        </Field>
-        <Field Name="TotalKKCessAmount">
-          <DataField>TotalKKCessAmount</DataField>
-        </Field>
-        <Field Name="TotalKKCessAmountFormat">
-          <DataField>TotalKKCessAmountFormat</DataField>
         </Field>
         <Field Name="TotalGSTAmount">
           <DataField>TotalGSTAmount</DataField>

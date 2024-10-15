@@ -8,17 +8,17 @@ table 20162 "Action Date To DateTime"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(4; "Variable ID"; Integer)
@@ -40,7 +40,7 @@ table 20162 "Action Date To DateTime"
         }
         field(7; "Date Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Date Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
@@ -57,7 +57,7 @@ table 20162 "Action Date To DateTime"
         }
         field(12; "Time Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Time Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }

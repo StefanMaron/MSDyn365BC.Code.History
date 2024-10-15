@@ -9,6 +9,7 @@ codeunit 20283 "Switch Statement Execution"
         SwitchCase: Record "Switch Case";
         ConditionOk: Boolean;
     begin
+        SwitchCase.SetCurrentKey(Sequence);
         SwitchCase.SetRange("Case ID", CaseID);
         SwitchCase.SetRange("Switch Statement ID", SwitchStatementID);
         if SwitchCase.FindSet() then

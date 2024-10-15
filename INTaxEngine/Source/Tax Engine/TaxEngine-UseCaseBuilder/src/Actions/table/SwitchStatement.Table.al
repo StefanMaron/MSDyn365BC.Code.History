@@ -8,12 +8,12 @@ table 20284 "Switch Statement"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
     }
@@ -30,13 +30,6 @@ table 20284 "Switch Statement"
         SwitchCase: Record "Switch Case";
 
     trigger OnInsert()
-    var
-        ScriptSymbolStore: Codeunit "Script Symbol Store";
-    begin
-        ScriptSymbolStore.OnBeforeValidateIfUpdateIsAllowed("Case ID");
-    end;
-
-    trigger OnModify()
     var
         ScriptSymbolStore: Codeunit "Script Symbol Store";
     begin

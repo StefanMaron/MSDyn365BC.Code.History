@@ -196,33 +196,11 @@ page 18318 "GST Credit Adjustment Journal"
         Rec.TestField("Total GST Credit Amount");
     end;
 
-    local procedure ShowDocDim()
-    var
-        OldDimSetID: Integer;
-    begin
-        OldDimSetID := Rec."Dimension Set ID";
-        Rec."Dimension Set ID" :=
-          DimMgt.EditDimensionSet(
-            Rec."Dimension Set ID",
-            StrSubstNo(DimensionSetDocMsg, Rec."Document Type", Rec."No."),
-            Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
-
-        DimMgt.UpdateGlobalDimFromDimSetID(
-            Rec."Dimension Set ID",
-            Rec."Shortcut Dimension 1 Code",
-            Rec."Shortcut Dimension 2 Code");
-
-        if OldDimSetID <> Rec."Dimension Set ID" then
-            Rec.Modify();
-    end;
-
     var
         GSTSettlement: Codeunit "GST Settlement";
-        DimMgt: Codeunit DimensionManagement;
         GSTINNoErr: Label 'GSTIN No. must not be empty.';
         PageCloseQst: Label 'The records will be deleted from GST Credit Adjustment Journal. Do you want to continue?';
         PostingDateErr: Label 'You can not change the Period Month or Period Year in the GST Credit Adjustment Journal, since there are some records with Posting Date as %1.', Comment = '%1 = Posting Date';
         NoRecsDeletedErr: Label 'No records are deleted.';
         AdjDocErr: Label 'Adjust Document No. must not be empty.';
-        DimensionSetDocMsg: Label '%1,%2', comment = '%1=Document Type,%2= No.';
 }

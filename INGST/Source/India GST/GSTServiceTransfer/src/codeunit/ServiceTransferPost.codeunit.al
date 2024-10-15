@@ -2,11 +2,79 @@ codeunit 18350 "Service Transfer Post"
 {
     TableNo = "Service Transfer Header";
 
-    Trigger OnRun()
+    trigger OnRun()
     begin
         ServiceTransferHeader.Copy(Rec);
         Code();
         Rec := ServiceTransferHeader;
+    end;
+
+    var
+        TempTransferBufferStage: Record "Transfer Buffer" temporary;
+        TempTransferBufferFinal: Record "Transfer Buffer" temporary;
+        TempGSTPostingBufferStage: Record "GST Posting Buffer" temporary;
+        TempGSTPostingBufferFinal: Record "GST Posting Buffer" temporary;
+        ServiceTransferHeader: Record "Service Transfer Header";
+        GenJnlLine: Record "Gen. Journal Line";
+        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        SourceCode: Code[10];
+        PostedServiceTransferShptDocNo: Code[20];
+        PostedServiceTransferRcptDocNo: Code[20];
+        TransferAmount: Decimal;
+        GSTAmount: Decimal;
+        ControlAccount: Boolean;
+        InvoiceRoundingAmount: Decimal;
+        ShipReceiveQst: Label '&Ship,&Receive';
+        SameLocErr: Label 'Service Transfer order %1 canNot be posted because %2 and %3 are the same.', Comment = '%1 = Transfer Order;%2 = From Location;%3 = To Location';
+        ServTransDimErr: Label 'The combination of dimensions used in Service Transfer order %1 is blocked. %2.', Comment = '%1 = Order No ;%2 = Error';
+        ServTransDimCombErr: Label 'The combination of dimensions used in Service Transfer order %1, line no. %2 is blocked. %3.', Comment = '%1 = Order No ;%2 = Line No ;%3 = Error';
+        PostMsg: Label 'Posting transfer lines     #2######', Comment = '#2###';
+        ServTransMsg: Label 'Service Transfer Order %1.', Comment = 'Service Transfer Order %1.';
+        NoSeriesErr: Label '%1 must not be empty in %2 or %3.', Comment = '%1 = Field Name, %2 = Table Name, %3 = Table Name ';
+        ServiceTranTxt: Label 'Service Transfer - %1', Comment = '%1 = Transfer Doc ';
+        ServTransDelMsg: Label 'Service Transfer Order %1 has been deleted.', Comment = '%1 = Service Transfer Order No';
+        LocationCodeErr: Label 'Please specIfy the Location Code or Location GST Registration No. for the selected Document.';
+
+    local procedure InsertDetailedGSTLedgerEnfo(
+            DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+            ServiceTransferHeader: Record "Service Transfer Header";
+            DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
+            DocTransferType: Enum "Service Doc Transfer Type")
+    var
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+    begin
+        if (ServiceTransferHeader."Transfer-from Code" = '') or (ServiceTransferHeader."Transfer-to Code" = '') then
+            exit;
+
+        LocationFrom.Get(ServiceTransferHeader."Transfer-from Code");
+        LocationTo.Get(ServiceTransferHeader."Transfer-to Code");
+
+        DetailedGSTLedgerEntryInfo.Init();
+        DetailedGSTLedgerEntryInfo."Entry No." := DetailedGSTLedgerEntry."Entry No.";
+        DetailedGSTLedgerEntryInfo."Original Doc. No." := ServiceTransferHeader."No.";
+        DetailedGSTLedgerEntryInfo.Positive := DetailedGSTLedgerEntry."GST Amount" > 0;
+        DetailedGSTLedgerEntryInfo."User ID" := CopyStr(UserId, 1, MaxStrLen(DetailedGSTLedgerEntryInfo."User ID"));
+        DetailedGSTLedgerEntryInfo.Cess := DetailedGSTEntryBuffer.Cess;
+        DetailedGSTLedgerEntryInfo."Component Calc. Type" := DetailedGSTEntryBuffer."Component Calc. Type";
+        DetailedGSTLedgerEntryInfo."Cess Amount Per Unit Factor" := DetailedGSTEntryBuffer."Cess Amt Per Unit Factor (LCY)";
+        DetailedGSTLedgerEntryInfo."Cess UOM" := DetailedGSTEntryBuffer."Cess UOM";
+        DetailedGSTLedgerEntryInfo."Cess Factor Quantity" := DetailedGSTEntryBuffer."Cess Factor Quantity";
+        if DocTransferType = DocTransferType::"Service Transfer Shipment" then begin
+            DetailedGSTLedgerEntryInfo."Location State Code" := LocationFrom."State Code";
+            DetailedGSTLedgerEntryInfo."Location ARN No." := LocationFrom."Location ARN No.";
+            DetailedGSTLedgerEntryInfo."Buyer/Seller State Code" := LocationTo."State Code";
+            DetailedGSTLedgerEntryInfo."Shipping Address State Code" := '';
+            DetailedGSTLedgerEntryInfo."Original Doc. Type" := DetailedGSTLedgerEntryInfo."Original Doc. Type"::"Transfer Shipment";
+        end else begin
+            DetailedGSTLedgerEntryInfo."Location ARN No." := LocationTo."Location ARN No.";
+            DetailedGSTLedgerEntryInfo."Location State Code" := LocationTo."State Code";
+            DetailedGSTLedgerEntryInfo."Buyer/Seller State Code" := LocationFrom."State Code";
+            DetailedGSTLedgerEntryInfo."Shipping Address State Code" := '';
+            DetailedGSTLedgerEntryInfo."Original Doc. Type" := DetailedGSTLedgerEntryInfo."Original Doc. Type"::"Transfer Receipt";
+        end;
+        DetailedGSTLedgerEntryInfo.Insert(true);
     end;
 
     local procedure Code()
@@ -16,7 +84,7 @@ codeunit 18350 "Service Transfer Post"
         DefaultNumber: Integer;
         Selection: Option " ",Shipment,Receipt;
     begin
-        ServiceTransferLine.Setrange("Document No.", ServiceTransferHeader."No.");
+        ServiceTransferLine.SetRange("Document No.", ServiceTransferHeader."No.");
         if ServiceTransferLine.FindSet() then
             repeat
                 if not ServiceTransferLine.Shipped and (DefaultNumber = 0)
@@ -32,7 +100,7 @@ codeunit 18350 "Service Transfer Post"
 
         GLSetup.Get();
         Selection := StrMenu(ShipReceiveQst, DefaultNumber);
-        Case Selection of
+        case Selection of
             0:
                 exit;
             1:
@@ -47,18 +115,19 @@ codeunit 18350 "Service Transfer Post"
         ServiceTransferLine: Record "Service Transfer Line";
         SourceCodeSetup: Record "Source Code Setup";
         GLSetup: Record "General Ledger Setup";
-        DocTransferType: Option ServiceTransferShpmnt,ServiceTransferReciept;
+        GSTBaseValidation: Codeunit "GST Base Validation";
+        DocTransferType: Enum "Service Doc Transfer Type";
         GSTRoundingAmount: Decimal;
         Window: Dialog;
     begin
         ClearPostingBuffer(ServiceTransferHeader."No.");
-        CheckGSTAccountingPeriod(ServiceTransferHeader."Shipment Date");
+        GSTBaseValidation.CheckGSTAccountingPeriod(ServiceTransferHeader."Shipment Date", false);
         CheckServiceTransfer(ServiceTransferHeader, true);
 
         CheckDim();
         GLSetup.Get();
-        TempTransferBuffer[1].DeleteAll();
-        TempGSTPostingBuffer[1].DeleteAll();
+        TempTransferBufferStage.DeleteAll();
+        TempGSTPostingBufferStage.DeleteAll();
         Window.Open('#1#################################\\' + PostMsg);
         Window.Update(1, StrSubstNo(ServTransMsg, ServiceTransferHeader."No."));
 
@@ -72,25 +141,25 @@ codeunit 18350 "Service Transfer Post"
         PostedServiceTransferShptDocNo := InsertServiceTransShptHeader(ServiceTransferHeader);
         InsertServiceTransShptLine();
 
-        TempTransferBuffer[1].SetCurrentKey("sorting no.");
-        TempTransferBuffer[1].SetAscEnding("Sorting No.", false);
-        if TempTransferBuffer[1].FindSet() then
+        TempTransferBufferStage.SetCurrentKey("sorting no.");
+        TempTransferBufferStage.SetAscending("Sorting No.", false);
+        if TempTransferBufferStage.FindSet() then
             repeat
                 PostTransLineToGenJnlLine(ServiceTransferHeader, true);
-            until TempTransferBuffer[1].Next() = 0;
+            until TempTransferBufferStage.Next() = 0;
 
         //Post GST Ledger G/L    
-        TempGSTPostingBuffer[1].SetCurrentKey(
+        TempGSTPostingBufferStage.SetCurrentKey(
         "Transaction Type", Type, "Gen. Bus. Posting Group",
         "Gen. Prod. Posting Group", "GST Component Code", "GST Group Type", "Account No.",
         "Dimension Set ID", "GST Reverse Charge", Availment, "Normal Payment",
         "Forex Fluctuation", "Document Line No.");
-        TempGSTPostingBuffer[1].SetAscEnding("Document Line No.", false);
-        if TempGSTPostingBuffer[1].FindSet() then
+        TempGSTPostingBufferStage.SetAscending("Document Line No.", false);
+        if TempGSTPostingBufferStage.FindSet() then
             repeat
                 PostTransLineToGenJnlLineGST(ServiceTransferHeader, true);
-                GSTRoundingAmount += TempGSTPostingBuffer[1]."GST Amount";
-            until TempGSTPostingBuffer[1].Next() = 0;
+                GSTRoundingAmount += TempGSTPostingBufferStage."GST Amount";
+            until TempGSTPostingBufferStage.Next() = 0;
 
         if (GSTRoundingAmount <> 0) and (ServiceTransferHeader."GST Inv. Rounding Precision" <> 0) then begin
             InvoiceRoundingAmount :=
@@ -99,28 +168,28 @@ codeunit 18350 "Service Transfer Post"
                   GSTRoundingAmount,
                   ServiceTransferHeader."GST Inv. Rounding Precision",
                   ServiceTransferHeader.GSTInvoiceRoundingDirection()),
-                GLSetup."GST Rounding Precision");
+                GLSetup."Inv. Rounding Precision (LCY)");
             if InvoiceRoundingAmount <> 0 then
                 PostGSTInvoiceRounding(ServiceTransferHeader, true);
         end;
 
-        ServiceTransferLine.Setrange("Document No.", ServiceTransferHeader."No.");
-        ServiceTransferLine.Setfilter("Transfer From G/L Account No.", '<>%1', '');
+        ServiceTransferLine.SetRange("Document No.", ServiceTransferHeader."No.");
+        ServiceTransferLine.SetFilter("Transfer From G/L Account No.", '<>%1', '');
         if ServiceTransferLine.FindSet(true, false) then
             repeat
                 InsertDetailedGSTLedgEntryServiceTransfer(
                     ServiceTransferLine, ServiceTransferHeader,
                     PostedServiceTransferShptDocNo, GenJnlPostLine.GetNextTransactionNo(),
-                    DocTransferType::ServiceTransferShpmnt);
+                    DocTransferType::"Service Transfer Shipment");
                 ServiceTransferLine.Shipped := true;
-                ServiceTransferLine.ModIfy();
+                ServiceTransferLine.Modify();
             until ServiceTransferLine.Next() = 0;
 
         ControlAccount := true;
         PostTransLineToGenJnlLine(ServiceTransferHeader, true);
         ServiceTransferHeader."External Doc No." := PostedServiceTransferShptDocNo;
         ServiceTransferHeader.Status := Status::Shipped;
-        ServiceTransferHeader.ModIfy();
+        ServiceTransferHeader.Modify();
         Window.Close();
     end;
 
@@ -129,18 +198,19 @@ codeunit 18350 "Service Transfer Post"
         SourceCodeSetup: Record "Source Code Setup";
         ServiceTransferLine: Record "Service Transfer Line";
         GLSetup: Record "General Ledger Setup";
-        DocTransferType: Option ServiceTransferShpmnt,ServiceTransferReciept;
+        GSTBaseValidation: Codeunit "GST Base Validation";
+        DocTransferType: Enum "Service Doc Transfer Type";
         GSTRoundingAmount: Decimal;
         Window: Dialog;
     begin
         ClearPostingBuffer(ServiceTransferHeader."No.");
-        CheckGSTAccountingPeriod(ServiceTransferHeader."Receipt Date");
+        GSTBaseValidation.CheckGSTAccountingPeriod(ServiceTransferHeader."Receipt Date", false);
         CheckServiceTransfer(ServiceTransferHeader, false);
         CheckDim();
 
-        TempTransferBuffer[1].DeleteAll();
-        TempGSTPostingBuffer[1].DeleteAll();
-        Window.OPEN('#1#################################\\' + PostMsg);
+        TempTransferBufferStage.DeleteAll();
+        TempGSTPostingBufferStage.DeleteAll();
+        Window.Open('#1#################################\\' + PostMsg);
         Window.Update(1, StrSubstNo(ServTransMsg, ServiceTransferHeader."No."));
         GLSetup.Get();
         SourceCodeSetup.Get();
@@ -153,45 +223,45 @@ codeunit 18350 "Service Transfer Post"
         PostedServiceTransferRcptDocNo := InsertServiceTransRcptHeader(ServiceTransferHeader);
         InsertServiceTransRcptLine();
 
-        TempTransferBuffer[1].SetCurrentKey("sorting no.");
-        TempTransferBuffer[1].SetAscEnding("Sorting No.", false);
-        if TempTransferBuffer[1].FindSet() then
-            if TempTransferBuffer[1].FindSet() then
+        TempTransferBufferStage.SetCurrentKey("sorting no.");
+        TempTransferBufferStage.SetAscending("Sorting No.", false);
+        if TempTransferBufferStage.FindSet() then
+            if TempTransferBufferStage.FindSet() then
                 repeat
                     PostTransLineToGenJnlLine(ServiceTransferHeader, false);
-                until TempTransferBuffer[1].Next() = 0;
+                until TempTransferBufferStage.Next() = 0;
 
-        TempGSTPostingBuffer[1].SetCurrentKey(
+        TempGSTPostingBufferStage.SetCurrentKey(
         "Transaction Type", Type, "Gen. Bus. Posting Group",
         "Gen. Prod. Posting Group", "GST Component Code", "GST Group Type", "Account No.",
         "Dimension Set ID", "GST Reverse Charge", Availment, "Normal Payment",
         "Forex Fluctuation", "Document Line No.");
-        TempGSTPostingBuffer[1].SetAscEnding("Document Line No.", false);
-        if TempGSTPostingBuffer[1].FindSet() then
+        TempGSTPostingBufferStage.SetAscending("Document Line No.", false);
+        if TempGSTPostingBufferStage.FindSet() then
             repeat
-                PostTransLineToGenJnlLineGST(ServiceTransferHeader, FALSE);
-                GSTRoundingAmount += TempGSTPostingBuffer[1]."GST Amount";
-            until TempGSTPostingBuffer[1].Next() = 0;
+                PostTransLineToGenJnlLineGST(ServiceTransferHeader, false);
+                GSTRoundingAmount += TempGSTPostingBufferStage."GST Amount";
+            until TempGSTPostingBufferStage.Next() = 0;
 
-        if (GSTRoundingAmount <> 0) AND (ServiceTransferHeader."GST Inv. Rounding Precision" <> 0) then begin
+        if (GSTRoundingAmount <> 0) and (ServiceTransferHeader."GST Inv. Rounding Precision" <> 0) then begin
             InvoiceRoundingAmount :=
               -Round(GSTRoundingAmount -
                 Round(
                   GSTRoundingAmount,
                   ServiceTransferHeader."GST Inv. Rounding Precision",
                   ServiceTransferHeader.GSTInvoiceRoundingDirection()),
-                GLSetup."GST Rounding Precision");
+                GLSetup."Inv. Rounding Precision (LCY)");
             if InvoiceRoundingAmount <> 0 then
-                PostGSTInvoiceRounding(ServiceTransferHeader, FALSE);
+                PostGSTInvoiceRounding(ServiceTransferHeader, false);
         end;
-        ServiceTransferLine.Setrange("Document No.", ServiceTransferHeader."No.");
-        ServiceTransferLine.Setfilter("Transfer From G/L Account No.", '<>%1', '');
+        ServiceTransferLine.SetRange("Document No.", ServiceTransferHeader."No.");
+        ServiceTransferLine.SetFilter("Transfer From G/L Account No.", '<>%1', '');
         if ServiceTransferLine.FindSet() then
             repeat
                 InsertDetailedGSTLedgEntryServiceTransfer(
                  ServiceTransferLine, ServiceTransferHeader,
                  PostedServiceTransferRcptDocNo,
-                 GenJnlPostLine.GetNextTransactionNo(), DocTransferType::ServiceTransferReciept);
+                 GenJnlPostLine.GetNextTransactionNo(), DocTransferType::"Service Transfer Receipt");
             until ServiceTransferLine.Next() = 0;
 
         ControlAccount := true;
@@ -226,7 +296,7 @@ codeunit 18350 "Service Transfer Post"
         ServiceTransferHeader.TestField("Transfer-from State");
         ServiceTransferHeader.TestField("Transfer-to State");
         ServiceTransferHeader.TestField("Shipment Date");
-        ServiceTransferLine.Setrange("Document No.", ServiceTransferHeader."No.");
+        ServiceTransferLine.SetRange("Document No.", ServiceTransferHeader."No.");
         if ServiceTransferLine.FindSet() then
             repeat
                 if Ship then begin
@@ -250,7 +320,7 @@ codeunit 18350 "Service Transfer Post"
         ServiceTransferLine."Line No." := 0;
         CheckDimComb(ServiceTransferHeader, ServiceTransferLine);
 
-        ServiceTransferLine.Setrange("Document No.", ServiceTransferHeader."No.");
+        ServiceTransferLine.SetRange("Document No.", ServiceTransferHeader."No.");
         if ServiceTransferLine.FindFirst() then
             CheckDimComb(ServiceTransferHeader, ServiceTransferLine);
     end;
@@ -324,7 +394,7 @@ codeunit 18350 "Service Transfer Post"
         ServiceTransferShptLine: Record "Service Transfer Shpt. Line";
         ServiceTransferLine: Record "Service Transfer Line";
     begin
-        ServiceTransferLine.Setrange("Document No.", ServiceTransferHeader."No.");
+        ServiceTransferLine.SetRange("Document No.", ServiceTransferHeader."No.");
         if ServiceTransferLine.FindSet() then
             repeat
                 ServiceTransferShptLine.LockTable();
@@ -402,7 +472,7 @@ codeunit 18350 "Service Transfer Post"
         ServiceTransferRcptLine: Record "Service Transfer Rcpt. Line";
         ServiceTransferLine: Record "Service Transfer Line";
     begin
-        ServiceTransferLine.Setrange("Document No.", ServiceTransferHeader."No.");
+        ServiceTransferLine.SetRange("Document No.", ServiceTransferHeader."No.");
         if ServiceTransferLine.FindSet() then
             repeat
                 ServiceTransferRcptLine.LockTable();
@@ -433,24 +503,27 @@ codeunit 18350 "Service Transfer Post"
             until ServiceTransferLine.Next() = 0;
     end;
 
-    local procedure FillTransferBuffer(ServiceTransferLine: Record "Service Transfer Line"; Ship: Boolean; SortingNo: Integer)
+    local procedure FillTransferBuffer(
+        ServiceTransferLine: Record "Service Transfer Line";
+        Ship: Boolean;
+        SortingNo: Integer)
     var
         GLAccount: Record "G/L Account";
     begin
-        TempTransferBuffer[1]."System-Created Entry" := true;
+        TempTransferBufferStage."System-Created Entry" := true;
         if Ship then begin
-            TempTransferBuffer[1]."G/L Account" := ServiceTransferLine."Transfer From G/L Account No.";
-            TempTransferBuffer[1].Amount := -ServiceTransferLine."Transfer Price";
+            TempTransferBufferStage."G/L Account" := ServiceTransferLine."Transfer From G/L Account No.";
+            TempTransferBufferStage.Amount := -ServiceTransferLine."Transfer Price";
             GLAccount.Get(ServiceTransferLine."Transfer From G/L Account No.");
         end else begin
-            TempTransferBuffer[1]."G/L Account" := ServiceTransferLine."Transfer To G/L Account No.";
-            TempTransferBuffer[1].Amount := ServiceTransferLine."Transfer Price";
+            TempTransferBufferStage."G/L Account" := ServiceTransferLine."Transfer To G/L Account No.";
+            TempTransferBufferStage.Amount := ServiceTransferLine."Transfer Price";
             GLAccount.Get(ServiceTransferLine."Transfer To G/L Account No.");
         end;
-        TempTransferBuffer[1]."Global Dimension 1 Code" := ServiceTransferLine."Shortcut Dimension 1 Code";
-        TempTransferBuffer[1]."Global Dimension 2 Code" := ServiceTransferLine."Shortcut Dimension 2 Code";
-        TempTransferBuffer[1]."Dimension Set ID" := ServiceTransferLine."Dimension Set ID";
-        TransferAmount += TempTransferBuffer[1].Amount;
+        TempTransferBufferStage."Global Dimension 1 Code" := ServiceTransferLine."Shortcut Dimension 1 Code";
+        TempTransferBufferStage."Global Dimension 2 Code" := ServiceTransferLine."Shortcut Dimension 2 Code";
+        TempTransferBufferStage."Dimension Set ID" := ServiceTransferLine."Dimension Set ID";
+        TransferAmount += TempTransferBufferStage.Amount;
         UpdTransferBuffer(SortingNo);
     end;
 
@@ -458,15 +531,15 @@ codeunit 18350 "Service Transfer Post"
     var
         DimensionManagement: Codeunit DimensionManagement;
     begin
-        DimensionManagement.UpdateGlobalDimFromDimSetID(TempTransferBuffer[1]."Dimension Set ID",
-          TempTransferBuffer[1]."Global Dimension 1 Code", TempTransferBuffer[1]."Global Dimension 2 Code");
-        TempTransferBuffer[2] := TempTransferBuffer[1];
-        if TempTransferBuffer[2].Find() then begin
-            TempTransferBuffer[2].Amount := TempTransferBuffer[2].Amount + TempTransferBuffer[1].Amount;
-            TempTransferBuffer[2].ModIfy();
+        DimensionManagement.UpdateGlobalDimFromDimSetID(TempTransferBufferStage."Dimension Set ID",
+          TempTransferBufferStage."Global Dimension 1 Code", TempTransferBufferStage."Global Dimension 2 Code");
+        TempTransferBufferFinal := TempTransferBufferStage;
+        if TempTransferBufferFinal.Find() then begin
+            TempTransferBufferFinal.Amount := TempTransferBufferFinal.Amount + TempTransferBufferStage.Amount;
+            TempTransferBufferFinal.Modify();
         end else begin
-            TempTransferBuffer[1]."Sorting No." := SortingNo;
-            TempTransferBuffer[1].Insert();
+            TempTransferBufferStage."Sorting No." := SortingNo;
+            TempTransferBufferStage.Insert();
 
         end;
     end;
@@ -485,7 +558,7 @@ codeunit 18350 "Service Transfer Post"
         end;
         GenJnlLine."Document Date" := GenJnlLine."Posting Date";
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
-        GenJnlLine."System-Created Entry" := TempTransferBuffer[1]."System-Created Entry";
+        GenJnlLine."System-Created Entry" := TempTransferBufferStage."System-Created Entry";
         if ControlAccount then begin
             if Ship then
                 GenJnlLine."Account No." := ServiceTransferHeader."Ship Control Account"
@@ -496,13 +569,13 @@ codeunit 18350 "Service Transfer Post"
             GenJnlLine."Shortcut Dimension 2 Code" := ServiceTransferHeader."Shortcut Dimension 2 Code";
             GenJnlLine."Dimension Set ID" := ServiceTransferHeader."Dimension Set ID";
         end else begin
-            GenJnlLine."Account No." := TempTransferBuffer[1]."G/L Account";
-            GenJnlLine.Amount := TempTransferBuffer[1].Amount;
-            GenJnlLine."Shortcut Dimension 1 Code" := TempTransferBuffer[1]."Global Dimension 1 Code";
-            GenJnlLine."Shortcut Dimension 2 Code" := TempTransferBuffer[1]."Global Dimension 2 Code";
-            GenJnlLine."Dimension Set ID" := TempTransferBuffer[1]."Dimension Set ID";
-            GenJnlLine."Gen. Bus. Posting Group" := TempTransferBuffer[1]."Gen. Bus. Posting Group";
-            GenJnlLine."Gen. Prod. Posting Group" := TempTransferBuffer[1]."Gen. Prod. Posting Group";
+            GenJnlLine."Account No." := TempTransferBufferStage."G/L Account";
+            GenJnlLine.Amount := TempTransferBufferStage.Amount;
+            GenJnlLine."Shortcut Dimension 1 Code" := TempTransferBufferStage."Global Dimension 1 Code";
+            GenJnlLine."Shortcut Dimension 2 Code" := TempTransferBufferStage."Global Dimension 2 Code";
+            GenJnlLine."Dimension Set ID" := TempTransferBufferStage."Dimension Set ID";
+            GenJnlLine."Gen. Bus. Posting Group" := TempTransferBufferStage."Gen. Bus. Posting Group";
+            GenJnlLine."Gen. Prod. Posting Group" := TempTransferBufferStage."Gen. Prod. Posting Group";
         end;
         GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
         GenJnlLine."VAT Prod. Posting Group" := 'NO VAT';
@@ -521,9 +594,9 @@ codeunit 18350 "Service Transfer Post"
         No: Code[20];
     begin
         No := ServiceTransferHeader."No.";
-        ServiceTransferLine.Setrange("Document No.", ServiceTransferHeader."No.");
-        ServiceTransferLine.Setfilter("Transfer From G/L Account No.", '<>%1', '');
-        ServiceTransferLine.Setfilter("Transfer To G/L Account No.", '<>%1', '');
+        ServiceTransferLine.SetRange("Document No.", ServiceTransferHeader."No.");
+        ServiceTransferLine.SetFilter("Transfer From G/L Account No.", '<>%1', '');
+        ServiceTransferLine.SetFilter("Transfer To G/L Account No.", '<>%1', '');
         if ServiceTransferLine.FindSet() then
             repeat
                 if not ServiceTransferLine.Shipped then
@@ -538,91 +611,13 @@ codeunit 18350 "Service Transfer Post"
         end;
     end;
 
-    procedure CheckGSTAccountingPeriod(PostingDate: Date)
-    var
-        TaxAccountingPeriod: Record "Tax Accounting Period";
-        TaxTypeSetup: Record "Tax Type Setup";
-        LastClosedDate: Date;
-    begin
-        LastClosedDate := GetLastClosedSubAccPeriod();
-
-        if not TaxTypeSetup.Get() then
-            exit;
-        TaxAccountingPeriod.Setrange("tax type code", TaxTypeSetup.Code);
-        TaxAccountingPeriod.Setfilter("Starting Date", '<=%1', PostingDate);
-        if TaxAccountingPeriod.FindLast() then begin
-            TaxAccountingPeriod.Setfilter("Starting Date", '>=%1', PostingDate);
-            if not TaxAccountingPeriod.FindFirst() then
-                Error(AccountingPeriodErr, PostingDate);
-            if LastClosedDate <> 0D then
-                if PostingDate < CalcDate('<1M>', LastClosedDate) then
-                    Error(
-                        PeriodClosedErr,
-                        CalcDate('<-1D>', CalcDate('<1M>', LastClosedDate)),
-                        CalcDate('<1M>', LastClosedDate));
-            TaxAccountingPeriod.Get(TaxTypeSetup.Code, TaxAccountingPeriod."starting date");
-        end else
-            Error(AccountingPeriodErr, PostingDate);
-
-        TaxAccountingPeriod.Setrange(Closed, false);
-        TaxAccountingPeriod.Setfilter("Starting Date", '<=%1', PostingDate);
-        if TaxAccountingPeriod.FindLast() then begin
-            TaxAccountingPeriod.Setfilter("Starting Date", '>=%1', PostingDate);
-            if not TaxAccountingPeriod.FindFirst() then
-                if LastClosedDate <> 0D then
-                    if PostingDate < CalcDate('<1M>', LastClosedDate) then
-                        Error(
-                            PeriodClosedErr,
-                            CalcDate('<-1D>', CalcDate('<1M>', LastClosedDate)),
-                            CalcDate('<1M>', LastClosedDate));
-
-            TaxAccountingPeriod.TestField(Closed, false);
-        end else
-            if LastClosedDate <> 0D then
-                if PostingDate < CalcDate('<1M>', LastClosedDate) then
-                    Error(
-                        PeriodClosedErr, CalcDate('<-1D>', CalcDate('<1M>', LastClosedDate)),
-                        CalcDate('<1M>', LastClosedDate));
-    end;
-
-    local procedure GetLastClosedSubAccPeriod(): Date
-    var
-        TaxAccountingPeriod: record "Tax Accounting Period";
-        TaxTypeSetup: Record "Tax Type Setup";
-    begin
-        if not TaxTypeSetup.Get() then
-            exit;
-        TaxAccountingPeriod.Setrange("Tax Type code", TaxTypeSetup.Code);
-        TaxAccountingPeriod.Setrange(Closed, true);
-        if TaxAccountingPeriod.FindLast() then
-            exit(TaxAccountingPeriod."Starting Date");
-    end;
-
-    //GST Posting No. Series Table
-    [EventSubscriber(ObjectType::Table, Database::"Posting No. Series", 'OnBeforeRun', '', false, false)]
-    local procedure ValidatePostingSeriesDocumentType(var PostngNoSeries: Record "Posting No. Series"; var IsHAndled: Boolean)
-    begin
-        Case PostngNoSeries."Document Type" of
-            PostngNoSeries."Document Type"::"Service Transfer Shipment":
-                begin
-                    PostngNoSeries."Table Id" := Database::"Service Transfer Header";
-                    IsHAndled := true;
-                end;
-            PostngNoSeries."Document Type"::"Service Transfer Receipt":
-                begin
-                    PostngNoSeries."Table Id" := Database::"Service Transfer Header";
-                    IsHAndled := true;
-                end;
-        end;
-    end;
-
     local procedure ClearPostingBuffer(DocNo: Code[20])
-    Var
+    var
         DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
     begin
         DetailedGSTEntryBuffer.SetCurrentKey("Transaction Type", "Document Type", "Document No.", "Line No.");
-        DetailedGSTEntryBuffer.Setrange("Transaction Type", DetailedGSTEntryBuffer."Transaction Type"::"Service Transfer");
-        DetailedGSTEntryBuffer.Setrange("Document No.", DocNo);
+        DetailedGSTEntryBuffer.SetRange("Transaction Type", DetailedGSTEntryBuffer."Transaction Type"::"Service Transfer");
+        DetailedGSTEntryBuffer.SetRange("Document No.", DocNo);
         DetailedGSTEntryBuffer.DeleteAll(true);
     end;
 
@@ -631,15 +626,15 @@ codeunit 18350 "Service Transfer Post"
         ServiceTransferLine: Record "Service Transfer Line";
         DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
         TaxTransValue: Record "Tax Transaction Value";
-        TaxTypeSetup: Record "Tax Type Setup";
+        GSTSetup: Record "GST Setup";
         Sign: Integer;
         LastEntryNo: Integer;
-        DocumentType: Option Quote,Order,Invoice,"Credit Memo","Blanket Order","Return Order";
-        TransactionType: Option Purchase,Sales,Transfer,Service,"Service Transfer",Production;
+        DocumentType: Enum "Document Type Enum";
+        TransactionType: Enum "Transaction Type Enum";
     begin
-        if not TaxTypeSetup.Get() then
+        if not GSTSetup.Get() then
             exit;
-        TaxTypeSetup.TestField(Code);
+        GSTSetup.TestField("GST Tax Type");
 
         Sign := GetSign(DocumentType::Quote, TransactionType::"Service Transfer");
         if DetailedGSTEntryBuffer.FindLast() then
@@ -648,15 +643,15 @@ codeunit 18350 "Service Transfer Post"
             LastEntryNo := 1;
 
         ServiceTransferLine.Reset();
-        ServiceTransferLine.Setrange("Document No.", DocNo);
+        ServiceTransferLine.SetRange("Document No.", DocNo);
         if ServiceTransferLine.FindSet() then
             repeat
                 TaxTransValue.Reset();
-                TaxTransValue.Setrange("Tax Type", TaxTypeSetup.Code);
-                TaxTransValue.Setrange("Tax Record ID", ServiceTransferLine.RecordId);
-                TaxTransValue.Setrange("Value Type", TaxTransValue."Value Type"::COMPONENT);
+                TaxTransValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
+                TaxTransValue.SetRange("Tax Record ID", ServiceTransferLine.RecordId);
+                TaxTransValue.SetRange("Value Type", TaxTransValue."Value Type"::COMPONENT);
                 TaxTransValue.SetFilter(Percent, '<>%1', 0);
-                if TaxTransValue.findfirst() then
+                if TaxTransValue.FindSet() then
                     repeat
                         DetailedGSTEntryBuffer.Init();
                         DetailedGSTEntryBuffer."Entry No." := LastEntryNo;
@@ -690,10 +685,11 @@ codeunit 18350 "Service Transfer Post"
             until ServiceTransferLine.Next() = 0;
     end;
 
-    local procedure GetSign(DocumentType: Option Quote,Order,Invoice,"Credit Memo","Blanket Order","Return Order";
-        TransactionType: Option Purchase,Sales,Transfer,Service,"Service Transfer",Production) Sign: Integer
+    local procedure GetSign(
+        DocumentType: Enum "Document Type Enum";
+        TransactionType: Enum "Transaction Type Enum") Sign: Integer
     begin
-        if DocumentType IN [DocumentType::Order, DocumentType::Invoice, DocumentType::Quote, DocumentType::"Blanket Order"] then
+        if DocumentType in [DocumentType::Order, DocumentType::Invoice, DocumentType::Quote, DocumentType::"Blanket Order"] then
             Sign := 1
         else
             Sign := -1;
@@ -704,11 +700,11 @@ codeunit 18350 "Service Transfer Post"
         exit(Sign);
     end;
 
-
     local procedure FillGSTPostingBuffer(ServiceTransferLine: Record "Service Transfer Line"; Ship: Boolean)
-    Var
+    var
         DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
         GLAccount: Record "G/L Account";
+        GSTBaseValidation: Codeunit "GST Base Validation";
         GSTStateCode: Code[10];
     begin
         ServiceTransferHeader.TestField("Transfer-from State");
@@ -719,34 +715,34 @@ codeunit 18350 "Service Transfer Post"
             GSTStateCode := ServiceTransferHeader."Transfer-to State";
         DetailedGSTEntryBuffer.Reset();
         DetailedGSTEntryBuffer.SetCurrentKey("Transaction Type", "Document Type", "Document No.", "Line No.");
-        DetailedGSTEntryBuffer.Setrange("Transaction Type", DetailedGSTEntryBuffer."Transaction Type"::"Service Transfer");
-        DetailedGSTEntryBuffer.Setrange("Document Type", 0);
-        DetailedGSTEntryBuffer.Setrange("Document No.", ServiceTransferLine."Document No.");
-        DetailedGSTEntryBuffer.Setrange("Line No.", ServiceTransferLine."Line No.");
-        DetailedGSTEntryBuffer.Setfilter("GST Base Amount", '<>%1', 0);
+        DetailedGSTEntryBuffer.SetRange("Transaction Type", DetailedGSTEntryBuffer."Transaction Type"::"Service Transfer");
+        DetailedGSTEntryBuffer.SetRange("Document Type", 0);
+        DetailedGSTEntryBuffer.SetRange("Document No.", ServiceTransferLine."Document No.");
+        DetailedGSTEntryBuffer.SetRange("Line No.", ServiceTransferLine."Line No.");
+        DetailedGSTEntryBuffer.SetFilter("GST Base Amount", '<>%1', 0);
         if DetailedGSTEntryBuffer.FindSet() then
             repeat
-                TempGSTPostingBuffer[1].Type := TempGSTPostingBuffer[1].Type::"G/L Account";
-                TempGSTPostingBuffer[1]."Global Dimension 1 Code" := ServiceTransferLine."Shortcut Dimension 1 Code";
-                TempGSTPostingBuffer[1]."Global Dimension 2 Code" := ServiceTransferLine."Shortcut Dimension 2 Code";
-                TempGSTPostingBuffer[1]."Dimension Set ID" := ServiceTransferLine."Dimension Set ID";
-                TempGSTPostingBuffer[1]."GST Group Code" := ServiceTransferLine."GST Group Code";
+                TempGSTPostingBufferStage.Type := TempGSTPostingBufferStage.Type::"G/L Account";
+                TempGSTPostingBufferStage."Global Dimension 1 Code" := ServiceTransferLine."Shortcut Dimension 1 Code";
+                TempGSTPostingBufferStage."Global Dimension 2 Code" := ServiceTransferLine."Shortcut Dimension 2 Code";
+                TempGSTPostingBufferStage."Dimension Set ID" := ServiceTransferLine."Dimension Set ID";
+                TempGSTPostingBufferStage."GST Group Code" := ServiceTransferLine."GST Group Code";
                 if Ship then begin
-                    TempGSTPostingBuffer[1]."GST Base Amount" := RoundGSTPrecision(DetailedGSTEntryBuffer."GST Base Amount");
-                    TempGSTPostingBuffer[1]."GST Amount" := RoundGSTPrecision(DetailedGSTEntryBuffer."GST Amount");
+                    TempGSTPostingBufferStage."GST Base Amount" := GSTBaseValidation.RoundGSTPrecision(DetailedGSTEntryBuffer."GST Base Amount");
+                    TempGSTPostingBufferStage."GST Amount" := GSTBaseValidation.RoundGSTPrecision(DetailedGSTEntryBuffer."GST Amount");
                     GLAccount.Get(ServiceTransferLine."Transfer From G/L Account No.");
-                    TempGSTPostingBuffer[1]."Gen. Prod. Posting Group" := GLAccount."Gen. Prod. Posting Group";
-                    TempGSTPostingBuffer[1]."Account No." := GetGSTPayableAccountNo(GSTStateCode, DetailedGSTEntryBuffer."GST Component Code");
+                    TempGSTPostingBufferStage."Gen. Prod. Posting Group" := GLAccount."Gen. Prod. Posting Group";
+                    TempGSTPostingBufferStage."Account No." := GetGSTPayableAccountNo(GSTStateCode, DetailedGSTEntryBuffer."GST Component Code");
                 end else begin
-                    TempGSTPostingBuffer[1]."GST Base Amount" := -RoundGSTPrecision(DetailedGSTEntryBuffer."GST Base Amount");
-                    TempGSTPostingBuffer[1]."GST Amount" := -RoundGSTPrecision(DetailedGSTEntryBuffer."GST Amount");
+                    TempGSTPostingBufferStage."GST Base Amount" := -GSTBaseValidation.RoundGSTPrecision(DetailedGSTEntryBuffer."GST Base Amount");
+                    TempGSTPostingBufferStage."GST Amount" := -GSTBaseValidation.RoundGSTPrecision(DetailedGSTEntryBuffer."GST Amount");
                     GLAccount.Get(ServiceTransferLine."Transfer To G/L Account No.");
-                    TempGSTPostingBuffer[1]."Gen. Prod. Posting Group" := GLAccount."Gen. Prod. Posting Group";
-                    TempGSTPostingBuffer[1]."Account No." := GetGSTReceivableAccountNo(GSTStateCode, DetailedGSTEntryBuffer."GST Component Code");
+                    TempGSTPostingBufferStage."Gen. Prod. Posting Group" := GLAccount."Gen. Prod. Posting Group";
+                    TempGSTPostingBufferStage."Account No." := GetGSTReceivableAccountNo(GSTStateCode, DetailedGSTEntryBuffer."GST Component Code");
                 end;
-                TempGSTPostingBuffer[1]."GST %" := DetailedGSTEntryBuffer."GST %";
-                TempGSTPostingBuffer[1]."GST Component Code" := DetailedGSTEntryBuffer."GST Component Code";
-                GSTAmount += TempGSTPostingBuffer[1]."GST Amount";
+                TempGSTPostingBufferStage."GST %" := DetailedGSTEntryBuffer."GST %";
+                TempGSTPostingBufferStage."GST Component Code" := DetailedGSTEntryBuffer."GST Component Code";
+                GSTAmount += TempGSTPostingBufferStage."GST Amount";
                 UpdateGSTPostingBuffer(DetailedGSTEntryBuffer."Line No.");
             until DetailedGSTEntryBuffer.Next() = 0;
     end;
@@ -755,36 +751,35 @@ codeunit 18350 "Service Transfer Post"
     var
         DimensionManagement: Codeunit DimensionManagement;
     begin
-        DimensionManagement.UpdateGlobalDimFromDimSetID(TempGSTPostingBuffer[1]."Dimension Set ID",
-          TempGSTPostingBuffer[1]."Global Dimension 1 Code", TempGSTPostingBuffer[1]."Global Dimension 2 Code");
-        TempGSTPostingBuffer[2] := TempGSTPostingBuffer[1];
-        if TempGSTPostingBuffer[2].Find() then begin
-            TempGSTPostingBuffer[2]."GST Base Amount" += TempGSTPostingBuffer[1]."GST Base Amount";
-            TempGSTPostingBuffer[2]."GST Amount" += TempGSTPostingBuffer[1]."GST Amount";
-            TempGSTPostingBuffer[2].MODIfY();
+        DimensionManagement.UpdateGlobalDimFromDimSetID(TempGSTPostingBufferStage."Dimension Set ID",
+          TempGSTPostingBufferStage."Global Dimension 1 Code", TempGSTPostingBufferStage."Global Dimension 2 Code");
+        TempGSTPostingBufferFinal := TempGSTPostingBufferStage;
+        if TempGSTPostingBufferFinal.Find() then begin
+            TempGSTPostingBufferFinal."GST Base Amount" += TempGSTPostingBufferStage."GST Base Amount";
+            TempGSTPostingBufferFinal."GST Amount" += TempGSTPostingBufferStage."GST Amount";
+            TempGSTPostingBufferFinal.Modify();
         end else begin
-            TempGSTPostingBuffer[1]."Document Line No." := LineNo;
-            TempGSTPostingBuffer[1].Insert();
+            TempGSTPostingBufferStage."Document Line No." := LineNo;
+            TempGSTPostingBufferStage.Insert();
         end;
     end;
 
-    local procedure PostTransLineToGenJnlLineGST(ServiceTransferHeader: Record "Service Transfer Header"; Ship: Boolean)
-    DocTransferType: Option ServiceTransferShpmnt,ServiceTransferReciept;
+    local procedure PostTransLineToGenJnlLineGST(ServiceTransferHeader: Record "Service Transfer Header"; Ship: Boolean) DocTransferType: Enum "Service Doc Transfer Type";
     begin
         GenJnlLine.Init();
-        GenJnlLine.Description := STRSUBSTNO(ServiceTranTxt, ServiceTransferHeader."No.");
+        GenJnlLine.Description := StrSubstNo(ServiceTranTxt, ServiceTransferHeader."No.");
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
-        if TempGSTPostingBuffer[1]."GST Amount" <> 0 then begin
-            GenJnlLine.Validate(Amount, Round(TempGSTPostingBuffer[1]."GST Amount"));
-            GenJnlLine."Account No." := TempGSTPostingBuffer[1]."Account No.";
+        if TempGSTPostingBufferStage."GST Amount" <> 0 then begin
+            GenJnlLine.Validate(Amount, Round(TempGSTPostingBufferStage."GST Amount"));
+            GenJnlLine."Account No." := TempGSTPostingBufferStage."Account No.";
         end;
         GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
-        GenJnlLine."System-Created Entry" := TempTransferBuffer[1]."System-Created Entry";
-        GenJnlLine."Gen. Bus. Posting Group" := TempGSTPostingBuffer[1]."Gen. Bus. Posting Group";
-        GenJnlLine."Gen. Prod. Posting Group" := TempGSTPostingBuffer[1]."Gen. Prod. Posting Group";
-        GenJnlLine."Shortcut Dimension 1 Code" := TempGSTPostingBuffer[1]."Global Dimension 1 Code";
-        GenJnlLine."Shortcut Dimension 2 Code" := TempGSTPostingBuffer[1]."Global Dimension 2 Code";
-        GenJnlLine."Dimension Set ID" := TempGSTPostingBuffer[1]."Dimension Set ID";
+        GenJnlLine."System-Created Entry" := TempTransferBufferStage."System-Created Entry";
+        GenJnlLine."Gen. Bus. Posting Group" := TempGSTPostingBufferStage."Gen. Bus. Posting Group";
+        GenJnlLine."Gen. Prod. Posting Group" := TempGSTPostingBufferStage."Gen. Prod. Posting Group";
+        GenJnlLine."Shortcut Dimension 1 Code" := TempGSTPostingBufferStage."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := TempGSTPostingBufferStage."Global Dimension 2 Code";
+        GenJnlLine."Dimension Set ID" := TempGSTPostingBufferStage."Dimension Set ID";
         GenJnlLine."Source Code" := SourceCode;
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
         if Ship then begin
@@ -793,28 +788,31 @@ codeunit 18350 "Service Transfer Post"
             GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Sale;
             GenJnlLine."Posting Date" := ServiceTransferHeader."Shipment Date";
             InsertGSTLedgerEntryServiceTransfer(
-              TempGSTPostingBuffer[1], ServiceTransferHeader,
+              TempGSTPostingBufferStage, ServiceTransferHeader,
               GenJnlPostLine.GetNextTransactionNo(), Format(GenJnlLine."Document Type"), GenJnlLine."Document No.",
-              GenJnlLine."Source Code", DocTransferType::ServiceTransferShpmnt);
+              GenJnlLine."Source Code", DocTransferType::"Service Transfer Shipment");
         end else begin
             GenJnlLine."Location Code" := ServiceTransferHeader."Transfer-to Code";
             GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Purchase;
             GenJnlLine."Document No." := PostedServiceTransferRcptDocNo;
             GenJnlLine."Posting Date" := ServiceTransferHeader."Receipt Date";
             InsertGSTLedgerEntryServiceTransfer(
-               TempGSTPostingBuffer[1], ServiceTransferHeader,
+               TempGSTPostingBufferStage, ServiceTransferHeader,
                GenJnlPostLine.GetNextTransactionNo(), Format(GenJnlLine."Document Type"), GenJnlLine."Document No.",
-             GenJnlLine."Source Code", DocTransferType::ServiceTransferReciept);
+             GenJnlLine."Source Code", DocTransferType::"Service Transfer Receipt");
         end;
         GenJnlPostLine.RunWithCheck(GenJnlLine);
     end;
 
-    local procedure InsertGSTLedgerEntryServiceTransfer
-    (GSTPostingBuffer: Record "GST Posting Buffer";
+    local procedure InsertGSTLedgerEntryServiceTransfer(
+        GSTPostingBuffer: Record "GST Posting Buffer";
         ServiceTransferHeader: Record "Service Transfer Header";
-        NextTransactionNo: Integer; DocumentType: Text; DocumentNo: Code[20];
-        SourceCode: Code[10]; DocTransferType: Option ServiceTransferShpmnt,ServiceTransferReciept)
-    Var
+        NextTransactionNo: Integer;
+        DocumentType: Text;
+        DocumentNo: Code[20];
+        SourceCode: Code[10];
+        DocTransferType: Enum "Service Doc Transfer Type")
+    var
         GSTLedgerEntry: Record "GST Ledger Entry";
         GSTLedEntryDocType: Enum "Detail GST Document Type";
     begin
@@ -831,14 +829,14 @@ codeunit 18350 "Service Transfer Post"
         GSTLedgerEntry."Transaction Type" := GSTLedgerEntry."Transaction Type"::Purchase;
         GSTLedgerEntry."External Document No." := ServiceTransferHeader."External Doc No.";
         GSTLedgerEntry."Source Type" := GSTLedgerEntry."Source Type"::VEnDor;
-        if DocTransferType = DocTransferType::ServiceTransferShpmnt then begin
+        if DocTransferType = DocTransferType::"Service Transfer Shipment" then begin
             GSTLedgerEntry."Transaction Type" := GSTLedgerEntry."Transaction Type"::Sales;
             GSTLedgerEntry."External Document No." := ServiceTransferHeader."No.";
             GSTLedgerEntry."Posting Date" := ServiceTransferHeader."Shipment Date";
             GSTLedgerEntry."Source Type" := GSTLedgerEntry."Source Type"::Customer
         end;
         GSTLedgerEntry."GST Base Amount" := GSTPostingBuffer."GST Base Amount";
-        GSTLedgerEntry."User ID" := Copystr(USERID, 1, MaxStrLen(GSTLedgerEntry."User ID"));
+        GSTLedgerEntry."User ID" := CopyStr(UserId, 1, MaxStrLen(GSTLedgerEntry."User ID"));
         GSTLedgerEntry."Source Code" := SourceCode;
         GSTLedgerEntry."Transaction No." := NextTransactionNo;
         GSTLedgerEntry."GST Component Code" := GSTPostingBuffer."GST Component Code";
@@ -847,9 +845,10 @@ codeunit 18350 "Service Transfer Post"
 
     local procedure InsertDetailedGSTLedgEntryServiceTransfer(
         ServiceTransferLine: Record "Service Transfer Line";
-        ServiceTransferHeader: Record "Service Transfer Header"; DocumentNo: Code[20];
+        ServiceTransferHeader: Record "Service Transfer Header";
+        DocumentNo: Code[20];
         TransactionNo: Integer;
-        DocTransferType: option ServiceTransferShpmnt,ServiceTransferReciept)
+        DocTransferType: Enum "Service Doc Transfer Type")
     var
         Location: Record Location;
         Location2: Record Location;
@@ -865,10 +864,10 @@ codeunit 18350 "Service Transfer Post"
             Error(LocationCodeErr);
 
         DetailedGSTEntryBuffer.SetCurrentKey("Transaction Type", "Document Type", "Document No.", "Line No.");
-        DetailedGSTEntryBuffer.Setrange("Transaction Type", DetailedGSTEntryBuffer."Transaction Type"::"Service Transfer");
-        DetailedGSTEntryBuffer.Setrange("Document Type", 0);
-        DetailedGSTEntryBuffer.Setrange("Document No.", ServiceTransferLine."Document No.");
-        DetailedGSTEntryBuffer.Setrange("Line No.", ServiceTransferLine."Line No.");
+        DetailedGSTEntryBuffer.SetRange("Transaction Type", DetailedGSTEntryBuffer."Transaction Type"::"Service Transfer");
+        DetailedGSTEntryBuffer.SetRange("Document Type", 0);
+        DetailedGSTEntryBuffer.SetRange("Document No.", ServiceTransferLine."Document No.");
+        DetailedGSTEntryBuffer.SetRange("Line No.", ServiceTransferLine."Line No.");
         if DetailedGSTEntryBuffer.FindSet() then
             repeat
                 DetailedGSTLedgerEntry.Init();
@@ -876,24 +875,18 @@ codeunit 18350 "Service Transfer Post"
                 DetailedGSTLedgerEntry."Entry Type" := DetailedGSTLedgerEntry."Entry Type"::"Initial Entry";
                 DetailedGSTLedgerEntry."Document Type" := DetailedGSTLedgerEntry."Document Type"::Invoice;
                 DetailedGSTLedgerEntry."Document No." := DocumentNo;
-                DetailedGSTLedgerEntry."Original Doc. No." := ServiceTransferHeader."No.";
                 DetailedGSTLedgerEntry.Type := Type::"G/L Account";
                 DetailedGSTLedgerEntry."GST Jurisdiction Type" := GETGSTJurisdictionType(ServiceTransferHeader);
                 DetailedGSTLedgerEntry."GST Group Type" := "GST Group Type"::Service;
-                DetailedGSTLedgerEntry."GST Without Payment of Duty" := FALSE;
+                DetailedGSTLedgerEntry."GST Without Payment of Duty" := false;
                 DetailedGSTLedgerEntry."GST Component Code" := DetailedGSTEntryBuffer."GST Component Code";
                 DetailedGSTLedgerEntry."GST Exempted Goods" := ServiceTransferLine.Exempted;
-                if DocTransferType = DocTransferType::ServiceTransferShpmnt then begin
+                if DocTransferType = DocTransferType::"Service Transfer Shipment" then begin
                     DetailedGSTLedgerEntry."G/L Account No." := GetGSTPayableAccountNo(Location."State Code", DetailedGSTEntryBuffer."GST Component Code");
                     DetailedGSTLedgerEntry.Quantity := -1;
                     DetailedGSTLedgerEntry."Location Code" := ServiceTransferHeader."Transfer-from Code";
-                    DetailedGSTLedgerEntry."Location State Code" := Location."State Code";
-                    DetailedGSTLedgerEntry."Location ARN No." := Location."Location ARN No.";
-                    DetailedGSTLedgerEntry."Buyer/Seller State Code" := Location2."State Code";
-                    DetailedGSTLedgerEntry."Shipping Address State Code" := '';
                     DetailedGSTLedgerEntry."Location  Reg. No." := Location."GST Registration No.";
                     DetailedGSTLedgerEntry."Buyer/Seller Reg. No." := Location2."GST Registration No.";
-                    DetailedGSTLedgerEntry."Original Doc. Type" := DetailedGSTLedgerEntry."Original Doc. Type"::"Transfer Shipment";
                     DetailedGSTLedgerEntry."Transaction Type" := DetailedGSTLedgerEntry."Transaction Type"::Sales;
                     DetailedGSTLedgerEntry."No." := ServiceTransferLine."Transfer From G/L Account No.";
                     DetailedGSTLedgerEntry."Posting Date" := ServiceTransferHeader."Shipment Date";
@@ -905,13 +898,8 @@ codeunit 18350 "Service Transfer Post"
                     DetailedGSTLedgerEntry."G/L Account No." := GetGSTReceivableAccountNo(Location2."State Code", DetailedGSTEntryBuffer."GST Component Code");
                     DetailedGSTLedgerEntry.Quantity := 1;
                     DetailedGSTLedgerEntry."Location Code" := ServiceTransferHeader."Transfer-to Code";
-                    DetailedGSTLedgerEntry."Location ARN No." := Location2."Location ARN No.";
-                    DetailedGSTLedgerEntry."Location State Code" := Location2."State Code";
-                    DetailedGSTLedgerEntry."Buyer/Seller State Code" := Location."State Code";
-                    DetailedGSTLedgerEntry."Shipping Address State Code" := '';
                     DetailedGSTLedgerEntry."Location  Reg. No." := Location2."GST Registration No.";
                     DetailedGSTLedgerEntry."Buyer/Seller Reg. No." := Location."GST Registration No.";
-                    DetailedGSTLedgerEntry."Original Doc. Type" := DetailedGSTLedgerEntry."Original Doc. Type"::"Transfer Receipt";
                     DetailedGSTLedgerEntry."Transaction Type" := DetailedGSTLedgerEntry."Transaction Type"::Purchase;
                     DetailedGSTLedgerEntry."No." := ServiceTransferLine."Transfer To G/L Account No.";
                     DetailedGSTLedgerEntry."Posting Date" := ServiceTransferHeader."Receipt Date";
@@ -921,31 +909,36 @@ codeunit 18350 "Service Transfer Post"
                     DetailedGSTLedgerEntry."Credit Availed" := true;
                     DetailedGSTLedgerEntry."Eligibility for ITC" := "Eligibility for ITC"::"Input Services";
                 end;
-                UpdateDetailGSTLedgerEntryServiceTransfer(
+                UpdateDetailedGSTLedgerEntryServiceTransfer(
                   DetailedGSTLedgerEntry, ServiceTransferLine."Document No.", ServiceTransferLine."Line No.", TransactionNo, DocTransferType);
                 DetailedGSTLedgerEntry.TestField("HSN/SAC Code");
                 if ServiceTransferLine.Shipped and
                    (ServiceTransferLine."Transfer To G/L Account No." <> DetailedGSTLedgerEntry."No.")
                 then
                     DetailedGSTLedgerEntry."No." := ServiceTransferLine."Transfer To G/L Account No.";
-                // TODO: Skip Tax Engine Trigger not found in DetailedGSTLedgerEntry
-                // DetailedGSTLedgerEntry."Skip Tax Engine Trigger" := true;
+                DetailedGSTLedgerEntry."Skip Tax Engine Trigger" := true;
                 DetailedGSTLedgerEntry.Insert(true);
 
+                InsertDetailedGSTLedgerEnfo(DetailedGSTLedgerEntry, ServiceTransferHeader, DetailedGSTEntryBuffer, DocTransferType);
             until DetailedGSTEntryBuffer.Next() = 0;
     end;
 
-    local procedure UpdateDetailGSTLedgerEntryServiceTransfer(var DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry"; DocumentNo: Code[20]; LineNo: Integer;
-    TransactionNo: Integer; DocTransferType: option ServiceTransferShpmnt,ServiceTransferReciept)
+    local procedure UpdateDetailedGSTLedgerEntryServiceTransfer(
+        var DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+        DocumentNo: Code[20];
+        LineNo: Integer;
+        TransactionNo: Integer;
+        DocTransferType: Enum "Service Doc Transfer Type")
     var
         DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
+        GSTBaseValidation: Codeunit "GST Base Validation";
     begin
         DetailedGSTEntryBuffer.SetCurrentKey("Transaction Type", "Document Type", "Document No.", "Line No.");
-        DetailedGSTEntryBuffer.Setrange("Transaction Type", DetailedGSTEntryBuffer."Transaction Type"::"Service Transfer");
-        DetailedGSTEntryBuffer.Setrange("Document Type", DetailedGSTEntryBuffer."Document Type"::Quote);
-        DetailedGSTEntryBuffer.Setrange("Document No.", DocumentNo);
-        DetailedGSTEntryBuffer.Setrange("Line No.", LineNo);
-        DetailedGSTEntryBuffer.Setrange("GST Component Code", DetailedGSTLedgerEntry."GST Component Code");
+        DetailedGSTEntryBuffer.SetRange("Transaction Type", DetailedGSTEntryBuffer."Transaction Type"::"Service Transfer");
+        DetailedGSTEntryBuffer.SetRange("Document Type", DetailedGSTEntryBuffer."Document Type"::Quote);
+        DetailedGSTEntryBuffer.SetRange("Document No.", DocumentNo);
+        DetailedGSTEntryBuffer.SetRange("Line No.", LineNo);
+        DetailedGSTEntryBuffer.SetRange("GST Component Code", DetailedGSTLedgerEntry."GST Component Code");
         if DetailedGSTEntryBuffer.FindFirst() then begin
             DetailedGSTLedgerEntry.Type := DetailedGSTEntryBuffer.Type;
             DetailedGSTLedgerEntry."No." := DetailedGSTEntryBuffer."No.";
@@ -955,49 +948,44 @@ codeunit 18350 "Service Transfer Post"
             DetailedGSTLedgerEntry."GST Component Code" := DetailedGSTEntryBuffer."GST Component Code";
             DetailedGSTLedgerEntry."GST Group Code" := DetailedGSTEntryBuffer."GST Group Code";
             DetailedGSTLedgerEntry."Document Line No." := DetailedGSTEntryBuffer."Line No.";
-            DetailedGSTLedgerEntry."GST Base Amount" := RoundGSTPrecision(DetailedGSTEntryBuffer."GST Base Amount");
-            DetailedGSTLedgerEntry."GST Amount" := RoundGSTPrecision(DetailedGSTEntryBuffer."GST Amount");
+            DetailedGSTLedgerEntry."GST Base Amount" := GSTBaseValidation.RoundGSTPrecision(DetailedGSTEntryBuffer."GST Base Amount");
+            DetailedGSTLedgerEntry."GST Amount" := GSTBaseValidation.RoundGSTPrecision(DetailedGSTEntryBuffer."GST Amount");
             DetailedGSTLedgerEntry."GST %" := DetailedGSTEntryBuffer."GST %";
             DetailedGSTLedgerEntry."Remaining Base Amount" := 0;
             DetailedGSTLedgerEntry."Remaining GST Amount" := 0;
             DetailedGSTLedgerEntry."Amount Loaded on Item" := 0;
             DetailedGSTLedgerEntry."GST Credit" := DetailedGSTLedgerEntry."GST Credit"::Availment;
-            if DocTransferType = DocTransferType::ServiceTransferReciept then
+            if DocTransferType = DocTransferType::"Service Transfer Receipt" then
                 ReverseDetailedGSTEntryQtyAmt(DetailedGSTLedgerEntry);
             DetailedGSTLedgerEntry."GST Rounding Type" := DetailedGSTEntryBuffer."GST Rounding Type";
             DetailedGSTLedgerEntry."GST Rounding Precision" := DetailedGSTEntryBuffer."GST Rounding Precision";
             DetailedGSTLedgerEntry."GST Inv. Rounding Type" := DetailedGSTEntryBuffer."GST Inv. Rounding Type";
             DetailedGSTLedgerEntry."GST Inv. Rounding Precision" := DetailedGSTEntryBuffer."GST Inv. Rounding Precision";
-            DetailedGSTLedgerEntry.Positive := DetailedGSTLedgerEntry."GST Amount" > 0;
-            DetailedGSTLedgerEntry."User ID" := Copystr(USERID, 1, MaxStrLen(DetailedGSTLedgerEntry."User ID"));
             DetailedGSTLedgerEntry."Transaction No." := TransactionNo;
-            DetailedGSTLedgerEntry.Cess := DetailedGSTEntryBuffer.Cess;
-            DetailedGSTLedgerEntry."Component Calc. Type" := DetailedGSTEntryBuffer."Component Calc. Type";
-            DetailedGSTLedgerEntry."Cess Amount Per Unit Factor" := DetailedGSTEntryBuffer."Cess Amt Per Unit Factor (LCY)";
-            DetailedGSTLedgerEntry."Cess UOM" := DetailedGSTEntryBuffer."Cess UOM";
-            DetailedGSTLedgerEntry."Cess Factor Quantity" := DetailedGSTEntryBuffer."Cess Factor Quantity";
         end;
     end;
 
     local procedure PostGSTInvoiceRounding(ServiceTransferHeader: Record "Service Transfer Header"; Ship: Boolean)
-    Var
-        GLSetup: Record "General Ledger Setup";
+    var
+        InventorySetup: Record "Inventory Setup";
     begin
-        GLSetup.Get();
+        InventorySetup.Get();
+        InventorySetup.TestField("Service Rounding Account");
+
         GenJnlLine.Init();
-        GenJnlLine.Description := STRSUBSTNO(ServiceTranTxt, ServiceTransferHeader."No.");
+        GenJnlLine.Description := StrSubstNo(ServiceTranTxt, ServiceTransferHeader."No.");
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
         GenJnlLine."Source Code" := SourceCode;
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
         GenJnlLine.Validate(Amount, InvoiceRoundingAmount);
-        GenJnlLine."Account No." := GLSetup."GST Inv. Rounding Account";
+        GenJnlLine."Account No." := InventorySetup."Service Rounding Account";
         GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
-        GenJnlLine."System-Created Entry" := TempTransferBuffer[1]."System-Created Entry";
-        GenJnlLine."Gen. Bus. Posting Group" := TempGSTPostingBuffer[1]."Gen. Bus. Posting Group";
-        GenJnlLine."Gen. Prod. Posting Group" := TempGSTPostingBuffer[1]."Gen. Prod. Posting Group";
-        GenJnlLine."Shortcut Dimension 1 Code" := TempGSTPostingBuffer[1]."Global Dimension 1 Code";
-        GenJnlLine."Shortcut Dimension 2 Code" := TempGSTPostingBuffer[1]."Global Dimension 2 Code";
-        GenJnlLine."Dimension Set ID" := TempGSTPostingBuffer[1]."Dimension Set ID";
+        GenJnlLine."System-Created Entry" := TempTransferBufferStage."System-Created Entry";
+        GenJnlLine."Gen. Bus. Posting Group" := TempGSTPostingBufferStage."Gen. Bus. Posting Group";
+        GenJnlLine."Gen. Prod. Posting Group" := TempGSTPostingBufferStage."Gen. Prod. Posting Group";
+        GenJnlLine."Shortcut Dimension 1 Code" := TempGSTPostingBufferStage."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := TempGSTPostingBufferStage."Global Dimension 2 Code";
+        GenJnlLine."Dimension Set ID" := TempGSTPostingBufferStage."Dimension Set ID";
         if Ship then begin
             GenJnlLine."Document No." := PostedServiceTransferShptDocNo;
             GenJnlLine."Location Code" := ServiceTransferHeader."Transfer-from Code";
@@ -1012,28 +1000,6 @@ codeunit 18350 "Service Transfer Post"
         GenJnlPostLine.RunWithCheck(GenJnlLine);
     end;
 
-    local procedure RoundGSTPrecision(GSTAmount: Decimal): Decimal
-    Var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        GSTRoundingDirection: Text[1];
-        GSTRoundingPrecision: Decimal;
-    begin
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.TestField("GST Rounding Precision");
-        case GeneralLedgerSetup."GST Rounding Type" OF
-            GeneralLedgerSetup."GST Rounding Type"::Nearest:
-                GSTRoundingDirection := '=';
-            GeneralLedgerSetup."GST Rounding Type"::Up:
-                GSTRoundingDirection := '>';
-            GeneralLedgerSetup."GST Rounding Type"::Down:
-                GSTRoundingDirection := '<';
-        end;
-
-        GSTRoundingPrecision := GeneralLedgerSetup."GST Rounding Precision";
-
-        exit(Round(GSTAmount, GSTRoundingPrecision, GSTRoundingDirection));
-    end;
-
     local procedure ReverseDetailedGSTEntryQtyAmt(var DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry")
     begin
         DetailedGSTLedgerEntry."GST Base Amount" := -DetailedGSTLedgerEntry."GST Base Amount";
@@ -1041,16 +1007,16 @@ codeunit 18350 "Service Transfer Post"
         DetailedGSTLedgerEntry."Amount Loaded on Item" := -DetailedGSTLedgerEntry."Amount Loaded on Item";
     end;
 
-    local procedure GetGSTComponent(ComponentID: Integer): Code[10]
-    Var
-        TaxTypeSetup: Record "Tax Type Setup";
+    local procedure GetGSTComponent(ComponentID: Integer): Code[30]
+    var
+        GSTSetup: Record "GST Setup";
         TaxComponent: Record "Tax Component";
     begin
-        if not TaxTypeSetup.Get() then
+        if not GSTSetup.Get() then
             exit;
-        TaxTypeSetup.TestField(code);
-        TaxComponent.SetRange("Tax Type", TaxTypeSetup.Code);
-        TaxComponent.SetRange(ID, ComponentID);
+        GSTSetup.TestField("GST Tax Type");
+        TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
+        TaxComponent.SetRange(Id, ComponentID);
         if TaxComponent.FindFirst() then
             exit(TaxComponent.Name);
     end;
@@ -1065,41 +1031,41 @@ codeunit 18350 "Service Transfer Post"
             exit(GSTJurisdictionType::Intrastate);
     end;
 
-    local procedure GetGSTPayableAccountNo(LocationCode: Code[10]; GSTComponentCode: Code[10]): Code[20]
+    local procedure GetGSTPayableAccountNo(LocationCode: Code[10]; GSTComponentCode: Code[30]): Code[20]
     var
         GSTPostingSetup: Record "GST Posting Setup";
     begin
         GSTPostingSetup.Reset();
-        GSTPostingSetup.Setrange("State Code", LocationCode);
-        GSTPostingSetup.Setrange("Component ID", GSTComponentID(GSTComponentCode));
+        GSTPostingSetup.SetRange("State Code", LocationCode);
+        GSTPostingSetup.SetRange("Component ID", GSTComponentID(GSTComponentCode));
         GSTPostingSetup.FindFirst();
         exit(GSTPostingSetup."Payable Account")
     end;
 
-    local procedure GetGSTReceivableAccountNo(LocationCode: Code[10]; GSTComponentCode: Code[10]): Code[20]
+    local procedure GetGSTReceivableAccountNo(LocationCode: Code[10]; GSTComponentCode: Code[30]): Code[20]
     var
         GSTPostingSetup: Record "GST Posting Setup";
     begin
         GSTPostingSetup.Reset();
-        GSTPostingSetup.Setrange("State Code", LocationCode);
-        GSTPostingSetup.Setrange("Component ID", GSTComponentID(GSTComponentCode));
+        GSTPostingSetup.SetRange("State Code", LocationCode);
+        GSTPostingSetup.SetRange("Component ID", GSTComponentID(GSTComponentCode));
         GSTPostingSetup.FindFirst();
         exit(GSTPostingSetup."Receivable Account")
     end;
 
-    local procedure GSTComponentID(ComponentCode: Code[10]): Integer
+    local procedure GSTComponentID(ComponentCode: Code[30]): Integer
     var
-        TaxTypeSetup: Record "Tax Type Setup";
+        GSTSetup: Record "GST Setup";
         TaxComponent: Record "Tax Component";
     begin
-        if not TaxTypeSetup.Get() then
+        if not GSTSetup.Get() then
             exit;
-        TaxTypeSetup.TestField(Code);
+        GSTSetup.TestField("GST Tax Type");
 
-        TaxComponent.Setrange("Tax Type", TaxTypeSetup.Code);
-        TaxComponent.Setrange(Name, ComponentCode);
+        TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
+        TaxComponent.SetRange(Name, ComponentCode);
         if TaxComponent.FindFirst() then
-            exit(TaxComponent.ID)
+            exit(TaxComponent.Id)
     end;
 
     //Find No. Series
@@ -1110,7 +1076,7 @@ codeunit 18350 "Service Transfer Post"
         Location: Record Location;
         NoSeriesCode: Code[20];
     begin
-        PostingNoSeries.Setrange("Table Id", Database::"Service Transfer Header");
+        PostingNoSeries.SetRange("Table Id", Database::"Service Transfer Header");
         NoSeriesCode := LoopPostingNoSeries(
             PostingNoSeries,
             ServiceTransferHeader,
@@ -1133,7 +1099,7 @@ codeunit 18350 "Service Transfer Post"
         Location: Record Location;
         NoSeriesCode: Code[20];
     begin
-        PostingNoSeries.Setrange("Table Id", Database::"Service Transfer Header");
+        PostingNoSeries.SetRange("Table Id", Database::"Service Transfer Header");
         NoSeriesCode := LoopPostingNoSeries(
             PostingNoSeries,
             ServiceTransferHeader,
@@ -1156,7 +1122,7 @@ codeunit 18350 "Service Transfer Post"
     var
         Filters: Text;
     begin
-        PostingNoSeries.Setrange("Document Type", PostingDocumentType);
+        PostingNoSeries.SetRange("Document Type", PostingDocumentType);
         if PostingNoSeries.FindSet() then
             repeat
                 Filters := GetRecordView(PostingNoSeries);
@@ -1176,14 +1142,14 @@ codeunit 18350 "Service Transfer Post"
         TempFieldRef: FieldRef;
     begin
         DuplicateRecRef.GetTable(Record);
-        CLEAR(TempRecRef);
-        TempRecRef.OPEN(DuplicateRecRef.NUMBER(), true);
-        Field.Setrange(TableNo, DuplicateRecRef.NUMBER());
+        Clear(TempRecRef);
+        TempRecRef.Open(DuplicateRecRef.Number(), true);
+        Field.SetRange(TableNo, DuplicateRecRef.Number());
         if Field.FindSet() then
             repeat
-                FieldRef := DuplicateRecRef.FIELD(Field."No.");
-                TempFieldRef := TempRecRef.FIELD(Field."No.");
-                TempFieldRef.VALUE := FieldRef.VALUE();
+                FieldRef := DuplicateRecRef.Field(Field."No.");
+                TempFieldRef := TempRecRef.Field(Field."No.");
+                TempFieldRef.Value := FieldRef.Value();
             until Field.Next() = 0;
 
         TempRecRef.Insert();
@@ -1199,34 +1165,26 @@ codeunit 18350 "Service Transfer Post"
     var
         ConditionInStream: InStream;
     begin
-        PostingNoSeries.calcfields(Condition);
+        PostingNoSeries.CalcFields(Condition);
         PostingNoSeries.Condition.CREATEINSTREAM(ConditionInStream);
-        ConditionInStream.READ(Filters);
+        ConditionInStream.Read(Filters);
     end;
 
-    var
-        TempTransferBuffer: array[2] of Record "Transfer Buffer" temporary;
-        TempGSTPostingBuffer: array[2] of Record "GST Posting Buffer" temporary;
-        ServiceTransferHeader: Record "Service Transfer Header";
-        GenJnlLine: Record "Gen. Journal Line";
-        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
-        SourceCode: Code[10];
-        PostedServiceTransferShptDocNo: Code[20];
-        PostedServiceTransferRcptDocNo: Code[20];
-        TransferAmount: Decimal;
-        GSTAmount: Decimal;
-        ControlAccount: Boolean;
-        InvoiceRoundingAmount: Decimal;
-        ShipReceiveQst: Label '&Ship,&Receive';
-        SameLocErr: Label 'Service Transfer order %1 canNot be posted because %2 and %3 are the same.', Comment = '%1 = Transfer Order;%2 = From Location;%3 = To Location';
-        ServTransDimErr: Label 'The combination of dimensions used in Service Transfer order %1 is blocked. %2.', Comment = '%1 = Order No ;%2 = Error';
-        ServTransDimCombErr: Label 'The combination of dimensions used in Service Transfer order %1, line no. %2 is blocked. %3.', Comment = '%1 = Order No ;%2 = Line No ;%3 = Error';
-        PostMsg: Label 'Posting transfer lines     #2######', Comment = '#2###';
-        ServTransMsg: Label 'Service Transfer Order %1.', Comment = 'Service Transfer Order %1.';
-        NoSeriesErr: Label '%1 must not be empty in %2 or %3.', Comment = '%1 = Field Name, %2 = Table Name, %3 = Table Name ';
-        ServiceTranTxt: Label 'Service Transfer - %1', Comment = '%1 = Transfer Doc ';
-        AccountingPeriodErr: Label 'GST Accounting Period Does not exist for the given Date %1.', Comment = '%1 =PostingDate';
-        PeriodClosedErr: Label 'Accounting Period has been closed till %1, Document Posting Date must be greater than or equal to %2.', Comment = '%1 =LastClosedDate , %2 = LastClosedDate';
-        ServTransDelMsg: Label 'Service Transfer Order %1 has been deleted.', Comment = '%1 = Service Transfer Order No';
-        LocationCodeErr: Label 'Please specIfy the Location Code or Location GST Registration No. for the selected Document.';
+    //GST Posting No. Series Table
+    [EventSubscriber(ObjectType::Table, Database::"Posting No. Series", 'OnBeforeRun', '', false, false)]
+    local procedure ValidatePostingSeriesDocumentType(var PostingNoSeries: Record "Posting No. Series"; var IsHandled: Boolean)
+    begin
+        case PostingNoSeries."Document Type" of
+            PostingNoSeries."Document Type"::"Service Transfer Shipment":
+                begin
+                    PostingNoSeries."Table Id" := Database::"Service Transfer Header";
+                    IsHandled := true;
+                end;
+            PostingNoSeries."Document Type"::"Service Transfer Receipt":
+                begin
+                    PostingNoSeries."Table Id" := Database::"Service Transfer Header";
+                    IsHandled := true;
+                end;
+        end;
+    end;
 }

@@ -2668,26 +2668,24 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox326">
+                                          <Textbox Name="textbox331">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=First(Fields!Gen__Journal_Line_AmountCaption.Value)</Value>
+                                                    <Value>=First(Fields!Gen__Journal_Line__Bal__Account_No__Caption.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Right</TextAlign>
-                                                </Style>
+                                                <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <ZIndex>97</ZIndex>
+                                            <ZIndex>95</ZIndex>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -2711,7 +2709,8 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox327">
+                                          <Textbox Name="Textbox57">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -2719,14 +2718,17 @@
                                                   <TextRun>
                                                     <Value />
                                                     <Style>
+                                                      <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
-                                                <Style />
+                                                <Style>
+                                                  <TextAlign>Right</TextAlign>
+                                                </Style>
                                               </Paragraph>
                                             </Paragraphs>
-                                            <ZIndex>96</ZIndex>
+                                            <rd:DefaultName>Textbox57</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -2739,9 +2741,9 @@
                                                 <Style>Solid</Style>
                                                 <Width>1pt</Width>
                                               </BottomBorder>
-                                              <VerticalAlign>Middle</VerticalAlign>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
+                                              <VerticalAlign>Bottom</VerticalAlign>
+                                              <PaddingLeft>0.075cm</PaddingLeft>
+                                              <PaddingRight>0.075cm</PaddingRight>
                                               <PaddingTop>2pt</PaddingTop>
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
@@ -2750,24 +2752,26 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="textbox328">
+                                          <Textbox Name="textbox332">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=First(Fields!Gen__Journal_Line__Bal__Account_No__Caption.Value)</Value>
+                                                    <Value>=First(Fields!Gen__Journal_Line_AmountCaption.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
-                                                <Style />
+                                                <Style>
+                                                  <TextAlign>Right</TextAlign>
+                                                </Style>
                                               </Paragraph>
                                             </Paragraphs>
-                                            <ZIndex>95</ZIndex>
+                                            <ZIndex>97</ZIndex>
                                             <Style>
                                               <Border>
                                                 <Style>None</Style>
@@ -3503,7 +3507,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Gen__Journal_Line_Amount.Value</Value>
+                                                    <Value>=Fields!Gen__Journal_Line__Bal__Account_No__.Value</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Fields!Gen__Journal_Line_AmountFormat.Value</Format>
@@ -3560,7 +3564,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Gen__Journal_Line__Bal__Account_No__.Value</Value>
+                                                    <Value>=Fields!Gen__Journal_Line_Amount.Value</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -3580,6 +3584,7 @@
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
+                                          <rd:Selected>true</rd:Selected>
                                         </CellContents>
                                       </TablixCell>
                                       <TablixCell>
@@ -6329,7 +6334,6 @@
                                             </Style>
                                           </Textbox>
                                           <ColSpan>4</ColSpan>
-                                          <rd:Selected>true</rd:Selected>
                                         </CellContents>
                                       </TablixCell>
                                       <TablixCell />

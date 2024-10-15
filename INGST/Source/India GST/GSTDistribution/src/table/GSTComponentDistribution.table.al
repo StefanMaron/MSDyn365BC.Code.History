@@ -2,7 +2,6 @@ table 18202 "GST Component Distribution"
 {
     Caption = 'GST Component Distribution';
     DataCaptionFields = "GST Component Code", "Distribution Component Code";
-    DataClassification = EndUserIdentifiableInformation;
 
     fields
     {
@@ -10,25 +9,26 @@ table 18202 "GST Component Distribution"
         {
             Caption = 'GST Component Code';
             NotBlank = true;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; "Distribution Component Code"; code[10])
         {
             Caption = 'Distribution Component Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             NotBlank = true;
         }
         field(3; "Intrastate Distribution"; Boolean)
         {
             Caption = 'Intrastate Distribution';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(4; "Interstate Distribution"; Boolean)
         {
             Caption = 'Interstate Distribution';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
+
     keys
     {
         key(PK; "GST Component Code", "Distribution Component Code")

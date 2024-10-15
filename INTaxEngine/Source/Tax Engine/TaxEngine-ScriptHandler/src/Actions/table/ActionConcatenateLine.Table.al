@@ -8,17 +8,17 @@ table 20158 "Action Concatenate Line"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; "Concatenate ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Concatenate ID';
         }
         field(4; "Line No."; Integer)
@@ -39,7 +39,7 @@ table 20158 "Action Concatenate Line"
         }
         field(7; "Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }

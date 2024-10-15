@@ -1,28 +1,38 @@
 codeunit 18438 "GST Item Charge Subscribers"
 {
     var
-        TaxTypeSetup: Record "Tax Type Setup";
+        GSTSetup: Record "GST Setup";
         GSTApplicationSessionMgt: Codeunit "GST Application Session Mgt.";
+        Sign: Integer;
 
-    local procedure GetItemChargeGSTAmount(PurchaseLine: Record "Purchase Line"; QtyFactor: Decimal) GSTAmountLoaded: Decimal;
+    local procedure GetItemChargeGSTAmount(PurchaseLine: Record "Purchase Line") GSTAmountLoaded: Decimal;
     var
         TaxTransactionValue: Record "Tax Transaction Value";
+        GSTPurchaseNonAvailment: Codeunit "GST Purchase Non Availment";
     begin
-        if (PurchaseLine.Type = PurchaseLine.Type::"Charge (Item)") and
-            (PurchaseLine."GST Credit" = PurchaseLine."GST Credit"::"Non-Availment")
-        then begin
-            if not TaxTypeSetup.Get() then
+        if (PurchaseLine.Type = PurchaseLine.Type::"Charge (Item)") and (PurchaseLine."GST Credit" = PurchaseLine."GST Credit"::"Non-Availment") then begin
+            if not GSTSetup.Get() then
                 exit;
 
-            TaxTypeSetup.TestField(Code);
+            GSTSetup.TestField("GST Tax Type");
 
-            TaxTransactionValue.SetRange("Tax Type", TaxTypeSetup.Code);
+            TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
             TaxTransactionValue.SetRange("Tax Record ID", PurchaseLine.RecordId);
             TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
             if TaxTransactionValue.FindSet() then
                 repeat
-                    GSTAmountLoaded += TaxTransactionValue.Amount;
+                    GSTAmountLoaded += GSTPurchaseNonAvailment.RoundTaxAmount(GSTSetup."GST Tax Type", TaxTransactionValue."Value ID", TaxTransactionValue."Amount (LCY)");
                 until TaxTransactionValue.Next() = 0;
+
+            if PurchaseLine."Document Type" in [PurchaseLine."Document Type"::Order,
+                PurchaseLine."Document Type"::Invoice,
+                PurchaseLine."Document Type"::Quote,
+                PurchaseLine."Document Type"::"Blanket Order"] then
+                Sign := 1
+            else
+                Sign := -1;
+
+            GSTAmountLoaded := GSTAmountLoaded * Sign;
         end;
     end;
 
@@ -40,8 +50,7 @@ codeunit 18438 "GST Item Charge Subscribers"
         GSTAmountLoaded: Decimal;
     begin
         PurchaseLine.Get(PurchLine."Document Type", PurchLine."Document No.", TempItemChargeAssgntPurch."Document Line No.");
-        GSTAmountLoaded :=
-        GetItemChargeGSTAmount(PurchaseLine, (ItemChargePurchLine."Qty. to Invoice (Base)" / ItemChargePurchLine."Quantity (Base)"));
+        GSTAmountLoaded := GetItemChargeGSTAmount(PurchaseLine);
         if PurchHeader."Document Type" in [PurchHeader."Document Type"::"Credit Memo", PurchHeader."Document Type"::"Return Order"] then
             TempItemChargeAssgntPurch."Amount to Assign" -= GSTAmountLoaded * TempItemChargeAssgntPurch."Qty. to Assign"
         else
@@ -57,8 +66,7 @@ codeunit 18438 "GST Item Charge Subscribers"
     var
         GSTAmountLoaded: Decimal;
     begin
-        GSTAmountLoaded :=
-            GetItemChargeGSTAmount(PurchaseLine, (PurchaseLine."Qty. to Invoice (Base)" / PurchaseLine."Quantity (Base)"));
+        GSTAmountLoaded := GetItemChargeGSTAmount(PurchaseLine);
         GSTApplicationSessionMgt.SetGSTAmountLoaded(GSTAmountLoaded * TempItemChargeAssgntPurch."Qty. to Assign");
     end;
 
@@ -68,8 +76,6 @@ codeunit 18438 "GST Item Charge Subscribers"
         PurchaseLine: Record "Purchase Line";
         PurchaseHeader: Record "Purchase Header")
     var
-        TaxTypeSetup: Record "Tax Type Setup";
-        TaxTransactionValue: Record "Tax Transaction Value";
         GSTAmountLoaded: Decimal;
         Factor: Decimal;
     begin
@@ -80,13 +86,11 @@ codeunit 18438 "GST Item Charge Subscribers"
             if PurchaseLine."Qty. to Invoice" <> 0 then
                 Factor := (ItemJournalLine."Invoiced Quantity" / PurchaseLine."Qty. to Invoice");
 
-            if PurchaseHeader."Document Type" in [
-                PurchaseHeader."Document Type"::"Credit Memo",
-                PurchaseHeader."Document Type"::"Return Order"]
-            then
+            if PurchaseHeader."Document Type" in [PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Document Type"::"Return Order"] then
                 ItemJournalLine.Amount := ItemJournalLine.Amount - Round(GSTAmountLoaded * Factor)
             else
                 ItemJournalLine.Amount := ItemJournalLine.Amount + Round(GSTAmountLoaded * Factor);
+
             GSTApplicationSessionMgt.SetGSTAmountLoaded(0);
         end;
     end;

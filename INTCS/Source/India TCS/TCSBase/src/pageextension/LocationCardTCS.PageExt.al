@@ -4,7 +4,7 @@ pageextension 18811 "Location Card TCS" extends "Location Card"
     {
         addafter("State Code")
         {
-            field("T.C.A.N No."; "T.C.A.N. No.")
+            field("T.C.A.N No."; Rec."T.C.A.N. No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the T.C.A.N No of Location';

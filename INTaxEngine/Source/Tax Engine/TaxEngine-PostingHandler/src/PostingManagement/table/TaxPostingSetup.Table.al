@@ -8,13 +8,13 @@ table 20338 "Tax Posting Setup"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
             TableRelation = "Tax Use Case".ID;
         }
         field(2; "ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(3; "Component ID"; Integer)
@@ -34,24 +34,24 @@ table 20338 "Tax Posting Setup"
         }
         field(6; "Accounting Impact"; Option)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Accounting Impact';
             OptionMembers = Debit,Credit;
             OptionCaption = 'Debit,Credit';
         }
         field(7; "Switch Statement ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Switch Statement ID';
         }
         field(9; "Table Filter ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Table Filter ID';
         }
         field(10; "Reverse Charge"; Boolean)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Reverse Charge';
             trigger OnValidate()
             begin
@@ -76,7 +76,7 @@ table 20338 "Tax Posting Setup"
         }
         field(12; "Account Source Type"; Option)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Account Source Type';
             OptionMembers = "Field","Lookup";
             OptionCaption = 'Field,Lookup';
@@ -90,7 +90,7 @@ table 20338 "Tax Posting Setup"
         }
         field(13; "Reversal Account Source Type"; Option)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Reversal Account Source Type';
             OptionMembers = "Field","Lookup";
             OptionCaption = 'Field,Lookup';
@@ -102,31 +102,13 @@ table 20338 "Tax Posting Setup"
         }
         field(14; "Account Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Account LookupID';
         }
         field(15; "Reversal Account Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Reversal Account LookupID';
-        }
-        field(17; "Account Value"; Text[250])
-        {
-            DataClassification = EndUserIdentifiableInformation;
-            Caption = 'Account Value';
-            trigger OnValidate();
-            begin
-                ValidateAccSourceTypeValue();
-            end;
-        }
-        field(18; "Reverse Account Value"; Text[250])
-        {
-            DataClassification = EndUserIdentifiableInformation;
-            Caption = 'Reverse Account Value';
-            trigger OnValidate();
-            begin
-                ValidateReverseAccSourceTypeValue();
-            end;
         }
     }
 
@@ -145,8 +127,6 @@ table 20338 "Tax Posting Setup"
     var
         SwitchStatementHelper: Codeunit "Switch Statement Helper";
         LookupEntityMgmt: Codeunit "Lookup Entity Mgmt.";
-        ScriptDataTypeMgmt: Codeunit "Script Data Type Mgmt.";
-        LookupMgmt: Codeunit "Lookup Mgmt.";
         EmptyGuid: Guid;
 
     trigger OnInsert()
@@ -188,36 +168,6 @@ table 20338 "Tax Posting Setup"
             UseCase.Get("Case ID");
             LookupEntityMgmt.DeleteLookup("Case ID", EmptyGuid, "Reversal Account Lookup ID");
         end;
-    end;
-
-    local procedure ValidateAccSourceTypeValue();
-    var
-        UseCase: Record "Tax Use Case";
-        Datatype: Enum "Symbol Data Type";
-        FieldOptionString: Text;
-    begin
-        if not IsNullGuid("Account Lookup ID") then begin
-            UseCase.Get("Case ID");
-            Datatype := LookupMgmt.GetLookupDatatype("Case ID", UseCase."Posting Script ID", "Account Lookup ID");
-            FieldOptionString := ScriptDataTypeMgmt.GetLookupOptionString("Case ID", EmptyGuid, "Account Lookup ID");
-        end;
-
-        ScriptDataTypeMgmt.CheckConstantDatatype("Account Value", Datatype, FieldOptionString);
-    end;
-
-    local procedure ValidateReverseAccSourceTypeValue();
-    var
-        UseCase: Record "Tax Use Case";
-        Datatype: Enum "Symbol Data Type";
-        FieldOptionString: Text;
-    begin
-        if not IsNullGuid("Reversal Account Lookup ID") then begin
-            UseCase.Get("Case ID");
-            Datatype := LookupMgmt.GetLookupDatatype("Case ID", UseCase."Posting Script ID", "Reversal Account Lookup ID");
-            FieldOptionString := ScriptDataTypeMgmt.GetLookupOptionString("Case ID", EmptyGuid, "Reversal Account Lookup ID");
-        end;
-
-        ScriptDataTypeMgmt.CheckConstantDatatype("Reverse Account Value", Datatype, FieldOptionString);
     end;
 
     local procedure ClearTableFilers()

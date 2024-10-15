@@ -4,7 +4,7 @@ page 1500 Workflows
     Caption = 'Workflows';
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Manage,Flow';
+    PromotedActionCategories = 'New,Process,Report,Manage,Power Automate';
     RefreshOnActivate = true;
     SourceTable = "Workflow Buffer";
     SourceTableTemporary = true;
@@ -89,12 +89,12 @@ page 1500 Workflows
                         Workflow: Record Workflow;
                         WorkflowPage: Page Workflow;
                     begin
-                        if IsEmpty then begin
+                        if IsEmpty() then begin
                             Clear(Rec);
                             Insert;
                         end;
                         Workflow.SetRange(Template, false);
-                        if Workflow.IsEmpty then
+                        if Workflow.IsEmpty() then
                             Workflow.Insert();
                         Workflow.FilterGroup := 2;
                         WorkflowPage.SetOpenNew(true);
@@ -117,7 +117,7 @@ page 1500 Workflows
                     var
                         TempWorkflowBuffer: Record "Workflow Buffer" temporary;
                     begin
-                        if IsEmpty then begin
+                        if IsEmpty() then begin
                             Clear(Rec);
                             Insert;
                         end;
@@ -266,7 +266,7 @@ page 1500 Workflows
             }
             group(Flow)
             {
-                Caption = 'Flow';
+                Caption = 'Power Automate';
                 action(WebhookClientLink)
                 {
                     ApplicationArea = Basic, Suite;
@@ -277,7 +277,7 @@ page 1500 Workflows
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
                     Scope = Repeater;
-                    ToolTip = 'View Flow Definition';
+                    ToolTip = 'View flow definition';
                     Visible = IsSaaS;
 
                     trigger OnAction()
@@ -353,7 +353,7 @@ page 1500 Workflows
         IsSaaS: Boolean;
         Source: Text;
         BusinessCentralSourceTxt: Label 'Business Central';
-        FlowSourceText: Label 'Microsoft Power Automate';
+        FlowSourceText: Label 'Power Automate';
 
     local procedure RefreshTempWorkflowBuffer()
     var
@@ -417,7 +417,7 @@ page 1500 Workflows
                         Filter := TempWorkflowBuffer."Workflow Code"
                     else
                         Filter := StrSubstNo('%1|%2', Filter, TempWorkflowBuffer."Workflow Code");
-            until TempWorkflowBuffer.Next = 0;
+            until TempWorkflowBuffer.Next() = 0;
     end;
 
     procedure SetWorkflowBufferRec(var TempWorkflowBuffer: Record "Workflow Buffer" temporary)

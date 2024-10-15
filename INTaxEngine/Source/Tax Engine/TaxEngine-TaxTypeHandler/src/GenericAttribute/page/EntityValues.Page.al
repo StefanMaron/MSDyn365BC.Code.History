@@ -75,7 +75,7 @@ page 20234 "Entity Values"
         Reset();
         SetRange("Attribute Record ID", TaxRecordID);
         CurrPage.Update(false);
-        Exit(FindSet());
+        exit(FindSet());
     end;
 
     var

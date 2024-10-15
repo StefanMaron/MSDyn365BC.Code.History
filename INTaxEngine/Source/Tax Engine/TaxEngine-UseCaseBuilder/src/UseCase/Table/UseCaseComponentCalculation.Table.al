@@ -8,13 +8,13 @@ table 20308 "Use Case Component Calculation"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
             TableRelation = "Tax Use Case".ID;
         }
         field(2; "ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(3; "Component ID"; Integer)
@@ -24,13 +24,13 @@ table 20308 "Use Case Component Calculation"
         }
         field(4; "Formula ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Formula ID';
             TableRelation = "Tax Attribute".ID;
         }
         field(5; Sequence; Integer)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Sequence';
         }
     }
@@ -48,7 +48,6 @@ table 20308 "Use Case Component Calculation"
 
     var
         UseCaseEntityMgmt: Codeunit "Use Case Entity Mgmt.";
-        EmptyGuid: Guid;
 
     trigger OnInsert()
     var

@@ -8,7 +8,7 @@ table 20202 "Script Record Variable"
     {
         field(1; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(2; "Variable ID"; Integer)
@@ -33,7 +33,7 @@ table 20202 "Script Record Variable"
         }
         field(6; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
     }

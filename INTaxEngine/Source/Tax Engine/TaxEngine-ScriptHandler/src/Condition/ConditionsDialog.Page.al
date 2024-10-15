@@ -119,7 +119,6 @@ page 20190 "Conditions Dialog"
         LookupMgmt: Codeunit "Lookup Mgmt.";
         LHSValue2: Text;
         RHSValue2: Text;
-        EmptyGuid: Guid;
 
     procedure SetCurrentRecord(var Condition2: Record "Tax Test Condition");
     begin

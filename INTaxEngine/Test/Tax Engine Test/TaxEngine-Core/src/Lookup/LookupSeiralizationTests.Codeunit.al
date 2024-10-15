@@ -26,7 +26,6 @@ codeunit 136709 "Lookup Seiralization Tests"
         CaseID, ScriptID, LookupID : Guid;
         ExpectedText: text[30];
         ActualText: Text;
-        TableID: Integer;
     begin
         // [SCENARIO] To get the LookupString for Lookup.
 
@@ -54,7 +53,6 @@ codeunit 136709 "Lookup Seiralization Tests"
         CaseID, LookupID : Guid;
         ExpectedText: Text;
         ActualText: Text;
-        TableID: Integer;
     begin
         // [SCENARIO] To get the LookupString for Lookup for source type Database.
 
@@ -84,7 +82,6 @@ codeunit 136709 "Lookup Seiralization Tests"
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
         FieldFromTableTxt, FieldFilterTxt, TableFilterTxt, ExpectedText, ActualText : Text;
         CaseID, ScriptID, LookupID, TableFilterID : Guid;
-        TableID: Integer;
     begin
         // [SCENARIO] To get the LookupString for Lookup for source type Table.
 
@@ -125,7 +122,6 @@ codeunit 136709 "Lookup Seiralization Tests"
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
         CaseID, ScriptID, TableSortingID : Guid;
         ExpectedText, ActualText : Text;
-        TableID: Integer;
         FieldIDList: List of [Integer];
     begin
         // [SCENARIO] To get the TableSorting string.
@@ -156,7 +152,6 @@ codeunit 136709 "Lookup Seiralization Tests"
         LookupEntityMgmt: Codeunit "Lookup Entity Mgmt.";
         CaseID, ScriptID, TableSortingID : Guid;
         ExpectedText, ActualText : Text;
-        TableID: Integer;
         FieldIDList: List of [Integer];
     begin
         // [SCENARIO] To get the TableSorting string as primary key field if no fields are passed.
@@ -188,7 +183,6 @@ codeunit 136709 "Lookup Seiralization Tests"
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
         FieldFromTableTxt, FieldFilterTxt, TableFilterTxt, ExpectedText, ActualText : Text;
         CaseID, ScriptID, LookupID, TableFilterID : Guid;
-        TableID: Integer;
     begin
         // [SCENARIO] To get the Lookup string for Table method first.
 
@@ -232,7 +226,6 @@ codeunit 136709 "Lookup Seiralization Tests"
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
         AggregateValueFromTableTxt, FieldFromTableTxt, FieldFilterTxt, TableFilterTxt, ExpectedText, ActualText : Text;
         CaseID, ScriptID, LookupID, TableFilterID : Guid;
-        TableID: Integer;
     begin
         // [SCENARIO] To get the Lookup string for Table method Average.
 
@@ -277,7 +270,6 @@ codeunit 136709 "Lookup Seiralization Tests"
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
         RecordsExistsInTableTxt, FieldFromTableTxt, TableFilterTxt, FieldFilterTxt, ExpectedText, ActualText : Text;
         CaseID, ScriptID, LookupID, TableFilterID : Guid;
-        TableID: Integer;
     begin
         // [SCENARIO] To get the Lookup string for Table method Count.
 
@@ -321,7 +313,6 @@ codeunit 136709 "Lookup Seiralization Tests"
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
         RecordsExistsInTableTxt, FieldFromTableTxt, FieldFilterTxt, TableFilterTxt, ExpectedText, ActualText : Text;
         CaseID, ScriptID, LookupID, TableFilterID : Guid;
-        TableID: Integer;
     begin
         // [SCENARIO] To get the Lookup string for Table method Exist.
 

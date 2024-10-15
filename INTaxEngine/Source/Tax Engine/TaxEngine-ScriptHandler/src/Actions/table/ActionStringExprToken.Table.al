@@ -8,17 +8,17 @@ table 20185 "Action String Expr. Token"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; "String Expr. ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'String Expr. ID';
             TableRelation = "Action String Expression".ID where("Script ID" = field("Script ID"));
         }
@@ -40,13 +40,13 @@ table 20185 "Action String Expr. Token"
         }
         field(7; "Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
         field(9; "Format String"; Text[50])
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = CustomerContent;
             Caption = 'Format String';
         }
     }

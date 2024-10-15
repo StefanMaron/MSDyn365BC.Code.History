@@ -181,7 +181,7 @@ page 18350 "Posted Serv. Transfer Reciept"
                 Image = Shipment;
                 action(Dimensions)
                 {
-                    AccessByPermission = TableData 348 = R;
+                    AccessByPermission = TableData "Dimension" = R;
                     Caption = 'Dimensions';
                     ApplicationArea = Dimensions;
                     Image = Dimensions;

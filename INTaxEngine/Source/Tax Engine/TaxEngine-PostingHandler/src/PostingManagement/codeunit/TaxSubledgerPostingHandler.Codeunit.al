@@ -6,7 +6,6 @@ codeunit 20347 "Tax Subledger Posting Handler"
         var TempSymbols: Record "Script Symbol Value" Temporary)
     var
         UseCase: Record "Tax Use Case";
-        TaxJnlMgmt: Codeunit "Tax Posting Buffer Mgmt.";
         RecID: RecordId;
         NewCaseID: Guid;
         GroupingType: Option "Component","Line / Component";
@@ -98,6 +97,7 @@ codeunit 20347 "Tax Subledger Posting Handler"
             TaxPostingSetup.SetRange("Case ID", UseCase.ID);
             TaxPostingSetup.SetRange("Component ID", ComponentID);
             if TaxPostingSetup.FindFirst() then begin
+                SwitchCase.SetCurrentKey(Sequence);
                 SwitchCase.SetRange("Switch Statement ID", TaxPostingSetup."Switch Statement ID");
                 if SwitchCase.FindSet() then
                     repeat
@@ -127,8 +127,5 @@ codeunit 20347 "Tax Subledger Posting Handler"
 
     var
         TaxPostingExecution: Codeunit "Tax Posting Execution";
-        TaxAttributeMgmt: Codeunit "Tax Attribute Management";
         SymbolStore: Codeunit "Script Symbol Store";
-        DataTypeMgmt: Codeunit "Use Case Data Type Mgmt.";
-        EmptyGuid: Guid;
 }

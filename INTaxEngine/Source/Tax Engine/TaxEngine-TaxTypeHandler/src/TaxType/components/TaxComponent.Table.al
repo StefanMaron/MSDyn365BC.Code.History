@@ -17,7 +17,7 @@ table 20246 "Tax Component"
         }
         field(2; Name; Text[30])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Name';
             NotBlank = true;
 
@@ -30,7 +30,11 @@ table 20246 "Tax Component"
                 CheckNameUniqueness(Rec, Name, "Tax Type");
             end;
         }
-
+        field(3; "Visible On Interface"; Boolean)
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Visible On Interface';
+        }
         field(7; Type; Option)
         {
             DataClassification = EndUserIdentifiableInformation;
@@ -47,7 +51,7 @@ table 20246 "Tax Component"
         }
         field(20; "Rounding Precision"; Decimal)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Rounding Precision';
             DecimalPlaces = 0 : 5;
             InitValue = 0.01;
@@ -55,18 +59,18 @@ table 20246 "Tax Component"
         field(21; "Skip Posting"; Boolean)
         {
             AutoFormatType = 1;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Skip Posting';
         }
         field(22; Direction; Enum "Rounding Direction")
         {
             Caption = 'Direction';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(23; "Component Type"; Option)
         {
             Caption = 'Component Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             OptionMembers = Normal,Formula;
             trigger OnValidate()
             var
@@ -82,7 +86,7 @@ table 20246 "Tax Component"
         field(24; "Formula ID"; Guid)
         {
             Caption = 'Formula ID';
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
         }
     }
 

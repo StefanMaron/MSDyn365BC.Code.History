@@ -9,8 +9,6 @@ codeunit 18718 "TDS On Purchase Use Cases"
     end;
 
     procedure GetText(): Text
-    var
-        builder: TextBuilder;
     begin
         exit(TDSOnPurchaseUseCasesLbl);
     end;

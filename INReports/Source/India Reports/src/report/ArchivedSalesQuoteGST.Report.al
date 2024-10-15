@@ -984,7 +984,6 @@ report 18003 "Archived Sales Quote GST"
         }
     }
 
-
     trigger OnInitReport()
     begin
         GLSetup.Get();
@@ -1045,14 +1044,12 @@ report 18003 "Archived Sales Quote GST"
         ShowShippingAddr: Boolean;
         i: Integer;
         DimText: Text[120];
-        OldDimText: Text[75];
         ShowIntInfo: Boolean;
         Continue: Boolean;
         VATAmount: Decimal;
         VATBaseAmount: Decimal;
         VATDiscountAmount: Decimal;
         TotalAmountInclVAT: Decimal;
-        NoOfRecords: Integer;
         VALVATBaseLCY: Decimal;
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
@@ -1112,10 +1109,7 @@ report 18003 "Archived Sales Quote GST"
         CompanyRegistrationLbl: Label 'Company Registration No.';
         CustomerRegistrationLbl: Label 'Customer GST Reg No.';
 
-    local procedure GetDimensionText(
-        var DimSetEntry: Record "Dimension Set Entry";
-        Number: Integer;
-        var Continue: Boolean): Text[120]
+    local procedure GetDimensionText(var DimSetEntry: Record "Dimension Set Entry"; Number: Integer; var Continue: Boolean): Text[120]
     var
         DimensionText: Text[120];
         PrevDimText: Text[75];

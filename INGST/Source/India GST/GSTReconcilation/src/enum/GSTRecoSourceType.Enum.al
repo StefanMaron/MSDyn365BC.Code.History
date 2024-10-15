@@ -1,6 +1,5 @@
 enum 18282 "GSTReco Source Type"
 {
-    Extensible = true;
     value(0; Reconciliation)
     {
         Caption = 'Reconciliation';

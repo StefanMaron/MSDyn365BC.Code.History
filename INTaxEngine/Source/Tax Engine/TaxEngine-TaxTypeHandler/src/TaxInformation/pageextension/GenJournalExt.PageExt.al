@@ -2,7 +2,7 @@ pageextension 20241 "Gen Journal Ext" extends "General Journal"
 {
     layout
     {
-        addbefore(IncomingDocAttachFactBox)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

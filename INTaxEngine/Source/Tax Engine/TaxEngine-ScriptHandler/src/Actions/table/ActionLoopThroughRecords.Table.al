@@ -8,17 +8,17 @@ table 20175 "Action Loop Through Records"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(4; "Table ID"; Integer)
@@ -26,24 +26,10 @@ table 20175 "Action Loop Through Records"
             DataClassification = SystemMetadata;
             Caption = 'Table ID';
             TableRelation = AllObj."Object ID" where("Object Type" = CONST(Table));
-            trigger OnValidate();
-            var
-                ScriptVariable: Record "Script Variable";
-            begin
-                if "Table ID" = 0 then
-                    Exit;
-
-                if "Record Variable" = 0 then
-                    Exit;
-
-                ScriptVariable.GET("Script ID", "Record Variable");
-                if ScriptVariable."Table ID" <> "Table ID" then
-                    "Record Variable" := 0;
-            end;
         }
         field(5; "Table Filter ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Table Filter ID';
             TableRelation = "Lookup Table Filter".ID where(
                 "Case ID" = field("Case ID"),
@@ -51,13 +37,13 @@ table 20175 "Action Loop Through Records"
         }
         field(6; Order; Option)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Order';
             OptionMembers = "Ascending","Descending";
         }
         field(7; "Table Sorting ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Table Sorting ID';
             TableRelation = "Lookup Table Sorting".ID where(
                 "Case ID" = field("Case ID"),
@@ -65,7 +51,7 @@ table 20175 "Action Loop Through Records"
         }
         field(8; Distinct; Boolean)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Distinct';
             trigger OnValidate();
             begin
@@ -85,27 +71,6 @@ table 20175 "Action Loop Through Records"
             DataClassification = SystemMetadata;
             Caption = 'Count Variable';
         }
-        field(11; "Record Variable"; Integer)
-        {
-            TableRelation = "Script Variable".ID where("Script ID" = field("Script ID"), Datatype = CONST(Record));
-            DataClassification = SystemMetadata;
-            Caption = 'Record Variable';
-            trigger OnValidate();
-            var
-                ScriptVariable: Record "Script Variable";
-                BlankTableIDErr: Label 'You must select table';
-            begin
-                if "Record Variable" = 0 then
-                    Exit;
-
-                if "Table ID" = 0 then
-                    Error(BlankTableIDErr);
-
-                ScriptVariable.GET("Case ID", "Script ID", "Record Variable");
-                if ScriptVariable."Table ID" <> "Table ID" then
-                    Error(RecordVariableErr, AppObjectHelper.GetObjectName(ObjectType::Table, "Table ID"));
-            end;
-        }
     }
 
     keys
@@ -120,9 +85,6 @@ table 20175 "Action Loop Through Records"
         ActionContainer: Record "Action Container";
         ActionLoopThroughRecField: Record "Action Loop Through Rec. Field";
         LookupEntityMgmt: Codeunit "Lookup Entity Mgmt.";
-        AppObjectHelper: Codeunit "App Object Helper";
-        EmptyGuid: Guid;
-        RecordVariableErr: Label 'Variable should be of %1 type.', Comment = '%1 = Symbol Data Type';
 
     procedure DeleteFields();
     begin

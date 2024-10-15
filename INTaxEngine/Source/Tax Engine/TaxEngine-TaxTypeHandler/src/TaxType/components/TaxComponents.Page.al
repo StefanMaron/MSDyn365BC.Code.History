@@ -32,6 +32,11 @@ page 20261 "Tax Components"
                     Caption = 'Skip G/L Posting';
                     ApplicationArea = Basic, Suite;
                 }
+                field("Visible on Interface"; "Visible on Interface")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether component will be visible on tax information factbox.';
+                }
                 field("Component Type"; "Component Type")
                 {
                     ToolTip = 'Specifies the type of component whether it is a normal component which will be computed on use cases or a formula component which is common to all use cases.';

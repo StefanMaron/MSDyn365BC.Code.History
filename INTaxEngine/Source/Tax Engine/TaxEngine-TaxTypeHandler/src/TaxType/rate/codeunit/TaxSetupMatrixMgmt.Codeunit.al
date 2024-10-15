@@ -78,7 +78,6 @@ codeunit 20233 "Tax Setup Matrix Mgmt."
     procedure UpdateTaxConfigurationValue(ConfigId: Guid; TaxType: Code[20]; AttributeID: array[20] of Integer; Index: Integer; var AttributeValue: array[20] of Text; var RangeAttribute: array[20] of Boolean)
     var
         TaxRateValue: Record "Tax Rate Value";
-        TaxRate: Record "Tax Rate";
         TaxRateSetup: Record "Tax Rate Column Setup";
         DataType: Enum "Symbol Data Type";
         XmlValue: Text;
@@ -87,11 +86,7 @@ codeunit 20233 "Tax Setup Matrix Mgmt."
         if not TaxRateSetup.FindFirst() then
             Error(RateSetupDoesNotExistErr, AttributeID[Index], TaxType);
 
-        ScriptDataTypeMgmt.FormatAttributeValue(TaxRateSetup.Type, AttributeValue[Index]);
-        if TaxRateSetup.Type = TaxRateSetup.Type::Option then
-            GetAttributeOptionValue(TaxRateSetup, AttributeValue[Index])
-        else
-            ValidateAttributeTableRelation(TaxRateSetup, AttributeValue[Index]);
+        ValidateColumnValue(TaxRateSetup, AttributeValue[Index]);
 
         TaxRateValue.SetRange("Config ID", ConfigId);
         TaxRateValue.SetRange("Tax Type", TaxType);
@@ -104,14 +99,20 @@ codeunit 20233 "Tax Setup Matrix Mgmt."
         else
             XmlValue := AttributeValue[Index];
 
-        UpdateRangeColumnValue(TaxRateSetup, TaxRateValue, RangeAttribute[Index], XmlValue);
-        UpdateOptionColumnValue(TaxRateSetup, TaxRateValue);
-
-        ValidateConfigurationValue(TaxRateValue, TaxRateSetup);
+        UpdateAndValidateRateValue(TaxRateValue, TaxRateSetup, XmlValue, RangeAttribute[Index]);
         TaxRateValue.Modify();
 
         UpdateTaxRateId(TaxRateSetup."Tax Type", ConfigId);
         AttributeValue[Index] := ScriptDataTypeMgmt.ConvertXmlToLocalFormat(XmlValue, DataType);
+    end;
+
+    procedure ValidateColumnValue(TaxRateSetup: Record "Tax Rate Column Setup"; var Value: Text[250])
+    begin
+        ScriptDataTypeMgmt.FormatAttributeValue(TaxRateSetup.Type, Value);
+        if TaxRateSetup.Type = TaxRateSetup.Type::Option then
+            GetAttributeOptionValue(TaxRateSetup, Value)
+        else
+            ValidateAttributeTableRelation(TaxRateSetup, Value);
     end;
 
     procedure GenerateTaxSetupID(ConfigID: Guid; TaxType: Code[20]) TaxSetupID: Text[2000]
@@ -133,7 +134,7 @@ codeunit 20233 "Tax Setup Matrix Mgmt."
                 TaxRateValue.SetRange("Config ID", ConfigID);
                 TaxRateValue.SetRange("Column ID", TaxRateColumnSetup."Column ID");
                 if TaxRateValue.FindFirst() then
-                    TaxSetupID += TaxRateValue.Value;
+                    TaxSetupID += TaxRateValue.Value + '|';
             until TaxRateColumnSetup.Next() = 0;
 
         CheckForDuplicateSetID(ConfigID, TaxType, TaxSetupID);
@@ -149,13 +150,13 @@ codeunit 20233 "Tax Setup Matrix Mgmt."
         TaxRateColumnSetup.SetFilter("Column Type", '%1|%2',
             TaxRateColumnSetup."Column Type"::"Tax Attributes",
             TaxRateColumnSetup."Column Type"::Value);
-
+        TaxRateColumnSetup.SetRange("Allow Blank", false);
         if TaxRateColumnSetup.FindSet() then
             repeat
                 TaxRateValue.SetRange("Config ID", ConfigID);
                 TaxRateValue.SetRange("Column ID", TaxRateColumnSetup."Column ID");
                 if TaxRateValue.FindFirst() then
-                    TaxRateID += TaxRateValue.Value;
+                    TaxRateID += TaxRateValue.Value + '|';
             until TaxRateColumnSetup.Next() = 0;
     end;
 
@@ -177,6 +178,14 @@ codeunit 20233 "Tax Setup Matrix Mgmt."
             SetDefaultRateValues(TaxRateColumnSetup, TaxRateValue);
             TaxRateValue.Insert();
         until TaxRateColumnSetup.Next() = 0;
+    end;
+
+    procedure UpdateAndValidateRateValue(var TaxRateValue: Record "Tax Rate Value"; TaxRateSetup: Record "Tax Rate Column Setup"; Value: Text; Range: Boolean)
+    begin
+        UpdateRangeColumnValue(TaxRateSetup, TaxRateValue, Range, Value);
+        UpdateOptionColumnValue(TaxRateSetup, TaxRateValue);
+
+        ValidateConfigurationValue(TaxRateValue, TaxRateSetup);
     end;
 
     local procedure GetAttributeOptionValue(TaxRateSetup: Record "Tax Rate Column Setup"; var Value: Text[250])
@@ -358,7 +367,7 @@ codeunit 20233 "Tax Setup Matrix Mgmt."
         Value := Format(FieldRef.Value());
     end;
 
-    local procedure UpdateRateIDOnRateValue(ConfigId: Guid; KeyValue: Text[2000])
+    procedure UpdateRateIDOnRateValue(ConfigId: Guid; KeyValue: Text[2000])
     var
         TaxRateValue: Record "Tax Rate Value";
     begin

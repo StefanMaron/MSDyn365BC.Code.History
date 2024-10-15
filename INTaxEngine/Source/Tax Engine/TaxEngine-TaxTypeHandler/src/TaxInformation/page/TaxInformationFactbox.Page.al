@@ -47,7 +47,7 @@ page 20240 "Tax Information Factbox"
         CurrPage.TaxInformation.RenderTaxInformation(AttributeJobject, ComponentJobject);
 
         CurrPage.Update(false);
-        Exit(FindSet());
+        exit(FindSet());
     end;
 
     local procedure GetTaxAttributesInJson(TaxRecordID: RecordId; var JObject: JsonObject)
@@ -81,7 +81,7 @@ page 20240 "Tax Information Factbox"
     local procedure GetTaxComponentsInJson(TaxRecordID: RecordId; var JObject: JsonObject)
     var
         TaxTransactionValue: Record "Tax Transaction Value";
-        TaxComponent: Record "Tax Component";
+        TaxTypeObjHelper: Codeunit "Tax Type Object Helper";
         ComponentAmt: Decimal;
         JArray: JsonArray;
         ComponentJObject: JsonObject;
@@ -97,8 +97,7 @@ page 20240 "Tax Information Factbox"
                 Clear(ComponentJObject);
                 ComponentJObject.Add('Component', TaxTransactionValue.GetAttributeColumName());
                 ComponentJObject.Add('Percent', ScriptDatatypeMgmt.ConvertXmlToLocalFormat(format(TaxTransactionValue.Percent, 0, 9), "Symbol Data Type"::NUMBER));
-                TaxComponent.Get(TaxTransactionValue."Tax Type", TaxTransactionValue."Value ID");
-                ComponentAmt := RoundAmount(TaxTransactionValue.Amount, TaxComponent."Rounding Precision", TaxComponent.Direction);
+                ComponentAmt := TaxTypeObjHelper.GetComponentAmountFrmTransValue(TaxTransactionValue);
                 ComponentJObject.Add('Amount', ScriptDatatypeMgmt.ConvertXmlToLocalFormat(format(ComponentAmt, 0, 9), "Symbol Data Type"::NUMBER));
                 JArray.Add(ComponentJObject);
             until TaxTransactionValue.Next() = 0;

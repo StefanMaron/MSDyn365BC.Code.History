@@ -24,7 +24,7 @@ pageextension 18253 "Business Mng Role Center GST" extends "Business Manager Rol
                         Caption = 'HSN/SAC';
                         Promoted = false;
                         Image = EditList;
-                        RunObject = page "HSNSAC";
+                        RunObject = page "HSN/SAC";
                         ToolTip = 'Specifies an unique identifier for the type of HSN or SAC that is used to calculate and post GST.';
                     }
                 }
@@ -72,15 +72,6 @@ pageextension 18253 "Business Mng Role Center GST" extends "Business Manager Rol
                 Promoted = false;
                 Image = EditList;
                 RunObject = page "Bank Charge Deemed Value Setup";
-            }
-
-            action("GST TDS/TCS Setup")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'GST TDS/TCS Setup';
-                Promoted = false;
-                Image = EditList;
-                RunObject = page "GST TDS/TCS Setup";
             }
         }
     }

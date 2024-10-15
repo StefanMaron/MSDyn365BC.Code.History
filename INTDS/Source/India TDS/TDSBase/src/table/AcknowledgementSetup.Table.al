@@ -1,7 +1,6 @@
 table 18685 "Acknowledgement Setup"
 {
     Caption = 'Acknowledgement Setup';
-    DataClassification = EndUserIdentifiableInformation;
     DrillDownPageId = "Acknowledgement Setup";
     LookupPageId = "Acknowledgement Setup";
     Access = Public;
@@ -11,7 +10,8 @@ table 18685 "Acknowledgement Setup"
     {
         field(1; "Financial Year"; Code[10])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+
             trigger OnLookup()
             var
                 TaxAccountingPeriod: Record "Tax Accounting Period";
@@ -22,16 +22,16 @@ table 18685 "Acknowledgement Setup"
         }
         field(2; Quarter; Code[10])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(3; "Acknowledgment No."; Code[20])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(4; "Location"; Code[20])
         {
             TableRelation = Location;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
 

@@ -142,7 +142,6 @@ codeunit 136701 "RecRef Handlers Tests"
     [Test]
     procedure TestSetFieldFilterBeginWith()
     var
-        GL: Record "G/L Account";
         RecRefHandler: Codeunit "RecRef Handler";
         RecRef: RecordRef;
     begin
@@ -580,7 +579,6 @@ codeunit 136701 "RecRef Handlers Tests"
     [Test]
     procedure TestSetFieldValueDurationType()
     var
-        PaymentTerms: Record "Payment Terms";
         RecRefHandler: Codeunit "RecRef Handler";
         RecRef: RecordRef;
         DFValue: DateFormula;
@@ -603,7 +601,6 @@ codeunit 136701 "RecRef Handlers Tests"
     [Test]
     procedure TestSetFieldValueDurationTextType()
     var
-        PaymentTerms: Record "Payment Terms";
         RecRefHandler: Codeunit "RecRef Handler";
         RecRef: RecordRef;
         DFValue: DateFormula;

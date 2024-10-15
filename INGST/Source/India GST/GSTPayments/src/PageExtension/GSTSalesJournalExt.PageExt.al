@@ -8,11 +8,51 @@ pageextension 18249 "GST Sales Journal Ext" extends "Sales Journal"
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies if the journal is with or without payment of duty.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field(Exempted; Rec.Exempted)
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies if the journal line is exempted from GST.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
+            }
+            field("Sales Invoice Type"; Rec."Sales Invoice Type")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the Type of Sales Invoice.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
+            }
+            field("GST Group Code"; Rec."GST Group Code")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies an unique identifier for the GST group code used to calculate and post GST.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
+            }
+            field("HSN/SAC Code"; Rec."HSN/SAC Code")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies an unique identifier for the type of HSN or SAC that is used to calculate and post GST.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
         }
 
@@ -45,6 +85,13 @@ pageextension 18249 "GST Sales Journal Ext" extends "Sales Journal"
             end;
         }
         modify("Posting Date")
+        {
+            trigger OnAfterValidate()
+            begin
+                CallTaxEngine();
+            end;
+        }
+        modify("Currency Code")
         {
             trigger OnAfterValidate()
             begin

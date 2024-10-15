@@ -8,12 +8,12 @@ table 20335 "Tax Insert Record Field"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Insert Record ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Insert Record ID';
             TableRelation = "Tax Insert Record".ID WHERE("Case ID" = Field("Case ID"));
         }
@@ -37,7 +37,7 @@ table 20335 "Tax Insert Record Field"
         }
         field(6; "Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
@@ -49,12 +49,12 @@ table 20335 "Tax Insert Record Field"
         }
         field(8; "Run Validate"; Boolean)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Run Validate';
         }
         field(9; "Sequence No."; Integer)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Sequence No.';
             BlankZero = true;
         }
@@ -71,12 +71,12 @@ table 20335 "Tax Insert Record Field"
         }
         field(12; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(13; "Reverse Sign"; Boolean)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Reverse Sign';
         }
     }

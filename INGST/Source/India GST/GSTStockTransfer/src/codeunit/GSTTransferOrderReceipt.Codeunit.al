@@ -1,6 +1,32 @@
-Codeunit 18390 "GST Transfer Order Receipt"
+codeunit 18390 "GST Transfer Order Receipt"
 {
     SingleInstance = True;
+
+    var
+        TempGSTPostingBufferStage: Record "GST Posting Buffer" temporary;
+        TempGSTPostingBufferFinal: Record "GST Posting Buffer" temporary;
+        TempTransferBufferStage: Record "Transfer Buffer" temporary;
+        TempTransferBufferFinal: Record "Transfer Buffer" temporary;
+        GenJnlLine: Record "Gen. Journal Line";
+        TempItemJnlLine: Record "Item Journal Line" temporary;
+        GSTTransferOrderShipment: Codeunit "GST Transfer order Shipment";
+        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+        ReserveTransLine: Codeunit "Transfer Line-Reserve";
+        GSTBaseValidation: Codeunit "GST Base Validation";
+        CustomDutyAmount: Decimal;
+        ItemJournalCustom: Decimal;
+        RoundDiffAmt: Decimal;
+        TransReceiptHeaderNo: Code[20];
+        ItemLedgerEntryNo: Integer;
+        FirstExecution: Boolean;
+        GSTAmountLoaded: Decimal;
+        TransferCost: Decimal;
+        GSTAssessableErr: Label 'GST Assessable Value must be 0 if GST Group Type is Service while transferring from Bonded Warehouse location.';
+        GSTCustomDutyErr: Label 'Custom Duty Amount must be 0 if GST Group Type is Service while transferring from Bonded Warehouse location.';
+        GSTGroupServiceErr: Label 'You cannot select GST Group Type Service for transfer.';
+        TransferReceiptNoLbl: Label 'Transfer - %1', Comment = '%1 = Transfer Receipt No.';
+
     [EventSubscriber(ObjectType::Table, Database::"Transfer Receipt Line", 'OnAfterCopyFromTransferLine', '', false, false)]
     local procedure CopyInfotoReceiptLine(var TransferReceiptLine: Record "Transfer Receipt Line"; TransferLine: Record "Transfer Line")
     var
@@ -8,12 +34,14 @@ Codeunit 18390 "GST Transfer Order Receipt"
     begin
         if not Location.Get(TransferLine."Transfer-from Code") then
             exit;
+
         if not Location."Bonded warehouse" then begin
             TransferReceiptLine."GST Group Code" := TransferLine."GST Group Code";
             TransferReceiptLine."GST Credit" := TransferLine."GST Credit";
             TransferReceiptLine."HSN/SAC Code" := TransferLine."HSN/SAC Code";
             TransferReceiptLine.Exempted := TransferLine.Exempted;
         end;
+
         TransferReceiptLine."Unit Price" := TransferLine."Transfer Price";
         TransferReceiptLine.Amount := TransferLine.Amount * TransferLine."Qty. to Receive" / TransferLine.Quantity;
     end;
@@ -21,66 +49,68 @@ Codeunit 18390 "GST Transfer Order Receipt"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeTransRcptHeaderInsert', '', false, false)]
     local procedure GetPostingNoSeries(TransferHeader: Record "Transfer Header"; var TransferReceiptHeader: Record "Transfer Receipt Header")
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesManagement: Codeunit NoSeriesManagement;
         NoSeries: Code[20];
     begin
         NoSeries := GetTransferReceiptPostingNoSeries(TransferHeader);
         if NoSeries <> '' then begin
             TransferReceiptHeader."No. Series" := NoSeries;
             if TransferReceiptHeader."No. Series" <> '' then
-                TransferReceiptHeader."No." := NoSeriesMgt.GetNextNo(
-                    TransferReceiptHeader."No. Series",
-                    TransferHeader."Posting Date",
-                    true);
+                TransferReceiptHeader."No." := NoSeriesManagement.GetNextNo(TransferReceiptHeader."No. Series", TransferHeader."Posting Date", true);
         end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeTransferOrderPostReceipt', '', false, false)]
-    local procedure ClearBuffer(var TransferHeader: Record "Transfer Header")
+    local procedure ClearBuffer()
     begin
         ClearAll();
-        TransferBuffer[1].DeleteAll();
-        GSTPostingBuffer[1].DeleteAll();
+        TempTransferBufferStage.DeleteAll();
+        TempTransferBufferFinal.DeleteAll();
+        TempGSTPostingBufferStage.DeleteAll();
+        TempGSTPostingBufferFinal.DeleteAll();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnPostItemOnBeforeUpdateUnitCost', '', False, False)]
-    local procedure GetTranfsrePrice(GlobalItemLedgEntry: Record "Item Ledger Entry")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterItemValuePosting', '', false, false)]
+    local procedure GetTranfsrePrice(var ValueEntry: Record "Value Entry"; var ItemJournalLine: Record "Item Journal Line")
     begin
-        if GlobalItemLedgEntry."Entry Type" = GlobalItemLedgEntry."Entry Type"::Transfer then
-            TransferCost := GlobalItemLedgEntry."Cost Amount (Actual)"
+        if (ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Transfer) and
+            (ItemJournalLine."Value Entry Type" <> ItemJournalLine."Value Entry Type"::Revaluation) then
+            TransferCost := ValueEntry."Cost Amount (Actual)";
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeTransRcptHeaderInsert', '', False, False)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeTransRcptHeaderInsert', '', false, false)]
     local procedure SetTransferReceiptNo(var TransferReceiptHeader: Record "Transfer Receipt Header")
     begin
         TransReceiptHeaderNo := TransferReceiptHeader."No.";
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnAfterInsertTransRcptLine', '', False, False)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnAfterInsertTransRcptLine', '', false, false)]
     local procedure CeateGSTLedgerEntry(TransLine: Record "Transfer Line")
     var
-        TransHeader: Record "Transfer Header";
-        DocTransferType: Option TransferShpmnt,TransferReciept;
+        TransferHeader: Record "Transfer Header";
+        DocTransferType: Enum "Doc Transfer Type";
     begin
-        TransHeader.Get(TransLine."Document No.");
-        GSTTransferShipment.InsertDetailedGSTLedgEntryTransfer(
-                TransLine, TransHeader,
-                 TransReceiptHeaderNo,
-                GenJnlPostLine.GetNextTransactionNo(), DocTransferType::TransferReciept);
+        ItemJournalCustom := 0;
+        ItemLedgerEntryNo := 0;
+        TransferHeader.Get(TransLine."Document No.");
+        GSTTransferOrderShipment.InsertDetailedGSTLedgEntryTransfer(TransLine,
+            TransferHeader,
+            TransReceiptHeaderNo,
+            GenJnlPostLine.GetNextTransactionNo(),
+            DocTransferType::"Transfer Receipt");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnAfterInsertTransRcptLine', '', False, False)]
-    local procedure InsertTransferBuffer(TransLine: Record "Transfer Line"; var TransRcptLine: Record "Transfer Receipt Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnAfterTransRcptLineModify', '', false, false)]
+    local procedure InsertTransferBuffer(TransferLine: Record "Transfer Line"; var TransferReceiptLine: Record "Transfer Receipt Line")
     var
-        TransRcptHeader: Record "Transfer Receipt Header";
+        TransferReceiptHeader: Record "Transfer Receipt Header";
     begin
-        TransRcptHeader.Get(TransRcptLine."Document No.");
-        PostRevaluationEntryGST(TransLine, TransRcptHeader, TransRcptLine);
-        PostRevaluationEntryunrealizedProfit(TransLine, TransRcptHeader, TransRcptLine);
-        FillTransferBuffer(TransLine);
+        TransferReceiptHeader.Get(TransferReceiptLine."Document No.");
+        PostRevaluationEntryunrealizedProfit(TransferLine, TransferReceiptHeader, TransferReceiptLine);
+        FillTransferBuffer(TransferLine);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeInsertTransRcptLine', '', False, False)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeInsertTransRcptLine', '', false, false)]
     local procedure FillReceiptLine(var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line")
     begin
         TransRcptLine."GST Group Code" := TransLine."GST Group Code";
@@ -91,16 +121,23 @@ Codeunit 18390 "GST Transfer Order Receipt"
         TransRcptLine."GST Assessable Value" := TransLine."GST Assessable Value";
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnCheckTransLine', '', False, False)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnCheckTransLine', '', false, false)]
     local procedure FillBuffers(TransferLine: Record "Transfer Line")
     var
         GSTGroup: Record "GST Group";
-        DocTransactionType: Option Purchase,Sales,Transfer;
+        DocTransactionType: Enum "Transaction Type Enum";
+        DocumentType: Enum "Document Type Enum";
     begin
         if TransferLine.Quantity <> 0 then
-            GSTAmountLoaded := Abs(RoundTotalGSTAmountLoadedQtyFactor(
-              DocTransactionType::Transfer, 0,
-              TransferLine."Document No.", TransferLine."Line No.", TransferLine."Qty. to Receive" / TransferLine.Quantity, ''));
+            GSTAmountLoaded := Abs(
+                RoundTotalGSTAmountLoadedQtyFactor(
+                DocTransactionType::Transfer,
+                DocumentType::Quote,
+                TransferLine."Document No.",
+                TransferLine."Line No.",
+                TransferLine."Qty. to Receive" / TransferLine.Quantity,
+            '')
+        );
 
         if GSTGroup.Get(TransferLine."GST Group Code") and (GSTGroup."GST Group Type" <> GSTGroup."GST Group Type"::Goods) then
             Error(GSTGroupServiceErr);
@@ -109,21 +146,16 @@ Codeunit 18390 "GST Transfer Order Receipt"
             FillGSTPostingBuffer(TransferLine);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeTransferOrderPostReceipt', '', False, False)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeTransferOrderPostReceipt', '', false, false)]
     local procedure CheckGSTValidation(var TransferHeader: Record "Transfer Header")
     begin
+        ClearBuffer();
         CheckValidations(TransferHeader);
-        GSTTransferShipment.CheckGSTAccountingPeriod(TransferHeader."Posting Date");
-
-        ClearAll();
-        TransferBuffer[1].DeleteAll();
-        GSTPostingBuffer[1].DeleteAll();
+        GSTBaseValidation.CheckGSTAccountingPeriod(TransferHeader."Posting Date", false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeTransRcptHeaderInsert', '', False, False)]
-    local procedure CopyInfointoTransRcpttHeader(
-        var TransferReceiptHeader: Record "Transfer Receipt Header";
-        TransferHeader: Record "Transfer Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeTransRcptHeaderInsert', '', false, false)]
+    local procedure CopyInfointoTransRcpttHeader(var TransferReceiptHeader: Record "Transfer Receipt Header"; TransferHeader: Record "Transfer Header")
     begin
         TransferReceiptHeader."Vendor Invoice No." := TransferHeader."Vendor Invoice No.";
         TransferReceiptHeader."Bill of Entry No." := TransferHeader."Bill of Entry No.";
@@ -133,205 +165,209 @@ Codeunit 18390 "GST Transfer Order Receipt"
         TransferReceiptHeader."Vehicle Type" := TransferHeader."Vehicle Type";
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeTransRcptHeaderInsert', '', False, False)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeTransRcptHeaderInsert', '', false, false)]
     local procedure FillGSTLedgerBuffer(TransferHeader: Record "Transfer Header")
     var
         DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
     begin
-        TransferBuffer[1].DeleteAll();
-        GSTPostingBuffer[1].DeleteAll();
-
+        ClearBuffer();
         DetailedGSTEntryBuffer.SetRange("Document Type", DetailedGSTEntryBuffer."Document Type"::Quote);
         DetailedGSTEntryBuffer.SetRange("Transaction Type", DetailedGSTEntryBuffer."Transaction Type"::Transfer);
         DetailedGSTEntryBuffer.SetRange("Document No.", TransferHeader."No.");
         if DetailedGSTEntryBuffer.FindFirst() then
             DetailedGSTEntryBuffer.DeleteAll(true);
 
-        FillDetailLedgBufferServTran(TransferHeader."No.");
+        FillDetailLedgBufferTransfer(TransferHeader."No.");
+        GetCustomDutyAmount(TransferHeader."No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeDeleteOneTransferHeader', '', False, False)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeDeleteOneTransferHeader', '', false, false)]
     local procedure PostEntries(TransferHeader: Record "Transfer Header")
     var
-        InventoryPostingSetup: Record "Inventory Posting Setup";
-        SourcecodeSetup: Record "Source Code Setup";
-        GenPostingSetup: Record "General Posting Setup";
         Item: Record Item;
         CustomDutyBase: Boolean;
     begin
-        SourcecodeSetup.Get();
-        FirstExecution := True;
-        //Post G/L Entries
-        if TransferBuffer[1].FIND('+') then
+        FirstExecution := true;
+        //Post GL Entries
+        TempTransferBufferfinal.Reset();
+        if TempTransferBufferfinal.FindLast() then
             repeat
-                //Goods in transit
-                GenJnlLine.Init();
-                GenJnlLine."Posting Date" := TransferHeader."Posting Date";
-                GenJnlLine."Document Date" := TransferHeader."Posting Date";
-                GenJnlLine."Document No." := TransReceiptHeaderNo;
-                GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
-                InventoryPostingSetup.Get(TransferHeader."In-Transit Code", TransferBuffer[1]."Inventory Posting Group");
-                If Item.get(TransferBuffer[1]."Item No.") then
-                    if item."HSN/SAC Code" <> '' then
-                        InventoryPostingSetup.TestField("Unrealized Profit Account");
-                if (TransferBuffer[1]."Gen. Bus. Posting Group" <> '') then
-                    GenJnlLine."Account No." := GetIGSTImportAccountNo(TransferBuffer[1]."Location Code")
-                else
-                    GenJnlLine."Account No." := InventoryPostingSetup."Unrealized Profit Account";
-                GenJnlLine."System-Created Entry" := TransferBuffer[1]."System-Created Entry";
-                GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Purchase;
-                GenJnlLine."Gen. Bus. Posting Group" := TransferBuffer[1]."Gen. Bus. Posting Group";
-                GenJnlLine."Gen. Prod. Posting Group" := TransferBuffer[1]."Gen. Prod. Posting Group";
-                if (TransferBuffer[1]."Gen. Bus. Posting Group" <> '') then
-                    GenJnlLine.Amount := (TransferBuffer[1]."GST Amount")
-                else
-                    GenJnlLine.Amount := -(TransferBuffer[1].Amount + TransferBuffer[1]."Charges Amount" + TransferBuffer[1]."GST Amount");
-                GenJnlLine.Quantity := TransferBuffer[1].Quantity;
-                GenJnlLine."Source Code" := SourcecodeSetup.Transfer;
-                GenJnlLine."Source Code" := SourcecodeSetup.Transfer;
-                GenJnlLine."Shortcut Dimension 1 Code" := TransferBuffer[1]."Global Dimension 1 Code";
-                GenJnlLine."Shortcut Dimension 2 Code" := TransferBuffer[1]."Global Dimension 2 Code";
-                GenJnlLine."Dimension Set ID" := TransferBuffer[1]."Dimension Set ID";
-                GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
-                GenJnlLine."VAT Base Amount" := GenJnlLine.Amount;
-                GenJnlLine.Description := STRSUBSTNO(Text13700Msg, TransReceiptHeaderNo);
-                if (GenJnlLine.Amount <> 0) then
-                    RunGenJnlPostLine(GenJnlLine);
-
+                PostGLEntries(TransferHeader, TempTransferBufferfinal);
                 // Post GST to G/L entries from GST posting buffer.. GST Sales
                 GSTPostingBufferforTransferDocument(CustomDutyBase, TransferHeader);
                 // Post Unrealized Profit Account Entries
-                if not (TransferBuffer[1]."Gen. Bus. Posting Group" <> '') then begin
-                    GenJnlLine.Init();
-                    GenJnlLine."Posting Date" := TransferHeader."Posting Date";
-                    GenJnlLine."Document Date" := TransferHeader."Posting Date";
-                    GenJnlLine."Document No." := TransReceiptHeaderNo;
-                    GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
-                    InventoryPostingSetup.Get(TransferHeader."Transfer-to Code", TransferBuffer[1]."Inventory Posting Group");
-                    If Item.get(TransferBuffer[1]."Item No.") then
-                        if item."HSN/SAC Code" <> '' then
-                            InventoryPostingSetup.TestField("Unrealized Profit Account");
-                    if (TransferBuffer[1]."Gen. Bus. Posting Group" <> '') then
-                        GenJnlLine."Account No." := GetIGSTImportAccountNo(TransferBuffer[1]."Location Code")
-                    else
-                        GenJnlLine."Account No." := InventoryPostingSetup."Unrealized Profit Account";
-                    GenJnlLine."System-Created Entry" := TransferBuffer[1]."System-Created Entry";
-
-                    if (TransferBuffer[1]."Gen. Bus. Posting Group" <> '') then
-                        GenJnlLine.Amount := (TransferBuffer[1].Amount)
-                    else
-                        GenJnlLine.Amount := TransferBuffer[1].Amount;
-                    GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Purchase;
-                    GenJnlLine."Source Code" := SourcecodeSetup.Transfer;
-                    GenJnlLine."Gen. Bus. Posting Group" := TransferBuffer[1]."Gen. Bus. Posting Group";
-                    GenJnlLine."Gen. Prod. Posting Group" := TransferBuffer[1]."Gen. Prod. Posting Group";
-                    GenJnlLine."Shortcut Dimension 1 Code" := TransferBuffer[1]."Global Dimension 1 Code";
-                    GenJnlLine."Shortcut Dimension 2 Code" := TransferBuffer[1]."Global Dimension 2 Code";
-                    GenJnlLine."Dimension Set ID" := TransferBuffer[1]."Dimension Set ID";
-                    GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
-                    GenJnlLine."VAT Base Amount" := GenJnlLine.Amount;
-                    GenJnlLine.Description := STRSUBSTNO(Text13700Msg, TransReceiptHeaderNo);
-                    if (GenJnlLine.Amount <> 0) then
-                        RunGenJnlPostLine(GenJnlLine);
-                end;
+                if not (TempTransferBufferfinal."Gen. Bus. Posting Group" <> '') then
+                    PostUnrealizedProfitAccountEntries(TransferHeader, TempTransferBufferfinal);
 
                 // Amount loaded on inventory
-                if (TransferBuffer[1]."Amount Loaded on Inventory" <> 0) OR (TransferBuffer[1]."GST Amount Loaded on Inventory" <> 0) then begin
-                    GenJnlLine.Init();
-                    GenJnlLine."Posting Date" := TransferHeader."Posting Date";
-                    GenJnlLine."Document Date" := TransferHeader."Posting Date";
-                    GenJnlLine."Document No." := TransReceiptHeaderNo;
-                    GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
-                    GenPostingSetup.Get(TransferBuffer[1]."Gen. Bus. Posting Group", TransferBuffer[1]."Gen. Prod. Posting Group");
-                    GenPostingSetup.TestField("Inventory Adjmt. Account");
-                    if (TransferBuffer[1]."Gen. Bus. Posting Group" <> '') then
-                        GenJnlLine."Account No." := TransferBuffer[1]."G/L Account"
-                    else
-                        GenJnlLine."Account No." := GenPostingSetup."Inventory Adjmt. Account";
-                    GenJnlLine."System-Created Entry" := TransferBuffer[1]."System-Created Entry";
-                    GenJnlLine.Amount := ABS(TransferBuffer[1]."Amount Loaded on Inventory" +
-                      TransferBuffer[1]."GST Amount Loaded on Inventory");
-                    GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Purchase;
-                    GenJnlLine."Gen. Bus. Posting Group" := TransferBuffer[1]."Gen. Bus. Posting Group";
-                    GenJnlLine."Gen. Prod. Posting Group" := TransferBuffer[1]."Gen. Prod. Posting Group";
-                    GenJnlLine."Source Code" := SourcecodeSetup.Transfer;
-                    GenJnlLine."Shortcut Dimension 1 Code" := TransferBuffer[1]."Global Dimension 1 Code";
-                    GenJnlLine."Shortcut Dimension 2 Code" := TransferBuffer[1]."Global Dimension 2 Code";
-                    GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
-                    GenJnlLine."VAT Base Amount" := GenJnlLine.Amount;
-                    GenJnlLine.Description := STRSUBSTNO(Text13700Msg, TransReceiptHeaderNo);
-                    if (GenJnlLine.Amount <> 0) then
-                        RunGenJnlPostLine(GenJnlLine);
-                end;
+                if (TempTransferBufferfinal."Amount Loaded on Inventory" <> 0) or (TempTransferBufferfinal."GST Amount Loaded on Inventory" <> 0) then
+                    PostInventoryEntries(TransferHeader, TempTransferBufferfinal);
+
                 // Purchase Account posting
-                if (TransferBuffer[1]."Gen. Bus. Posting Group" <> '') then begin
+                if (TempTransferBufferfinal."Gen. Bus. Posting Group" <> '') then begin
+                    Item.Get(TempTransferBufferfinal."Item No.");
                     if not Item.Exempted then
-                        TransferBuffer[1].TestField("GST Amount");
-                    GSTPurchAccPosting(TransferHeader);
+                        TempTransferBufferfinal.TestField("GST Amount");
+
+                    GSTPurchAccPosting(TransferHeader, TempTransferBufferfinal);
                 end;
-            until TransferBuffer[1].Next(-1) = 0;
-        TransferBuffer[1].DeleteAll();
+            until TempTransferBufferfinal.Next(-1) = 0;
+        TempTransferBufferfinal.DeleteAll();
     end;
 
-    local procedure PostRevaluationEntryGST(
-        var TransLine3: Record "Transfer Line";
-        TransRcptHeader2: Record "Transfer Receipt Header";
-        TransRcptLine2: Record "Transfer Receipt Line")
+    local procedure PostGLEntries(var TransferHeader: Record "Transfer Header"; TempTransferBufferfinal: Record "Transfer Buffer")
+    var
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        Item: Record Item;
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+        InventoryPostingSetup.Get(TransferHeader."In-Transit Code", TempTransferBufferfinal."Inventory Posting Group");
+        if Item.Get(TempTransferBufferfinal."Item No.") and (item."HSN/SAC Code" <> '') then
+            InventoryPostingSetup.TestField("Unrealized Profit Account");
+
+        GenJnlLine.Init();
+        GenJnlLine."Posting Date" := TransferHeader."Posting Date";
+        GenJnlLine."Document Date" := TransferHeader."Posting Date";
+        GenJnlLine."Document No." := TransReceiptHeaderNo;
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
+        if (TempTransferBufferfinal."Gen. Bus. Posting Group" <> '') then
+            GenJnlLine."Account No." := GetIGSTImportAccountNo(TempTransferBufferfinal."Location Code")
+        else
+            GenJnlLine."Account No." := InventoryPostingSetup."Unrealized Profit Account";
+
+        GenJnlLine."System-Created Entry" := TempTransferBufferfinal."System-Created Entry";
+        GenJnlLine."Gen. Bus. Posting Group" := TempTransferBufferfinal."Gen. Bus. Posting Group";
+        GenJnlLine."Gen. Prod. Posting Group" := TempTransferBufferfinal."Gen. Prod. Posting Group";
+        if (TempTransferBufferfinal."Gen. Bus. Posting Group" <> '') then
+            GenJnlLine.Amount := (TempTransferBufferfinal."GST Amount")
+        else
+            GenJnlLine.Amount := -(TempTransferBufferfinal.Amount + TempTransferBufferfinal."Charges Amount" + TempTransferBufferfinal."GST Amount");
+
+        GenJnlLine.Quantity := TempTransferBufferfinal.Quantity;
+        GenJnlLine."Source Code" := SourcecodeSetup.Transfer;
+        GenJnlLine."Shortcut Dimension 1 Code" := TempTransferBufferfinal."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := TempTransferBufferfinal."Global Dimension 2 Code";
+        GenJnlLine."Dimension Set ID" := TempTransferBufferfinal."Dimension Set ID";
+        GenJnlLine.Description := StrSubstNo(TransferReceiptNoLbl, TransReceiptHeaderNo);
+        if (GenJnlLine.Amount <> 0) then
+            RunGenJnlPostLine(GenJnlLine);
+    end;
+
+    local procedure PostInventoryEntries(var TransferHeader: Record "Transfer Header"; TempTransferBufferfinal: Record "Transfer Buffer")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+        GeneralPostingSetup.Get(TempTransferBufferfinal."Gen. Bus. Posting Group", TempTransferBufferfinal."Gen. Prod. Posting Group");
+        GeneralPostingSetup.TestField("Inventory Adjmt. Account");
+
+        GenJnlLine.Init();
+        GenJnlLine."Posting Date" := TransferHeader."Posting Date";
+        GenJnlLine."Document Date" := TransferHeader."Posting Date";
+        GenJnlLine."Document No." := TransReceiptHeaderNo;
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
+        if (TempTransferBufferfinal."Gen. Bus. Posting Group" <> '') then
+            GenJnlLine."Account No." := TempTransferBufferfinal."G/L Account"
+        else
+            GenJnlLine."Account No." := GeneralPostingSetup."Inventory Adjmt. Account";
+
+        GenJnlLine."System-Created Entry" := TempTransferBufferfinal."System-Created Entry";
+        GenJnlLine.Amount := Abs(TempTransferBufferfinal."Amount Loaded on Inventory" + TempTransferBufferfinal."GST Amount Loaded on Inventory");
+        GenJnlLine."Gen. Bus. Posting Group" := TempTransferBufferfinal."Gen. Bus. Posting Group";
+        GenJnlLine."Gen. Prod. Posting Group" := TempTransferBufferfinal."Gen. Prod. Posting Group";
+        GenJnlLine."Source Code" := SourcecodeSetup.Transfer;
+        GenJnlLine."Shortcut Dimension 1 Code" := TempTransferBufferfinal."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := TempTransferBufferfinal."Global Dimension 2 Code";
+        GenJnlLine.Description := StrSubstNo(TransferReceiptNoLbl, TransReceiptHeaderNo);
+        if (GenJnlLine.Amount <> 0) then
+            RunGenJnlPostLine(GenJnlLine);
+    end;
+
+    local procedure PostUnrealizedProfitAccountEntries(TransferHeader: Record "Transfer Header"; TempTransferBufferfinal: Record "Transfer Buffer")
+    var
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        SourceCodeSetup: Record "Source Code Setup";
+        Item: Record Item;
+    begin
+        SourceCodeSetup.Get();
+        InventoryPostingSetup.Get(TransferHeader."Transfer-to Code", TempTransferBufferfinal."Inventory Posting Group");
+        if Item.Get(TempTransferBufferFinal."Item No.") and (item."HSN/SAC Code" <> '') then
+            InventoryPostingSetup.TestField("Unrealized Profit Account");
+
+        GenJnlLine.Init();
+        GenJnlLine."Posting Date" := TransferHeader."Posting Date";
+        GenJnlLine."Document Date" := TransferHeader."Posting Date";
+        GenJnlLine."Document No." := TransReceiptHeaderNo;
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
+        if (TempTransferBufferfinal."Gen. Bus. Posting Group" <> '') then
+            GenJnlLine."Account No." := GetIGSTImportAccountNo(TempTransferBufferfinal."Location Code")
+        else
+            GenJnlLine."Account No." := InventoryPostingSetup."Unrealized Profit Account";
+
+        if (TempTransferBufferfinal."Gen. Bus. Posting Group" <> '') then
+            GenJnlLine.Amount := (TempTransferBufferfinal.Amount)
+        else
+            GenJnlLine.Amount := TempTransferBufferfinal.Amount;
+
+        GenJnlLine."System-Created Entry" := TempTransferBufferfinal."System-Created Entry";
+        GenJnlLine."Source Code" := SourceCodeSetup.Transfer;
+        GenJnlLine."Gen. Bus. Posting Group" := TempTransferBufferfinal."Gen. Bus. Posting Group";
+        GenJnlLine."Gen. Prod. Posting Group" := TempTransferBufferfinal."Gen. Prod. Posting Group";
+        GenJnlLine."Shortcut Dimension 1 Code" := TempTransferBufferfinal."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := TempTransferBufferfinal."Global Dimension 2 Code";
+        GenJnlLine."Dimension Set ID" := TempTransferBufferfinal."Dimension Set ID";
+        GenJnlLine.Description := StrSubstNo(TransferReceiptNoLbl, TransReceiptHeaderNo);
+        if (GenJnlLine.Amount <> 0) then
+            RunGenJnlPostLine(GenJnlLine);
+    end;
+
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterInsertValueEntry', '', false, false)]
+    local procedure PostRevaulaedEntry(var ValueEntry: Record "Value Entry")
+    begin
+        if (ItemJournalCustom <> 0) and (ValueEntry."Item Ledger Entry Quantity" > 0) then
+            ItemLedgerEntryNo := ValueEntry."Item Ledger Entry No.";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforePostItemJnlLine', '', false, false)]
+    local procedure SetMarking(TransferReceiptLine: Record "Transfer Receipt Line")
+    begin
+        ItemJournalCustom := TransferReceiptLine."Custom Duty Amount" + GSTAmountLoaded;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterItemValuePosting', '', false, false)]
+    local procedure PostRevaluationEntryGST(sender: Codeunit "Item Jnl.-Post Line"; var ItemJournalLine: Record "Item Journal Line")
     var
         SourceCodeSetup: Record "Source Code Setup";
-        ItemReg: Record "Item Register";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        AmtToLoad: Decimal;
-        Ctr: Integer;
+        RevaluedItemJnlLine: Record "Item Journal Line";
     begin
-        if TransLine3."Qty. to Receive" = 0 then
+        if ItemJournalCustom = 0 then
             exit;
 
         SourceCodeSetup.Get();
-        SourceCodeSetup.TestField("Revaluation Journal");
+        if (ItemJournalLine."Source Code" <> SourceCodeSetup.Transfer) then
+            exit; //To enusre run only for Transfer 
 
-        ItemReg.FindLast();
-        ItemLedgEntry.Reset();
-        ItemLedgEntry.SetCurrentKey("Location Code", "Posting Date", "Document No.", "Item No.");
-        ItemLedgEntry.SetRange("Entry No.", ItemReg."From Entry No.", ItemReg."To Entry No.");
-        ItemLedgEntry.SetRange("Location Code", TransRcptHeader2."Transfer-to Code");
-        ItemLedgEntry.SetRange("Posting Date", TransRcptHeader2."Posting Date");
-        ItemLedgEntry.SetRange("Document No.", TransRcptHeader2."No.");
-        ItemLedgEntry.SetRange("Document Line No.", TransLine3."Line No.");
-        ItemLedgEntry.SetRange("Item No.", TransLine3."Item No.");
-        if ItemLedgEntry.FIND('-') then
-            repeat
-                AmtToLoad := GSTAmountLoaded + TransLine3."Custom Duty Amount";
-                if AmtToLoad <> 0 then begin
-                    ItemJnlLine.Init();
-                    ItemJnlLine.Validate("Posting Date", TransRcptHeader2."Posting Date");
-                    ItemJnlLine."Document Date" := TransRcptHeader2."Posting Date";
-                    ItemJnlLine.Validate("Document No.", TransRcptHeader2."No.");
-                    ItemJnlLine."External Document No." := TransRcptHeader2."External Document No.";
-                    ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Transfer);
-                    ItemJnlLine."Value Entry Type" := ItemJnlLine."Value Entry Type"::Revaluation;
-                    ItemJnlLine.Validate("Item No.", TransRcptLine2."Item No.");
-                    ItemJnlLine.Description := TransRcptLine2.Description;
-                    ItemJnlLine."Inventory Posting Group" := TransRcptLine2."Inventory Posting Group";
-                    ItemJnlLine."Gen. Prod. Posting Group" := TransLine3."Gen. Prod. Posting Group";
-                    ItemJnlLine."Source Code" := SourceCodeSetup."Revaluation Journal";
-                    ItemJnlLine.Validate("Applies-to Entry", ItemLedgEntry."Entry No.");
-                    ItemJnlLine.Validate("Unit Cost (Revalued)", (ItemJnlLine."Unit Cost (Revalued)" + (AmtToLoad / TransRcptLine2.Quantity)));
-                    ItemJnlLine.Description := STRSUBSTNO(Text13700Msg, TransRcptHeader2."No.");
-                    ItemJnlLine."New Location Code" := TransRcptHeader2."Transfer-to Code";
-
-                    Ctr := TempItemJnlLine."Line No." + 10000;
-                    TempItemJnlLine.Init();
-                    TempItemJnlLine.Transferfields(ItemJnlLine);
-                    TempItemJnlLine."Line No." := Ctr;
-                    if ItemLedgEntry."Lot No." <> '' then begin
-                        CreateReservationEntryRevaluation(TransRcptHeader2, ItemLedgEntry, TransLine3);
-                        ReserveTransLine.TransferTransferToItemJnlLine(
-                          TransLine3, TempItemJnlLine, TempItemJnlLine.Quantity, "Transfer Direction"::Inbound);
-                    end;
-                    ItemJnlPostLine.Run(TempItemJnlLine);
-                end;
-            until ItemLedgEntry.Next() = 0;
+        RevaluedItemJnlLine.Init();
+        RevaluedItemJnlLine.Validate("Posting Date", ItemJournalLine."Posting Date");
+        RevaluedItemJnlLine."Document Date" := ItemJournalLine."Posting Date";
+        RevaluedItemJnlLine.Validate("Document No.", ItemJournalLine."Document No.");
+        RevaluedItemJnlLine."External Document No." := ItemJournalLine."External Document No.";
+        RevaluedItemJnlLine.Validate("Entry Type", RevaluedItemJnlLine."Entry Type"::Transfer);
+        RevaluedItemJnlLine."Value Entry Type" := RevaluedItemJnlLine."Value Entry Type"::Revaluation;
+        RevaluedItemJnlLine.Validate("Item No.", ItemJournalLine."Item No.");
+        RevaluedItemJnlLine.Description := ItemJournalLine.Description;
+        RevaluedItemJnlLine."Inventory Posting Group" := ItemJournalLine."Inventory Posting Group";
+        RevaluedItemJnlLine."Gen. Prod. Posting Group" := ItemJournalLine."Gen. Prod. Posting Group";
+        RevaluedItemJnlLine."Source Code" := SourceCodeSetup."Revaluation Journal";
+        RevaluedItemJnlLine.Validate("Applies-to Entry", ItemLedgerEntryNo);
+        RevaluedItemJnlLine.Validate("Unit Cost (Revalued)", (RevaluedItemJnlLine."Unit Cost (Revalued)" + (ItemJournalCustom / ItemJournalLine."Quantity")));
+        RevaluedItemJnlLine.Description := StrSubstNo(TransferReceiptNoLbl, ItemJournalLine."No.");
+        RevaluedItemJnlLine."New Location Code" := ItemJournalLine."New Location Code";
+        ItemJournalCustom := 0;
+        Sender.RunWithCheck(RevaluedItemJnlLine);
     end;
 
     local procedure CreateReservationEntryRevaluation(
@@ -346,6 +382,7 @@ Codeunit 18390 "GST Transfer Order Receipt"
             EntryNo := ReservationEntry."Entry No." + 1
         else
             EntryNo := 1;
+
         ReservationEntry.Init();
         ReservationEntry."Entry No." := EntryNo;
         ReservationEntry."Item No." := ItemLedgerEntry."Item No.";
@@ -365,128 +402,142 @@ Codeunit 18390 "GST Transfer Order Receipt"
         ReservationEntry.Insert();
     end;
 
-    local procedure FillDetailLedgBufferServTran(DocNo: Code[20])
+    local procedure FillDetailLedgBufferTransfer(DocNo: Code[20])
     var
         TransferLine: Record "Transfer Line";
         TransferHeader: Record "Transfer Header";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
-        TaxTypeSetup: Record "Tax Type Setup";
-        TaxTransValue: Record "Tax Transaction value";
+        GSTSetup: Record "GST Setup";
+        TaxTransactionValue: Record "Tax Transaction value";
         Item: Record Item;
-        Sign: Integer;
-        LastEntryNo: Integer;
-        DocumentType: Option Quote,Order,Invoice,"Credit Memo","Blanket Order","Return Order";
-        TransactionType: Option Purchase,Sales,Transfer,Service,"Service Transfer",Production;
+
     begin
-        // TODO: Can cause locking issues
-        if DetailedGSTEntryBuffer.FindLast() then
-            LastEntryNo := DetailedGSTEntryBuffer."Entry No." + 1
-        else
-            LastEntryNo := 1;
-
-        TransferHeader.Get(DocNo);
-        GeneralLedgerSetup.Get();
-        Sign := GetSign(DocumentType::Quote, TransactionType::"Transfer");
-
-        if not TaxTypeSetup.Get() then
+        if not GSTSetup.Get() then
             exit;
-        TaxTypeSetup.TestField(Code);
+
+        GSTSetup.TestField("GST Tax Type");
+        TransferHeader.Get(DocNo);
 
         TransferLine.Reset();
         TransferLine.SetRange("Document No.", DocNo);
-        if TransferLine.Findset() then
+        if TransferLine.FindSet() then
             repeat
                 if TransferLine."Item No." <> '' then begin
+                    Item.Get(TransferLine."Item No.");
                     TransferLine.TestField(Quantity);
-                    item.Get(TransferLine."Item No.");
-                    TaxTransValue.Reset();
-                    TaxTransValue.SetRange("Tax Type", TaxTypeSetup.Code);
-                    TaxTransValue.SetRange("Tax Record ID", TransferLine.RecordId);
-                    TaxTransValue.SetRange("Value Type", TaxTransValue."Value Type"::COMPONENT);
-                    TaxTransValue.SetFilter(Percent, '<>%1', 0);
-                    if TaxTransValue.FindSet() then
+
+                    TaxTransactionValue.Reset();
+                    TaxTransactionValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
+                    TaxTransactionValue.SetRange("Tax Record ID", TransferLine.RecordId);
+                    TaxTransactionValue.SetRange("Value Type", TaxTransactionValue."Value Type"::COMPONENT);
+                    TaxTransactionValue.SetFilter(Percent, '<>%1', 0);
+                    if TaxTransactionValue.FindSet() then
                         repeat
-                            DetailedGSTEntryBuffer.Init();
-                            DetailedGSTEntryBuffer."Entry No." := LastEntryNo;
-                            DetailedGSTEntryBuffer."Document Type" := DetailedGSTEntryBuffer."Document Type"::Quote;
-                            DetailedGSTEntryBuffer."Document No." := TransferHeader."No.";
-                            DetailedGSTEntryBuffer."Posting Date" := TransferHeader."Posting Date";
-                            DetailedGSTEntryBuffer."Transaction Type" := DetailedGSTEntryBuffer."Transaction Type"::transfer;
-                            DetailedGSTEntryBuffer.Type := DetailedGSTEntryBuffer.Type::Item;
-                            DetailedGSTEntryBuffer.UOM := Item."Base Unit of Measure";
-                            DetailedGSTEntryBuffer."No." := TransferLine."Item No.";
-                            DetailedGSTEntryBuffer."Source No." := '';
-                            DetailedGSTEntryBuffer.Quantity := TransferLine.Quantity * Sign;
-                            DetailedGSTEntryBuffer."HSN/SAC Code" := TransferLine."HSN/SAC Code";
-                            DetailedGSTEntryBuffer.Exempted := TransferLine.Exempted;
-                            DetailedGSTEntryBuffer."Location Code" := TransferHeader."Transfer-from Code";
-                            DetailedGSTEntryBuffer."Line No." := TransferLine."Line No.";
-                            DetailedGSTEntryBuffer."Source Type" := "Source Type"::" ";
-                            DetailedGSTEntryBuffer."GST Input/Output Credit Amount" := Sign * TaxTransValue.Amount;
-                            DetailedGSTEntryBuffer."GST Base Amount" := Sign * TransferLine.Amount;
-                            DetailedGSTEntryBuffer."GST %" := TaxTransValue.Percent;
-                            DetailedGSTEntryBuffer."GST Rounding Precision" := GeneralLedgerSetup."GST Rounding Precision";
-                            DetailedGSTEntryBuffer."GST Rounding Type" := GeneralLedgerSetup."GST Rounding Type";
-                            DetailedGSTEntryBuffer."GST Inv. Rounding Precision" := GeneralLedgerSetup."GST Inv. Rounding Precision";
-                            DetailedGSTEntryBuffer."GST Inv. Rounding Type" := GeneralLedgerSetup."GST Inv. Rounding Type";
-                            DetailedGSTEntryBuffer."Currency Factor" := 1;
-                            DetailedGSTEntryBuffer."GST Amount" := Sign * TaxTransValue.Amount;
-                            DetailedGSTEntryBuffer."Custom Duty Amount" := TransferLine."Custom Duty Amount";
-                            DetailedGSTEntryBuffer."GST Assessable Value" := TransferLine."GST Assessable Value";
-                            if TransferLine."GST Credit" = TransferLine."GST Credit"::"Non-Availment" then begin
-                                DetailedGSTEntryBuffer."Amount Loaded on Item" := Sign * TaxTransValue.Amount;
-                                DetailedGSTEntryBuffer."Non-Availment" := true;
-                            end else
-                                DetailedGSTEntryBuffer."GST Input/Output Credit Amount" := Sign * TaxTransValue.Amount;
-                            DetailedGSTEntryBuffer."GST Component Code" := GetGSTComponent(TaxTransValue."Value ID");
-                            DetailedGSTEntryBuffer."GST Group Code" := TransferLine."GST Group Code";
-                            if DetailedGSTEntryBuffer."Non-Availment" then begin
-                                DetailedGSTEntryBuffer."GST Input/Output Credit Amount" := 0;
-                                DetailedGSTEntryBuffer."Amount Loaded on Item" := TaxTransValue.Amount;
-                            end;
-                            DetailedGSTEntryBuffer.Insert();
-                            LastEntryNo += 1;
-                        until TaxTransValue.Next() = 0;
+                            FillDetailedGSTEntryBuffer(DetailedGSTEntryBuffer, TransferHeader, Item, TransferLine, TaxTransactionValue);
+                        until TaxTransactionValue.Next() = 0;
                 end;
             until TransferLine.Next() = 0;
+    end;
+
+    local procedure FillDetailedGSTEntryBuffer(
+        var DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
+        TransferHeader: Record "Transfer Header";
+        Item: Record Item;
+        TransferLine: Record "Transfer Line";
+        TaxTransactionValue: Record "Tax Transaction value")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DocumentType: Enum "Document Type Enum";
+        TransactionType: Enum "Transaction Type Enum";
+        Sign: Integer;
+    begin
+        GeneralLedgerSetup.Get();
+        Sign := GSTbaseValidation.GetSignTransfer(DocumentType::Quote, TransactionType::"Transfer");
+
+        DetailedGSTEntryBuffer.Init();
+        DetailedGSTEntryBuffer."Entry No." := 0;
+        DetailedGSTEntryBuffer."Document Type" := DetailedGSTEntryBuffer."Document Type"::Quote;
+        DetailedGSTEntryBuffer."Document No." := TransferHeader."No.";
+        DetailedGSTEntryBuffer."Posting Date" := TransferHeader."Posting Date";
+        DetailedGSTEntryBuffer."Transaction Type" := DetailedGSTEntryBuffer."Transaction Type"::transfer;
+        DetailedGSTEntryBuffer.Type := DetailedGSTEntryBuffer.Type::Item;
+        DetailedGSTEntryBuffer.UOM := Item."Base Unit of Measure";
+        DetailedGSTEntryBuffer."No." := TransferLine."Item No.";
+        DetailedGSTEntryBuffer."Source No." := '';
+        DetailedGSTEntryBuffer.Quantity := TransferLine.Quantity * Sign;
+        DetailedGSTEntryBuffer."HSN/SAC Code" := TransferLine."HSN/SAC Code";
+        DetailedGSTEntryBuffer.Exempted := TransferLine.Exempted;
+        DetailedGSTEntryBuffer."Location Code" := TransferHeader."Transfer-from Code";
+        DetailedGSTEntryBuffer."Line No." := TransferLine."Line No.";
+        DetailedGSTEntryBuffer."Source Type" := "Source Type"::" ";
+        DetailedGSTEntryBuffer."GST Input/Output Credit Amount" := Sign * TaxTransactionValue.Amount;
+        DetailedGSTEntryBuffer."GST Base Amount" := Sign * TransferLine.Amount;
+        DetailedGSTEntryBuffer."GST %" := TaxTransactionValue.Percent;
+        DetailedGSTEntryBuffer."GST Rounding Precision" := GeneralLedgerSetup."Inv. Rounding Precision (LCY)";
+        DetailedGSTEntryBuffer."GST Rounding Type" := GSTBaseValidation.GenLedInvRoundingType2GSTInvRoundingTypeEnum(GeneralLedgerSetup."Inv. Rounding Type (LCY)");
+        DetailedGSTEntryBuffer."GST Inv. Rounding Precision" := GeneralLedgerSetup."Inv. Rounding Precision (LCY)";
+        DetailedGSTEntryBuffer."GST Inv. Rounding Type" := GSTBaseValidation.GenLedInvRoundingType2GSTInvRoundingTypeEnum(GeneralLedgerSetup."Inv. Rounding Type (LCY)");
+        DetailedGSTEntryBuffer."Currency Factor" := 1;
+        DetailedGSTEntryBuffer."GST Amount" := Sign * TaxTransactionValue.Amount;
+        DetailedGSTEntryBuffer."Custom Duty Amount" := TransferLine."Custom Duty Amount";
+        DetailedGSTEntryBuffer."GST Assessable Value" := TransferLine."GST Assessable Value";
+        if TransferLine."GST Credit" = TransferLine."GST Credit"::"Non-Availment" then begin
+            DetailedGSTEntryBuffer."Amount Loaded on Item" := Sign * TaxTransactionValue.Amount;
+            DetailedGSTEntryBuffer."Non-Availment" := true;
+        end else
+            DetailedGSTEntryBuffer."GST Input/Output Credit Amount" := Sign * TaxTransactionValue.Amount;
+
+        DetailedGSTEntryBuffer."GST Component Code" := GetGSTComponent(TaxTransactionValue."Value ID");
+        DetailedGSTEntryBuffer."GST Group Code" := TransferLine."GST Group Code";
+        DetailedGSTEntryBuffer.Insert(true);
     end;
 
     local procedure CheckValidations(TransferHeader: Record "Transfer Header")
     var
         Location: Record Location;
-        TransLine: Record "Transfer Line";
-        GSTGroup: Record "GST Group";
+        TransferLine: Record "Transfer Line";
     begin
         if not location.Get(TransferHeader."Transfer-from Code") then
             exit;
+
         if not Location."Bonded warehouse" then
             exit;
 
-        TransLine.Reset();
-        TransLine.SetRange("Document No.", TransferHeader."No.");
-        TransLine.Setfilter(Quantity, '<>0');
-        TransLine.SetRange("Derived From Line No.", 0);
-        TransLine.Setfilter("Qty. to Receive", '<>0');
-        if TransLine.Findset() then
+        TransferLine.Reset();
+        TransferLine.SetRange("Document No.", TransferHeader."No.");
+        TransferLine.SetFilter(Quantity, '<>0');
+        TransferLine.SetRange("Derived From Line No.", 0);
+        TransferLine.SetFilter("Qty. to Receive", '<>0');
+        if TransferLine.FindSet() then
             repeat
-                if (GSTGroup.Get(TransLine."GST Group Code") and (GSTGroup."GST Group Type" <> GSTGroup."GST Group Type"::Goods))
-                then
+                if not IsGSTGroupForGoods(TransferLine) then
                     Error(GSTGroupServiceErr);
-                if TransLine."GST Assessable Value" <> 0 then
+
+                if (TransferLine."GST Assessable Value" <> 0) and (not IsGSTGroupForGoods(TransferLine)) then
                     Error(GSTAssessableErr);
-                if (TransLine."Custom Duty Amount" <> 0) then
+
+                if (TransferLine."Custom Duty Amount" <> 0) and (not IsGSTGroupForGoods(TransferLine)) then
                     Error(GSTCustomDutyErr);
-                TransLine.TestField("GST Assessable Value");
-            until TransLine.Next() = 0;
+
+                TransferLine.TestField("GST Assessable Value");
+            until TransferLine.Next() = 0;
+
         TransferHeader.TestField("Vendor No.");
         TransferHeader.TestField("Bill of Entry Date");
         TransferHeader.TestField("Bill of Entry No.");
     end;
 
+    local procedure IsGSTGroupForGoods(TransferLine: Record "Transfer Line"): Boolean
+    var
+        GSTGroup: Record "GST Group";
+    begin
+        if (GSTGroup.Get(TransferLine."GST Group Code") and (GSTGroup."GST Group Type" = GSTGroup."GST Group Type"::Goods)) then
+            exit(true);
+    end;
+
     local procedure RoundTotalGSTAmountLoadedQtyFactor(
-        TransactionType: Option Purchase,Sale,Transfer,Service;
-        DocumentType: Option Quote,Order,Invoice,"Credit Memo","Blanket Order","Return Order";
+        TransactionType: Enum "Transaction Type Enum";
+        DocumentType: Enum "Document Type Enum";
         DocumentNo: Code[20];
         LineNo: Integer;
         QtyFactor: Decimal;
@@ -501,60 +552,36 @@ Codeunit 18390 "GST Transfer Order Receipt"
         DetailedGSTEntryBuffer.SetRange("Document Type", DocumentType);
         DetailedGSTEntryBuffer.SetRange("Document No.", DocumentNo);
         DetailedGSTEntryBuffer.SetRange("Line No.", LineNo);
-        if DetailedGSTEntryBuffer.Findset() then
+        if DetailedGSTEntryBuffer.FindSet() then
             repeat
                 if DetailedGSTEntryBuffer."Amount Loaded on Item" <> 0 then
                     TotalGSTAmount += DetailedGSTEntryBuffer."Amount Loaded on Item" * QtyFactor;
+
                 if CurrencyCode = '' then
-                    TotalGSTAmount := RoundGSTPrecision(TotalGSTAmount);
+                    TotalGSTAmount := GSTBaseValidation.RoundGSTPrecision(TotalGSTAmount);
+
             until DetailedGSTEntryBuffer.Next() = 0;
 
-        if DocumentType IN [DocumentType::Order, DocumentType::Invoice, DocumentType::Quote, DocumentType::"Blanket Order"] then
-            Sign := 1
-        else
-            if DocumentType IN [DocumentType::"Return Order", DocumentType::"Credit Memo"] then
-                Sign := -1;
-
-        if TransactionType = TransactionType::Purchase then
-            Sign := Sign * 1
-        else
-            Sign := Sign * -1;
-
+        Sign := GSTBaseValidation.GETSignTransfer(DocumentType, TransactionType);
         exit(TotalGSTAmount * Sign);
     end;
 
-    local procedure RoundGSTPrecision(GSTAmount: Decimal): Decimal
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        GSTRoundingDirection: Text[1];
-        GSTRoundingPrecision: Decimal;
-    begin
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.TestField("GST Rounding Precision");
-        CASE GeneralLedgerSetup."GST Rounding Type" OF
-            GeneralLedgerSetup."GST Rounding Type"::Nearest:
-                GSTRoundingDirection := '=';
-            GeneralLedgerSetup."GST Rounding Type"::Up:
-                GSTRoundingDirection := '>';
-            GeneralLedgerSetup."GST Rounding Type"::Down:
-                GSTRoundingDirection := '<';
-        end;
-        GSTRoundingPrecision := GeneralLedgerSetup."GST Rounding Precision";
-        exit(Round(GSTAmount, GSTRoundingPrecision, GSTRoundingDirection));
-    end;
-
-    local procedure FillGSTPostingBuffer(TransLine: Record "Transfer Line")
+    local procedure FillGSTPostingBuffer(TransferLine: Record "Transfer Line")
     var
         Location: Record Location;
+        BondedLocation: Record Location;
         DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
         TransferHeader: Record "Transfer Header";
         QFactor: Decimal;
         GSTStateCode: Code[10];
     begin
-        TransferHeader.Get(TransLine."Document No.");
-
+        TransferHeader.Get(TransferLine."Document No.");
         if not Location.Get(TransferHeader."Transfer-to Code") then
             exit;
+
+        if not BondedLocation.Get(TransferHeader."Transfer-from Code") then
+            exit;
+
         Location.TestField("State Code");
         GSTStateCode := Location."State Code";
 
@@ -562,52 +589,79 @@ Codeunit 18390 "GST Transfer Order Receipt"
         DetailedGSTEntryBuffer.SetCurrentKey("Transaction Type", "Document Type", "Document No.", "Line No.");
         DetailedGSTEntryBuffer.SetRange("Transaction Type", DetailedGSTEntryBuffer."Transaction Type"::Transfer);
         DetailedGSTEntryBuffer.SetRange("Document Type", 0);
-        DetailedGSTEntryBuffer.SetRange("Document No.", TransLine."Document No.");
-        DetailedGSTEntryBuffer.SetRange("Line No.", TransLine."Line No.");
-        DetailedGSTEntryBuffer.Setfilter("GST Base Amount", '<>%1', 0);
-        if DetailedGSTEntryBuffer.Findset() then
+        DetailedGSTEntryBuffer.SetRange("Document No.", TransferLine."Document No.");
+        DetailedGSTEntryBuffer.SetRange("Line No.", TransferLine."Line No.");
+        DetailedGSTEntryBuffer.SetFilter("GST Base Amount", '<>%1', 0);
+        if DetailedGSTEntryBuffer.FindSet() then
             repeat
-                GSTPostingBuffer[1].Type := GSTPostingBuffer[1].Type::Item;
-                GSTPostingBuffer[1]."Global Dimension 1 Code" := TransLine."Shortcut Dimension 1 Code";
-                GSTPostingBuffer[1]."Global Dimension 2 Code" := TransLine."Shortcut Dimension 2 Code";
-                GSTPostingBuffer[1]."Gen. Prod. Posting Group" := TransLine."Gen. Prod. Posting Group";
-                GSTPostingBuffer[1]."GST Group Code" := TransLine."GST Group Code";
-                if (DetailedGSTEntryBuffer."GST Assessable Value" <> 0) OR (DetailedGSTEntryBuffer."Custom Duty Amount" <> 0) then
+                TempGSTPostingBufferStage.Type := TempGSTPostingBufferStage.Type::Item;
+                TempGSTPostingBufferStage."Global Dimension 1 Code" := TransferLine."Shortcut Dimension 1 Code";
+                TempGSTPostingBufferStage."Global Dimension 2 Code" := TransferLine."Shortcut Dimension 2 Code";
+                TempGSTPostingBufferStage."Gen. Prod. Posting Group" := TransferLine."Gen. Prod. Posting Group";
+                TempGSTPostingBufferStage."GST Group Code" := TransferLine."GST Group Code";
+                if (DetailedGSTEntryBuffer."GST Assessable Value" <> 0) or (DetailedGSTEntryBuffer."Custom Duty Amount" <> 0) then
                     QFactor := 1
                 else
-                    QFactor := ABS(TransLine."Qty. to Receive" / TransLine.Quantity);
-                GSTPostingBuffer[1]."GST Base Amount" := -RoundGSTPrecision(QFactor * DetailedGSTEntryBuffer."GST Base Amount");
-                GSTPostingBuffer[1]."GST Amount" := -RoundGSTPrecision(QFactor * DetailedGSTEntryBuffer."GST Amount");
-                GSTPostingBuffer[1]."GST %" := DetailedGSTEntryBuffer."GST %";
-                GSTPostingBuffer[1]."GST Component Code" := DetailedGSTEntryBuffer."GST Component Code";
-                GSTPostingBuffer[1]."Custom Duty Amount" := DetailedGSTEntryBuffer."Custom Duty Amount";
-                if not DetailedGSTEntryBuffer."Non-Availment" then
-                    GSTPostingBuffer[1]."Account No." := GetGSTReceivableAccountNo(GSTStateCode,
-                      DetailedGSTEntryBuffer."GST Component Code")
+                    QFactor := Abs(TransferLine."Qty. to Receive" / TransferLine.Quantity);
+
+                if BondedLocation."Bonded warehouse" then
+                    TempGSTPostingBufferStage."GST Base Amount" := -GSTBaseValidation.RoundGSTPrecision
+                                                                    (QFactor *
+                                                                    (DetailedGSTEntryBuffer."GST Assessable Value"
+                                                                    +
+                                                                    DetailedGSTEntryBuffer."Custom Duty Amount"))
                 else
-                    GSTPostingBuffer[1]."Account No." := '';
-                UpdateGSTPostingBuffer(TransLine);
+                    TempGSTPostingBufferStage."GST Base Amount" := -GSTBaseValidation.RoundGSTPrecision(QFactor * DetailedGSTEntryBuffer."GST Base Amount");
+                TempGSTPostingBufferStage."GST Amount" := -GSTBaseValidation.RoundGSTPrecision(QFactor * DetailedGSTEntryBuffer."GST Amount");
+                TempGSTPostingBufferStage."GST %" := DetailedGSTEntryBuffer."GST %";
+                TempGSTPostingBufferStage."GST Component Code" := DetailedGSTEntryBuffer."GST Component Code";
+                TempGSTPostingBufferStage."Custom Duty Amount" := DetailedGSTEntryBuffer."Custom Duty Amount";
+                if not DetailedGSTEntryBuffer."Non-Availment" then
+                    TempGSTPostingBufferStage."Account No." := GetGSTReceivableAccountNo(GSTStateCode, DetailedGSTEntryBuffer."GST Component Code")
+                else
+                    TempGSTPostingBufferStage."Account No." := '';
+
+                UpdateGSTPostingBuffer(TransferLine);
             until DetailedGSTEntryBuffer.Next() = 0;
     end;
 
-    local procedure UpdateGSTPostingBuffer(TransLine: Record "Transfer Line")
+    local procedure UpdateGSTPostingBuffer(TransferLine: Record "Transfer Line")
     var
-        DimMgt: Codeunit DimensionManagement;
+        DimensionManagement: Codeunit DimensionManagement;
     begin
-        GSTPostingBuffer[1]."Dimension Set ID" := TransLine."Dimension Set ID";
-        DimMgt.UpdateGlobalDimFromDimSetID(GSTPostingBuffer[1]."Dimension Set ID",
-          GSTPostingBuffer[1]."Global Dimension 1 Code", GSTPostingBuffer[1]."Global Dimension 2 Code");
-        GSTPostingBuffer[2] := GSTPostingBuffer[1];
-        if GSTPostingBuffer[2].Find() then begin
-            GSTPostingBuffer[2]."GST Base Amount" += GSTPostingBuffer[1]."GST Base Amount";
-            GSTPostingBuffer[2]."GST Amount" += GSTPostingBuffer[1]."GST Amount";
-            GSTPostingBuffer[2]."Interim Amount" += GSTPostingBuffer[1]."Interim Amount";
-            GSTPostingBuffer[2].Modify();
-        end else
-            GSTPostingBuffer[1].Insert();
+        TempGSTPostingBufferStage."Dimension Set ID" := TransferLine."Dimension Set ID";
+        DimensionManagement.UpdateGlobalDimFromDimSetID(
+            TempGSTPostingBufferStage."Dimension Set ID",
+            TempGSTPostingBufferStage."Global Dimension 1 Code",
+            TempGSTPostingBufferStage."Global Dimension 2 Code");
+
+        ApplyFilterOnTempGSTPostingBufferFinal(TempGSTPostingBufferFinal, TempGSTPostingBufferStage);
+        if TempGSTPostingBufferFinal.FindFirst() then begin
+            TempGSTPostingBufferFinal."GST Base Amount" += TempGSTPostingBufferStage."GST Base Amount";
+            TempGSTPostingBufferFinal."GST Amount" += TempGSTPostingBufferStage."GST Amount";
+            TempGSTPostingBufferFinal."Interim Amount" += TempGSTPostingBufferStage."Interim Amount";
+            TempGSTPostingBufferFinal.Modify();
+        end else begin
+            TempGSTPostingBufferFinal := TempGSTPostingBufferStage;
+            TempGSTPostingBufferFinal.Insert();
+        end;
     end;
 
-    local procedure GetGSTReceivableAccountNo(LocationCode: Code[10]; GSTComponentCode: Code[10]): Code[20]
+    local procedure ApplyFilterOnTempGSTPostingBufferFinal(
+        var TempGSTPostingBufferFinal: Record "GST Posting Buffer";
+        var TempGSTPostingBufferStage: Record "GST Posting Buffer")
+    begin
+        TempGSTPostingBufferFinal.SetRange(Type, TempGSTPostingBufferStage.Type);
+        TempGSTPostingBufferFinal.SetRange("Transaction Type", TempGSTPostingBufferStage."Transaction Type");
+        TempGSTPostingBufferFinal.SetRange("Global Dimension 1 Code", TempGSTPostingBufferStage."Global Dimension 1 Code");
+        TempGSTPostingBufferFinal.SetRange("Global Dimension 2 Code", TempGSTPostingBufferStage."Global Dimension 2 Code");
+        TempGSTPostingBufferFinal.SetRange("Dimension Set ID", TempGSTPostingBufferStage."Dimension Set ID");
+        TempGSTPostingBufferFinal.SetRange("Account No.", TempGSTPostingBufferStage."Account No.");
+        TempGSTPostingBufferFinal.SetRange("Gen. Bus. Posting Group", TempGSTPostingBufferStage."Gen. Bus. Posting Group");
+        TempGSTPostingBufferFinal.SetRange("Gen. Prod. Posting Group", TempGSTPostingBufferStage."Gen. Prod. Posting Group");
+    end;
+
+    local procedure GetGSTReceivableAccountNo(LocationCode: Code[10]; GSTComponentCode: Code[30]): Code[20]
     var
         GSTPostingSetup: Record "GST Posting Setup";
     begin
@@ -621,70 +675,59 @@ Codeunit 18390 "GST Transfer Order Receipt"
     local procedure GetIGSTImportAccountNo(LocationCode: Code[10]): Code[20]
     var
         GSTPostingSetup: Record "GST Posting Setup";
+        Location: Record Location;
     begin
+        if not Location.Get(LocationCode) then
+            exit;
+
         GSTPostingSetup.Reset();
-        GSTPostingSetup.SetRange("State Code", LocationCode);
+        GSTPostingSetup.SetRange("State Code", Location."State Code");
         GSTPostingSetup.SetRange("Component ID", GSTComponentID('IGST'));
         GSTPostingSetup.FindFirst();
         exit(GSTPostingSetup."IGST Payable A/c (Import)")
     end;
 
-    local procedure GSTComponentID(ComponentCode: Code[10]): Integer
+    local procedure GSTComponentID(ComponentCode: Code[30]): Integer
     var
-        TaxTypeSetup: Record "Tax Type Setup";
+        GSTSetup: Record "GST Setup";
         TaxComponent: Record "Tax Component";
     begin
-        if not TaxTypeSetup.Get() then
+        if not GSTSetup.Get() then
             exit;
-        TaxTypeSetup.TestField(Code);
 
-        TaxComponent.SetRange("Tax Type", TaxTypeSetup.Code);
+        GSTSetup.TestField("GST Tax Type");
+        TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
         TaxComponent.SetRange(Name, ComponentCode);
         if TaxComponent.FindFirst() then
-            exit(TaxComponent.ID)
+            exit(TaxComponent.Id)
     end;
 
-    local procedure GetSign(
-        DocumentType: Option Quote,Order,Invoice,"Credit Memo","Blanket Order","Return Order";
-        TransactionType: Option Purchase,Sales,Transfer,Service,"Service Transfer",Production) Sign: Integer
-    begin
-        if DocumentType IN [DocumentType::Order, DocumentType::Invoice, DocumentType::Quote, DocumentType::"Blanket Order"] then
-            Sign := 1
-        else
-            Sign := -1;
-        if TransactionType = TransactionType::Purchase then
-            Sign := Sign * 1
-        else
-            Sign := Sign * -1;
-        exit(Sign);
-    end;
-
-    local procedure GetGSTComponent(ComponentID: integer): Code[10]
+    local procedure GetGSTComponent(ComponentID: Integer): Code[30]
     var
-        TaxTypeSetup: Record "Tax Type Setup";
+        GSTSetup: Record "GST Setup";
         TaxComponent: Record "Tax Component";
     begin
-        if not TaxTypeSetup.Get() then
+        if not GSTSetup.Get() then
             exit;
-        TaxTypeSetup.TestField(Code);
 
-        TaxComponent.SetRange("Tax Type", TaxTypeSetup.Code);
-        TaxComponent.SetRange(ID, ComponentID);
+        GSTSetup.TestField("GST Tax Type");
+        TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
+        TaxComponent.SetRange(Id, ComponentID);
         if TaxComponent.FindFirst() then
             exit(TaxComponent.Name);
     end;
 
-    local procedure GetGSTAmount(TaxRecordId: RecordId): Decimal
+    local procedure GetGSTAmount(TaxRecordId: RecordID): Decimal
     var
         TaxTransValue: Record "Tax Transaction Value";
-        TaxTypeSetup: Record "Tax Type Setup";
+        GSTSetup: Record "GST Setup";
     begin
-        if not TaxTypeSetup.Get() then
+        if not GSTSetup.Get() then
             exit;
-        TaxTypeSetup.TestField(Code);
 
+        GSTSetup.TestField("GST Tax Type");
         TaxTransValue.Reset();
-        TaxTransValue.SetRange("Tax Type", TaxTypeSetup.Code);
+        TaxTransValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
         TaxTransValue.SetRange("Tax Record ID", TaxRecordId);
         TaxTransValue.SetRange("Value Type", TaxTransValue."Value Type"::COMPONENT);
         TaxTransValue.SetFilter(Amount, '<>%1', 0);
@@ -692,79 +735,88 @@ Codeunit 18390 "GST Transfer Order Receipt"
             exit(TaxTransValue.Amount);
     end;
 
-    local procedure GetGSTPer(TaxRecordId: RecordId): Decimal
-    var
-        TaxTransValue: Record "Tax Transaction Value";
-        TaxTypeSetup: Record "Tax Type Setup";
-    begin
-        if not TaxTypeSetup.Get() then
-            exit;
-        TaxTypeSetup.TestField(Code);
-
-        TaxTransValue.Reset();
-        TaxTransValue.SetRange("Tax Type", TaxTypeSetup.Code);
-        TaxTransValue.SetRange("Tax Record ID", TaxRecordId);
-        TaxTransValue.SetRange("Value Type", TaxTransValue."Value Type"::COMPONENT);
-        if TaxTransValue.FindFirst() then
-            exit(TaxTransValue.Percent);
-    end;
-
-    local procedure FillTransferBuffer(TransLine: Record "Transfer Line")
+    local procedure FillTransferBuffer(TransferLine: Record "Transfer Line")
     var
         Vendor: Record Vendor;
         GeneralPostingSetup: Record "General Posting Setup";
-        BondedLocation: Record Location;
-        TransHeader: Record "Transfer Header";
-        DocTransactionType: Option Purchase,Sale,Transfer,Service;
+        LocationBonded: Record Location;
+        TransferHeader: Record "Transfer Header";
+        DocTransactionType: Enum "Transaction Type Enum";
+        DocumentType: Enum "Document Type Enum";
     begin
-        if TransLine."Qty. to Receive" = 0 then
+        if (TransferLine."GST Group Code" = '') or (TransferLine."HSN/SAC Code" = '') then
             exit;
 
-        TransHeader.Get(TransLine."Document No.");
-        Clear(TransferBuffer[1]);
+        if TransferLine."Qty. to Receive" = 0 then
+            exit;
 
-        BondedLocation.Get(TransHeader."Transfer-from Code");
+        Clear(TempTransferBufferStage);
+        TransferHeader.Get(TransferLine."Document No.");
+        LocationBonded.Get(TransferHeader."Transfer-from Code");
 
-        if (TransHeader."Vendor No." <> '') and
-           (BondedLocation."Bonded warehouse") then begin
-            Vendor.Get(TransHeader."Vendor No.");
-            GeneralPostingSetup.Get(Vendor."Gen. Bus. Posting Group", TransLine."Gen. Prod. Posting Group");
+        if (TransferHeader."Vendor No." <> '') and (LocationBonded."Bonded warehouse") then begin
+            Vendor.Get(TransferHeader."Vendor No.");
+            GeneralPostingSetup.Get(Vendor."Gen. Bus. Posting Group", TransferLine."Gen. Prod. Posting Group");
             GeneralPostingSetup.TestField("Purch. Account");
-            TransferBuffer[1]."Gen. Bus. Posting Group" := Vendor."Gen. Bus. Posting Group";
-            TransferBuffer[1]."G/L Account" := GeneralPostingSetup."Purch. Account";
+            TempTransferBufferStage."Gen. Bus. Posting Group" := Vendor."Gen. Bus. Posting Group";
+            TempTransferBufferStage."G/L Account" := GeneralPostingSetup."Purch. Account";
         end;
 
-        TransferBuffer[1]."Gen. Prod. Posting Group" := TransLine."Gen. Prod. Posting Group";
-        TransferBuffer[1]."System-Created Entry" := true;
-        TransferBuffer[1]."Location Code" := TransLine."Transfer-to Code";
-        TransferBuffer[1]."Item No." := TransLine."Item No.";
-        TransferBuffer[1].Quantity := TransLine."Qty. to Receive";
-        TransferBuffer[1]."Inventory Posting Group" := TransLine."Inventory Posting Group";
-        TransferBuffer[1]."Global Dimension 1 Code" := TransLine."Shortcut Dimension 1 Code";
-        TransferBuffer[1]."Global Dimension 2 Code" := TransLine."Shortcut Dimension 2 Code";
-        TransferBuffer[1]."Dimension Set ID" := TransLine."Dimension Set ID";
-        TransferBuffer[1]."Charges Amount" := TransLine."Charges to Transfer";
-        TransferBuffer[1]."Amount Loaded on Inventory" := TransLine."Amount Added to Inventory";
-        TransferBuffer[1].Amount := Round(TransLine.Amount - (-TransferCost));
-        if BondedLocation."Bonded warehouse" then
-            TransferBuffer[1]."GST Amount" := -Round(RoundTotalGSTAmountQtyFactor(DocTransactionType::Transfer, 0,
-            TransLine."Document No.", TransLine."Line No.", TransLine."Qty. to Receive" / TransLine.Quantity, '', False))
+        TempTransferBufferStage."Gen. Prod. Posting Group" := TransferLine."Gen. Prod. Posting Group";
+        TempTransferBufferStage."System-Created Entry" := true;
+        TempTransferBufferStage."Location Code" := TransferLine."Transfer-to Code";
+        TempTransferBufferStage."Item No." := TransferLine."Item No.";
+        TempTransferBufferStage.Quantity := TransferLine."Qty. to Receive";
+        TempTransferBufferStage."Inventory Posting Group" := TransferLine."Inventory Posting Group";
+        TempTransferBufferStage."Global Dimension 1 Code" := TransferLine."Shortcut Dimension 1 Code";
+        TempTransferBufferStage."Global Dimension 2 Code" := TransferLine."Shortcut Dimension 2 Code";
+        TempTransferBufferStage."Dimension Set ID" := TransferLine."Dimension Set ID";
+        TempTransferBufferStage."Charges Amount" := TransferLine."Charges to Transfer";
+        TempTransferBufferStage."Amount Loaded on Inventory" := TransferLine."Amount Added to Inventory";
+        TempTransferBufferStage.Amount := Round(TransferLine.Amount - (-TransferCost));
+        if LocationBonded."Bonded warehouse" then
+            TempTransferBufferStage."GST Amount" := -Round(
+                RoundTotalGSTAmountQtyFactor(
+                    DocTransactionType::Transfer,
+                    DocumentType::Quote,
+                    TransferLine."Document No.",
+                    TransferLine."Line No.",
+                    1,
+                    '',
+                    false)
+            )
         else
-            TransferBuffer[1]."GST Amount" := Round(RoundTotalGSTAmountQtyFactor(DocTransactionType::Transfer, 0,
-                TransLine."Document No.", TransLine."Line No.", TransLine."Qty. to Receive" / TransLine.Quantity, '', False));
-        if TransLine."Custom Duty Amount" <> 0 then
-            TransferBuffer[1]."Custom Duty Amount" := TransLine."Custom Duty Amount";
-        if TransLine.Quantity <> 0 then
-            TransferBuffer[1]."GST Amount Loaded on Inventory" := ABS(RoundTotalGSTAmountLoadedQtyFactor(
-              DocTransactionType::Transfer, 0,
-              TransLine."Document No.", TransLine."Line No.", TransLine."Qty. to Receive" / TransLine.Quantity, ''));
-        GSTAmountLoaded := TransferBuffer[1]."GST Amount Loaded on Inventory";
+            TempTransferBufferStage."GST Amount" := Round(
+                RoundTotalGSTAmountQtyFactor(
+                    DocTransactionType::Transfer,
+                    DocumentType::Quote,
+                    TransferLine."Document No.",
+                    TransferLine."Line No.",
+                    TransferLine."Qty. to Receive" / TransferLine.Quantity,
+                    '',
+                    false)
+                );
+
+        if TransferLine."Custom Duty Amount" <> 0 then
+            TempTransferBufferStage."Custom Duty Amount" := TransferLine."Custom Duty Amount";
+
+        if TransferLine.Quantity <> 0 then
+            TempTransferBufferStage."GST Amount Loaded on Inventory" := Abs(
+                RoundTotalGSTAmountLoadedQtyFactor(
+                    DocTransactionType::Transfer,
+                    DocumentType::Quote,
+                    TransferLine."Document No.",
+                    TransferLine."Line No.",
+                    TransferLine."Qty. to Receive" / TransferLine.Quantity, '')
+            );
+
+        GSTAmountLoaded := TempTransferBufferStage."GST Amount Loaded on Inventory";
         UpdTransferBuffer();
     end;
 
     local procedure RoundTotalGSTAmountQtyFactor(
-        TransactionType: Option Purchase,Sale,Transfer,Service;
-        DocumentType: Option Quote,Order,Invoice,"Credit Memo","Blanket Order","Return Order";
+        TransactionType: Enum "Transaction Type Enum";
+        DocumentType: Enum "Document Type Enum";
         DocumentNo: Code[20];
         LineNo: Integer;
         QtyFactor: Decimal;
@@ -780,186 +832,166 @@ Codeunit 18390 "GST Transfer Order Receipt"
         DetailedGSTEntryBuffer.SetRange("Document Type", DocumentType);
         DetailedGSTEntryBuffer.SetRange("Document No.", DocumentNo);
         DetailedGSTEntryBuffer.SetRange("Line No.", LineNo);
-        if DetailedGSTEntryBuffer.Findset() then
+        if DetailedGSTEntryBuffer.FindSet() then
             repeat
                 if DetailedGSTEntryBuffer."Amount Loaded on Item" <> 0 then
                     TotalGSTAmount += DetailedGSTEntryBuffer."Amount Loaded on Item" * QtyFactor
                 else
                     if DetailedGSTEntryBuffer."GST Input/Output Credit Amount" <> 0 then
                         TotalGSTAmount += DetailedGSTEntryBuffer."GST Input/Output Credit Amount" * QtyFactor;
+
                 if CurrencyCode = '' then
                     if GSTInvoiceRouding then
-                        TotalGSTAmount := RoundGSTInvoicePrecision(TotalGSTAmount, DetailedGSTEntryBuffer."Currency Code")
+                        TotalGSTAmount := GSTBaseValidation.RoundGSTInvoicePrecision(TotalGSTAmount, DetailedGSTEntryBuffer."Currency Code")
                     else
-                        TotalGSTAmount := RoundGSTPrecision(TotalGSTAmount);
+                        TotalGSTAmount := GSTBaseValidation.RoundGSTPrecision(TotalGSTAmount);
+
                 if (CurrencyCode <> '') and GSTInvoiceRouding then
-                    TotalGSTAmount := RoundGSTInvoicePrecision(TotalGSTAmount, DetailedGSTEntryBuffer."Currency Code");
+                    TotalGSTAmount := GSTBaseValidation.RoundGSTInvoicePrecision(TotalGSTAmount, DetailedGSTEntryBuffer."Currency Code");
+
             until DetailedGSTEntryBuffer.Next() = 0;
 
-        if DocumentType IN [DocumentType::Order, DocumentType::Invoice, DocumentType::Quote, DocumentType::"Blanket Order"] then
-            Sign := 1
-        else
-            if DocumentType IN [DocumentType::"Return Order", DocumentType::"Credit Memo"] then
-                Sign := -1;
-        if TransactionType = TransactionType::Purchase then
-            Sign := Sign * 1
-        else
-            Sign := Sign * -1;
-
+        Sign := GSTBaseValidation.GetSignTransfer(DocumentType, TransactionType);
         exit(TotalGSTAmount * Sign);
     end;
 
     local procedure UpdTransferBuffer()
     var
-        DimMgt: Codeunit DimensionManagement;
+        DimensionManagement: Codeunit DimensionManagement;
     begin
-        DimMgt.UpdateGlobalDimFromDimSetID(TransferBuffer[1]."Dimension Set ID",
-          TransferBuffer[1]."Global Dimension 1 Code", TransferBuffer[1]."Global Dimension 2 Code");
+        DimensionManagement.UpdateGlobalDimFromDimSetID(TempTransferBufferStage."Dimension Set ID",
+          TempTransferBufferStage."Global Dimension 1 Code", TempTransferBufferStage."Global Dimension 2 Code");
+        ApplyFilterOnTempTransferBufferFinal(TempTransferBufferFinal, TempTransferBufferStage);
+        if TempTransferBufferFinal.FindFirst() then begin
+            TempTransferBufferFinal.Amount := TempTransferBufferFinal.Amount + TempTransferBufferStage.Amount;
+            TempTransferBufferFinal."Amount Loaded on Inventory" := TempTransferBufferFinal."Amount Loaded on Inventory" + TempTransferBufferStage."Amount Loaded on Inventory";
+            TempTransferBufferFinal."Charges Amount" := TempTransferBufferFinal."Charges Amount" + TempTransferBufferStage."Charges Amount";
+            TempTransferBufferFinal.Quantity := TempTransferBufferFinal.Quantity + TempTransferBufferStage.Quantity;
+            TempTransferBufferFinal."GST Amount" := TempTransferBufferFinal."GST Amount" + TempTransferBufferStage."GST Amount";
+            TempTransferBufferFinal."GST Amount Loaded on Inventory" := TempTransferBufferFinal."GST Amount Loaded on Inventory" +
+                TempTransferBufferStage."GST Amount Loaded on Inventory";
+            TempTransferBufferFinal."Custom Duty Amount" := TempTransferBufferFinal."Custom Duty Amount" + TempTransferBufferStage."Custom Duty Amount";
+            if not TempTransferBufferStage."System-Created Entry" then
+                TempTransferBufferFinal."System-Created Entry" := false;
 
-        TransferBuffer[2] := TransferBuffer[1];
-        if TransferBuffer[2].FIND() then begin
-            TransferBuffer[2].Amount := TransferBuffer[2].Amount + TransferBuffer[1].Amount;
-            TransferBuffer[2]."Amount Loaded on Inventory" := TransferBuffer[2]."Amount Loaded on Inventory" +
-              TransferBuffer[1]."Amount Loaded on Inventory";
-            TransferBuffer[2]."Charges Amount" := TransferBuffer[2]."Charges Amount" + TransferBuffer[1]."Charges Amount";
-            TransferBuffer[2].Quantity := TransferBuffer[2].Quantity + TransferBuffer[1].Quantity;
-            TransferBuffer[2]."GST Amount" := TransferBuffer[2]."GST Amount" +
-              TransferBuffer[1]."GST Amount";
-            TransferBuffer[2]."GST Amount Loaded on Inventory" := TransferBuffer[2]."GST Amount Loaded on Inventory" +
-              TransferBuffer[1]."GST Amount Loaded on Inventory";
-            TransferBuffer[2]."Custom Duty Amount" := TransferBuffer[2]."Custom Duty Amount" +
-              TransferBuffer[1]."Custom Duty Amount";
-            if not TransferBuffer[1]."System-Created Entry" then
-                TransferBuffer[2]."System-Created Entry" := False;
-            TransferBuffer[2].Modify();
-        end else
-            TransferBuffer[1].Insert();
-    end;
-
-    local procedure RoundGSTInvoicePrecision(GSTAmount: Decimal; CurrencyCode: Code[10]): Decimal
-    var
-        Currency: Record Currency;
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        GSTRoundingDirection: Text[1];
-        GSTRoundingPrecision: Decimal;
-    begin
-        if GSTAmount = 0 then
-            exit(0);
-
-        if CurrencyCode = '' then begin
-            GeneralLedgerSetup.Get();
-            if GeneralLedgerSetup."GST Inv. Rounding Precision" = 0 then
-                exit;
-            CASE GeneralLedgerSetup."GST Inv. Rounding Type" OF
-                GeneralLedgerSetup."GST Inv. Rounding Type"::Nearest:
-                    GSTRoundingDirection := '=';
-                GeneralLedgerSetup."GST Inv. Rounding Type"::Up:
-                    GSTRoundingDirection := '>';
-                GeneralLedgerSetup."GST Inv. Rounding Type"::Down:
-                    GSTRoundingDirection := '<';
-            end;
-            GSTRoundingPrecision := GeneralLedgerSetup."GST Inv. Rounding Precision";
-        end else
-            Currency.Get(CurrencyCode);
-        exit(Round(GSTAmount, GSTRoundingPrecision, GSTRoundingDirection));
-    end;
-
-    local procedure RunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line")
-    begin
-        GenJnlPostLine.RunWithCheck(GenJnlLine);
-    end;
-
-    local procedure GSTPostingBufferforTransferDocument(CustomDutyBase: Boolean; Transheader: Record "Transfer Header")
-    begin
-        if FirstExecution then begin
-            if GSTPostingBuffer[1].FindLast() then
-                repeat
-                    if (GSTPostingBuffer[1]."Custom Duty Amount" <> 0) and (not CustomDutyBase) then begin
-                        CustomDutyBase := true;
-                        GSTPostingBuffer[1]."Custom Duty Amount" := GetCustomDutyAmount(TransHeader."No.");
-                        FillGenJnlLineForCustomDuty(TransHeader);
-                    end;
-                    PostTransLineToGenJnlLine(TransHeader);
-                until GSTPostingBuffer[1].Next(-1) = 0;
-            FirstExecution := False;
+            TempTransferBufferFinal.Modify();
+        end else begin
+            TempTransferBufferFinal := TempTransferBufferStage;
+            TempTransferBufferFinal.Insert();
         end;
     end;
 
-    local procedure GetCustomDutyAmount(DocumentNo: Code[20]) CustomDutyAmount: Decimal
+    local procedure ApplyFilterOnTempTransferBufferFinal(
+            var TempTransferBufferFinal: Record "Transfer Buffer";
+            var TempTransferBufferStage: Record "Transfer Buffer")
+    begin
+        TempTransferBufferFinal.SetRange(Type, TempTransferBufferStage.Type);
+        TempTransferBufferFinal.SetRange("G/L Account", TempTransferBufferStage."G/L Account");
+        TempTransferBufferFinal.SetRange("Gen. Bus. Posting Group", TempTransferBufferStage."Gen. Bus. Posting Group");
+        TempTransferBufferFinal.SetRange("Gen. Prod. Posting Group", TempTransferBufferStage."Gen. Prod. Posting Group");
+        TempTransferBufferFinal.SetRange("Inventory Posting Group", TempTransferBufferStage."Inventory Posting Group");
+        TempTransferBufferFinal.SetRange("Item No.", TempTransferBufferStage."Item No.");
+    end;
+
+    local procedure RunGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        GenJnlPostLine.RunWithCheck(GenJournalLine);
+    end;
+
+    local procedure GSTPostingBufferforTransferDocument(CustomDutyBase: Boolean; TransferHeader: Record "Transfer Header")
+    begin
+        if FirstExecution then begin
+            TempGSTPostingBufferFinal.Reset();
+            if TempGSTPostingBufferFinal.FindLast() then
+                repeat
+                    if (TempGSTPostingBufferFinal."Custom Duty Amount" <> 0) and (not CustomDutyBase) then begin
+                        CustomDutyBase := true;
+                        TempGSTPostingBufferFinal."Custom Duty Amount" := CustomDutyAmount;
+                        FillGenJnlLineForCustomDuty(TransferHeader);
+                    end;
+
+                    PostTransLineToGenJnlLine(TransferHeader);
+                until TempGSTPostingBufferFinal.Next(-1) = 0;
+
+            FirstExecution := false;
+        end;
+    end;
+
+    local procedure GetCustomDutyAmount(DocumentNo: Code[20])
     var
         TransferLine: Record "Transfer Line";
     begin
         TransferLine.SetRange("Document No.", DocumentNo);
-        TransferLine.Setfilter("Qty. to Receive", '<>%1', 0);
-        TransferLine.Setfilter("Custom Duty Amount", '<>%1', 0);
+        TransferLine.SetFilter("Qty. to Receive", '<>%1', 0);
+        TransferLine.SetFilter("Custom Duty Amount", '<>%1', 0);
         TransferLine.SetRange("Derived From Line No.", 0);
         if TransferLine.FindSet() then
             repeat
                 CustomDutyAmount += TransferLine."Custom Duty Amount";
             until TransferLine.Next() = 0;
-        exit(CustomDutyAmount);
     end;
 
-    local procedure PostTransLineToGenJnlLine(TransferHeader: Record "Transfer Header");
+    local procedure PostTransLineToGenJnlLine(TransferHeader: Record "Transfer Header")
     var
         SourceCodeSetup: Record "Source Code Setup";
-        DocTransferType: Option TransferShpmnt,TransferReciept;
+        DocTransferType: Enum "Doc Transfer Type";
     begin
         GenJnlLine.Init();
         GenJnlLine."Posting Date" := TransferHeader."Posting Date";
-        GenJnlLine.Description := STRSUBSTNO(Text13700Msg, TransReceiptHeaderNo);
+        GenJnlLine.Description := StrSubstNo(TransferReceiptNoLbl, TransReceiptHeaderNo);
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
         GenJnlLine."Document No." := TransReceiptHeaderNo;
         GenJnlLine."External Document No." := TransferHeader."No.";
-        if GSTPostingBuffer[1]."GST Amount" <> 0 then begin
-            GenJnlLine.Validate(Amount, Round(GSTPostingBuffer[1]."GST Amount"));
-            GenJnlLine."Account No." := GSTPostingBuffer[1]."Account No.";
+        if TempGSTPostingBufferfinal."GST Amount" <> 0 then begin
+            GenJnlLine.Validate(Amount, Round(TempGSTPostingBufferfinal."GST Amount"));
+            GenJnlLine."Account No." := TempGSTPostingBufferfinal."Account No.";
         end;
+
         GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
-        GenJnlLine."GST Group Code" := GSTPostingBuffer[1]."GST Group Code";
-        GenJnlLine."GST Component Code" := GSTPostingBuffer[1]."GST Component Code";
-        GenJnlLine."System-Created Entry" := TransferBuffer[1]."System-Created Entry";
-        GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Purchase;
-        GenJnlLine."Gen. Bus. Posting Group" := GSTPostingBuffer[1]."Gen. Bus. Posting Group";
-        GenJnlLine."Gen. Prod. Posting Group" := GSTPostingBuffer[1]."Gen. Prod. Posting Group";
-        GenJnlLine."Shortcut Dimension 1 Code" := GSTPostingBuffer[1]."Global Dimension 1 Code";
-        GenJnlLine."Shortcut Dimension 2 Code" := GSTPostingBuffer[1]."Global Dimension 2 Code";
-        GenJnlLine."Dimension Set ID" := GSTPostingBuffer[1]."Dimension Set ID";
+        GenJnlLine."GST Group Code" := TempGSTPostingBufferfinal."GST Group Code";
+        GenJnlLine."GST Component Code" := TempGSTPostingBufferfinal."GST Component Code";
+        GenJnlLine."System-Created Entry" := TempTransferBufferFinal."System-Created Entry";
+        GenJnlLine."Gen. Bus. Posting Group" := TempGSTPostingBufferfinal."Gen. Bus. Posting Group";
+        GenJnlLine."Gen. Prod. Posting Group" := TempGSTPostingBufferfinal."Gen. Prod. Posting Group";
+        GenJnlLine."Shortcut Dimension 1 Code" := TempGSTPostingBufferfinal."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := TempGSTPostingBufferfinal."Global Dimension 2 Code";
+        GenJnlLine."Dimension Set ID" := TempGSTPostingBufferfinal."Dimension Set ID";
         GenJnlLine."Location Code" := TransferHeader."Transfer-to Code";
         SourceCodeSetup.Get();
         GenJnlLine."Source Code" := SourceCodeSetup.Transfer;
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
-        if GSTPostingBuffer[1]."Account No." <> '' then
+        if TempGSTPostingBufferStage."Account No." <> '' then
             RunGenJnlPostLine(GenJnlLine);
-        GSTTransferShipment.InsertGSTLedgerEntryTransfer(
-        GSTPostingBuffer[1], TransferHeader,
-          GenJnlPostLine.GetNextTransactionNo(), GenJnlLine."Document No.",
-          SourceCodeSetup.Transfer, DocTransferType::TransferReciept);
+
+        GSTTransferOrderShipment.InsertGSTLedgerEntryTransfer(
+            TempGSTPostingBufferFinal,
+            TransferHeader,
+            GenJnlPostLine.GetNextTransactionNo(),
+            GenJnlLine."Document No.",
+            SourceCodeSetup.Transfer,
+            DocTransferType::"Transfer Receipt");
     end;
 
-    local procedure GSTPurchAccPosting(TransferHader: Record "Transfer Header")
+    local procedure GSTPurchAccPosting(TransferHeader: Record "Transfer Header"; TempTransferBufferfinal: Record "Transfer Buffer")
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
         SourceCodeSetup.Get();
 
         GenJnlLine.Init();
-        GenJnlLine."Posting Date" := TransferHader."Posting Date";
-        GenJnlLine."Document Date" := TransferHader."Posting Date";
+        GenJnlLine."Posting Date" := TransferHeader."Posting Date";
+        GenJnlLine."Document Date" := TransferHeader."Posting Date";
         GenJnlLine."Document No." := TransReceiptHeaderNo;
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Invoice;
-        GenJnlLine."Account No." := TransferBuffer[1]."G/L Account";
-        GenJnlLine."System-Created Entry" := TransferBuffer[1]."System-Created Entry";
-        GenJnlLine.Amount := TransferBuffer[1]."Custom Duty Amount";
-        GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Purchase;
+        GenJnlLine."Account No." := TempTransferBufferFinal."G/L Account";
+        GenJnlLine."System-Created Entry" := TempTransferBufferFinal."System-Created Entry";
+        GenJnlLine.Amount := TempTransferBufferFinal."Custom Duty Amount";
         GenJnlLine."Source Code" := SourceCodeSetup.Transfer;
-        GenJnlLine."Gen. Bus. Posting Group" := TransferBuffer[1]."Gen. Bus. Posting Group";
-        GenJnlLine."Gen. Prod. Posting Group" := TransferBuffer[1]."Gen. Prod. Posting Group";
-        GenJnlLine."Shortcut Dimension 1 Code" := TransferBuffer[1]."Global Dimension 1 Code";
-        GenJnlLine."Shortcut Dimension 2 Code" := TransferBuffer[1]."Global Dimension 2 Code";
-        GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
-        GenJnlLine."VAT Base Amount" := GenJnlLine.Amount;
-        GenJnlLine.Description := STRSUBSTNO(Text13700Msg, TransReceiptHeaderNo);
+        GenJnlLine."Gen. Bus. Posting Group" := TempTransferBufferFinal."Gen. Bus. Posting Group";
+        GenJnlLine."Gen. Prod. Posting Group" := TempTransferBufferFinal."Gen. Prod. Posting Group";
+        GenJnlLine."Shortcut Dimension 1 Code" := TempTransferBufferFinal."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := TempTransferBufferFinal."Global Dimension 2 Code";
+        GenJnlLine.Description := StrSubstNo(TransferReceiptNoLbl, TransReceiptHeaderNo);
         if GenJnlLine.Amount <> 0 then
             RunGenJnlPostLine(GenJnlLine);
     end;
@@ -973,27 +1005,25 @@ Codeunit 18390 "GST Transfer Order Receipt"
 
         GenJournalLine.Init();
         GenJournalLine."Posting Date" := TransferHeader."Posting Date";
-        GenJournalLine.Description := STRSUBSTNO(Text13700Msg, TransReceiptHeaderNo);
+        GenJournalLine.Description := StrSubstNo(TransferReceiptNoLbl, TransReceiptHeaderNo);
         GenJournalLine."Document Type" := GenJournalLine."Document Type"::Invoice;
         GenJournalLine."Document No." := TransReceiptHeaderNo;
         GenJournalLine."External Document No." := TransferHeader."No.";
         GenJournalLine."System-Created Entry" := true;
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::"G/L Account";
-        GenJournalLine."Account No." := GetIGSTImportAccountNo(TransferBuffer[1]."Location Code");
+        GenJournalLine."Account No." := GetIGSTImportAccountNo(TempTransferBufferFinal."Location Code");
         GenJournalLine."Bal. Account No." := '';
-        GenJournalLine.Validate(Amount, -Round(GSTPostingBuffer[1]."Custom Duty Amount"));
-        GenJournalLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Purchase;
-        GenJournalLine."Gen. Bus. Posting Group" := GSTPostingBuffer[1]."Gen. Bus. Posting Group";
-        GenJournalLine."Gen. Prod. Posting Group" := GSTPostingBuffer[1]."Gen. Prod. Posting Group";
-        GenJournalLine."Shortcut Dimension 1 Code" := GSTPostingBuffer[1]."Global Dimension 1 Code";
-        GenJournalLine."Shortcut Dimension 2 Code" := GSTPostingBuffer[1]."Global Dimension 2 Code";
-        GenJournalLine."Dimension Set ID" := GSTPostingBuffer[1]."Dimension Set ID";
+        GenJournalLine.Validate(Amount, -Round(TempGSTPostingBufferFinal."Custom Duty Amount"));
+        GenJournalLine."Gen. Bus. Posting Group" := TempGSTPostingBufferFinal."Gen. Bus. Posting Group";
+        GenJournalLine."Gen. Prod. Posting Group" := TempGSTPostingBufferFinal."Gen. Prod. Posting Group";
+        GenJournalLine."Shortcut Dimension 1 Code" := TempGSTPostingBufferFinal."Global Dimension 1 Code";
+        GenJournalLine."Shortcut Dimension 2 Code" := TempGSTPostingBufferFinal."Global Dimension 2 Code";
+        GenJournalLine."Dimension Set ID" := TempGSTPostingBufferFinal."Dimension Set ID";
+        GenJournalLine."GST Component Code" := TempGSTPostingBufferFinal."GST Component Code";
         GenJournalLine."Source Type" := GenJournalLine."Source Type"::Vendor;
         GenJournalLine."Source No." := TransferHeader."Vendor No.";
         GenJournalLine."Location Code" := TransferHeader."Transfer-from Code";
         GenJournalLine."Source Code" := SourceCodeSetup.Transfer;
-        GenJournalLine."GST Component Code" := GSTPostingBuffer[1]."GST Component Code";
-        GenJournalLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
         if (GenJournalLine.Amount <> 0) then
             RunGenJnlPostLine(GenJournalLine);
     end;
@@ -1009,6 +1039,7 @@ Codeunit 18390 "GST Transfer Order Receipt"
         ItemLedgerEntry: Record "Item Ledger Entry";
         TransferHeader: Record "Transfer Header";
         Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
         Ctr: Integer;
         TransferPriceDiff: Decimal;
         EntryNo: Integer;
@@ -1030,8 +1061,10 @@ Codeunit 18390 "GST Transfer Order Receipt"
         Amnt := -TransferCost;
         RoundDiffAmt := TransferLine3.Amount - Amnt;
         TotalTransferPriceDiff := 0;
-
+        SourceCodeSetup.Get();
+        ItemRegister.SetFilter("Source Code", '<>%1', SourceCodeSetup."Revaluation Journal");
         ItemRegister.FindLast();
+
         ItemLedgerEntry.Reset();
         ItemLedgerEntry.SetCurrentKey("Location Code", "Posting Date", "Document No.", "Item No.");
         ItemLedgerEntry.SetRange("Entry No.", ItemRegister."From Entry No.", ItemRegister."To Entry No.");
@@ -1043,8 +1076,6 @@ Codeunit 18390 "GST Transfer Order Receipt"
         if ItemLedgerEntry.FindLast() then
             EntryNo := ItemLedgerEntry."Entry No.";
 
-        SourceCodeSetup.Get();
-
         ItemLedgerEntry.Reset();
         ItemLedgerEntry.SetCurrentKey("Location Code", "Posting Date", "Document No.", "Item No.");
         ItemLedgerEntry.SetRange("Entry No.", ItemRegister."From Entry No.", ItemRegister."To Entry No.");
@@ -1053,8 +1084,9 @@ Codeunit 18390 "GST Transfer Order Receipt"
         ItemLedgerEntry.SetRange("Document No.", TransferReceiptHeader2."No.");
         ItemLedgerEntry.SetRange("Document Line No.", TransferLine3."Line No.");
         ItemLedgerEntry.SetRange("Item No.", TransferLine3."Item No.");
-        if ItemLedgerEntry.Find('-') then
+        if ItemLedgerEntry.Findset() then
             repeat
+
                 ValueEntry.Reset();
                 ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
                 ValueEntry.FindFirst();
@@ -1062,72 +1094,51 @@ Codeunit 18390 "GST Transfer Order Receipt"
                 TransferPriceDiff := Round((TransferLine3."Transfer Price" / ItemLedgerEntry."Qty. per Unit of Measure") - AmntUnitCost);
                 if TransferPriceDiff <> 0 then begin
                     TotalTransferPriceDiff += TransferPriceDiff * ItemLedgerEntry.Quantity;
-                    if (EntryNo = ItemLedgerEntry."Entry No.") and (TotalTransferPriceDiff <> RoundDiffAmt) and
-                       (ItemLedgerEntry."Lot No." = '')
-                    then
+                    if (EntryNo = ItemLedgerEntry."Entry No.") and (TotalTransferPriceDiff <> RoundDiffAmt) and (ItemLedgerEntry."Lot No." = '') then
                         TransferPriceDiff := TransferPriceDiff - (TotalTransferPriceDiff - RoundDiffAmt);
-                    ItemJnlLine.Init();
-                    ItemJnlLine.Validate("Posting Date", TransferReceiptHeader2."Posting Date");
-                    ItemJnlLine."Document Date" := TransferReceiptHeader2."Posting Date";
-                    ItemJnlLine.Validate("Document No.", TransferReceiptHeader2."No.");
-                    ItemJnlLine."External Document No." := TransferReceiptHeader2."External Document No.";
-                    ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Transfer);
-                    ItemJnlLine."Value Entry Type" := ItemJnlLine."Value Entry Type"::Revaluation;
-                    ItemJnlLine.Validate("Item No.", TransferReceiptLine2."Item No.");
-                    ItemJnlLine.Description := TransferReceiptLine2.Description;
-                    ItemJnlLine."Inventory Posting Group" := TransferReceiptLine2."Inventory Posting Group";
-                    ItemJnlLine."Gen. Prod. Posting Group" := TransferLine3."Gen. Prod. Posting Group";
-                    ItemJnlLine."Source Code" := SourceCodeSetup."Revaluation Journal";
-                    ItemJnlLine.Validate("Applies-to Entry", ItemLedgerEntry."Entry No.");
-                    ItemJnlLine.Validate("Unit Cost (Revalued)", (ItemJnlLine."Unit Cost (Revalued)" + TransferPriceDiff));
-                    ItemJnlLine.Description := STRSUBSTNO(Text13700Msg, TransferReceiptHeader2."No.");
-                    ItemJnlLine."New Location Code" := TransferReceiptHeader2."Transfer-to Code";
+
+                    ItemJournalLine.Init();
+                    ItemJournalLine.Validate("Posting Date", TransferReceiptHeader2."Posting Date");
+                    ItemJournalLine."Document Date" := TransferReceiptHeader2."Posting Date";
+                    ItemJournalLine.Validate("Document No.", TransferReceiptHeader2."No.");
+                    ItemJournalLine."External Document No." := TransferReceiptHeader2."External Document No.";
+                    ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::Transfer);
+                    ItemJournalLine."Value Entry Type" := ItemJournalLine."Value Entry Type"::Revaluation;
+                    ItemJournalLine.Validate("Item No.", TransferReceiptLine2."Item No.");
+                    ItemJournalLine.Description := TransferReceiptLine2.Description;
+                    ItemJournalLine."Inventory Posting Group" := TransferReceiptLine2."Inventory Posting Group";
+                    ItemJournalLine."Gen. Prod. Posting Group" := TransferLine3."Gen. Prod. Posting Group";
+                    ItemJournalLine."Source Code" := SourceCodeSetup."Revaluation Journal";
+                    ItemJournalLine.Validate("Applies-to Entry", ItemLedgerEntry."Entry No.");
+                    ItemJournalLine.Validate("Unit Cost (Revalued)", (ItemJournalLine."Unit Cost (Revalued)" + TransferPriceDiff));
+                    ItemJournalLine.Description := StrSubstNo(TransferReceiptNoLbl, TransferReceiptHeader2."No.");
+                    ItemJournalLine."New Location Code" := TransferReceiptHeader2."Transfer-to Code";
 
                     Ctr := TempItemJnlLine."Line No." + 1;
+
                     TempItemJnlLine.Init();
-                    TempItemJnlLine.Transferfields(ItemJnlLine);
+                    TempItemJnlLine.TransferFields(ItemJournalLine);
                     TempItemJnlLine."Line No." := Ctr;
                     if ItemLedgerEntry."Lot No." <> '' then begin
                         CreateReservationEntryRevaluation(TransferReceiptHeader2, ItemLedgerEntry, TransferLine3);
-                        ReserveTransLine.TransferTransferToItemJnlLine(
-                          TransferLine3, TempItemJnlLine, TransferLine3."Qty. to Receive (Base)", "Transfer Direction"::Inbound);
+                        ReserveTransLine.TransferTransferToItemJnlLine(TransferLine3, TempItemJnlLine, TransferLine3."Qty. to Receive (Base)", "Transfer Direction"::Inbound);
                     end;
+
                     ItemJnlPostLine.Run(TempItemJnlLine);
                 end;
             until ItemLedgerEntry.Next() = 0;
     end;
 
-    local procedure GetTransferReceiptPostingNoSeries(var TansferHeader: Record "Transfer Header"): Code[20]
+    local procedure GetTransferReceiptPostingNoSeries(var TransferHeader: Record "Transfer Header"): Code[20]
     var
         PostingNoSeries: Record "Posting No. Series";
         NoSeriesCode: Code[20];
     begin
         PostingNoSeries.SetRange("Table Id", Database::"Transfer Header");
-        NoSeriesCode := GSTTransferShipment.LoopPostingNoSeries(
+        NoSeriesCode := GSTTransferOrderShipment.LoopPostingNoSeries(
             PostingNoSeries,
-            TansferHeader,
+            TransferHeader,
             PostingNoSeries."Document Type"::"Transfer Receipt Header");
         exit(NoSeriesCode);
     end;
-
-    var
-        GSTPostingBuffer: Array[2] of Record "GST Posting Buffer" Temporary;
-        TransferBuffer: Array[2] of Record "Transfer Buffer" Temporary;
-        GenJnlLine: Record "Gen. Journal Line";
-        ItemJnlLine: Record "Item Journal Line";
-        TempItemJnlLine: Record "Item Journal Line" temporary;
-        GSTTransferShipment: Codeunit "GST Transfer order Shipment";
-        GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
-        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
-        ReserveTransLine: Codeunit "Transfer Line-Reserve";
-        RoundDiffAmt: Decimal;
-        TransReceiptHeaderNo: Code[20];
-        FirstExecution: Boolean;
-        GSTAmountLoaded: Decimal;
-        TransferCost: Decimal;
-        GSTAssessableErr: Label 'GST Assessable Value must be 0 if GST Group Type is Service while transferring from Bonded Warehouse location.';
-        GSTCustomDutyErr: Label 'Custom Duty Amount must be 0 if GST Group Type is Service while transferring from Bonded Warehouse location.';
-        GSTGroupServiceErr: Label 'You cannot select GST Group Type Service for transfer.';
-        Text13700Msg: Label 'Transfer - %1', Comment = '%1 = Transfer Receipt No.';
-
 }

@@ -1,6 +1,7 @@
 enum 18015 "Document Type Enum"
 {
-    Extensible = true; //This enum is extnded in Return & Settlement.
+    Extensible = true;
+
     value(0; Quote)
     {
         Caption = 'Quote';

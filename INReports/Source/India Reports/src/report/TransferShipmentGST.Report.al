@@ -171,7 +171,6 @@ report 18026 "Transfer Shipment GST"
                         column(HdrDimCaption; HdrDimCaptionLbl)
                         {
                         }
-
                         trigger OnAfterGetRecord()
                         begin
                             DimText := GetDimensionText(DimSetEntry1, Number, Continue);
@@ -250,7 +249,6 @@ report 18026 "Transfer Shipment GST"
                         {
                             DataItemTableView = sorting(Number)
                                                 where(Number = filter(1 ..));
-
                             column(DimText4; DimText)
                             {
                             }
@@ -260,7 +258,6 @@ report 18026 "Transfer Shipment GST"
                             column(LineDimCaption; LineDimCaptionLbl)
                             {
                             }
-
                             trigger OnAfterGetRecord()
                             begin
                                 DimText := GetDimensionText(DimSetEntry2, Number, Continue);
@@ -274,7 +271,6 @@ report 18026 "Transfer Shipment GST"
                                     CurrReport.Break();
                             end;
                         }
-
                         trigger OnAfterGetRecord()
                         begin
                             Clear(CGSTAmt);
@@ -312,7 +308,6 @@ report 18026 "Transfer Shipment GST"
                         end;
                     }
                 }
-
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 1 then begin
@@ -329,7 +324,6 @@ report 18026 "Transfer Shipment GST"
                     OutputNo := 1;
                 end;
             }
-
             trigger OnAfterGetRecord()
             begin
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
@@ -396,7 +390,6 @@ report 18026 "Transfer Shipment GST"
         NoOfLoops: Integer;
         CopyText: Text[30];
         DimText: Text[120];
-        OldDimText: Text[75];
         ShowIntInfo: Boolean;
         Continue: Boolean;
         OutputNo: Integer;

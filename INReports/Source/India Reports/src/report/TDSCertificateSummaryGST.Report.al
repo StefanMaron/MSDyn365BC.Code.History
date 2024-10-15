@@ -3,28 +3,27 @@ report 18028 "TDS Certificate Summary GST"
     DefaultLayout = RDLC;
     RDLCLayout = './rdlc/TDSCertificateSummary.rdl';
     Caption = 'TDS Certificate Summary';
+    UsageCategory = ReportsAndAnalysis;
+    ApplicationArea = Basic, Suite;
 
     dataset
     {
         dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
         {
-            DataItemTableView = sorting("Customer No.", "Certificate No.")
+            DataItemTableView = sorting("Customer No.")
                                 where("Certificate Received" = filter(1));
             RequestFilterFields = "Customer No.", "Posting Date";
 
-            column(FORMAT_TODAY_0_4_; FORMAT(TODAY, 0, 4))
+            column(FORMAT_TODAY_0_4_; Format(Today(), 0, 4))
             {
             }
             column(CompanyInfo_Name; CompanyInfo.Name)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo())
+            column(USERID; UserId())
             {
             }
-            column(USERID; USERID)
-            {
-            }
-            column(GETFILTERS; GETFILTERS)
+            column(GETFILTERS; GetFilters())
             {
             }
             column(Summary_of_TDS_Certificate_Received_from_Customer______PostingDateFilter; StrSubstNo(Summary_of_TDS_Certificate_Received_from_Customer_CaptionLbl, PostingDateFilter))
@@ -33,7 +32,7 @@ report 18028 "TDS Certificate Summary GST"
             column(Cust__Ledger_Entry__TDS_Certificate_Amount_; "TDS Certificate Amount")
             {
             }
-            column(Cust__Ledger_Entry__TDS_Certificate_Rcpt_Date_; FORMAT("TDS Certificate Rcpt Date"))
+            column(Cust__Ledger_Entry__TDS_Certificate_Rcpt_Date_; Format("TDS Certificate Rcpt Date"))
             {
             }
             column(Cust__Ledger_Entry__Certificate_No__; "Certificate No.")
@@ -105,6 +104,7 @@ report 18028 "TDS Certificate Summary GST"
                 if PreCertificateNo <> "Certificate No." then begin
                     PreCertificateNo := "Certificate No.";
                     if Customer.Get("Customer No.") then;
+
                     TotalTDSAmount := TotalTDSAmount + "TDS Certificate Amount";
                     if "Financial Year" = 0 then
                         FinancialYear := ''
@@ -127,31 +127,26 @@ report 18028 "TDS Certificate Summary GST"
                                 CustomerNo := "Customer No.";
                             end else
                                 TDSRCVGroupTotal := 0;
+
                     TDSRCVGroupTotal := TDSRCVGroupTotal + "TDS Certificate Amount";
                     LastTDSRcvGroup := Format("TDS Section Code");
                     CustomerNo := "Customer No.";
-
                 end
             end;
         }
     }
-
     requestpage
     {
+        SaveValues = true;
 
         layout
         {
-        }
+            area(Content)
+            {
 
-        actions
-        {
+            }
         }
     }
-
-    labels
-    {
-    }
-
 
     trigger OnPreReport()
     begin
@@ -171,12 +166,12 @@ report 18028 "TDS Certificate Summary GST"
         PostingDateFilter: Text[150];
         PreCertificateNo: Code[20];
         CurrReport_PAGENOCaptionLbl: Label 'Page';
-        TDS_Cert__Receivable_GroupCaptionLbl: Label 'TDS Cert. Receivable Group';
+        TDS_Cert__Receivable_GroupCaptionLbl: Label 'TDS Section';
         Cust__Ledger_Entry__TDS_Certificate_Rcpt_Date_CaptionLbl: Label 'TDS Certificate Rcpt Date';
         Certificate_TDS_Amount__Rs__CaptionLbl: Label 'Certificate TDS Amount (Rs.)';
         Customer_NameCaptionLbl: Label 'Customer Name';
         Customer_AddressCaptionLbl: Label 'Customer Address';
-        TDS_Cert__Received_Group_Total__Rs__CaptionLbl: Label 'TDS Cert. Received Group Total (Rs.)';
+        TDS_Cert__Received_Group_Total__Rs__CaptionLbl: Label 'TDS Cert. Received Total (Rs.)';
         Financial_YearCaptionLbl: Label 'Financial Year';
         Total_CaptionLbl: Label 'Total ';
         Summary_of_TDS_Certificate_Received_from_Customer_CaptionLbl: Label 'Summary of TDS Certificate Received from Customer %1', Comment = '%1 will be replaced with the posting datefilter';

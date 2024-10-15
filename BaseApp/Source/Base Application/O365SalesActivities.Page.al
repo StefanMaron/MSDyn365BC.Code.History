@@ -157,7 +157,7 @@ page 9039 "O365 Sales Activities"
 
                         trigger OnAction()
                         begin
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     }
                     action(ReplayGettingStarted)

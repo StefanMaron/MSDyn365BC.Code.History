@@ -3,10 +3,12 @@ codeunit 18436 "GST Reverse Trans. Handler"
     var
         ReverseDGSTErr: Label 'You cannot reverse the Transaction as GST Adjustment Type is Credit Reversal/Permanent Reversal.';
 
-    local procedure ReverseGST(var GSTLedgerEntry: Record "GST Ledger Entry"; NextTransactionNo: Integer)
+    local procedure ReverseGST(
+        var GSTLedgerEntry: Record "GST Ledger Entry";
+        NextTransactionNo: Integer)
     var
         SourceCodeSetup: Record "Source Code Setup";
-        GSTLedgerEntry2: Record "GST Ledger Entry";
+        GSTLedgerEntryToModify: Record "GST Ledger Entry";
         NewGSTLedgerEntry: Record "GST Ledger Entry";
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
     begin
@@ -19,6 +21,7 @@ codeunit 18436 "GST Reverse Trans. Handler"
             repeat
                 NewGSTLedgerEntry.Init();
                 NewGSTLedgerEntry.TransferFields(GSTLedgerEntry);
+                NewGSTLedgerEntry."Entry No." := 0;
                 NewGSTLedgerEntry."Reversed Entry No." := GSTLedgerEntry."Entry No.";
                 NewGSTLedgerEntry."Transaction No." := NextTransactionNo;
                 NewGSTLedgerEntry."GST Base Amount" := -NewGSTLedgerEntry."GST Base Amount";
@@ -27,12 +30,12 @@ codeunit 18436 "GST Reverse Trans. Handler"
                 NewGSTLedgerEntry.Reversed := true;
                 NewGSTLedgerEntry.Insert();
 
-                GSTLedgerEntry2.Reset();
-                GSTLedgerEntry2.SetRange("Entry No.", GSTLedgerEntry."Entry No.");
-                GSTLedgerEntry2.FindFirst();
-                GSTLedgerEntry2."Reversed by Entry No." := NewGSTLedgerEntry."Entry No.";
-                GSTLedgerEntry2.Reversed := true;
-                GSTLedgerEntry2.Modify();
+                GSTLedgerEntryToModify.Reset();
+                GSTLedgerEntryToModify.SetRange("Entry No.", GSTLedgerEntry."Entry No.");
+                GSTLedgerEntryToModify.FindFirst();
+                GSTLedgerEntryToModify."Reversed by Entry No." := NewGSTLedgerEntry."Entry No.";
+                GSTLedgerEntryToModify.Reversed := true;
+                GSTLedgerEntryToModify.Modify();
             until GSTLedgerEntry.Next() = 0;
         end;
     end;
@@ -41,8 +44,10 @@ codeunit 18436 "GST Reverse Trans. Handler"
         var DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         NextTransactionNo: Integer)
     var
-        DetailedGSTLedgerEntry2: Record "Detailed GST Ledger Entry";
+        DetailedGSTLedgerEntryToModify: Record "Detailed GST Ledger Entry";
         NewDetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+        DetailedGSTLedgerEntryInfoToCheck: Record "Detailed GST Ledger Entry Info";
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
     begin
         if DetailedGSTLedgerEntry.FindSet() then
             repeat
@@ -52,10 +57,13 @@ codeunit 18436 "GST Reverse Trans. Handler"
                     DetailedGSTLedgerEntry."Credit Adjustment Type"::"Permanent Reversal"]
                 then
                     Error(ReverseDGSTErr);
-                DetailedGSTLedgerEntry.TestField("Adv. Pmt. Adjustment", false);
+
+                if DetailedGSTLedgerEntryInfoToCheck.Get(DetailedGSTLedgerEntry."Entry No.") then
+                    DetailedGSTLedgerEntryInfoToCheck.TestField("Adv. Pmt. Adjustment", false);
 
                 NewDetailedGSTLedgerEntry.Init();
                 NewDetailedGSTLedgerEntry.TransferFields(DetailedGSTLedgerEntry);
+                NewDetailedGSTLedgerEntry."Entry No." := 0;
                 NewDetailedGSTLedgerEntry."Reversed Entry No." := DetailedGSTLedgerEntry."Entry No.";
                 NewDetailedGSTLedgerEntry."Transaction No." := NextTransactionNo;
                 NewDetailedGSTLedgerEntry."Entry Type" := NewDetailedGSTLedgerEntry."Entry Type"::Application;
@@ -66,25 +74,30 @@ codeunit 18436 "GST Reverse Trans. Handler"
                 NewDetailedGSTLedgerEntry."Amount Loaded on Item" := -NewDetailedGSTLedgerEntry."Amount Loaded on Item";
                 NewDetailedGSTLedgerEntry.Quantity := -NewDetailedGSTLedgerEntry.Quantity;
                 NewDetailedGSTLedgerEntry.Reversed := true;
-                if NewDetailedGSTLedgerEntry.Positive then
-                    NewDetailedGSTLedgerEntry.Positive := false
-                else
-                    NewDetailedGSTLedgerEntry.Positive := true;
                 NewDetailedGSTLedgerEntry.Insert();
 
-                DetailedGSTLedgerEntry2.Reset();
-                DetailedGSTLedgerEntry2.SetRange("Entry No.", DetailedGSTLedgerEntry."Entry No.");
-                DetailedGSTLedgerEntry2.FindFirst();
-                DetailedGSTLedgerEntry2."Reversed by Entry No." := NewDetailedGSTLedgerEntry."Entry No.";
-                DetailedGSTLedgerEntry2.Reversed := true;
-                DetailedGSTLedgerEntry2.Modify();
+                DetailedGSTLedgerEntryInfo.Init();
+                DetailedGSTLedgerEntryInfo.TransferFields(DetailedGSTLedgerEntryInfoToCheck);
+                DetailedGSTLedgerEntryInfo."Entry No." := NewDetailedGSTLedgerEntry."Entry No.";
+                if DetailedGSTLedgerEntryInfoToCheck.Positive then
+                    DetailedGSTLedgerEntryInfo.Positive := false
+                else
+                    DetailedGSTLedgerEntryInfo.Positive := true;
+                DetailedGSTLedgerEntryInfo.Insert();
+
+                DetailedGSTLedgerEntryToModify.Reset();
+                DetailedGSTLedgerEntryToModify.SetRange("Entry No.", DetailedGSTLedgerEntry."Entry No.");
+                DetailedGSTLedgerEntryToModify.FindFirst();
+                DetailedGSTLedgerEntryToModify."Reversed by Entry No." := NewDetailedGSTLedgerEntry."Entry No.";
+                DetailedGSTLedgerEntryToModify.Reversed := true;
+                DetailedGSTLedgerEntryToModify.Modify();
             until DetailedGSTLedgerEntry.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Reverse", 'OnReverseOnBeforeStartPosting', '', false, false)]
     local procedure GenJnlPostReverseOnReverseOnBeforeStartPosting(
         var GenJournalLine: Record "Gen. Journal Line";
-        var ReversalEntry: Record "Reversal Entry");
+        var ReversalEntry: Record "Reversal Entry")
     var
         GSTReverseTransSessionMgt: Codeunit "GST Reverse Trans. Session Mgt";
     begin

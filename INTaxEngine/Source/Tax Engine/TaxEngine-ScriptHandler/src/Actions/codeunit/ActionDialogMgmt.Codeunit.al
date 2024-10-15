@@ -36,8 +36,6 @@ codeunit 20156 "Action Dialog Mgmt."
                 OpenDateCalculationDialog(CaseID, ScriptID, ActionID);
             ActionType::DATETODATETIME:
                 OpenDateToDateTimeDialog(CaseID, ScriptID, ActionID);
-            ActionType::GETRECORD:
-                OpenGetRecordDialog(CaseID, ScriptID, ActionID);
             ActionType::ALERTMESSAGE:
                 OpenAlertMessageDialog(CaseID, ScriptID, ActionID);
             ActionType::LOOPTHROUGHRECORDS:
@@ -185,16 +183,6 @@ codeunit 20156 "Action Dialog Mgmt."
         ActionDateToDateTime.GET(CaseID, ScriptID, ID);
         DateToDateTimeDialog.SetCurrentRecord(ActionDateToDateTime);
         DateToDateTimeDialog.RunModal();
-    end;
-
-    procedure OpenGetRecordDialog(CaseID: Guid; ScriptID: Guid; ID: Guid);
-    var
-        ActionGetRecord: Record "Action Get Record";
-        GetRecordDialog: Page "Action Get Record Dialog";
-    begin
-        ActionGetRecord.GET(CaseID, ScriptID, ID);
-        GetRecordDialog.SetCurrentRecord(ActionGetRecord);
-        GetRecordDialog.RunModal();
     end;
 
     procedure OpenAlertMessageDialog(CaseID: Guid; ScriptID: Guid; ID: Guid);

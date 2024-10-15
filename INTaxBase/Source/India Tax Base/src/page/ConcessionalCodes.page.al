@@ -12,12 +12,12 @@ page 18544 "Concessional Codes"
         {
             repeater(General)
             {
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                     ToolTip = 'Specifies the concessional code required for eTDS returns';
                     ApplicationArea = Basic, Suite;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ToolTip = 'Specifies the concessional code description';
                     ApplicationArea = Basic, Suite;
@@ -49,7 +49,7 @@ page 18544 "Concessional Codes"
                     ODataUtility.EditWorksheetInExcel(
                         'Concessional Codes',
                         CurrPage.ObjectId(false),
-                        StrSubstNo(ConcessionalCodeLbl, Code));
+                        StrSubstNo(ConcessionalCodeLbl, Rec.Code));
                 end;
             }
         }

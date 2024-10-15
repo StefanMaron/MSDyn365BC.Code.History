@@ -7,13 +7,13 @@ table 18207 "Posted GST Distribution Header"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             NotBlank = false;
         }
         field(2; "From GSTIN No."; Code[20])
         {
             Caption = 'From GSTIN No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
             TableRelation = "GST Registration Nos."
                 where("Input Service Distributor" = filter(true));
@@ -21,28 +21,28 @@ table 18207 "Posted GST Distribution Header"
         field(6; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(7; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(8; "Creation Date"; Date)
         {
             Caption = 'Creation Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(9; "User ID"; Code[50])
         {
             Caption = 'User ID';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = User."User Name";
         }
         field(10; "Dist. Document Type"; Enum "BankCharges DocumentType")
         {
             Caption = 'Dist. Document Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(11; Reversal; Boolean)
         {
@@ -53,49 +53,49 @@ table 18207 "Posted GST Distribution Header"
         field(12; "Reversal Invoice No."; Code[20])
         {
             Caption = 'Reversal Invoice No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(13; "ISD Document Type"; Enum "Adjustment Document Type")
         {
             Caption = 'ISD Document Type';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(14; "From Location Code"; Code[10])
         {
             Caption = 'From Location Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = Location where("GST Input Service Distributor" = filter(true));
         }
-        field(16; "Dist. Credit Type"; Enum "GST Distribution Credit Type")
+        field(16; "Dist. Credit Type"; Enum "GST Credit")
         {
             Caption = 'Dist. Credit Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(17; "Posting No. Series"; Code[20])
         {
             Caption = 'Posting No. Series';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(18; "Total Amout Applied for Dist."; Decimal)
         {
             Caption = 'Total Amout Applied for Dist.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(19; "Distribution Basis"; Text[50])
         {
             Caption = 'Distribution Basis';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(20; "Pre Distribution No."; Code[20])
         {
             Caption = 'Pre Distribution No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(30; "Completely Reversed"; Boolean)
         {
             Caption = 'Completely Reversed';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
 
@@ -107,4 +107,3 @@ table 18207 "Posted GST Distribution Header"
         }
     }
 }
-

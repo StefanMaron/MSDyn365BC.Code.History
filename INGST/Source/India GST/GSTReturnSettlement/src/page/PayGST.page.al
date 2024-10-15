@@ -4,11 +4,10 @@ page 18322 "Pay GST"
     ApplicationArea = Basic, Suite;
     PageType = List;
     SourceTable = "GST Payment Buffer";
-    SourceTableView = SORTING("GST Registration No.", "Document No.", "GST Component Code") ORDER(Ascending);
+    SourceTableView = sorting("GST Registration No.", "Document No.", "GST Component Code") ORDER(ascending);
     DeleteAllowed = false;
     InsertAllowed = false;
     UsageCategory = Lists;
-
 
     layout
     {
@@ -47,141 +46,116 @@ page 18322 "Pay GST"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value which defines the liability of payment for the component code.';
-
                 }
                 field("GST TCS Liability"; Rec."GST TCS Liability")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of GST TCS Liability against component code.';
-
                 }
                 field("Net Payment Liability"; Rec."Net Payment Liability")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Net Payment Liability against the component code.';
-
                 }
                 field("Unadjutsed Liability"; Rec."Unadjutsed Liability")
                 {
-
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of Unadjusted Liability for the component code.';
-
                 }
                 field("Credit Availed"; Rec."Credit Availed")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the credit amount that has been availed for the component code.';
-
                 }
                 field("Distributed Credit"; Rec."Distributed Credit")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of Distributed Credit for the component code.';
-
                 }
                 field("GST TDS Credit Available"; Rec."GST TDS Credit Available")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of GST TDS Credit available against the component code.';
-
                 }
                 field("GST TDS Credit Utilized"; Rec."GST TDS Credit Utilized")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of GST TDS Credit utilized against the component code.';
-
                 }
                 field("GST TCS Credit Available"; Rec."GST TCS Credit Available")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of GST TCS Credit available against the component code.';
-
                 }
                 field("GST TCS Credit Utilized"; Rec."GST TCS Credit Utilized")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of GST TCS Credit utilized against the component code.';
-
                 }
                 field("Total Credit Available"; Rec."Total Credit Available")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Total Credit Available against the component code';
-
                 }
                 field("UnAdjutsed Credit"; Rec."UnAdjutsed Credit")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Sepecifies the value of UnAdjusted Credit against the component code.';
-
                 }
                 field("Credit Utilized"; Rec."Credit Utilized")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of Credit Utilized for the component code.';
-
                 }
                 field("Payment Amount"; Rec."Payment Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of Payment Amount for the component code.';
-
                 }
                 field("Payment Liability - Rev. Chrg."; Rec."Payment Liability - Rev. Chrg.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Payment Liability- Reverse Charge against the component code.';
-
                 }
                 field("Payment Amount - Rev. Chrg."; Rec."Payment Amount - Rev. Chrg.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Payment Amount- Reverse Charge against the component code.';
-
                 }
                 field(Interest; Rec.Interest)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of interest payable against component code.';
-
                 }
                 field("Interest Account No."; Rec."Interest Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies interest payable general ledger account number against component code.';
-
                 }
                 field(Penalty; Rec.Penalty)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of penalty payable against component code.';
-
                 }
                 field("Penalty Account No."; Rec."Penalty Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the penalty payable general ledger account number against component code.';
-
                 }
                 field(Fees; Rec.Fees)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of fees payable against component code.';
-
-
                 }
                 field("Fees Account No."; Rec."Fees Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the fees payable general ledger account number against component code.';
-
                 }
                 field(Others; Rec.Others)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value of Others payables against component code.';
-
                 }
                 field("Others Account No."; Rec."Others Account No.")
                 {
@@ -225,6 +199,7 @@ page 18322 "Pay GST"
             {
                 Caption = '&Line';
                 Image = Line;
+
                 action(Dimensions)
                 {
                     Caption = 'Dimensions';
@@ -258,10 +233,32 @@ page 18322 "Pay GST"
                 begin
                     if GSTSettlement.PostGSTPayment(Rec."GST Registration No.", Rec."Document No.", NoMsg) then begin
                         Message(GSTPaymetMsg);
-                        CurrPage.CLOSE();
+                        CurrPage.Close();
                     end else
                         if not NoMsg then
                             Message(NothingToPostMsg);
+                end;
+            }
+            action("Calculation Details")
+            {
+                Caption = 'D&etails';
+                ApplicationArea = Basic, Suite;
+                Image = ViewDetails;
+                ToolTip = 'Specifies the page through which GST net payment of liability can be settled.';
+
+                trigger OnAction()
+                var
+                    GSTPaymentBufferDetails: Record "GST Payment Buffer Details";
+                    PayGSTCalculationDetails: Page "Pay GST Calculation Details";
+                begin
+                    Clear(GSTSettlement);
+                    GSTSettlement.ValidateCreditUtilizedAmt(Rec."GST Registration No.", Rec."Document No.");
+                    Commit();
+
+                    Clear(PayGSTCalculationDetails);
+                    PayGSTCalculationDetails.SetParameter(Rec."GST Registration No.", Rec."Document No.");
+                    PayGSTCalculationDetails.SetTableView(GSTPaymentBufferDetails);
+                    PayGSTCalculationDetails.RunModal();
                 end;
             }
         }
@@ -288,13 +285,22 @@ page 18322 "Pay GST"
         Rec.FilterGroup(0);
     end;
 
+    var
+        GSTSettlement: Codeunit "GST Settlement";
+        GSTNNo: Code[20];
+        DocumentNo: Code[20];
+        NoMsg: Boolean;
+        GSTPaymetMsg: Label 'GST Payment Lines Posted Successfully.';
+        NothingToPostMsg: Label 'There is nothing to post.';
+        GSTRegistrationMsg: Label '%1', Comment = '%1 GST registration No.';
+
     procedure SetParameter(GSTN: Code[20]; PaymentDocumentNo: Code[20])
     begin
         GSTNNo := GSTN;
         DocumentNo := PaymentDocumentNo;
     end;
 
-    Local procedure ShowDimensions()
+    local procedure ShowDimensions()
     var
         DimensionManagement: Codeunit DimensionManagement;
     begin
@@ -303,13 +309,4 @@ page 18322 "Pay GST"
               Rec."Dimension Set ID",
               StrSubstNo(GSTRegistrationMsg, Rec."GST Registration No."));
     end;
-
-    var
-        GSTSettlement: Codeunit "GST Settlement";
-        GSTNNo: Code[20];
-        DocumentNo: Code[20];
-        GSTPaymetMsg: Label 'GST Payment Lines Posted Successfully.';
-        NothingToPostMsg: Label 'There is nothing to post.';
-        GSTRegistrationMsg: Label '%1', Comment = '%1 GST registration No.';
-        NoMsg: Boolean;
 }

@@ -8,13 +8,13 @@ table 20285 "Tax Component Expression"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
             TableRelation = "Tax Use Case";
         }
         field(2; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(3; Expression; Text[250])
@@ -102,5 +102,4 @@ table 20285 "Tax Component Expression"
     var
         TaxComponentExprToken: Record "Tax Component Expr. Token";
         ScriptDataTypeMgmt: Codeunit "Script Data Type Mgmt.";
-        EmptyGuid: Guid;
 }

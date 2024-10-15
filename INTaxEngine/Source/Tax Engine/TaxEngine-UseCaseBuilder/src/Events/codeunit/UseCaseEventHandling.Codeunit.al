@@ -1,19 +1,5 @@
 codeunit 20286 "Use Case Event Handling"
 {
-    procedure CreateEventsLibrary();
-    begin
-        AddEventToLibrary('OnAfterUpdateSalesUnitPrice', DATABASE::"Sales Line", OnAfterUpdateSalesUnitPriceTxt);
-        AddEventToLibrary('OnAfterUpdatePurchUnitPrice', DATABASE::"Purchase Line", OnAfterUpdatePurchUnitPriceTxt);
-        AddEventToLibrary('OnAfterGenJnlLineUpdated', DATABASE::"Gen. Journal Line", OnAfterGenJnlLineUpdatedTxt);
-        UseCaseEventLibrary.OnAddUseCaseEventstoLibrary();
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Use Case Event Library", 'OnAfterAddUseCaseEventToLibrary', '', false, false)]
-    procedure OnAfterAddUseCaseEventToLibrary(FunctionName: Text[100]; TableID: Integer; Description: Text[250]);
-    begin
-        AddEventToLibrary(FunctionName, TableID, Description);
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Use Case Event Library", 'OnAfterHandleBusinessUseCaseEvent', '', false, false)]
     procedure OnAfterHandleBusinessUseCaseEvent(EventName: Text[150]; Record: Variant; CurrencyCode: Code[20]; CurrencyFactor: Decimal);
     begin
@@ -101,30 +87,6 @@ codeunit 20286 "Use Case Event Handling"
             TaxTransactionValue.ModifyAll("Tax Record ID", RecRef.RecordId());
     end;
 
-    local procedure AddEventToLibrary(FunctionName: Text[100]; TableID: Integer; Description: Text[250]);
-    var
-        UseCaseEvent: Record "Use Case Event";
-    begin
-        if UseCaseEvent.GET(FunctionName) then
-            exit;
-
-        UseCaseEvent.SetRange(Name, Description);
-        if UseCaseEvent.FindFirst() then
-            Error(EventAlreadyExistErr, Description);
-
-        UseCaseEvent.Init();
-        UseCaseEvent.Name := FunctionName;
-        UseCaseEvent."Table ID" := TableID;
-        UseCaseEvent.Description := Description;
-        UseCaseEvent.Insert();
-    end;
-
     var
         UseCaseExecution: Codeunit "Use Case Execution";
-        UseCaseEventLibrary: Codeunit "Use Case Event Library";
-        RecRef: RecordRef;
-        OnAfterUpdateSalesUnitPriceTxt: Label 'After Unit Price is Updated on Sales Line';
-        OnAfterUpdatePurchUnitPriceTxt: Label 'After Unit Price is Updated on Purchase Line';
-        OnAfterGenJnlLineUpdatedTxt: Label 'After Gen. Journal Line is Updated';
-        EventAlreadyExistErr: Label 'An event with description %1 already exists.', Comment = '%1 - Event Description';
 }

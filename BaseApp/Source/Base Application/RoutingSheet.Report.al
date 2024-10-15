@@ -299,26 +299,26 @@ report 99000787 "Routing Sheet"
                     field(PrintComment; PrintComment)
                     {
                         ApplicationArea = Manufacturing;
-                        Caption = 'Print';
-                        ToolTip = 'Specifies the fields that you want to have printed - Comments, Tools, Personnel, and/or Quality Measures.';
+                        Caption = 'Comment';
+                        ToolTip = 'Specifies whether to include comments that provide additional information about the operation. For example, comments might mention special conditions for completing the operation.';
                     }
                     field(PrintTool; PrintTool)
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Tools';
-                        ToolTip = 'Specifies if you want to include tools.';
+                        ToolTip = 'Specifies whether to include the tools that are required to complete the operation.';
                     }
                     field(PrintPersonnel; PrintPersonnel)
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Personnel';
-                        ToolTip = 'Specifies if you want to include personnel.';
+                        ToolTip = 'Specifies whether to include the people to involve in the operation. For example, this is useful if the operation requires special knowledge or training.';
                     }
                     field(PrintQualityMeasures; PrintQualityMeasures)
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Quality Measures';
-                        ToolTip = 'Specifies if you want to include quality measures.';
+                        ToolTip = 'Specifies whether to include quality measures for the operation. For example, this is useful for quality control purposes.';
                     }
                     field(NumberOfCopies; NumberOfCopies)
                     {

@@ -373,7 +373,7 @@ page 6059 "Contract Statistics"
             if ServLedgerEntry.FindSet then
                 repeat
                     TotalDiscount[i] := TotalDiscount[i] - ServLedgerEntry."Discount Amount";
-                until ServLedgerEntry.Next = 0;
+                until ServLedgerEntry.Next() = 0;
             CalcFields("Contract Invoice Amount", "Contract Discount Amount", "Contract Cost Amount");
 
             Income[i] := "Contract Invoice Amount";

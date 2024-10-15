@@ -497,7 +497,7 @@ report 99001048 "Planning Availability"
                 if Number = 1 then
                     PlanningBuffer.Find('-')
                 else
-                    if PlanningBuffer.Next = 0 then
+                    if PlanningBuffer.Next() = 0 then
                         CurrReport.Break();
 
                 Item.SetRange("Date Filter", 0D, PlanningBuffer.Date);
@@ -545,7 +545,7 @@ report 99001048 "Planning Availability"
                                 PlanningBuffer.Insert();
                             end;
                         end;
-                    until TempForecastPlanningBuffer.Next = 0;
+                    until TempForecastPlanningBuffer.Next() = 0;
 
                 PlanningBuffer.SetCurrentKey("Item No.", Date);
                 PlanningBuffer.CopyFilters("Planning Buffer");

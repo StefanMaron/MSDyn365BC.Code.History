@@ -8,6 +8,7 @@ pageextension 18252 "GST Cash Receipt Voucher Ext" extends "Cash Receipt Voucher
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies if GST is required to be calculated on Advance Payment.';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
@@ -17,6 +18,7 @@ pageextension 18252 "GST Cash Receipt Voucher Ext" extends "Cash Receipt Voucher
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the GST group code for the calculation of GST on journal line.';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
@@ -26,30 +28,38 @@ pageextension 18252 "GST Cash Receipt Voucher Ext" extends "Cash Receipt Voucher
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the HSN/SAC code for the calculation of GST on journal line.';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
                 end;
             }
-            field("GST TCS"; Rec."GST TCS")
+            field("GST TDS/GST TCS"; Rec."GST TDS/GST TCS")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies if GST TCS is calculated on the journal line.';
+                ToolTip = 'Specifies if GST TCS or GST TDS is calculated on the journal line.';
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("GST TCS State Code"; Rec."GST TCS State Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the state code for which GST TCS is applicable on the journal line.';
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("GST TDS/TCS Base Amount"; Rec."GST TDS/TCS Base Amount")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the GST TDS/TCS Base amount for the journal line.';
-            }
-            field("GST TDS"; Rec."GST TDS")
-            {
-                ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies if GST TDS is calculated on the journal line.';
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
         }
         modify(Amount)
@@ -81,6 +91,20 @@ pageextension 18252 "GST Cash Receipt Voucher Ext" extends "Cash Receipt Voucher
             end;
         }
         modify("Posting Date")
+        {
+            trigger OnAfterValidate()
+            begin
+                CallTaxEngine();
+            end;
+        }
+        modify("location Code")
+        {
+            trigger OnAfterValidate()
+            begin
+                CallTaxEngine();
+            end;
+        }
+        modify("Currency Code")
         {
             trigger OnAfterValidate()
             begin

@@ -186,7 +186,6 @@ codeunit 136802 "Tax Rate Setup Matrix Tests"
     procedure TestUpdateFromAndToRangeAttributeForError()
     var
         TaxRate: Record "Tax Rate";
-        TaxRateValue: Record "Tax Rate Value";
         LibraryTaxTypeTests: Codeunit "Library - Tax Type Tests";
         TaxRates: Page "Tax Rates";
         Type: Option Option,Text,Integer,Decimal,Boolean,Date;
@@ -224,8 +223,6 @@ codeunit 136802 "Tax Rate Setup Matrix Tests"
         Assert.AreEqual(GetLastErrorText, StrSubstNo(DateValueErr, '1,000', '2,000'), 'wrong error meesage');
     end;
 
-
-
     [ModalPageHandler]
     procedure TaxRatesPageHandler(var TaxRates: TestPage "Tax Rates")
     begin
@@ -236,12 +233,115 @@ codeunit 136802 "Tax Rate Setup Matrix Tests"
         TaxRates.AttributeValue4.SetValue('2');
     end;
 
+    [Test]
+    procedure TestUpdateTaxAttributeFactbox()
+    var
+        Customer: Record Customer;
+        RecordAttributeMapping: Record "Record Attribute Mapping";
+        LibraryTaxTypeTests: Codeunit "Library - Tax Type Tests";
+        TaxAttributeMgmt: Codeunit "Tax Attribute Management";
+        AttributeID: Integer;
+        Type: Option Option,Text,Integer,Decimal,Boolean,Date;
+    begin
+        // [SCENARIO] To check if function UpdateTaxAttributeFactbox is updating Record Attribute Mapping tables
+
+        // [GIVEN] There should be a Tax Attribute created 
+        LibraryTaxTypeTests.CreateTaxType('VAT', 'VAT');
+        AttributeID := LibraryTaxTypeTests.CreateTaxAttribute('VAT', 'VATBusPostingGrp', Type::Text, Database::"VAT Business Posting Group", 1, Page::"VAT Business Posting Groups", false);
+        LibraryTaxTypeTests.CreateEntityAttributeMapping(AttributeID, Database::Customer);
+        Customer.FindFirst();
+
+        // [WHEN] when function UpdateTaxAttributeFactbox is called
+        TaxAttributeMgmt.UpdateTaxAttributeFactbox(Customer);
+
+        // [THEN] it should craete a new record in "Record Attribute Mapping" table
+        RecordAttributeMapping.SetRange("Attribute Record ID", Customer.RecordId());
+        Assert.RecordIsNotEmpty(RecordAttributeMapping);
+    end;
+
+    [Test]
+    procedure TestGetAttributeOptionText()
+    var
+        LibraryTaxTypeTests: Codeunit "Library - Tax Type Tests";
+        TaxAttributeMgmt: Codeunit "Tax Attribute Management";
+        AttributeID: Integer;
+        Type: Option Option,Text,Integer,Decimal,Boolean,Date;
+        AttributeValue: Text;
+    begin
+        // [SCENARIO] To check if function GetAttributeOptionText returns correct option value
+
+        // [GIVEN] There should be a Tax Attribute created 
+        LibraryTaxTypeTests.CreateTaxType('VAT', 'VAT');
+        AttributeID := LibraryTaxTypeTests.CreateTaxAttribute('VAT', 'VATBusPostingGrp', Type::Text, Database::"VAT Business Posting Group", 1, Page::"VAT Business Posting Groups", false);
+        LibraryTaxTypeTests.CreateTaxAttributeValue(AttributeID, 1, 'Value 1');
+
+        // [WHEN] when function GetAttributeOptionText is called
+        AttributeValue := TaxAttributeMgmt.GetAttributeOptionText('', AttributeID, 1);
+
+        // [THEN] it should return value 1 as the option value
+        Assert.AreEqual('Value 1', AttributeValue, 'option should be Value 1');
+    end;
+
+    [Test]
+    procedure TestGetAttributeOptionIndex()
+    var
+        LibraryTaxTypeTests: Codeunit "Library - Tax Type Tests";
+        TaxAttributeMgmt: Codeunit "Tax Attribute Management";
+        AttributeID: Integer;
+        Type: Option Option,Text,Integer,Decimal,Boolean,Date;
+        AttributeValueIndex: Integer;
+    begin
+        // [SCENARIO] To check if function GetAttributeOptionIndex returns correct option Index
+
+        // [GIVEN] There should be a Tax Attribute created 
+        LibraryTaxTypeTests.CreateTaxType('VAT', 'VAT');
+        AttributeID := LibraryTaxTypeTests.CreateTaxAttribute('VAT', 'VATBusPostingGrp', Type::Text, Database::"VAT Business Posting Group", 1, Page::"VAT Business Posting Groups", false);
+        LibraryTaxTypeTests.CreateTaxAttributeValue(AttributeID, 1, 'Value 1');
+
+        // [WHEN] when function GetAttributeOptionIndex is called
+        AttributeValueIndex := TaxAttributeMgmt.GetAttributeOptionIndex('', AttributeID, 'Value 1');
+
+        // [THEN] it should return 1 as the option Index
+        Assert.AreEqual(1, AttributeValueIndex, 'option index be 1');
+    end;
+
+    [Test]
+    [HandlerFunctions('TaxAttributeValuesHandler')]
+    procedure TestGetAttributeOptionValue()
+    var
+        LibraryTaxTypeTests: Codeunit "Library - Tax Type Tests";
+        TaxAttributeMgmt: Codeunit "Tax Attribute Management";
+        AttributeID: Integer;
+        Type: Option Option,Text,Integer,Decimal,Boolean,Date;
+        AttributeValue: Text[250];
+    begin
+        // [SCENARIO] To check if function GetAttributeOptionValue returns correct value
+
+        // [GIVEN] There should be a Tax Attribute created 
+        LibraryTaxTypeTests.CreateTaxType('VAT', 'VAT');
+        AttributeID := LibraryTaxTypeTests.CreateTaxAttribute('VAT', 'OrderStatus', Type::Option, Database::"Sales Header", 1, 0, false);
+        LibraryTaxTypeTests.CreateTaxAttributeValue(AttributeID, 1, 'Value 1');
+
+        // [WHEN] when function GetAttributeOptionValue is called
+        TaxAttributeMgmt.GetAttributeOptionValue('VAT', AttributeID, AttributeValue);
+
+        // [THEN] it should return value 1 
+        Assert.AreEqual('Quote', AttributeValue, 'option should be Value 1');
+    end;
+
     [ModalPageHandler]
     procedure TaxRatesPageLookupHandler(var TaxRates: TestPage "Tax Rates")
     begin
         TaxRates.First();
         TaxRates.AttributeValue1.Lookup();
     end;
+
+    [ModalPageHandler]
+    procedure TaxAttributeValuesHandler(var TaxAttributeValues: TestPage "Tax Attribute Values")
+    begin
+        TaxAttributeValues.OK().Invoke();
+    end;
+
 
     [ModalPageHandler]
     procedure TaxRatesPageCountryLookupHandler(var TaxRates: TestPage "Tax Rates")
@@ -287,7 +387,6 @@ codeunit 136802 "Tax Rate Setup Matrix Tests"
         VatBusPostingGroup.First();
         VatBusPostingGroup.OK().Invoke();
     end;
-
 
     [ModalPageHandler]
     procedure CountryCodeHandler(var Countries: TestPage "Countries/Regions")

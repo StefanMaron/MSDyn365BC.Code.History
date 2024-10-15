@@ -11,16 +11,17 @@ table 18871 "TCS Journal Template"
         field(1; Name; Code[10])
         {
             NotBlank = true;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; Description; Text[80])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(3; "Source Code"; Code[10])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "Source Code";
+
             trigger OnValidate()
             var
                 TCSJnlLine: Record "TCS Journal Line";
@@ -32,18 +33,19 @@ table 18871 "TCS Journal Template"
         }
         field(4; "Form ID"; Integer)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(5; "Form Name"; Text[80])
         {
             Editable = false;
             FieldClass = FlowField;
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
-                                                                           "Object ID" = FIELD("Form ID")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+                                                                           "Object ID" = field("Form ID")));
         }
         field(6; "Bal. Account Type"; Enum "Bal. Account Type")
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+
             trigger OnValidate()
             begin
                 "Bal. Account No." := '';
@@ -51,44 +53,45 @@ table 18871 "TCS Journal Template"
         }
         field(7; "Bal. Account No."; Code[20])
         {
-            DataClassification = EndUserIdentifiableInformation;
-            TableRelation = If ("Bal. Account Type" = const("G/L Account")) "G/L Account"
-            Else
-            If ("Bal. Account Type" = const(Customer)) Customer
-            Else
-            If ("Bal. Account Type" = const(Vendor)) Vendor
-            Else
-            If ("Bal. Account Type" = const("Bank Account")) "Bank Account";
+            DataClassification = CustomerContent;
+            TableRelation = if ("Bal. Account Type" = const("G/L Account")) "G/L Account"
+            else
+            if ("Bal. Account Type" = const(Customer)) Customer
+            else
+            if ("Bal. Account Type" = const(Vendor)) Vendor
+            else
+            if ("Bal. Account Type" = const("Bank Account")) "Bank Account";
+
 
             trigger OnValidate()
             begin
-                If "Bal. Account Type" = "Bal. Account Type"::"G/L Account" Then
+                if "Bal. Account Type" = "Bal. Account Type"::"G/L Account" then
                     CheckGLAcc("Bal. Account No.");
             end;
         }
         field(8; "No. Series"; Code[10])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "No. Series";
 
             trigger OnValidate()
             begin
-                If "No. Series" <> '' Then
-                    If "No. Series" = "Posting No. Series" Then
+                if "No. Series" <> '' then
+                    if "No. Series" = "Posting No. Series" then
                         "Posting No. Series" := '';
             end;
         }
         field(9; "Posting No. Series"; Code[10])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "No. Series";
 
             trigger OnValidate()
             var
                 ValueErr: Label 'must not be %1', Comment = '%1=The value';
             begin
-                If ("Posting No. Series" = "No. Series") and ("Posting No. Series" <> '') Then
-                    FieldError("Posting No. Series", STRSUBSTNO(ValueErr, "Posting No. Series"));
+                if ("Posting No. Series" = "No. Series") and ("Posting No. Series" <> '') then
+                    FieldError("Posting No. Series", StrSubstNo(ValueErr, "Posting No. Series"));
             end;
         }
     }
@@ -110,13 +113,13 @@ table 18871 "TCS Journal Template"
 
     trigger OnDelete()
     var
-        TCSJnlBatch: Record "TCS Journal Batch";
-        TCSJnlLine: Record "TCS Journal Line";
+        TCSJournalBatch: Record "TCS Journal Batch";
+        TCSJournalLine: Record "TCS Journal Line";
     begin
-        TCSJnlLine.SetRange("Journal Template Name", Name);
-        TCSJnlLine.DeleteAll(True);
-        TCSJnlBatch.SetRange("Journal Template Name", Name);
-        TCSJnlBatch.DeleteAll();
+        TCSJournalLine.SetRange("Journal Template Name", Name);
+        TCSJournalLine.DeleteAll(true);
+        TCSJournalBatch.SetRange("Journal Template Name", Name);
+        TCSJournalBatch.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -126,12 +129,12 @@ table 18871 "TCS Journal Template"
 
     local procedure CheckGLAcc(AccNo: Code[20])
     var
-        GLAcc: Record "G/L Account";
+        GLAccount: Record "G/L Account";
     begin
-        If AccNo <> '' Then Begin
-            GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc();
-            GLAcc.TestField("Direct Posting", True);
+        if AccNo <> '' then begin
+            GLAccount.Get(AccNo);
+            GLAccount.CheckGLAcc();
+            GLAccount.TestField("Direct Posting", true);
         end;
     end;
 }

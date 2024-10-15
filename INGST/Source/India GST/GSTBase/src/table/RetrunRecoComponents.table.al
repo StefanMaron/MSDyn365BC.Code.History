@@ -1,50 +1,54 @@
-Table 18012 "Retrun & Reco. Components"
+table 18012 "Retrun & Reco. Components"
 {
-    Fields
+    fields
     {
-        Field(1; "Component ID"; Integer)
+        field(1; "Component ID"; Integer)
         {
             Caption = 'Component ID';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             NotBlank = True;
-            Trigger OnLookup()
-            Var
+
+            trigger OnLookup()
+            var
                 TaxComponent: Record "Tax Component";
-                TaxTypeSetup: Record "Tax Type Setup";
-            Begin
-                if not TaxTypeSetup.Get() then
+                GSTSetup: Record "GST Setup";
+            begin
+                if not GSTSetup.Get() then
                     exit;
-                TaxTypeSetup.TestField(Code);
-                TaxComponent.SetRange("Tax Type", TaxTypeSetup.Code);
-                IF Page.RunModal(Page::"Tax Components", TaxComponent) = Action::LookupOK Then Begin
+
+                GSTSetup.TestField("GST Tax Type");
+                TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
+                if Page.RunModal(Page::"Tax Components", TaxComponent) = Action::LookupOK then begin
                     "Component ID" := TaxComponent.Id;
                     "Component Name" := TaxComponent.Name;
-                End;
-            End;
+                end;
+            end;
 
-            Trigger OnValidate()
-            Var
+            trigger OnValidate()
+            var
                 TaxComponent: Record "Tax Component";
-                TaxTypeSetup: Record "Tax Type Setup";
-            Begin
-                IF xRec."Component ID" <> Rec."Component ID" Then Begin
-                    if not TaxTypeSetup.Get() then
+                GSTSetup: Record "GST Setup";
+            begin
+                if xRec."Component ID" <> Rec."Component ID" then begin
+                    if not GSTSetup.Get() then
                         exit;
-                    TaxTypeSetup.TestField(Code);
-                    TaxComponent.Setrange("Tax Type", TaxTypeSetup.Code);
-                    TaxComponent.SetRange(ID, "Component ID");
+
+                    GSTSetup.TestField("GST Tax Type");
+                    TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
+                    TaxComponent.SetRange(Id, "Component ID");
                     TaxComponent.FindFirst();
                     "Component Name" := TaxComponent.Name;
-                End;
-            End;
+                end;
+            end;
         }
-        Field(2; "Component Name"; Text[30])
+        field(2; "Component Name"; Text[30])
         {
             Caption = 'Component Name';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
+
     keys
     {
         key(PK; "Component ID")

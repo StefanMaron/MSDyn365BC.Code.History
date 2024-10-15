@@ -13,60 +13,59 @@ page 18549 "Tax Accounting Periods"
         {
             repeater(General)
             {
-                field("Tax Type Code"; "Tax Type Code")
+                field("Tax Type Code"; Rec."Tax Type Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the tax type for the accounting period.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date that the accounting period will begin.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the date that the accounting period will end.';
                 }
-                field("Financial Year"; "Financial Year")
+                field("Financial Year"; Rec."Financial Year")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the accounting period.';
                 }
-                field(Quarter; Quarter)
+                field(Quarter; Rec.Quarter)
                 {
                     Editable = false;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quarter this accounting period belongs to.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the accounting period.';
                 }
-                field("New Fiscal Year"; "New Fiscal Year")
+                field("New Fiscal Year"; Rec."New Fiscal Year")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to use the accounting period to start a fiscal year.';
                 }
-                field(Closed; Closed)
+                field(Closed; Rec.Closed)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies if the accounting period belongs to a closed fiscal year.';
                 }
-                field("Date Locked"; "Date Locked")
+                field("Date Locked"; Rec."Date Locked")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you can change the starting date for the accounting period.';
                 }
             }
-
         }
     }
 

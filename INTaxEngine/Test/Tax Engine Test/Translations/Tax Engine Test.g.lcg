@@ -23,15 +23,6 @@
       <Cmt Name="Dev"><![CDATA[%1= Field No.]D;]A;(LookupHint=Codeunit App Object Helper Tests - NamedType FieldNoLbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 84608841 - NamedType 1385558100" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Object name should be %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Object name]D;]A;(LookupHint=Codeunit App Object Helper Tests - NamedType ObjectNameLbl)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 84608841 - NamedType 4017744462" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Object ID should be %1]]></Val>
@@ -41,22 +32,31 @@
       <Cmt Name="Dev"><![CDATA[%1 = Object ID]D;]A;(LookupHint=Codeunit App Object Helper Tests - NamedType ObjectIDLbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 267270281 - NamedType 1399515261" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 84608841 - NamedType 1385558100" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[option string should be %1]]></Val>
+      <Val><![CDATA[Object name should be %1]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Option string]D;]A;(LookupHint=Codeunit Script Data Type Mgmt. Tests - NamedType OptionStringErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Object name]D;]A;(LookupHint=Codeunit App Object Helper Tests - NamedType ObjectNameLbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4117399414 - Method 3671478382 - NamedType 3422594183" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3818866076 - NamedType 3407512713" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot enter '%1' in %2.]]></Val>
+      <Val><![CDATA[VAT]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Symbol Name, %2 = Symbol Type]D;]A;(LookupHint=Codeunit Script Symbols Mgmt. Tests - Method TestSearchSymbolWithInValidName - NamedType InvalidSymbolValueMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Json Exchange and Exec. Tests - NamedType TaxTypeLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3818866076 - NamedType 3154336115" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[VAT-000001]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Json Exchange and Exec. Tests - NamedType TreeCodeLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1025083168 - NamedType 331638123" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -77,15 +77,6 @@
       <Cmt Name="Dev"><![CDATA[%1 = Expected Value]D;]A;(LookupHint=Codeunit Lookup Mgmt Tests - NamedType ValueLbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1025083168 - Method 370083172 - NamedType 4110776810" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[GetLookupSourceTableID is Not Implemented]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Lookup Mgmt Tests - Method TestGetSourceTableForUnHandledErr - NamedType InvalidGetLookupSourceTableIDErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1025083168 - Method 967491411 - NamedType 2194455513" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[TableID is not defined for Case ID %1]]></Val>
@@ -95,49 +86,13 @@
       <Cmt Name="Dev"><![CDATA[%1 = Use Case ID]D;]A;(LookupHint=Codeunit Lookup Mgmt Tests - Method TestGetSourceTableForBlankTableErr - NamedType InvalidTableIDErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 61677291 - NamedType 3787640383" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1025083168 - Method 370083172 - NamedType 4110776810" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Lookup Text should be %1]]></Val>
+      <Val><![CDATA[GetLookupSourceTableID is Not Implemented]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Lookup Text]D;]A;(LookupHint=Codeunit Lookup Seiralization Tests - NamedType LookupTextLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 61677291 - NamedType 3736994039" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Sorting Text should be %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Sorting Text]D;]A;(LookupHint=Codeunit Lookup Seiralization Tests - NamedType SortingTextLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 61677291 - NamedType 2885311836" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 from %2 %3]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Field Name, %2 - Table Name, %3 - Table Filters]D;]A;(LookupHint=Codeunit Lookup Seiralization Tests - NamedType FieldFromTableLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 61677291 - NamedType 853790260" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 %2 %3]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Field Name, %2 - Filter Type, %3 - Filter Value]D;]A;(LookupHint=Codeunit Lookup Seiralization Tests - NamedType FieldFilterLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 61677291 - NamedType 2739097449" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[(where %1)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Table Filters]D;]A;(LookupHint=Codeunit Lookup Seiralization Tests - NamedType WhereLbl)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Lookup Mgmt Tests - Method TestGetSourceTableForUnHandledErr - NamedType InvalidGetLookupSourceTableIDErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 61677291 - NamedType 1440292812" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -149,6 +104,33 @@
       <Cmt Name="Dev"><![CDATA[%1 - Method Name, %2 - Field Name, %3 - Table Name, %4 - Table Filters,]D;]A;(LookupHint=Codeunit Lookup Seiralization Tests - NamedType AggregateValueFromTableLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 61677291 - NamedType 853790260" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Field Name, %2 - Filter Type, %3 - Filter Value]D;]A;(LookupHint=Codeunit Lookup Seiralization Tests - NamedType FieldFilterLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 61677291 - NamedType 2885311836" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 from %2 %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Field Name, %2 - Table Name, %3 - Table Filters]D;]A;(LookupHint=Codeunit Lookup Seiralization Tests - NamedType FieldFromTableLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 61677291 - NamedType 3787640383" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Lookup Text should be %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Lookup Text]D;]A;(LookupHint=Codeunit Lookup Seiralization Tests - NamedType LookupTextLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 61677291 - NamedType 3998090943" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Records exists in %1 %2]]></Val>
@@ -156,6 +138,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - Table Name, %2 - Table Filters]D;]A;(LookupHint=Codeunit Lookup Seiralization Tests - NamedType RecordsExistsInTableLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 61677291 - NamedType 3736994039" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sorting Text should be %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Sorting Text]D;]A;(LookupHint=Codeunit Lookup Seiralization Tests - NamedType SortingTextLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 61677291 - NamedType 2739097449" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[(where %1)]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Table Filters]D;]A;(LookupHint=Codeunit Lookup Seiralization Tests - NamedType WhereLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 267270281 - NamedType 1399515261" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[option string should be %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Option string]D;]A;(LookupHint=Codeunit Script Data Type Mgmt. Tests - NamedType OptionStringErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1559695144 - Method 4221619720 - NamedType 1916287837" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -176,6 +185,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = NValue]D;]A;(LookupHint=Codeunit Script Serialization Tests - Method TestLoopNTimesToString - NamedType MessageTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1559695144 - Method 3169992843 - NamedType 1916287837" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Loop through %1 ]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Table Name]D;]A;(LookupHint=Codeunit Script Serialization Tests - Method TestLoopThroughRecordsToString - NamedType MessageTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1559695144 - Method 973452271 - NamedType 1916287837" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Loop: unitl "%1" %2 '%3']]></Val>
@@ -185,13 +203,13 @@
       <Cmt Name="Dev"><![CDATA[%1 = Field Name, %2 = Conditional Operator, %3 = Value]D;]A;(LookupHint=Codeunit Script Serialization Tests - Method TestLoopWithConditionToString - NamedType MessageTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1559695144 - Method 3169992843 - NamedType 1916287837" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4117399414 - Method 3671478382 - NamedType 3422594183" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Loop through %1 ]]></Val>
+      <Val><![CDATA[You cannot enter '%1' in %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Table Name]D;]A;(LookupHint=Codeunit Script Serialization Tests - Method TestLoopThroughRecordsToString - NamedType MessageTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Symbol Name, %2 = Symbol Type]D;]A;(LookupHint=Codeunit Script Symbols Mgmt. Tests - Method TestSearchSymbolWithInValidName - NamedType InvalidSymbolValueMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4141072082 - Method 20935027 - NamedType 1745654582" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -203,15 +221,6 @@
       <Cmt Name="Dev"><![CDATA[%1 = Decimal2 , %2 = Decimal1]D;]A;(LookupHint=Codeunit Tax Rate Setup Matrix Tests - Method TestUpdateFromAndToRangeAttributeForError - NamedType DateValueErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 186005429 - Method 2146114784 - NamedType 731885405" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot enter '%1' in TableNo.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1, Table No. or Table Name]D;]A;(LookupHint=Codeunit Tax Type Object Helper Tests - Method TestSearchTaxTypeTableByNameForError - NamedType InvalidTableNoErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 186005429 - Method 1938380115 - NamedType 4217591581" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot enter '%1' in Attribute Value.]]></Val>
@@ -219,6 +228,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Attribute Value]D;]A;(LookupHint=Codeunit Tax Type Object Helper Tests - Method TestSearchTaxOptionAttributeForError - NamedType InvalidAttributeValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 186005429 - Method 2146114784 - NamedType 731885405" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot enter '%1' in TableNo.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1, Table No. or Table Name]D;]A;(LookupHint=Codeunit Tax Type Object Helper Tests - Method TestSearchTaxTypeTableByNameForError - NamedType InvalidTableNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1914387171 - Method 1215093355 - NamedType 1058013241" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">

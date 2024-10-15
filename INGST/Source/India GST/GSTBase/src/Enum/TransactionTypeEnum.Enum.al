@@ -24,5 +24,4 @@ enum 18048 "Transaction Type Enum"
     {
         Caption = 'Production';
     }
-
 }

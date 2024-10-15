@@ -87,7 +87,7 @@ page 18357 "Service Transfer List"
                 Image = "Order";
                 action(Dimensions)
                 {
-                    AccessByPermission = TableData 348 = R;
+                    AccessByPermission = TableData "Dimension" = R;
                     Caption = 'Dimensions';
                     ApplicationArea = Dimensions;
                     Image = Dimensions;

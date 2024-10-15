@@ -207,11 +207,11 @@ page 20199 "Script Editor Part"
           "Action Type"::LOOPNTIMES,
           "Action Type"::LOOPWITHCONDITION,
           "Action Type"::LOOPTHROUGHRECORDS:
-                Exit(Format("Group Type"));
+                exit(Format("Group Type"));
             "Action Type"::DRAFTROW:
-                Exit('');
+                exit('');
             else
-                Exit(Format("Action Type"));
+                exit(Format("Action Type"));
         end;
     end;
 
@@ -300,7 +300,7 @@ page 20199 "Script Editor Part"
             end;
 
         Reset();
-        Exit(Find(Which));
+        exit(Find(Which));
     end;
 
     trigger OnAfterGetRecord();
@@ -330,7 +330,6 @@ page 20199 "Script Editor Part"
         SearchEditable: Boolean;
         DescriptionText: Text;
         ActionText: Text;
-        EmptyGuid: Guid;
         [InDataSet]
         EnableAddElseIFAction: Boolean;
         ActionTextStyle: Text;

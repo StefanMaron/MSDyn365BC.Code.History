@@ -2,99 +2,152 @@ pageextension 18146 "GST Sales Credit Memo Ext" extends "Sales Credit Memo"
 {
     layout
     {
+        addbefore("Location Code")
+        {
+            field("Ship-to Customer"; Rec."Ship-to Customer")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the Ship to Customer code on the sales document.';
+            }
+        }
+        modify("Posting Date")
+        {
+            trigger OnAfterValidate()
+            var
+                GSTSalesValidation: Codeunit "GST Sales Validation";
+            begin
+                GSTSalesValidation.CallTaxEngineOnSalesHeader(Rec);
+            end;
+        }
+        modify("Location Code")
+        {
+            trigger OnAfterValidate()
+            var
+                GSTSalesValidation: Codeunit "GST Sales Validation";
+            begin
+                GSTSalesValidation.CallTaxEngineOnSalesHeader(Rec);
+            end;
+        }
+        modify("Currency Code")
+        {
+            trigger OnAfterValidate()
+            var
+                GSTSalesValidation: Codeunit "GST Sales Validation";
+            begin
+                GSTSalesValidation.CallTaxEngineOnSalesHeader(Rec);
+            end;
+        }
         addfirst("Tax Info")
         {
-            field("GST Bill-to State Code"; "GST Bill-to State Code")
+            field("GST Bill-to State Code"; Rec."GST Bill-to State Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the bill-to state code of the customer on the sales document.';
             }
-            field("GST Ship-to State Code"; "GST Ship-to State Code")
+            field("GST Ship-to State Code"; Rec."GST Ship-to State Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the ship-to state code of the customer on the sales document.';
             }
-            field("Location State Code"; "Location State Code")
+            field("Location State Code"; Rec."Location State Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the sate code mentioned of the location used in the transaction.';
             }
-            field("Location GST Reg. No."; "Location GST Reg. No.")
+            field("Location GST Reg. No."; Rec."Location GST Reg. No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the GST registration number of the Location specified on the Sales document.';
             }
-            field("Customer GST Reg. No."; "Customer GST Reg. No.")
+            field("Customer GST Reg. No."; Rec."Customer GST Reg. No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the GST registration number of the customer specified on the Sales document.';
             }
-            field("Ship-to GST Reg. No."; "Ship-to GST Reg. No.")
+            field("Ship-to GST Reg. No."; Rec."Ship-to GST Reg. No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the ship to GST registration number of the customer specified on the Sales document.';
             }
-            field("Nature of Supply"; "Nature of Supply")
+            field("Nature of Supply"; Rec."Nature of Supply")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the nature of GST transaction. For example, B2B/B2C.';
             }
-            field("GST Customer Type"; "GST Customer Type")
+            field("GST Customer Type"; Rec."GST Customer Type")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the type of the customer. For example, Registered, Unregistered, Export etc..';
             }
-            field("GST Without Payment of Duty"; "GST Without Payment of Duty")
+            field("Ship-to GST Customer Type"; Rec."Ship-to GST Customer Type")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the Ship to GST Customer Type mentioned on the sales document.';
+            }
+            field("GST Without Payment of Duty"; Rec."GST Without Payment of Duty")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies if the invoice is a GST invoice with or without payment of duty.';
+
+                trigger OnValidate()
+                var
+                    GSTSalesValidation: Codeunit "GST Sales Validation";
+                begin
+                    GSTSalesValidation.CallTaxEngineOnSalesHeader(Rec);
+                end;
             }
-            field("Invoice Type"; "Invoice Type")
+            field("Invoice Type"; Rec."Invoice Type")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the invoice type on the sales document. For example, Bill of supply, export, supplementary, debit note, non-GST and taxable.';
             }
-            field("Bill Of Export No."; "Bill Of Export No.")
+            field("Bill Of Export No."; Rec."Bill Of Export No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the bill of export number. It is a document number which is submitted to custom department .';
             }
-            field("Bill Of Export Date"; "Bill Of Export Date")
+            field("Bill Of Export Date"; Rec."Bill Of Export Date")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the entry date defined in bill of export document.';
             }
-            field("e-Commerce Customer"; "e-Commerce Customer")
+            field("e-Commerce Customer"; Rec."e-Commerce Customer")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the customer number for which merchant id has to be recorded.';
             }
-            field("e-Commerce Merchant Id"; "e-Commerce Merchant Id")
+            field("e-Commerce Merchant Id"; Rec."e-Commerce Merchant Id")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the merchant ID provided to customers by their payment processor.';
             }
-            field("Distance (Km)"; "Distance (Km)")
+            field("Distance (Km)"; Rec."Distance (Km)")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the distance on the sales document.';
             }
-            field("POS Out Of India"; "POS Out Of India")
+            field("POS Out Of India"; Rec."POS Out Of India")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies if the place of supply of invoice is out of India.';
+
+                trigger OnValidate()
+                var
+                    GSTSalesValidation: Codeunit "GST Sales Validation";
+                begin
+                    GSTSalesValidation.CallTaxEngineOnSalesHeader(Rec);
+                end;
             }
-            field("Reference Invoice No."; "Reference Invoice No.")
+            field("Reference Invoice No."; Rec."Reference Invoice No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the Reference Invoice number.';
             }
-            field("Sale Return Type"; "Sale Return Type")
+            field("Sale Return Type"; Rec."Sale Return Type")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the sale return type. For example, Sales cancellation';
             }
-
         }
     }
     actions

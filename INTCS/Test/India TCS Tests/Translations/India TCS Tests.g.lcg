@@ -14,15 +14,6 @@
       <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS% and TCS field Caption]D;]A;(LookupHint=Codeunit TCS - Library - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2769044350 - NamedType 902347520" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[T.C.A.N. No. must have a value in Gen. Journal Line: Journal Template Name=%1, Journal Batch Name=%2, Line No.=%3. It cannot be zero or empty.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1= Template Name,%2= Batch Name,%3= Line No]D;]A;(LookupHint=Codeunit TCS On General Journal - NamedType TCANNoErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2769044350 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is incorrect in %2.]]></Val>
@@ -32,22 +23,22 @@
       <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TCS On General Journal - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3428325953 - NamedType 3500773333" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2769044350 - NamedType 902347520" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TCS not paid]]></Val>
+      <Val><![CDATA[T.C.A.N. No. must have a value in Gen. Journal Line: Journal Template Name=%1, Journal Batch Name=%2, Line No.=%3. It cannot be zero or empty.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TCS On Journals - NamedType VerificationLbl)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1= Template Name,%2= Batch Name,%3= Line No]D;]A;(LookupHint=Codeunit TCS On General Journal - NamedType TCANNoErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3428325953 - NamedType 772005723" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2769044350 - NamedType 2572654342" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There are no TCS entries for Account No. %1.]]></Val>
+      <Val><![CDATA[%1 is incorrect in %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1= G/L Account No.]D;]A;(LookupHint=Codeunit TCS On Journals - NamedType TCSPayErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = Field Caption and Table Caption]D;]A;(LookupHint=Codeunit TCS On General Journal - NamedType VerifyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3428325953 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -59,13 +50,58 @@
       <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TCS On Journals - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3422215919 - Method 1041105281 - NamedType 1947391627" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3428325953 - NamedType 772005723" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are no TCS entries for Account No. %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= G/L Account No.]D;]A;(LookupHint=Codeunit TCS On Journals - NamedType TCSPayErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4253421510 - NamedType 3350794397" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Exclude GST in TCS Base is allowed only for Document Type Invoice and Credit Memo.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TCS On Payment Tests - NamedType ExcludeGSTDocTypeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4253421510 - NamedType 2064899153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You are not allowed to select this Nature of Collection in Gen. Journal Line. Journal Template Name=%1, Journal Batch Name=%2 Line No=%3 with Document Type as Invoice.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Journal Template Name, %2= Journal Batch Name, %3= Line No.]D;]A;(LookupHint=Codeunit TCS On Payment Tests - NamedType TCSNOCNotAllowErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4253421510 - NamedType 486992621" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ TCS on Recpt. Of Pmt. amount should not be less than 0.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TCS On Payment Tests - NamedType TCSPayAmt2Err)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4253421510 - NamedType 3768503635" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TCS on Recpt. Of Pmt. amount should not be greater than Amount.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TCS On Payment Tests - NamedType TCSPayAmtErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4253421510 - NamedType 2572654342" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is incorrect in %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TCS On Sales - Method VerifyTCSEntry - NamedType AmountErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TCS On Payment Tests - NamedType VerifyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3422215919 - NamedType 4167068262" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -77,22 +113,22 @@
       <Cmt Name="Dev"><![CDATA[%1= No.]D;]A;(LookupHint=Codeunit TCS On Sales - NamedType ItemChargePostingErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2242532563 - NamedType 2803082560" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3422215919 - NamedType 2572654342" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[P.A.N. No. must have a value in Company Information: Primary Key=. It cannot be zero or empty.]]></Val>
+      <Val><![CDATA[%1 is incorrect in %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TCS On Sales Documents - NamedType CompanyInfoErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = Field Caption and Table Caption]D;]A;(LookupHint=Codeunit TCS On Sales - NamedType VerifyErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2242532563 - NamedType 412084838" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3422215919 - Method 1041105281 - NamedType 1947391627" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must assign item charge %1 if you want to invoice it.]]></Val>
+      <Val><![CDATA[%1 is incorrect in %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1= No.]D;]A;(LookupHint=Codeunit TCS On Sales Documents - NamedType ChargeItemErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TCS On Sales - Method VerifyTCSEntry - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2242532563 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -104,13 +140,22 @@
       <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TCS On Sales Documents - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4131003384 - NamedType 902347520" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2242532563 - NamedType 412084838" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[T.C.A.N. No. must have a value in Gen. Journal Line: Journal Template Name=%1, Journal Batch Name=%2, Line No.=%3. It cannot be zero or empty.]]></Val>
+      <Val><![CDATA[You must assign item charge %1 if you want to invoice it.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1= Template Name, %2= Batch Name,%3= Line No]D;]A;(LookupHint=Codeunit TCS On Sales Journal - NamedType TCANNoErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1= No.]D;]A;(LookupHint=Codeunit TCS On Sales Documents - NamedType ChargeItemErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2242532563 - NamedType 2803082560" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[P.A.N. No. must have a value in Company Information: Primary Key=. It cannot be zero or empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TCS On Sales Documents - NamedType CompanyInfoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4131003384 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -122,6 +167,15 @@
       <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TCS On Sales Journal - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4131003384 - NamedType 902347520" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[T.C.A.N. No. must have a value in Gen. Journal Line: Journal Template Name=%1, Journal Batch Name=%2, Line No.=%3. It cannot be zero or empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Template Name, %2= Batch Name,%3= Line No]D;]A;(LookupHint=Codeunit TCS On Sales Journal - NamedType TCANNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2714166777 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is incorrect in %2.]]></Val>
@@ -131,13 +185,13 @@
       <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TCS on Sales Return - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2159834530 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2676473541 - NamedType 55533955" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 is incorrect in %2.]]></Val>
+      <Val><![CDATA[You cannot reverse TCS Entry No. %1 because the entry is closed.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TCS Sales - Library - NamedType AmountErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1=Entry No.]D;]A;(LookupHint=Codeunit TCS Pay Adjustment - NamedType PaidReverseErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2676473541 - Method 1584545738 - NamedType 1287808147" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -149,13 +203,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TCS Pay Adjustment - Method PostAdjustedTCSEntriedWhichIsAlreadyPaidToGovernment - NamedType PaidErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2676473541 - NamedType 55533955" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2159834530 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot reverse TCS Entry No. %1 because the entry is closed.]]></Val>
+      <Val><![CDATA[%1 is incorrect in %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Entry No.]D;]A;(LookupHint=Codeunit TCS Pay Adjustment - NamedType PaidReverseErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TCS Sales - Library - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

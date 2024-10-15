@@ -9,6 +9,7 @@ pageextension 18752 "Purchasing Agent Role TDS" extends "Purchasing Agent Role C
                 group("Auto Configuration TDS")
                 {
                     Caption = 'Auto Configuration';
+
                     action("Section")
                     {
                         ApplicationArea = Basic, Suite;
@@ -22,6 +23,7 @@ pageextension 18752 "Purchasing Agent Role TDS" extends "Purchasing Agent Role C
                 group("User Configuration TDS")
                 {
                     Caption = 'User Configuration';
+
                     action("TDS Posting Setup")
                     {
                         ApplicationArea = Basic, Suite;

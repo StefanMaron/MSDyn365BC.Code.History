@@ -45,11 +45,11 @@ table 1702 "Deferral Line"
                 if GenJnlCheckLine.DateNotAllowed("Posting Date") then
                     Error(InvalidPostingDateErr, "Posting Date");
 
-                if AccountingPeriod.IsEmpty then
+                if AccountingPeriod.IsEmpty() then
                     exit;
 
                 AccountingPeriod.SetFilter("Starting Date", '>=%1', "Posting Date");
-                if AccountingPeriod.IsEmpty then
+                if AccountingPeriod.IsEmpty() then
                     Error(DeferSchedOutOfBoundsErr);
             end;
         }

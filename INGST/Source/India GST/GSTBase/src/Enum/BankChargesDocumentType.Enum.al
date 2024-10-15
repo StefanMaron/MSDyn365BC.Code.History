@@ -2,7 +2,7 @@ enum 18003 "BankCharges DocumentType"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Invoice)
     {
@@ -12,5 +12,4 @@ enum 18003 "BankCharges DocumentType"
     {
         Caption = 'Credit Memo';
     }
-
 }

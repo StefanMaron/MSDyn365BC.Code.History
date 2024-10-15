@@ -94,6 +94,6 @@ page 20233 "Entity Value Factbox"
         SetRange("Attribute Record ID", TaxRecordID);
         CurrPage.Update(false);
         GlobalTaxRecID := TaxRecordID;
-        Exit(FindSet());
+        exit(FindSet());
     end;
 }

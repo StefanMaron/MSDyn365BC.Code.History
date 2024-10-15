@@ -111,7 +111,6 @@ codeunit 136801 "Tax Type Object Helper Tests"
         LibraryTaxTypeTests: Codeunit "Library - Tax Type Tests";
         Type: Option Option,Text,Integer,Decimal,Boolean,Date;
         AttributeID: Integer;
-        TableName: Text[30];
         AttributOption: Text[80];
     begin
         // [SCENARIO] To check if function is returns the attribute option value.
@@ -136,7 +135,6 @@ codeunit 136801 "Tax Type Object Helper Tests"
         LibraryTaxTypeTests: Codeunit "Library - Tax Type Tests";
         Type: Option Option,Text,Integer,Decimal,Boolean,Date;
         AttributeID: Integer;
-        TableName: Text[30];
         AttributOption: Text[80];
         InvalidAttributeValueErr: Label 'You cannot enter ''%1'' in Attribute Value.', Comment = '%1 = Attribute Value';
     begin
@@ -158,13 +156,10 @@ codeunit 136801 "Tax Type Object Helper Tests"
     [HandlerFunctions('TaxEntitiesPageHandler')]
     procedure TestOpenTaxTypeTableLookupByName()
     var
-        SalesHeader: Record "Sales Header";
         TaxTypeObjectHelper: Codeunit "Tax Type Object Helper";
         LibraryTaxTypeTests: Codeunit "Library - Tax Type Tests";
-        Type: Option Option,Text,Integer,Decimal,Boolean,Date;
         TableID: Integer;
         TableName, SearchText : Text[30];
-        AttributOption: Text[80];
     begin
         // [SCENARIO] To check function is opening the lookup page of Tax entities page and returns the correct table name.
 
@@ -185,13 +180,10 @@ codeunit 136801 "Tax Type Object Helper Tests"
     [HandlerFunctions('TaxEntitiesPageHandler')]
     procedure TestOpenTaxTypeTableLookupByID()
     var
-        SalesHeader: Record "Sales Header";
         TaxTypeObjectHelper: Codeunit "Tax Type Object Helper";
         LibraryTaxTypeTests: Codeunit "Library - Tax Type Tests";
-        Type: Option Option,Text,Integer,Decimal,Boolean,Date;
         TableID: Integer;
         TableName, SearchText : Text[30];
-        AttributOption: Text[80];
     begin
         // [SCENARIO] To check function is opening the lookup page of Tax entities page and returns the correct table name.
 
@@ -254,6 +246,50 @@ codeunit 136801 "Tax Type Object Helper Tests"
         // [THEN] TableID and TableName should be updated with Customer table name and Id
         Assert.AreEqual(Database::"Sales Header", TableID, 'Table ID should be 36');
         Assert.AreEqual('Sales Header', TableName, 'Table Name should be Sales Header');
+    end;
+
+    [Test]
+    procedure TestEnableSelectedTaxTypes()
+    var
+        TaxType: Record "Tax Type";
+        TaxTypeObjHelper: Codeunit "Tax Type Object Helper";
+        LibraryTaxTypeTests: Codeunit "Library - Tax Type Tests";
+    begin
+        // [SCENARIO] To check if all tax types are enabled when EnableSelectedTaxTypes function is called
+
+        // [GIVEN] There should be a tax type
+        LibraryTaxTypeTests.CreateTaxType('VAT', 'Value added tax');
+
+        // [WHEN] function EnableSelectedTaxTypes is called 
+        TaxTypeObjHelper.EnableSelectedTaxTypes(TaxType);
+
+        // [THEN] no record should exist with disabled tax type
+        TaxType.Reset();
+        TaxType.SetRange(Enabled, false);
+        Assert.RecordIsEmpty(TaxType);
+    end;
+
+    [Test]
+    procedure TestDisableSelectedTaxTypes()
+    var
+        TaxType: Record "Tax Type";
+        TaxTypeObjHelper: Codeunit "Tax Type Object Helper";
+        LibraryTaxTypeTests: Codeunit "Library - Tax Type Tests";
+    begin
+        // [SCENARIO] To check if all tax types are disabled when DisableSelectedTaxTypes function is called
+
+        // [GIVEN] There should be a tax type with enable as true
+        LibraryTaxTypeTests.CreateTaxType('VAT', 'Value added tax');
+        TaxTypeObjHelper.EnableSelectedTaxTypes(TaxType);
+
+        // [WHEN] function DisableSelectedTaxTypes is called 
+        TaxType.Reset();
+        TaxTypeObjHelper.DisableSelectedTaxTypes(TaxType);
+
+        // [THEN] no record should exist with enabled tax type
+        TaxType.Reset();
+        TaxType.SetRange(Enabled, true);
+        Assert.RecordIsEmpty(TaxType);
     end;
 
     [ModalPageHandler]

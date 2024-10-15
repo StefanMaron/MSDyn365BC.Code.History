@@ -29,12 +29,12 @@ table 20130 "Script Symbol"
         field(5; "Value Type"; Option)
         {
             OptionMembers = Normal,Formula;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Caption = 'Value Type';
         }
         field(6; "Formula ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Formula ID';
         }
     }

@@ -27,7 +27,7 @@ codeunit 136752 "Condition Mgmt Tests"
         // [WHEN] The function OpenConditionsDialog is called.
         ConditionID := ScriptEntityMgmt.CreateCondition(CaseID, ScriptID);
         ConditionMgmt.OpenConditionsDialog(CaseID, ScriptID, ConditionID);
-        // [THEN] it should Condition dialog page for CaseID and ScriptID.
+        // [THEN] it should open Condition dialog page for CaseID and ScriptID.
     end;
 
     [Test]
@@ -35,7 +35,6 @@ codeunit 136752 "Condition Mgmt Tests"
     var
         SalesLine: Record "Sales Line";
         ScriptSymbolLookup: Record "Script Symbol Lookup";
-        ConditionItem: Record "Tax Test Condition Item";
         ConditionMgmt: Codeunit "Condition Mgmt.";
         ScriptEntityMgmt: Codeunit "Script Entity Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -73,9 +72,7 @@ codeunit 136752 "Condition Mgmt Tests"
     procedure TestCheckConditionForStringNotEqual()
     var
         SalesLine: Record "Sales Line";
-        Customer: Record Customer;
         ScriptSymbolLookup: Record "Script Symbol Lookup";
-        ConditionItem: Record "Tax Test Condition Item";
         ConditionMgmt: Codeunit "Condition Mgmt.";
         ScriptEntityMgmt: Codeunit "Script Entity Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -114,7 +111,6 @@ codeunit 136752 "Condition Mgmt Tests"
     var
         SalesLine: Record "Sales Line";
         ScriptSymbolLookup: Record "Script Symbol Lookup";
-        ConditionItem: Record "Tax Test Condition Item";
         ConditionMgmt: Codeunit "Condition Mgmt.";
         ScriptEntityMgmt: Codeunit "Script Entity Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -153,7 +149,6 @@ codeunit 136752 "Condition Mgmt Tests"
     var
         SalesLine: Record "Sales Line";
         ScriptSymbolLookup: Record "Script Symbol Lookup";
-        ConditionItem: Record "Tax Test Condition Item";
         ConditionMgmt: Codeunit "Condition Mgmt.";
         ScriptEntityMgmt: Codeunit "Script Entity Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -192,7 +187,6 @@ codeunit 136752 "Condition Mgmt Tests"
     var
         SalesLine: Record "Sales Line";
         ScriptSymbolLookup: Record "Script Symbol Lookup";
-        ConditionItem: Record "Tax Test Condition Item";
         ConditionMgmt: Codeunit "Condition Mgmt.";
         ScriptEntityMgmt: Codeunit "Script Entity Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -231,7 +225,6 @@ codeunit 136752 "Condition Mgmt Tests"
     var
         SalesHeader: Record "Sales Header";
         ScriptSymbolLookup: Record "Script Symbol Lookup";
-        ConditionItem: Record "Tax Test Condition Item";
         ConditionMgmt: Codeunit "Condition Mgmt.";
         ScriptEntityMgmt: Codeunit "Script Entity Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
@@ -270,7 +263,6 @@ codeunit 136752 "Condition Mgmt Tests"
     var
         SalesHeader: Record "Sales Header";
         ScriptSymbolLookup: Record "Script Symbol Lookup";
-        ConditionItem: Record "Tax Test Condition Item";
         ConditionMgmt: Codeunit "Condition Mgmt.";
         ScriptEntityMgmt: Codeunit "Script Entity Mgmt.";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";

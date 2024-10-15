@@ -9,13 +9,13 @@ table 20360 "Use Case Archival Log Entry"
     {
         field(1; "Entry No."; Integer)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Caption = 'Entry No.';
             AutoIncrement = true;
         }
         field(2; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(3; "Description"; Text[2000])
@@ -28,15 +28,14 @@ table 20360 "Use Case Archival Log Entry"
             DataClassification = EndUserIdentifiableInformation;
             Caption = 'Log Date-Time';
         }
-        field(5; "Version"; Decimal)
+        field(5; "Major Version"; Integer)
         {
-            DataClassification = EndUserIdentifiableInformation;
-            DecimalPlaces = 2 : 5;
-            Caption = 'Version';
+            DataClassification = SystemMetadata;
+            Caption = 'Major Version';
         }
         field(6; "Configuration Data"; Blob)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Caption = 'Configuration Data';
         }
         field(7; "Active Version"; Boolean)
@@ -54,6 +53,11 @@ table 20360 "Use Case Archival Log Entry"
             DataClassification = EndUserIdentifiableInformation;
             Caption = 'User ID';
             TableRelation = "User Setup";
+        }
+        field(10; "Minor Version"; Integer)
+        {
+            DataClassification = SystemMetadata;
+            Caption = 'Minor Version';
         }
     }
 

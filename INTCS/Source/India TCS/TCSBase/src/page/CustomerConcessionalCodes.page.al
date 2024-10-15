@@ -4,41 +4,32 @@ page 18808 "Customer Concessional Codes"
     UsageCategory = Lists;
     DelayedInsert = true;
     SourceTable = "Customer Concessional Code";
+
     layout
     {
         area(Content)
         {
             repeater(General)
             {
-                field("TCS Nature of Collection"; "TCS Nature of Collection")
+                field("TCS Nature of Collection"; Rec."TCS Nature of Collection")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specify the TCS Nature of collection under which tax has been collected.';
                 }
-                field("Description"; "Description")
+                field("Description"; Rec."Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the TCS Nature of Collection.';
                 }
-                field("Concessional Code"; "Concessional Code")
+                field("Concessional Code"; Rec."Concessional Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Concessional Code if concessional rate is applicable.';
                 }
-                field("Reference No."; "Concessional Form No.")
+                field("Reference No."; Rec."Concessional Form No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the concessional form/certificate number.';
-                }
-                field("Start Date"; "Start Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the start date of the particular Concessional Code.';
-                }
-                field("End Date"; "End Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the end date of the particular Concessional Code.';
                 }
             }
         }
@@ -58,6 +49,7 @@ page 18808 "Customer Concessional Codes"
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Send the data in the  page to an Excel file for analysis or editing';
+
 
                 trigger OnAction()
                 var

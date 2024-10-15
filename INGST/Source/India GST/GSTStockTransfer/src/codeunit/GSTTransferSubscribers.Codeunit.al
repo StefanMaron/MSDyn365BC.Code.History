@@ -1,5 +1,49 @@
 codeunit 18392 "GST Transfer Subscribers"
 {
+    var
+        GSTCustomDutyErr: Label 'Custom Duty Amount must be 0 if GST Group Type is Service while transferring from Bonded Warehouse location.';
+        GSTAssessableErr: Label 'GST Assessable Value must be 0 if GST Group Type is Service while transferring from Bonded Warehouse location.';
+
+    local procedure GSTAssessableValue(var Transferline: Record "Transfer Line")
+    var
+        TransHeader: Record "Transfer Header";
+        Location: Record Location;
+        GSTGroup: Record "GST Group";
+    begin
+        TransHeader.Get(Transferline."Document No.");
+        Location.Get(Transferline."Transfer-from Code");
+        if not Location."Bonded warehouse" then
+            Transferline.TestField(Transferline."GST Assessable Value", 0);
+
+        if GSTGroup.Get(Transferline."GST Group Code") and
+            (GSTGroup."GST Group Type" <> GSTGroup."GST Group Type"::Goods)
+        then
+            if (Transferline."GST Assessable Value" <> 0) then
+                Error(GSTAssessableErr);
+
+        Transferline.Validate(Quantity);
+    end;
+
+    local procedure CustomDutyAmount(var Transferline: Record "Transfer Line")
+    var
+        TransHeader: Record "Transfer Header";
+        Location: Record Location;
+        GSTGroup: Record "GST Group";
+    begin
+        TransHeader.Get(Transferline."Document No.");
+        Location.Get(Transferline."Transfer-from Code");
+        if not Location."Bonded warehouse" then
+            Transferline.TestField("Custom Duty Amount", 0);
+
+        if GSTGroup.Get(Transferline."GST Group Code") and
+            (GSTGroup."GST Group Type" <> GSTGroup."GST Group Type"::Goods)
+        then
+            if (Transferline."Custom Duty Amount" <> 0) then
+                Error(GSTCustomDutyErr);
+
+        Transferline.Validate(Quantity);
+    end;
+
     //Transfer Header - Subscribers    
     [EventSubscriber(ObjectType::Table, database::"Transfer Header", 'OnBeforeValidateEvent', 'Transfer-from Code', false, false)]
     local procedure CheckTransferfromCode(var Rec: Record "Transfer Header")
@@ -54,6 +98,9 @@ codeunit 18392 "GST Transfer Subscribers"
     [EventSubscriber(ObjectType::Table, DATABASE::"Transfer Line", 'OnAfterValidateEvent', 'Transfer price', false, false)]
     local procedure ValidateTransferPrice(var Rec: Record "Transfer Line")
     begin
+        if (Rec."GST Group Code" = '') or (Rec."HSN/SAC Code" = '') then
+            exit;
+
         Rec.TestField("Quantity Shipped", 0);
         Rec.Amount := Round(Rec.Quantity * Rec."Transfer Price");
         Rec.Validate(Quantity);
@@ -78,47 +125,22 @@ codeunit 18392 "GST Transfer Subscribers"
         CustomDutyAmount(rec);
     end;
 
-    local procedure GSTAssessableValue(var Transferline: Record "Transfer Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnBeforeCheckAccountNo', '', false, false)]
+    local procedure OnBeforeCheckAccountNo(var GenJnlLine: Record "Gen. Journal Line"; var CheckDone: Boolean)
     var
-        TransHeader: Record "Transfer Header";
-        Location: Record Location;
-        GSTGroup: Record "GST Group";
+        SourceCodeSetup: Record "Source Code Setup";
     begin
-        TransHeader.Get(Transferline."Document No.");
-        Location.Get(Transferline."Transfer-from Code");
-        if not Location."Bonded warehouse" then
-            Transferline.TestField(Transferline."GST Assessable Value", 0);
-
-        if GSTGroup.Get(Transferline."GST Group Code") and
-            (GSTGroup."GST Group Type" <> GSTGroup."GST Group Type"::Goods)
-        then
-            if (Transferline."GST Assessable Value" <> 0) then
-                Error(GSTAssessableErr);
-
-        Transferline.Validate(Quantity);
+        SourceCodeSetup.Get();
+        if GenJnlLine."Source Code" = SourceCodeSetup.Transfer then
+            CheckDone := true;
     end;
 
-    local procedure CustomDutyAmount(var Transferline: Record "Transfer Line")
+    [EventSubscriber(ObjectType::Table, Database::"Transfer Line", 'OnAfterValidateEvent', 'Unit of Measure Code', false, false)]
+    local procedure UPdateTransferPrie(var Rec: Record "Transfer Line")
     var
-        TransHeader: Record "Transfer Header";
-        Location: Record Location;
-        GSTGroup: Record "GST Group";
+        Item: Record "Item";
     begin
-        TransHeader.Get(Transferline."Document No.");
-        Location.Get(Transferline."Transfer-from Code");
-        if not Location."Bonded warehouse" then
-            Transferline.TestField("Custom Duty Amount", 0);
-
-        if GSTGroup.Get(Transferline."GST Group Code") and
-            (GSTGroup."GST Group Type" <> GSTGroup."GST Group Type"::Goods)
-        then
-            if (Transferline."Custom Duty Amount" <> 0) then
-                Error(GSTCustomDutyErr);
-
-        Transferline.Validate(Quantity);
+        if Item.Get(Rec."Item No.") then
+            Rec.Validate("Transfer Price", Item."Unit Cost" * Rec."Qty. per Unit of Measure");
     end;
-
-    var
-        GSTCustomDutyErr: Label 'Custom Duty Amount must be 0 if GST Group Type is Service while transferring from Bonded Warehouse location.';
-        GSTAssessableErr: Label 'GST Assessable Value must be 0 if GST Group Type is Service while transferring from Bonded Warehouse location.';
 }

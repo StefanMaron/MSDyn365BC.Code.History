@@ -97,34 +97,34 @@ page 18556 "Contra Voucher"
             {
                 ShowCaption = false;
 
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the entry''s posting date.';
                     Visible = not IsSimplePage;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the date on the document that provides the basis for the entry on the journal line.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the type of document that the entry on the journal line is.';
                     Visible = not IsSimplePage;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number for the journal line.';
                     Visible = not IsSimplePage;
                 }
-                field("Incoming Document Entry No."; "Incoming Document Entry No.")
+                field("Incoming Document Entry No."; Rec."Incoming Document Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the incoming document that this general journal line is created for.';
@@ -136,19 +136,19 @@ page 18556 "Contra Voucher"
                             Hyperlink(GetIncomingDocumentURL());
                     end;
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                     Visible = false;
                 }
-                field("Applies-to Ext. Doc. No."; "Applies-to Ext. Doc. No.")
+                field("Applies-to Ext. Doc. No."; Rec."Applies-to Ext. Doc. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the external document number that will be exported in the payment file.';
                     Visible = false;
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
@@ -163,7 +163,7 @@ page 18556 "Contra Voucher"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
@@ -186,11 +186,12 @@ page 18556 "Contra Voucher"
                     Editable = false;
                     ToolTip = 'Specifies the account name that the entry on the journal line will be posted to.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the location code for which the voucher lines will be posted.';
                 }
-                field("Check Printed"; "Check Printed")
+                field("Check Printed"; Rec."Check Printed")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if cheque is printed for the journal entry.';
@@ -201,39 +202,39 @@ page 18556 "Contra Voucher"
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies a description of the entry.';
                 }
-                field("Payer Information"; "Payer Information")
+                field("Payer Information"; Rec."Payer Information")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies payer information that is imported with the bank statement file.';
                     Visible = false;
                 }
-                field("Transaction Information"; "Transaction Information")
+                field("Transaction Information"; Rec."Transaction Information")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies transaction information that is imported with the bank statement file.';
                     Visible = false;
                 }
-                field("Business Unit Code"; "Business Unit Code")
+                field("Business Unit Code"; Rec."Business Unit Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the business unit that the entry derives from in a consolidated company.';
                     Visible = false;
                 }
-                field("Salespers./Purch. Code"; "Salespers./Purch. Code")
+                field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the salesperson or purchaser who is linked to the journal line.';
                     Visible = false;
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign the journal line is linked to.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     AssistEdit = true;
@@ -241,6 +242,8 @@ page 18556 "Contra Voucher"
                     Visible = not IsSimplePage;
 
                     trigger OnAssistEdit()
+                    var
+                        ChangeExchangeRate: Page "Change Exchange Rate";
                     begin
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
                         if ChangeExchangeRate.RunModal() = Action::OK then
@@ -249,37 +252,37 @@ page 18556 "Contra Voucher"
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("EU 3-Party Trade"; "EU 3-Party Trade")
+                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the entry was part of a 3-party trade. If it was, there is a check mark in the field.';
                     Visible = not IsSimplePage;
                 }
-                field("Gen. Posting Type"; "Gen. Posting Type")
+                field("Gen. Posting Type"; Rec."Gen. Posting Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general posting type that will be used when you post the entry on this journal line.';
                     Visible = not IsSimplePage;
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                     Visible = not IsSimplePage;
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = not IsSimplePage;
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT business posting group code that will be used when you post the entry on the journal line.';
                     Visible = false;
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT product posting group. Links business transactions made for the item, resource, or G/L account with the general ledger, to account for VAT amounts resulting from trade with that record.';
@@ -298,49 +301,49 @@ page 18556 "Contra Voucher"
                     ToolTip = 'Specifies the total amount (including VAT) that the journal line consists of.';
                     Visible = AmountVisible;
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount in local currency (including VAT) that the journal line consists of.';
                     Visible = AmountVisible;
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount (including VAT) that the journal line consists of, if it is a debit amount.';
                     Visible = DebitCreditVisible;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount (including VAT) that the journal line consists of, if it is a credit amount.';
                     Visible = DebitCreditVisible;
                 }
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of VAT included in the total amount.';
                     Visible = false;
                 }
-                field("VAT Difference"; "VAT Difference")
+                field("VAT Difference"; Rec."VAT Difference")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the difference between the calculate VAT amount and the VAT amount that you have entered manually.';
                     Visible = false;
                 }
-                field("Bal. VAT Amount"; "Bal. VAT Amount")
+                field("Bal. VAT Amount"; Rec."Bal. VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of Bal. VAT included in the total amount.';
                     Visible = false;
                 }
-                field("Bal. VAT Difference"; "Bal. VAT Difference")
+                field("Bal. VAT Difference"; Rec."Bal. VAT Difference")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the difference between the calculate VAT amount and the VAT amount that you have entered manually.';
                     Visible = false;
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
@@ -352,7 +355,7 @@ page 18556 "Contra Voucher"
                         EnableApplyEntriesAction();
                     end;
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
@@ -365,31 +368,31 @@ page 18556 "Contra Voucher"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("Bal. Gen. Posting Type"; "Bal. Gen. Posting Type")
+                field("Bal. Gen. Posting Type"; Rec."Bal. Gen. Posting Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general posting type associated with the balancing account that will be used when you post the entry on the journal line.';
                     Visible = not IsSimplePage;
                 }
-                field("Bal. Gen. Bus. Posting Group"; "Bal. Gen. Bus. Posting Group")
+                field("Bal. Gen. Bus. Posting Group"; Rec."Bal. Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general business posting group code associated with the balancing account that will be used when you post the entry.';
                     Visible = not IsSimplePage;
                 }
-                field("Bal. Gen. Prod. Posting Group"; "Bal. Gen. Prod. Posting Group")
+                field("Bal. Gen. Prod. Posting Group"; Rec."Bal. Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general product posting group code associated with the balancing account that will be used when you post the entry.';
                     Visible = not IsSimplePage;
                 }
-                field("Deferral Code"; "Deferral Code")
+                field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the deferral template that governs how expenses or revenue are deferred to the different accounting periods when the expenses or revenue were incurred.';
                     Visible = not IsSimplePage;
                 }
-                field("Job Queue Status"; "Job Queue Status")
+                field("Job Queue Status"; Rec."Job Queue Status")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
@@ -405,37 +408,37 @@ page 18556 "Contra Voucher"
                         JobQueueEntry.ShowStatusMsg("Job Queue Entry ID");
                     end;
                 }
-                field("Bal. VAT Bus. Posting Group"; "Bal. VAT Bus. Posting Group")
+                field("Bal. VAT Bus. Posting Group"; Rec."Bal. VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the VAT business posting group that will be used when you post the entry on the journal line.';
                     Visible = false;
                 }
-                field("Bal. VAT Prod. Posting Group"; "Bal. VAT Prod. Posting Group")
+                field("Bal. VAT Prod. Posting Group"; Rec."Bal. VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the VAT product posting group that will be used when you post the entry on the journal line.';
                     Visible = false;
                 }
-                field("Bill-to/Pay-to No."; "Bill-to/Pay-to No.")
+                field("Bill-to/Pay-to No."; Rec."Bill-to/Pay-to No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bill-to customer or pay-to vendor that the entry is linked to.';
                     Visible = false;
                 }
-                field("Ship-to/Order Address Code"; "Ship-to/Order Address Code")
+                field("Ship-to/Order Address Code"; Rec."Ship-to/Order Address Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the address code of the ship-to customer or order-from vendor that the entry is linked to.';
                     Visible = false;
                 }
-                field("Payment Terms Code"; "Payment Terms Code")
+                field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code that represents the payments terms that apply to the entry on the journal line.';
                     Visible = false;
                 }
-                field("Applied Automatically"; "Applied Automatically")
+                field("Applied Automatically"; Rec."Applied Automatically")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -449,37 +452,37 @@ page 18556 "Contra Voucher"
                     ToolTip = 'Specifies if the record on the line has been applied.';
                     Visible = false;
                 }
-                field("Applies-to Doc. Type"; "Applies-to Doc. Type")
+                field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
-                field("Applies-to Doc. No."; "Applies-to Doc. No.")
+                field("Applies-to Doc. No."; Rec."Applies-to Doc. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
-                field("Applies-to ID"; "Applies-to ID")
+                field("Applies-to ID"; Rec."Applies-to ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
                     Visible = false;
                 }
-                field("On Hold"; "On Hold")
+                field("On Hold"; Rec."On Hold")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the journal line has been invoiced, and you execute the payment suggestions batch job, or you create a finance charge memo or reminder.';
                     Visible = false;
                 }
-                field("Bank Payment Type"; "Bank Payment Type")
+                field("Bank Payment Type"; Rec."Bank Payment Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the payment type to be used for the entry on the payment journal line.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code that has been entered on the journal lines.';
@@ -497,19 +500,19 @@ page 18556 "Contra Voucher"
                     ToolTip = 'Specifies a comment about the activity on the journal line. Note that the comment is not carried forward to posted entries.';
                     Visible = not IsSimplePage;
                 }
-                field("Direct Debit Mandate ID"; "Direct Debit Mandate ID")
+                field("Direct Debit Mandate ID"; Rec."Direct Debit Mandate ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the identification of the direct-debit mandate that is being used on the journal lines to process a direct debit collection.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -528,7 +531,7 @@ page 18556 "Contra Voucher"
                     begin
                         ValidateShortcutDimCode(3, ShortcutDimCode[3]);
 
-                        OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 3);
+                        VoucherFunctions.OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 3);
                     end;
                 }
                 field(ShortcutDimCode4; ShortcutDimCode[4])
@@ -544,7 +547,7 @@ page 18556 "Contra Voucher"
                     begin
                         ValidateShortcutDimCode(4, ShortcutDimCode[4]);
 
-                        OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 4);
+                        VoucherFunctions.OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 4);
                     end;
                 }
                 field(ShortcutDimCode5; ShortcutDimCode[5])
@@ -560,7 +563,7 @@ page 18556 "Contra Voucher"
                     begin
                         ValidateShortcutDimCode(5, ShortcutDimCode[5]);
 
-                        OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 5);
+                        VoucherFunctions.OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 5);
                     end;
                 }
                 field(ShortcutDimCode6; ShortcutDimCode[6])
@@ -576,7 +579,7 @@ page 18556 "Contra Voucher"
                     begin
                         ValidateShortcutDimCode(6, ShortcutDimCode[6]);
 
-                        OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 6);
+                        VoucherFunctions.OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 6);
                     end;
                 }
                 field(ShortcutDimCode7; ShortcutDimCode[7])
@@ -592,7 +595,7 @@ page 18556 "Contra Voucher"
                     begin
                         ValidateShortcutDimCode(7, ShortcutDimCode[7]);
 
-                        OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 7);
+                        VoucherFunctions.OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 7);
                     end;
                 }
                 field(ShortcutDimCode8; ShortcutDimCode[8])
@@ -608,7 +611,7 @@ page 18556 "Contra Voucher"
                     begin
                         ValidateShortcutDimCode(8, ShortcutDimCode[8]);
 
-                        OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
+                        VoucherFunctions.OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
                 }
             }
@@ -626,7 +629,7 @@ page 18556 "Contra Voucher"
 
                     trigger OnValidate()
                     begin
-                        SplitNarration(NarrationText);
+                        VoucherFunctions.SplitNarration(NarrationText, false, Rec);
                     end;
                 }
             }
@@ -814,6 +817,7 @@ page 18556 "Contra Voucher"
                     Image = LineDescription;
                     Promoted = true;
                     PromotedCategory = Process;
+                    ToolTip = 'Select this option to enter narration for a particular line.';
 
                     trigger OnAction()
                     var
@@ -828,7 +832,8 @@ page 18556 "Contra Voucher"
                         LineNarrationPage.SetTableView(GenNarration);
                         LineNarrationPage.RunModal();
 
-                        ShowOldNarration();
+                        // ShowOldNarration();
+                        VoucherFunctions.ShowOldNarration(Rec);
                         CurrPage.Update(true);
                     end;
                 }
@@ -840,6 +845,7 @@ page 18556 "Contra Voucher"
                     Image = LineDescription;
                     Promoted = true;
                     PromotedCategory = Process;
+                    ToolTip = 'Select this option to enter narration for the voucher.';
 
                     trigger OnAction()
                     var
@@ -854,7 +860,8 @@ page 18556 "Contra Voucher"
                         VoucherNarration.SetTableView(GenNarration);
                         VoucherNarration.RunModal();
 
-                        ShowOldNarration();
+                        // ShowOldNarration();
+                        VoucherFunctions.ShowOldNarration(Rec);
                         CurrPage.Update(true);
                     end;
                 }
@@ -1216,6 +1223,8 @@ page 18556 "Contra Voucher"
                     ToolTip = 'View the balances on bank accounts that are marked for reconciliation, usually liquid accounts.';
 
                     trigger OnAction()
+                    var
+                        GLReconcile: Page Reconciliation;
                     begin
                         GLReconcile.SetGenJnlLine(Rec);
                         GLReconcile.Run();
@@ -1672,6 +1681,8 @@ page 18556 "Contra Voucher"
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        ClientTypeManagement: Codeunit "Client Type Management";
     begin
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
         if ClientTypeManagement.GetCurrentClientType() <> ClientType::ODataV4 then
@@ -1696,7 +1707,8 @@ page 18556 "Contra Voucher"
         HasIncomingDocument := "Incoming Document Entry No." <> 0;
         CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(RecordId());
         SetUserInteractions();
-        ShowOldNarration();
+        VoucherFunctions.ShowOldNarration(Rec);
+        // ShowOldNarration();
     end;
 
     trigger OnInit()
@@ -1744,6 +1756,7 @@ page 18556 "Contra Voucher"
     var
         ServerSetting: Codeunit "Server Setting";
         EnvironmentInfo: Codeunit "Environment Information";
+        ClientTypeManagement: Codeunit "Client Type Management";
         JnlSelected: Boolean;
         LastGenJnlBatch: Code[10];
         VoucherEnum: Enum "Gen. Journal Template Type";
@@ -1763,7 +1776,7 @@ page 18556 "Contra Voucher"
             SetDataForSimpleModeOnOpen();
             exit;
         end;
-        VoucherTemplateSelection(Page::"Contra Voucher", VoucherEnum::"Contra Voucher", false, Rec, JnlSelected);
+        VoucherFunctions.VoucherTemplateSelection(Page::"Contra Voucher", VoucherEnum::"Contra Voucher", false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
 
@@ -1780,10 +1793,7 @@ page 18556 "Contra Voucher"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenJnlManagement: Codeunit GenJnlManagement;
-        ClientTypeManagement: Codeunit "Client Type Management";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        ChangeExchangeRate: Page "Change Exchange Rate";
-        GLReconcile: Page Reconciliation;
+        VoucherFunctions: Codeunit "Voucher Functions";
         CurrentJnlBatchName: Code[10];
         AccName: Text[100];
         BalAccName: Text[100];
@@ -1808,7 +1818,6 @@ page 18556 "Contra Voucher"
         ShowWorkflowStatusOnLine: Boolean;
         CanCancelApprovalForJnlBatch: Boolean;
         CanCancelApprovalForJnlLine: Boolean;
-        ImportPayrollTransactionsAvailable: Boolean;
         IsSaasExcelAddinEnabled: Boolean;
         CanRequestFlowApprovalForBatch: Boolean;
         CanRequestFlowApprovalForBatchAndAllLines: Boolean;
@@ -1855,6 +1864,7 @@ page 18556 "Contra Voucher"
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
         LastDocNo: Code[20];
     begin
         if Count() = 0 then
@@ -1872,65 +1882,6 @@ page 18556 "Contra Voucher"
 
         CurrentDocNo := LastDocNo;
         SetDocumentNumberFilter(CurrentDocNo);
-    end;
-
-    procedure VoucherTemplateSelection(
-        PageID: Integer;
-        PageTemplate: Enum "Gen. Journal Template Type";
-        RecurringJnl: Boolean;
-        var GenJnlLine: Record "Gen. Journal Line";
-        var JnlSelected: Boolean)
-    var
-        GenJnlTemplate: Record "Gen. Journal Template";
-        GenJnlTemplateName: Code[10];
-        OpenFromBatch: Boolean;
-        FixedAssetTxt: Label 'Fixed Asset G/L Journal', Locked = true;
-        PageTemplateTxt: Label '%1', Comment = '%1 = Page Template';
-        RecurringTxt: Label 'RECURRING', Locked = true;
-        RecurringJnlTxt: Label 'Recurring General Journal', Locked = true;
-    begin
-        JnlSelected := true;
-
-        GenJnlTemplate.Reset();
-        GenJnlTemplate.SetRange("Page ID", PageID);
-        GenJnlTemplate.SetRange(Recurring, RecurringJnl);
-        if not RecurringJnl then
-            GenJnlTemplate.SetRange(Type, PageTemplate);
-        case GenJnlTemplate.Count() of
-            0:
-                begin
-                    GenJnlTemplate.Init();
-                    GenJnlTemplate.Type := PageTemplate;
-                    GenJnlTemplate.Recurring := RecurringJnl;
-                    if not RecurringJnl then begin
-                        GenJnlTemplateName := Format(PageTemplate, MaxStrLen(GenJnlTemplate.Name));
-                        GenJnlTemplate.Name := GetAvailableGeneralJournalTemplateName(GenJnlTemplateName);
-                        if PageTemplate = PageTemplate::Assets then
-                            GenJnlTemplate.Description := FixedAssetTxt
-                        else
-                            GenJnlTemplate.Description := StrSubstNo(PageTemplateTxt, PageTemplate);
-                    end else begin
-                        GenJnlTemplate.Name := RecurringTxt;
-                        GenJnlTemplate.Description := RecurringJnlTxt;
-                    end;
-                    GenJnlTemplate.Validate(Type);
-                    GenJnlTemplate.Insert();
-                    Commit();
-                end;
-            1:
-                GenJnlTemplate.FindFirst();
-            else
-                JnlSelected := Page.RunModal(0, GenJnlTemplate) = Action::LookupOK;
-        end;
-        if JnlSelected then begin
-            GenJnlLine.FilterGroup := 2;
-            GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
-            GenJnlLine.FilterGroup := 0;
-            if OpenFromBatch then begin
-                GenJnlLine."Journal Template Name" := '';
-                Page.Run(GenJnlTemplate."Page ID", GenJnlLine);
-            end;
-        end;
     end;
 
     local procedure UpdateBalance()
@@ -1978,7 +1929,7 @@ page 18556 "Contra Voucher"
 
         CanCancelApprovalForJnlLine := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId());
 
-        SetPayrollAppearance();
+        VoucherFunctions.SetPayrollAppearance();
 
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId(), CanRequestFlowApprovalForLine, CanCancelFlowApprovalForLine);
         CanRequestFlowApprovalForBatchAndCurrentLine := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForLine;
@@ -2010,15 +1961,6 @@ page 18556 "Contra Voucher"
                     exit;
                 end;
             until GenJournalLine.Next(NextNum) = 0;
-    end;
-
-    local procedure SetPayrollAppearance()
-    var
-        TempPayrollServiceConnection: Record "Service Connection" temporary;
-        PayrollManagement: Codeunit "Payroll Management";
-    begin
-        PayrollManagement.OnRegisterPayrollService(TempPayrollServiceConnection);
-        ImportPayrollTransactionsAvailable := not TempPayrollServiceConnection.IsEmpty();
     end;
 
     local procedure SetControlAppearanceFromBatch()
@@ -2230,108 +2172,5 @@ page 18556 "Contra Voucher"
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
         JobQueuesUsed := GeneralLedgerSetup.JobQueueActive();
-    end;
-
-    local procedure SplitNarration(NarrationText: Text[2000])
-    var
-        SPos: Integer;
-        EPos: Integer;
-        i: Integer;
-        Len: Integer;
-        loop: Decimal;
-        SplitedText: List of [Text];
-    begin
-        Clear(Len);
-        Clear(loop);
-        Len := StrLen(NarrationText);
-        loop := Round(Len / 250, 1, '>');
-        Clear(SPos);
-        Clear(EPos);
-        SPos := 0;
-        EPos := 0;
-        for i := 1 to loop do begin
-            EPos += 250;
-            SplitedText.Add(CopyStr(NarrationText, SPos + 1, EPos));
-            SPos := EPos;
-        end;
-        UpdateNarration(SplitedText);
-    end;
-
-    local procedure UpdateNarration(NarrationText: List of [Text])
-    var
-        GenLineNarration: Record "Gen. Journal Narration";
-        i: Integer;
-    begin
-        for i := 1 to NarrationText.Count() do begin
-            GenLineNarration.Init();
-            GenLineNarration.Validate("Journal Template Name", "Journal Template Name");
-            GenLineNarration.Validate("Journal Batch Name", "Journal Batch Name");
-            GenLineNarration.Validate("Document No.", "Document No.");
-            GenLineNarration.Validate("Line No.", NextNarrationLineNo());
-            GenLineNarration.Validate("Gen. Journal Line No.", "Line No.");
-            GenLineNarration.Validate(Narration, NarrationText.Get(i));
-            GenLineNarration.Insert(true);
-        end;
-    end;
-
-    local procedure NextNarrationLineNo(): Integer
-    var
-        GenLineNarration: Record "Gen. Journal Narration";
-    begin
-        GenLineNarration.Reset();
-        GenLineNarration.SetRange("Document No.", "Document No.");
-        if GenLineNarration.FindLast() then
-            exit(GenLineNarration."Line No." + 10000)
-        else
-            exit(10000);
-    end;
-
-    local procedure ShowOldNarration()
-    var
-        GenLineNarration: Record "Gen. Journal Narration";
-    begin
-        NarrationText := '';
-        if "Document No." <> '' then begin
-            GenLineNarration.Reset();
-            GenLineNarration.SetCurrentKey("Line No.");
-            GenLineNarration.SetRange("Journal Template Name", "Journal Template Name");
-            GenLineNarration.SetRange("Journal Batch Name", "Journal Batch Name");
-            GenLineNarration.SetRange("Document No.", Rec."Document No.");
-            GenLineNarration.SetFilter("Gen. Journal Line No.", '%1', 0);
-            if GenLineNarration.FindSet() then
-                repeat
-                    NarrationText += GenLineNarration.Narration + '';
-                until GenLineNarration.Next() = 0;
-        end;
-    end;
-
-    local procedure GetAvailableGeneralJournalTemplateName(TemplateName: Code[10]): Code[10]
-    var
-        GenJnlTemplate: Record "Gen. Journal Template";
-        PotentialTemplateName: Code[10];
-        PotentialTemplateNameIncrement: Integer;
-    begin
-        if StrLen(TemplateName) > 9 then
-            TemplateName := Format(TemplateName, 9);
-
-        GenJnlTemplate.Init();
-        PotentialTemplateName := TemplateName;
-        PotentialTemplateNameIncrement := 0;
-        while PotentialTemplateNameIncrement < 10 do begin
-            GenJnlTemplate.SetFilter(Name, PotentialTemplateName);
-            if GenJnlTemplate.Count() = 0 then
-                exit(PotentialTemplateName);
-
-            PotentialTemplateNameIncrement := PotentialTemplateNameIncrement + 1;
-            PotentialTemplateName := TemplateName + Format(PotentialTemplateNameIncrement);
-        end;
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterValidateShortcutDimCode(
-        var GenJournalLine: Record "Gen. Journal Line";
-        var ShortcutDimCode: array[8] of Code[20];
-        DimIndex: Integer)
-    begin
     end;
 }

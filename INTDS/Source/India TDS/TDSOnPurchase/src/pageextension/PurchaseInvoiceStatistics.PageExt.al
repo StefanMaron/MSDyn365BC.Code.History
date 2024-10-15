@@ -4,13 +4,6 @@ pageextension 18717 "Purchase Invoice Statistics" extends "Purchase Statistics"
     {
         addlast(General)
         {
-            field("Total Amount"; TotalTaxAmount)
-            {
-                ApplicationArea = Basic, Suite;
-                Editable = false;
-                ToolTip = 'Specifies the amount, including TDS amount. On the General fast tab, this is the amount posted to the vendor account for all the lines in the purchase invoice if you post the purchase invoice.';
-                Caption = 'Net Total';
-            }
             field("TDS Amount"; TDSAmount)
             {
                 ApplicationArea = Basic, Suite;
@@ -22,12 +15,11 @@ pageextension 18717 "Purchase Invoice Statistics" extends "Purchase Statistics"
     }
     trigger OnAfterGetRecord()
     var
-        TDSSubscribers: Codeunit "TDS Subscribers";
+        TDSStatistics: Codeunit "TDS Statistics";
     begin
-        TDSSubscribers.GetStatiticsAmount(Rec, TotalTaxAmount, TDSAmount);
+        TDSStatistics.GetStatisticsAmount(Rec, TDSAmount);
     end;
 
     var
-        TotalTaxAmount: Decimal;
         TDSAmount: Decimal;
 }

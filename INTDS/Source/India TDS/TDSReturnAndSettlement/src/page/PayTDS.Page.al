@@ -13,200 +13,187 @@ page 18746 "Pay TDS"
         {
             repeater(General)
             {
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of account that TDS entry is linked to.';
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the vendor account that TDS entry is linked to.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date of the TDS entry.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document type that the TDS entry belongs to.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies document number of the TDS entry.';
                 }
-
-                field("TDS Base Amount"; "TDS Base Amount")
+                field("TDS Base Amount"; Rec."TDS Base Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'TDS Base Amount';
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
-                field("Assessee Code"; "Assessee Code")
+                field("Assessee Code"; Rec."Assessee Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the assessee code of the customer account that the TDS entry is linked to.';
                 }
-                field("TDS Paid"; "TDS Paid")
+                field("TDS Paid"; Rec."TDS Paid")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the amount on the TDS entry is fully paid.';
                 }
-                field("Applied To"; "Applied To")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the document number of the applied TDS entry';
-                }
-                field("Challan Date"; "Challan Date")
+                field("Challan Date"; Rec."Challan Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the challan date for the TDS entry once TDS amount is paid to government.';
                 }
-                field("Challan No."; "Challan No.")
+                field("Challan No."; Rec."Challan No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the challan number for the TDS entry once TDS amount is paid to government.';
                 }
-                field("Bank Name"; "Bank Name")
+                field("Bank Name"; Rec."Bank Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account of the applied entry.';
                 }
-                field("TDS %"; "TDS %")
+                field("TDS %"; Rec."TDS %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies TDS % on the TDS entry.';
                 }
-                field(Adjusted; Adjusted)
+                field(Adjusted; Rec.Adjusted)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the TDS entry is adjusted.';
                 }
-                field("Adjusted TDS %"; "Adjusted TDS %")
+                field("Adjusted TDS %"; Rec."Adjusted TDS %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies adjusted TDS % for the TDS Entry.';
                 }
-                field("Pay TDS Document No."; "Pay TDS Document No.")
+                field("Pay TDS Document No."; Rec."Pay TDS Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number of the TDS entry to be paid to government.';
                 }
-                field("Applies To"; "Applies To")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the entry is applied to any entry.';
-                }
-                field("Surcharge %"; "Surcharge %")
+                field("Surcharge %"; Rec."Surcharge %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the surcharge % on the TDS entry.';
                 }
-                field("Surcharge Amount"; "Surcharge Amount")
+                field("Surcharge Amount"; Rec."Surcharge Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the surcharge amount that the TDS entry is linked to.';
                 }
-                field("Concessional Code"; "Concessional Code")
+                field("Concessional Code"; Rec."Concessional Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the applied concessional code that the TDS entry is linked to.';
                 }
-                field("Concessional Form No."; "Concessional Form No.")
+                field("Concessional Form No."; Rec."Concessional Form No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the applied concessional form on TDS entry.';
                 }
-                field("Invoice Amount"; "Invoice Amount")
+                field("Invoice Amount"; Rec."Invoice Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the invoice amount that the TDS entry is linked to.';
                 }
-
-                field(Applied; Applied)
+                field(Applied; Rec.Applied)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the TDS entry is applied.';
                 }
-                field("TDS Amount"; "TDS Amount")
+                field("TDS Amount"; Rec."TDS Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the TDS Amount that the TDS entry is linked to.';
                 }
-                field("eCESS %"; "eCESS %")
+                field("eCESS %"; Rec."eCESS %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the eCess % on TDS entry.';
                 }
-                field("eCESS Amount"; "eCESS Amount")
+                field("eCESS Amount"; Rec."eCESS Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the eCess amount on TDS entry.';
                 }
-                field("SHE Cess %"; "SHE Cess %")
+                field("SHE Cess %"; Rec."SHE Cess %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the SHE Cess % on TDS entry.';
                 }
-                field("SHE Cess Amount"; "SHE Cess Amount")
+                field("SHE Cess Amount"; Rec."SHE Cess Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the SHE Cess amount on TDS entry.';
                 }
-                field("T.A.N. No."; "T.A.N. No.")
+                field("T.A.N. No."; Rec."T.A.N. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'T.A.N. No.';
                     ToolTip = 'Specifies the T.A.N. number that the TDS entry is linked to.';
                 }
-                field(Reversed; Reversed)
+                field(Reversed; Rec.Reversed)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the TDS entry has been reversed.';
                 }
-                field("Reversed by Entry No."; "Reversed by Entry No.")
+                field("Reversed by Entry No."; Rec."Reversed by Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry number by which the TDS entry has been reversed.';
                 }
-                field("Reversed Entry No."; "Reversed Entry No.")
+                field("Reversed Entry No."; Rec."Reversed Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry number for which the TDS entry has been reversed.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the user who posted the TDS entry.';
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code. Source code can be PURCHASES, SALES, GENJNL, BANKPYMT etc.';
                 }
-                field("Transaction No."; "Transaction No.")
+                field("Transaction No."; Rec."Transaction No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the transaction number of the posted entry.';
                 }
-                field("Party P.A.N. No."; "Party P.A.N. No.")
+                field("Party P.A.N. No."; Rec."Party P.A.N. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the P.A.N. number of the deductee.';
                 }
-                field("TDS Payment Date"; "TDS Payment Date")
+                field("TDS Payment Date"; Rec."TDS Payment Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the P.A.N. number of the deductee.';
                 }
-
             }
         }
     }
@@ -224,6 +211,7 @@ page 18746 "Pay TDS"
                 PromotedOnly = true;
                 ApplicationArea = Basic, Suite;
                 Image = Payment;
+
                 trigger OnAction()
                 var
                     TDSEntry: Record "TDS Entry";
@@ -235,67 +223,67 @@ page 18746 "Pay TDS"
                     TotalTDSAmount := 0;
                     DocNo := GetGenJnlLineDocNo();
 
-                    TDSEntry.SETRANGE("Pay TDS Document No.", DocNo);
-                    TDSEntry.SETRANGE("TDS Paid", FALSE);
+                    TDSEntry.SetRange("Pay TDS Document No.", DocNo);
+                    TDSEntry.SetRange("TDS Paid", false);
                     if TDSEntry.FindSet() then
                         repeat
                             TDSEntry."Pay TDS Document No." := ' ';
-                            TDSEntry.MODIFY();
-                        until TDSEntry.NEXT() = 0;
+                            TDSEntry.Modify();
+                        until TDSEntry.Next() = 0;
 
-                    TDSEntry.COPY(Rec);
+                    TDSEntry.Copy(Rec);
                     if TDSEntry.FindSet() then
                         repeat
-                            if NOT (TDSEntry."Document Type" = TDSEntry."Document Type"::"Credit Memo") then
+                            if not (TDSEntry."Document Type" = TDSEntry."Document Type"::"Credit Memo") then
                                 TotalInvAmount := TotalInvAmount + TDSEntry."Bal. TDS Including SHE CESS"
                             else
                                 TotalCreditAmount := TotalCreditAmount + TDSEntry."Bal. TDS Including SHE CESS";
                             TDSEntry."Pay TDS Document No." := DocNo;
-                            TDSEntry.MODIFY();
-                        until TDSEntry.NEXT() = 0;
+                            TDSEntry.Modify();
+                        until TDSEntry.Next() = 0;
                     TotalTDSAmount := TotalInvAmount - TotalCreditAmount;
 
                     UpdateGenJnlLineAmount(TotalTDSAmount);
 
-                    CurrPage.CLOSE();
+                    CurrPage.Close();
                 end;
             }
         }
     }
 
-    procedure SetProperties(BatchName: Code[10]; TemplateName: Code[10]; "No.": Integer)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BatchName: Code[10];
+        TemplateName: Code[10];
+        LineNo: Integer;
+
+    procedure SetProperties(NewBatchName: Code[10]; NewTemplateName: Code[10]; NewLineNo: Integer)
     begin
-        Batch := BatchName;
-        Template := TemplateName;
-        LineNo := "No.";
+        BatchName := NewBatchName;
+        TemplateName := NewTemplateName;
+        LineNo := NewLineNo;
     end;
 
     local procedure GetGenJnlLineDocNo(): Code[20]
     begin
-        GenJnlLine.RESET();
-        GenJnlLine.SETRANGE("Journal Template Name", Template);
-        GenJnlLine.SETRANGE("Journal Batch Name", Batch);
-        GenJnlLine.SETRANGE("Line No.", LineNo);
-        if GenJnlLine.FINDLAST() then
-            exit(GenJnlLine."Document No.");
+        GenJournalLine.Reset();
+        GenJournalLine.SetRange("Journal Template Name", TemplateName);
+        GenJournalLine.SetRange("Journal Batch Name", BatchName);
+        GenJournalLine.SetRange("Line No.", LineNo);
+        if GenJournalLine.FindLast() then
+            exit(GenJournalLine."Document No.");
     end;
 
     local procedure UpdateGenJnlLineAmount(Amount: Decimal)
     begin
-        GenJnlLine.RESET();
-        GenJnlLine.SETRANGE("Journal Template Name", Template);
-        GenJnlLine.SETRANGE("Journal Batch Name", Batch);
-        GenJnlLine.SETRANGE("Line No.", LineNo);
-        if GenJnlLine.FINDLAST() then begin
-            GenJnlLine.Amount := Amount;
-            GenJnlLine.VALIDATE("Debit Amount", Amount);
-            GenJnlLine.MODIFY();
+        GenJournalLine.Reset();
+        GenJournalLine.SetRange("Journal Template Name", TemplateName);
+        GenJournalLine.SetRange("Journal Batch Name", BatchName);
+        GenJournalLine.SetRange("Line No.", LineNo);
+        if GenJournalLine.FindLast() then begin
+            GenJournalLine.Amount := Amount;
+            GenJournalLine.Validate("Debit Amount", Amount);
+            GenJournalLine.Modify();
         end;
     end;
-
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        Batch: Code[10];
-        Template: Code[10];
-        LineNo: Integer;
 }

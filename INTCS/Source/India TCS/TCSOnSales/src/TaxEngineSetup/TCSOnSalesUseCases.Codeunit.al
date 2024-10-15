@@ -1,5 +1,8 @@
 codeunit 18840 "TCS On Sales Use Cases"
 {
+    var
+        TCSOnSalesUseCasesLbl: Label 'TCS on Sales Use Cases';
+
     procedure GetJObject(): JsonObject
     var
         JObject: JsonObject;
@@ -12,7 +15,4 @@ codeunit 18840 "TCS On Sales Use Cases"
     begin
         exit(TCSOnSalesUseCasesLbl);
     end;
-
-    var
-        TCSOnSalesUseCasesLbl: Label 'TCS on Sales Use Cases';
 }

@@ -11,7 +11,7 @@ codeunit 2850 "Native API - Language Handler"
         LanguageFound: Boolean;
         CachedLanguageCode: Code[10];
 
-    [EventSubscriber(ObjectType::Codeunit, 43, 'OnGetUserLanguageCode', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Language", 'OnGetUserLanguageCode', '', false, false)]
     local procedure InvoicingAPIGetUserLanguageHandler(var UserLanguageCode: Code[10]; var Handled: Boolean)
     begin
         // Breaking handled pattern here - API subscriber must win, log a clash

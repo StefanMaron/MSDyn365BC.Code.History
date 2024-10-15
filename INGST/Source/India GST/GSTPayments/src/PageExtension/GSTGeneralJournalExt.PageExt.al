@@ -4,39 +4,95 @@
     {
         addafter("Account No.")
         {
-            field("GST on Advance Payment"; Rec."GST on Advance Payment")
+            field("Tax Type"; Rec."Tax Type")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies if GST is required to be calculated on Advance Payment.';
+                ToolTip = 'Specifies the tax type as selected from the given options';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
                 end;
             }
-            field("GST TCS"; Rec."GST TCS")
+            field("GST Component Code"; Rec."GST Component Code")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies if GST TCS is calculated on the journal line.';
+                ToolTip = 'Specifies the GST component code for which the entry is being posted.';
+
+                trigger OnLookup(var Text: Text): Boolean
+                var
+                    GSTSetup: Record "GST Setup";
+                    TaxComponent: Record "Tax Component";
+                begin
+                    if not GSTSetup.Get() then
+                        exit;
+
+                    TaxComponent.Reset();
+                    TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
+                    if Page.RunModal(0, TaxComponent) = Action::LookupOK then
+                        Rec.Validate("GST Component Code", TaxComponent.Name);
+                end;
+
+                trigger OnValidate()
+                var
+                    GSTSetup: Record "GST Setup";
+                    TaxComponent: Record "Tax Component";
+                begin
+                    if Rec."GST Component Code" <> '' then begin
+                        if not GSTSetup.get() then
+                            exit;
+
+                        TaxComponent.Reset();
+                        TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
+                        TaxComponent.SetRange(Name, Rec."GST Component Code");
+                        if TaxComponent.IsEmpty() then
+                            Rec.FieldError("GST Component Code");
+                    end;
+                    CallTaxEngine();
+                end;
+            }
+            field("GST on Advance Payment"; Rec."GST on Advance Payment")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies if GST is required to be calculated on Advance Payment.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
+            }
+            field("GST TDS/GST TCS"; Rec."GST TDS/GST TCS")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies if GST TCS or GST TDS is calculated on the journal line.';
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("GST TCS State Code"; Rec."GST TCS State Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the state code for which GST TCS is applicable on the journal line.';
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("GST TDS/TCS Base Amount"; Rec."GST TDS/TCS Base Amount")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the GST TDS/TCS Base amount for the journal line.';
-            }
-            field("GST TDS"; Rec."GST TDS")
-            {
-                ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies if GST TDS is calculated on the journal line.';
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("GST Group Code"; Rec."GST Group Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the GST Group code for the calculation of GST on journal line.';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
@@ -46,6 +102,17 @@
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the HSN/SAC code for the calculation of GST on journal line.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
+            }
+            field("GST Credit"; Rec."GST Credit")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies if the GST Credit has to be availed or not.';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
@@ -80,6 +147,7 @@
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies whether the journal line is without the Bill of Entry.';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
@@ -99,6 +167,7 @@
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the GST Assessable Value for the journal line.';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
@@ -108,6 +177,7 @@
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the Custom Duty amount for the journal line';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
@@ -117,6 +187,11 @@
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the amount excluding GST for the journal line.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
         }
         modify(Amount)
@@ -154,7 +229,20 @@
                 CallTaxEngine();
             end;
         }
-
+        modify("Location Code")
+        {
+            trigger OnAfterValidate()
+            begin
+                CallTaxEngine();
+            end;
+        }
+        modify("Currency Code")
+        {
+            trigger OnAfterValidate()
+            begin
+                CallTaxEngine();
+            end;
+        }
     }
     actions
     {

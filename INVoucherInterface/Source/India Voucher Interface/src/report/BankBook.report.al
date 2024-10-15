@@ -11,13 +11,13 @@ report 18930 "Bank Book"
         dataitem("Bank Account"; "Bank Account")
         {
             DataItemTableView = sorting("No.")
-                                ORDER(ascending);
+                                order(ascending);
             RequestFilterFields = "No.", "Date Filter", "Global Dimension 1 Filter", "Global Dimension 2 Filter";
 
             column(FORMAT_TODAY_0_4_; Format(TODAY(), 0, 4))
             {
             }
-            column(CompInfo_Name; CompInfo.Name)
+            column(CompInfo_Name; CompanyInformation.Name)
             {
             }
             column(CurrReport_PAGENO; '')
@@ -32,13 +32,10 @@ report 18930 "Bank Book"
             column(GETFILTERS; GetFilters())
             {
             }
-            column(LocationFilter; LocationFilter)
+            column(Bank_Book_; BankBookLbl)
             {
             }
-            column(Bank_Book_; 'Bank Book')
-            {
-            }
-            column(Opening_Balance_As_On_______FORMAT_GETRANGEMIN__Date_Filter___; 'Opening Balance As On' + ' ' + FORMAT(GETRANGEMIN("Date Filter")))
+            column(Opening_Balance_As_On_______FORMAT_GETRANGEMIN__Date_Filter___; OpeningBalanceAsOnLbl + ' ' + Format(GETRANGEMIN("Date Filter")))
             {
             }
             column(OpeningDRBal; OpeningDRBal)
@@ -107,9 +104,6 @@ report 18930 "Bank Book"
             column(Voucher_TypeCaption; Voucher_TypeCaptionLbl)
             {
             }
-            column(Location_CodeCaption; Location_CodeCaptionLbl)
-            {
-            }
             column(Cheque_NoCaption; Cheque_NoCaptionLbl)
             {
             }
@@ -126,7 +120,7 @@ report 18930 "Bank Book"
                                "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                "Global Dimension 2 Code" = field("Global Dimension 2 Filter");
                 DataItemTableView = sorting("Bank Account No.", "Posting Date")
-                                    ORDER(ascending);
+                                    order(ascending);
 
                 column(Bank_Account_Ledger_Entry_Entry_No_; "Entry No.")
                 {
@@ -140,7 +134,7 @@ report 18930 "Bank Book"
                 column(Bank_Account_Ledger_Entry___Cheque_No__; DataItem4920."Cheque No.")
                 {
                 }
-                column(Bank_Account_Ledger_Entry___Cheque_Date_; FORMAT(DataItem4920."Cheque Date"))
+                column(Bank_Account_Ledger_Entry___Cheque_Date_; Format(DataItem4920."Cheque Date"))
                 {
                 }
                 column(Bank_Account_Ledger_Entry_Global_Dimension_1_Code; "Global Dimension 1 Code")
@@ -155,7 +149,7 @@ report 18930 "Bank Book"
                     DataItemTableView = sorting("G/L Account No.", "Posting Date")
                                         order(ascending);
 
-                    column(G_L_Entry__Posting_Date_; FORMAT("Posting Date"))
+                    column(G_L_Entry__Posting_Date_; Format("Posting Date"))
                     {
                     }
                     column(G_L_Entry__Document_No__; "Document No.")
@@ -192,7 +186,7 @@ report 18930 "Bank Book"
                     {
                         DataItemTableView = sorting(Number);
 
-                        column(GLEntry__Posting_Date_; FORMAT(GLEntry."Posting Date"))
+                        column(GLEntry__Posting_Date_; Format(GLEntry."Posting Date"))
                         {
                         }
                         column(GLEntry__Document_No__; GLEntry."Document No.")
@@ -219,7 +213,7 @@ report 18930 "Bank Book"
                         column(Bank_Account_Ledger_Entry___Cheque_No; DataItem4920."Cheque No.")
                         {
                         }
-                        column(Bank_Account_Ledger_Entry___Cheque_Date; FORMAT(DataItem4920."Cheque Date"))
+                        column(Bank_Account_Ledger_Entry___Cheque_Date; Format(DataItem4920."Cheque Date"))
                         {
                         }
                         column(DrCrText; DrCrText)
@@ -246,7 +240,6 @@ report 18930 "Bank Book"
                         column(Integer_Number; Number)
                         {
                         }
-
                         trigger OnAfterGetRecord()
                         begin
                             DrCrText := '';
@@ -261,27 +254,27 @@ report 18930 "Bank Book"
                                     DetailAmt := GLEntry.Amount;
 
                                 if DetailAmt > 0 then
-                                    DrCrText := Text16501Lbl;
+                                    DrCrText := DrLbl;
                                 if DetailAmt < 0 then
-                                    DrCrText := Text16502Lbl;
+                                    DrCrText := CrLbl;
 
                                 if not PrintDetail then
-                                    AccountName := Text16500Lbl
+                                    AccountName := DetailsLbl
                                 else
                                     AccountName := Daybook.FindGLAccName(GLEntry."Source Type", GLEntry."Entry No.", GLEntry."Source No.", GLEntry."G/L Account No.")
                                       ;
 
                                 DrCrTextBalance := '';
                                 if OpeningDRBal - OpeningCRBal + TransDebits - TransCredits > 0 then
-                                    DrCrTextBalance := Text16501Lbl;
+                                    DrCrTextBalance := DrLbl;
                                 if OpeningDRBal - OpeningCRBal + TransDebits - TransCredits < 0 then
-                                    DrCrTextBalance := Text16502Lbl;
+                                    DrCrTextBalance := CrLbl;
                             end else
                                 if PrintDetail and (not FirstRecord) then begin
                                     if GLEntry.Amount > 0 then
-                                        DrCrText := Text16501Lbl;
+                                        DrCrText := DrLbl;
                                     if GLEntry.Amount < 0 then
-                                        DrCrText := Text16502Lbl;
+                                        DrCrText := CrLbl;
                                     AccountName :=
                                       Daybook.FindGLAccName(GLEntry."Source Type", GLEntry."Entry No.", GLEntry."Source No.", GLEntry."G/L Account No.");
                                 end;
@@ -289,10 +282,10 @@ report 18930 "Bank Book"
 
                         trigger OnPreDataItem()
                         begin
-                            SetRange(Number, 1, GLEntry.Count());
+                            SetRange(Number, 1, GLEntry.Count);
                             FirstRecord := true;
 
-                            if GLEntry.Count() = 1 then
+                            if GLEntry.Count = 1 then
                                 CurrReport.Break();
                         end;
                     }
@@ -314,7 +307,6 @@ report 18930 "Bank Book"
                         column(Posted_Narration_Line_No_; "Line No.")
                         {
                         }
-
                         trigger OnPreDataItem()
                         begin
                             if not PrintLineNarration then
@@ -345,7 +337,6 @@ report 18930 "Bank Book"
                         column(PostedNarration1_Line_No_; "Line No.")
                         {
                         }
-
                         trigger OnPreDataItem()
                         begin
                             if not PrintVchNarration then
@@ -362,7 +353,6 @@ report 18930 "Bank Book"
                                 CurrReport.Break();
                         end;
                     }
-
                     trigger OnAfterGetRecord()
                     begin
                         GLEntry.SetRange("Transaction No.", "Transaction No.");
@@ -371,12 +361,12 @@ report 18930 "Bank Book"
 
                         DrCrText := '';
                         OneEntryRecord := true;
-                        if GLEntry.Count() > 1 then
+                        if GLEntry.Count > 1 then
                             OneEntryRecord := false;
 
                         if Amount > 0 then
-                            TransDebits := TransDebits + Amount;
-                        if Amount < 0 then
+                            TransDebits := TransDebits + Amount
+                        else
                             TransCredits := TransCredits - Amount;
 
                         SourceDesc := '';
@@ -391,17 +381,17 @@ report 18930 "Bank Book"
 
                             DrCrTextBalance := '';
                             if OpeningDRBal - OpeningCRBal + TransDebits - TransCredits > 0 then
-                                DrCrTextBalance := Text16501Lbl;
-                            if OpeningDRBal - OpeningCRBal + TransDebits - TransCredits < 0 then
-                                DrCrTextBalance := Text16502Lbl;
+                                DrCrTextBalance := DrLbl
+                            else
+                                DrCrTextBalance := CrLbl;
                         end;
 
                         if BankAccountNo = "Bank Account"."No." then begin
                             DrCrTextBalance := '';
                             if OpeningDRBal - OpeningCRBal + TransDebits - TransCredits > 0 then
-                                DrCrTextBalance := Text16501Lbl;
-                            if OpeningDRBal - OpeningCRBal + TransDebits - TransCredits < 0 then
-                                DrCrTextBalance := Text16502Lbl;
+                                DrCrTextBalance := DrLbl
+                            else
+                                DrCrTextBalance := CrLbl;
                         end;
                     end;
 
@@ -411,45 +401,40 @@ report 18930 "Bank Book"
                         GLEntry.SetCurrentKey("Transaction No.");
                     end;
                 }
-
-                trigger OnPreDataItem()
-                begin
-                end;
             }
-
             trigger OnAfterGetRecord()
             begin
                 TransDebits := 0;
                 TransCredits := 0;
 
-                if not VoucherAccount.FindFirst() then
-                    CurrReport.SKIP();
+                if not GenJournalNarration.FindFirst() then
+                    CurrReport.Skip();
 
                 if BankAccountNo <> "No." then begin
                     OpeningDRBal := 0;
                     OpeningCRBal := 0;
 
-                    BankAccLedgEntry.Reset();
-                    BankAccLedgEntry.SetCurrentKey("Bank Account No.", "Global Dimension 1 Code",
+                    BankAccountLedgerEntry.Reset();
+                    BankAccountLedgerEntry.SetCurrentKey("Bank Account No.", "Global Dimension 1 Code",
                       "Global Dimension 2 Code", "Posting Date");
-                    BankAccLedgEntry.SetRange("Bank Account No.", "No.");
-                    BankAccLedgEntry.SetFilter("Posting Date", '%1..%2', 0D, NormalDate(GetRangeMin("Date Filter")) - 1);
+                    BankAccountLedgerEntry.SetRange("Bank Account No.", "No.");
+                    BankAccountLedgerEntry.SetFilter("Posting Date", '%1..%2', 0D, NormalDate(GetRangeMin("Date Filter")) - 1);
                     if "Global Dimension 1 Filter" <> '' then
-                        BankAccLedgEntry.SetFilter("Global Dimension 1 Code", "Global Dimension 1 Filter");
+                        BankAccountLedgerEntry.SetFilter("Global Dimension 1 Code", "Global Dimension 1 Filter");
                     if "Global Dimension 2 Filter" <> '' then
-                        BankAccLedgEntry.SetFilter("Global Dimension 2 Code", "Global Dimension 2 Filter");
+                        BankAccountLedgerEntry.SetFilter("Global Dimension 2 Code", "Global Dimension 2 Filter");
 
-                    BankAccLedgEntry.CalcSums("Amount (LCY)");
-                    if BankAccLedgEntry."Amount (LCY)" > 0 then
-                        OpeningDRBal := BankAccLedgEntry."Amount (LCY)";
-                    if BankAccLedgEntry."Amount (LCY)" < 0 then
-                        OpeningCRBal := -BankAccLedgEntry."Amount (LCY)";
+                    BankAccountLedgerEntry.CalcSums("Amount (LCY)");
+                    if BankAccountLedgerEntry."Amount (LCY)" > 0 then
+                        OpeningDRBal := BankAccountLedgerEntry."Amount (LCY)"
+                    else
+                        OpeningCRBal := -BankAccountLedgerEntry."Amount (LCY)";
 
                     DrCrTextBalance := '';
                     if OpeningDRBal - OpeningCRBal > 0 then
-                        DrCrTextBalance := Text16501Lbl;
-                    if OpeningDRBal - OpeningCRBal < 0 then
-                        DrCrTextBalance := Text16502Lbl;
+                        DrCrTextBalance := DrLbl
+                    else
+                        DrCrTextBalance := CrLbl;
 
                     BankAccountNo := "No.";
                 end;
@@ -485,26 +470,10 @@ report 18930 "Bank Book"
                         ToolTip = 'Place a check mark in this field if voucher narration is to be printed.';
                         ApplicationArea = Basic, Suite;
                     }
-                    field(LocationCode1; LocationCode)
-                    {
-                        Caption = 'Location Code';
-                        ToolTip = 'Select the location code from the lookup list for which bank book is to be generated.';
-                        TableRelation = Location;
-                        ApplicationArea = Basic, Suite;
-                    }
                 }
             }
         }
-
-        actions
-        {
-        }
     }
-
-    labels
-    {
-    }
-
 
     trigger OnInitReport()
     begin
@@ -513,16 +482,16 @@ report 18930 "Bank Book"
 
     trigger OnPreReport()
     begin
-        CompInfo.Get();
+        CompanyInformation.Get();
     end;
 
     var
-        CompInfo: Record "Company Information";
+        CompanyInformation: Record "Company Information";
         GLEntry: Record "G/L Entry";
         GLEntry2: Record "G/L Entry";
-        VoucherAccount: Record "Gen. Journal Narration";
+        GenJournalNarration: Record "Gen. Journal Narration";
         SourceCode: Record "Source Code";
-        BankAccLedgEntry: Record "Bank Account Ledger Entry";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         Daybook: Report "Day Book";
         OpeningDRBal: Decimal;
         OpeningCRBal: Decimal;
@@ -538,12 +507,10 @@ report 18930 "Bank Book"
         SourceDesc: Text[50];
         DrCrText: Text[2];
         DrCrTextBalance: Text[2];
-        LocationCode: Code[10];
-        LocationFilter: Text[100];
         BankAccountNo: Code[20];
-        Text16500Lbl: Label 'As per Details';
-        Text16501Lbl: Label 'Dr';
-        Text16502Lbl: Label 'Cr';
+        DetailsLbl: Label 'As per Details';
+        DrLbl: Label 'Dr';
+        CrLbl: Label 'Cr';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Posting_DateCaptionLbl: Label 'Posting Date';
         Document_No_CaptionLbl: Label 'Document No.';
@@ -552,8 +519,9 @@ report 18930 "Bank Book"
         Account_NameCaptionLbl: Label 'Account Name';
         BalanceCaptionLbl: Label 'Balance';
         Voucher_TypeCaptionLbl: Label 'Voucher Type';
-        Location_CodeCaptionLbl: Label 'Location Code';
         Cheque_NoCaptionLbl: Label 'Cheque No';
         Cheque_DateCaptionLbl: Label 'Cheque Date';
+        OpeningBalanceAsOnLbl: Label 'Opening Balance As On';
+        BankBookLbl: Label 'Bank Book';
         Closing_BalanceCaptionLbl: Label 'Closing Balance';
 }

@@ -9,6 +9,7 @@ pageextension 18749 "Order Processor TDS" extends "Order Processor Role Center"
                 group("Auto Configuration TDS")
                 {
                     Caption = 'Auto Configuration';
+
                     action("Section")
                     {
                         ApplicationArea = Basic, Suite;
@@ -22,6 +23,7 @@ pageextension 18749 "Order Processor TDS" extends "Order Processor Role Center"
                 group("User Configuration TDS")
                 {
                     Caption = 'User Configuration';
+
                     action("TDS Posting Setup")
                     {
                         ApplicationArea = Basic, Suite;

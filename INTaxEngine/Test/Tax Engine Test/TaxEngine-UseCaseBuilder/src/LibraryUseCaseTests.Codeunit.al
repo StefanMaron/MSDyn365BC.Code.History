@@ -2,28 +2,6 @@ codeunit 136869 "Library - Use Case Tests"
 {
     EventSubscriberInstance = Manual;
 
-    procedure CreateTableLink(var CaseID: Guid; var TableLinkID: Guid; TableID: Integer; LinkTableID: Integer)
-    var
-        UseCaseEntityMgmt: Codeunit "Use Case Entity Mgmt.";
-    begin
-        Init(CaseID);
-        TableLinkID := UseCaseEntityMgmt.CreateTableLinking(CaseID, TableID, LinkTableID);
-    end;
-
-    procedure AddTableFieldLink(CaseID: Guid; TableLinkID: Guid; TableID: Integer; LinkTableID: Integer; FieldID: Integer; LinkFieldID: Integer)
-    var
-        UseCaseFieldLink: Record "Use Case Field Link";
-    begin
-        UseCaseFieldLink."Case ID" := CaseID;
-        UseCaseFieldLink."Table Filter ID" := TableLinkID;
-        UseCaseFieldLink."Table ID" := TableID;
-        UseCaseFieldLink."Field ID" := FieldID;
-        UseCaseFieldLink."Value Type" := UseCaseFieldLink."Value Type"::Lookup;
-        UseCaseFieldLink."Lookup Table ID" := LinkTableID;
-        UseCaseFieldLink."Lookup Field ID" := LinkFieldID;
-        UseCaseFieldLink.Insert();
-    end;
-
     procedure CreateTableFilters(var CaseID: Guid; var TableFilterID: Guid; TableID: Integer)
     var
         LookupEntityMgmt: Codeunit "Lookup Entity Mgmt.";
@@ -70,7 +48,6 @@ codeunit 136869 "Library - Use Case Tests"
     procedure AddComponentExpressionToken(var CaseID: Guid; ComponentExpressionID: Guid; Token: Text[250]; LookupID: Guid)
     var
         TaxComponentExprToken: Record "Tax Component Expr. Token";
-        UseCaseEntityMgmt: Codeunit "Use Case Entity Mgmt.";
     begin
         TaxComponentExprToken.Init();
         TaxComponentExprToken."Case ID" := CaseID;
@@ -162,10 +139,10 @@ codeunit 136869 "Library - Use Case Tests"
         UseCaseAttributeMapping: Record "Use Case Attribute Mapping";
     begin
         UseCaseAttributeMapping.Init();
-        UseCaseAttributeMapping.validate("Tax Type", TaxTypeCode);
+        UseCaseAttributeMapping.Validate("Tax Type", TaxTypeCode);
         UseCaseAttributeMapping.Validate("Case ID", CaseID);
         UseCaseAttributeMapping.Validate("Attribtue ID", AttributeID);
-             UseCaseAttributeMapping.Insert(true);
+        UseCaseAttributeMapping.Insert(true);
     end;
 
     var

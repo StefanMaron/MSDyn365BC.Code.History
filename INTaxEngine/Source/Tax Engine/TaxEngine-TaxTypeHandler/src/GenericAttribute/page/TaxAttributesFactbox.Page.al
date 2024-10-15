@@ -43,18 +43,6 @@ page 20235 "Tax Attributes Factbox"
     var
         TranslatedValuesVisible: Boolean;
 
-    procedure LoadAttributesData(KeyValue: Code[20]);
-    begin
-        LoadAttributesFactBoxData(KeyValue);
-        CurrPage.Update(false);
-    end;
-
-    procedure LoadCategoryAttributesData(CategoryCode: Code[20]);
-    begin
-        LoadCategoryAttributesFactBoxData(CategoryCode);
-        CurrPage.Update(false);
-    end;
-
     trigger OnOpenPage();
     begin
         SETAUTOCALCFIELDS("Attribute Name");

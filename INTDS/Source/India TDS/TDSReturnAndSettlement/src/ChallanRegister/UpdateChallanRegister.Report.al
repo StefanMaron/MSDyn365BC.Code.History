@@ -3,21 +3,18 @@ report 18747 "Update Challan Register"
     Caption = 'Update Challan Register';
     ProcessingOnly = true;
     UsageCategory = ReportsAndAnalysis;
+
     dataset
     {
         dataitem(DataItem2129; "TDS Challan Register")
         {
-            DataItemTableView = SORTING("Entry No.");
+            DataItemTableView = sorting("Entry No.");
 
             trigger OnAfterGetRecord()
-            var
-                TDSJournalLine: Record "TDS Journal Line";
             begin
-                "TDS Interest Amount" := TDSJournalLine.RoundTDSAmount(InterestAmount);
-                "TDS Others" := TDSJournalLine.RoundTDSAmount(OtherFee);
-                "Oltas Interest" := TDSJournalLine.RoundTDSAmount(InterestAmount);
-                "Oltas Others" := TDSJournalLine.RoundTDSAmount(OtherFee);
-                "TDS Fee" := TDSJournalLine.RoundTDSAmount(LateFee);
+                "TDS Interest Amount" := TDSEntityManagement.RoundTDSAmount(InterestAmount);
+                "TDS Others" := TDSEntityManagement.RoundTDSAmount(OtherFee);
+                "TDS Fee" := TDSEntityManagement.RoundTDSAmount(LateFee);
                 "Paid By Book Entry" := PaidByBook;
                 "Transfer Voucher No." := TransferVoucherNo;
                 Modify();
@@ -25,7 +22,7 @@ report 18747 "Update Challan Register"
 
             trigger OnPreDataItem()
             begin
-                SETRANGE("Entry No.", EntryNo);
+                SetRange("Entry No.", EntryNo);
             end;
         }
     }
@@ -68,7 +65,7 @@ report 18747 "Update Challan Register"
                             CompanyInfo: Record "Company Information";
                             PaidBookErr: Label 'Paid by book entry can be true only for Govt. Organisations.';
                         begin
-                            if not (CompanyInfo."Company Status" = CompanyInfo."Company Status"::Government) and (PaidByBook = TRUE) then
+                            if not (CompanyInfo."Company Status" = CompanyInfo."Company Status"::Government) and PaidByBook then
                                 Error(PaidBookErr);
                         end;
                     }
@@ -81,33 +78,22 @@ report 18747 "Update Challan Register"
                 }
             }
         }
-
-        actions
-        {
-        }
-    }
-
-    labels
-    {
     }
 
     trigger OnInitReport()
     var
-        CompanyInfo: Record "Company Information";
+        CompanyInformation: Record "Company Information";
     begin
-        CompanyInfo.GET();
-        PaidByBook := FALSE;
+        CompanyInformation.Get();
+        PaidByBook := false;
     end;
 
     trigger OnPreReport()
     var
-        CompanyInfo: Record "Company Information";
-        VoucherEmptyErr: Label 'Transfer Voucher No. cannot be empty when Deductor Category is %1 - %2.', Comment = '%1=Deductor Category Code, %2= Deductor Description';
-        VoucherInsertErr: Label 'Transfer Voucher No. cannot be entered when  Deductor Category is %1 - %2.', Comment = '%1=Deductor Category Code, %2= Deductor Description';
-        PayTransferErr: Label 'Paid by Book Entry cannot be false when Transfer Voucher No. is entered.';
+        CompanyInformation: Record "Company Information";
     begin
-        CompanyInfo.get();
-        DeductorCategory.get(CompanyInfo."Deductor Category");
+        CompanyInformation.Get();
+        DeductorCategory.Get(CompanyInformation."Deductor Category");
         if DeductorCategory."Transfer Voucher No. Mandatory" and (TransferVoucherNo = '') then
             Error(VoucherEmptyErr, DeductorCategory.Code, DeductorCategory.Description);
         if not DeductorCategory."Transfer Voucher No. Mandatory" and (TransferVoucherNo <> '') then
@@ -118,21 +104,26 @@ report 18747 "Update Challan Register"
 
     var
         DeductorCategory: Record "Deductor Category";
-        GLSetup: Record "General Ledger Setup";
+        TDSEntityManagement: Codeunit "TDS Entity Management";
         InterestAmount: Decimal;
         OtherFee: Decimal;
         EntryNo: Integer;
         PaidByBook: Boolean;
         TransferVoucherNo: Code[9];
         LateFee: Decimal;
+        VoucherEmptyErr: Label 'Transfer Voucher No. cannot be empty when Deductor Category is %1 - %2.', Comment = '%1=Deductor Category Code, %2= Deductor Description';
+        VoucherInsertErr: Label 'Transfer Voucher No. cannot be entered when  Deductor Category is %1 - %2.', Comment = '%1=Deductor Category Code, %2= Deductor Description';
+        PayTransferErr: Label 'Paid by Book Entry cannot be false when Transfer Voucher No. is entered.';
 
-    procedure UpdateChallan(NewInterestAmount: Decimal; NewOtherAmount: Decimal; NewLateFee: Decimal; NewEntryNo: Integer)
-    var
-        TDSJournalLine: Record "TDS Journal Line";
+    procedure UpdateChallan(
+        NewInterestAmount: Decimal;
+        NewOtherAmount: Decimal;
+        NewLateFee: Decimal;
+        NewEntryNo: Integer)
     begin
-        InterestAmount := TDSJournalLine.RoundTDSAmount(NewInterestAmount);
-        OtherFee := TDSJournalLine.RoundTDSAmount(NewOtherAmount);
-        LateFee := TDSJournalLine.RoundTDSAmount(NewLateFee);
+        InterestAmount := TDSEntityManagement.RoundTDSAmount(NewInterestAmount);
+        OtherFee := TDSEntityManagement.RoundTDSAmount(NewOtherAmount);
+        LateFee := TDSEntityManagement.RoundTDSAmount(NewLateFee);
         EntryNo := NewEntryNo;
     end;
 
@@ -142,4 +133,3 @@ report 18747 "Update Challan Register"
         TransferVoucherNo := VoucherNo;
     end;
 }
-

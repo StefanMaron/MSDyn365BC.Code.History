@@ -405,11 +405,6 @@ report 18016 "Sales - Invoice IN GST"
                         {
                             AutoFormatType = 1;
                         }
-                        column(ServiceTaxAmt; ServiceTaxAmt)
-                        {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
-                            AutoFormatType = 1;
-                        }
                         column(ChargesAmount; ChargesAmount)
                         {
                             AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
@@ -420,38 +415,7 @@ report 18016 "Sales - Invoice IN GST"
                             AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
-                        column(ServiceTaxECessAmt; ServiceTaxECessAmt)
-                        {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
-                            AutoFormatType = 1;
-                        }
                         column(SalesInvLineTotalTDSTCSInclSHECESS; TotalTCSAmount)
-                        {
-                        }
-                        column(AppliedServiceTaxAmt; AppliedServiceTaxAmt)
-                        {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
-                            AutoFormatType = 1;
-                        }
-                        column(AppliedServiceTaxECessAmt; AppliedServiceTaxECessAmt)
-                        {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
-                            AutoFormatType = 1;
-                        }
-                        column(ServiceTaxSHECessAmt; ServiceTaxSHECessAmt)
-                        {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
-                            AutoFormatType = 1;
-                        }
-                        column(AppliedServTaxSHECessAmt; AppliedServiceTaxSHECessAmt)
-                        {
-                            AutoFormatExpression = "Sales Invoice Line".GetCurrencyCode();
-                            AutoFormatType = 1;
-                        }
-                        column(TotalTaxAmt; TotalTaxAmt)
-                        {
-                        }
-                        column(TotalExciseAmt; TotalExciseAmt)
                         {
                         }
                         column(VATBaseDisc_SalesInvHdr; "Sales Invoice Header"."VAT Base Discount %")
@@ -492,37 +456,13 @@ report 18016 "Sales - Invoice IN GST"
                         column(SubtotalCaption; SubtotalCaptionLbl)
                         {
                         }
-                        column(ExciseAmountCaption; ExciseAmountCaptionLbl)
-                        {
-                        }
-                        column(TaxAmountCaption; TaxAmountCaptionLbl)
-                        {
-                        }
-                        column(ServiceTaxAmountCaption; ServiceTaxAmountCaptionLbl)
-                        {
-                        }
                         column(ChargesAmountCaption; ChargesAmountCaptionLbl)
                         {
                         }
                         column(OtherTaxesAmountCaption; OtherTaxesAmountCaptionLbl)
                         {
                         }
-                        column(ServTaxeCessAmtCaption; ServTaxeCessAmtCaptionLbl)
-                        {
-                        }
                         column(TCSAmountCaption; TCSAmountCaptionLbl)
-                        {
-                        }
-                        column(SvcTaxAmtAppliedCaption; SvcTaxAmtAppliedCaptionLbl)
-                        {
-                        }
-                        column(SvcTaxeCessAmtAppliedCaption; SvcTaxeCessAmtAppliedCaptionLbl)
-                        {
-                        }
-                        column(ServTaxSHECessAmtCaption; ServTaxSHECessAmtCaptionLbl)
-                        {
-                        }
-                        column(SvcTaxSHECessAmtAppliedCaption; SvcTaxSHECessAmtAppliedCaptionLbl)
                         {
                         }
                         column(PaymentDiscVATCaption; PaymentDiscVATCaptionLbl)
@@ -543,30 +483,6 @@ report 18016 "Sales - Invoice IN GST"
                         column(DirectDebitPLARG_SalesInvLineCaption; 'Direct Debit To PLA / RG')
                         {
                         }
-                        column(ServiceTaxSBCAmt; ServiceTaxSBCAmt)
-                        {
-                        }
-                        column(AppliedServiceTaxSBCAmt; AppliedServiceTaxSBCAmt)
-                        {
-                        }
-                        column(ServTaxSBCAmtCaption; ServTaxSBCAmtCaptionLbl)
-                        {
-                        }
-                        column(SvcTaxSBCAmtAppliedCaption; SvcTaxSBCAmtAppliedCaptionLbl)
-                        {
-                        }
-                        column(KKCessAmt; KKCessAmt)
-                        {
-                        }
-                        column(AppliedKKCessAmt; AppliedKKCessAmt)
-                        {
-                        }
-                        column(KKCessAmtCaption; KKCessAmtCaptionLbl)
-                        {
-                        }
-                        column(KKCessAmtAppliedCaption; KKCessAmtAppliedCaptionLbl)
-                        {
-                        }
                         column(CGSTAmt; CGSTAmt)
                         {
                         }
@@ -576,10 +492,10 @@ report 18016 "Sales - Invoice IN GST"
                         column(IGSTAmt; IGSTAmt)
                         {
                         }
-                        column(UGSTAmt; UGSTAmt)
+                        column(CessAmt; CessAmt)
                         {
                         }
-                        column(TcsAmt; TcsAmt)
+                        column(TCSAmt; TCSAmt)
                         {
                         }
                         dataitem("Sales Shipment Buffer"; Integer)
@@ -694,43 +610,16 @@ report 18016 "Sales - Invoice IN GST"
                                 PostedShipmentDate := FindPostedShipmentDate();
 
                             if No = 1 then begin
-                                DetailedGSTLedger.Reset();
-                                DetailedGSTLedger.SetRange("Document No.", "Sales Invoice Line"."Document No.");
-                                DetailedGSTLedger.SetRange("Entry Type", DetailedGSTLedger."Entry Type"::"Initial Entry");
-                                if DetailedGSTLedger.FindSet() then
-                                    repeat
-                                        if DetailedGSTLedger."GST Component Code" = 'CGST' then
-                                            CGSTAmt += Abs(DetailedGSTLedger."GST Amount");
+                                GetSalesGSTAmount("Sales Invoice Header", "Sales Invoice Line");
 
-                                        if DetailedGSTLedger."GST Component Code" = 'SGST' then
-                                            SGSTAmt += Abs(DetailedGSTLedger."GST Amount");
-
-                                        if DetailedGSTLedger."GST Component Code" = 'IGST' then
-                                            IGSTAmt += Abs(DetailedGSTLedger."GST Amount");
-
-                                        if DetailedGSTLedger."GST Component Code" = 'UGST' then
-                                            UGSTAmt += Abs(DetailedGSTLedger."GST Amount");
-                                    until DetailedGSTLedger.Next() = 0;
-
-                                Clear(TcsAmt);
-                                TCSEntry.Reset();
-                                TCSEntry.SetRange("Document No.", "Sales Invoice Line"."Document No.");
-                                if TCSEntry.FindFirst() then
-                                    repeat
-                                        if "Sales Invoice Header"."Currency Code" <> '' then
-                                            TcsAmt += "Sales Invoice Header"."Currency Factor" * TCSEntry."Total TCS Including SHE CESS"
-                                        else
-                                            TcsAmt += TCSEntry."Total TCS Including SHE CESS";
-
-                                        TcsAmt := Round(TcsAmt, 1);
-                                    until TCSEntry.Next() = 0;
+                                GetTCSAmt("Sales Invoice Header", "Sales Invoice Line");
                             end;
 
                             TotalSubTotal += "Line Amount";
                             TotalInvoiceDiscountAmount -= "Inv. Discount Amount";
                             TotalAmount += Amount;
                             TotalAmountVAT += "Amount Including VAT" - Amount;
-                            TotalAmountInclVAT += "Line Amount" + CGSTAmt + SGSTAmt + IGSTAmt + UGSTAmt + TcsAmt;
+                            TotalAmountInclVAT += "Line Amount" + CGSTAmt + SGSTAmt + IGSTAmt + CessAmt + TCSAmt;
                             TotalPaymentDiscountOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
                         end;
 
@@ -937,25 +826,13 @@ report 18016 "Sales - Invoice IN GST"
                     TotalAmountVAT := 0;
                     TotalAmountInclVAT := 0;
                     TotalPaymentDiscountOnVAT := 0;
-                    TotalExciseAmt := 0;
-                    TotalTaxAmt := 0;
                     CGSTAmt := 0;
                     SGSTAmt := 0;
                     IGSTAmt := 0;
-                    UGSTAmt := 0;
-                    TcsAmt := 0;
+                    CessAmt := 0;
+                    TCSAmt := 0;
                     OtherTaxesAmount := 0;
                     ChargesAmount := 0;
-                    AppliedServiceTaxSHECessAmt := 0;
-                    AppliedServiceTaxECessAmt := 0;
-                    AppliedServiceTaxAmt := 0;
-                    AppliedServiceTaxSBCAmt := 0;
-                    AppliedKKCessAmt := 0;
-                    ServiceTaxSHECessAmt := 0;
-                    ServiceTaxECessAmt := 0;
-                    ServiceTaxAmt := 0;
-                    ServiceTaxSBCAmt := 0;
-                    KKCessAmt := 0;
                     TotalTCSAmount := 0;
                 end;
 
@@ -979,11 +856,6 @@ report 18016 "Sales - Invoice IN GST"
 
             trigger OnAfterGetRecord()
             begin
-                if GlobalLanguage = Language.GetLanguageId("Language Code") then
-                    CurrReport.Language := Language.GetLanguageID("Language Code")
-                else
-                    CurrReport.Language := Language.GetLanguageID('ENU');
-
                 IsGSTApplicable := CheckGSTDoc("Sales Invoice Line");
                 Customer.Get("Bill-to Customer No.");
                 if RespCenter.Get("Responsibility Center") then begin
@@ -1091,7 +963,6 @@ report 18016 "Sales - Invoice IN GST"
 
     requestpage
     {
-        SaveValues = True;
 
         layout
         {
@@ -1198,16 +1069,13 @@ report 18016 "Sales - Invoice IN GST"
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
         CurrExchRate: Record "Currency Exchange Rate";
-        DetailedGSTLedger: Record "Detailed GST Ledger Entry";
         TempPostedAsmLine: Record "Posted Assembly Line" temporary;
         TempLineFeeNoteOnReportHist: Record "Line Fee Note on Report Hist." temporary;
-        TCSEntry: Record "TCS Entry";
         SalesShipmentBuffer: Record "Sales Shipment Buffer";
         SalesInvCountPrinted: Codeunit "Sales Inv.-Printed";
-        Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;
-        TcsAmt: Decimal;
+        TCSAmt: Decimal;
         GSTCompAmount: array[20] of Decimal;
         GSTComponentCode: array[10] of Code[10];
         PostedShipmentDate: Date;
@@ -1231,7 +1099,6 @@ report 18016 "Sales - Invoice IN GST"
         NextEntryNo: Integer;
         FirstValueEntryNo: Integer;
         DimText: Text[120];
-        OldDimText: Text[75];
         Continue: Boolean;
         LogIntaction: Boolean;
         VALVATBaseLCY: Decimal;
@@ -1250,34 +1117,17 @@ report 18016 "Sales - Invoice IN GST"
         ChargesAmount: Decimal;
         OtherTaxesAmount: Decimal;
         SupplementaryText: Text[30];
-        ServiceTaxAmt: Decimal;
-        ServiceTaxECessAmt: Decimal;
-        AppliedServiceTaxAmt: Decimal;
-        AppliedServiceTaxECessAmt: Decimal;
-        ServiceTaxSHECessAmt: Decimal;
-        AppliedServiceTaxSHECessAmt: Decimal;
-        TotalTaxAmt: Decimal;
-        TotalExciseAmt: Decimal;
         TotalTCSAmount: Decimal;
-        ServiceTaxAmount: Decimal;
-        ServiceTaxeCessAmount: Decimal;
-        ServiceTaxSHECessAmount: Decimal;
         [InDataSet]
         LogInteractionEnable: Boolean;
         DisplayAssemblyInformation: Boolean;
         ServiceTaxRegistrationNo: Code[20];
         DisplayAddFeeNote: Boolean;
-        ServiceTaxSBCAmount: Decimal;
-        ServiceTaxSBCAmt: Decimal;
-        AppliedServiceTaxSBCAmt: Decimal;
-        KKCessAmount: Decimal;
-        KKCessAmt: Decimal;
-        AppliedKKCessAmt: Decimal;
         IsGSTApplicable: Boolean;
         CGSTAmt: Decimal;
         SGSTAmt: Decimal;
         IGSTAmt: Decimal;
-        UGSTAmt: Decimal;
+        CessAmt: Decimal;
         VAtAmtSpecLbl: Label 'VAT Amount Specification in', Locked = True;
         LocaCurrLbl: Label 'Local Currency', Locked = True;
         ExchangRateLbl: Label 'Exchange rate: %1/%2', comment = '%1 Currency code, %2 LCY Amt';
@@ -1308,17 +1158,9 @@ report 18016 "Sales - Invoice IN GST"
         LineDiscountCaptionLbl: Label 'Line Discount Amount';
         PostedShipmentDateCaptionLbl: Label 'Posted Shipment Date';
         SubtotalCaptionLbl: Label 'Subtotal';
-        ExciseAmountCaptionLbl: Label 'Excise Amount';
-        TaxAmountCaptionLbl: Label 'Tax Amount';
-        ServiceTaxAmountCaptionLbl: Label 'Service Tax Amount';
         ChargesAmountCaptionLbl: Label 'Charges Amount';
         OtherTaxesAmountCaptionLbl: Label 'Other Taxes Amount';
-        ServTaxeCessAmtCaptionLbl: Label 'Service Tax eCess Amount';
         TCSAmountCaptionLbl: Label 'TCS Amount';
-        SvcTaxAmtAppliedCaptionLbl: Label 'Svc Tax Amt (Applied)';
-        SvcTaxeCessAmtAppliedCaptionLbl: Label 'Svc Tax eCess Amt (Applied)';
-        ServTaxSHECessAmtCaptionLbl: Label 'Service Tax SHE Cess Amount';
-        SvcTaxSHECessAmtAppliedCaptionLbl: Label 'Svc Tax SHECess Amt(Applied)';
         PaymentDiscVATCaptionLbl: Label 'Payment Discount on VAT';
         ShipmentCaptionLbl: Label 'Shipment';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
@@ -1326,6 +1168,10 @@ report 18016 "Sales - Invoice IN GST"
         InvDiscBaseAmtCaptionLbl: Label 'Invoice Discount Base Amount';
         LineAmountCaptionLbl: Label 'Line Amount';
         ShipToAddressCaptionLbl: Label 'Ship-to Address';
+        CGSTLbl: Label 'CGST';
+        SGSTLbl: Label 'SGST';
+        IGSTLbl: Label 'IGST';
+        CessLbl: Label 'CESS';
         ServiceTaxRegistrationNoLbl: Label 'Service Tax Registration No.';
         InvDiscountAmountCaptionLbl: Label 'Invoice Discount Amount';
         VATPercentageCaptionLbl: Label 'VAT %';
@@ -1337,10 +1183,6 @@ report 18016 "Sales - Invoice IN GST"
         ShipmentMethodCaptionLbl: Label 'Shipment Method';
         EMailCaptionLbl: Label 'E-Mail';
         DocumentDateCaptionLbl: Label 'Document Date';
-        ServTaxSBCAmtCaptionLbl: Label 'SBC Amount';
-        SvcTaxSBCAmtAppliedCaptionLbl: Label 'SBC Amt (Applied)';
-        KKCessAmtCaptionLbl: Label 'KKC Amount';
-        KKCessAmtAppliedCaptionLbl: Label 'KKC Amt (Applied)';
         CompanyRegistrationLbl: Label 'Company Registration No.';
         CustomerRegistrationLbl: Label 'Customer GST Reg No.';
 
@@ -1642,7 +1484,7 @@ report 18016 "Sales - Invoice IN GST"
         TaxTransactionValue: Record "Tax Transaction Value";
     begin
         TaxTransactionValue.Reset();
-        TaxTransactionValue.SetRange("Tax Record ID", "Sales Invoice Line".RecordId);
+        TaxTransactionValue.SetRange("Tax Record ID", SalesLine.RecordId);
         TaxTransactionValue.SetRange("Tax Type", 'GST');
         if not TaxTransactionValue.IsEmpty then
             exit(true);
@@ -1684,5 +1526,82 @@ report 18016 "Sales - Invoice IN GST"
         until DimSetEntry.Next() = 0;
 
         exit(DimensionText)
+    end;
+
+    procedure GetGSTRoundingPrecision(ComponentName: Code[30]): Decimal
+    var
+        TaxComponent: Record "Tax Component";
+        GSTSetup: Record "GST Setup";
+        GSTRoundingPrecision: Decimal;
+    begin
+        if not GSTSetup.Get() then
+            exit;
+        GSTSetup.TestField("GST Tax Type");
+
+        TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
+        TaxComponent.SetRange(Name, ComponentName);
+        TaxComponent.FindFirst();
+        if TaxComponent."Rounding Precision" <> 0 then
+            GSTRoundingPrecision := TaxComponent."Rounding Precision"
+        else
+            GSTRoundingPrecision := 1;
+        exit(GSTRoundingPrecision);
+    end;
+
+    local procedure GetSalesGSTAmount(SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line")
+    var
+        DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+    begin
+        Clear(IGSTAmt);
+        Clear(CGSTAmt);
+        Clear(SGSTAmt);
+        Clear(CessAmt);
+        DetailedGSTLedgerEntry.Reset();
+        DetailedGSTLedgerEntry.SetRange("Document No.", SalesInvoiceLine."Document No.");
+        DetailedGSTLedgerEntry.SetRange("Entry Type", DetailedGSTLedgerEntry."Entry Type"::"Initial Entry");
+        if DetailedGSTLedgerEntry.FindSet() then
+            repeat
+                if (DetailedGSTLedgerEntry."GST Component Code" = CGSTLbl) And (SalesInvoiceHeader."Currency Code" <> '') then
+                    CGSTAmt += Round((Abs(DetailedGSTLedgerEntry."GST Amount") * SalesInvoiceHeader."Currency Factor"), GetGSTRoundingPrecision(DetailedGSTLedgerEntry."GST Component Code"))
+                else
+                    if (DetailedGSTLedgerEntry."GST Component Code" = CGSTLbl) then
+                        CGSTAmt += Abs(DetailedGSTLedgerEntry."GST Amount");
+
+                if (DetailedGSTLedgerEntry."GST Component Code" = SGSTLbl) And (SalesInvoiceHeader."Currency Code" <> '') then
+                    SGSTAmt += Round((Abs(DetailedGSTLedgerEntry."GST Amount") * SalesInvoiceHeader."Currency Factor"), GetGSTRoundingPrecision(DetailedGSTLedgerEntry."GST Component Code"))
+                else
+                    if (DetailedGSTLedgerEntry."GST Component Code" = SGSTLbl) then
+                        SGSTAmt += Abs(DetailedGSTLedgerEntry."GST Amount");
+
+                if (DetailedGSTLedgerEntry."GST Component Code" = IGSTLbl) And (SalesInvoiceHeader."Currency Code" <> '') then
+                    IGSTAmt += Round((Abs(DetailedGSTLedgerEntry."GST Amount") * SalesInvoiceHeader."Currency Factor"), GetGSTRoundingPrecision(DetailedGSTLedgerEntry."GST Component Code"))
+                else
+                    if (DetailedGSTLedgerEntry."GST Component Code" = IGSTLbl) then
+                        IGSTAmt += Abs(DetailedGSTLedgerEntry."GST Amount");
+                if (DetailedGSTLedgerEntry."GST Component Code" = CessLbl) And (SalesInvoiceHeader."Currency Code" <> '') then
+                    CessAmt += Round((Abs(DetailedGSTLedgerEntry."GST Amount") * SalesInvoiceHeader."Currency Factor"), GetGSTRoundingPrecision(DetailedGSTLedgerEntry."GST Component Code"))
+                else
+                    if (DetailedGSTLedgerEntry."GST Component Code" = CessLbl) then
+                        CessAmt += Abs(DetailedGSTLedgerEntry."GST Amount");
+            until DetailedGSTLedgerEntry.Next() = 0;
+    end;
+
+    local procedure GetTCSAmt(SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line")
+    var
+        TCSEntry: Record "TCS Entry";
+    begin
+        Clear(TCSAmt);
+        TCSEntry.Reset();
+        TCSEntry.SetRange("Document No.", SalesInvoiceLine."Document No.");
+        if TCSEntry.FindSet() then
+            repeat
+                if SalesInvoiceHeader."Currency Code" <> '' then
+                    TCSAmt += SalesInvoiceHeader."Currency Factor" * TCSEntry."Total TCS Including SHE CESS"
+                else
+                    TCSAmt += TCSEntry."Total TCS Including SHE CESS";
+                TCSAmt := Round(TCSAmt, 1);
+            until TCSEntry.Next() = 0;
     end;
 }

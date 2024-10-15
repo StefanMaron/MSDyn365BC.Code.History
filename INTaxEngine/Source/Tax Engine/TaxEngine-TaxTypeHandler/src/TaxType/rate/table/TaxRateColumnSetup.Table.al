@@ -20,7 +20,7 @@ table 20252 "Tax Rate Column Setup"
         }
         field(3; "Column Name"; Text[30])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Column Name';
             trigger OnValidate()
             begin
@@ -40,16 +40,16 @@ table 20252 "Tax Rate Column Setup"
         field(5; "Column Type"; Enum "Column Type")
         {
             Caption = 'Column Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(6; Sequence; Integer)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Sequence';
         }
         field(7; Type; Option)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Type';
             InitValue = "Text";
             OptionMembers = Option,Text,Integer,Decimal,Boolean,Date;
@@ -59,6 +59,16 @@ table 20252 "Tax Rate Column Setup"
         {
             DataClassification = EndUserIdentifiableInformation;
             Caption = 'Linked Attribute ID';
+        }
+        field(10; "Visible On Interface"; Boolean)
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Visible On Interface';
+        }
+        field(11; "Allow Blank"; Boolean)
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Allow Blank';
         }
     }
 
@@ -75,7 +85,6 @@ table 20252 "Tax Rate Column Setup"
     var
         TaxRate: Record "Tax Rate";
         TaxRateValue: Record "Tax Rate Value";
-        TaxSetupMatrixMgmt: Codeunit "Tax Setup Matrix Mgmt.";
     begin
         TaxRateValue.SetRange("Tax Type", "Tax Type");
         TaxRateValue.SetRange("Column ID", "Column ID");
@@ -83,13 +92,24 @@ table 20252 "Tax Rate Column Setup"
             exit;
 
         TaxRateValue.DeleteAll();
+
+        TaxRateValue.Reset();
+        TaxRateValue.SetRange("Tax Type", "Tax Type");
+        if TaxRateValue.IsEmpty() then begin
+            TaxRate.SetRange("Tax Type", "Tax Type");
+            if not TaxRate.IsEmpty() then
+                TaxRate.DeleteAll();
+        end;
+    end;
+
+    trigger OnModify()
+    begin
         UpdateTransactionKeys();
     end;
 
-    local procedure UpdateTransactionKeys()
+    procedure UpdateTransactionKeys()
     var
         TaxRate: Record "Tax Rate";
-        TaxRateValue: Record "Tax Rate Value";
         TaxSetupMatrixMgmt: Codeunit "Tax Setup Matrix Mgmt.";
     begin
         TaxRate.SetRange("Tax Type", "Tax Type");
@@ -98,7 +118,18 @@ table 20252 "Tax Rate Column Setup"
                 TaxRate."Tax Setup ID" := TaxSetupMatrixMgmt.GenerateTaxSetupID(TaxRate.ID, TaxRate."Tax Type");
                 TaxRate."Tax Rate ID" := TaxSetupMatrixMgmt.GenerateTaxRateID(TaxRate.ID, TaxRate."Tax Type");
                 TaxRate.Modify();
+                UpdateRateIDOnRateValue(TaxRate.ID, TaxRate."Tax Rate ID");
             until TaxRate.Next() = 0;
+    end;
+
+    local procedure UpdateRateIDOnRateValue(ConfigId: Guid; KeyValue: Text[2000])
+    var
+        TaxRateValue: Record "Tax Rate Value";
+    begin
+        //This will be used to find exact line of Tax Rate on calculation.
+        TaxRateValue.SetRange("Config ID", ConfigId);
+        if not TaxRateValue.IsEmpty() then
+            TaxRateValue.ModifyAll("Tax Rate ID", KeyValue);
     end;
 
     local procedure GetColumnName(IsLookup: Boolean)

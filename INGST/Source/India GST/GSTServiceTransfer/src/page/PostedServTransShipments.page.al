@@ -90,12 +90,13 @@ page 18354 "Posted Serv. Trans. Shipments"
                 Image = Shipment;
                 action(Dimensions)
                 {
-                    AccessByPermission = TableData 348 = R;
+                    AccessByPermission = TableData "Dimension" = R;
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     ShortCutKey = 'Shift+Ctrl+D';
                     ApplicationArea = Dimensions;
                     ToolTip = 'Dimensions (Shift+Ctrl+D)';
+
                     trigger OnAction()
                     begin
                         Rec.ShowDimensions();

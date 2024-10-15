@@ -11,12 +11,12 @@ page 18872 "TCS Journal Template List"
         {
             repeater(General)
             {
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the journal template you are creating.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a brief description of the journal template you are creating.';

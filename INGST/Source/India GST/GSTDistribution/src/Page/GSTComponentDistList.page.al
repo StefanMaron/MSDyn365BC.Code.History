@@ -64,6 +64,7 @@ page 18202 "GST Component Dist. List"
             }
         }
     }
+
     var
         GstComponentCodeMsg: Label 'GST Component Code %1', Comment = '%1 =GST Component Code';
 }

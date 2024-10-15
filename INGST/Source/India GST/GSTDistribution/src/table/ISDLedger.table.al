@@ -8,82 +8,82 @@ table 18206 "ISD Ledger"
         {
             Caption = 'GST Reg. No.';
             TableRelation = "GST Registration Nos.";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; "Period Month"; Integer)
         {
             Caption = 'Period Month';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(3; "Period Year"; Integer)
         {
             Caption = 'Period Year';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(4; "GST Component Code"; Code[10])
         {
             Caption = 'GST Component Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(5; "Opening Balance"; Decimal)
         {
             Caption = 'Opening Balance';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(6; "ITC Received"; Decimal)
         {
             Caption = 'ITC Received';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(7; "ITC Reversal"; Decimal)
         {
             Caption = 'ITC Reversal';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(8; "Distributed as Component 1"; Decimal)
         {
             Caption = 'Distributed as Component 1';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(9; "Distributed as Component 2"; Decimal)
         {
             Caption = 'Distributed as Component 2';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(10; "Distributed as Component 3"; Decimal)
         {
             Caption = 'Distributed as Component 3';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(11; "Distributed as Component 4"; Decimal)
         {
             Caption = 'Distributed as Component 4';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(12; "Distributed as Component 5"; Decimal)
         {
             Caption = 'Distributed as Component 5';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(13; "Distributed as Component 6"; Decimal)
         {
             Caption = 'Distributed as Component 6';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(14; "Distributed as Component 7"; Decimal)
         {
             Caption = 'Distributed as Component 7';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(15; "Distributed as Component 8"; Decimal)
         {
             Caption = 'Distributed as Component 8';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(16; "Closing Balance"; Decimal)
         {
             Caption = 'Closing Balance';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
 

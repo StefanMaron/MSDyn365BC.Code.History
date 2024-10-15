@@ -1,4 +1,4 @@
-﻿table 281 "Phys. Inventory Ledger Entry"
+table 281 "Phys. Inventory Ledger Entry"
 {
     Caption = 'Phys. Inventory Ledger Entry';
     DrillDownPageID = "Phys. Inventory Ledger Entries";

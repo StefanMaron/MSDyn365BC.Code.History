@@ -2,7 +2,7 @@ pageextension 20254 "Purch. Journal Ext" extends "Purchase Journal"
 {
     layout
     {
-        addbefore(IncomingDocAttachFactBox)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

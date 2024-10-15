@@ -2,7 +2,7 @@ pageextension 20258 "Sales Order Ext" extends "Sales Order"
 {
     layout
     {
-        addbefore(IncomingDocAttachFactBox)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

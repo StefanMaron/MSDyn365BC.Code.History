@@ -40,15 +40,9 @@ page 20336 "Tax Posting Setup Dialog"
                     ToolTip = 'Specifies the source type of G/L Account for a component.';
                     trigger OnValidate()
                     var
-                        TaxUseCase: Record "Tax Use Case";
                         FieldNameValue: Text[30];
                     begin
-                        if "Account Source Type" = "Account Source Type"::Field then begin
-                            if not IsNullGuid("Account Lookup ID") then begin
-                                TaxUseCase.Get("Case ID");
-                                LookupEntityMgmt.DeleteLookup("Case ID", TaxUseCase."Posting Script ID", "Account Lookup ID");
-                            end;
-                        end else begin
+                        if "Account Source Type" <> "Account Source Type"::Field then begin
                             FieldNameTxt := '';
 
                             AppObjectHelper.SearchTableFieldOfType("Table ID", "Field ID", FieldNameValue, "Symbol Data Type"::STRING);
@@ -65,8 +59,6 @@ page 20336 "Tax Posting Setup Dialog"
                     ToolTip = 'Specifies the field name for G/L Account mapping.';
                     trigger OnValidate()
                     var
-                        UseCase: Record "Tax Use Case";
-                        LookupMgmt: Codeunit "Lookup Mgmt.";
                         FieldValue: Text[30];
                     begin
                         if "Account Source Type" = "Account Source Type"::Field then begin
@@ -163,35 +155,15 @@ page 20336 "Tax Posting Setup Dialog"
                     ToolTip = 'Specifies mapping of Reverse Charge GL Account.';
                     ApplicationArea = Basic, Suite;
                     Editable = "Reverse Charge";
-                    trigger OnValidate()
-                    var
-                        UseCase: Record "Tax Use Case";
-                        LookupMgmt: Codeunit "Lookup Mgmt.";
-                        ReversalFieldNameValue: Text[30];
-                    begin
-                        if "Reversal Account Source Type" = "Reversal Account Source Type"::Field then begin
-                            ReversalFieldNameValue := CopyStr(ReversalFieldNameTxt, 1, 30);
-                            AppObjectHelper.SearchTableFieldOfType(
-                                "Table ID",
-                                "Reverse Charge Field ID",
-                                ReversalFieldNameValue,
-                                "Symbol Data Type"::STRING);
-
-                            ReversalFieldNameTxt := ReversalFieldNameValue;
-                        end else
-                            Error(InvalidManualLookupErr);
-                    end;
-
                     trigger OnAssistEdit();
                     var
-                        UseCase: Record "Tax Use Case";
                         LookupMgmt: Codeunit "Lookup Mgmt.";
                         Datatype: Enum "Symbol Data Type";
                         ReversalFieldNameValue: Text[30];
                     begin
                         if "Reversal Account Source Type" = "Reversal Account Source Type"::Lookup then begin
                             if IsNullGuid("Reversal Account Lookup ID") then
-                                "Reversal Account Lookup ID" := LookupEntityMgmt.CreateLookup("Case ID", EmptyGuid);
+                                Validate("Reversal Account Lookup ID", LookupEntityMgmt.CreateLookup("Case ID", EmptyGuid));
 
                             CurrPage.SaveRecord();
                             Commit();
@@ -212,6 +184,7 @@ page 20336 "Tax Posting Setup Dialog"
                             ReversalFieldNameTxt,
                             "Symbol Data Type"::STRING);
                             ReversalFieldNameTxt := ReversalFieldNameValue;
+                            Validate("Reverse Charge Field ID");
                         end;
                         FormatLine();
                     end;

@@ -1183,9 +1183,6 @@ End Function
         <Field Name="CompanyInfo_Name">
           <DataField>CompanyInfo_Name</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>

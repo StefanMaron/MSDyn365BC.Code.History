@@ -9,6 +9,7 @@ pageextension 18751 "Business Manager Role TDS" extends "Business Manager Role C
                 group("Auto Configuration TDS")
                 {
                     Caption = 'Auto Configuration';
+
                     action("Section")
                     {
                         ApplicationArea = Basic, Suite;
@@ -22,6 +23,7 @@ pageextension 18751 "Business Manager Role TDS" extends "Business Manager Role C
                 group("User Configuration TDS")
                 {
                     Caption = 'User Configuration';
+
                     action("TDS Posting Setup")
                     {
                         ApplicationArea = Basic, Suite;

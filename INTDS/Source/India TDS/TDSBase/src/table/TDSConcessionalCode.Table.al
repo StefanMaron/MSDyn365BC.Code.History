@@ -1,7 +1,6 @@
 table 18688 "TDS Concessional Code"
 {
     Caption = 'TDS Concessional Code';
-    DataClassification = EndUserIdentifiableInformation;
     DrillDownPageId = "TDS Concessional Codes";
     LookupPageId = "TDS Concessional Codes";
     DataCaptionFields = "Vendor No.", "Section";
@@ -14,34 +13,35 @@ table 18688 "TDS Concessional Code"
         {
             Caption = 'Vendor No.';
             TableRelation = Vendor;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; Section; Code[10])
         {
             Caption = 'Section';
-            TableRelation = "Allowed Sections"."TDS Section" where("Vendor No" = Field("Vendor No."));
-            DataClassification = EndUserIdentifiableInformation;
+            TableRelation = "Allowed Sections"."TDS Section" where("Vendor No" = field("Vendor No."));
+            DataClassification = CustomerContent;
         }
         field(3; "Concessional Code"; Code[10])
         {
             Caption = 'Concessional Code';
             TableRelation = "Concessional Code";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(4; "Certificate No."; Code[20])
         {
             Caption = 'Certificate No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(5; "Start Date"; Date)
         {
             Caption = 'Start Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(6; "End Date"; Date)
         {
             Caption = 'End Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+
             trigger OnValidate()
             var
                 ShorterEndDateErr: Label 'End Date should not be greater than the Start Date';

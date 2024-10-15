@@ -78,25 +78,81 @@ codeunit 20291 "Tax Rate Computation"
         CaseID: Guid)
     var
         UseCase: Record "Tax Use Case";
-        TaxRateColumnSetup: Record "Tax Rate Column Setup";
         TaxRate: Record "Tax Rate";
-        TaxRateValue: Record "Tax Rate Value";
-        RHSValue: Variant;
-        ConfigId: Guid;
-        InRange: Boolean;
+        RowID: Guid;
         RateID: Text;
     begin
         UseCase.Get(CaseID);
         RateID := GenerateTransactionRateID(SymbolStore, CaseID);
 
-        TaxRateValue.SetRange("Tax Type", UseCase."Tax Type");
-        TaxRateValue.SetRange("Tax Rate ID", RateID);
+        RowID := GetTaxRateRowID(SymbolStore, UseCase."Tax Type", RateID);
 
-        InRange := IsTaxRateSetupInRange(SymbolStore, TaxRateValue, ConfigId, UseCase."Tax Type");
-        if InRange then begin
-            TaxRate.Get(UseCase."Tax Type", ConfigId);
+        if not IsNullGuid(RowID) then begin
+            TaxRate.Get(UseCase."Tax Type", RowID);
             UpdateTaxComponentRatesAndOutput(SymbolStore, SourceRecordRef, CaseID, TaxRate);
         end;
+    end;
+
+    local procedure GetTaxRateRowID(var SymbolStore: Codeunit "Script Symbol Store"; TaxType: Code[20]; RateID: Text): Guid
+    var
+        TaxRate: Record "Tax Rate";
+        TempTaxRate: Record "Tax Rate" Temporary;
+        Rank: Text;
+    begin
+        TaxRate.SetRange("Tax Type", TaxType);
+        TaxRate.SetRange("Tax Rate ID", RateID);
+        if TaxRate.findSet() then
+            repeat
+                Rank := '';
+                if QualifyTaxRateRow(SymbolStore, TaxRate, Rank) then begin
+                    TempTaxRate := TaxRate;
+                    TempTaxRate."Tax Rate ID" := Rank;
+                    TempTaxRate.Insert();
+                end;
+            until TaxRate.Next() = 0;
+
+        TempTaxRate.Reset();
+        TempTaxRate.SetCurrentKey("Tax Rate ID");
+        if TempTaxRate.FindLast() then
+            exit(TempTaxRate.ID);
+    end;
+
+    local procedure QualifyAllowBlankColumn(
+        var SymbolStore: Codeunit "Script Symbol Store";
+        var TaxRate: Record "Tax Rate";
+        var TaxRateColumnSetup: Record "Tax Rate Column Setup";
+        var Score: Integer): Boolean
+    var
+        Value: Variant;
+        ColumnValue: Text;
+    begin
+        ColumnValue := GetTaxRateColumnValue(TaxRate, TaxRateColumnSetup);
+        if ColumnValue = '' then begin
+            Score := 1;
+            exit(true);
+        end;
+
+        if TaxRateColumnSetup."Column Type" = TaxRateColumnSetup."Column Type"::Value then
+            SymbolStore.GetSymbolOfType("Symbol Type"::Column, TaxRateColumnSetup."Column ID", Value)
+        else
+            SymbolStore.GetSymbolOfType("Symbol Type"::"Tax Attributes", TaxRateColumnSetup."Attribute ID", Value);
+
+        if Format(Value, 0, 2) = ColumnValue then begin
+            Score := 2;
+            exit(true);
+        end;
+    end;
+
+    local procedure GetTaxRateColumnValue(TaxRate: Record "Tax Rate"; var TaxRateColumnSetup: Record "Tax Rate Column Setup"): Text
+    var
+        TaxRateValue: Record "Tax Rate Value";
+    begin
+        TaxRateValue.SetRange("Config ID", TaxRate.ID);
+        TaxRateValue.SetRange("Column ID", TaxRateColumnSetup."Column ID");
+        if TaxRateValue.findfirst() then
+            exit(TaxRateValue.Value);
+
+        exit('')
     end;
 
     local procedure UpdateTransactionValue(
@@ -113,7 +169,7 @@ codeunit 20291 "Tax Rate Computation"
     begin
         UseCase.Get(CaseID);
 
-        TaxTransactionValue.Reset();
+        TaxTransactionValue.SetCurrentKey("Tax Record ID", "Tax Type");
         TaxTransactionValue.SetRange("Tax Type", UseCase."Tax Type");
         TaxTransactionValue.SetRange("Tax Record ID", SourceRecordRef.RecordId());
         TaxTransactionValue.SetRange("Value Type", TransactionValueType);
@@ -121,7 +177,7 @@ codeunit 20291 "Tax Rate Computation"
         if not TaxTransactionValue.FindFirst() then
             InsertTaxTransactionValue(SourceRecordRef.RecordId(), CaseID, ID, UseCase."Tax Type", TransactionValueType, TaxTransactionValue);
 
-        ModifyTaxTransactionValue(SymbolStore, CaseID, ID, TransactionValueType, TaxTransactionValue, Value, ValueLCY);
+        ModifyTaxTransactionValue(SymbolStore, ID, TaxTransactionValue, Value, ValueLCY);
     end;
 
     local procedure InsertTaxTransactionValue(
@@ -143,14 +199,11 @@ codeunit 20291 "Tax Rate Computation"
 
     local procedure ModifyTaxTransactionValue(
         var SymbolStore: Codeunit "Script Symbol Store";
-        CaseID: Guid;
         ID: Integer;
-        TransactionValueType: Enum "Transaction Value Type";
         var TaxTransactionValue: Record "Tax Transaction Value";
         Value: Variant;
         ValueLCY: Variant)
     var
-        TaxAttribute: Record "Tax Attribute";
         RelatedValue: Variant;
     begin
         Evaluate(TaxTransactionValue."Column Value", Format(Value, 0, 9));
@@ -204,6 +257,7 @@ codeunit 20291 "Tax Rate Computation"
         TaxRateColumnSetup.SetCurrentKey(Sequence);
         TaxRateColumnSetup.SetRange("Tax Type", UseCase."Tax Type");
         TaxRateColumnSetup.SetFilter("Column Type", '%1|%2', TaxRateColumnSetup."Column Type"::Value, TaxRateColumnSetup."Column Type"::"Tax Attributes");
+        TaxRateColumnSetup.SetRange("Allow Blank", false);
         if TaxRateColumnSetup.FindSet() then
             repeat
                 if TaxRateColumnSetup."Column Type" = TaxRateColumnSetup."Column Type"::Value then
@@ -211,68 +265,79 @@ codeunit 20291 "Tax Rate Computation"
                 else
                     SymbolStore.GetSymbolOfType("Symbol Type"::"Tax Attributes", TaxRateColumnSetup."Attribute ID", Value);
 
-                SetupID += ScriptDataTypeMgmt.Variant2Text(Value, '');
+                SetupID += ScriptDataTypeMgmt.Variant2Text(Value, '') + '|';
             until TaxRateColumnSetup.Next() = 0;
 
         exit(SetupID);
     end;
 
-    local procedure IsTaxRateSetupInRange(
-        var SymbolStore: Codeunit "Script Symbol Store";
-        var TaxRateValue: Record "Tax Rate Value";
-        var ConfigId: Guid;
-        TaxType: Code[20]) InRange: Boolean
+    local procedure QualifyTaxRateRow(var SymbolStore: Codeunit "Script Symbol Store"; var TaxRate: Record "Tax Rate"; var Rank: Text): Boolean
     var
         TaxRateColumnSetup: Record "Tax Rate Column Setup";
         RHSValue: Variant;
+        ColumnScore: Integer;
+        ColumnRank: Text;
     begin
         TaxRateColumnSetup.SetCurrentKey(Sequence);
-        TaxRateColumnSetup.SetRange("Tax Type", TaxType);
-        TaxRateColumnSetup.SetFilter("Column Type", '%1|%2|%3', TaxRateColumnSetup."Column Type"::"Range From and Range To", TaxRateColumnSetup."Column Type"::"Range From", TaxRateColumnSetup."Column Type"::"Range To");
+        TaxRateColumnSetup.SetRange("Tax Type", TaxRate."Tax Type");
         if TaxRateColumnSetup.FindSet() then
             repeat
-                SymbolStore.GetSymbolOfType("Symbol Type"::Column, TaxRateColumnSetup."Column ID", RHSValue);
+                if TaxRateColumnSetup."Column Type" in [
+                    TaxRateColumnSetup."Column Type"::"Range From and Range To",
+                    TaxRateColumnSetup."Column Type"::"Range From",
+                    TaxRateColumnSetup."Column Type"::"Range To"]
+                then begin
+                    SymbolStore.GetSymbolOfType("Symbol Type"::Column, TaxRateColumnSetup."Column ID", RHSValue);
+                    if not QualifyRangeColumn(TaxRate, TaxRateColumnSetup, RHSValue, ColumnScore) then
+                        exit(false);
 
-                if not IsNullGuid(ConfigId) then
-                    TaxRateValue.SetRange("Config ID", ConfigId);
+                    ColumnRank := PadStr(Format(ColumnScore, 0, 2), 10, '0');
+                    Rank += ColumnRank;
+                end else
+                    if (TaxRateColumnSetup."Column Type" in [
+                        TaxRateColumnSetup."Column Type"::Value,
+                        TaxRateColumnSetup."Column Type"::"Tax Attributes"]) and
+                        (TaxRateColumnSetup."Allow Blank")
+                    then begin
+                        if not QualifyAllowBlankColumn(SymbolStore, TaxRate, TaxRateColumnSetup, ColumnScore) then
+                            exit(false);
 
-                InRange := FindRangeConfigID(SymbolStore, TaxRateValue, TaxRateColumnSetup, RHSValue, ConfigId);
-                TaxRateValue.SetRange("Column ID");
+                        ColumnRank := PadStr(Format(ColumnScore, 0, 2), 10, '0');
+                        Rank += ColumnRank;
+                    end;
             until TaxRateColumnSetup.Next() = 0;
+
+        exit(true);
     end;
 
-    local procedure FindRangeConfigID(
-        var SymbolStore: Codeunit "Script Symbol Store";
-        var TaxRateValue: Record "Tax Rate Value";
-        TaxRateColumnSetup: Record "Tax Rate Column Setup";
-        RHSValue: Variant;
-        var ConfigID: Guid) InRange: Boolean
+    local procedure QualifyRangeColumn(var TaxRate: Record "Tax Rate"; var TaxRateColumnSetup: Record "Tax Rate Column Setup"; RHSValue: Variant; var Score: Integer): Boolean
+    var
+        TaxRateValue: Record "Tax Rate Value";
+        CompareDate: Date;
     begin
+        TaxRateValue.SetRange("Config ID", TaxRate.ID);
         TaxRateValue.SetRange("Column ID", TaxRateColumnSetup."Column ID");
-        SetTaxRateValueSorting(TaxRateValue, TaxRateColumnSetup);
         if TaxRateValue.FindSet() then
             repeat
-                if ParamterInRange(TaxRateColumnSetup, TaxRateValue."Config ID", RHSValue) then begin
-                    if IsNullGuid(ConfigId) then
-                        ConfigId := TaxRateValue."Config ID";
-                    InRange := true;
-                end;
-            until (TaxRateValue.Next() = 0) or InRange;
-    end;
+                if not ParamterInRange(TaxRateColumnSetup, TaxRateValue."Config ID", RHSValue) then
+                    exit(false);
 
-    local procedure SetTaxRateValueSorting(var TaxRateValue: Record "Tax Rate Value"; TaxRateColumnSetup: Record "Tax Rate Column Setup")
-    begin
-        if TaxRateColumnSetup."Column Type" = TaxRateColumnSetup."Column Type"::"Range From" then begin
-            if TaxRateColumnSetup.Type IN [TaxRateColumnSetup.Type::Decimal, TaxRateColumnSetup.Type::Integer] then
-                TaxRateValue.SetCurrentKey("Decimal Value")
-            else
-                TaxRateValue.SetCurrentKey("Date Value");
-            TaxRateValue.Ascending(false);
-        end else
-            if TaxRateColumnSetup.Type IN [TaxRateColumnSetup.Type::Decimal, TaxRateColumnSetup.Type::Integer] then
-                TaxRateValue.SetCurrentKey("Decimal Value")
-            else
-                TaxRateValue.SetCurrentKey("Date Value");
+                case TaxRateColumnSetup.Type of
+                    TaxRateColumnSetup.Type::Date:
+                        begin
+                            CompareDate := RHSValue;
+                            if TaxRateValue."Date Value" <> 0D then
+                                Score := CompareDate - TaxRateValue."Date Value"
+                            else
+                                Score := CompareDate - 17530101D;
+
+                            Score := 10000 - Score;
+                        end;
+                    TaxRateColumnSetup.Type::Decimal:
+                        Score := RHSValue;
+                end;
+            until TaxRateValue.Next() = 0;
+        exit(true);
     end;
 
     local procedure ParamterInRange(TaxRateColumnSetup: Record "Tax Rate Column Setup"; ConfigID: Guid; var RHSValue: Variant): Boolean
@@ -451,23 +516,30 @@ codeunit 20291 "Tax Rate Computation"
             if TaxRateColumnSetup."Column Type" = TaxRateColumnSetup."Column Type"::Component then
                 UpdatComponentPercentSymbols(CaseID, SourceRecordRef, SymbolStore, TaxRateColumnSetup, TaxRateValue)
             else
-                UpdateRateColumnSymbols(CaseID, TaxRateValue, SourceRecordRef, SymbolStore);
+                UpdateRateColumnSymbols(CaseID, TaxRateValue, TaxRateColumnSetup, SourceRecordRef, SymbolStore);
     end;
 
     local procedure UpdateRateColumnSymbols(
         CaseID: Guid;
         TaxRateValue: Record "Tax Rate Value";
+        TaxRateColumnSetup: Record "Tax Rate Column Setup";
         var SourceRecordRef: RecordRef;
         var SymbolStore: Codeunit "Script Symbol Store")
+    var
+        DataTypeMgmt: Codeunit "Use Case Data Type Mgmt.";
+        ColumnDataType: Enum "Symbol Data Type";
+        Value: Variant;
     begin
-        SymbolStore.SetSymbol2("Symbol Type"::Column, TaxRateValue."Column ID", ScriptDataTypeMgmt.Text2Number(TaxRateValue.Value));
+        ColumnDataType := DataTypeMgmt.GetAttributeDataTypeToVariableDataType(TaxRateColumnSetup.Type);
+        ScriptDataTypeMgmt.ConvertText2Type(TaxRateValue.Value, ColumnDataType, '', Value);
+        SymbolStore.SetSymbol2("Symbol Type"::Column, TaxRateValue."Column ID", Value);
 
         UpdateTransactionValue(
             SymbolStore,
             SourceRecordRef,
             CaseID,
             TaxRateValue."Column ID",
-            TaxRateValue.Value,
+            Value,
             0,
             "Transaction Value Type"::COLUMN);
     end;
@@ -568,6 +640,11 @@ codeunit 20291 "Tax Rate Computation"
         TaxTableRelation: Record "Tax Table Relation";
     begin
         TaxTableRelation.Get(CaseID, TableRelationID);
+        if TaxTableRelation."Is Current Record" then begin
+            RecRef := SourceRecRef;
+            exit;
+        end;
+
         RecRef.Open(TaxTableRelation."Source ID");
         SymbolStore.ApplyTableFilters(SourceRecRef, CaseID, EmptyGUID, RecRef, TaxTableRelation."Table Filter ID");
         if RecRef.FindFirst() then;

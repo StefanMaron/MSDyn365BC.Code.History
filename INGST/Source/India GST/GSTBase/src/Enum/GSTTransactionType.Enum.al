@@ -2,7 +2,7 @@ enum 18034 "GST Transaction Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Purchase)
     {

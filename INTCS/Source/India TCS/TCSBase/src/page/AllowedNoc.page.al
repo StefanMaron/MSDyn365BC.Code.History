@@ -11,27 +11,27 @@ page 18807 "Allowed NOC"
         {
             repeater(General)
             {
-                field("TCS Nature of Collection"; "TCS Nature of Collection")
+                field("TCS Nature of Collection"; Rec."TCS Nature of Collection")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Nature of Collection on which TCS is applied.';
                 }
-                field("Description"; "Description")
+                field("Description"; Rec."Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the TCS Nature of Collection.';
                 }
-                field("Default NOC"; "Default NOC")
+                field("Default NOC"; Rec."Default NOC")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default TCS Nature of collection that the customer is linked to.';
                 }
-                field("Threshold Overlook"; "Threshold Overlook")
+                field("Threshold Overlook"; Rec."Threshold Overlook")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Select the check mark if you want to overlook the TCS threshold amount.';
                 }
-                field("Surcharge Overlook"; "Surcharge Overlook")
+                field("Surcharge Overlook"; Rec."Surcharge Overlook")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Select the check mark if you want to overlook the TCS surcharge amount.';
@@ -54,6 +54,7 @@ page 18807 "Allowed NOC"
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Send the data in the page to an Excel file for analysis or editing';
+
                 trigger OnAction()
                 var
                     ODataUtility: Codeunit ODataUtility;

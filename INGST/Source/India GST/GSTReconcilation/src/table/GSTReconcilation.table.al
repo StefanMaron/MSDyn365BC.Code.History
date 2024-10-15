@@ -7,7 +7,7 @@ table 18280 "GST Reconcilation"
         field(1; "GSTIN No."; Code[20])
         {
             Caption = 'GSTIN No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             NotBlank = true;
             TableRelation = "GST Registration Nos.";
 
@@ -15,18 +15,17 @@ table 18280 "GST Reconcilation"
             var
                 GSTRegistrationNos: Record "GST Registration Nos.";
             begin
-                "Input Service Distributor" := FALSE;
+                "Input Service Distributor" := false;
                 if GSTRegistrationNos.Get("GSTIN No.") then
                     "Input Service Distributor" := GSTRegistrationNos."Input Service Distributor";
                 if CheckReconciliationLine(xRec."GSTIN No.", Month, Year) then
                     Error(GSTRegNoErr, "GSTIN No.");
             end;
         }
-
         field(2; Month; Integer)
         {
             Caption = 'Month';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             MaxValue = 12;
             MinValue = 1;
             NotBlank = true;
@@ -36,20 +35,20 @@ table 18280 "GST Reconcilation"
                 if CheckReconciliationLine("GSTIN No.", xRec.Month, Year) then
                     Error(MonthModifyErr, Month, "GSTIN No.");
             end;
-
         }
         field(3; Year; Integer)
         {
             Caption = 'Year';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             NotBlank = true;
+
             trigger OnValidate()
             var
                 GeneralLedgerSetup: Record "General Ledger Setup";
             begin
                 GeneralLedgerSetup.Get();
                 "GST Recon. Tolerance" := GeneralLedgerSetup."GST Recon. Tolerance";
-                if StrLen(FORMAT(Year)) <= 3 then
+                if StrLen(Format(Year)) <= 3 then
                     Error(YearFormatErr);
                 if CheckReconciliationLine("GSTIN No.", Month, xRec.Year) then
                     Error(ModifyYearErr, Year, "GSTIN No.");
@@ -59,29 +58,29 @@ table 18280 "GST Reconcilation"
         field(4; "Document No"; Code[20])
         {
             Caption = 'Document No';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             NotBlank = true;
         }
         field(5; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             NotBlank = true;
         }
         field(6; "GST Recon. Tolerance"; Decimal)
         {
             Caption = 'GST Recon. Tolerance';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(7; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(8; "Input Service Distributor"; Boolean)
         {
             Caption = 'Input Service Distributor';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
     }
@@ -110,6 +109,14 @@ table 18280 "GST Reconcilation"
         PeriodicGSTR2AData.DeleteAll(true);
     end;
 
+    var
+        DimensionManagement: Codeunit DimensionManagement;
+        YearFormatErr: Label 'Year Format must be YYYY.';
+        MonthModifyErr: Label 'You can not modify the Month,since GST Reconciliation Lines already has records for %1 Month and for GST Registion No. %2.', Comment = '%1 = Month ,%2 = GSTIN No';
+        ModifyYearErr: Label 'You can not modify the Year,since GST Reconciliation Lines already has records for %1 Year and for GST Registion No. %2.', Comment = '%1= Year, %2 = GSTIN No.';
+        GSTRegNoErr: Label 'You can not modify the GSTIN No.,since GST Reconciliation Lines already has records for GST Registion No. %1.', Comment = '%1 = GSTIN No.';
+        GstinNoMsg: Label '%1', Comment = '%1= GSTIN No.';
+
     procedure ShowDimensions()
     begin
         "Dimension Set ID" :=
@@ -118,10 +125,7 @@ table 18280 "GST Reconcilation"
                 StrSubstNo(GstinNoMsg, "GSTIN No."));
     end;
 
-    local procedure CheckReconciliationLine(
-        GSTINNo: Code[20];
-        InputMonth: Integer;
-        InputYear: Integer): Boolean
+    local procedure CheckReconciliationLine(GSTINNo: Code[20]; InputMonth: Integer; InputYear: Integer): Boolean
     var
         GSTReconcilationLines2: Record "GST Reconcilation Line";
     begin
@@ -131,12 +135,4 @@ table 18280 "GST Reconcilation"
         if not GSTReconcilationLines2.IsEmpty() then
             exit(true);
     end;
-
-    var
-        DimensionManagement: Codeunit DimensionManagement;
-        YearFormatErr: Label 'Year Format must be YYYY.';
-        MonthModifyErr: Label 'You can not modify the Month,since GST Reconciliation Lines already has records for %1 Month and for GST Registion No. %2.', Comment = '%1 = Month ,%2 = GSTIN No';
-        ModifyYearErr: Label 'You can not modify the Year,since GST Reconciliation Lines already has records for %1 Year and for GST Registion No. %2.', Comment = '%1= Year, %2 = GSTIN No.';
-        GSTRegNoErr: Label 'You can not modify the GSTIN No.,since GST Reconciliation Lines already has records for GST Registion No. %1.', Comment = '%1 = GSTIN No.';
-        GstinNoMsg: Label '%1', Comment = '%1= GSTIN No.';
 }

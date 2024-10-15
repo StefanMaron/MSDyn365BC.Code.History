@@ -773,7 +773,7 @@ report 18005 "Arch. Sales Return Order GST"
 
                         trigger OnPreDataItem()
                         begin
-                            if (not GLSetup."Print VAT specification in LCY") or
+                            if (not GeneralLedgerSetup."Print VAT specification in LCY") or
                                ("Sales Header Archive"."Currency Code" = '') or
                                (TempVATAmountLine.GetTotalVATAmount() = 0)
                             then
@@ -781,10 +781,10 @@ report 18005 "Arch. Sales Return Order GST"
 
                             SetRange(Number, 1, TempVATAmountLine.Count);
 
-                            if GLSetup."LCY Code" = '' then
+                            if GeneralLedgerSetup."LCY Code" = '' then
                                 VALSpecLCYHeader := VatAmtSpecLbl + LocalLbl
                             else
-                                VALSpecLCYHeader := VatAmtSpecLbl + Format(GLSetup."LCY Code");
+                                VALSpecLCYHeader := VatAmtSpecLbl + Format(GeneralLedgerSetup."LCY Code");
 
                             CurrExchRate.FindCurrency("Sales Header Archive"."Posting Date", "Sales Header Archive"."Currency Code", 1);
                             VALExchRate := StrSubstNo(
@@ -958,10 +958,10 @@ report 18005 "Arch. Sales Return Order GST"
                     VATNoText := CopyStr(FieldCaption("VAT Registration No."), 1, 80);
 
                 if "Currency Code" = '' then begin
-                    GLSetup.TestField("LCY Code");
-                    TotalText := StrSubstNo(TotalLbl, GLSetup."LCY Code");
-                    TotalInclVATText := StrSubstNo(TotalInvVatLbl, GLSetup."LCY Code");
-                    TotalExclVATText := StrSubstNo(TotalExclVatLbl, GLSetup."LCY Code");
+                    GeneralLedgerSetup.TestField("LCY Code");
+                    TotalText := StrSubstNo(TotalLbl, GeneralLedgerSetup."LCY Code");
+                    TotalInclVATText := StrSubstNo(TotalInvVatLbl, GeneralLedgerSetup."LCY Code");
+                    TotalExclVATText := StrSubstNo(TotalExclVatLbl, GeneralLedgerSetup."LCY Code");
                 end else begin
                     TotalText := StrSubstNo(TotalLbl, "Currency Code");
                     TotalInclVATText := StrSubstNo(TotalInvVatLbl, "Currency Code");
@@ -1032,7 +1032,7 @@ report 18005 "Arch. Sales Return Order GST"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get();
+        GeneralLedgerSetup.Get();
         CompanyInfo.Get();
         SalesSetup.Get();
 
@@ -1055,7 +1055,7 @@ report 18005 "Arch. Sales Return Order GST"
     end;
 
     var
-        GLSetup: Record "General Ledger Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
         PrepmtPaymentTerms: Record "Payment Terms";
@@ -1090,7 +1090,6 @@ report 18005 "Arch. Sales Return Order GST"
         ShowShippingAddr: Boolean;
         i: Integer;
         DimText: Text[120];
-        OldDimText: Text[75];
         ShowInternalInfo: Boolean;
         Continue: Boolean;
         VATAmount: Decimal;

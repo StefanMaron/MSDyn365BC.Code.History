@@ -2,7 +2,6 @@ codeunit 137553 "Tax Posting Helper Tests"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
-
     trigger OnRun()
     begin
         // [FEATURE] [TaxEngine] [Tax Posting Helper] [UT]
@@ -39,7 +38,6 @@ codeunit 137553 "Tax Posting Helper Tests"
     procedure TestCreateInsertRecord()
     var
         InsertRecord: Record "Tax Insert Record";
-        TaxPostingHelper: Codeunit "Tax Posting Helper";
         LibraryTaxPostingHandler: Codeunit "Library - Tax Posting Handler";
         CaseID, ScriptID, ActionID : Guid;
         Created: Boolean;
@@ -59,7 +57,6 @@ codeunit 137553 "Tax Posting Helper Tests"
     procedure TestDeleteInsertRecord()
     var
         InsertRecord: Record "Tax Insert Record";
-        TaxPostingHelper: Codeunit "Tax Posting Helper";
         LibraryTaxPostingHandler: Codeunit "Library - Tax Posting Handler";
         CaseID, ScriptID, ActionID : Guid;
         Created, Deleted : Boolean;

@@ -11,37 +11,37 @@ page 18545 "Deductor Categories"
         {
             repeater(General)
             {
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of type of deductor /employer.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the type of deductor /employer.';
                 }
-                field("PAO Code Mandatory"; "PAO Code Mandatory")
+                field("PAO Code Mandatory"; Rec."PAO Code Mandatory")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the Pay and Accounts Office (PAO) is mandatory for deductor type Central Government.';
                 }
-                field("DDO Code Mandatory"; "DDO Code Mandatory")
+                field("DDO Code Mandatory"; Rec."DDO Code Mandatory")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the Drawing and Disbursing Officer (DDO) is mandatory for deductor type - Central Government.';
                 }
-                field("State Code Mandatory"; "State Code Mandatory")
+                field("State Code Mandatory"; Rec."State Code Mandatory")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the state code is mandatory for deductor type -  State Government.';
                 }
-                field("Ministry Details Mandatory"; "Ministry Details Mandatory")
+                field("Ministry Details Mandatory"; Rec."Ministry Details Mandatory")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the ministry details (ministry name and other) are mandatory for deductor type - Central Govt (A), Statutory body - Central Govt. (D) & Autonomous body - Central Govt. (G).';
                 }
-                field("Transfer Voucher No. Mandatory"; "Transfer Voucher No. Mandatory")
+                field("Transfer Voucher No. Mandatory"; Rec."Transfer Voucher No. Mandatory")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the Transfer Voucher number is mandatory if the transaction is by book entry.';
@@ -73,7 +73,7 @@ page 18545 "Deductor Categories"
                     ODataUtility.EditWorksheetInExcel(
                         'Deductor Categories',
                         CurrPage.ObjectId(false),
-                        StrSubstNo(DeductorCategoryCodeLbl, Code));
+                        StrSubstNo(DeductorCategoryCodeLbl, Rec.Code));
                 end;
             }
         }

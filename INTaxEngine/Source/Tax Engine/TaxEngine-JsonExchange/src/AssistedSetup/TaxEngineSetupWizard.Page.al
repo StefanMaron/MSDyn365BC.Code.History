@@ -40,7 +40,6 @@ page 20364 "Tax Engine Setup Wizard"
                 group("Let's go!")
                 {
                     Caption = 'Let''s go!';
-
                     group(Control22)
                     {
                         InstructionalText = 'Choose Next to get started.';
@@ -48,10 +47,38 @@ page 20364 "Tax Engine Setup Wizard"
                     }
                 }
             }
+            group(SecondStep)
+            {
+                ShowCaption = false;
+                Visible = SecondStepVisible;
+
+                group(SecondStepControl1)
+                {
+                    Caption = 'Looks like you already have Tax Configuration.';
+                    InstructionalText = 'You can either append your changes for a Tax Type or Replace the existing configuration.';
+                    Visible = SecondStepVisible;
+                }
+                group(SecondStepControl2)
+                {
+                    InstructionalText = 'But changes in Use cases will archive the previous version and create the new version.';
+                    ShowCaption = false;
+                    Visible = SecondStepVisible;
+                }
+                group(SecondStepControl3)
+                {
+                    Visible = SecondStepVisible;
+                    ShowCaption = false;
+                    field(AppendOrReplace; AppendOrReplace)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Do you want Replace your Tax Types or Append to existing Tax Types';
+                    }
+                }
+            }
             group(Control17)
             {
                 ShowCaption = false;
-                Visible = ManualTaxEngineStepVisible OR FinalStepVisible;
+                Visible = FinalStepVisible;
 
                 group("That's it!")
                 {
@@ -67,7 +94,7 @@ page 20364 "Tax Engine Setup Wizard"
                 }
                 group(Control25)
                 {
-                    InstructionalText = 'To review your Tax Engine settings later, open the Tax Engine Setup window.';
+                    InstructionalText = 'To review your Tax Engine settings later, open the Tax Types window.';
                     ShowCaption = false;
                     Visible = FinalStepVisible;
                 }
@@ -115,10 +142,7 @@ page 20364 "Tax Engine Setup Wizard"
 
                 trigger OnAction()
                 begin
-                    if AutoTaxEngineSetupIsAllowed then
-                        FinishAction()
-                    else
-                        CurrPage.Close();
+                    FinishAction();
                 end;
             }
         }
@@ -131,10 +155,6 @@ page 20364 "Tax Engine Setup Wizard"
 
     trigger OnOpenPage()
     begin
-        AutoTaxEngineSetupIsAllowed := WizardIsAllowed();
-        if not AutoTaxEngineSetupIsAllowed then
-            Step := Step::Finish;
-
         WizardNotification.Id := Format(CreateGuid());
         EnableControls();
     end;
@@ -144,7 +164,7 @@ page 20364 "Tax Engine Setup Wizard"
         AssistedSetup: Codeunit "Assisted Setup";
     begin
         if CloseAction = Action::OK then
-            if WizardIsAllowed() and AssistedSetup.ExistsAndIsNotComplete(Page::"Tax Engine Setup Wizard") then
+            if AssistedSetup.ExistsAndIsNotComplete(Page::"Tax Engine Setup Wizard") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
     end;
@@ -154,15 +174,15 @@ page 20364 "Tax Engine Setup Wizard"
         MediaRepositoryDone: Record "Media Repository";
         ClientTypeManagement: Codeunit "Client Type Management";
         WizardNotification: Notification;
-        Step: Option Start,Finish;
+        Step: Option Start,Preperation,Finish;
+        AppendOrReplace: Option Append,Replace;
         TopBannerVisible: Boolean;
-        ManualTaxEngineStepVisible: Boolean;
         FirstStepVisible: Boolean;
+        SecondStepVisible: Boolean;
         FinalStepVisible: Boolean;
         FinishActionEnabled: Boolean;
         BackActionEnabled: Boolean;
         NextActionEnabled: Boolean;
-        AutoTaxEngineSetupIsAllowed: Boolean;
         NAVNotSetUpQst: Label 'Tax Engine has not been set up.\\Are you sure you want to exit?';
 
     local procedure EnableControls()
@@ -172,11 +192,10 @@ page 20364 "Tax Engine Setup Wizard"
         case Step of
             Step::Start:
                 ShowStartStep();
+            Step::Preperation:
+                ShowSecondStep();
             Step::Finish:
-                if AutoTaxEngineSetupIsAllowed then
-                    ShowFinishStep()
-                else
-                    ShowManualStep();
+                ShowFinishStep()
         end;
     end;
 
@@ -185,10 +204,9 @@ page 20364 "Tax Engine Setup Wizard"
         AssistedSetup: Codeunit "Assisted Setup";
         TaxEngineAssistedSetup: Codeunit "Tax Engine Assisted Setup";
     begin
-        if not AutoTaxEngineSetupIsAllowed then
-            exit;
+        if AppendOrReplace = AppendOrReplace::Replace then
+            ClearTaxEngineSetup();
 
-        ClearTaxEngineSetup();
         TaxEngineAssistedSetup.SetupTaxEngine();
         AssistedSetup.Complete(Page::"Tax Engine Setup Wizard");
         CurrPage.Close();
@@ -204,15 +222,25 @@ page 20364 "Tax Engine Setup Wizard"
             if StepValidation() then
                 Step := Step + 1;
 
+        UpdateTaxTypeStep(Backwards);
+
         EnableControls();
     end;
 
-    local procedure ShowManualStep()
+    local procedure UpdateTaxTypeStep(Backwards: Boolean)
+    var
+        TaxType: Record "Tax Type";
     begin
-        ManualTaxEngineStepVisible := true;
-        BackActionEnabled := false;
-        NextActionEnabled := false;
-        FinishActionEnabled := true;
+        if not TaxType.IsEmpty then
+            exit;
+
+        if Step <> Step::Preperation then
+            exit;
+
+        if Backwards then
+            Step := Step - 1
+        else
+            Step := Step + 1;
     end;
 
     local procedure ShowStartStep()
@@ -222,11 +250,21 @@ page 20364 "Tax Engine Setup Wizard"
         BackActionEnabled := false;
     end;
 
+    local procedure ShowSecondStep()
+    begin
+        FirstStepVisible := false;
+        FinishActionEnabled := false;
+        SecondStepVisible := true;
+        BackActionEnabled := true;
+    end;
+
     local procedure ShowFinishStep()
     begin
         FinalStepVisible := true;
         NextActionEnabled := false;
         FinishActionEnabled := true;
+        SecondStepVisible := false;
+        FirstStepVisible := false;
     end;
 
     local procedure ResetControls()
@@ -236,6 +274,7 @@ page 20364 "Tax Engine Setup Wizard"
         NextActionEnabled := true;
 
         FirstStepVisible := false;
+        SecondStepVisible := false;
         FinalStepVisible := false;
     end;
 
@@ -250,22 +289,13 @@ page 20364 "Tax Engine Setup Wizard"
     local procedure ClearTaxEngineSetup()
     var
         TaxType: Record "Tax Type";
-        VATPostingSetup: Record "VAT Posting Setup";
     begin
         TaxType.DeleteAll(true);
-    end;
-
-    local procedure WizardIsAllowed(): Boolean
-    var
-        TaxType: Record "Tax Type";
-    begin
-        exit(TaxType.IsEmpty);
     end;
 
     local procedure StepValidation(): Boolean
     var
         ErrorMessage: Text;
-        ValidationErrorMsg: Text;
     begin
         case Step of
         end;

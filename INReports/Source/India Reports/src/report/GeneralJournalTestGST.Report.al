@@ -423,7 +423,7 @@ report 18031 "General Journal - Test GST"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get();
+                GeneralLedgerSetup.Get();
                 SalesSetup.Get();
                 PurchSetup.Get();
                 AmountLCY := 0;
@@ -463,12 +463,12 @@ report 18031 "General Journal - Test GST"
     }
 
     var
-        GLSetup: Record "General Ledger Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         SalesSetup: Record "Sales & Receivables Setup";
         PurchSetup: Record "Purchases & Payables Setup";
         UserSetup: Record "User Setup";
         AccountingPeriod: Record "Accounting Period";
-        GLAcc: Record "G/L Account";
+        GLAccount: Record "G/L Account";
         Currency: Record "Currency";
         Cust: Record "Customer";
         Vend: Record "Vendor";
@@ -1377,12 +1377,12 @@ report 18031 "General Journal - Test GST"
     local procedure ReconcileGLAccNo(GLAccNo: Code[20]; ReconcileAmount: Decimal)
     begin
         if not TempGLAccNetChange.Get(GLAccNo) then begin
-            GLAcc.Get(GLAccNo);
-            GLAcc.CalcFields("Balance at Date");
+            GLAccount.Get(GLAccNo);
+            GLAccount.CalcFields("Balance at Date");
             TempGLAccNetChange.Init();
-            TempGLAccNetChange."No." := GLAcc."No.";
-            TempGLAccNetChange.Name := GLAcc.Name;
-            TempGLAccNetChange."Balance after Posting" := GLAcc."Balance at Date";
+            TempGLAccNetChange."No." := GLAccount."No.";
+            TempGLAccNetChange.Name := GLAccount.Name;
+            TempGLAccNetChange."Balance after Posting" := GLAccount."Balance at Date";
             TempGLAccNetChange.Insert();
         end;
         TempGLAccNetChange."Net Change in Jnl." := TempGLAccNetChange."Net Change in Jnl." + ReconcileAmount;
@@ -1392,33 +1392,33 @@ report 18031 "General Journal - Test GST"
 
     local procedure CheckGLAcc(var GenJnlLine: Record "Gen. Journal Line"; var AccName: Text[100])
     begin
-        if not GLAcc.Get(GenJnlLine."Account No.") then
+        if not GLAccount.Get(GenJnlLine."Account No.") then
             AddError(
               StrSubstNo(
                 TableCaptionLbl,
-                GLAcc.TableCaption, GenJnlLine."Account No."))
+                GLAccount.TableCaption, GenJnlLine."Account No."))
         else begin
-            AccName := GLAcc.Name;
+            AccName := GLAccount.Name;
 
-            if GLAcc.Blocked then
+            if GLAccount.Blocked then
                 AddError(
                   StrSubstNo(
                     TableFieldLbl,
-                    GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption, GenJnlLine."Account No."));
-            if GLAcc."Account Type" <> GLAcc."Account Type"::Posting then begin
-                GLAcc."Account Type" := GLAcc."Account Type"::Posting;
+                    GLAccount.FieldCaption(Blocked), false, GLAccount.TableCaption, GenJnlLine."Account No."));
+            if GLAccount."Account Type" <> GLAccount."Account Type"::Posting then begin
+                GLAccount."Account Type" := GLAccount."Account Type"::Posting;
                 AddError(
                   StrSubstNo(
                     TableFieldLbl,
-                    GLAcc.FieldCaption("Account Type"), GLAcc."Account Type", GLAcc.TableCaption, GenJnlLine."Account No."));
+                    GLAccount.FieldCaption("Account Type"), GLAccount."Account Type", GLAccount.TableCaption, GenJnlLine."Account No."));
             end;
             if not GenJnlLine."System-Created Entry" then
                 if GenJnlLine."Posting Date" = NormalDate(GenJnlLine."Posting Date") then
-                    if not GLAcc."Direct Posting" then
+                    if not GLAccount."Direct Posting" then
                         AddError(
                           StrSubstNo(
                             TableFieldLbl,
-                            GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption, GenJnlLine."Account No."));
+                            GLAccount.FieldCaption("Direct Posting"), true, GLAccount.TableCaption, GenJnlLine."Account No."));
 
             if GenJnlLine."Gen. Posting Type" <> GenJnlLine."Gen. Posting Type"::" " then begin
                 case GenJnlLine."Gen. Posting Type" of
@@ -1442,7 +1442,7 @@ report 18031 "General Journal - Test GST"
                             GenJnlLine.FieldCaption(GenJnlLine."VAT Calculation Type"), VATPostingSetup."VAT Calculation Type"))
             end;
 
-            if GLAcc."Reconciliation Account" then
+            if GLAccount."Reconciliation Account" then
                 ReconcileGLAccNo(GenJnlLine."Account No.", Round((GenJnlLine."Amount (LCY)")) /
                   (1 + GenJnlLine."VAT %" / 100));
         end;
@@ -2499,8 +2499,7 @@ report 18031 "General Journal - Test GST"
     end;
 
     local procedure TestPostingDate(
-        GenJnlLine: Record "Gen. Journal Line";
-        GenJnlAllocation: Record "Gen. Jnl. Allocation")
+        GenJnlLine: Record "Gen. Journal Line")
     begin
         if GenJnlLine."Posting Date" = 0D then
             AddError(StrSubstNo(Text002Lbl, GenJnlLine.FieldCaption("Posting Date")))
@@ -2521,8 +2520,8 @@ report 18031 "General Journal - Test GST"
                         AllowPostingTo := UserSetup."Allow Posting To";
                     end;
                 if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
-                    AllowPostingFrom := GLSetup."Allow Posting From";
-                    AllowPostingTo := GLSetup."Allow Posting To";
+                    AllowPostingFrom := GeneralLedgerSetup."Allow Posting From";
+                    AllowPostingTo := GeneralLedgerSetup."Allow Posting To";
                 end;
                 if AllowPostingTo = 0D then
                     AllowPostingTo := DMY2Date(31, 12, 9999);
@@ -2540,8 +2539,7 @@ report 18031 "General Journal - Test GST"
     end;
 
     local procedure TestDocumentNo(
-        GenJnlLine: Record "Gen. Journal Line";
-        GenJnlAllocation: Record "Gen. Jnl. Allocation")
+        GenJnlLine: Record "Gen. Journal Line")
     begin
         if GenJnlLine."Document No." = '' then
             AddError(StrSubstNo(Text002Lbl, GenJnlLine.FieldCaption("Document No.")))
@@ -2628,7 +2626,7 @@ report 18031 "General Journal - Test GST"
             CheckRecurringLine(GenJnlLine);
             CheckAllocations(GenJnlLine);
 
-            TestPostingDate(GenJnlLine, GenJnlAllocation);
+            TestPostingDate(GenJnlLine);
 
             if GenJnlLine."Document Date" <> 0D then
                 if (GenJnlLine."Document Date" <> NormalDate(GenJnlLine."Document Date")) and
@@ -2637,7 +2635,7 @@ report 18031 "General Journal - Test GST"
                 then
                     AddError(StrSubstNo(DocumentDateCaptionLbl, GenJnlLine.FieldCaption("Document Date")));
 
-            TestDocumentNo(GenJnlLine, GenJnlAllocation);
+            TestDocumentNo(GenJnlLine);
 
             if (GenJnlLine."Account Type" in [
                     GenJnlLine."Account Type"::Customer,

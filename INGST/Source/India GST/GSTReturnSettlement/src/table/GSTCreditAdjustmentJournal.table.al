@@ -7,80 +7,80 @@ table 18318 "GST Credit Adjustment Journal"
         field(1; "GST Registration No."; Code[20])
         {
             Caption = 'GST Registration No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
             TableRelation = "GST Registration Nos.";
         }
         field(2; "Vendor No."; Code[20])
         {
             Caption = 'Vendor No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
             TableRelation = Vendor;
         }
         field(3; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(4; "Document Type"; Enum "Adjustment Document Type")
         {
             Caption = 'Document Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(5; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(6; "Document Line No."; Integer)
         {
             Caption = 'Document Line No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(7; "Reverse Charge"; Boolean)
         {
             Caption = 'Reverse Charge';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(8; "Total GST Amount"; Decimal)
         {
             Caption = 'Total GST Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
-        field(9; "External Document No."; Code[35])
+        field(9; "External Document No."; Code[40])
         {
             Caption = 'External Document No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(10; "GST Jurisdiction Type"; Enum "GST Jurisdiction Type")
         {
             Caption = 'GST Jurisdiction Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(11; "Location State Code"; Code[10])
         {
             Caption = 'Location State Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(13; "Total GST Credit Amount"; Decimal)
         {
             Caption = 'Total GST Credit Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(14; "Nature of Adjustment"; Enum "Credit Adjustment Type")
         {
             Caption = 'Nature of Adjustment';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -93,7 +93,7 @@ table 18318 "GST Credit Adjustment Journal"
         field(16; "Adjustment %"; Decimal)
         {
             Caption = 'Adjustment %';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             MinValue = 0;
 
             trigger OnValidate()
@@ -120,7 +120,7 @@ table 18318 "GST Credit Adjustment Journal"
         field(17; "Adjustment Amount"; Decimal)
         {
             Caption = 'Adjustment Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             MinValue = 0;
 
             trigger OnValidate()
@@ -142,71 +142,71 @@ table 18318 "GST Credit Adjustment Journal"
         field(18; "Adjustment Posting Date"; Date)
         {
             Caption = 'Adjustment Posting Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(19; "Adjust Document No."; Code[20])
         {
             Caption = 'Adjust Document No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(20; "Selected Nature of Adjustment"; Enum "Credit Adjustment Type")
         {
             Caption = 'Selected Nature of Adjustment';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(21; "Input Service Distribution"; Boolean)
         {
             Caption = 'Input Service Distribution';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(22; Type; Enum Type)
         {
             Caption = 'Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(23; "No."; Code[20])
         {
             Caption = 'No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
 
             trigger OnValidate()
-            Var
+            var
                 TypeText: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)";
-                TypeVal: text;
+                TypeVal: Text;
             begin
-                TypeVal := Format(type);
+                TypeVal := Format(Type);
                 Evaluate(Typetext, TypeVal);
                 CreateDim(
                   DimMgt.TypeToTableID3(Typetext), "No.");
             end;
         }
-        field(24; "Gen. Bus. Posting Group"; Code[10])
+        field(24; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
             TableRelation = "Gen. Business Posting Group";
         }
-        field(25; "Gen. Prod. Posting Group"; Code[10])
+        field(25; "Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Gen. Prod. Posting Group';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
             TableRelation = "Gen. Product Posting Group";
         }
         field(26; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(28; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -219,7 +219,7 @@ table 18318 "GST Credit Adjustment Journal"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -231,13 +231,13 @@ table 18318 "GST Credit Adjustment Journal"
         field(31; "Available Adjustment %"; Decimal)
         {
             Caption = 'Available Adjustment %';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(32; "Available Adjustment Amount"; Decimal)
         {
             Caption = 'Available Adjustment Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
     }
@@ -249,6 +249,14 @@ table 18318 "GST Credit Adjustment Journal"
             Clustered = true;
         }
     }
+
+    var
+        DimMgt: Codeunit DimensionManagement;
+        NatureofAdjErr: Label 'Nature of Adjustment can be Blank or %1 only.', Comment = '%1 = Option';
+        Text051Qst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
+        AdjustmentAmtGreaterErr: Label 'Adjustment Amount %1 must not be greater than Available Adjustment Amount %2 in Document No. %3.', Comment = '%1 = Adjustment Amount %2 = Available Adjustment Amount  %3 = Document No.';
+        AdjustmentPercGreaterErr: Label 'Adjustment Percentage %1 must not be greater than Available Adjustment Percentage %2 in Document No. %3.', Comment = '%1 = Adjustment Percentage %2 = Available Adjustment Percentage  %3 = Document No.';
+        DimensionSetDocMsg: Label '%1,%2', comment = '%1=Document Type,%2= No.';
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
@@ -325,12 +333,4 @@ table 18318 "GST Credit Adjustment Journal"
                 end;
             until Next() = 0;
     end;
-
-    var
-        DimMgt: Codeunit DimensionManagement;
-        NatureofAdjErr: Label 'Nature of Adjustment can be Blank or %1 only.', Comment = '%1 = Option';
-        Text051Qst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
-        AdjustmentAmtGreaterErr: Label 'Adjustment Amount %1 must not be greater than Available Adjustment Amount %2 in Document No. %3.', Comment = '%1 = Adjustment Amount %2 = Available Adjustment Amount  %3 = Document No.';
-        AdjustmentPercGreaterErr: Label 'Adjustment Percentage %1 must not be greater than Available Adjustment Percentage %2 in Document No. %3.', Comment = '%1 = Adjustment Percentage %2 = Available Adjustment Percentage  %3 = Document No.';
-        DimensionSetDocMsg: Label '%1,%2', comment = '%1=Document Type,%2= No.';
 }

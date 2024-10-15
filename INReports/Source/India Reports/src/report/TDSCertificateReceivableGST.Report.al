@@ -14,19 +14,16 @@ report 18027 "TDS Certificate Receivable GST"
                                 where("TDS Certificate Receivable" = filter(1));
             RequestFilterFields = "Customer No.", "Document No.", "Certificate Received", "Posting Date";
 
-            column(FORMAT_TODAY_0_4_; FORMAT(TODAY, 0, 4))
+            column(FORMAT_TODAY_0_4_; Format(Today(), 0, 4))
             {
             }
             column(CompanyInfo_Name; CompanyInfo.Name)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo())
+            column(USERID; UserId())
             {
             }
-            column(USERID; USERID)
-            {
-            }
-            column(GETFILTERS; GETFILTERS)
+            column(GETFILTERS; GetFilters())
             {
             }
             column(Report_on_TDS_Certificate_Receivable___Received_from_Customer________PostingDateFilter; 'Report on TDS Certificate Receivable / Received from Customer' + ' ' + PostingDateFilter)
@@ -41,10 +38,10 @@ report 18027 "TDS Certificate Receivable GST"
             column(Cust__Ledger_Entry__Document_No__; "Document No.")
             {
             }
-            column(Cust__Ledger_Entry__Certificate_Received_; FORMAT("Certificate Received"))
+            column(Cust__Ledger_Entry__Certificate_Received_; Format("Certificate Received"))
             {
             }
-            column(Cust__Ledger_Entry__TDS_Certificate_Rcpt_Date_; FORMAT("TDS Certificate Rcpt Date"))
+            column(Cust__Ledger_Entry__TDS_Certificate_Rcpt_Date_; Format("TDS Certificate Rcpt Date"))
             {
             }
             column(Cust__Ledger_Entry__TDS_Certificate_Amount_; "TDS Certificate Amount")
@@ -65,7 +62,7 @@ report 18027 "TDS Certificate Receivable GST"
             column(Cust__Ledger_Entry__TDS_Receivable_Group_; "TDS Section Code")
             {
             }
-            column(Cust__Ledger_Entry__Document_Date_; FORMAT("Document Date"))
+            column(Cust__Ledger_Entry__Document_Date_; Format("Document Date"))
             {
             }
             column(Cust__Ledger_Entry_Entry_No_; "Entry No.")
@@ -121,29 +118,25 @@ report 18027 "TDS Certificate Receivable GST"
             end;
         }
     }
-
     requestpage
     {
+        SaveValues = true;
 
         layout
         {
-        }
+            area(Content)
+            {
 
-        actions
-        {
+            }
         }
     }
-
-    labels
-    {
-    }
-
 
     trigger OnPreReport()
     begin
         CompanyInfo.Get();
         if "Cust. Ledger Entry".GetFilter("Posting Date") <> '' then
-            PostingDateFilter := ' for the period of ' + "Cust. Ledger Entry".GetFilter("Posting Date");
+            PostingDateFilter := ' for the period of ' +
+                "Cust. Ledger Entry".GetFilter("Posting Date");
     end;
 
     var
@@ -158,6 +151,6 @@ report 18027 "TDS Certificate Receivable GST"
         Customer_NameCaptionLbl: Label 'Customer Name';
         Financial_YearCaptionLbl: Label 'Financial Year';
         Customer_AddressCaptionLbl: Label 'Customer Address';
-        TDS_Cert__Receivable_GroupCaptionLbl: Label 'TDS Cert. Receivable Group';
+        TDS_Cert__Receivable_GroupCaptionLbl: Label 'TDS Section';
         Cust__Ledger_Entry__Document_Date_CaptionLbl: Label 'Document Date';
 }

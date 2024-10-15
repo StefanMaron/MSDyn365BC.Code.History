@@ -4,19 +4,21 @@ pageextension 18545 "General Journal" extends "General Journal"
     {
         addbefore(Amount)
         {
-            field("Location Code"; "Location Code")
+            field("Location Code"; Rec."Location Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the location code for which the journal lines will be posted.';
+
                 trigger OnValidate()
                 begin
                     UpdateTaxAmount();
                 end;
             }
-            field("T.A.N. No."; "T.A.N. No.")
+            field("T.A.N. No."; Rec."T.A.N. No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the T.A.N. number of the location for which the entry will be posted.';
+
                 trigger OnValidate()
                 begin
                     UpdateTaxAmount();
@@ -73,6 +75,7 @@ pageextension 18545 "General Journal" extends "General Journal"
             end;
         }
     }
+
     local procedure UpdateTaxAmount()
     var
         CalculateTax: Codeunit "Calculate Tax";

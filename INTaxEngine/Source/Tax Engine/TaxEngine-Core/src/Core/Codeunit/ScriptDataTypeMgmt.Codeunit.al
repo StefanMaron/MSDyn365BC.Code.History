@@ -3,7 +3,6 @@ codeunit 20132 "Script Data Type Mgmt."
     procedure GetFieldDatatype(TableID: Integer; FieldID: Integer): Enum "Symbol Data Type";
     var
         Field: Record Field;
-        FieldDatatype: Enum "Symbol Data Type";
     begin
         Field.GET(TableID, FieldID);
         exit(GetFieldDatatypeInternal(Field.Type, true));
@@ -185,7 +184,6 @@ codeunit 20132 "Script Data Type Mgmt."
     procedure Text2Date(Text: Text): Date;
     var
         DateValue: Date;
-        InvalidDateErr: Label 'Invalid date: %1', Comment = '%1 = Data Value';
     begin
         if (Text = '') or (Text = '0D') then
             exit(0D);
@@ -766,7 +764,7 @@ codeunit 20132 "Script Data Type Mgmt."
             Datatype::Number:
                 begin
                     if Evaluate(NumberValue, Value, 9) then;
-                    Exit(Format(NumberValue, 0, '<Precision,2:3><Standard Format,0>'));
+                    exit(Format(NumberValue, 0, '<Precision,2:3><Standard Format,0>'));
                 end;
             Datatype::Boolean:
                 begin
@@ -775,7 +773,7 @@ codeunit 20132 "Script Data Type Mgmt."
                     if uppercase(Value) in ['1', 'YES', 'TRUE'] then
                         Value := 'true';
                     Evaluate(BooleanValue, Value, 9);
-                    Exit(Format(BooleanValue, 0, 0));
+                    exit(Format(BooleanValue, 0, 0));
                 end;
         end;
 
@@ -786,27 +784,27 @@ codeunit 20132 "Script Data Type Mgmt."
             datatype::Date:
                 begin
                     Evaluate(DateValue, Value, 9);
-                    Exit(Format(DateValue, 0, 0));
+                    exit(Format(DateValue, 0, 0));
                 end;
             datatype::Datetime:
                 begin
                     Evaluate(DateTimeValue, Value, 9);
-                    Exit(Format(DateTimeValue, 0, 0));
+                    exit(Format(DateTimeValue, 0, 0));
                 end;
             datatype::Time:
                 begin
                     Evaluate(TimeValue, Value, 9);
-                    Exit(Format(TimeValue, 0, 0));
+                    exit(Format(TimeValue, 0, 0));
                 end;
             datatype::Recid:
                 begin
                     Evaluate(RecIdValue, Value, 9);
-                    Exit(Format(RecIdValue, 0, 0));
+                    exit(Format(RecIdValue, 0, 0));
                 end;
             datatype::Guid:
                 begin
                     Evaluate(GuidValue, Value, 9);
-                    Exit(Format(GuidValue, 0, 0));
+                    exit(Format(GuidValue, 0, 0));
                 end;
             else
                 exit(Value);
@@ -875,39 +873,7 @@ codeunit 20132 "Script Data Type Mgmt."
         String: Codeunit DotNet_String;
     begin
         String.Set(Text);
-        Exit(String.Trim());
-    end;
-
-    local procedure AppendDateTimeFormat(var DateFormat: Text; DatePart: Text; Delimiter: Char);
-    var
-        IntValue: Integer;
-        DatePartFormat: Text;
-    begin
-        if not Evaluate(IntValue, DatePart) then
-            if DatePart in ['AM', 'PM'] then
-                DatePartFormat := 'a';
-
-        if IntValue = 1 then
-            DatePartFormat := 'DD'
-        else
-            if IntValue = 31 then
-                DatePartFormat := 'MM'
-            else
-                if (IntValue = 19) then
-                    DatePartFormat := 'YY'
-                else
-                    if (IntValue = 2019) then
-                        DatePartFormat := 'YYYY'
-                    else
-                        if (IntValue = 4) then
-                            DatePartFormat := 'HH'
-                        else
-                            if IntValue = 30 then
-                                DatePartFormat := 'mm';
-
-        DateFormat += DatePartFormat;
-        if Delimiter <> 0 then
-            DateFormat += Format(Delimiter, 0, 2);
+        exit(String.Trim());
     end;
 
     local procedure GetFieldDatatypeInternal(FieldDataType: Option; ThrowError: Boolean): Enum "Symbol Data Type";

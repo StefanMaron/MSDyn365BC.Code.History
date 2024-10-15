@@ -11,18 +11,20 @@ page 18551 "Line Narration"
     {
         area(content)
         {
-            field("Document No."; "Document No.")
+            field("Document No."; Rec."Document No.")
             {
                 Editable = false;
                 ApplicationArea = Basic, Suite;
                 Caption = 'Document No.';
+                ToolTip = 'Specifies document number for which the voucher lines will be posted.';
             }
             repeater(Control1500000)
             {
-                field(Narration; Narration)
+                field(Narration; Rec.Narration)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Narration';
+                    ToolTip = 'Select Narration option to specify the narration of a voucher.';
                 }
             }
         }

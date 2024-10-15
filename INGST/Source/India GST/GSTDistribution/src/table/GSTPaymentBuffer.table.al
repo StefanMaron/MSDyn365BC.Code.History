@@ -7,38 +7,38 @@ table 18205 "GST Payment Buffer"
         field(1; "GST Registration No."; Code[20])
         {
             Caption = 'GST Registration No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
             TableRelation = "GST Registration Nos.";
         }
         field(2; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(3; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
-        field(4; "GST Component Code"; Code[10])
+        field(4; "GST Component Code"; Code[30])
         {
             Caption = 'GST Component Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(5; Description; Text[50])
         {
             Caption = 'Description';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(7; "Payment Liability"; Decimal)
         {
             Caption = 'Payment Liability';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
             MinValue = 0;
 
@@ -52,25 +52,25 @@ table 18205 "GST Payment Buffer"
         field(8; "GST TDS Credit Available"; Decimal)
         {
             Caption = 'GST TDS Credit Available';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(9; "GST TCS Credit Available"; Decimal)
         {
             Caption = 'GST TCS Credit Available';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(10; "Net Payment Liability"; Decimal)
         {
             Caption = 'Net Payment Liability';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(11; "Credit Availed"; Decimal)
         {
             Caption = 'Credit Availed';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
 
             trigger OnValidate()
@@ -83,20 +83,20 @@ table 18205 "GST Payment Buffer"
         field(12; "Distributed Credit"; Decimal)
         {
             Caption = 'Distributed Credit';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(13; "Total Credit Available"; Decimal)
         {
             Caption = 'Total Credit Available';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
             MinValue = 0;
         }
         field(14; "Credit Utilized"; Decimal)
         {
             Caption = 'Credit Utilized';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             MinValue = 0;
 
             trigger OnValidate()
@@ -107,7 +107,7 @@ table 18205 "GST Payment Buffer"
         field(15; "Payment Amount"; Decimal)
         {
             Caption = 'Payment Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             MinValue = 0;
 
             trigger OnValidate()
@@ -118,7 +118,7 @@ table 18205 "GST Payment Buffer"
         field(16; Interest; Decimal)
         {
             Caption = 'Interest';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             MinValue = 0;
 
             trigger OnValidate()
@@ -129,7 +129,7 @@ table 18205 "GST Payment Buffer"
         field(17; "Interest Account No."; Code[20])
         {
             Caption = 'Interest Account No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             TableRelation = "G/L Account" where(Blocked = const(false));
 
             trigger OnValidate()
@@ -140,7 +140,7 @@ table 18205 "GST Payment Buffer"
         field(18; Penalty; Decimal)
         {
             Caption = 'Penalty';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             MinValue = 0;
 
             trigger OnValidate()
@@ -151,7 +151,7 @@ table 18205 "GST Payment Buffer"
         field(19; "Penalty Account No."; Code[20])
         {
             Caption = 'Penalty Account No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             TableRelation = "G/L Account" where(Blocked = const(false));
 
             trigger OnValidate()
@@ -162,7 +162,7 @@ table 18205 "GST Payment Buffer"
         field(20; Fees; Decimal)
         {
             Caption = 'Fees';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             MinValue = 0;
 
             trigger OnValidate()
@@ -173,7 +173,7 @@ table 18205 "GST Payment Buffer"
         field(21; "Fees Account No."; Code[20])
         {
             Caption = 'Fees Account No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             TableRelation = "G/L Account" where(Blocked = const(false));
 
             trigger OnValidate()
@@ -184,7 +184,7 @@ table 18205 "GST Payment Buffer"
         field(22; Others; Decimal)
         {
             Caption = 'Others';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             MinValue = 0;
 
             trigger OnValidate()
@@ -195,7 +195,7 @@ table 18205 "GST Payment Buffer"
         field(23; "Others Account No."; Code[20])
         {
             Caption = 'Others Account No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             TableRelation = "G/L Account" where(Blocked = const(false));
 
             trigger OnValidate()
@@ -203,12 +203,10 @@ table 18205 "GST Payment Buffer"
                 CheckGLAcc("Others Account No.");
             end;
         }
-        field(24; "Account Type"; Option)
+        field(24; "Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionMembers = "G/L Account","Bank Account";
-            OptionCaption = 'G/L Account,Bank Account';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
 
             trigger OnValidate()
             begin
@@ -218,7 +216,7 @@ table 18205 "GST Payment Buffer"
         field(25; "Account No."; Code[20])
         {
             Caption = 'Account No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             TableRelation = if ("Account Type" = const("G/L Account")) "G/L Account"
                 where(Blocked = const(false))
             else
@@ -236,58 +234,58 @@ table 18205 "GST Payment Buffer"
         field(26; "Location State Code"; Code[10])
         {
             Caption = 'Location State Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(27; "Surplus Credit"; Decimal)
         {
             Caption = 'Surplus Credit';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(28; "Surplus Cr. Utilized"; Decimal)
         {
             Caption = 'Surplus Cr. Utilized';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(29; "Carry Forward"; Decimal)
         {
             Caption = 'Carry Forward';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(34; "Period End Date"; Date)
         {
             Caption = 'Period End Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(35; "Bank Reference No."; Code[10])
         {
             Caption = 'Bank Reference No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(36; "Bank Reference Date"; Date)
         {
             Caption = 'Bank Reference Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
         }
         field(40; "GST Input Service Distribution"; Boolean)
         {
             Caption = 'GST Input Service Distribution';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(41; "Payment Liability - Rev. Chrg."; Decimal)
         {
             Caption = 'Payment Liability - Rev. Chrg.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(42; "Payment Amount - Rev. Chrg."; Decimal)
         {
             Caption = 'Payment Amount - Rev. Chrg.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
 
             trigger OnValidate()
@@ -298,13 +296,13 @@ table 18205 "GST Payment Buffer"
         field(43; "Unadjutsed Credit"; Decimal)
         {
             Caption = 'Unadjutsed Credit';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(45; "Unadjutsed Liability"; Decimal)
         {
             Caption = 'Unadjutsed Liability';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
 
             trigger OnValidate()
@@ -315,13 +313,13 @@ table 18205 "GST Payment Buffer"
         field(46; "Total Payment Amount"; Decimal)
         {
             Caption = 'Total Payment Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(47; "GST TDS Credit Utilized"; Decimal)
         {
             Caption = 'GST TDS Credit Utilized';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
 
             trigger OnValidate()
             begin
@@ -331,7 +329,8 @@ table 18205 "GST Payment Buffer"
         field(48; "GST TCS Credit Utilized"; Decimal)
         {
             Caption = 'GST TCS Credit Utilized';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
+
             trigger OnValidate()
             begin
                 ValidateGSTTCSCreditUtilized();
@@ -340,20 +339,21 @@ table 18205 "GST Payment Buffer"
         field(49; "GST TDS Credit Unutilized"; Decimal)
         {
             Caption = 'GST TDS Credit Unutilized';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(50; "GST TCS Credit Unutilized"; Decimal)
         {
             Caption = 'GST TCS Credit Unutilized';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(51; "GST TCS Liability"; Decimal)
         {
             Caption = 'GST TCS Liability';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
+
             trigger OnValidate()
             begin
                 UpdateTotalPaymentAmount();
@@ -363,7 +363,7 @@ table 18205 "GST Payment Buffer"
         {
             Caption = 'Dimension Set ID';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
             TableRelation = "Dimension Set Entry";
         }
     }
@@ -375,6 +375,11 @@ table 18205 "GST Payment Buffer"
             Clustered = true;
         }
     }
+
+    var
+        CreditUtilizedErr: Label 'Credit Utilized %1 can''t exceed Payment Liability %2 for GST Compoment %3', Comment = '%1 = Credit Utilized, %2 = Payment Liability, %3 =GST Component Code.';
+        SumofErr: Label 'Sum of Credit Utilized, GST TDS Credit Utilized, GST TCS Credit Utilized and Payment Amount must be equal to Net payment Liability.';
+        GSTTDSTCSCreditUtilizedErr: Label '%1 cannot be more than %2.', Comment = '%1 = Field Name, %2 = Field Name';
 
     procedure CheckGLAcc(AccountNo: Code[20])
     var
@@ -463,9 +468,4 @@ table 18205 "GST Payment Buffer"
         if "GST TCS Credit Utilized" > 0 then
             "GST TCS Credit Unutilized" := "GST TCS Credit Available" - "GST TCS Credit Utilized";
     end;
-
-    var
-        CreditUtilizedErr: Label 'Credit Utilized %1 can''t exceed Payment Liability %2 for GST Compoment %3', Comment = '%1 = Credit Utilized, %2 = Payment Liability, %3 =GST Component Code.';
-        SumofErr: Label 'Sum of Credit Utilized, GST TDS Credit Utilized, GST TCS Credit Utilized and Payment Amount must be equal to Net payment Liability.';
-        GSTTDSTCSCreditUtilizedErr: Label '%1 cannot be more than %2.', Comment = '%1 = Field Name, %2 = Field Name';
 }

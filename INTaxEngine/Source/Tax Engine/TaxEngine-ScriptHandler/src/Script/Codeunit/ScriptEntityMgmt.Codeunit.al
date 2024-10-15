@@ -12,9 +12,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionComment."Script ID" := ScriptID;
         ActionComment.ID := CreateGuid();
         ActionComment.Text := Comment;
-        ActionComment.Insert();
+        ActionComment.Insert(true);
 
-        Exit(ActionComment.ID);
+        exit(ActionComment.ID);
     end;
 
     procedure DeleteComment(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -51,9 +51,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionNumberCalculation."Case ID" := CaseID;
         ActionNumberCalculation."Script ID" := ScriptID;
         ActionNumberCalculation.ID := CreateGuid();
-        ActionNumberCalculation.Insert();
+        ActionNumberCalculation.Insert(true);
 
-        Exit(ActionNumberCalculation.ID);
+        exit(ActionNumberCalculation.ID);
     end;
 
     procedure DeleteNumberCalculation(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -89,14 +89,14 @@ codeunit 20166 "Script Entity Mgmt."
         ActionIfStatement.ID := CreateGuid();
         ActionIfStatement."Parent If Block ID" := ParentID;
         ActionIfStatement."Condition ID" := CreateCondition(CaseID, ScriptID);
-        ActionIfStatement.Insert();
+        ActionIfStatement.Insert(true);
 
         if not IsNullGuid(ParentID) then begin
             ParentIfStatement."Else If Block ID" := ActionIfStatement.ID;
             ParentIfStatement.Modify();
         end;
 
-        Exit(ActionIfStatement.ID);
+        exit(ActionIfStatement.ID);
     end;
 
     procedure DeleteIfCondition(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -159,14 +159,14 @@ codeunit 20166 "Script Entity Mgmt."
         if ActionContainer2.FindSet() then
             repeat
                 TempActionContainer := ActionContainer2;
-                TempActionContainer.Insert();
+                TempActionContainer.Insert(true);
                 ActionContainer2.Delete();
             until ActionContainer2.Next() = 0;
 
         NextLineNo += 10000;
         ActionContainer."Line No." := NextLineNo;
         ActionContainer."Action ID" := CreateIfCondition(CaseID, ScriptID, ItemID);
-        ActionContainer.Insert();
+        ActionContainer.Insert(true);
 
         TempActionContainer.Reset();
         if TempActionContainer.FindSet() then
@@ -174,53 +174,7 @@ codeunit 20166 "Script Entity Mgmt."
                 NextLineNo += 10000;
                 ActionContainer2 := TempActionContainer;
                 ActionContainer2."Line No." := NextLineNo;
-                ActionContainer2.Insert();
-            until TempActionContainer.Next() = 0;
-    end;
-
-    procedure AddAndGetElseIfCondition(CaseID: Guid; ScriptID: Guid; ItemID: Guid) ElseIfID: Guid
-    var
-        ActionContainer: Record "Action Container";
-        ActionContainer2: Record "Action Container";
-        TempActionContainer: Record "Action Container" Temporary;
-        ScriptSymbolStore: Codeunit "Script Symbol Store";
-        NextLineNo: Integer;
-    begin
-        ScriptSymbolStore.OnBeforeValidateIfUpdateIsAllowed(CaseID);
-        ActionContainer.Reset();
-        ActionContainer.SetRange("Case ID", CaseID);
-        ActionContainer.SetRange("Script ID", ScriptID);
-        ActionContainer.SetRange("Action Type", "Action Type"::IFSTATEMENT);
-        ActionContainer.SetRange("Action ID", ItemID);
-        ActionContainer.FindFirst();
-        NextLineNo := ActionContainer."Line No.";
-
-        ActionContainer2.Reset();
-        ActionContainer2.SetRange("Case ID", CaseID);
-        ActionContainer2.SetRange("Script ID", ScriptID);
-        ActionContainer2.SetRange("Container Type", ActionContainer."Container Type");
-        ActionContainer2.SetRange("Container Action ID", ActionContainer."Container Action ID");
-        ActionContainer2.SetFilter("Line No.", '>%1', NextLineNo);
-        if ActionContainer2.FindSet() then
-            repeat
-                TempActionContainer := ActionContainer2;
-                TempActionContainer.Insert();
-                ActionContainer2.Delete();
-            until ActionContainer2.Next() = 0;
-
-        NextLineNo += 10000;
-        ActionContainer."Line No." := NextLineNo;
-        ActionContainer."Action ID" := CreateIfCondition(CaseID, ScriptID, ItemID);
-        ElseIfID := ActionContainer."Action ID";
-        ActionContainer.Insert();
-
-        TempActionContainer.Reset();
-        if TempActionContainer.FindSet() then
-            repeat
-                NextLineNo += 10000;
-                ActionContainer2 := TempActionContainer;
-                ActionContainer2."Line No." := NextLineNo;
-                ActionContainer2.Insert();
+                ActionContainer2.Insert(true);
             until TempActionContainer.Next() = 0;
     end;
 
@@ -235,9 +189,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionLoopNTimes."Case ID" := CaseID;
         ActionLoopNTimes."Script ID" := ScriptID;
         ActionLoopNTimes.ID := CreateGuid();
-        ActionLoopNTimes.Insert();
+        ActionLoopNTimes.Insert(true);
 
-        Exit(ActionLoopNTimes.ID);
+        exit(ActionLoopNTimes.ID);
     end;
 
     procedure DeleteLoopNTimes(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -264,9 +218,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionLoopWithCondition."Script ID" := ScriptID;
         ActionLoopWithCondition.ID := CreateGuid();
         ActionLoopWithCondition."Condition ID" := CreateCondition(CaseID, ScriptID);
-        ActionLoopWithCondition.Insert();
+        ActionLoopWithCondition.Insert(true);
 
-        Exit(ActionLoopWithCondition.ID);
+        exit(ActionLoopWithCondition.ID);
     end;
 
     procedure DeleteLoopWithCondition(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -289,9 +243,9 @@ codeunit 20166 "Script Entity Mgmt."
         ScriptContext.Init();
         ScriptContext.ID := CreateGuid();
         ScriptContext."Case ID" := CaseID;
-        ScriptContext.Insert();
+        ScriptContext.Insert(true);
 
-        Exit(ScriptContext.ID);
+        exit(ScriptContext.ID);
     end;
 
     procedure DeleteScriptContext(CaseID: Guid; ID: Guid);
@@ -317,9 +271,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionFindDateInterval."Case ID" := CaseID;
         ActionFindDateInterval."Script ID" := ScriptID;
         ActionFindDateInterval.ID := CreateGuid();
-        ActionFindDateInterval.Insert();
+        ActionFindDateInterval.Insert(true);
 
-        Exit(ActionFindDateInterval.ID);
+        exit(ActionFindDateInterval.ID);
     end;
 
     procedure DeleteFindDateInterval(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -344,24 +298,9 @@ codeunit 20166 "Script Entity Mgmt."
         Condition."Case ID" := CaseID;
         Condition."Script ID" := ScriptID;
         Condition.ID := CreateGuid();
-        Condition.Insert();
+        Condition.Insert(true);
 
-        Exit(Condition.ID);
-    end;
-
-    procedure CreateConditionByScriptID(CaseID: Guid; ScriptID: Guid): Guid;
-    var
-        Condition: Record "Tax Test Condition";
-        ScriptSymbolStore: Codeunit "Script Symbol Store";
-    begin
-        ScriptSymbolStore.OnBeforeValidateIfUpdateIsAllowed(CaseID);
-        Condition.Init();
-        Condition."Case ID" := CaseID;
-        Condition."Script ID" := ScriptID;
-        Condition.ID := CreateGuid();
-        Condition.Insert();
-
-        Exit(Condition.ID);
+        exit(Condition.ID);
     end;
 
     procedure DeleteCondition(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -411,8 +350,6 @@ codeunit 20166 "Script Entity Mgmt."
                 ActionID := CreateDateCalculation(CaseID, ScriptID);
             ActionType::DATETODATETIME:
                 ActionID := CreateDateToDateTime(CaseID, ScriptID);
-            ActionType::GETRECORD:
-                ActionID := CreateGetRecord(CaseID, ScriptID);
             ActionType::ALERTMESSAGE:
                 ActionID := CreateAlertMessage(CaseID, ScriptID);
             ActionType::LOOPTHROUGHRECORDS:
@@ -439,7 +376,7 @@ codeunit 20166 "Script Entity Mgmt."
                 Error(CreateContainerItemErr, ActionType);
         end;
 
-        Exit(ActionID);
+        exit(ActionID);
     end;
 
     procedure DeleteContainerItem(
@@ -481,8 +418,6 @@ codeunit 20166 "Script Entity Mgmt."
                 DeleteDateCalculation(CaseID, ScriptID, ActionID);
             ActionType::DATETODATETIME:
                 DeleteDateToDateTime(CaseID, ScriptID, ActionID);
-            ActionType::GETRECORD:
-                DeleteGetRecord(CaseID, ScriptID, ActionID);
             ActionType::ALERTMESSAGE:
                 DeleteAlertMessage(CaseID, ScriptID, ActionID);
             ActionType::LOOPTHROUGHRECORDS:
@@ -516,9 +451,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionSetVariable."Case ID" := CaseID;
         ActionSetVariable."Script ID" := ScriptID;
         ActionSetVariable.ID := CreateGuid();
-        ActionSetVariable.Insert();
+        ActionSetVariable.Insert(true);
 
-        Exit(ActionSetVariable.ID);
+        exit(ActionSetVariable.ID);
     end;
 
     procedure DeleteSetVariable(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -544,9 +479,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionConcatenate."Case ID" := CaseID;
         ActionConcatenate."Script ID" := ScriptID;
         ActionConcatenate.ID := CreateGuid();
-        ActionConcatenate.Insert();
+        ActionConcatenate.Insert(true);
 
-        Exit(ActionConcatenate.ID);
+        exit(ActionConcatenate.ID);
     end;
 
     procedure DeleteConcatenate(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -572,9 +507,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionFindSubstring."Case ID" := CaseID;
         ActionFindSubstring."Script ID" := ScriptID;
         ActionFindSubstring.ID := CreateGuid();
-        ActionFindSubstring.Insert();
+        ActionFindSubstring.Insert(true);
 
-        Exit(ActionFindSubstring.ID);
+        exit(ActionFindSubstring.ID);
     end;
 
     procedure DeleteFindSubstrInString(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -599,9 +534,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionReplaceSubstring."Case ID" := CaseID;
         ActionReplaceSubstring."Script ID" := ScriptID;
         ActionReplaceSubstring.ID := CreateGuid();
-        ActionReplaceSubstring.Insert();
+        ActionReplaceSubstring.Insert(true);
 
-        Exit(ActionReplaceSubstring.ID);
+        exit(ActionReplaceSubstring.ID);
     end;
 
     procedure DeleteReplaceSubstring(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -626,9 +561,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionExtSubstrFromIndex."Case ID" := CaseID;
         ActionExtSubstrFromIndex."Script ID" := ScriptID;
         ActionExtSubstrFromIndex.ID := CreateGuid();
-        ActionExtSubstrFromIndex.Insert();
+        ActionExtSubstrFromIndex.Insert(true);
 
-        Exit(ActionExtSubstrFromIndex.ID);
+        exit(ActionExtSubstrFromIndex.ID);
     end;
 
     procedure DeleteExtSubstrFromIndex(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -654,9 +589,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionExtSubstrFromPos."Case ID" := CaseID;
         ActionExtSubstrFromPos."Script ID" := ScriptID;
         ActionExtSubstrFromPos.ID := CreateGuid();
-        ActionExtSubstrFromPos.Insert();
+        ActionExtSubstrFromPos.Insert(true);
 
-        Exit(ActionExtSubstrFromPos.ID);
+        exit(ActionExtSubstrFromPos.ID);
     end;
 
     procedure DeleteExtSubstrFromPos(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -681,9 +616,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionDateCalculation."Case ID" := CaseID;
         ActionDateCalculation."Script ID" := ScriptID;
         ActionDateCalculation.ID := CreateGuid();
-        ActionDateCalculation.Insert();
+        ActionDateCalculation.Insert(true);
 
-        Exit(ActionDateCalculation.ID);
+        exit(ActionDateCalculation.ID);
     end;
 
     procedure DeleteDateCalculation(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -709,9 +644,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionDateToDateTime."Case ID" := CaseID;
         ActionDateToDateTime."Script ID" := ScriptID;
         ActionDateToDateTime.ID := CreateGuid();
-        ActionDateToDateTime.Insert();
+        ActionDateToDateTime.Insert(true);
 
-        Exit(ActionDateToDateTime.ID);
+        exit(ActionDateToDateTime.ID);
     end;
 
     procedure DeleteDateToDateTime(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -725,33 +660,6 @@ codeunit 20166 "Script Entity Mgmt."
         ActionDateToDateTime.Delete(true);
     end;
 
-    /// Get Record
-    procedure CreateGetRecord(CaseID: Guid; ScriptID: Guid): Guid;
-    var
-        ActionGetRecord: Record "Action Get Record";
-        ScriptSymbolStore: Codeunit "Script Symbol Store";
-    begin
-        ScriptSymbolStore.OnBeforeValidateIfUpdateIsAllowed(CaseID);
-        ActionGetRecord.Init();
-        ActionGetRecord."Case ID" := CaseID;
-        ActionGetRecord."Script ID" := ScriptID;
-        ActionGetRecord.ID := CreateGuid();
-        ActionGetRecord.Insert();
-
-        Exit(ActionGetRecord.ID);
-    end;
-
-    procedure DeleteGetRecord(CaseID: Guid; ScriptID: Guid; ID: Guid);
-    var
-        ActionGetRecord: Record "Action Get Record";
-    begin
-        if IsNullGuid(ID) then
-            Exit;
-
-        ActionGetRecord.GET(CaseID, ScriptID, ID);
-        ActionGetRecord.Delete(true);
-    end;
-
     /// Alert Message
     procedure CreateAlertMessage(CaseID: Guid; ScriptID: Guid): Guid;
     var
@@ -763,9 +671,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionMessage."Case ID" := CaseID;
         ActionMessage."Script ID" := ScriptID;
         ActionMessage.ID := CreateGuid();
-        ActionMessage.Insert();
+        ActionMessage.Insert(true);
 
-        Exit(ActionMessage.ID);
+        exit(ActionMessage.ID);
     end;
 
     procedure DeleteAlertMessage(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -791,9 +699,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionLoopThroughRecords."Case ID" := CaseID;
         ActionLoopThroughRecords."Script ID" := ScriptID;
         ActionLoopThroughRecords.ID := CreateGuid();
-        ActionLoopThroughRecords.Insert();
+        ActionLoopThroughRecords.Insert(true);
 
-        Exit(ActionLoopThroughRecords.ID);
+        exit(ActionLoopThroughRecords.ID);
     end;
 
     procedure DeleteLoopThroughRecords(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -819,9 +727,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionExtractDatePart."Case ID" := CaseID;
         ActionExtractDatePart."Script ID" := ScriptID;
         ActionExtractDatePart.ID := CreateGuid();
-        ActionExtractDatePart.Insert();
+        ActionExtractDatePart.Insert(true);
 
-        Exit(ActionExtractDatePart.ID);
+        exit(ActionExtractDatePart.ID);
     end;
 
     procedure DeleteExtractDatePart(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -847,9 +755,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionExtractDateTimePart."Case ID" := CaseID;
         ActionExtractDateTimePart."Script ID" := ScriptID;
         ActionExtractDateTimePart.ID := CreateGuid();
-        ActionExtractDateTimePart.Insert();
+        ActionExtractDateTimePart.Insert(true);
 
-        Exit(ActionExtractDateTimePart.ID);
+        exit(ActionExtractDateTimePart.ID);
     end;
 
     procedure DeleteExtractDateTimePart(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -874,9 +782,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionLengthOfString."Case ID" := CaseID;
         ActionLengthOfString."Script ID" := ScriptID;
         ActionLengthOfString.ID := CreateGuid();
-        ActionLengthOfString.Insert();
+        ActionLengthOfString.Insert(true);
 
-        Exit(ActionLengthOfString.ID);
+        exit(ActionLengthOfString.ID);
     end;
 
     procedure DeleteLengthOfString(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -901,9 +809,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionConvertCase."Case ID" := CaseID;
         ActionConvertCase."Script ID" := ScriptID;
         ActionConvertCase.ID := CreateGuid();
-        ActionConvertCase.Insert();
+        ActionConvertCase.Insert(true);
 
-        Exit(ActionConvertCase.ID);
+        exit(ActionConvertCase.ID);
     end;
 
     procedure DeleteConvertCaseOfString(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -928,9 +836,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionRoundNumber."Case ID" := CaseID;
         ActionRoundNumber."Script ID" := ScriptID;
         ActionRoundNumber.ID := CreateGuid();
-        ActionRoundNumber.Insert();
+        ActionRoundNumber.Insert(true);
 
-        Exit(ActionRoundNumber.ID);
+        exit(ActionRoundNumber.ID);
     end;
 
     procedure DeleteRoundNumber(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -956,9 +864,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionNumberExpression."Script ID" := CaseID;
         ActionNumberExpression.ID := CreateGuid();
         ActionNumberExpression."Script ID" := ScriptID;
-        ActionNumberExpression.Insert();
+        ActionNumberExpression.Insert(true);
 
-        Exit(ActionNumberExpression.ID);
+        exit(ActionNumberExpression.ID);
     end;
 
     procedure DeleteNumericExpression(CaseID: Guid; ScriptID: Guid; ID: Guid);
@@ -983,9 +891,9 @@ codeunit 20166 "Script Entity Mgmt."
         ActionStringExpression."Case ID" := CaseID;
         ActionStringExpression."Script ID" := ScriptID;
         ActionStringExpression.ID := CreateGuid();
-        ActionStringExpression.Insert();
+        ActionStringExpression.Insert(true);
 
-        Exit(ActionStringExpression.ID);
+        exit(ActionStringExpression.ID);
     end;
 
     procedure DeleteStringExpression(CaseID: Guid; ScriptID: Guid; ID: Guid);

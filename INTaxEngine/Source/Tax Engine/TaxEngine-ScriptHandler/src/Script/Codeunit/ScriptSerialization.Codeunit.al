@@ -3,10 +3,8 @@ codeunit 20167 "Script Serialization"
     var
         AppObjectHelper: Codeunit "App Object Helper";
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
-        ScriptDataTypeMgmt: Codeunit "Script Data Type Mgmt.";
         LookupSerialization: Codeunit "Lookup Serialization";
         LookupMgmt: Codeunit "Lookup Mgmt.";
-        EmptyGuid: Guid;
 
     procedure RuleActionToText(
         CaseID: Guid;
@@ -70,8 +68,6 @@ codeunit 20167 "Script Serialization"
                 EditorLineItemText := DateCalculationToString(CaseID, ScriptID, ActionID);
             ActionType::DATETODATETIME:
                 EditorLineItemText := DateToDateTimeToString(CaseID, ScriptID, ActionID);
-            ActionType::GETRECORD:
-                EditorLineItemText := GetRecordToString(CaseID, ScriptID, ActionID);
             ActionType::ALERTMESSAGE:
                 EditorLineItemText := AlertMessageToString(CaseID, ScriptID, ActionID);
             ActionType::EXTRACTDATEPART:
@@ -188,7 +184,6 @@ codeunit 20167 "Script Serialization"
         ActionLoopThroughRecords.GET(CaseID, ScriptID, ID);
         TableName := AppObjectHelper.GetObjectName(ObjectType::Table, ActionLoopThroughRecords."Table ID");
         TableFilters := LookupSerialization.TableFilterToString(CaseID, ScriptID, ActionLoopThroughRecords."Table Filter ID");
-        RecordVariable := ScriptSymbolsMgmt.GetSymbolName("Symbol Type"::Variable, ActionLoopThroughRecords."Record Variable");
 
         ActionLoopThroughRecField.Reset();
         ActionLoopThroughRecField.SetRange("Case ID", CaseID);
@@ -597,60 +592,6 @@ codeunit 20167 "Script Serialization"
         exit(StrSubstNo(DateToDateTimeLbl, DateText, TimeText, EncodeName(VariableName)))
     end;
 
-    procedure GetRecordToString(CaseID: Guid; ScriptID: Guid; ID: Guid): Text;
-    var
-        ActionGetRecord: Record "Action Get Record";
-        ActionGetRecordField: Record "Action Get Record Field";
-        TableName: Text;
-        TableFilters: Text;
-        FieldName: Text;
-        VariableName: Text;
-        RecordFieldText: Text;
-        FieldRecordText: Text;
-        RecordVariable: Text;
-        GetRecordLbl: Label 'Get a record from %1 %2%3%4',
-            Comment = '%1 = Table Name, %2 = Table Filters, %3 = Record Field Name, %4 = Record Variable';
-        RecordVariableLbl: Label 'Assign Values to Variable: %1', Comment = '%1 = Record Variable';
-        FieldNameLbl: Label 'Field: %1 to Variable: %2', Comment = '%1 = Field Name, %2 = Record Variable';
-        TableFiltersLbl: Label 'where %1', Comment = '%1 = Table Filters';
-        RecordFieldTxtLbl: Label '(Assign %1)', Comment = '%1 = Record Field Name';
-    begin
-        ActionGetRecord.GET(CaseID, ScriptID, ID);
-        TableName := AppObjectHelper.GetObjectName(ObjectType::Table, ActionGetRecord."Table ID");
-        TableFilters := LookupSerialization.TableFilterToString(CaseID, ScriptID, ActionGetRecord."Table Filter ID");
-        RecordVariable := ScriptSymbolsMgmt.GetSymbolName("Symbol Type"::Variable, ActionGetRecord."Record Variable");
-
-        ActionGetRecordField.Reset();
-        ActionGetRecordField.SetRange("Case ID", CaseID);
-        ActionGetRecordField.SetRange("Script ID", ScriptID);
-        ActionGetRecordField.SetRange("Get Record ID", ID);
-        if ActionGetRecordField.FindSet() then
-            repeat
-                FieldName := AppObjectHelper.GetFieldName(ActionGetRecordField."Table ID", ActionGetRecordField."Field ID");
-                VariableName := ScriptSymbolsMgmt.GetSymbolName("Symbol Type"::Variable, ActionGetRecordField."Variable ID");
-                FieldRecordText := StrSubstNo(FieldNameLbl, EncodeName(FieldName), EncodeName(VariableName));
-                if RecordFieldText <> '' then
-                    RecordFieldText += ', ';
-                RecordFieldText += FieldRecordText;
-            until ActionGetRecordField.Next() = 0;
-
-        if TableFilters <> '' then
-            TableFilters := StrSubstNo(TableFiltersLbl, TableFilters);
-
-        if RecordFieldText <> '' then
-            RecordFieldText := StrSubstNo(RecordFieldTxtLbl, RecordFieldText);
-
-        if RecordVariable <> '' then
-            RecordVariable := StrSubstNo(RecordVariableLbl, EncodeName(RecordVariable));
-
-        exit(StrSubstNo(
-            GetRecordLbl,
-            EncodeName(TableName),
-            TableFilters,
-            RecordFieldText,
-            RecordVariable));
-    end;
-
     procedure AlertMessageToString(CaseID: Guid; ScriptID: Guid; ID: Guid): Text;
     var
         ActionMessage: Record "Action Message";
@@ -874,27 +815,6 @@ codeunit 20167 "Script Serialization"
 
     end;
 
-    procedure FieldFilterToString(LookupFieldFilter: Record "Lookup Field Filter"): Text;
-    var
-        FieldDatatype: Enum "Symbol Data Type";
-        FieldName2: Text;
-        Value2: Text;
-        FilterLbl: Label '%1 %2 %3', Comment = '%1 = Field Name, %2 = Filter Type, %3, Filter Value';
-    begin
-        FieldDatatype := ScriptDataTypeMgmt.GetFieldDatatype(LookupFieldFilter."Table ID", LookupFieldFilter."Field ID");
-
-        FieldName2 := AppObjectHelper.GetFieldName(LookupFieldFilter."Table ID", LookupFieldFilter."Field ID");
-        Value2 := LookupSerialization.ConstantOrLookupText(
-            LookupFieldFilter."Case ID",
-            LookupFieldFilter."Script ID",
-            LookupFieldFilter."Value Type",
-            LookupFieldFilter.Value,
-            LookupFieldFilter."Lookup ID",
-            FieldDatatype);
-
-        exit(StrSubstNo(FilterLbl, FieldName2, LookupFieldFilter."Filter Type", Value2));
-    end;
-
     procedure TableSortingToString(CaseID: Guid; ScriptID: Guid; ID: Guid): Text;
     var
         LookupTableSorting: Record "Lookup Table Sorting";
@@ -1043,49 +963,16 @@ codeunit 20167 "Script Serialization"
         exit(ConditionText);
     end;
 
-    local procedure GetRecordFieldName(CaseID: Guid; ScriptID: Guid; VariableID: Integer; FieldID: Integer): Text;
-    var
-        ScriptRecordVariable: Record "Script Record Variable";
-    begin
-        ScriptRecordVariable.Reset();
-        ScriptRecordVariable.SetRange("Case ID", CaseID);
-        ScriptRecordVariable.SetRange("Script ID", ScriptID);
-        ScriptRecordVariable.SetRange("Variable ID", VariableID);
-        ScriptRecordVariable.SetRange(ID, FieldID);
-        if ScriptRecordVariable.FindFirst() then
-            exit(ScriptRecordVariable.Name);
-
-        exit('');
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Lookup Serialization", 'OnSerializeLookupToString', '', false, false)]
     local procedure OnSerializeLookupToString(
         ScriptSymbolLookup: Record "Script Symbol Lookup";
         var SerializedText: Text)
     var
         TableFieldName: Text;
-        VariableName: Text;
-        FieldVariableName: Text;
-        RecordVariableLbl: Label '''%1'' from ''%2''', Comment = '%1 = Field Name, %2 = Table Name,';
-        //        SymbolLbl: Label '%1 %2', Comment = '%1 = Symbol Name, %2 = Source Type';
         SymbolLbl: Label '%1: %2', Comment = '%1 = Source type, %2 = Variable name';
     begin
         ScriptSymbolsMgmt.SetContext(ScriptSymbolLookup."Case ID", ScriptSymbolLookup."Script ID");
         case ScriptSymbolLookup."Source Type" of
-            ScriptSymbolLookup."Source Type"::"Record Variable":
-                begin
-                    VariableName := ScriptSymbolsMgmt.GetSymbolName(
-                        "Symbol Type"::Variable,
-                        ScriptSymbolLookup."Source ID");
-
-                    FieldVariableName := GetRecordFieldName(
-                        ScriptSymbolLookup."Case ID",
-                        ScriptSymbolLookup."Script ID",
-                        ScriptSymbolLookup."Source ID",
-                        ScriptSymbolLookup."Source Field ID");
-
-                    SerializedText := StrSubstNo(RecordVariableLbl, EncodeName(VariableName), EncodeName(FieldVariableName));
-                end;
             ScriptSymbolLookup."Source Type"::Variable:
                 begin
                     TableFieldName := ScriptSymbolsMgmt.GetSymbolName(ScriptSymbolLookup."Source Type", ScriptSymbolLookup."Source Field ID");

@@ -2,11 +2,8 @@ codeunit 20301 "Tax Document Stats Mgmt."
 {
     procedure UpdateTaxComponent(RecordIDList: List of [RecordID]; var ComponentSummary: Record "Tax Component Summary" temporary)
     var
-        TaxTransactionValue: Record "Tax Transaction Value";
-        UseCaseID: Guid;
         CaseIDList: List of [Guid];
         i: Integer;
-        UseCaseDescription: Text[2000];
     begin
         ComponentSummary.Reset();
         ComponentSummary.DeleteAll();
@@ -50,7 +47,6 @@ codeunit 20301 "Tax Document Stats Mgmt."
         TaxTransactionValue: Record "Tax Transaction Value";
         UseCaseID: Guid;
     begin
-        TaxTransactionValue.Reset();
         TaxTransactionValue.SetCurrentKey("Case ID", "Tax Record ID", "Value ID");
         TaxTransactionValue.SetRange("Tax Record ID", RecId);
         TaxTransactionValue.SetFilter("Value Type", '%1', TaxTransactionValue."Value Type"::Component);
@@ -72,9 +68,8 @@ codeunit 20301 "Tax Document Stats Mgmt."
 
     local procedure FillComponentBuffer(TaxTransactionValue: Record "Tax Transaction Value")
     var
-        TaxComponent: Record "Tax Component";
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
-        TaxRateComputation: Codeunit "Tax Rate Computation";
+        TaxTypeObjHelper: Codeunit "Tax Type Object Helper";
     begin
         LineCounter += 1;
         ScriptSymbolsMgmt.SetContext(TaxTransactionValue."Tax Type", TaxTransactionValue."Case ID", EmptyGuid);
@@ -92,14 +87,11 @@ codeunit 20301 "Tax Document Stats Mgmt."
             TempTaxComponentSummary2."Name" := ScriptSymbolsMgmt.GetSymbolName("Symbol Type"::Component, TaxTransactionValue."Value ID");
             TempTaxComponentSummary2."Component %" := TaxTransactionValue.Percent;
 
-            TaxComponent.Get(TaxTransactionValue."Tax Type", TaxTransactionValue."Value ID");
-            TempTaxComponentSummary2.Amount := TaxRateComputation.RoundAmount(TaxTransactionValue.Amount, TaxComponent."Rounding Precision", TaxComponent.Direction);
-
+            TempTaxComponentSummary2.Amount := TaxTypeObjHelper.GetComponentAmountFrmTransValue(TaxTransactionValue);
             TempTaxComponentSummary2."Indentation Level" := 1;
             TempTaxComponentSummary2.Insert();
         end else begin
-            TaxComponent.Get(TaxTransactionValue."Tax Type", TaxTransactionValue."Value ID");
-            TempTaxComponentSummary2.Amount += TaxRateComputation.RoundAmount(TaxTransactionValue.Amount, TaxComponent."Rounding Precision", TaxComponent.Direction);
+            TempTaxComponentSummary2.Amount += TaxTypeObjHelper.GetComponentAmountFrmTransValue(TaxTransactionValue);
             TempTaxComponentSummary2.Modify();
         end;
     end;

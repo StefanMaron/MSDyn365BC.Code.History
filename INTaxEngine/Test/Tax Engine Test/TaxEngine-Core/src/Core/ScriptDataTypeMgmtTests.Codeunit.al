@@ -58,7 +58,6 @@ codeunit 136702 "Script Data Type Mgmt. Tests"
         TrueResult: Boolean;
         FalseResult: Boolean;
         YesResult: Boolean;
-        NoResult: Boolean;
         TextResult: Boolean;
     begin
         // [SCENARIO] Check given text is a boolean.
@@ -111,8 +110,6 @@ codeunit 136702 "Script Data Type Mgmt. Tests"
         TextResult: Boolean;
     begin
         // [SCENARIO] Check given text is Time or not.
-
-        // [THEN] It should return true if the text is a valid Time
 
         // [GIVEN] A Valid Time value
         TimeText := Format(Time());
@@ -228,7 +225,6 @@ codeunit 136702 "Script Data Type Mgmt. Tests"
         ScriptDataTypeMgmt: Codeunit "Script Data Type Mgmt.";
         TextValue: Text;
         Result: Decimal;
-        TextResult: Boolean;
     begin
         // [SCENARIO] Convert Text to Number
 
@@ -419,7 +415,6 @@ codeunit 136702 "Script Data Type Mgmt. Tests"
         BlobFieldRef: FieldRef;
         VariantValue: Variant;
         TextToWrite: Text;
-        FieldValue: Text;
         Result: Text;
     begin
         // [SCENARIO] Convert Variant to Text
@@ -810,7 +805,6 @@ codeunit 136702 "Script Data Type Mgmt. Tests"
         AllObj: Record AllObj;
         ScriptDataTypeMgmt: Codeunit "Script Data Type Mgmt.";
         Result: Text;
-        OptionString: Text;
     begin
         // [SCENARIO] Get Option Text from a Table Field at an Index
         // [GIVEN] Table - AllObj and Field - Objet Type, Index - 0
@@ -847,7 +841,6 @@ codeunit 136702 "Script Data Type Mgmt. Tests"
         ScriptDataTypeMgmt: Codeunit "Script Data Type Mgmt.";
         OptionString: Text;
         OptionList: List of [Text];
-        Result: Integer;
     begin
         // [SCENARIO] Convert OptionString to List of Text
 
@@ -1059,7 +1052,6 @@ codeunit 136702 "Script Data Type Mgmt. Tests"
     procedure TestIsPrimitiveDatatype()
     var
         ScriptDataTypeMgmt: Codeunit "Script Data Type Mgmt.";
-        DateText: Text;
         NumberResult: Boolean;
         OptionResult: Boolean;
         BooleanResult: Boolean;
@@ -1093,7 +1085,6 @@ codeunit 136702 "Script Data Type Mgmt. Tests"
         // [SCENARIO] Checks the datatype of the constant value
 
         // [THEN] It should not throw any error.
-
 
         // [GIVEN] Constant Value, Datatype
         DateText := Format(WorkDate(), 0, 9);
@@ -1433,7 +1424,6 @@ codeunit 136702 "Script Data Type Mgmt. Tests"
         NumberValue: Decimal;
         TextValue: Text[250];
         ExpectedResult: Text;
-        Result: Text;
     begin
         // [SCENARIO] Formats Attribute Value Text
 
@@ -1456,7 +1446,6 @@ codeunit 136702 "Script Data Type Mgmt. Tests"
         DataType: Option Option,Text,Integer,Decimal,Boolean,Date;
         TextValue: Text[250];
         ExpectedResult: Text;
-        Result: Text;
     begin
         // [SCENARIO] Formats Attribute Value Text
 
@@ -1478,7 +1467,6 @@ codeunit 136702 "Script Data Type Mgmt. Tests"
         DataType: Option Option,Text,Integer,Decimal,Boolean,Date;
         TextValue: Text[250];
         ExpectedResult: Text;
-        Result: Text;
     begin
         // [SCENARIO] Formats Attribute Value Text
 
@@ -1500,7 +1488,6 @@ codeunit 136702 "Script Data Type Mgmt. Tests"
         DataType: Option Option,Text,Integer,Decimal,Boolean,Date;
         TextValue: Text[250];
         ExpectedResult: Text;
-        Result: Text;
     begin
         // [SCENARIO] Formats Attribute Value Text
 
@@ -1524,7 +1511,7 @@ codeunit 136702 "Script Data Type Mgmt. Tests"
         RecRef: RecordRef;
         FieldRef: FieldRef;
         CaseID, ScriptID, LookupID : Guid;
-        ExpectedResult, ActualResult, Result : Text;
+        ExpectedResult, ActualResult : Text;
     begin
         // [SCENARIO] Get OptionString from a Lookup
 
@@ -1552,12 +1539,8 @@ codeunit 136702 "Script Data Type Mgmt. Tests"
         RecRef: RecordRef;
         FieldRef: FieldRef;
         TableMethod: Option " ",First,Last,"Sum","Average","Min","Max","Count","Exist";
-        CaseID: Guid;
-        ScriptID: Guid;
-        LookupID: Guid;
-        ExpectedResult: Text;
-        ActualResult: Text;
-        Result: Text;
+        CaseID, ScriptID, LookupID : Guid;
+        ExpectedResult, ActualResult : Text;
     begin
         // [SCENARIO] Get OptionString from a Lookup
 

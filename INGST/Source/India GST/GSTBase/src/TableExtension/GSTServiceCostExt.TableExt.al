@@ -5,26 +5,24 @@ tableextension 18011 "GST Service Cost Ext" extends "Service Cost"
         field(18000; "GST Group Code"; code[20])
         {
             Caption = 'GST Group Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "GST Group";
         }
         field(18001; "HSN/SAC Code"; code[10])
         {
             Caption = 'HSN/SAC Code';
-            DataClassification = EndUserIdentifiableInformation;
-            TableRelation = "HSN/SAC".Code WHERE("GST Group Code" = FIELD("GST Group Code"));
+            DataClassification = CustomerContent;
+            TableRelation = "HSN/SAC".Code where("GST Group Code" = field("GST Group Code"));
         }
         field(18002; "GST Credit Availment"; Boolean)
         {
             Caption = 'GST Credit';
-            DataClassification = EndUserIdentifiableInformation;
-
+            DataClassification = CustomerContent;
         }
         field(18003; Exempted; boolean)
         {
             Caption = 'Exempted';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
-
 }

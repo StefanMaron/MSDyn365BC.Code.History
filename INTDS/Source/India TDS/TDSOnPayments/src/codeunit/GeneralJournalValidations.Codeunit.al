@@ -1,17 +1,14 @@
 codeunit 18766 "General Journal Validations"
 {
-
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'TDS Section Code', false, false)]
     local procedure OnAfterValidateTDSSectionCode(var Rec: Record "Gen. Journal Line")
     var
-        CompanyInfo: Record "Company Information";
-        Location: Record Location;
         Vendor: Record Vendor;
         AllowedSections: Record "Allowed Sections";
         TDSSection: Record "TDS Section";
         CustomerAllowedSections: Record "Customer Allowed Sections";
     begin
-        if (Rec."Document Type" IN [Rec."Document Type"::Invoice, Rec."Document Type"::Payment]) then begin
+        if (Rec."Document Type" in [Rec."Document Type"::Invoice, Rec."Document Type"::Payment]) then begin
             if Rec."TDS Section Code" = '' then
                 exit;
 
@@ -39,6 +36,7 @@ codeunit 18766 "General Journal Validations"
 
         if Rec."Account Type" = Rec."Account Type"::Customer then begin
             Rec.TestField("TDS Certificate Receivable");
+
             if not CustomerAllowedSections.Get(Rec."Account No.", Rec."TDS Section Code") then
                 CustomerAllowedSections.TestField("TDS Section");
         end;
@@ -46,31 +44,10 @@ codeunit 18766 "General Journal Validations"
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'Location Code', false, false)]
     local procedure OnAfterValidateLocationCode(var Rec: Record "Gen. Journal Line")
-    var
-        CompanyInfo: Record "Company Information";
-        Location: Record Location;
-        Vendor: Record Vendor;
-        AllowedSections: Record "Allowed Sections";
     begin
-        if (Rec."Document Type" IN [Rec."Document Type"::Invoice, Rec."Document Type"::Payment]) and
+        if (Rec."Document Type" in [Rec."Document Type"::Invoice, Rec."Document Type"::Payment]) and
             (Rec."Account Type" = Rec."Account Type"::Vendor) then
             UpdateTANNoOnGenJnlLine(Rec);
-    end;
-
-    local procedure UpdateTANNoOnGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
-    var
-        CompanyInfo: Record "Company Information";
-        Location: Record Location;
-    begin
-        CompanyInfo.get();
-        if GenJournalLine."Location Code" <> '' then begin
-            Location.Get(GenJournalLine."Location Code");
-            if Location."T.A.N. No." <> '' then
-                GenJournalLine."T.A.N. No." := Location."T.A.N. No."
-            else
-                GenJournalLine."T.A.N. No." := CompanyInfo."T.A.N. No.";
-        end else
-            GenJournalLine."T.A.N. No." := CompanyInfo."T.A.N. No.";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Handler", 'OnBeforeGenJnlLinePostFromTaxEngine', '', false, false)]
@@ -88,12 +65,44 @@ codeunit 18766 "General Journal Validations"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Handler", 'OnAfterGenJnlLinePostFromTaxEngine', '', false, false)]
     local procedure OnAfterGenJnlLinePostFromTaxEngine(var GenJnlLine: Record "Gen. Journal Line")
-    var
-        CalculateTax: Codeunit "Calculate Tax";
     begin
         if GenJnlLine."TDS Section Code" = '' then
             exit;
 
         GenJnlLine."TDS Posting to G/L" := false;
+    end;
+
+    local procedure UpdateTANNoOnGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        Location: Record Location;
+    begin
+        if GenJournalLine."Location Code" <> '' then begin
+            Location.Get(GenJournalLine."Location Code");
+            if Location."T.A.N. No." <> '' then
+                GenJournalLine."T.A.N. No." := Location."T.A.N. No."
+            else
+                GenJournalLine."T.A.N. No." := GetCompanyTANNo();
+        end else
+            GenJournalLine."T.A.N. No." := GetCompanyTANNo();
+    end;
+
+    local procedure GetCompanyTANNo(): Code[10]
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        exit(CompanyInformation."T.A.N. No.");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'Document Type', false, false)]
+    local procedure OnAfterValidateDocumentType(var Rec: Record "Gen. Journal Line")
+    var
+        CalculateTax: Codeunit "Calculate Tax";
+    begin
+        Rec."Include GST in TDS Base" := false;
+        if Rec."TDS Section Code" = '' then
+            exit;
+
+        CalculateTax.CallTaxEngineOnGenJnlLine(Rec, Rec);
     end;
 }

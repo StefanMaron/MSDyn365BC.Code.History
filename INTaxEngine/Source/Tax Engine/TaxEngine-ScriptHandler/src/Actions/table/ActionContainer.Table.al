@@ -8,12 +8,12 @@ table 20159 "Action Container"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; "Container Type"; Enum "Container Action Type")
@@ -23,7 +23,7 @@ table 20159 "Action Container"
         }
         field(4; "Container Action ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Container Action ID';
         }
         field(5; "Line No."; Integer)
@@ -38,7 +38,7 @@ table 20159 "Action Container"
         }
         field(7; "Action ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Action ID';
         }
     }
@@ -53,13 +53,6 @@ table 20159 "Action Container"
         {
         }
     }
-
-    trigger OnModify()
-    var
-        ScriptSymbolStore: Codeunit "Script Symbol Store";
-    begin
-        ScriptSymbolStore.OnBeforeValidateIfUpdateIsAllowed("Case ID");
-    end;
 
     trigger OnDelete();
     var

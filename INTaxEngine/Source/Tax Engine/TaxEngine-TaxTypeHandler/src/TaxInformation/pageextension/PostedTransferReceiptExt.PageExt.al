@@ -2,8 +2,7 @@ pageextension 20247 "Posted Transfer Receipt Ext" extends "Posted Transfer Recei
 {
     layout
     {
-
-        addbefore(Control1900383207)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

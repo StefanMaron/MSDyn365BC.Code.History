@@ -172,7 +172,7 @@ codeunit 20343 "Tax Posting Buffer Mgmt."
         TempTaxPostingBuffer."Tax Id" := TaxID;
         TempTaxPostingBuffer."Case ID" := TaxTransactionValue."Case ID";
         TempTaxPostingBuffer."Tax Type" := TaxTransactionValue."Tax Type";
-        TempTaxPostingBuffer.validate(TempTaxPostingBuffer."Account No.", GlAccNo);
+        TempTaxPostingBuffer.Validate(TempTaxPostingBuffer."Account No.", GlAccNo);
         TempTaxPostingBuffer.Validate(TempTaxPostingBuffer."Gen. Bus. Posting Group", GenBusPostingGrp);
         TempTaxPostingBuffer.Validate(TempTaxPostingBuffer."Gen. Prod. Posting Group", GenProdPostingGrp);
         TempTaxPostingBuffer.Validate(TempTaxPostingBuffer."Component ID", TaxTransactionValue."Value ID");
@@ -192,6 +192,8 @@ codeunit 20343 "Tax Posting Buffer Mgmt."
             TempTaxPostingBuffer.Amount := -TaxTransactionValue.Amount;
             TempTaxPostingBuffer."Amount (LCY)" := -TaxTransactionValue."Amount (LCY)";
         end;
+        if not TaxComponent."Skip Posting" then
+            TotalTaxAmount += TempTaxPostingBuffer.Amount;
         TempTaxPostingBuffer.Insert();
         FillGroupedTaxBuffer(TempTaxPostingBuffer, Quantity, InvoiceQty);
     end;
@@ -230,14 +232,6 @@ codeunit 20343 "Tax Posting Buffer Mgmt."
                 InvoiceQty);
         end;
 
-    end;
-
-    procedure GetTaxComponentRecordID(TaxID: Guid; ComponentID: Integer; var RecID: RecordId)
-    begin
-        TempTaxPostingBuffer.SetRange("Tax Id", TaxID);
-        TempTaxPostingBuffer.SetRange("Component ID", ComponentID);
-        if TempTaxPostingBuffer.FindFirst() then
-            RecID := TempTaxPostingBuffer."Tax Record ID";
     end;
 
     procedure GetGroupTaxJournal(TaxID: Guid; var TempGroupTaxPostingBuffer2: Record "Transaction Posting Buffer")
@@ -290,18 +284,7 @@ codeunit 20343 "Tax Posting Buffer Mgmt."
         exit(0);
     end;
 
-    procedure GetComponentAmount(TaxTypeCode: Code[20]; TaxID: Guid; ComponentID: Integer; RecID: RecordId): Decimal
-    begin
-        TempTaxPostingBuffer.Reset();
-        TempTaxPostingBuffer.SetRange("Tax Id", TaxID);
-        TempTaxPostingBuffer.SetRange("Tax Record ID", RecID);
-        TempTaxPostingBuffer.SetRange("Tax Type", TaxTypeCode);
-        TempTaxPostingBuffer.SetRange("Component ID", ComponentID);
-        if TempTaxPostingBuffer.FindFirst() then
-            Exit(TempTaxPostingBuffer.Amount);
-    end;
-
-    local procedure TransferTRansactionValue(
+    local procedure TransferTransactionValue(
         GroupID: Guid;
         TempTaxPostingBuffer: Record "Transaction Posting Buffer" temporary;
         Quantity: Decimal;
@@ -313,7 +296,6 @@ codeunit 20343 "Tax Posting Buffer Mgmt."
         TempTransactionValue.Reset();
         NextID := TempTransactionValue.Count();
 
-        TaxTransactionValue.Reset();
         TaxTransactionValue.SetRange("Tax Record ID", TempTaxPostingBuffer."Tax Record ID");
         TaxTransactionValue.SetRange("Case ID", TempTaxPostingBuffer."Case ID");
         if TaxTransactionValue.FindSet() then
@@ -353,20 +335,6 @@ codeunit 20343 "Tax Posting Buffer Mgmt."
             TaxTransactionValue.Amount := TaxTransactionValue."Amount (LCY)"
         else
             TaxTransactionValue.Amount := TaxTransactionValue."Amount (LCY)" * CurrencyFactor;
-    end;
-
-    procedure DivideComponentAmount(
-        TaxTransactionValue: Record "Tax Transaction Value";
-        Quantity: Decimal;
-        InvoiceQty: Decimal) TaxAmount: Decimal
-    var
-        TaxComponent: Record "Tax Component";
-        TaxRateComputation: Codeunit "Tax Rate Computation";
-    begin
-        TaxTransactionValue.Amount := (TaxTransactionValue.Amount / Quantity) * InvoiceQty;
-        TaxComponent.get(TaxTransactionValue."Tax Type", TaxTransactionValue."Value ID");
-        TaxTransactionValue."Amount (LCY)" := TaxRateComputation.RoundAmount(TaxTransactionValue."Amount (LCY)", TaxComponent."Rounding Precision", TaxComponent.Direction);
-        TaxAmount := TaxTransactionValue.Amount;
     end;
 
     procedure GetTransactionValues(GroupID: Guid; var TempTransactionValues2: Record "Tax Transaction Value" temporary)
@@ -438,14 +406,9 @@ codeunit 20343 "Tax Posting Buffer Mgmt."
         exit(TransactionTaxID);
     end;
 
-    [IntegrationEvent(true, false)]
-    local procedure OnBeforeSetComponentDefaultValue(RecID: RecordId; TaxTypeCode: Code[20]; var Symbols: Record "Script Symbol Value" temporary; TaxComponent: Record "Tax Component"; var Value: Variant)
+    procedure GetTotalTaxAmount(): Decimal
     begin
-    end;
-
-    [IntegrationEvent(true, false)]
-    local procedure OnBeforeSetComponentPercentDefaultValue(RecID: RecordId; TaxTypeCode: Code[20]; var Symbols: Record "Script Symbol Value" temporary; TaxComponent: Record "Tax Component"; var Value: Variant)
-    begin
+        exit(Abs(TotalTaxAmount));
     end;
 
     [IntegrationEvent(true, false)]
@@ -466,4 +429,5 @@ codeunit 20343 "Tax Posting Buffer Mgmt."
         DataTypeMgmt: Codeunit "Use Case Data Type Mgmt.";
         TransactionTaxID: Guid;
         PostingDocument: Variant;
+        TotalTaxAmount: Decimal;
 }

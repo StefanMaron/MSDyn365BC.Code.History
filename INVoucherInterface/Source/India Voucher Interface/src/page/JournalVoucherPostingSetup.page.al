@@ -16,17 +16,19 @@ page 18930 "Journal Voucher Posting Setup"
                 {
                     Caption = 'Type';
                     ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the type of the journal template being created.';
                 }
                 field("Posting No. Series"; "Posting No. Series")
                 {
                     Caption = 'Posting No. Series';
                     ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies code of the number series that will be used to assign document numbers to ledger entries that are posted from this journal batch.';
                 }
                 field("Transaction Direction"; "Transaction Direction")
                 {
                     Caption = 'Transaction Direction';
                     ApplicationArea = Basic, Suite;
-
+                    ToolTip = 'Specifies the type of transaction directions such as debit or credit.';
                     trigger OnValidate()
                     begin
                         SetActionEditable();
@@ -46,6 +48,7 @@ page 18930 "Journal Voucher Posting Setup"
                 PromotedOnly = true;
                 ApplicationArea = Basic, Suite;
                 Caption = 'Debit Account';
+                ToolTip = 'Specifies the account type and account number for debit transaction.';
                 Image = ChartOfAccounts;
                 Enabled = DebitActionEditable;
                 Promoted = true;
@@ -57,6 +60,7 @@ page 18930 "Journal Voucher Posting Setup"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Credit Account';
+                ToolTip = 'Specifies the account type and account number for credit transaction.';
                 Image = ChartOfAccounts;
                 Enabled = CreditActionEditable;
                 Promoted = true;

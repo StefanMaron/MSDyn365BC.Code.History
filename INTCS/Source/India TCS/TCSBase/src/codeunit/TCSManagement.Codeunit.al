@@ -1,115 +1,46 @@
 codeunit 18807 "TCS Management"
 {
+    var
+        AccountingPeriodErr: Label 'Posting Date doesn''t lie in Tax Accounting Period', Locked = true;
+        PANNOErr: Label 'The Customer P.A.N. is invalid.';
+        PANReferenceEmptyErr: Label 'The P.A.N. Reference No. field must be filled for the customer.';
+        NOCAccountTypeErr: Label '%1 cannot be entered for %2 %3.', Comment = '%1=TCS Nature of Collection Caption., %2= Account type Field Caption. %3=Value of Account Type.';
+        NOCTypeErr: Label '%1 does not exist in table %2.', Comment = '%1=TCS Nature of Collection Value, %2=TCS NOC Table Caption';
+        TCSNOCErr: Label 'TCS Nature of Collection %1 is not defined for Customer no. %2.', Comment = '%1= TCS Nature of Collection, %2= Customer No.';
+
     procedure OpenTCSEntries(FromEntry: Integer; ToEntry: Integer)
     var
-        TCSEntries: Record "TCS Entry";
+        TCSEntry: Record "TCS Entry";
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Entry No.", FromEntry, ToEntry);
         if GLEntry.FindFirst() then begin
-            TCSEntries.SetRange("Transaction No.", GLEntry."Transaction No.");
-            PAGE.RUN(0, TCSEntries);
+            TCSEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
+            Page.Run(0, TCSEntry);
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnbeforePostGenJnlLine', '', false, false)]
-    local procedure CheckTCSValidation(var GenJournalLine: Record "Gen. Journal Line")
-    begin
-        if GenJournalLine."TCS Nature of Collection" <> '' then begin
-            CheckPANValidatins(GenJournalLine);
-            CheckCompInfoDetails();
-            CheckTaxAccountingPeriod(GenJournalLine);
-        END;
-    end;
-
-    local procedure CheckPANValidatins(GenJournalLine: Record "Gen. Journal Line")
-    var
-        Customer: Record Customer;
-    begin
-        GenJournalLine.TestField("T.C.A.N. No.");
-        if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer then
-            Customer.get(GenJournalLine."Account No.")
-        else
-            Customer.get(GenJournalLine."Bal. Account No.");
-        IF STRLEN(Customer."P.A.N. No.") <> 10 then
-            ERROR(PANNOErr);
-        IF (Customer."P.A.N. No." = '') OR (Customer."P.A.N. Status" <> Customer."P.A.N. Status"::" ") then
-            IF (Customer."P.A.N. Status" <> Customer."P.A.N. Status"::" ") AND (Customer."P.A.N. Reference No." = '') then
-                ERROR(PANReferenceEmptyErr);
-    end;
-
-    local procedure CheckCompInfoDetails()
-    var
-        CompanyInfo: Record "Company Information";
-        DeductorCategory: Record "Deductor Category";
-    begin
-        CompanyInfo.get();
-        CompanyInfo.TestField("Deductor Category");
-        CompanyInfo.TestField("T.C.A.N. No.");
-        CompanyInfo.TestField("P.A.N. No.");
-        CompanyInfo.TestField("State Code");
-        CompanyInfo.TestField("Post Code");
-        DeductorCategory.GET(CompanyInfo."Deductor Category");
-        IF DeductorCategory."DDO Code Mandatory" then begin
-            CompanyInfo.TestField("DDO Code");
-            CompanyInfo.TestField("DDO Registration No.");
-        END;
-        IF DeductorCategory."PAO Code Mandatory" then begin
-            CompanyInfo.TestField("PAO Code");
-            CompanyInfo.TestField("PAO Registration No.");
-        END;
-        IF DeductorCategory."Ministry Details Mandatory" then begin
-            CompanyInfo.TestField("Ministry Type");
-            CompanyInfo.TestField("Ministry Code");
-        END
-    end;
-
-    local procedure CheckTaxAccountingPeriod(GeneralJnlLine: Record "Gen. Journal Line")
-    var
-        TaxAccountingPeriod: Record "Tax Accounting Period";
-        TCSSetup: Record "TCS Setup";
-        TaxType: Record "Tax Type";
-        AccountingStartDate: Date;
-        AccountingEndDate: Date;
-    begin
-        if not TCSSetup.Get() then
-            exit;
-        TCSSetup.TestField("Tax Type");
-
-        TaxType.Get(TCSSetup."Tax Type");
-
-        TaxAccountingPeriod.SetCurrentKey("Starting Date");
-        TaxAccountingPeriod.SetRange("Tax Type Code", TaxType."Accounting Period");
-        TaxAccountingPeriod.SetRange(Closed, false);
-        if TaxAccountingPeriod.FindFirst() then
-            AccountingStartDate := TaxAccountingPeriod."Starting Date";
-
-        if TaxAccountingPeriod.FindLast() then
-            AccountingEndDate := TaxAccountingPeriod."Ending Date";
-
-        if (GeneralJnlLine."Posting Date" < AccountingStartDate) or (GeneralJnlLine."Posting Date" > AccountingEndDate) then
-            Error(AccountingPeriodErr);
-    end;
-
     procedure ConvertTCSAmountToLCY(
-       CurrencyCode: Code[10];
-       Amount: Decimal;
-       CurrencyFactor: Decimal;
-       PostingDate: Date): Decimal
+        CurrencyCode: Code[10];
+        Amount: Decimal;
+        CurrencyFactor: Decimal;
+        PostingDate: Date): Decimal
     var
-        CurrExchRate: record "Currency Exchange Rate";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
         TaxComponent: Record "Tax Component";
         TCSSetup: Record "TCS Setup";
     begin
-        if not TCSSetup.get() then
+        if not TCSSetup.Get() then
             exit;
+
         TCSSetup.TestField("Tax Type");
 
         TaxComponent.SetRange("Tax Type", TCSSetup."Tax Type");
         TaxComponent.SetRange(Name, TCSSetup."Tax Type");
         TaxComponent.FindFirst();
-        exit(ROUND(
-        CurrExchRate.ExchangeAmtFCYToLCY(
+
+        exit(Round(
+        CurrencyExchangeRate.ExchangeAmtFCYToLCY(
         PostingDate, CurrencyCode, Amount, CurrencyFactor), TaxComponent."Rounding Precision"));
     end;
 
@@ -119,8 +50,9 @@ codeunit 18807 "TCS Management"
         TCSSetup: Record "TCS Setup";
         TCSRoundingDirection: Text;
     begin
-        if not TCSSetup.get() then
+        if not TCSSetup.Get() then
             exit;
+
         TCSSetup.TestField("Tax Type");
 
         TaxComponent.SetRange("Tax Type", TCSSetup."Tax Type");
@@ -134,7 +66,22 @@ codeunit 18807 "TCS Management"
             TaxComponent.Direction::Down:
                 TCSRoundingDirection := '<';
         end;
-        exit(ROUND(TCSAmount, TaxComponent."Rounding Precision", TCSRoundingDirection));
+
+        exit(Round(TCSAmount, TaxComponent."Rounding Precision", TCSRoundingDirection));
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnbeforePostGenJnlLine', '', false, false)]
+    local procedure CheckTCSValidation(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        if GenJournalLine."TCS Nature of Collection" = '' then
+            exit;
+
+        if GenJournalLine."System-Created Entry" then
+            exit;
+
+        CheckPANValidatins(GenJournalLine);
+        CheckCompInfoDetails();
+        CheckTaxAccountingPeriod(GenJournalLine);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'Account No.', false, false)]
@@ -144,39 +91,40 @@ codeunit 18807 "TCS Management"
     begin
         if Rec."Account Type" <> Rec."Account Type"::Customer then
             exit;
+
         AllowedNOC.SetRange("Customer No.", Rec."Account No.");
         AllowedNOC.SetRange(AllowedNOC."Default Noc", true);
         if not AllowedNOC.FindFirst() then
             Rec.Validate("TCS Nature of Collection", '')
         else
-            if Rec."Account Type" = Rec."Account Type"::Customer then
-                Rec.Validate("TCS Nature of Collection", AllowedNOC."TCS Nature of Collection");
+            Rec.Validate("TCS Nature of Collection", AllowedNOC."TCS Nature of Collection");
     end;
 
     [EventSubscriber(ObjectType::Table, database::"Gen. Journal Line", 'OnAfterValidateEvent', 'TCS Nature of Collection', false, false)]
     local procedure ChecKDefinedNOC(var Rec: Record "Gen. Journal Line")
     var
         AllowedNOC: Record "Allowed NOC";
-        CompanyInfo: Record "Company Information";
+        CompanyInformation: Record "Company Information";
         Location: Record Location;
-        TCSNOC: Record "TCS Nature Of Collection";
+        TCSNatureOfCollection: Record "TCS Nature Of Collection";
     begin
-        if Rec."TCS Nature of Collection" <> '' then begin
-            if Rec."Account Type" <> Rec."Account Type"::Customer then
-                Error(NOCAccountTypeErr, Rec.FieldCaption("TCS Nature of Collection"), Rec.FieldCaption("Account Type"), Rec."Account Type");
+        if Rec."TCS Nature of Collection" = '' then
+            exit;
 
-            if not TCSNOC.Get(Rec."TCS Nature of Collection") then
-                Error(NOCTypeErr, Rec."TCS Nature of Collection", TCSNOC.TableCaption());
+        if Rec."Account Type" <> Rec."Account Type"::Customer then
+            Error(NOCAccountTypeErr, Rec.FieldCaption("TCS Nature of Collection"), Rec.FieldCaption("Account Type"), Rec."Account Type");
 
-            if not AllowedNOC.Get(Rec."Account No.", Rec."TCS Nature of Collection") then
-                Error(TCSNOCErr, Rec."TCS Nature of Collection", Rec."Account No.");
+        if not TCSNatureOfCollection.Get(Rec."TCS Nature of Collection") then
+            Error(NOCTypeErr, Rec."TCS Nature of Collection", TCSNatureOfCollection.TableCaption());
 
-            CompanyInfo.GET();
-            Rec.Validate("T.C.A.N. No.", CompanyInfo."T.C.A.N. No.");
-            IF Rec."Location Code" <> '' then begin
-                Location.GET(Rec."Location Code");
-                Rec.Validate("T.C.A.N. No.", Location."T.C.A.N. No.");
-            end;
+        if not AllowedNOC.Get(Rec."Account No.", Rec."TCS Nature of Collection") then
+            Error(TCSNOCErr, Rec."TCS Nature of Collection", Rec."Account No.");
+
+        CompanyInformation.Get();
+        Rec.Validate("T.C.A.N. No.", CompanyInformation."T.C.A.N. No.");
+        if Rec."Location Code" <> '' then begin
+            Location.Get(Rec."Location Code");
+            Rec.Validate("T.C.A.N. No.", Location."T.C.A.N. No.");
         end;
     end;
 
@@ -200,8 +148,10 @@ codeunit 18807 "TCS Management"
 
         if not TCSSetup.Get() then
             exit;
+
         if TempTransValue."Tax Type" <> TCSSetup."Tax Type" then
             exit;
+
         TaxComponent.SetRange("Tax Type", TCSSetup."Tax Type");
         TaxComponent.SetRange(Name, ComponenetNameLbl);
         if not TaxComponent.FindFirst() then
@@ -209,7 +159,8 @@ codeunit 18807 "TCS Management"
 
         if TempTransValue."Value ID" <> TaxComponent.Id then
             exit;
-        TaxBaseSubscribers.OnAfterGetTCSAmount(TempTransValue.Amount);
+
+        TaxBaseSubscribers.GetTCSAmount(TempTransValue.Amount);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Tax Base Subscribers", 'OnAfterGetTCSAmountFromTransNo', '', false, false)]
@@ -224,11 +175,111 @@ codeunit 18807 "TCS Management"
         end;
     end;
 
+    local procedure CheckPANValidatins(GenJournalLine: Record "Gen. Journal Line")
     var
-        AccountingPeriodErr: Label 'Posting Date doesn''t lie in Tax Accounting Period', Locked = true;
-        PANNOErr: Label 'The Customer P.A.N. is invalid.';
-        PANReferenceEmptyErr: Label 'The P.A.N. Reference No. field must be filled for the customer.';
-        NOCAccountTypeErr: label '%1 cannot be entered for %2 %3.', Comment = '%1=TCS Nature of Collection Caption., %2= Account type Field Caption. %3=Value of Account Type.';
-        NOCTypeErr: Label '%1 does not exist in table %2.', Comment = '%1=TCS Nature of Collection Value, %2=TCS NOC Table Caption';
-        TCSNOCErr: Label 'TCS Nature of Collection %1 is not defined for Customer no. %2.', Comment = '%1= TCS Nature of Collection, %2= Customer No.';
+        Customer: Record Customer;
+        Location: Record Location;
+    begin
+        if Location.Get(GenJournalLine."Location Code") then
+            Location.TestField("T.C.A.N. No.");
+        GenJournalLine.TestField("T.C.A.N. No.");
+        if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer then
+            Customer.Get(GenJournalLine."Account No.")
+        else
+            Customer.Get(GenJournalLine."Bal. Account No.");
+
+        if StrLen(Customer."P.A.N. No.") <> 10 then
+            Error(PANNOErr);
+
+        if (Customer."P.A.N. No." = '') or (Customer."P.A.N. Status" <> Customer."P.A.N. Status"::" ") then
+            if (Customer."P.A.N. Status" <> Customer."P.A.N. Status"::" ") and (Customer."P.A.N. Reference No." = '') then
+                Error(PANReferenceEmptyErr);
+    end;
+
+    local procedure CheckCompInfoDetails()
+    var
+        CompanyInformation: Record "Company Information";
+        DeductorCategory: Record "Deductor Category";
+    begin
+        CompanyInformation.Get();
+        CompanyInformation.TestField("Deductor Category");
+        CompanyInformation.TestField("T.C.A.N. No.");
+        CompanyInformation.TestField("P.A.N. No.");
+        CompanyInformation.TestField("State Code");
+        CompanyInformation.TestField("Post Code");
+        DeductorCategory.Get(CompanyInformation."Deductor Category");
+
+        if DeductorCategory."DDO Code Mandatory" then begin
+            CompanyInformation.TestField("DDO Code");
+            CompanyInformation.TestField("DDO Registration No.");
+        end;
+
+        if DeductorCategory."PAO Code Mandatory" then begin
+            CompanyInformation.TestField("PAO Code");
+            CompanyInformation.TestField("PAO Registration No.");
+        end;
+
+        if DeductorCategory."Ministry Details Mandatory" then begin
+            CompanyInformation.TestField("Ministry Type");
+            CompanyInformation.TestField("Ministry Code");
+        end
+    end;
+
+    local procedure CheckTaxAccountingPeriod(GenJournalLine: Record "Gen. Journal Line")
+    var
+        TaxAccountingPeriod: Record "Tax Accounting Period";
+        TCSSetup: Record "TCS Setup";
+        TaxType: Record "Tax Type";
+        AccountingStartDate: Date;
+        AccountingEndDate: Date;
+    begin
+        if not TCSSetup.Get() then
+            exit;
+
+        TCSSetup.TestField("Tax Type");
+        TaxType.Get(TCSSetup."Tax Type");
+
+        TaxAccountingPeriod.SetCurrentKey("Starting Date");
+        TaxAccountingPeriod.SetRange("Tax Type Code", TaxType."Accounting Period");
+        TaxAccountingPeriod.SetRange(Closed, false);
+        if TaxAccountingPeriod.FindFirst() then
+            AccountingStartDate := TaxAccountingPeriod."Starting Date";
+
+        if TaxAccountingPeriod.FindLast() then
+            AccountingEndDate := TaxAccountingPeriod."Ending Date";
+
+        if (GenJournalLine."Posting Date" < AccountingStartDate) or (GenJournalLine."Posting Date" > AccountingEndDate) then
+            Error(AccountingPeriodErr);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'Document Type', false, false)]
+    local procedure OnAfterValidateDocumentType(var Rec: Record "Gen. Journal Line")
+    var
+        CalculateTax: Codeunit "Calculate Tax";
+    begin
+        Rec."Excl. GST in TCS Base" := false;
+        Rec."TCS On Recpt. Of Pmt. Amount" := 0;
+        if Rec."TCS Nature of Collection" = '' then
+            exit;
+
+        CalculateTax.CallTaxEngineOnGenJnlLine(Rec, Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
+    local procedure UpdateTotalTCSAmountInCustLedgerEntry(var Rec: Record "Cust. Ledger Entry")
+    var
+        TCSEntry: Record "TCS Entry";
+    begin
+        TCSEntry.SetRange("Transaction No.", Rec."Transaction No.");
+        TCSEntry.SetRange("TCS on Recpt. Of Pmt.", true);
+        TCSEntry.SetFilter("Document No.", '<>%1', Rec."Document No.");
+        if TCSEntry.FindFirst() then begin
+            if TCSEntry."Document Type" in [TCSEntry."Document Type"::Invoice, TCSEntry."Document Type"::Payment] then
+                Rec."Total TCS Including SHE CESS" -= Abs(TCSEntry."Total TCS Including SHE CESS");
+
+            if Rec."TCS Nature of Collection" = '' then
+                Rec."TCS Nature of Collection" := TCSEntry."TCS Nature of Collection";
+            Rec.Modify();
+        end;
+    end;
 }

@@ -15,13 +15,14 @@ tableextension 18543 "CompanyInformation" extends "Company Information"
         field(18545; "P.A.N. Status"; enum "Company P.A.N.Status")
         {
             DataClassification = EndUserIdentifiableInformation;
+
             trigger OnValidate()
             var
                 PANNotReqLbl: Label 'PANNOTREQD';
             begin
-                IF "P.A.N. Status" = "P.A.N. Status"::"Not available" THEN
+                if "P.A.N. Status" = "P.A.N. Status"::"Not available" then
                     "P.A.N. No." := PANNotReqLbl
-                ELSE
+                else
                     "P.A.N. No." := '';
             end;
         }
@@ -52,28 +53,29 @@ tableextension 18543 "CompanyInformation" extends "Company Information"
         field(18552; "Ministry Code"; Code[3])
         {
             DataClassification = EndUserIdentifiableInformation;
-            TableRelation = IF ("Ministry Type" = CONST(Others)) "Ministry" WHERE("Other Ministry" = FILTER('Yes'))
-            ELSE
-            IF ("Ministry Type" = CONST(Regular)) Ministry WHERE("Other Ministry" = filter('No'));
+            TableRelation = if ("Ministry Type" = const(Others)) "Ministry" where("Other Ministry" = filter('Yes'))
+            else
+            if ("Ministry Type" = const(Regular)) Ministry where("Other Ministry" = filter('No'));
         }
         field(18553; "Deductor Category"; Code[1])
         {
             TableRelation = "Deductor Category";
             DataClassification = EndUserIdentifiableInformation;
+
             trigger OnValidate()
             var
                 DeductorCategory: Record "Deductor Category";
             begin
-                DeductorCategory.GET("Deductor Category");
-                IF NOT DeductorCategory."DDO Code Mandatory" THEN BEGIN
+                DeductorCategory.Get("Deductor Category");
+                if not DeductorCategory."DDO Code Mandatory" then begin
                     "DDO Code" := '';
                     "DDO Registration No." := '';
-                END;
-                IF NOT DeductorCategory."PAO Code Mandatory" THEN BEGIN
+                end;
+                if not DeductorCategory."PAO Code Mandatory" then begin
                     "PAO Code" := '';
                     "PAO Registration No." := '';
-                END;
-                IF NOT DeductorCategory."Ministry Details Mandatory" THEN
+                end;
+                if not DeductorCategory."Ministry Details Mandatory" then
                     "Ministry Code" := '';
             end;
         }

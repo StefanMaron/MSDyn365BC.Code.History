@@ -19,11 +19,21 @@ page 20301 "Tax Component Summary"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the component';
                     Style = Subordinate;
+                    trigger OnDrillDown()
+                    var
+                        TaxUseCase: Record "Tax Use Case";
+                    begin
+                        if not TaxUseCase.Get("Case ID") then
+                            exit;
+
+                        Page.Run(Page::"Use Case Card", TaxUseCase);
+                    end;
                 }
                 field("Component %"; "Component %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the rate of the component';
+                    DecimalPlaces = 2 : 3;
                 }
                 field(Amount; Amount)
                 {

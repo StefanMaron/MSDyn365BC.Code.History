@@ -2,10 +2,35 @@ codeunit 18138 "GST Purchase Return Registered"
 {
     Subtype = Test;
 
-    //[Scenario-353866]	[Check if the system is calculating GST in case of Inter-State Purchase Return of Service to Registered Vendor where Input Tax Credit is available through Purchase Return orders]
+    var
+        LibraryGST: Codeunit "Library GST";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        Storage: Dictionary of [Text, Code[20]];
+        ComponentPerArray: array[20] of Decimal;
+        StorageBoolean: Dictionary of [Text, Boolean];
+        NoOfLineLbl: Label 'NoOfLine';
+        ReverseDocumentNoLbl: Label 'ReverseDocumentNo';
+        PostedDocumentNoLbl: Label 'PostedDocumentNo';
+        LocationStateCodeLbl: Label 'LocationStateCode';
+        LocationCodeLbl: Label 'LocationCode';
+        GSTGroupCodeLbl: Label 'GSTGroupCode';
+        HSNSACCodeLbl: Label 'HSNSACCode';
+        VendorNoLbl: Label 'VendorNo';
+        CGSTLbl: Label 'CGST';
+        SGSTLbl: Label 'SGST';
+        IGSTLbl: Label 'IGST';
+        InputCreditAvailmentLbl: Label 'InputCreditAvailment';
+        ExemptedLbl: Label 'Exempted';
+        LineDiscountLbl: Label 'LineDiscount';
+        FromStateCodeLbl: Label 'FromStateCode';
+        ToStateCodeLbl: Label 'ToStateCode';
+        AssociatedVendorLbl: Label 'AssociatedVendor';
+        PlaceofSupplyLbl: Label 'PlaceofSupply';
+
+    // [SCENARIO] [353866]	[Check if the system is calculating GST in case of Inter-State Purchase Return of Service to Registered Vendor where Input Tax Credit is available through Purchase Return orders]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnOrderRegisterdVendorWithITCForServiceInterState()
+    procedure PostFromPurchReturnOrdRegVendorWithITCForServiceInterState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -14,29 +39,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Service, false, false);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as G/L Account for Interstate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as G/L Account for Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                                    PurchaseHeader,
-                                    PurchaseLine,
-                                    LineType::"G/L Account",
-                                    DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario-353867] [Check if the system is calculating GST in case of Inter-State Purchase Return of Service to Registered Vendor where Input Tax Credit is available through Purchase Credit Memos]
+    // [SCENARIO] [353867] [Check if the system is calculating GST in case of Inter-State Purchase Return of Service to Registered Vendor where Input Tax Credit is available through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseCreditMemoRegisterdVendorWithITCForServiceInterState()
+    procedure PostFromPurchCreditMemoRegVendorWithITCForServiceInterState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -45,29 +70,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Service, false, false);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Fixed Asset for Interstate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Fixed Asset for Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                                PurchaseHeader,
-                                PurchaseLine,
-                                LineType::"G/L Account",
-                                DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario-353871] [Check if the system is calculating GST in case of Inter-State Purchase Return of Services to Registered Vendor where Input Tax Credit is not available through Purchase Return Orders]
+    // [SCENARIO] [353871] [Check if the system is calculating GST in case of Inter-State Purchase Return of Services to Registered Vendor where Input Tax Credit is not available through Purchase Return Orders]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnOrderRegisterdVendorForServiceInterState()
+    procedure PostFromPurchReturnOrdRegVendorForServiceInterState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -76,29 +101,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Service, false, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Service for Interstate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Service for Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 3);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 3);
     end;
 
-    //[Scenario-353872] [Check if the system is calculating GST in case of Inter-State Purchase Return of Services to Registered Vendor where Input Tax Credit is not available through Purchase Credit Memos]
+    // [SCENARIO] [353872] [Check if the system is calculating GST in case of Inter-State Purchase Return of Services to Registered Vendor where Input Tax Credit is not available through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseCreditMemoRegisterdVendorForServiceInterState()
+    procedure PostFromPurchCreditMemoRegVendorForServiceInterState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -107,29 +132,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Service, false, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Service for Interstate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Service for Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                                    PurchaseHeader,
-                                    PurchaseLine,
-                                    LineType::"G/L Account",
-                                    DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 3);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 3);
     end;
 
-    //[Scenario 353806] [Check if the system is calculating GST in case of Intra-State/Intra-Union Territory Purchase Return of Service to Registered Vendor where Input Tax Credit is Non-available through Purchase Return Orders]
+    // [SCENARIO] [353806] [Check if the system is calculating GST in case of Intra-State/Intra-Union Territory Purchase Return of Service to Registered Vendor where Input Tax Credit is Non-available through Purchase Return Orders]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnOrderRegisterdVendorForServiceIntraState()
+    procedure PostFromPurchReturnOrdRegVendorForServiceIntraState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -138,29 +163,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Service, true, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Service for Intrastate Transactions.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Service for Intrastate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario 353807] [Check if the system is calculating GST in case of Intra-State/Intra-Union Territory Purchase Return of Service to Registered Vendor where Input Tax Credit is Non-available through Purchase Credit Memos]
+    // [SCENARIO] [353807] [Check if the system is calculating GST in case of Intra-State/Intra-Union Territory Purchase Return of Service to Registered Vendor where Input Tax Credit is Non-available through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseCreditMemoRegisterdVendorForServiceIntraState()
+    procedure PostFromPurchCreditMemoRegVendorForServiceIntraState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -169,29 +194,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Service, true, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Service for Intrastate Transactions.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Service for Intrastate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario 353795]	[Check if the system is calculating GST in case of Intra-State/Intra-Union Territory Purchase Return of Service to Registered Vendor where Input Tax Credit is available through Purchase Return Orders]
+    // [SCENARIO] [353795]	[Check if the system is calculating GST in case of Intra-State/Intra-Union Territory Purchase Return of Service to Registered Vendor where Input Tax Credit is available through Purchase Return Orders]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnOrderRegisterdVendorWithITCForServiceIntraState()
+    procedure PostFromPurchReturnOrdRegVendorWithITCForServiceIntraState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -200,28 +225,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Service, true, false);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Service for Intrastate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Service for Intrastate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+            PurchaseHeader,
+            DocumentType::"Return Order");
+
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario 354205][Check if the system is calculating GST in case of Purchase Return Order for Imported Services where Input Tax Credit is available on purchase return order]
+    // [SCENARIO] [354205] [Check if the system is calculating GST in case of Purchase Return Order for Imported Services where Input Tax Credit is available on purchase return order]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnOrderImportVendorWithITCForServiceIntraState()
+    procedure PostFromPurchReturnOrdImportVendorWithITCForServiceIntraState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -230,28 +256,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, false);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Service for Intrastate Transactions.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Service for Intrastate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+            PurchaseHeader,
+            DocumentType::"Return Order");
+
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    // [Scenario 354206] [Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services where Input Tax Credit is available through purchase return order]
+    // [SCENARIO] [354206] [Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services where Input Tax Credit is available through purchase return order]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnOrderImportVendorWithITCForService()
+    procedure PostFromPurchReturnOrdImportVendorWithITCForService()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -260,28 +287,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, false);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Service for Intrastate Transactions.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Service for Intrastate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+            PurchaseHeader,
+            DocumentType::"Return Order");
+
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    // [Scenario 354208] [Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services where Input Tax Credit is available through purchase Credit Memo Copy with Document]
+    // [SCENARIO] [354208] [Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services where Input Tax Credit is available through purchase Credit Memo Copy with Document]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseCreditMemoImportVendorWithITCForServiceWithCopyDoc()
+    procedure PostFromPurchCreditMemoImportVendorWithITCForServiceWithCopyDoc()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -290,25 +318,28 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, false);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Service for Intrastate Transactions.
-        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseLine, LineType::"G/L Account", DocumentType::Invoice);
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Service for Intrastate Transactions.
+        CreateAndPostPurchaseDocument(PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario 354143]	[Check if the system is calculating GST in case of Purchase Return Order for Imported Goods where Input Tax Credit is available on purchase return order]
+    // [SCENARIO] [354143]	[Check if the system is calculating GST in case of Purchase Return Order for Imported Goods where Input Tax Credit is available on purchase return order]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnOrderImportGoodsWithITCForIntraState()
+    procedure PostFromPurchReturnOrdImportGoodsWithITCForIntraState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -317,29 +348,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, true);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Goods.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Goods.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::Item,
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::Item,
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario 354167]	[Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Goods where Input Tax Credit is available through purchase return order]
+    // [SCENARIO] [354167]	[Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Goods where Input Tax Credit is available through purchase return order]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnOrderImportedGoodsWithITC()
+    procedure PostFromPurchReturnOrdImportedGoodsWithITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -348,28 +379,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, true);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Goods.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Goods.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::Item,
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::Item,
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+            PurchaseHeader,
+            DocumentType::"Return Order");
+
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario 354168]	[Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Goods where Input Tax Credit is available through purchase Credit Memo Copy with Document]
+    // [SCENARIO] [354168]	[Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Goods where Input Tax Credit is available through purchase Credit Memo Copy with Document]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseCreditMemoImportedGoodsWithITC()
+    procedure PostFromPurchCreditMemoImportedGoodsWithITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -378,29 +410,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, true);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invocie with GST and Line Type as Goods.
+        // [WHEN] Create and Post Purchase Invocie with GST and Line Type as Goods.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::Item,
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::Item,
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario 354170]	[Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Goods where Input Tax Credit is available through Credit Memo]
+    // [SCENARIO] [354170]	[Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Goods where Input Tax Credit is available through Credit Memo]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoImportedGoodsWithITC()
+    procedure PostFromPurchaseCreditMemoImportedGoodsWithITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -409,29 +441,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, true);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invocie with GST and Line Type as Goods.
+        // [WHEN] Create and Post Purchase Invocie with GST and Line Type as Goods.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::Item,
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::Item,
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario 354171]	[Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Goods where Input Tax Credit is available through Purchase Credit Memo with get reversed posted document]
+    // [SCENARIO] [354171]	[Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Goods where Input Tax Credit is available through Purchase Credit Memo with get reversed posted document]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfImportedGoodsUsingGetDocument()
+    procedure PostFromPurchaseCreditMemoOfImportedGoodsUsingGetDocument()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -440,29 +472,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, true);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invocie with GST and Line Type as Goods.
+        // [WHEN] Create and Post Purchase Invocie with GST and Line Type as Goods.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::Item,
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::Item,
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario 355659]	[Check if the system is calculating GST in case of Intra-State Purchase Return/Credit Memo of Services from Registered Vendor with Multiple Lines by Input Service Distributor where Input Tax Credit is not available]
+    // [SCENARIO] [355659]	[Check if the system is calculating GST in case of Intra-State Purchase Return/Credit Memo of Services from Registered Vendor with Multiple Lines by Input Service Distributor where Input Tax Credit is not available]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseReturnOrderRegisterdVendorForServiceIntraState()
+    procedure PostFromPurchaseReturnOrderRegisterdVendorForServiceIntraState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -471,30 +503,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup and 
+        // [GIVEN] Created GST Setup and 
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Service, true, false);
         InitializeShareStep(false, false, false);
         UpdateInputServiceDistributer(true);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Service for Intrastate Transactions.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Service for Intrastate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 2);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 2);
     end;
 
-    //[Scenario 353785]	[Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Goods to Registered Vendor where Input Tax Credit is Non-available through Purchase Return Orders]
+    // [SCENARIO] [353785]	[Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Goods to Registered Vendor where Input Tax Credit is Non-available through Purchase Return Orders]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseReturnOrderOfGoodsFromRegisteredVendorWithoutInputTaxCredit()
+    procedure PostFromPurchReturnOrderOfGoodsFromRegVendorWithoutITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -503,29 +535,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, true, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Item.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Item.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::Item,
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::Item,
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario 353808]	[Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Goods to Registered Vendor where Input Tax Credit is available through Purchase Credit Memos]
+    // [SCENARIO] [353808]	[Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Goods to Registered Vendor where Input Tax Credit is available through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfGoodsFromRegisteredVendorWithInputTaxCredit()
+    procedure PostFromPurchCreditMemoOfGoodsFromRegVendorWithITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -534,29 +566,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, true, false);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Item.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Item.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::Item,
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::Item,
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 2);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 2);
     end;
 
-    //[Scenario 353810]	[Check if the system is calculating GST in case of Intra-State/Intra-Union Territory Purchase Return of Service to Registered Vendor where Input Tax Credit is available through Purchase Credit Memos]
+    // [SCENARIO] [353810]	[Check if the system is calculating GST in case of Intra-State/Intra-Union Territory Purchase Return of Service to Registered Vendor where Input Tax Credit is available through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfServicesFromRegisteredVendorWithInputTaxCredit()
+    procedure PostFromPurchCreditMemoOfServicesFromRegVendorWithITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -565,29 +597,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, true, false);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Services.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Services.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario 353809]	[Check if the system is calculating GST in case of Intra-State/Intra-Union Territory Purchase Return of Service to Registered Vendor where Input Tax Credit is available through Purchase Credit Memos]
+    // [SCENARIO] [353809]	[Check if the system is calculating GST in case of Intra-State/Intra-Union Territory Purchase Return of Service to Registered Vendor where Input Tax Credit is available through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfGoodsFromRegisterVendorWithInputTaxCredit()
+    procedure PostFromPurchCreditMemoOfGoodsFromRegVendorWithITCIntraState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -596,29 +628,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, true, false);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as G/L Account.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as G/L Account.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario 354124] [Check if the system is calculating GST in case of Intra-State Purchase Return of Services to Unregistered Vendor where Input Tax Credit is not available (Reverse Charge) through Purchase Return Orders]
+    // [SCENARIO] [354124] [Check if the system is calculating GST in case of Intra-State Purchase Return of Services to Unregistered Vendor where Input Tax Credit is not available (Reverse Charge) through Purchase Return Orders]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnOrderUnRegisterdVendorForServicesIntraStateReverseChargeWithoutITC()
+    procedure PostFromPurchReturnOrdUnRegVendorForServicesIntraStateRevChargeWithoutITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -627,29 +659,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Unregistered, GSTGroupType::Service, true, true);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as G/L Account for Intrastate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as G/L Account for Intrastate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 6);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 6);
     end;
 
-    //[Scenario 354126] [Check if the system is calculating GST in case of Intra-State Purchase Return of Services to Unregistered Vendor where Input Tax Credit is not available (Reverse Charge) through Purchase Credit Memos]
+    // [SCENARIO] [354126] [Check if the system is calculating GST in case of Intra-State Purchase Return of Services to Unregistered Vendor where Input Tax Credit is not available (Reverse Charge) through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseCreditMemoUnRegisterdVendorForServicesIntraStateReverseChargeWithoutITC()
+    procedure PostFromPurchCreditMemoUnRegVendorForServicesIntraStateRevChargeWithoutITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -658,30 +690,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Unregistered, GSTGroupType::Service, true, true);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as G/L Account for Intrastate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as G/L Account for Intrastate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 6);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 6);
     end;
 
-    //Scenario-353856 Check if the system is calculating GST in case of Inter-State Purchase Return of Goods to Registered Vendor where Input Tax Credit is not available through Purchase Credit Memos
-    //[FEATURE] [Fixed Assets Purchase Credit Memo] [Without ITC Register Vendor]
+    // [SCENARIO] [353856] Check if the system is calculating GST in case of Inter-State Purchase Return of Goods to Registered Vendor where Input Tax Credit is not available through Purchase Credit Memos
+    // [FEATURE] [Fixed Assets Purchase Credit Memo] [Without ITC Register Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostFormGSTPurchaseCreditMemoVendorWithoutITCForItem()
+    procedure PostFromGSTPurchaseCreditMemoVendorWithoutITCForItem()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -690,30 +722,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, false, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Return Order with GST and Line Type as Goods for Interstate Transactions.
+        // [WHEN] Create and Post Purchase Return Order with GST and Line Type as Goods for Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::Item,
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::Item,
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 3);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 3);
     end;
 
-    //Scenario-353850 Check if the system is calculating GST in case of Inter-State Purchase Return of Goods to Registered Vendor where Input Tax Credit is not available through Purchase Return Orders
-    //[FEATURE] [Item Purchase Return Order] [Without ITC Register Vendor]
+    // [SCENARIO] [353850] Check if the system is calculating GST in case of Inter-State Purchase Return of Goods to Registered Vendor where Input Tax Credit is not available through Purchase Return Orders
+    // [FEATURE] [Item Purchase Return Order] [Without ITC Register Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostFormGSTPurchaseReturnOrderVendorWithoutITCForItem()
+    procedure PostFromPurchaseReturnOrderRegVendorWithoutITCForGoods()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -722,31 +754,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, false, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Return Order with GST and Line Type as Goods for Interstate Transactions.
+        // [WHEN] Create and Post Purchase Return Order with GST and Line Type as Goods for Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::Item,
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::Item,
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 3);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 3);
     end;
 
-
-    //Scenario- 354210 Check if the system is calculating GST in case of Purchase Credit Memo for Imported Services where Input Tax Credit is available
-    //[FEATURE] [Fixed Assets Purchase Credit Memo] [Import Vendor]
+    // [SCENARIO] [354210] Check if the system is calculating GST in case of Purchase Credit Memo for Imported Services where Input Tax Credit is available
+    // [FEATURE] [Fixed Assets Purchase Credit Memo] [Import Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    Procedure PostGSTPurchaseCreditMemoImportVendorWithITCForService()
+    procedure PostFromPurchCreditMemoImportVendorWithITCForService()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -755,30 +786,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, false);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Credit Memo with GST and Line Type as Servicefor Interstate Transactions.
+        // [WHEN] Create and Post Purchase Credit Memo with GST and Line Type as Servicefor Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 5);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 5);
     end;
 
-    //Scenario-354213 Check if the system is calculating GST in case of Purchase Return Order for Imported Services where Input Tax Credit is not available on purchase return order
-    //[FEATURE] [Fixed Assets Purchase Return Order] [Without ITC Import Vendor]
+    // [SCENARIO] [354213] Check if the system is calculating GST in case of Purchase Return Order for Imported Services where Input Tax Credit is not available on purchase return order
+    // [FEATURE] [Fixed Assets Purchase Return Order] [Without ITC Import Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostFormGSTPurchaseReturnOrderImportVendorWithoutITCForService()
+    procedure PostFromPurchReturnOrderImportVendorWithoutITCForService()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -787,30 +818,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Credit Memo with GST and Line Type as Service for Interstate Transactions.
+        // [WHEN] Create and Post Purchase Credit Memo with GST and Line Type as Service for Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 1);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 1);
     end;
 
-    //Scenario- 354216 Check if the system is calculating GST in case of Purchase Credit Memo for Imported Services where Input Tax Credit is not available
-    //[FEATURE] [Fixed Assets Purchase Credit Memo] [Without ITC Import Vendor]
+    // [SCENARIO] [354216] Check if the system is calculating GST in case of Purchase Credit Memo for Imported Services where Input Tax Credit is not available
+    // [FEATURE] [Fixed Assets Purchase Credit Memo] [Without ITC Import Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    Procedure PostGSTPurchaseCreditMemoImportVendorWithoutITCForService()
+    procedure PostFromPurchCreditMemoImportVendorWithoutITCForService()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -819,30 +850,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Credit Memo with GST and Line Type as Servicefor Interstate Transactions.
+        // [WHEN] Create and Post Purchase Credit Memo with GST and Line Type as Servicefor Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 1);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 1);
     end;
 
-    //Scenario- 354214 Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services where Input Tax Credit is not available through purchase return order
-    //[FEATURE] [Service Purchase Return Order] [Without ITC Import Vendor]
+    // [SCENARIO] [354214] Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services where Input Tax Credit is not available through purchase return order
+    // [FEATURE] [Service Purchase Return Order] [Without ITC Import Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    Procedure PostGSTPurchaseReturnOrderImportVendorWithoutITCForService()
+    procedure PostFromPurchReturnOrdImportVendorWithoutITCForService()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -851,30 +882,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Return Order with GST and Line Type as Servicefor Interstate Transactions.
+        // [WHEN] Create and Post Purchase Return Order with GST and Line Type as Servicefor Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 1);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 1);
     end;
 
-    //Scenario- 354215 Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services where Input Tax Credit is not available through purchase Credit Memo Copy with Document
-    //[FEATURE] [Fixed Assets Purchase Crdit Memo] [Without ITC Import Vendor]
+    // [SCENARIO] [354215] Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services where Input Tax Credit is not available through purchase Credit Memo Copy with Document
+    // [FEATURE] [Fixed Assets Purchase Crdit Memo] [Without ITC Import Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    Procedure PostGSTPurchaseCreditMemoCopyDocumentImportVendorWithoutITCForService()
+    procedure PostFromPurchCreditMemoCopyDocumentImportVendorWithoutITCForService()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -883,30 +914,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Credit Memo with GST and Line Type as Servicefor Interstate Transactions.
+        // [WHEN] Create and Post Purchase Credit Memo with GST and Line Type as Servicefor Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 1);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 1);
     end;
 
-    //Scenario-354862 Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is available with multiple HSN code wise through Purchase Return Orders
-    //[FEATURE] [Fixed Assets Purchase Return Order] [Registered Vendor]
+    // [SCENARIO] [354862] Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is available with multiple HSN code wise through Purchase Return Orders
+    // [FEATURE] [Fixed Assets Purchase Return Order] [Registered Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnOrderRegisterdVendorWithITCForFixedAsset()
+    procedure PostFromPurchReturnOrdRegVendorWithITCForGoods()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -915,30 +946,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, true, false);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Fixed Asset for Intrastate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Fixed Asset for Intrastate Transactions.
         CreateAndPostPurchaseDocument(
-                               PurchaseHeader,
-                               PurchaseLine,
-                               LineType::"Fixed Asset",
-                               DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.get('ReverseDocumentNo'), 5);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 5);
     end;
 
-    //Scenario-354866 Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is available with multiple HSN code wise through Purchase Credit Memos
-    //[FEATURE] [Fixed Assets Purchase Credit Memo] [Registered Vendor]
+    // [SCENARIO] [354866] Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is available with multiple HSN code wise through Purchase Credit Memos
+    // [FEATURE] [Fixed Assets Purchase Credit Memo] [Registered Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseCreditMemoRegisterdVendorWithITCForFixedAsset()
+    procedure PostFromPurchCreditMemoRegVendorWithITCForGoods()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -947,30 +978,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, true, false);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Fixed Asset for Intrastate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Fixed Asset for Intrastate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"Fixed Asset",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 5);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 5);
     end;
 
-    //Scenario-354877 Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is not available with multiple HSN code wise through Purchase Return Orders
-    //[FEATURE] [Fixed Assets Purchase Return Order] [Registered Vendor]
+    // [SCENARIO] [354877] Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is not available with multiple HSN code wise through Purchase Return Orders
+    // [FEATURE] [Fixed Assets Purchase Return Order] [Registered Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnOrderRegisterdVendorWithoutITCForFixedAsset()
+    procedure PostFromPurchReturnOrdRegVendorWithoutITCForGoods()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -979,26 +1010,26 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, true, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Fixed Asset for Interstate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Fixed Asset for Interstate Transactions.
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseLine, LineType::"Fixed Asset", DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 7);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 7);
     end;
 
-    //Scenario-354884 Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is not available with multiple HSN code wise through Purchase Credit Memos
-    //[FEATURE] [Fixed Assets Purchase Credit Memo] [Registered Vendor]
+    // [SCENARIO] [354884] Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is not available with multiple HSN code wise through Purchase Credit Memos
+    // [FEATURE] [Fixed Assets Purchase Credit Memo] [Registered Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseCreditMemoRegisterdVendorWithoutITCForFixedAsset()
+    procedure PostFromPurchCreditMemoRegVendorWithoutITCForGoods()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1007,29 +1038,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, true, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Fixed Asset for Intrastate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Fixed Asset for Intrastate Transactions.
         CreateAndPostPurchaseDocument(PurchaseHeader,
-                                    PurchaseLine,
-                                    LineType::"Fixed Asset",
-                                    DocumentType::Invoice);
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 7);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 7);
     end;
 
-    //Scenario- 354218 Check if the system is calculating GST in case of Purchase Return Order for Imported Services from Associates Enterprises Vendor where Input Tax Credit is available on purchase return order
-    //[FEATURE] [Service Purchase Return Order] [ITC Associates Enterprises Vendor]
+    // [SCENARIO] [354218] Check if the system is calculating GST in case of Purchase Return Order for Imported Services from Associates Enterprises Vendor where Input Tax Credit is available on purchase return order
+    // [FEATURE] [Service Purchase Return Order] [ITC Associates Enterprises Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    Procedure PostGSTPurchaseReturnOrderAssociatedVendorWithITCForService()
+    procedure PostFromPurchReturnOrdAssociatedVendorWithITCForService()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1038,31 +1069,31 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, false);
         InitializeAssociateVendor(false, false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Credit Memo with GST and Line Type as Servicefor Interstate Transactions.
+        // [WHEN] Create and Post Purchase Credit Memo with GST and Line Type as Servicefor Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 1);
-        StorageBoolean.Remove('AssociatedVendor');
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 1);
+        StorageBoolean.Remove(AssociatedVendorLbl);
     end;
 
-    //Scenario- 354219 Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services from Assioiates Enterprises Vendor where Input Tax Credit is available through purchase return order 
-    //[FEATURE] [Service Purchase Return Order] [ITC Associates Enterprises Vendor]
+    // [SCENARIO] [354219] Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services from Assioiates Enterprises Vendor where Input Tax Credit is available through purchase return order 
+    // [FEATURE] [Service Purchase Return Order] [ITC Associates Enterprises Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    Procedure PostGSTPurchaseReturnOrderAssociatedTypeVendorWithITCForService()
+    procedure PostFromPurchReturnOrdAssociatedTypeVendorWithITCForService()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1071,31 +1102,31 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, false);
         InitializeAssociateVendor(false, false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Credit Memo with GST and Line Type as Servicefor Interstate Transactions.
+        // [WHEN] Create and Post Purchase Credit Memo with GST and Line Type as Servicefor Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 1);
-        StorageBoolean.Remove('AssociatedVendor');
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 1);
+        StorageBoolean.Remove(AssociatedVendorLbl);
     end;
 
-    //Scenario-354220  Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services from Associated Enterprises Vendor where Input Tax Credit is available through purchase Credit Memo Copy with Document
-    //[FEATURE] [Service Purchase Credit Memo] [ITC Associates Enterprises Vendor]
+    // [SCENARIO] [354220]  Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services from Associated Enterprises Vendor where Input Tax Credit is available through purchase Credit Memo Copy with Document
+    // [FEATURE] [Service Purchase Credit Memo] [ITC Associates Enterprises Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    Procedure PostGSTPurchaseCreditMemoAssociatedVendorWithCopyDocumentWithITCForService()
+    procedure PostFromPurchCreditMemoAssociatedVendorWithCopyDocumentWithITCForService()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1104,31 +1135,31 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, false);
         InitializeAssociateVendor(false, false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Credit Memo with GST and Line Type as Servicefor Interstate Transactions.
+        // [WHEN] Create and Post Purchase Credit Memo with GST and Line Type as Servicefor Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 1);
-        StorageBoolean.Remove('AssociatedVendor');
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 1);
+        StorageBoolean.Remove(AssociatedVendorLbl);
     end;
 
-    //Scenario- 354221 Check if the system is calculating GST in case of Purchase Credit Memo for Imported Services from Associate Enterprises Vendor where Input Tax Credit is available
-    //[FEATURE] [Service Purchase Credit Memo] [ITC Associates Enterprises Vendor]
+    // [SCENARIO] [354221] Check if the system is calculating GST in case of Purchase Credit Memo for Imported Services from Associate Enterprises Vendor where Input Tax Credit is available
+    // [FEATURE] [Service Purchase Credit Memo] [ITC Associates Enterprises Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    Procedure PostGSTPurchaseCreditMemoAssociatedTypeVendorWithITCForService()
+    procedure PostFromPurchCreditMemoAssociatedTypeVendorWithITCForService()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1137,31 +1168,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, false);
         InitializeAssociateVendor(false, false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Credit Memo with GST and Line Type as Servicefor Interstate Transactions.
+        // [WHEN] Create and Post Purchase Credit Memo with GST and Line Type as Servicefor Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 1);
-        StorageBoolean.Remove('AssociatedVendor');
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 1);
+        StorageBoolean.Remove(AssociatedVendorLbl);
     end;
 
-
-    //[Scenario 353913] [Check if the system is calculating GST in case of Intra-State Purchase Return of Goods to Unregistered Vendor where Input Tax Credit is not available (Reverse Charge) through Purchase Credit Memos]
+    // [SCENARIO] [353913] [Check if the system is calculating GST in case of Intra-State Purchase Return of Goods to Unregistered Vendor where Input Tax Credit is not available (Reverse Charge) through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchasCreditMemoUnRegisterdVendorForGoodsIntraStateReverseChargeWithoutITC()
+    procedure PostFromPurchasCreditMemoUnRegVendorForGoodsIntraStateRevChargeWithoutITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1170,29 +1200,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Unregistered, GSTGroupType::Service, true, true);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Item for Intrastate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Item for Intrastate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 6);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 6);
     end;
 
-    //[Scenario 353910] [Check if the system is calculating GST in case of Intra-State Purchase Return of Goods to Unregistered Vendor where Input Tax Credit is not available (Reverse Charge) through Purchase Return Orders]
+    // [SCENARIO] [353910] [Check if the system is calculating GST in case of Intra-State Purchase Return of Goods to Unregistered Vendor where Input Tax Credit is not available (Reverse Charge) through Purchase Return Orders]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnOrderUnRegisterdVendorForGoodsIntraStateWithoutITCReverseCharge()
+    procedure PostFromPurchReturnOrdUnRegVendorForGoodsIntraStateWithoutITCRevCharge()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1201,28 +1231,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Unregistered, GSTGroupType::Service, true, true);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Item for Intrastate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Item for Intrastate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 6);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 6);
     end;
-    // [Scenario 354227] [Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services from Assiciates Enterprises Vendor where Input Tax Credit is not available through purchase return order]
+
+    // [SCENARIO] [354227] [Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services from Assiciates Enterprises Vendor where Input Tax Credit is not available through purchase return order]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfImportedServiceFromAssociates()
+    procedure PostFromPurchaseCreditMemoForImportedServiceFromAssociates()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1231,29 +1262,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, true);
         InitializeAssociateVendor(false, false, false, true);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invocie with GST and Line Type as G/L Account.
+        // [WHEN] Create and Post Purchase Invocie with GST and Line Type as G/L Account.
         CreateAndPostPurchaseDocument(PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 1);
-        StorageBoolean.Remove('AssociatedVendor');
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 1);
+        StorageBoolean.Remove(AssociatedVendorLbl);
     end;
 
-    // [Scenario 354228] [Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services from Associated Enterprises Vendor where Input Tax Credit is not available through purchase Credit Memo Copy with Document]
+    // [SCENARIO] [354228] [Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services from Associated Enterprises Vendor where Input Tax Credit is not available through purchase Credit Memo Copy with Document]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfImportedServiceFromAssociatesWithCopyDoc()
+    procedure PostFromPurchCreditMemoForImportedServiceFromAssociatesWithCopyDoc()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1262,30 +1293,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, true);
         InitializeAssociateVendor(false, false, false, true);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invocie with GST and Line Type as Goods.
+        // [WHEN] Create and Post Purchase Invocie with GST and Line Type as Goods.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 1);
-        StorageBoolean.Remove('AssociatedVendor');
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 1);
+        StorageBoolean.Remove(AssociatedVendorLbl);
     end;
 
-    // [Scenario 354229] [Check if the system is calculating GST in case of Purchase Credit Memo for Imported Services from Associate Enterprises Vendor where Input Tax Credit is not available]
+    // [SCENARIO] [354229] [Check if the system is calculating GST in case of Purchase Credit Memo for Imported Services from Associate Enterprises Vendor where Input Tax Credit is not available]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfImportedServiceFromAssociatesWithoutITC()
+    procedure PostFromPurchCreditMemoForImportedServiceFromAssociatesWithoutITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1294,30 +1325,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, true);
         InitializeAssociateVendor(false, false, false, true);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invocie with GST and Line Type as G/L Account.
+        // [WHEN] Create and Post Purchase Invocie with GST and Line Type as G/L Account.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 1);
-        StorageBoolean.Remove('AssociatedVendor');
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 1);
+        StorageBoolean.Remove(AssociatedVendorLbl);
     end;
 
-    // [Scenario 354231] [Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services from Associates Enterprises Vendor where Input Tax Credit is not available through Purchase Credit Memo with get reversed posted document]
+    // [354231] [Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Services from Associates Enterprises Vendor where Input Tax Credit is not available through Purchase Credit Memo with get reversed posted document]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfImportedServiceFromAssociatesWithGetReversedDoc()
+    procedure PostFromPurchCreditMemoForImportedServiceFromAssociatesWithGetReversedDoc()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1326,31 +1357,31 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, true);
         InitializeAssociateVendor(false, false, false, true);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as G/L Account.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as G/L Account.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 1);
-        StorageBoolean.Remove('AssociatedVendor');
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 1);
+        StorageBoolean.Remove(AssociatedVendorLbl);
     end;
 
-    //Scenario-355087 Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is available with invoice discount /line discount & multiple HSN through Purchase Return Orders
-    //[FEATURE] [Fixed Assets Purchase Return Order] [Composite Vendor]
+    // [SCENARIO] [355087] Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is available with invoice discount /line discount & multiple HSN through Purchase Return Orders
+    // [FEATURE] [Fixed Assets Purchase Return Order] [Composite Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnOrderCompositeVendorWithITCForFixedAsset()
+    procedure PostFromPurchReturnOrdCompositeVendorWithITCForFixedAsset()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1359,30 +1390,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Composite, GSTGroupType::Goods, false, false);
         InitializeShareStep(true, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Fixed Asset for Interstate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Fixed Asset for Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                               PurchaseHeader,
-                               PurchaseLine,
-                               LineType::"Fixed Asset",
-                               DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //Scenario-355167 Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is not available with invoice discount /line discount & multiple HSN through Purchase Return Orders
-    //[FEATURE] [Fixed Assets Purchase Return Order] [Composite Vendor]
+    // [SCENARIO] [355167] Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is not available with invoice discount /line discount & multiple HSN through Purchase Return Orders
+    // [FEATURE] [Fixed Assets Purchase Return Order] [Composite Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnOrderCompositeVendorWithoutITCForFixedAsset()
+    procedure PostFromPurchReturnOrdCompositeVendorWithoutITCForGoods()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1391,30 +1422,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Composite, GSTGroupType::Goods, false, false);
         InitializeShareStep(false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Fixed Asset for Interstate Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Fixed Asset for Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                               PurchaseHeader,
-                               PurchaseLine,
-                               LineType::"Fixed Asset",
-                               DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //Scenario-355088 Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is available with invoice/line discount & multiple HSN through Purchase Credit Memos
-    //[FEATURE] [Fixed Assets Purchase Credit Memos] [Composite Vendor]
+    // [SCENARIO] [355088] Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is available with invoice/line discount & multiple HSN through Purchase Credit Memos
+    // [FEATURE] [Fixed Assets Purchase Credit Memos] [Composite Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseCreditMemosCompositeVendorWithITCForFixedAsset()
+    procedure PostFromPurchCreditMemoCompositeVendorWithITCForGoods()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1423,30 +1454,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Composite, GSTGroupType::Goods, false, false);
         InitializeShareStep(true, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Fixed Asset for Inter-State Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Fixed Asset for Inter-State Transactions.
         CreateAndPostPurchaseDocument(
-                               PurchaseHeader,
-                               PurchaseLine,
-                               LineType::"Fixed Asset",
-                               DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //Scenario-355168 Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is not available with invoice/line discount & multiple HSN through Purchase Credit Memos
-    //[FEATURE] [Fixed Assets Purchase Credit Memos] [Composite Vendor]
+    // [SCENARIO] [355168] Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is not available with invoice/line discount & multiple HSN through Purchase Credit Memos
+    // [FEATURE] [Fixed Assets Purchase Credit Memos] [Composite Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseCreditMemosCompositeVendorWithoutITCForFixedAsset()
+    procedure PostFromPurchCreditMemosCompositeVendorWithoutITCForGoods()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1455,30 +1486,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Composite, GSTGroupType::Goods, false, false);
         InitializeShareStep(false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Order with GST and Line Type as Fixed Asset for Inter-State Transactions.
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Fixed Asset for Inter-State Transactions.
         CreateAndPostPurchaseDocument(
-                               PurchaseHeader,
-                               PurchaseLine,
-                               LineType::"Fixed Asset",
-                               DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //Scenario-355187 Check if the system is calculating GST in case of Intra-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is available with invoice discount /line discount & multiple HSN through Purchase Return Orders
-    //[FEATURE] [Fixed Assets Purchase  Return Order] [Composite Vendor]
+    // [SCENARIO] [355187] Check if the system is calculating GST in case of Intra-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is available with invoice discount /line discount & multiple HSN through Purchase Return Orders
+    // [FEATURE] [Fixed Assets Purchase  Return Order] [Composite Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnCompositeVendorWithITCForFixedAsset()
+    procedure PostFromPurchaseReturnCompositeVendorWithITCForGoods()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1487,30 +1518,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Composite, GSTGroupType::Goods, true, false);
         InitializeShareStep(true, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Asset for Intra-State Transactions.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Asset for Intra-State Transactions.
         CreateAndPostPurchaseDocument(
-                               PurchaseHeader,
-                               PurchaseLine,
-                               LineType::"Fixed Asset",
-                               DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //Scenario-355188 Check if the system is calculating GST in case of Intra-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is available with invoice/line discount & multiple HSN through Purchase Credit Memos
-    //[FEATURE] [Fixed Assets Purchase  Credit Memo] [Composite Vendor]
+    // [SCENARIO] [355188] Check if the system is calculating GST in case of Intra-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is available with invoice/line discount & multiple HSN through Purchase Credit Memos
+    // [FEATURE] [Fixed Assets Purchase  Credit Memo] [Composite Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseCreditMemoCompositeVendorWithITCForFixedAsset()
+    procedure PostFromPurchCreditMemoCompositeVendorWithITCForGoodsIntraState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1519,30 +1550,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Composite, GSTGroupType::Goods, true, false);
         InitializeShareStep(true, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Asset for Intra-State Transactions.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Asset for Intra-State Transactions.
         CreateAndPostPurchaseDocument(
-                               PurchaseHeader,
-                               PurchaseLine,
-                               LineType::"Fixed Asset",
-                               DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //Scenario-355241 Check if the system is calculating GST in case of Intra-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is not available with invoice/line discount & multiple HSN through Purchase Credit Memos
-    //[FEATURE] [Fixed Assets Purchase  Credit Memo] [Composite Vendor]
+    // [SCENARIO] [355241] Check if the system is calculating GST in case of Intra-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is not available with invoice/line discount & multiple HSN through Purchase Credit Memos
+    // [FEATURE] [Fixed Assets Purchase  Credit Memo] [Composite Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseCreditMemoCompositeVendorWithoutITCForFixedAsset()
+    procedure PostFromPurchCreditMemoCompositeVendorWithoutITCForFixedAsset()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1551,30 +1582,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Composite, GSTGroupType::Goods, true, false);
         InitializeShareStep(false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Asset for Intra-State Transactions.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Asset for Intra-State Transactions.
         CreateAndPostPurchaseDocument(
-                               PurchaseHeader,
-                               PurchaseLine,
-                               LineType::"Fixed Asset",
-                               DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //Scenario-355240 Check if the system is calculating GST in case of Intra-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is not available with invoice discount /line discount & multiple HSN through Purchase Return Orders
-    //[FEATURE] [Fixed Assets Purchase  Return Order] [Composite Vendor]
+    // [SCENARIO] [355240] Check if the system is calculating GST in case of Intra-State Purchase Return of Fixed Assets to Composite Vendor where Input Tax Credit is not available with invoice discount /line discount & multiple HSN through Purchase Return Orders
+    // [FEATURE] [Fixed Assets Purchase  Return Order] [Composite Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseReturnCompositeVendorWithoutITCForFixedAsset()
+    procedure PostFromPurchaseReturnCompositeVendorWithoutITCForFixedAsset()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1583,29 +1614,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Composite, GSTGroupType::Goods, true, false);
         InitializeShareStep(false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Asset for Intra-State Transactions.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Asset for Intra-State Transactions.
         CreateAndPostPurchaseDocument(
-                               PurchaseHeader,
-                               PurchaseLine,
-                               LineType::"Fixed Asset",
-                               DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
-    //Scenario- 353812 Check if the system is handling Purchase Return of Goods to Composite Vendor/Supplier of exempted goods with no GST Impact through Purchase Credit Memo and copy document
-    //[FEATURE] [Item Purchase Credit Memo] [Composite Vendor]
+
+    // [SCENARIO] [353812] Check if the system is handling Purchase Return of Goods to Composite Vendor/Supplier of exempted goods with no GST Impact through Purchase Credit Memo and copy document
+    // [FEATURE] [Item Purchase Credit Memo] [Composite Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostFormGSTPurchaseCreditMemoCompositeVendorWithITCForItem()
+    procedure PostFromPurchaseCreditMemoCompositeVendorWithITCForGoods()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1614,30 +1646,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Composite, GSTGroupType::Goods, true, false);
         InitializeShareStep(true, true, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Return Order with GST and Line Type as Goods for Interstate Transactions.
+        // [WHEN] Create and Post Purchase Return Order with GST and Line Type as Goods for Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::Item,
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::Item,
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 2);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 2);
     end;
 
-    //Scenario- 353818 Check if the system is calculating GST in case of Inter-State Purchase Return of Goods to Registered Vendor where Input Tax Credit is available through Purchase Return Orders
-    //[FEATURE] [Fixed Assets Purchase Return Order] [With ITC Register Vendor]
+    // [SCENARIO] [353818] Check if the system is calculating GST in case of Inter-State Purchase Return of Goods to Registered Vendor where Input Tax Credit is available through Purchase Return Orders
+    // [FEATURE] [Fixed Assets Purchase Return Order] [With ITC Register Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostFormGSTPurchaseRetrunOrderVendorWithoutITCForItem()
+    procedure PostFromPurchaseReturnOrderVendorWithoutITCForGoods()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1646,30 +1678,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, false, false);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Return Order with GST and Line Type as Goods for Interstate Transactions.
+        // [WHEN] Create and Post Purchase Return Order with GST and Line Type as Goods for Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::Item,
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::Item,
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 3);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 3);
     end;
 
-    //Scenario- 353836 Check if the system is calculating GST in case of Inter-State Purchase Return of Goods to Registered Vendor where Input Tax Credit is available through Purchase Credit Memos
-    //[FEATURE] [Fixed Assets Purchase Credit Memo] [With ITC Register Vendor]
+    // [SCENARIO] [353836] Check if the system is calculating GST in case of Inter-State Purchase Return of Goods to Registered Vendor where Input Tax Credit is available through Purchase Credit Memos
+    // [FEATURE] [Fixed Assets Purchase Credit Memo] [With ITC Register Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostFormGSTPurchaseReturnOrderRegisterVendorWithITCForItem()
+    procedure PostFromPurchaseReturnOrderRegVendorWithITCForGoods()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1678,29 +1710,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, false, false);
         InitializeShareStep(true, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Return Order with GST and Line Type as Goods for Interstate Transactions.
+        // [WHEN] Create and Post Purchase Return Order with GST and Line Type as Goods for Interstate Transactions.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::Item,
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::Item,
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 3);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 3);
     end;
 
-    //[Scenario 354135] Check if the system is calculating GST in case of Intra-State Purchase Return of Services to Registered Vendor where Input Tax Credit is available (Reverse Charge) through Purchase Credit Memos
+    // [SCENARIO] [354135] Check if the system is calculating GST in case of Intra-State Purchase Return of Services to Registered Vendor where Input Tax Credit is available (Reverse Charge) through Purchase Credit Memos
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostFromPurchaseCreditMemoForRegisteredWithAvailment()
+    procedure PostFromPurchCreditMemoForRegVendorWithITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1709,25 +1741,25 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Purchase Document Type";
         LineType: Enum "Sales Line Type";
     begin
-        //[GIVEN] Create GST Setup
+        // [GIVEN] Create GST Setup
         InitializeShareStep(true, false, false);
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Service, true, true);
 
-        //[WHEN] Create and Post Purchase Credit Memo
-        Storage.Set('NoOfLine', Format(1));
+        // [WHEN] Create and Post Purchase Credit Memo
+        Storage.Set(NoOfLineLbl, '1');
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseLine, LineType::"G/L Account", DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] Verify GST ledger entries
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 6);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 6);
     end;
 
-    //[Scenario 354140] Check if the system is calculating GST in case of Intra-State Purchase Return of Services to Registered Vendor where Input Tax Credit is not available (Reverse Charge) through Purchase Credit Memos
+    // [SCENARIO] [354140] Check if the system is calculating GST in case of Intra-State Purchase Return of Services to Registered Vendor where Input Tax Credit is not available (Reverse Charge) through Purchase Credit Memos
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostFromPurchaseCreditMemoForRegisteredWithoutAvailmentIntraStateCopyDoc()
+    procedure PostFromPurchCreditMemoForRegVendorWithoutITCIntraStateCopyDoc()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1736,25 +1768,25 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Purchase Document Type";
         LineType: Enum "Sales Line Type";
     begin
-        //[GIVEN] Create GST Setup
+        // [GIVEN] Create GST Setup
         InitializeShareStep(true, false, false);
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, false, false);
 
-        //[WHEN] Create and Post Purchase Credit memo
-        Storage.Set('NoOfLine', Format(1));
+        // [WHEN] Create and Post Purchase Credit memo
+        Storage.Set(NoOfLineLbl, '1');
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseLine, LineType::Item, DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] Verify GST ledger entries
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 3);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 3);
     end;
 
-    //[Scenario 354520] Check if the system is calculating GST in case of Intra-State Return/Credit Note of Services for Overseas Place of Supply from Registered Vendor where Input Tax Credit is available through Purchase credit memo
+    // [SCENARIO] [354520] Check if the system is calculating GST in case of Intra-State Return/Credit Note of Services for Overseas Place of Supply from Registered Vendor where Input Tax Credit is available through Purchase credit memo
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostFromPurchaseCreditMemoForRegistredAndGoodsWithAvailmentIntraState()
+    procedure PostFromPurchCreditMemoForRegVendorWithITCGoodsIntraState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1763,26 +1795,26 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Purchase Document Type";
         LineType: Enum "Sales Line Type";
     begin
-        //[GIVEN] Create GST Setup
+        // [GIVEN] Create GST Setup
         InitializeShareStep(true, false, false);
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Service, true, false);
-        StorageBoolean.set('PlaceofSupply', true);
+        StorageBoolean.Set(PlaceofSupplyLbl, true);
 
-        //[WHEN] Create and Post Purchase Journal
-        Storage.Set('NoOfLine', Format(1));
+        // [WHEN] Create and Post Purchase Journal
+        Storage.Set(NoOfLineLbl, '1');
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseLine, LineType::"G/L Account", DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                         PurchaseHeader,
-                         DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] Verify GST ledger entries
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario 354521] Check if the system is calculating GST in case of Intra-State Return/Credit Note of Services for Overseas Place of Supply from Registered Vendor where Input Tax Credit is not available through Purchase credit memo
+    // [SCENARIO] [354521] Check if the system is calculating GST in case of Intra-State Return/Credit Note of Services for Overseas Place of Supply from Registered Vendor where Input Tax Credit is not available through Purchase credit memo
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostFromPurchaseCreditMemoForRegistredAndGoodsWithoutAvailmentIntraState()
+    procedure PostFromPurchCreditMemoForRegVendorWithoutITCGoodsIntraState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1791,26 +1823,26 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Purchase Document Type";
         LineType: Enum "Sales Line Type";
     begin
-        //[GIVEN] Create GST Setup
+        // [GIVEN] Create GST Setup
         InitializeShareStep(false, false, false);
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Service, true, false);
-        StorageBoolean.set('PlaceofSupply', true);
+        StorageBoolean.Set(PlaceofSupplyLbl, true);
 
-        //[WHEN] Create and Post Purchase Journal
-        Storage.Set('NoOfLine', Format(1));
+        // [WHEN] Create and Post Purchase Journal
+        Storage.Set(NoOfLineLbl, '1');
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseLine, LineType::"G/L Account", DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                         PurchaseHeader,
-                         DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] Verify GST ledger entries
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    //[Scenario 354181] Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Goods where Input Tax Credit is not available on purchase return order
+    // [SCENARIO] [354181] Check if the system is calculating GST in case of Purchase Credit Memo/Return Order for Imported Goods where Input Tax Credit is not available on purchase return order
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostFromPurchaseReturnOrderForGrpTypeGoodWithoutAvailment()
+    procedure PostFromPurchReturnOrdForeGoodWithoutITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1819,26 +1851,26 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Purchase Document Type";
         LineType: Enum "Sales Line Type";
     begin
-        //[GIVEN] Create GST Setup
+        // [GIVEN] Create GST Setup
         InitializeShareStep(false, false, false);
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, false, false);
 
-        //[WHEN] Create and Post Purchase Return Order
-        Storage.Set('NoOfLine', Format(1));
+        // [WHEN] Create and Post Purchase Return Order
+        Storage.Set(NoOfLineLbl, '1');
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseLine, LineType::Item, DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] Verify GST ledger entries
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Return Order", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(Enum::"Gen. Journal Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 3);
     end;
 
-    //Scenario-354913 Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Unregistered Vendor where Input Tax Credit is not available with multiple HSN code wise through Purchase Credit Memos
-    //[FEATURE] [Fixed Assets Purchase Credit Memos] [Unregistered Vendor]
+    // [SCENARIO] [354913] Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Unregistered Vendor where Input Tax Credit is not available with multiple HSN code wise through Purchase Credit Memos
+    // [FEATURE] [Fixed Assets Purchase Credit Memos] [Unregistered Vendor]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostGSTPurchaseCreditMemoUnregistredVendorForFixedAsset()
+    procedure PostFromPurchCreditMemoUnregistredVendorForGoods()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1847,29 +1879,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Unregistered, GSTGroupType::Goods, true, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Asset for Intra-State Transactions.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Asset for Intra-State Transactions.
         CreateAndPostPurchaseDocument(
-                               PurchaseHeader,
-                               PurchaseLine,
-                               LineType::"Fixed Asset",
-                               DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.get('ReverseDocumentNo'), 6);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 6);
     end;
 
-    //[Scenario 355007] [Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is not available with invoice/line discount & multiple HSN through Purchase Credit Memos]
+    // [SCENARIO] [355007] [Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is not available with invoice/line discount & multiple HSN through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfFixedAssetFromRegisteredVendor()
+    procedure PostFromPurchCreditMemoOfGoodsFromRegVendor()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1878,29 +1910,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, true, false);
         InitializeShareStep(false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Assets.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Assets.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"Fixed Asset",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 8);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 8);
     end;
 
-    //[Scenario 355039] [Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is not available with invoice discount/line discount & multiple HSN through Purchase Credit Memos]
+    // [SCENARIO] [355039] [Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is not available with invoice discount/line discount & multiple HSN through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfFixedAssetFromRegisteredVendorWithoutITC()
+    procedure PostFromPurchCreditMemoOfFixedAssetFromRegVendorWithoutITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1909,29 +1941,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, false, false);
         InitializeShareStep(false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Assets.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Assets.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"Fixed Asset",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 6);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 6);
     end;
 
-    //[Scenario 355035] [Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is available with invoice discount/line discount & multiple HSN through Purchase Credit Memos]
+    // [SCENARIO] [355035] [Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is available with invoice discount/line discount & multiple HSN through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfFixedAssetFromRegisteredVendorWitLineDiscount()
+    procedure PostFromPurchCreditMemoOfFixedAssetFromRegVendorWitLineDiscount()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1940,29 +1972,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, false, false);
         InitializeShareStep(true, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Assets.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Assets.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"Fixed Asset",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 5);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 5);
     end;
 
-    //[Scenario 355053] [Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Unregistered Vendor where Input Tax Credit is available with invoice/line discount & multiple HSN through Purchase Credit Memos]
+    // [SCENARIO] [355053] [Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Unregistered Vendor where Input Tax Credit is available with invoice/line discount & multiple HSN through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfFixedAssetFromUnRegisteredVendorInterState()
+    procedure PostFromPurchCreditMemoOfFixedAssetFromUnRegVendorInterState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1971,29 +2003,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
-        CreateGSTSetup(GSTVendorType::UnRegistered, GSTGroupType::Goods, false, false);
+        // [GIVEN] Created GST Setup
+        CreateGSTSetup(GSTVendorType::Unregistered, GSTGroupType::Goods, false, false);
         InitializeShareStep(true, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Asset.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Asset.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"Fixed Asset",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 6);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 6);
     end;
 
-    //[Scenario 355001] [Check if the system is calculating GST in case of Inter-state Purchase Return of Fixed Assets to Unregistered Vendor where Input Tax Credit is not available with multiple HSN code wise through Purchase Credit Memos]
+    // [SCENARIO] [355001] [Check if the system is calculating GST in case of Inter-state Purchase Return of Fixed Assets to Unregistered Vendor where Input Tax Credit is not available with multiple HSN code wise through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfFixedAssetFromUnRegisteredVendorWithoutITC()
+    procedure PostFromPurchCreditMemoOfFixedAssetFromUnRegVendorWithoutITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2002,29 +2034,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
-        CreateGSTSetup(GSTVendorType::UnRegistered, GSTGroupType::Goods, false, false);
+        // [GIVEN] Created GST Setup
+        CreateGSTSetup(GSTVendorType::Unregistered, GSTGroupType::Goods, false, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Assets.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Assets.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"Fixed Asset",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 5);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 5);
     end;
 
-    //[Scenario 355047] [Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Unregistered Vendor where Input Tax Credit is not available with invoice/line discount & multiple HSN through Purchase Credit Memos]
+    // [SCENARIO] [355047] [Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Unregistered Vendor where Input Tax Credit is not available with invoice/line discount & multiple HSN through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfFixedAssetFromUnRegisteredVendorWithoutITCIntraState()
+    procedure PostFromPurchCreditMemoOfFixedAssetFromUnRegVendorWithoutITCIntraState()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2033,29 +2065,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
-        CreateGSTSetup(GSTVendorType::UnRegistered, GSTGroupType::Goods, true, false);
+        // [GIVEN] Created GST Setup
+        CreateGSTSetup(GSTVendorType::Unregistered, GSTGroupType::Goods, true, false);
         InitializeShareStep(false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Assets.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Assets.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"Fixed Asset",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 12);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 12);
     end;
 
-    //[Scenario 353813]	[Check if the system is handling Purchase Return of Goods to Composite Vendor/Supplier of exempted goods with no GST Impact through Purchase Credit Memo]
+    // [SCENARIO] [353813]	[Check if the system is handling Purchase Return of Goods to Composite Vendor/Supplier of exempted goods with no GST Impact through Purchase Credit Memo]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfGoodsFromCompositeVendorWithInputTaxCredit()
+    procedure PostFromPurchCreditMemoOfGoodsFromCompositeVendorWithITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2064,29 +2096,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Composite, GSTGroupType::Goods, true, false);
         InitializeShareStep(true, true, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invoice with no GST Impact and Line Type as Item.
+        // [WHEN] Create and Post Purchase Invoice with no GST Impact and Line Type as Item.
         CreateAndPostPurchaseDocument(
-                                    PurchaseHeader,
-                                    PurchaseLine,
-                                    LineType::Item,
-                                    DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::Item,
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                    PurchaseHeader,
-                    DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 2);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 2);
     end;
 
-    //[Scenario 353849] [Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Goods to Registered Vendor where Input Tax Credit is Non-available through Purchase Credit Memos]
+    // [SCENARIO] [353849] [Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Goods to Registered Vendor where Input Tax Credit is Non-available through Purchase Credit Memos]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseCreditMemoOfGoodsFromRegisteredVendor()
+    procedure PostFromPurchaseCreditMemoOfGoodsFromRegVendor()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2095,29 +2127,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, true, false);
         InitializeShareStep(false, false, false);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Goods.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Goods.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::Item,
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::Item,
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                     PurchaseHeader,
-                     DocumentType::"Credit Memo");
+            PurchaseHeader,
+            DocumentType::"Credit Memo");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 4);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 4);
     end;
 
-    // [Scenario 354223][Check if the system is calculating GST in case of Purchase Return Order for Imported Services from Associates Enterprises Vendor where Input Tax Credit is not available on purchase return order]
+    // [SCENARIO] [354223] [Check if the system is calculating GST in case of Purchase Return Order for Imported Services from Associates Enterprises Vendor where Input Tax Credit is not available on purchase return order]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaseReturnOrderOfImportedServiceFromAssociates()
+    procedure PostFromPurchReturnOrderOfImportedServiceFromAssociates()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2126,30 +2158,30 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Import, GSTGroupType::Service, false, true);
         InitializeAssociateVendor(false, false, false, true);
-        Storage.Set('NoOfLine', (Format(1)));
+        Storage.Set(NoOfLineLbl, '1');
 
-        //[WHEN] Created and Posted Purchase Invocie with GST and Line Type as Goods.
+        // [WHEN] Create and Post Purchase Invocie with GST and Line Type as Goods.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"G/L Account",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"G/L Account",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.GSTLedgerEntryCount(Storage.Get('ReverseDocumentNo'), 1);
-        StorageBoolean.Remove('AssociatedVendor');
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.GSTLedgerEntryCount(Storage.Get(ReverseDocumentNoLbl), 1);
+        StorageBoolean.Remove(AssociatedVendorLbl);
     end;
 
-    //[Scenario 355002] [Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is available with invoice discount/line discount & multiple HSN through Purchase Return Orders]
+    // [SCENARIO] [355002] [Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is available with invoice discount/line discount & multiple HSN through Purchase Return Orders]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaserReturnOrderOfFixedAssetFromRegisteredVendorWithITC()
+    procedure PostFromPurchReturnOrderOfGoodsFromRegVendorWithITC()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2158,29 +2190,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, true, false);
         InitializeShareStep(true, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Asset.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Asset.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"Fixed Asset",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 6);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 6);
     end;
 
-    //[Scenario 355034] [Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is available with invoice discount/line discount & multiple HSN through Purchase Return Orders]
+    // [SCENARIO] [355034] [Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is available with invoice discount/line discount & multiple HSN through Purchase Return Orders]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaserReturnOrderOfFixedAssetFromRegisteredVendorWithITCWithLineDiscount()
+    procedure PostFromPurchReturnOrderOfGoodsFromRegVendorWithITCWithLineDis()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2189,29 +2221,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, false, false);
         InitializeShareStep(true, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Asset.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Asset.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"Fixed Asset",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 5);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 5);
     end;
 
-    //[Scenario 355006] [Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is not available with invoice/line discount & multiple HSN through Purchase Return Orders]
+    // [SCENARIO] [355006] [Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is not available with invoice/line discount & multiple HSN through Purchase Return Orders]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaserReturnOrderOfFixedAssetFromRegisteredVendorWithLineDiscount()
+    procedure PostFromPurchReturnOrderOfGoodsFromRegVendorWithLineDisc()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2220,29 +2252,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, true, false);
         InitializeShareStep(false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Asset.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Asset.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"Fixed Asset",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 8);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 8);
     end;
 
-    //[Scenario 355038] [Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is not available with invoice discount/line discount & multiple HSN through Purchase Return Orders]
+    // [SCENARIO] [355038] [Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Registered Vendor where Input Tax Credit is not available with invoice discount/line discount & multiple HSN through Purchase Return Orders]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaserReturnOrderOfFixedAssetFromRegisteredVendorWithoutITCWithLineDiscount()
+    procedure PostFromPurchReturnOrderOfGoodsFromRegVendorWithoutITCWithLineDisc()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2251,29 +2283,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
+        // [GIVEN] Created GST Setup
         CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Goods, false, false);
         InitializeShareStep(false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Asset.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Asset.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"Fixed Asset",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 6);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 6);
     end;
 
-    //[Scenario 355052] [Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Unregistered Vendor where Input Tax Credit is available with invoice /line discount & multiple HSN through Purchase Return Orders]
+    // [SCENARIO] [355052] [Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Unregistered Vendor where Input Tax Credit is available with invoice /line discount & multiple HSN through Purchase Return Orders]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaserReturnOrderOfFixedAssetFromUnRegisteredVendorWithITCWithLineDiscount()
+    procedure PostFromPurchReturnOrderOfGoodsFromUnRegVendorWithITCWithLineDisc()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2282,29 +2314,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
-        CreateGSTSetup(GSTVendorType::UnRegistered, GSTGroupType::Goods, false, false);
+        // [GIVEN] Created GST Setup
+        CreateGSTSetup(GSTVendorType::Unregistered, GSTGroupType::Goods, false, false);
         InitializeShareStep(true, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Asset.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Asset.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"Fixed Asset",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 6);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 6);
     end;
 
-    //[Scenario 355056] [Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Unregistered Vendor where Input Tax Credit is not available with invoice /line discount & Multiple HSN through Purchase Return Orders]
+    // [SCENARIO] [355056] [Check if the system is calculating GST in case of Inter-State Purchase Return of Fixed Assets to Unregistered Vendor where Input Tax Credit is not available with invoice /line discount & Multiple HSN through Purchase Return Orders]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaserReturnOrderOfFixedAssetFromUnRegisteredVendorWithoutITCWithDiscount()
+    procedure PostFromPurchReturnOrderOfGoodsFromUnRegVendorWithoutITCWithDisc()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2313,29 +2345,29 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
-        CreateGSTSetup(GSTVendorType::UnRegistered, GSTGroupType::Goods, false, false);
+        // [GIVEN] Created GST Setup
+        CreateGSTSetup(GSTVendorType::Unregistered, GSTGroupType::Goods, false, false);
         InitializeShareStep(false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Asset.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Asset.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"Fixed Asset",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 6);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 6);
     end;
 
-    //[Scenario 355046] [Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Unregistered Vendor where Input Tax Credit is not available with invoice /line discount & multiple HSN through Purchase Return Orders]
+    // [SCENARIO] [355046] [Check if the system is calculating GST in case of Intra-State/ Intra-Union Territory Purchase Return of Fixed Assets to Unregistered Vendor where Input Tax Credit is not available with invoice /line discount & multiple HSN through Purchase Return Orders]
     [Test]
     [HandlerFunctions('TaxRatePageHandler,VendorLedgerEntries')]
-    procedure PostPurchaserReturnOrderOfFixedAssetFromUnRegisteredVendorWithoutITCWithLineDiscount()
+    procedure PostFromPurchReturnOrderOfGoodsFromUnRegVendorWithoutITCWithLineDisc()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2344,46 +2376,87 @@ codeunit 18138 "GST Purchase Return Registered"
         DocumentType: Enum "Document Type Enum";
         GSTVendorType: Enum "GST Vendor Type";
     begin
-        //[GIVEN] Created GST Setup
-        CreateGSTSetup(GSTVendorType::UnRegistered, GSTGroupType::Goods, true, false);
+        // [GIVEN] Created GST Setup
+        CreateGSTSetup(GSTVendorType::Unregistered, GSTGroupType::Goods, true, false);
         InitializeShareStep(false, false, true);
-        Storage.Set('NoOfLine', (Format(2)));
+        Storage.Set(NoOfLineLbl, '2');
 
-        //[WHEN] Created and Posted Purchase Invoice with GST and Line Type as Fixed Asset.
+        // [WHEN] Create and Post Purchase Invoice with GST and Line Type as Fixed Asset.
         CreateAndPostPurchaseDocument(
-                            PurchaseHeader,
-                            PurchaseLine,
-                            LineType::"Fixed Asset",
-                            DocumentType::Invoice);
+            PurchaseHeader,
+            PurchaseLine,
+            LineType::"Fixed Asset",
+            DocumentType::Invoice);
         CreateAndPostPurchaseReturnFromCopyDocument(
-                        PurchaseHeader,
-                        DocumentType::"Return Order");
+            PurchaseHeader,
+            DocumentType::"Return Order");
 
-        //[THEN] G/L Entries Verified
-        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get('ReverseDocumentNo'), 12);
+        // [THEN] GST ledger entries are created and Verified
+        LibraryGST.VerifyGLEntries(PurchaseHeader."Document Type"::"Credit Memo", Storage.Get(ReverseDocumentNoLbl), 12);
     end;
 
-    local procedure CreateAndPostPurchaseReturnFromCopyDocument(VAR PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
+    local procedure UpdateVendorSetupWithGST(
+        VendorNo: Code[20];
+        GSTVendorType: Enum "GST Vendor Type";
+        AssociateEnterprise: Boolean;
+        StateCode: Code[10];
+        PANNo: Code[20])
     var
-        LibraryPurchase: Codeunit "Library - Purchase";
-        CopyDocMgt: Codeunit "Copy Document Mgt.";
+        Vendor: Record Vendor;
+        State: Record State;
+    begin
+        Vendor.Get(VendorNo);
+        if (GSTVendorType <> GSTVendorType::Import) then begin
+            State.Get(StateCode);
+            Vendor.Validate("State Code", StateCode);
+            Vendor.Validate("P.A.N. No.", PANNo);
+            if not ((GSTVendorType = GSTVendorType::" ") or (GSTVendorType = GSTVendorType::Unregistered)) then
+                Vendor.Validate("GST Registration No.", LibraryGST.GenerateGSTRegistrationNo(State."State Code (GST Reg. No.)", PANNo));
+        end;
+        Vendor.Validate("GST Vendor Type", GSTVendorType);
+        if Vendor."GST Vendor Type" = vendor."GST Vendor Type"::Import then begin
+            Vendor.Validate("Currency Code", LibraryGST.CreateCurrencyCode());
+            if StorageBoolean.ContainsKey(AssociatedVendorLbl) then
+                vendor.Validate("Associated Enterprises", AssociateEnterprise);
+        end;
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreateTaxRate()
+    var
+        GSTSetup: Record "GST Setup";
+        TaxTypes: TestPage "Tax Types";
+    begin
+        if not GSTSetup.Get() then
+            exit;
+
+        TaxTypes.OpenEdit();
+        TaxTypes.Filter.SetFilter(Code, GSTSetup."GST Tax Type");
+        TaxTypes.TaxRates.Invoke();
+    end;
+
+    local procedure CreateAndPostPurchaseReturnFromCopyDocument(
+        var PurchaseHeader: Record "Purchase Header";
+        DocumentType: Enum "Purchase Document Type")
+    var
+        CopyDocumentMgt: Codeunit "Copy Document Mgt.";
         ReverseDocumentNo: Code[20];
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, Storage.Get('VendorNo'));
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, Storage.Get(VendorNoLbl));
         PurchaseHeader.Validate("Posting Date", WorkDate());
-        PurchaseHeader.Validate("Location Code", CopyStr(Storage.Get('LocationCode'), 1, MaxStrLen(PurchaseHeader."Location Code")));
+        PurchaseHeader.Validate("Location Code", CopyStr(Storage.Get(LocationCodeLbl), 1, MaxStrLen(PurchaseHeader."Location Code")));
         PurchaseHeader.Modify(true);
-        CopyDocMgt.SetProperties(true, false, false, false, true, false, false);
-        CopyDocMgt.CopyPurchaseDocForInvoiceCancelling(Storage.Get('PostedDocumentNo'), PurchaseHeader);
+        CopyDocumentMgt.SetProperties(true, false, false, false, true, false, false);
+        CopyDocumentMgt.CopyPurchaseDocForInvoiceCancelling(Storage.Get(PostedDocumentNoLbl), PurchaseHeader);
         UpdateReferenceInvoiceNoAndVerify(PurchaseHeader);
         ReverseDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        Storage.set('ReverseDocumentNo', ReverseDocumentNo);
+        Storage.Set(ReverseDocumentNoLbl, ReverseDocumentNo);
     end;
 
     local procedure UpdateReferenceInvoiceNoAndVerify(var PurchaseHeader: Record "Purchase Header")
     var
         ReferenceInvoiceNo: Record "Reference Invoice No.";
-        ReferenceInvoiceNoMgt: codeunit "Reference Invoice No. Mgt.";
+        ReferenceInvoiceNoMgt: Codeunit "Reference Invoice No. Mgt.";
     begin
         UpdatePurchaseLine(PurchaseHeader);
         ReferenceInvoiceNo.Init();
@@ -2396,7 +2469,7 @@ codeunit 18138 "GST Purchase Return Registered"
         end;
         ReferenceInvoiceNo.Validate("Source Type", ReferenceInvoiceNo."Source Type"::Vendor);
         ReferenceInvoiceNo.Validate("Source No.", PurchaseHeader."Buy-from Vendor No.");
-        ReferenceInvoiceNo.Validate("Reference Invoice Nos.", Storage.Get('PostedDocumentNo'));
+        ReferenceInvoiceNo.Validate("Reference Invoice Nos.", Storage.Get(PostedDocumentNoLbl));
         ReferenceInvoiceNo.Insert(true);
         ReferenceInvoiceNoMgt.UpdateReferenceInvoiceNoforVendor(ReferenceInvoiceNo, ReferenceInvoiceNo."Document Type", ReferenceInvoiceNo."Document No.");
         ReferenceInvoiceNoMgt.VerifyReferenceNo(ReferenceInvoiceNo);
@@ -2415,17 +2488,15 @@ codeunit 18138 "GST Purchase Return Registered"
             until PurchaseLine.Next() = 0;
     end;
 
-    [ModalPageHandler]
-    procedure VendorLedgerEntries(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
-    begin
-
-    end;
-
-    local procedure CreateGSTSetup(GSTVendorType: Enum "GST Vendor Type"; GSTGroupType: Enum "GST Group Type"; IntraState: Boolean; ReverseCharge: Boolean)
+    local procedure CreateGSTSetup(
+        GSTVendorType: Enum "GST Vendor Type";
+        GSTGroupType: Enum "GST Group Type";
+        IntraState: Boolean;
+        ReverseCharge: Boolean)
     var
         GSTGroup: Record "GST Group";
         HSNSAC: Record "HSN/SAC";
-        GSTComponent: Record "Tax Component";
+        TaxComponent: Record "Tax Component";
         CompanyInformation: Record "Company information";
         LocationStateCode: Code[10];
         VendorNo: Code[20];
@@ -2433,10 +2504,10 @@ codeunit 18138 "GST Purchase Return Registered"
         LocationCode: Code[10];
         HSNSACCode: Code[10];
         VendorStateCode: Code[10];
-        LocPan: Code[20];
+        LocPANNo: Code[20];
         LocationGSTRegNo: Code[15];
         HsnSacType: Enum "GST Goods And Services Type";
-        GSTcomponentcode: Text[30];
+        GSTComponentCode: Text[30];
     begin
         CompanyInformation.Get();
 
@@ -2444,177 +2515,164 @@ codeunit 18138 "GST Purchase Return Registered"
             CompanyInformation."P.A.N. No." := LibraryGST.CreatePANNos();
             CompanyInformation.Modify();
         end else
-            LocPan := CompanyInformation."P.A.N. No.";
-        LocPan := CompanyInformation."P.A.N. No.";
+            LocPANNo := CompanyInformation."P.A.N. No.";
+        LocPANNo := CompanyInformation."P.A.N. No.";
         LocationStateCode := LibraryGST.CreateInitialSetup();
-        Storage.Set('LocationStateCode', LocationStateCode);
+        Storage.Set(LocationStateCodeLbl, LocationStateCode);
 
-        LocationGSTRegNo := LibraryGST.CreateGSTRegistrationNos(LocationStateCode, LocPan);
+        LocationGSTRegNo := LibraryGST.CreateGSTRegistrationNos(LocationStateCode, LocPANNo);
         if CompanyInformation."GST Registration No." = '' then begin
             CompanyInformation."GST Registration No." := LocationGSTRegNo;
-            CompanyInformation.MODIFY(TRUE);
+            CompanyInformation.Modify(true);
         end;
 
-        LocationCode := LibraryGST.CreateLocationSetup(LocationStateCode, LocationGSTRegNo, FALSE);
-        Storage.Set('LocationCode', LocationCode);
+        LocationCode := LibraryGST.CreateLocationSetup(LocationStateCode, LocationGSTRegNo, false);
+        Storage.Set(LocationCodeLbl, LocationCode);
 
         GSTGroupCode := LibraryGST.CreateGSTGroup(GSTGroup, GSTGroupType, GSTGroup."GST Place Of Supply"::"Bill-to Address", ReverseCharge);
-        Storage.Set('GSTGroupCode', GSTGroupCode);
+        Storage.Set(GSTGroupCodeLbl, GSTGroupCode);
 
         HSNSACCode := LibraryGST.CreateHSNSACCode(HSNSAC, GSTGroupCode, HsnSacType::HSN);
-        Storage.Set('HSNSACCode', HSNSACCode);
+        Storage.Set(HSNSACCodeLbl, HSNSACCode);
 
         if IntraState then begin
             VendorNo := LibraryGST.CreateVendorSetup();
-            UpdateVendorSetupWithGST(VendorNo, GSTVendorType, false, LocationStateCode, LocPan);
+            UpdateVendorSetupWithGST(VendorNo, GSTVendorType, false, LocationStateCode, LocPANNo);
             InitializeTaxRateParameters(IntraState, LocationStateCode, LocationStateCode);
-            CreateGSTComponentAndPostingSetup(IntraState, LocationStateCode, GSTComponent, GSTcomponentcode);
+            CreateGSTComponentAndPostingSetup(IntraState, LocationStateCode, TaxComponent, GSTComponentCode);
         end else begin
             VendorStateCode := LibraryGST.CreateGSTStateCode();
             VendorNo := LibraryGST.CreateVendorSetup();
-            UpdateVendorSetupWithGST(VendorNo, GSTVendorType, false, VendorStateCode, LocPan);
-            Storage.Set('VendorStateCode', VendorStateCode);
+            UpdateVendorSetupWithGST(VendorNo, GSTVendorType, false, VendorStateCode, LocPANNo);
+
             if GSTVendorType in [GSTVendorType::Import, GSTVendorType::SEZ] then
-                InitializeTaxRateParameters(IntraState, LocationStateCode, '')
+                InitializeTaxRateParameters(IntraState, '', LocationStateCode)
             else begin
                 InitializeTaxRateParameters(IntraState, VendorStateCode, LocationStateCode);
-                CreateGSTComponentAndPostingSetup(IntraState, VendorStateCode, GSTComponent, GSTcomponentcode);
+                CreateGSTComponentAndPostingSetup(IntraState, VendorStateCode, TaxComponent, GSTComponentCode);
             end;
         end;
-        Storage.Set('VendorNo', VendorNo);
-        CreateTaxRate(false);
-        CreateGSTComponentAndPostingSetup(IntraState, LocationStateCode, GSTComponent, GSTcomponentcode);
+
+        Storage.Set(VendorNoLbl, VendorNo);
+        CreateTaxRate();
+        CreateGSTComponentAndPostingSetup(IntraState, LocationStateCode, TaxComponent, GSTComponentCode);
     end;
 
-    local procedure InitializeShareStep(InputCreditAvailment: Boolean; Exempted: Boolean; LineDiscount: Boolean)
+    local procedure InitializeShareStep(
+        InputCreditAvailment: Boolean;
+        Exempted: Boolean;
+        LineDiscount: Boolean)
     begin
-        StorageBoolean.Set('InputCreditAvailment', InputCreditAvailment);
-        StorageBoolean.Set('Exempted', Exempted);
-        StorageBoolean.Set('LineDiscount', LineDiscount);
+        StorageBoolean.Set(InputCreditAvailmentLbl, InputCreditAvailment);
+        StorageBoolean.Set(ExemptedLbl, Exempted);
+        StorageBoolean.Set(LineDiscountLbl, LineDiscount);
     end;
 
-    local procedure InitializeAssociateVendor(InputCreditAvailment: Boolean; Exempted: Boolean; LineDiscount: Boolean; AssociatedVendor: Boolean)
+    local procedure InitializeAssociateVendor(
+        InputCreditAvailment: Boolean;
+        Exempted: Boolean;
+        LineDiscount: Boolean;
+        AssociatedVendor: Boolean)
     var
         Vendor: Record Vendor;
     begin
-        if Vendor.Get(Storage.Get('VendorNo')) and AssociatedVendor then begin
+        if Vendor.Get(Storage.Get(VendorNoLbl)) and AssociatedVendor then begin
             Vendor.Validate("Associated Enterprises", true);
             Vendor.Modify();
         end;
-        StorageBoolean.Set('InputCreditAvailment', InputCreditAvailment);
-        StorageBoolean.Set('Exempted', Exempted);
-        StorageBoolean.Set('LineDiscount', LineDiscount);
-    end;
-
-
-    procedure UpdateVendorSetupWithGST(VendorNo: Code[20];
-                        GSTVendorType: Enum "GST Vendor Type";
-                        AssociateEnterprise: boolean;
-                        StateCode: Code[10];
-                        Pan: Code[20]);
-    var
-        Vendor: Record Vendor;
-        State: Record State;
-    begin
-        Vendor.Get(VendorNo);
-        if (GSTVendorType <> GSTVendorType::Import) then begin
-            State.Get(StateCode);
-            Vendor.Validate("State Code", StateCode);
-            Vendor.Validate("P.A.N. No.", Pan);
-            if not ((GSTVendorType = GSTVendorType::" ") OR (GSTVendorType = GSTVendorType::Unregistered)) then
-                Vendor.Validate("GST Registration No.", LibraryGST.GenerateGSTRegistrationNo(State."State Code (GST Reg. No.)", Pan));
-        end;
-        Vendor.Validate("GST Vendor Type", GSTVendorType);
-        if Vendor."GST Vendor Type" = vendor."GST Vendor Type"::Import then begin
-            Vendor.Validate("Currency Code", LibraryGST.CreateCurrencyCode());
-            if StorageBoolean.ContainsKey('AssociatedVendor') then
-                vendor.Validate("Associated Enterprises", AssociateEnterprise);
-        end;
-        Vendor.Modify(true);
+        StorageBoolean.Set(InputCreditAvailmentLbl, InputCreditAvailment);
+        StorageBoolean.Set(ExemptedLbl, Exempted);
+        StorageBoolean.Set(LineDiscountLbl, LineDiscount);
     end;
 
     local procedure UpdateInputServiceDistributer(InputServiceDistribute: Boolean)
     var
         LocationCode: Code[10];
     begin
-        LocationCode := CopyStr(Storage.Get('LocationCode'), 1, MaxStrLen(LocationCode));
+        LocationCode := CopyStr(Storage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
         LibraryGST.UpdateLocationWithISD(LocationCode, InputServiceDistribute);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header";
-                           var PurchaseLine: Record "Purchase Line";
-                           LineType: Enum "Purchase Line Type";
-                           DocumentType: Enum "Purchase Document Type"): Code[20];
+    local procedure CreateAndPostPurchaseDocument(
+        var PurchaseHeader: Record "Purchase Header";
+        var PurchaseLine: Record "Purchase Line";
+        LineType: Enum "Purchase Line Type";
+        DocumentType: Enum "Purchase Document Type"): Code[20];
     var
-        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         VendorNo: Code[20];
         LocationCode: Code[10];
         DocumentNo: Code[20];
         PurchaseInvoiceType: Enum "GST Invoice Type";
     begin
-        VendorNo := Storage.Get('VendorNo');
-        Evaluate(LocationCode, CopyStr(Storage.Get('LocationCode'), 1, MaxStrLen(LocationCode)));
+        VendorNo := Storage.Get(VendorNoLbl);
+        Evaluate(LocationCode, CopyStr(Storage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode)));
         CreatePurchaseHeaderWithGST(PurchaseHeader, VendorNo, DocumentType, LocationCode, PurchaseInvoiceType::" ");
-        CreatePurchaseLineWithGST(PurchaseHeader, PurchaseLine, LineType, LibraryRandom.RandDecInRange(2, 10, 0), StorageBoolean.Get('InputCreditAvailment'), StorageBoolean.Get('Exempted'), StorageBoolean.Get('LineDiscount'));
+        CreatePurchaseLineWithGST(PurchaseHeader, PurchaseLine, LineType, LibraryRandom.RandDecInRange(2, 10, 0), StorageBoolean.Get(InputCreditAvailmentLbl), StorageBoolean.Get(ExemptedLbl), StorageBoolean.Get(LineDiscountLbl));
         if not (PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Quote) then begin
-            DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, TRUE, TRUE);
-            Storage.Set('PostedDocumentNo', DocumentNo);
+            DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+            Storage.Set(PostedDocumentNoLbl, DocumentNo);
             exit(DocumentNo);
         end;
     end;
 
-    local procedure CreatePurchaseHeaderWithGST(VAR PurchaseHeader: Record "Purchase Header";
-                           VendorNo: Code[20];
-                           DocumentType: Enum "Purchase Document Type";
-                           LocationCode: Code[10];
-                           PurchaseInvoiceType: Enum "GST Invoice Type")
+    local procedure CreatePurchaseHeaderWithGST(
+        var PurchaseHeader: Record "Purchase Header";
+        VendorNo: Code[20];
+        DocumentType: Enum "Purchase Document Type";
+        LocationCode: Code[10];
+        PurchaseInvoiceType: Enum "GST Invoice Type")
     var
-        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         Overseas: Boolean;
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Posting Date", WorkDate());
-        PurchaseHeader.VALIDATE("Location Code", LocationCode);
+        PurchaseHeader.Validate("Location Code", LocationCode);
         if Overseas then
             PurchaseHeader.Validate("POS Out Of India", true);
         if PurchaseInvoiceType in [PurchaseInvoiceType::"Debit Note", PurchaseInvoiceType::Supplementary] then
-            PurchaseHeader.validate("Vendor Invoice No.", LibraryUtility.GenerateRandomCode(PurchaseHeader.fieldno("Vendor Invoice No."), Database::"Purchase Header"))
+            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."), Database::"Purchase Header"))
         else
-            PurchaseHeader.validate("Vendor Cr. Memo No.", LibraryUtility.GenerateRandomCode(PurchaseHeader.fieldno("Vendor Cr. Memo No."), Database::"Purchase Header"));
+            PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Cr. Memo No."), Database::"Purchase Header"));
         if PurchaseHeader."GST Vendor Type" = PurchaseHeader."GST Vendor Type"::SEZ then begin
-            PurchaseHeader."Bill of Entry No." := LibraryUtility.GenerateRandomCode(PurchaseHeader.fieldno("Bill of Entry No."), Database::"Purchase Header");
+            PurchaseHeader."Bill of Entry No." := LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Bill of Entry No."), Database::"Purchase Header");
             PurchaseHeader."Bill of Entry Date" := WorkDate();
             PurchaseHeader."Bill of Entry Value" := LibraryRandom.RandInt(1000);
         end;
-        PurchaseHeader.MODIFY(TRUE);
+        PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseLineWithGST(VAR PurchaseHeader: Record "Purchase Header"; VAR PurchaseLine: Record "Purchase Line"; LineType: Enum "Purchase Line Type"; Quantity: Decimal; InputCreditAvailment: Boolean; Exempted: Boolean; LineDiscount: Boolean);
+    local procedure CreatePurchaseLineWithGST(
+        var PurchaseHeader: Record "Purchase Header";
+        var PurchaseLine: Record "Purchase Line";
+        LineType: Enum "Purchase Line Type";
+        Quantity: Decimal;
+        InputCreditAvailment: Boolean;
+        Exempted: Boolean;
+        LineDiscount: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryPurchase: Codeunit "Library - Purchase";
         LineTypeNo: Code[20];
         LineNo: Integer;
         NoOfLine: Integer;
     begin
-        Exempted := StorageBoolean.Get('Exempted');
-        Evaluate(NoOfLine, Storage.Get('NoOfLine'));
-        InputCreditAvailment := StorageBoolean.Get('InputCreditAvailment');
+        Exempted := StorageBoolean.Get(ExemptedLbl);
+        Evaluate(NoOfLine, Storage.Get(NoOfLineLbl));
+        InputCreditAvailment := StorageBoolean.Get(InputCreditAvailmentLbl);
         for LineNo := 1 to NoOfLine do begin
             case LineType of
                 LineType::Item:
-                    LineTypeNo := LibraryGST.CreateItemWithGSTDetails(VATPostingSetup, (Storage.Get('GSTGroupCode')), (Storage.Get('HSNSACCode')), InputCreditAvailment, Exempted);
+                    LineTypeNo := LibraryGST.CreateItemWithGSTDetails(VATPostingSetup, (Storage.Get(GSTGroupCodeLbl)), (Storage.Get(HSNSACCodeLbl)), InputCreditAvailment, Exempted);
                 LineType::"G/L Account":
-                    LineTypeNo := LibraryGST.CreateGLAccWithGSTDetails(VATPostingSetup, (Storage.Get('GSTGroupCode')), (Storage.Get('HSNSACCode')), InputCreditAvailment, FALSE);
+                    LineTypeNo := LibraryGST.CreateGLAccWithGSTDetails(VATPostingSetup, (Storage.Get(GSTGroupCodeLbl)), (Storage.Get(HSNSACCodeLbl)), InputCreditAvailment, false);
                 LineType::"Fixed Asset":
-                    LineTypeNo := LibraryGST.CreateFixedAssetWithGSTDetails(VATPostingSetup, (Storage.Get('GSTGroupCode')), (Storage.Get('HSNSACCode')), InputCreditAvailment, Exempted);
+                    LineTypeNo := LibraryGST.CreateFixedAssetWithGSTDetails(VATPostingSetup, (Storage.Get(GSTGroupCodeLbl)), (Storage.Get(HSNSACCodeLbl)), InputCreditAvailment, Exempted);
             end;
             LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType, LineTypeno, Quantity);
-            PurchaseLine.VALIDATE("VAT Prod. Posting Group", VATPostingsetup."VAT Prod. Posting Group");
+            PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingsetup."VAT Prod. Posting Group");
             if InputCreditAvailment then
                 PurchaseLine."GST Credit" := PurchaseLine."GST Credit"::Availment
             else
@@ -2628,40 +2686,45 @@ codeunit 18138 "GST Purchase Return Registered"
             if (PurchaseHeader."GST Vendor Type" in [PurchaseHeader."GST Vendor Type"::Import, PurchaseHeader."GST Vendor Type"::SEZ]) and
                         (not (PurchaseLine.Type in [PurchaseLine.Type::" ", PurchaseLine.Type::"Charge (Item)"])) then begin
                 PurchaseLine.Validate("GST Assessable Value", LibraryRandom.RandInt(1000));
-                if PurchaseLine.Type In [PurchaseLine.Type::Item, PurchaseLine.Type::"G/L Account"] then
+                if PurchaseLine.Type in [PurchaseLine.Type::Item, PurchaseLine.Type::"G/L Account"] then
                     PurchaseLine.Validate("Custom Duty Amount", LibraryRandom.RandInt(1000));
             end;
-            PurchaseLine.VALIDATE("Direct Unit Cost", LibraryRandom.RandInt(1000));
-            PurchaseLine.MODIFY(TRUE);
+            PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
+            PurchaseLine.Modify(true);
         end;
     end;
 
-    local procedure CreateGSTComponentAndPostingSetup(IntraState: Boolean; LocationStateCode: Code[10]; GSTComponent: Record "Tax Component"; GSTcomponentcode: Text[30]);
+    local procedure CreateGSTComponentAndPostingSetup(
+        IntraState: Boolean;
+        LocationStateCode: Code[10];
+        TaxComponent: Record "Tax Component";
+        GSTComponentCode: Text[30])
     begin
-        IF IntraState THEN begin
-            GSTcomponentcode := 'CGST';
-            LibraryGST.CreateGSTComponent(GSTComponent, GSTcomponentcode);
-            LibraryGST.CreateGSTPostingSetup(GSTComponent, LocationStateCode);
-            GSTcomponentcode := 'UTGST';
-            LibraryGST.CreateGSTComponent(GSTComponent, GSTcomponentcode);
-            LibraryGST.CreateGSTPostingSetup(GSTComponent, LocationStateCode);
-            GSTcomponentcode := 'SGST';
-            LibraryGST.CreateGSTComponent(GSTComponent, GSTcomponentcode);
-            LibraryGST.CreateGSTPostingSetup(GSTComponent, LocationStateCode);
+        if IntraState then begin
+            GSTComponentCode := CGSTLbl;
+            LibraryGST.CreateGSTComponent(TaxComponent, GSTComponentCode);
+            LibraryGST.CreateGSTPostingSetup(TaxComponent, LocationStateCode);
+
+            GSTComponentCode := SGSTLbl;
+            LibraryGST.CreateGSTComponent(TaxComponent, GSTComponentCode);
+            LibraryGST.CreateGSTPostingSetup(TaxComponent, LocationStateCode);
         end else begin
-            GSTcomponentcode := 'IGST';
-            LibraryGST.CreateGSTComponent(GSTComponent, GSTcomponentcode);
-            LibraryGST.CreateGSTPostingSetup(GSTComponent, LocationStateCode);
+            GSTComponentCode := IGSTLbl;
+            LibraryGST.CreateGSTComponent(TaxComponent, GSTComponentCode);
+            LibraryGST.CreateGSTPostingSetup(TaxComponent, LocationStateCode);
         end;
     end;
 
-    Local procedure InitializeTaxRateParameters(IntraState: Boolean; FromState: Code[10]; ToState: Code[10])
+    local procedure InitializeTaxRateParameters(
+        IntraState: Boolean;
+        FromState: Code[10];
+        ToState: Code[10])
     var
         LibraryRandom: Codeunit "Library - Random";
         GSTTaxPercent: Decimal;
     begin
-        Storage.Set('FromStateCode', FromState);
-        Storage.Set('ToStateCode', ToState);
+        Storage.Set(FromStateCodeLbl, FromState);
+        Storage.Set(ToStateCodeLbl, ToState);
         GSTTaxPercent := LibraryRandom.RandDecInRange(10, 18, 0);
         if IntraState then begin
             ComponentPerArray[1] := (GSTTaxPercent / 2);
@@ -2671,40 +2734,26 @@ codeunit 18138 "GST Purchase Return Registered"
             ComponentPerArray[4] := GSTTaxPercent;
     end;
 
-    procedure CreateTaxRate(POS: boolean)
-    var
-        TaxTypeSetup: Record "Tax Type Setup";
-        PageTaxtype: TestPage "Tax Types";
+    [ModalPageHandler]
+    procedure VendorLedgerEntries(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
-        TaxTypeSetup.Get();
-        PageTaxtype.OpenEdit();
-        PageTaxtype.Filter.SetFilter(Code, TaxTypeSetup.Code);
-        PageTaxtype.TaxRates.Invoke();
+        VendorLedgerEntries.OK().Invoke();
     end;
 
     [PageHandler]
-    procedure TaxRatePageHandler(var TaxRate: TestPage "Tax Rates")
+    procedure TaxRatePageHandler(var TaxRates: TestPage "Tax Rates")
     begin
-        TaxRate.AttributeValue1.SetValue(Storage.Get('HSNSACCode'));
-        TaxRate.AttributeValue2.SetValue(Storage.Get('GSTGroupCode'));
-        TaxRate.AttributeValue3.SetValue(Storage.Get('FromStateCode'));
-        TaxRate.AttributeValue4.SetValue(Storage.Get('ToStateCode'));
-        TaxRate.AttributeValue5.SetValue(WorkDate());
-        TaxRate.AttributeValue6.SetValue(CALCDATE('<10Y>', WorkDate()));
-        TaxRate.AttributeValue7.SetValue(componentPerArray[1]);
-        TaxRate.AttributeValue8.SetValue(componentPerArray[2]);
-        TaxRate.AttributeValue9.SetValue(componentPerArray[4]);
-        TaxRate.AttributeValue10.SetValue(componentPerArray[3]);
-        TaxRate.AttributeValue11.SetValue(componentPerArray[5]);
-        TaxRate.AttributeValue12.SetValue(componentPerArray[6]);
-        TaxRate.AttributeValue13.SetValue('');
-        TaxRate.AttributeValue14.SetValue('');
-        TaxRate.OK().Invoke();
+        TaxRates.New();
+        TaxRates.AttributeValue1.SetValue(Storage.Get(GSTGroupCodeLbl));
+        TaxRates.AttributeValue2.SetValue(Storage.Get(HSNSACCodeLbl));
+        TaxRates.AttributeValue3.SetValue(Storage.Get(FromStateCodeLbl));
+        TaxRates.AttributeValue4.SetValue(Storage.Get(ToStateCodeLbl));
+        TaxRates.AttributeValue5.SetValue(WorkDate());
+        TaxRates.AttributeValue6.SetValue(CalcDate('<10Y>', WorkDate()));
+        TaxRates.AttributeValue7.SetValue(ComponentPerArray[1]); // SGST
+        TaxRates.AttributeValue8.SetValue(ComponentPerArray[2]); // CGST
+        TaxRates.AttributeValue9.SetValue(ComponentPerArray[4]); // IGST
+        TaxRates.AttributeValue10.SetValue(ComponentPerArray[5]); // Cess
+        TaxRates.OK().Invoke();
     end;
-
-    var
-        LibraryGST: Codeunit "Library GST";
-        Storage: Dictionary of [Text, Code[20]];
-        ComponentPerArray: array[20] of Decimal;
-        StorageBoolean: Dictionary of [Text, Boolean];
 }

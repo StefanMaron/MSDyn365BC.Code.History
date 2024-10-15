@@ -3,7 +3,7 @@ enum 18248 "TDSTCS Type"
     Extensible = true;
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; TDS)
     {
@@ -13,5 +13,4 @@ enum 18248 "TDSTCS Type"
     {
         Caption = 'TCS';
     }
-
 }

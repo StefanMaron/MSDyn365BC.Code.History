@@ -45,7 +45,7 @@ page 20156 "Action Concatenate Dialog"
             {
                 Caption = 'Lines';
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "Script ID" = field("Script ID"), "Concatenate ID" = field(ID);
+                SubPageLink = "Case ID" = field("Case ID"), "Script ID" = field("Script ID"), "Concatenate ID" = field(ID);
             }
         }
     }

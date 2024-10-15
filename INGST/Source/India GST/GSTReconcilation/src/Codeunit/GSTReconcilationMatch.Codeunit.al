@@ -1,5 +1,20 @@
 codeunit 18280 "GST Reconcilation Match"
 {
+    var
+        GSTTolarance: Decimal;
+        Window: Dialog;
+        PostedGSTReconErr: Label 'Reconciliation has been already done for GSTIN No. %1,Month %2,Year %3.', Comment = 'Reconciliation has been already done for GSTIN No. %1,Month %2,Year %3.';
+        NotReconcileMsg: Label 'No records to reconcile.';
+        ReconciledMsg: Label 'Records has been reconciled.';
+        ReconRecMsg: Label 'Reconciling Records.';
+        ReconciledWithLedgerMsg: Label 'Records has been reconciled with ledger entries.';
+        SettlementErr: Label 'GST Settlement has been already done for the given Month %1 and Year %2 for GST Registration No. %3.', Comment = 'GST Settlement has been already done for the given Month %1 and Year %2 for GST Registration No. %3';
+        GSTReconMapErr: Label 'GST Recon Mapping must have setup for all components defined in the Retrun & Reco. Components Page';
+        ReconLineMsg: Label 'GST Reconcile Line.';
+        GSTCrAdjFilterErr: Label 'Filter Criteria is not matching with Detailed GST Ledger Entry.';
+        TaxableValErr: Label 'Taxable Value is not Matching with GSTR-2A Data.';
+        WindowUpdateMsg: Label '%1,%2', Comment = '%1=GSTIN No. ,%2= External Document No.';
+
     procedure CalculateMonth(CalMonth: Integer; CalYear: Integer): Date
     begin
         exit(CalcDate('<CM>', DMY2Date(1, CalMonth, CalYear)));
@@ -47,9 +62,9 @@ codeunit 18280 "GST Reconcilation Match"
         GSTReconcilationLines2.CopyFilters(GSTReconcilationLines);
         GSTReconcilationLines2.SetRange(Reconciled, true);
         if GSTReconcilationLines2.Count() >= 1 then begin
-            GSTReconcilationLines2.ModIfyAll("Error Type", '');
-            GSTReconcilationLines2.ModIfyAll("Reconciliation Date", PostingDate);
-            GSTReconcilationLines2.ModIfyAll("User Id", USERID());
+            GSTReconcilationLines2.ModifyAll("Error Type", '');
+            GSTReconcilationLines2.ModifyAll("Reconciliation Date", PostingDate);
+            GSTReconcilationLines2.ModifyAll("User Id", UserId());
             Message(ReconciledMsg);
         end else
             Message(NotReconcileMsg);
@@ -57,7 +72,7 @@ codeunit 18280 "GST Reconcilation Match"
         PeriodicGSTR2AData.SetRange(Month, GSTReconcilationLines.Month);
         PeriodicGSTR2AData.SetRange(Year, GSTReconcilationLines.Year);
         PeriodicGSTR2AData.SetRange(Matched, PeriodicGSTR2AData.Matched::" ");
-        PeriodicGSTR2AData.ModIfyAll(Matched, PeriodicGSTR2AData.Matched::"No Line");
+        PeriodicGSTR2AData.ModifyAll(Matched, PeriodicGSTR2AData.Matched::"No Line");
     end;
 
     procedure UpdateGSTReconcilationLine(GSTRegNo: Code[20]; GSTMonth: Integer; GSTYear: Integer)
@@ -161,11 +176,7 @@ codeunit 18280 "GST Reconcilation Match"
         Window.Close();
     end;
 
-    procedure PreparePostGSTReconcilation(
-        GSTRegNo: Code[20];
-        PostingDate: Date;
-        PostMonth: Integer;
-        PostYear: Integer)
+    procedure PreparePostGSTReconcilation(GSTRegNo: Code[20]; PostingDate: Date; PostMonth: Integer; PostYear: Integer)
     begin
         UpdateDetailedGSTLedgerEntryAfterRecon(GSTRegNo, PostMonth, PostYear);
         UpdateGST2ADataAfterPosting(GSTRegNo, PostMonth, PostYear, PostingDate);
@@ -173,10 +184,7 @@ codeunit 18280 "GST Reconcilation Match"
         Message(ReconciledWithLedgerMsg);
     end;
 
-    procedure UpdateDetailedGSTLedgerEntryAfterRecon(
-        GSTRegNo: Code[20];
-        PostingMonth: Integer;
-        PostingYear: Integer)
+    procedure UpdateDetailedGSTLedgerEntryAfterRecon(GSTRegNo: Code[20]; PostingMonth: Integer; PostingYear: Integer)
     var
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         GSTReconcilationLines: Record "GST Reconcilation Line";
@@ -216,6 +224,82 @@ codeunit 18280 "GST Reconcilation Match"
         PostedGSTReconciliation.SetRange("Source Type", PostedGSTReconciliation."Source Type"::Settlement);
         if not PostedGSTReconciliation.IsEmpty() then
             Error(SettlementErr, RecMonth, RecYear, GSTINNo);
+    end;
+
+    procedure ValidateCompAmtWithPeriodicData(
+        var GSTReconcilationLine: Record "GST Reconcilation Line";
+        var PeriodicGSTR2AData: Record "Periodic GSTR-2A Data"): Boolean
+    var
+        GenLedgerSetup: Record "General Ledger Setup";
+    begin
+        GenLedgerSetup.Get();
+        GSTTolarance := GenLedgerSetup."GST Recon. Tolerance";
+        begin
+            if (GSTReconcilationLine."Taxable Value" > PeriodicGSTR2AData."Taxable Value" + GSTTolarance) or
+               (GSTReconcilationLine."Taxable Value" < PeriodicGSTR2AData."Taxable Value" - GSTTolarance)
+            then
+                GSTReconcilationLine."Error Type" := TaxableValErr;
+
+            if GSTReconcilationLine."Component 1 Amount" <> 0 then
+                UpdateErrorTypeForCompAmt(
+                    GSTReconcilationLine,
+                    PeriodicGSTR2AData."Component 1 Amount",
+                    GSTReconcilationLine."Component 1 Amount",
+                    GSTTolarance,
+                    GSTReconcilationLine.FieldNo("Component 1 Amount"));
+            if GSTReconcilationLine."Component 2 Amount" <> 0 then
+                UpdateErrorTypeForCompAmt(
+                    GSTReconcilationLine,
+                    PeriodicGSTR2AData."Component 2 Amount",
+                    GSTReconcilationLine."Component 2 Amount",
+                    GSTTolarance,
+                    GSTReconcilationLine.FieldNo("Component 2 Amount"));
+            if GSTReconcilationLine."Component 3 Amount" <> 0 then
+                UpdateErrorTypeForCompAmt(
+                    GSTReconcilationLine,
+                    PeriodicGSTR2AData."Component 3 Amount",
+                    GSTReconcilationLine."Component 3 Amount",
+                    GSTTolarance,
+                    GSTReconcilationLine.FieldNo("Component 3 Amount"));
+            if GSTReconcilationLine."Component 4 Amount" <> 0 then
+                UpdateErrorTypeForCompAmt(
+                    GSTReconcilationLine,
+                    PeriodicGSTR2AData."Component 4 Amount",
+                    GSTReconcilationLine."Component 4 Amount",
+                    GSTTolarance,
+                    GSTReconcilationLine.FieldNo("Component 4 Amount"));
+            if GSTReconcilationLine."Component 5 Amount" <> 0 then
+                UpdateErrorTypeForCompAmt(
+                    GSTReconcilationLine,
+                    PeriodicGSTR2AData."Component 5 Amount",
+                    GSTReconcilationLine."Component 5 Amount",
+                    GSTTolarance,
+                    GSTReconcilationLine.FieldNo("Component 5 Amount"));
+            if GSTReconcilationLine."Component 6 Amount" <> 0 then
+                UpdateErrorTypeForCompAmt(
+                    GSTReconcilationLine,
+                    PeriodicGSTR2AData."Component 6 Amount",
+                    GSTReconcilationLine."Component 6 Amount",
+                    GSTTolarance,
+                    GSTReconcilationLine.FieldNo("Component 6 Amount"));
+            if GSTReconcilationLine."Component 7 Amount" <> 0 then
+                UpdateErrorTypeForCompAmt(
+                    GSTReconcilationLine,
+                    PeriodicGSTR2AData."Component 7 Amount",
+                    GSTReconcilationLine."Component 7 Amount",
+                    GSTTolarance,
+                    GSTReconcilationLine.FieldNo("Component 7 Amount"));
+            if GSTReconcilationLine."Component 8 Amount" <> 0 then
+                UpdateErrorTypeForCompAmt(
+                    GSTReconcilationLine,
+                    PeriodicGSTR2AData."Component 8 Amount",
+                    GSTReconcilationLine."Component 8 Amount",
+                    GSTTolarance,
+                    GSTReconcilationLine.FieldNo("Component 8 Amount"));
+        end;
+
+        if GSTReconcilationLine."Error Type" = '' then
+            exit(true);
     end;
 
     local procedure DeleteGSTReconcilationLine(GSTINNo: Code[20]; GSTMonth: Integer; GSTYear: Integer)
@@ -306,31 +390,32 @@ codeunit 18280 "GST Reconcilation Match"
         GSTMonth: Integer;
         GSTYear: Integer)
     var
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
         GSTRegistrationNos: Record "GST Registration Nos.";
-        GSTGroupType: Text;
     begin
-        // TODO: Enum to be fixed
-        GSTGroupType := Format(DetailedGSTLedgerEntry."GST Group Type");
-        Evaluate(GSTReconcilationLine."Goods/Services", GSTGroupType);
+        if DetailedGSTLedgerEntryInfo.Get(DetailedGSTLedgerEntry."Entry No.") then
+            GSTReconcilationLine."State Code" := DetailedGSTLedgerEntryInfo."Location State Code";
 
         GSTReconcilationLine."GSTIN No." := GSTRegNo;
-        GSTReconcilationLine."State Code" := DetailedGSTLedgerEntry."Location State Code";
         GSTReconcilationLine.Month := GSTMonth;
         GSTReconcilationLine.Year := GSTYear;
         if DetailedGSTLedgerEntry."Document Type" = DetailedGSTLedgerEntry."Document Type"::Invoice then
             GSTReconcilationLine."Document Type" := GSTReconcilationLine."Document Type"::Invoice
         else
             GSTReconcilationLine."Document Type" := GSTReconcilationLine."Document Type"::"Credit Note";
+
         GSTReconcilationLine."GSTIN of Supplier" := DetailedGSTLedgerEntry."Buyer/Seller Reg. No.";
         GSTReconcilationLine."Document No." := DetailedGSTLedgerEntry."Document No.";
         GSTReconcilationLine."Document Date" := DetailedGSTLedgerEntry."Posting Date";
+        GSTReconcilationLine."Goods/Services" := DetailedGSTLedgerEntry."GST group type";
         GSTReconcilationLine."External Document No." := DetailedGSTLedgerEntry."External Document No.";
         if DetailedGSTLedgerEntry."GST Credit" = DetailedGSTLedgerEntry."GST Credit"::Availment then
             GSTReconcilationLine."GST Credit" := GSTReconcilationLine."GST Credit"::Availment;
+
         if DetailedGSTLedgerEntry."GST Credit" = DetailedGSTLedgerEntry."GST Credit"::"Non-Availment" then
             GSTReconcilationLine."GST Credit" := GSTReconcilationLine."GST Credit"::"Non-Availment";
-        GSTReconcilationLine."Credit Availed" := DetailedGSTLedgerEntry."Credit Availed";
 
+        GSTReconcilationLine."Credit Availed" := DetailedGSTLedgerEntry."Credit Availed";
         GSTRegistrationNos.Get(GSTRegNo);
         GSTReconcilationLine."Input Service Distribution" := GSTRegistrationNos."Input Service Distributor";
         GSTReconcilationLine.Insert(true);
@@ -355,8 +440,8 @@ codeunit 18280 "GST Reconcilation Match"
             DetailedGSTLedgerEntry.SetRange("Document No.", GSTReconcilationLine."Document No.");
             DetailedGSTLedgerEntry.SetRange("GST Component Code", GSTReconMapping."GST Component Code");
             if DetailedGSTLedgerEntry.FindFirst() then begin
-                DetailedGSTLedgerEntry.CALCSUMS("GST Amount");
-                DetailedGSTLedgerEntry.CALCSUMS("GST Base Amount");
+                DetailedGSTLedgerEntry.CalcSums("GST Amount");
+                DetailedGSTLedgerEntry.CalcSums("GST Base Amount");
                 case GSTReconMapping."GST Reconciliation Field No." of
                     GSTReconcilationLine.FieldNo("Component 1 Amount"):
                         begin
@@ -426,84 +511,8 @@ codeunit 18280 "GST Reconcilation Match"
     begin
         DetailedGSTLedgerEntry2.CopyFilters(DetailedGSTLedgerEntry);
         DetailedGSTLedgerEntry2.SetRange("GST Credit", DetailedGSTLedgerEntry2."GST Credit"::Availment);
-        DetailedGSTLedgerEntry2.CALCSUMS("GST Amount");
+        DetailedGSTLedgerEntry2.CalcSums("GST Amount");
         exit(DetailedGSTLedgerEntry2."GST Amount");
-    end;
-
-    procedure ValidateCompAmtWithPeriodicData(
-        var GSTReconcilationLine: Record "GST Reconcilation Line";
-        var PeriodicGSTR2AData: Record "Periodic GSTR-2A Data"): Boolean
-    var
-        GenLedgerSetup: Record "General Ledger Setup";
-    begin
-        GenLedgerSetup.Get();
-        GSTTolarance := GenLedgerSetup."GST Recon. Tolerance";
-        begin
-            if (GSTReconcilationLine."Taxable Value" > PeriodicGSTR2AData."Taxable Value" + GSTTolarance) or
-               (GSTReconcilationLine."Taxable Value" < PeriodicGSTR2AData."Taxable Value" - GSTTolarance)
-            then
-                GSTReconcilationLine."Error Type" := TaxableValErr;
-
-            if GSTReconcilationLine."Component 1 Amount" <> 0 then
-                UpdateErrorTypeForCompAmt(
-                    GSTReconcilationLine,
-                    PeriodicGSTR2AData."Component 1 Amount",
-                    GSTReconcilationLine."Component 1 Amount",
-                    GSTTolarance,
-                    GSTReconcilationLine.FieldNo("Component 1 Amount"));
-            if GSTReconcilationLine."Component 2 Amount" <> 0 then
-                UpdateErrorTypeForCompAmt(
-                    GSTReconcilationLine,
-                    PeriodicGSTR2AData."Component 2 Amount",
-                    GSTReconcilationLine."Component 2 Amount",
-                    GSTTolarance,
-                    GSTReconcilationLine.FieldNo("Component 2 Amount"));
-            if GSTReconcilationLine."Component 3 Amount" <> 0 then
-                UpdateErrorTypeForCompAmt(
-                    GSTReconcilationLine,
-                    PeriodicGSTR2AData."Component 3 Amount",
-                    GSTReconcilationLine."Component 3 Amount",
-                    GSTTolarance,
-                    GSTReconcilationLine.FieldNo("Component 3 Amount"));
-            if GSTReconcilationLine."Component 4 Amount" <> 0 then
-                UpdateErrorTypeForCompAmt(
-                    GSTReconcilationLine,
-                    PeriodicGSTR2AData."Component 4 Amount",
-                    GSTReconcilationLine."Component 4 Amount",
-                    GSTTolarance,
-                    GSTReconcilationLine.FieldNo("Component 4 Amount"));
-            if GSTReconcilationLine."Component 5 Amount" <> 0 then
-                UpdateErrorTypeForCompAmt(
-                    GSTReconcilationLine,
-                    PeriodicGSTR2AData."Component 5 Amount",
-                    GSTReconcilationLine."Component 5 Amount",
-                    GSTTolarance,
-                    GSTReconcilationLine.FieldNo("Component 5 Amount"));
-            if GSTReconcilationLine."Component 6 Amount" <> 0 then
-                UpdateErrorTypeForCompAmt(
-                    GSTReconcilationLine,
-                    PeriodicGSTR2AData."Component 6 Amount",
-                    GSTReconcilationLine."Component 6 Amount",
-                    GSTTolarance,
-                    GSTReconcilationLine.FieldNo("Component 6 Amount"));
-            if GSTReconcilationLine."Component 7 Amount" <> 0 then
-                UpdateErrorTypeForCompAmt(
-                    GSTReconcilationLine,
-                    PeriodicGSTR2AData."Component 7 Amount",
-                    GSTReconcilationLine."Component 7 Amount",
-                    GSTTolarance,
-                    GSTReconcilationLine.FieldNo("Component 7 Amount"));
-            if GSTReconcilationLine."Component 8 Amount" <> 0 then
-                UpdateErrorTypeForCompAmt(
-                    GSTReconcilationLine,
-                    PeriodicGSTR2AData."Component 8 Amount",
-                    GSTReconcilationLine."Component 8 Amount",
-                    GSTTolarance,
-                    GSTReconcilationLine.FieldNo("Component 8 Amount"));
-        end;
-
-        if GSTReconcilationLine."Error Type" = '' then
-            exit(true);
     end;
 
     local procedure UpdateErrorTypeForCompAmt(
@@ -525,20 +534,4 @@ codeunit 18280 "GST Reconcilation Match"
                 CompAmtTxtErr,
                 GSTReconMapping."GST Component Code");
     end;
-
-
-    var
-        GSTTolarance: Decimal;
-        PostedGSTReconErr: Label 'Reconciliation has been already done for GSTIN No. %1,Month %2,Year %3.', Comment = 'Reconciliation has been already done for GSTIN No. %1,Month %2,Year %3.';
-        NotReconcileMsg: Label 'No records to reconcile.';
-        ReconciledMsg: Label 'Records has been reconciled.';
-        ReconRecMsg: Label 'Reconciling Records.';
-        ReconciledWithLedgerMsg: Label 'Records has been reconciled with ledger entries.';
-        SettlementErr: Label 'GST Settlement has been already done for the given Month %1 and Year %2 for GST Registration No. %3.', Comment = 'GST Settlement has been already done for the given Month %1 and Year %2 for GST Registration No. %3';
-        GSTReconMapErr: Label 'GST Recon Mapping must have setup for all components defined in the Retrun & Reco. Components Page';
-        ReconLineMsg: Label 'GST Reconcile Line.';
-        GSTCrAdjFilterErr: Label 'Filter Criteria is not matching with Detailed GST Ledger Entry.';
-        TaxableValErr: Label 'Taxable Value is not Matching with GSTR-2A Data.';
-        WindowUpdateMsg: Label '%1,%2', Comment = '%1=GSTIN No. ,%2= External Document No.';
-        Window: Dialog;
 }

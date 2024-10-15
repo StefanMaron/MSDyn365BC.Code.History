@@ -116,6 +116,7 @@ page 18430 "Update Reference Invoice No"
                 ReferenceInvoiceNo.DeleteAll();
             end else
                 exit(false);
+
         CheckBlankLines();
 
         if Rec."Document Type" = Rec."Document Type"::"Credit Memo" then begin
@@ -153,12 +154,12 @@ page 18430 "Update Reference Invoice No"
         ReferenceInvoiceNo.SetRange("Document Type", Rec."Document Type");
         ReferenceInvoiceNo.SetRange("Source No.", Rec."Source No.");
         ReferenceInvoiceNo.SetRange(Verified, true);
-        if not ReferenceInvoiceNo.FindFirst() then begin
+        if ReferenceInvoiceNo.IsEmpty then begin
             VendorLedgerEntry.SetRange("Document No.", Rec."Document No.");
-            if VendorLedgerEntry.FindFirst() and not Rec.Verified then
+            if (not VendorLedgerEntry.IsEmpty) and (not Rec.Verified) then
                 Error(ReferenceErr);
             CustLedgerEntry.SetRange("Document No.", Rec."Document No.");
-            if CustLedgerEntry.FindFirst() and not Rec.Verified then
+            if (not CustLedgerEntry.IsEmpty) and (not Rec.Verified) then
                 Error(ReferenceErr);
         end;
     end;

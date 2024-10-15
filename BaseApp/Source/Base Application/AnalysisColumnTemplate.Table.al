@@ -7,11 +7,9 @@ table 7116 "Analysis Column Template"
 
     fields
     {
-        field(1; "Analysis Area"; Option)
+        field(1; "Analysis Area"; Enum "Analysis Area Type")
         {
             Caption = 'Analysis Area';
-            OptionCaption = 'Sales,Purchase,Inventory';
-            OptionMembers = Sales,Purchase,Inventory;
         }
         field(2; Name; Code[10])
         {

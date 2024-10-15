@@ -231,17 +231,17 @@ page 18282 "GST Reconciliation"
     local procedure CheckGSTAccountingPeriod(PostingDate: Date)
     var
         TaxAccountingPeriod: Record "Tax Accounting Period";
-        TaxTypeSetup: Record "Tax Type Setup";
+        GSTSetup: Record "GST Setup";
         LastClosedDate: Date;
     begin
         LastClosedDate := GetLastClosedSubAccPeriod();
 
-        if not TaxTypeSetup.Get() then
+        if not GSTSetup.Get() then
             exit;
-        TaxTypeSetup.TestField(Code);
+        GSTSetup.TestField("GST Tax Type");
 
         TaxAccountingPeriod.Reset();
-        TaxAccountingPeriod.SetRange("Tax Type Code", TaxTypeSetup.Code);
+        TaxAccountingPeriod.SetRange("Tax Type Code", GSTSetup."GST Tax Type");
         TaxAccountingPeriod.SetFilter("Starting Date", '<=%1', PostingDate);
         if TaxAccountingPeriod.FindLast() then begin
             TaxAccountingPeriod.SetFilter("Starting Date", '>=%1', PostingDate);
@@ -280,12 +280,12 @@ page 18282 "GST Reconciliation"
     local procedure GetLastClosedSubAccPeriod(): Date
     var
         TaxAccountingPeriod: Record "Tax Accounting Period";
-        TaxTypeSetup: Record "Tax Type Setup";
+        GSTSetup: Record "GST Setup";
     begin
-        if not TaxTypeSetup.Get() then
+        if not GSTSetup.Get() then
             exit;
-        TaxTypeSetup.TestField(Code);
-        TaxAccountingPeriod.SetRange("Tax Type Code", TaxTypeSetup.Code);
+        GSTSetup.TestField("GST Tax Type");
+        TaxAccountingPeriod.SetRange("Tax Type Code", GSTSetup."GST Tax Type");
         TaxAccountingPeriod.SetRange(Closed, TRUE);
         if TaxAccountingPeriod.FindLast() then
             exit(TaxAccountingPeriod."Starting Date");

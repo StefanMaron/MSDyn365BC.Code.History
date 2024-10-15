@@ -11,12 +11,12 @@ page 18548 "T.A.N. Nos."
         {
             repeater(General)
             {
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the TAN Nos depending on the number of branch locations from where the company files its returns';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description for identification of TAN Nos.';
@@ -48,7 +48,7 @@ page 18548 "T.A.N. Nos."
                     ODataUtility.EditWorksheetInExcel(
                         'TAN Nos',
                         CurrPage.ObjectId(false),
-                        StrSubstNo(TANNoLbl, Code));
+                        StrSubstNo(TANNoLbl, Rec.Code));
                 end;
             }
         }

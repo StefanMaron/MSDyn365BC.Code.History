@@ -3,8 +3,7 @@ pageextension 20243 "Posted Purchase Cr. Memo Ext" extends "Posted Purchase Cred
 
     layout
     {
-
-        addbefore(IncomingDocAttachFactBox)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

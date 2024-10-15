@@ -746,7 +746,7 @@ report 18002 "Archived Sales Order GST"
 
                         trigger OnPreDataItem()
                         begin
-                            if (not GLSetup."Print VAT specification in LCY") or
+                            if (not GeneralLedgerSetup."Print VAT specification in LCY") or
                                ("Sales Header Archive"."Currency Code" = '') or
                                (TempVATAmountLine.GetTotalVATAmount() = 0)
                             then
@@ -754,10 +754,10 @@ report 18002 "Archived Sales Order GST"
 
                             SetRange(Number, 1, TempVATAmountLine.Count);
 
-                            if GLSetup."LCY Code" = '' then
+                            if GeneralLedgerSetup."LCY Code" = '' then
                                 VALSpecLCYHeader := VATAMtLbl + LocalCurreLbl
                             else
-                                VALSpecLCYHeader := VATAMtLbl + Format(GLSetup."LCY Code");
+                                VALSpecLCYHeader := VATAMtLbl + Format(GeneralLedgerSetup."LCY Code");
 
                             CurrExchRate.FindCurrency("Sales Header Archive"."Posting Date", "Sales Header Archive"."Currency Code", 1);
                             VALExchRate := StrSubstNo(
@@ -893,10 +893,10 @@ report 18002 "Archived Sales Order GST"
             begin
                 CurrReport.LANGUAGE := Language.GetLanguageID("Language Code");
                 Customer.Get("Bill-to Customer No.");
-                if RespCenter.Get("Responsibility Center") then begin
-                    FormatAddr.RespCenter(CompanyAddr, RespCenter);
-                    CompanyInfo."Phone No." := RespCenter."Phone No.";
-                    CompanyInfo."Fax No." := RespCenter."Fax No.";
+                if ResponsibilityCenter.Get("Responsibility Center") then begin
+                    FormatAddr.RespCenter(CompanyAddr, ResponsibilityCenter);
+                    CompanyInfo."Phone No." := ResponsibilityCenter."Phone No.";
+                    CompanyInfo."Fax No." := ResponsibilityCenter."Fax No.";
                 end else
                     FormatAddr.Company(CompanyAddr, CompanyInfo);
 
@@ -921,10 +921,10 @@ report 18002 "Archived Sales Order GST"
                     VATNoText := CopyStr((FieldCaption("VAT Registration No.")), 1, 80);
 
                 if "Currency Code" = '' then begin
-                    GLSetup.TestField("LCY Code");
-                    TotalText := StrSubstNo(TotalLbl, GLSetup."LCY Code");
-                    TotalInclVATText := StrSubstNo(TotalInCVatLbl, GLSetup."LCY Code");
-                    TotalExclVATText := StrSubstNo(TotalExclVatLbl, GLSetup."LCY Code");
+                    GeneralLedgerSetup.TestField("LCY Code");
+                    TotalText := StrSubstNo(TotalLbl, GeneralLedgerSetup."LCY Code");
+                    TotalInclVATText := StrSubstNo(TotalInCVatLbl, GeneralLedgerSetup."LCY Code");
+                    TotalExclVATText := StrSubstNo(TotalExclVatLbl, GeneralLedgerSetup."LCY Code");
                 end else begin
                     TotalText := StrSubstNo(TotalLbl, "Currency Code");
                     TotalInclVATText := StrSubstNo(TotalInCVatLbl, "Currency Code");
@@ -996,7 +996,7 @@ report 18002 "Archived Sales Order GST"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get();
+        GeneralLedgerSetup.Get();
         CompanyInfo.Get();
         SalesSetup.Get();
 
@@ -1019,7 +1019,7 @@ report 18002 "Archived Sales Order GST"
     end;
 
     var
-        GLSetup: Record "General Ledger Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
         PrepmtPaymentTerms: Record "Payment Terms";
@@ -1033,7 +1033,7 @@ report 18002 "Archived Sales Order GST"
         TempSalesLineArch: Record "Sales Line Archive" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
-        RespCenter: Record "Responsibility Center";
+        ResponsibilityCenter: Record "Responsibility Center";
         CurrExchRate: Record "Currency Exchange Rate";
         Language: Codeunit "Language";
         SalesCountPrintedArch: Codeunit "SalesCount-PrintedArch";
@@ -1054,7 +1054,6 @@ report 18002 "Archived Sales Order GST"
         ShowShippingAddr: Boolean;
         i: Integer;
         DimText: Text[120];
-        OldDimText: Text[75];
         ShowInterInfo: Boolean;
         Continue: Boolean;
         VATAmount: Decimal;

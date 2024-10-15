@@ -24,7 +24,6 @@ codeunit 20344 "Tax Posting Execution"
             SourceRecordRef,
             UseCase.ID,
             UseCase."Posting Script ID",
-            UseCase.ID,
             ComponentID,
             GroupingType);
     end;
@@ -55,7 +54,6 @@ codeunit 20344 "Tax Posting Execution"
         var SourceRecRef: RecordRef;
         CaseID: Guid;
         ScriptID: Guid;
-        ID: Guid;
         ComponentID: Integer;
         GroupingType: Integer);
     var
@@ -71,6 +69,7 @@ codeunit 20344 "Tax Posting Execution"
         if TaxPostingSetup.FindSet() then
             repeat
                 SwitchCase.Reset();
+                SwitchCase.SetCurrentKey(Sequence);
                 SwitchCase.SetRange("Case ID", CaseID);
                 SwitchCase.SetRange("Switch Statement ID", TaxPostingSetup."Switch Statement ID");
                 if SwitchCase.FindSet() then
@@ -198,7 +197,6 @@ codeunit 20344 "Tax Posting Execution"
         var ReverseGlAcc: Code[20]);
     var
         SymbolStore: Codeunit "Script Symbol Store";
-        ScriptActionExecution: Codeunit "Script Action Execution";
         SourceRecord: Variant;
     begin
         SourceRecord := SourceRecordRef;

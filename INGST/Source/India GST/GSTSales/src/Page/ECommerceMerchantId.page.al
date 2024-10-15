@@ -12,17 +12,17 @@ page 18141 "E-Commerce Merchant Id"
         {
             repeater(General)
             {
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer number for which merchant id has to be recorded.';
                 }
-                field("Merchant Id"; "Merchant Id")
+                field("Merchant Id"; Rec."Merchant Id")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the merchant id provided to customers by their payment processor.';
                 }
-                field("Company GST Reg. No."; "Company GST Reg. No.")
+                field("Company GST Reg. No."; Rec."Company GST Reg. No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the company''s GST Reg. number issued by authorized body.';

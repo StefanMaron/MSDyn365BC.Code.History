@@ -11,12 +11,12 @@ table 20256 "Tax Acc. Period Setup"
         field(1; Code; Code[10])
         {
             Caption = 'Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; Description; Text[50])
         {
             Caption = 'Description';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
 

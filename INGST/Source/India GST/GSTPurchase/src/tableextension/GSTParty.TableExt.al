@@ -5,7 +5,7 @@ tableextension 18094 "GST Party" extends Party
         field(18080; "P.A.N. No."; Code[20])
         {
             Caption = 'P.A.N. No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -16,13 +16,13 @@ tableextension 18094 "GST Party" extends Party
         field(18081; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(18082; State; Code[10])
         {
             Caption = 'State';
             TableRelation = State;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -32,28 +32,28 @@ tableextension 18094 "GST Party" extends Party
         field(18083; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "Post Code";
         }
         field(18084; "P.A.N. Reference No."; Code[20])
         {
             Caption = 'P.A.N. Reference No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(18085; "P.A.N. Status"; Enum "PAN Status")
         {
             Caption = 'P.A.N. Status';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
-                "P.A.N. No." := FORMAT("P.A.N. Status");
+                "P.A.N. No." := Format("P.A.N. Status");
             end;
         }
         field(18086; "GST Party Type"; enum "GST Party Type")
         {
             Caption = 'GST Party Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -80,7 +80,7 @@ tableextension 18094 "GST Party" extends Party
         field(18087; "GST Registration No."; Code[20])
         {
             Caption = 'GST Registration No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -90,7 +90,7 @@ tableextension 18094 "GST Party" extends Party
                         GSTBaseValidation.CheckGSTRegistrationNo(State, "GST Registration No.", "P.A.N. No.")
                     else
                         if "GST Registration No." <> '' then
-                            ERROR(PANErr);
+                            Error(PANErr);
 
                     TestField("GST Party Type");
                     case "GST Party Type" of
@@ -114,7 +114,7 @@ tableextension 18094 "GST Party" extends Party
                                         "P.A.N. No.")
                                 else
                                     if "GST Registration No." <> '' then
-                                        ERROR(PANErr);
+                                        Error(PANErr);
                                 if "GST Customer Type" = "GST Customer Type"::" " then
                                     "GST Customer Type" := "GST Customer Type"::Registered
                                 else
@@ -146,7 +146,8 @@ tableextension 18094 "GST Party" extends Party
         field(18088; "GST Vendor Type"; enum "GST Vendor Type")
         {
             Caption = 'GST Vendor Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+
             trigger OnValidate()
             begin
                 TestField("GST Party Type", "GST Party Type"::Vendor);
@@ -163,7 +164,7 @@ tableextension 18094 "GST Party" extends Party
                 then begin
                     if "GST Registration No." = '' then
                         if "ARN No." = '' then
-                            ERROR(GSTARNErr)
+                            Error(GSTARNErr)
                 end else begin
                     if "GST Vendor Type" <> "GST Vendor Type"::Exempted then
                         "GST Registration No." := '';
@@ -182,14 +183,15 @@ tableextension 18094 "GST Party" extends Party
                         GSTBaseValidation.CheckGSTRegistrationNo(State, "GST Registration No.", "P.A.N. No.")
                     else
                         if "GST Registration No." <> '' then
-                            ERROR(PANErr);
+                            Error(PANErr);
                 end;
             end;
         }
         field(18089; "Associated Enterprises"; Boolean)
         {
             Caption = 'Associated Enterprises';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+
             trigger OnValidate()
             begin
                 if "Associated Enterprises" then
@@ -199,7 +201,8 @@ tableextension 18094 "GST Party" extends Party
         field(18090; "GST Registration Type"; Enum "Registration Type")
         {
             Caption = 'GST Registration Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+
             trigger OnValidate()
             begin
                 case "GST Party Type" of
@@ -212,7 +215,7 @@ tableextension 18094 "GST Party" extends Party
                                 "GST Customer Type"::" "]) and
                                 not ("GST Registration Type" = "GST Registration Type"::GSTIN)
                             then
-                                ERROR(GSTCustRegErr);
+                                Error(GSTCustRegErr);
                             if ("P.A.N. No." <> '') and ("P.A.N. Status" = "P.A.N. Status"::" ") then
                                 GSTBaseValidation.CheckGSTRegistrationNo(
                                     State,
@@ -220,7 +223,7 @@ tableextension 18094 "GST Party" extends Party
                                     "P.A.N. No.")
                             else
                                 if "GST Registration No." <> '' then
-                                    ERROR(PANErr);
+                                    Error(PANErr);
                         end;
                 end;
             end;
@@ -228,7 +231,8 @@ tableextension 18094 "GST Party" extends Party
         field(18091; "GST Customer Type"; Enum "GST Customer Type")
         {
             Caption = 'GST Customer Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+
             trigger OnValidate()
             begin
                 TestField("GST Party Type", "GST Party Type"::Customer);
@@ -242,7 +246,7 @@ tableextension 18094 "GST Party" extends Party
                 if not ("GST Customer Type" in ["GST Customer Type"::Registered]) and not
                    ("GST Registration Type" = "GST Registration Type"::GSTIN)
                 then
-                    ERROR(GSTCustRegErr);
+                    Error(GSTCustRegErr);
                 if ("GST Customer Type" in [
                     "GST Customer Type"::Registered,
                     "GST Customer Type"::"Deemed Export",
@@ -252,7 +256,7 @@ tableextension 18094 "GST Party" extends Party
                 then
                     if "GST Registration No." = '' then
                         if "ARN No." = '' then
-                            ERROR(GSTARNErr);
+                            Error(GSTARNErr);
                 if ("GST Customer Type" in [
                     "GST Customer Type"::Registered,
                     "GST Customer Type"::Unregistered,
@@ -281,14 +285,15 @@ tableextension 18094 "GST Party" extends Party
                             "P.A.N. No.")
                     else
                         if "GST Registration No." <> '' then
-                            ERROR(PANErr);
+                            Error(PANErr);
                 end;
             end;
         }
         field(18092; "ARN No."; Code[20])
         {
             Caption = 'ARN No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+
             trigger OnValidate()
             begin
                 if ("ARN No." = '') and ("GST Registration No." = '') and
@@ -325,17 +330,16 @@ tableextension 18094 "GST Party" extends Party
         }
     }
 
-    local procedure CheckGSTRegBlankInRef()
-    begin
-        if "P.A.N. No." <> COPYSTR("GST Registration No.", 3, 10) then
-            ERROR(SamePANErr);
-    end;
-
     var
         GSTBaseValidation: Codeunit "GST Base Validation";
         GSTARNErr: Label 'Either GST Registration No. or ARN No. must have a value.';
         PANErr: Label 'PAN No. must be entered.';
         SamePANErr: Label 'From postion 3 to 12 it must be same as it is in PAN No. so delete the GST Registration No. and then update it.';
         GSTCustRegErr: Label 'GST Customer type ''Blank'' & ''Registered'' is allowed to select when GST Registration Type is UID or GID.';
-}
 
+    local procedure CheckGSTRegBlankInRef()
+    begin
+        if "P.A.N. No." <> CopyStr("GST Registration No.", 3, 10) then
+            Error(SamePANErr);
+    end;
+}

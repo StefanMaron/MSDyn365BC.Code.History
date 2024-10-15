@@ -7,47 +7,47 @@ table 18011 "Reference Invoice No."
         field(1; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; "Document Type"; Enum "Document Type Enum")
         {
             Caption = 'Document Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(3; "Source No."; Code[20])
         {
             Caption = 'Source No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(4; "Reference Invoice Nos."; Code[20])
         {
             Caption = 'Reference Invoice Nos.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(5; Description; Text[50])
         {
             Caption = 'Description';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(6; "Source Type"; Enum "Party Type")
         {
             Caption = 'Source Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(8; Verified; Boolean)
         {
             Caption = 'Verified';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(9; "Journal Template Name"; Code[10])
         {
             Caption = 'Journal Template Name';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(10; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
 

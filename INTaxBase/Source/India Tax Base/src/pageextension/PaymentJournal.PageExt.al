@@ -4,21 +4,21 @@ pageextension 18549 "Payment Journal" extends "Payment Journal"
     {
         addbefore(Amount)
         {
-
-            field("Location Code"; "Location Code")
+            field("Location Code"; Rec."Location Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the location code for which the journal lines will be posted.';
+
                 trigger OnValidate()
                 begin
                     UpdateTaxAmount();
                 end;
             }
-
-            field("T.A.N. No."; "T.A.N. No.")
+            field("T.A.N. No."; Rec."T.A.N. No.")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the T.A.N. number of the location for which the entry will be posted.';
+
                 trigger OnValidate()
                 begin
                     UpdateTaxAmount();
@@ -28,7 +28,6 @@ pageextension 18549 "Payment Journal" extends "Payment Journal"
         modify(Amount)
         {
             trigger OnAfterValidate()
-            var
             begin
                 UpdateTaxAmount();
             end;
@@ -36,7 +35,6 @@ pageextension 18549 "Payment Journal" extends "Payment Journal"
         modify("Credit Amount")
         {
             trigger OnAfterValidate()
-            var
             begin
                 UpdateTaxAmount();
             end;
@@ -44,7 +42,6 @@ pageextension 18549 "Payment Journal" extends "Payment Journal"
         modify("Debit Amount")
         {
             trigger OnAfterValidate()
-            var
             begin
                 UpdateTaxAmount();
             end;
@@ -52,7 +49,6 @@ pageextension 18549 "Payment Journal" extends "Payment Journal"
         modify("Amount (LCY)")
         {
             trigger OnAfterValidate()
-            var
             begin
                 UpdateTaxAmount();
             end;
@@ -60,7 +56,6 @@ pageextension 18549 "Payment Journal" extends "Payment Journal"
         modify("Currency Code")
         {
             trigger OnAfterValidate()
-            var
             begin
                 UpdateTaxAmount();
             end;
@@ -68,7 +63,6 @@ pageextension 18549 "Payment Journal" extends "Payment Journal"
         modify("Posting Date")
         {
             trigger OnAfterValidate()
-            var
             begin
                 UpdateTaxAmount();
             end;
@@ -76,12 +70,12 @@ pageextension 18549 "Payment Journal" extends "Payment Journal"
         modify("Document Type")
         {
             trigger OnAfterValidate()
-            var
             begin
                 UpdateTaxAmount();
             end;
         }
     }
+
     local procedure UpdateTaxAmount()
     var
         CalculateTax: Codeunit "Calculate Tax";

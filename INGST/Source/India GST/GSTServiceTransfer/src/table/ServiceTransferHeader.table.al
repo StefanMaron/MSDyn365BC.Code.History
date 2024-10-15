@@ -7,7 +7,7 @@ table 18350 "Service Transfer Header"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             var
@@ -23,7 +23,7 @@ table 18350 "Service Transfer Header"
         field(2; "Transfer-from Code"; Code[10])
         {
             Caption = 'Transfer-from Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
@@ -31,6 +31,7 @@ table 18350 "Service Transfer Header"
                 Location: Record Location;
                 Location2: Record Location;
                 GLSetup: Record "General Ledger Setup";
+                GSTBaseValidation: Codeunit "Gst Base Validation";
             begin
                 TestStatusOpen();
                 if ("Transfer-from Code" = "Transfer-to Code") and
@@ -70,7 +71,7 @@ table 18350 "Service Transfer Header"
                     if xRec."Transfer-from Code" = '' then
                         Confirmed := true
                     else
-                        Confirmed := CONFIRM(LocChangeQst, false, FieldCaption("Transfer-from Code"));
+                        Confirmed := Confirm(LocChangeQst, false, FieldCaption("Transfer-from Code"));
 
                     if Confirmed then begin
                         "Transfer-from Name" := Location.Name;
@@ -84,36 +85,36 @@ table 18350 "Service Transfer Header"
                         "Transfer-from Code" := xRec."Transfer-from Code";
                 end;
 
-                // TODO: I dont think we need Rounding fields in this table, when we are populating from GLSetup
                 GLSetup.Get();
-                "GST Inv. Rounding Precision" := GLSetup."GST Inv. Rounding Precision";
-                "GST Inv. Rounding Type" := GLSetup."GST Inv. Rounding Type";
+                "GST Inv. Rounding Precision" := GLSetup."Inv. Rounding Precision (LCY)";
+                "GST Inv. Rounding Type" := GSTBaseValidation.GenLedInvRoundingType2GSTInvRoundingTypeEnum(GLSetup."Inv. Rounding Type (LCY)");
             end;
         }
         field(3; "Transfer-from Name"; Text[100])
         {
             Caption = 'Transfer-from Name';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(4; "Transfer-from Name 2"; Text[100])
         {
             Caption = 'Transfer-from Name 2';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(5; "Transfer-from Address"; Text[100])
         {
             Caption = 'Transfer-from Address';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(6; "Transfer-from Address 2"; Text[50])
         {
             Caption = 'Transfer-from Address 2';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(7; "Transfer-from Post Code"; Code[20])
         {
             Caption = 'Transfer-from Post Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+
             trigger OnValidate()
             var
                 PostCode: Record "Post Code";
@@ -126,7 +127,8 @@ table 18350 "Service Transfer Header"
         field(8; "Transfer-from City"; Text[30])
         {
             Caption = 'Transfer-from City';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
+
             trigger OnValidate()
             var
                 PostCode: Record "Post Code";
@@ -139,14 +141,14 @@ table 18350 "Service Transfer Header"
         field(9; "Transfer-from State"; Code[10])
         {
             Caption = 'Transfer-from State';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
             TableRelation = State;
         }
         field(10; "Transfer-to Code"; Code[10])
         {
             Caption = 'Transfer-to Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
@@ -196,7 +198,7 @@ table 18350 "Service Transfer Header"
                     if xRec."Transfer-to Code" = '' then
                         Confirmed := true
                     else
-                        Confirmed := CONFIRM(LocChangeQst, false, FieldCaption("Transfer-to Code"));
+                        Confirmed := Confirm(LocChangeQst, false, FieldCaption("Transfer-to Code"));
 
                     if Confirmed then begin
                         "Transfer-to Name" := Location.Name;
@@ -214,27 +216,27 @@ table 18350 "Service Transfer Header"
         field(11; "Transfer-to Name"; Text[100])
         {
             Caption = 'Transfer-to Name';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(12; "Transfer-to Name 2"; Text[100])
         {
             Caption = 'Transfer-to Name 2';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(13; "Transfer-to Address"; Text[100])
         {
             Caption = 'Transfer-to Address';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(14; "Transfer-to Address 2"; Text[50])
         {
             Caption = 'Transfer-to Address 2';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(15; "Transfer-to Post Code"; Code[20])
         {
             Caption = 'Transfer-to Post Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             var
@@ -248,7 +250,7 @@ table 18350 "Service Transfer Header"
         field(16; "Transfer-to City"; Text[30])
         {
             Caption = 'Transfer-to City';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             var
@@ -263,13 +265,13 @@ table 18350 "Service Transfer Header"
         {
             Caption = 'Transfer-to State';
             Editable = false;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = State;
         }
         field(19; "Shipment Date"; Date)
         {
             Caption = 'Shipment Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -280,7 +282,7 @@ table 18350 "Service Transfer Header"
         field(20; "Receipt Date"; Date)
         {
             Caption = 'Receipt Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -290,14 +292,14 @@ table 18350 "Service Transfer Header"
         field(21; Status; Enum Status)
         {
             Caption = 'Status';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(22; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
 
             trigger OnValidate()
@@ -309,7 +311,7 @@ table 18350 "Service Transfer Header"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
 
             trigger OnValidate()
@@ -320,23 +322,23 @@ table 18350 "Service Transfer Header"
         field(24; "Ship Control Account"; Code[20])
         {
             Caption = 'Ship Control Account';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "G/L Account" where("Direct Posting" = const(true));
 
             trigger OnValidate()
             var
-                GLAccount: Record 15;
+                GLAccount: Record "G/L Account";
             begin
                 TestStatusOpen();
                 GLAccount.Get("Ship Control Account");
                 GLAccount.TestField(Blocked, false);
-                UpdateServiceTransLines(FIELDNO("Ship Control Account"));
+                UpdateServiceTransLines(FieldNo("Ship Control Account"));
             end;
         }
         field(25; "Receive Control Account"; Code[20])
         {
             Caption = 'Receive Control Account';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "G/L Account" where("Direct Posting" = const(true));
 
             trigger OnValidate()
@@ -345,45 +347,45 @@ table 18350 "Service Transfer Header"
             begin
                 GLAccount.Get("Receive Control Account");
                 GLAccount.TestField(Blocked, false);
-                UpdateServiceTransLines(FIELDNO("Receive Control Account"));
+                UpdateServiceTransLines(FieldNo("Receive Control Account"));
             end;
         }
         field(27; "External Doc No."; Code[20])
         {
             Caption = 'External Doc No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(28; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "No. Series";
         }
         field(29; "GST Inv. Rounding Precision"; Decimal)
         {
             Caption = 'GST Inv. Rounding Precision';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
-                TESTFIELD(Status, Status::Open);
+                TestField(Status, Status::Open);
             end;
         }
         field(30; "GST Inv. Rounding Type"; Enum "GST Inv Rounding Type")
         {
             Caption = 'GST Inv. Rounding Type';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
-                TESTFIELD(Status, Status::Open);
+                TestField(Status, Status::Open);
             end;
         }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
             TableRelation = "Dimension Set Entry";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = SystemMetadata;
 
             trigger OnLookup()
             begin
@@ -393,7 +395,7 @@ table 18350 "Service Transfer Header"
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = "User Setup";
         }
     }
@@ -435,6 +437,30 @@ table 18350 "Service Transfer Header"
         Error(RenameErr, TableCaption());
     end;
 
+    var
+        InventorySetup: Record "Inventory Setup";
+        ServiceTransferLine: Record "Service Transfer Line";
+        ServiceTransferHeader: Record "Service Transfer Header";
+        DimensionManagement: Codeunit DimensionManagement;
+        Confirmed: Boolean;
+        HasInventorySetup: Boolean;
+        County: Text[30];
+        Region: Code[10];
+        LocChangeQst: Label 'Do you want to change %1?',
+            Comment = '%1 = Location Code.';
+        DimChangeQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
+        SameLocRegErr: Label 'Registration No.s in %1 and %2 cannot be the same in %3 %4.',
+            Comment = '%1 = From Location, %2 = To Location, %3 = Table Name, %4 = Document No';
+        ReceiptDateErr: Label '%1 can not be less than %2.',
+            Comment = '%1 = Receipt Date, %2 = Shipment Date';
+        LocationCodeErr: Label 'Please specify the Location Code or Location GST Registration No for the selected document.';
+        SameLocARNoErr: Label 'Location ARNNo in %1 and %2 cannot be the same in %3 %4.',
+            Comment = '%1 = From Location, %2 = To Location, %3 = Table Name, %4 = Document No';
+        RenameErr: Label 'You cannot rename a %1.',
+            Comment = '%1 = Table Name';
+        SameLocErr: Label '%1 and %2 cannot be the same in %3 %4.',
+            Comment = '%1 = From Location, %2 = To Location, %3 = Table Name, %4 = Document No';
+
     procedure InitRecord()
     begin
         Validate("Shipment Date", WorkDate());
@@ -475,7 +501,7 @@ table 18350 "Service Transfer Header"
 
     procedure GSTInvoiceRoundingDirection(): Text[1]
     begin
-        case "GST Inv. Rounding Type" OF
+        case "GST Inv. Rounding Type" of
             "GST Inv. Rounding Type"::Nearest:
                 exit('=');
             "GST Inv. Rounding Type"::Up:
@@ -582,9 +608,9 @@ table 18350 "Service Transfer Header"
             ServiceTransLine.LockTable();
             repeat
                 case FieldRef of
-                    FIELDNO("Ship Control Account"):
+                    FieldNo("Ship Control Account"):
                         ServiceTransLine.Validate("Ship Control A/C No.", "Ship Control Account");
-                    FIELDNO("Receive Control Account"):
+                    FieldNo("Receive Control Account"):
                         ServiceTransLine.Validate("Receive Control A/C No.", "Receive Control Account");
                 end;
                 ServiceTransLine.Modify(true);
@@ -598,28 +624,4 @@ table 18350 "Service Transfer Header"
             if "Shipment Date" > "Receipt Date" then
                 Error(ReceiptDateErr, FieldCaption("Receipt Date"), FieldCaption("Shipment Date"));
     end;
-
-    var
-        InventorySetup: Record "Inventory Setup";
-        ServiceTransferLine: Record "Service Transfer Line";
-        ServiceTransferHeader: Record "Service Transfer Header";
-        DimensionManagement: Codeunit DimensionManagement;
-        Confirmed: Boolean;
-        HasInventorySetup: Boolean;
-        County: Text[30];
-        Region: Code[10];
-        LocChangeQst: Label 'Do you want to change %1?',
-            Comment = '%1 = Location Code.';
-        DimChangeQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
-        SameLocRegErr: Label 'Registration No.s in %1 and %2 cannot be the same in %3 %4.',
-            Comment = '%1 = From Location, %2 = To Location, %3 = Table Name, %4 = Document No';
-        ReceiptDateErr: Label '%1 can not be less than %2.',
-            Comment = '%1 = Receipt Date, %2 = Shipment Date';
-        LocationCodeErr: Label 'Please specify the Location Code or Location GST Registration No for the selected document.';
-        SameLocARNoErr: Label 'Location ARNNo in %1 and %2 cannot be the same in %3 %4.',
-            Comment = '%1 = From Location, %2 = To Location, %3 = Table Name, %4 = Document No';
-        RenameErr: Label 'You cannot rename a %1.',
-            Comment = '%1 = Table Name';
-        SameLocErr: Label '%1 and %2 cannot be the same in %3 %4.',
-            Comment = '%1 = From Location, %2 = To Location, %3 = Table Name, %4 = Document No';
 }

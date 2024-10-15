@@ -2,7 +2,7 @@ pageextension 20261 "Transfer Order Ext" extends "Transfer Order"
 {
     layout
     {
-        addbefore(Control1900383207)
+        addfirst(factboxes)
         {
             part("Tax Information"; "Tax Information Factbox")
             {

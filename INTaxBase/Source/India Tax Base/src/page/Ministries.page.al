@@ -11,17 +11,17 @@ page 18546 "Ministries"
         {
             repeater(General)
             {
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the Ministry.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the Ministry.';
                 }
-                field("Other Ministry"; "Other Ministry")
+                field("Other Ministry"; Rec."Other Ministry")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the ministry is classified as other Ministry.';
@@ -53,7 +53,7 @@ page 18546 "Ministries"
                     ODataUtility.EditWorksheetInExcel(
                         'Ministries',
                         CurrPage.ObjectId(false),
-                        StrSubstNo(MinistryCodeLbl, Code));
+                        StrSubstNo(MinistryCodeLbl, Rec.Code));
                 end;
             }
         }

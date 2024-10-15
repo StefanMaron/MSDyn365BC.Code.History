@@ -2,8 +2,7 @@ pageextension 20251 "Purchase Order Ext" extends "Purchase Order"
 {
     layout
     {
-
-        addbefore(IncomingDocAttachFactBox)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

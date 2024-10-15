@@ -2,7 +2,7 @@ enum 18042 "Product Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Item)
     {

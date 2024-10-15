@@ -18,17 +18,39 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
         if AppliedPmtEntry.FindSet then
             repeat
                 PaymentApplicationProposal.CreateFromAppliedPaymentEntry(AppliedPmtEntry);
-            until AppliedPmtEntry.Next = 0;
+            until AppliedPmtEntry.Next() = 0;
     end;
 
     local procedure GetCandidateRanking(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var TempBankStmtMatchingBuffer: Record "Bank Statement Matching Buffer" temporary)
     var
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         MatchBankPayments: Codeunit "Match Bank Payments";
     begin
         BankAccReconLine.SetRecFilter;
         MatchBankPayments.SetApplyEntries(false);
         MatchBankPayments.Run(BankAccReconLine);
         MatchBankPayments.GetBankStatementMatchingBuffer(TempBankStmtMatchingBuffer);
+
+        BankPmtApplSettings.GetOrInsert();
+        if not BankPmtApplSettings."Cust. Ledger Entries Matching" then
+            MatchBankPayments.GetCustomerLedgerEntriesAsMatchingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine);
+
+        if not BankPmtApplSettings."Vendor Ledger Entries Matching" then
+            MatchBankPayments.GetVendorLedgerEntriesAsMatchingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine);
+
+        if not BankPmtApplSettings."Empl. Ledger Entries Matching" then
+            MatchBankPayments.GetEmployeeLedgerEntriesAsMatchingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine);
+
+        if not BankPmtApplSettings."Bank Ledger Entries Matching" then
+            MatchBankPayments.GetBankLedgerEntriesAsMatchingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine);
+    end;
+
+    local procedure GetLedgerEntries(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var TempBankStmtMatchingBuffer: Record "Bank Statement Matching Buffer" temporary)
+    var
+        MatchBankPayments: Codeunit "Match Bank Payments";
+    begin
+        MatchBankPayments.GetLedgerEntriesAsMatchingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine);
+        TempBankStmtMatchingBuffer.Reset();
     end;
 
     local procedure TransferExistingAppliedPmtEntries(var PaymentApplicationProposal: Record "Payment Application Proposal"; BankAccReconLine: Record "Bank Acc. Reconciliation Line")
@@ -39,16 +61,62 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
         CreatePaymentApplicationProposalFromAppliedPmtEntry(ExistingAppliedPmtEntry, PaymentApplicationProposal);
     end;
 
+
+    procedure ShowDisableAutomaticSuggestionsNotification()
+    var
+        MyNotifications: Record "My Notifications";
+        DisableAutomaticSuggestionsNotification: Notification;
+    begin
+        if not MyNotifications.IsEnabled(GetDisableAutomaticSuggestionsNotificationId()) then
+            exit;
+
+        DisableAutomaticSuggestionsNotification.Id := GetDisableAutomaticSuggestionsNotificationId();
+        DisableAutomaticSuggestionsNotification.Recall();
+        DisableAutomaticSuggestionsNotification.Message := DisableAutomaticSuggestionsNotificationMsg;
+        DisableAutomaticSuggestionsNotification.AddAction(DisableAutomaticSuggestionsTxt, Codeunit::"Get Bank Stmt. Line Candidates", 'DisableAutomaticNotificationAction');
+        DisableAutomaticSuggestionsNotification.AddAction(DontShowAgainTxt, Codeunit::"Get Bank Stmt. Line Candidates", 'DisableAutomaticNotificationAction');
+        DisableAutomaticSuggestionsNotification.Send();
+    end;
+
+    procedure DisableAutomaticNotificationAction(DisableAutomaticSuggestionsNotification: Notification)
+    var
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+    begin
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."Apply Man. Disable Suggestions" := true;
+        BankPmtApplSettings.Modify();
+    end;
+
+    procedure DontShowAgainDisableAutomaticNotificationAction()
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        if not MyNotifications.Disable(GetDisableAutomaticSuggestionsNotificationId()) then
+            MyNotifications.InsertDefault(GetDisableAutomaticSuggestionsNotificationId(), DisableAutomaticSuggestionsNotificationNameTxt, DisableAutomaticSuggestionsNotificationDescriptionTxt, false);
+    end;
+
+    local procedure GetDisableAutomaticSuggestionsNotificationId(): Guid
+    begin
+        exit('2d9bef44-ca94-4e70-91c7-b3393beaffc3');
+    end;
+
     local procedure TransferCandidatestoAppliedPmtEntries(var PaymentApplicationProposal: Record "Payment Application Proposal"; BankAccReconLine: Record "Bank Acc. Reconciliation Line")
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         TempBankStmtMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
         BankAccount: Record "Bank Account";
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         Handled: Boolean;
     begin
         OnBeforeTransferCandidatestoAppliedPmtEntries(BankAccReconLine, TempBankStmtMatchingBuffer, Handled);
-        if not Handled then
-            GetCandidateRanking(BankAccReconLine, TempBankStmtMatchingBuffer);
+        if not Handled then begin
+            BankPmtApplSettings.GetOrInsert();
+            if BankPmtApplSettings."Apply Man. Disable Suggestions" and (not ForceSuggestEntries) then
+                GetLedgerEntries(BankAccReconLine, TempBankStmtMatchingBuffer)
+            else
+                GetCandidateRanking(BankAccReconLine, TempBankStmtMatchingBuffer);
+        end;
+
         BankAccount.Get(BankAccReconLine."Bank Account No.");
 
         PaymentApplicationProposal.Reset();
@@ -62,7 +130,12 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
                     PaymentApplicationProposal."Match Confidence" := BankPmtApplRule.GetMatchConfidence(PaymentApplicationProposal.Quality);
                     PaymentApplicationProposal.Modify(true);
                 end;
-            until TempBankStmtMatchingBuffer.Next = 0;
+            until TempBankStmtMatchingBuffer.Next() = 0;
+    end;
+
+    procedure SetSuggestEntries(SuggestEntries: boolean)
+    begin
+        ForceSuggestEntries := SuggestEntries;
     end;
 
     [IntegrationEvent(false, false)]
@@ -70,5 +143,13 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
     procedure OnBeforeTransferCandidatestoAppliedPmtEntries(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var TempBankStmtMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var Handled: Boolean)
     begin
     end;
+
+    var
+        DisableAutomaticSuggestionsNotificationMsg: Label 'Sorting the list based on the match probability is causing this page to open slowly. For faster performance, you can turn off autosuggestions, and then use the Suggest Entries action on the Payment Application page instead.';
+        DisableAutomaticSuggestionsTxt: Label 'Turn Off Automatic Suggestions';
+        DisableAutomaticSuggestionsNotificationNameTxt: Label 'Payment Reconciliation - Disable Automatic Suggestions';
+        DisableAutomaticSuggestionsNotificationDescriptionTxt: Label 'This notification is used when the Payment Application page is opening slowly. It can be used to turn off automatic suggestions, which will help the page open more quickly.';
+        DontShowAgainTxt: Label 'Do not show again';
+        ForceSuggestEntries: Boolean;
 }
 

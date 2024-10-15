@@ -595,12 +595,20 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
             Contact.Type::Company:
                 begin
                     MarketingSetup.TestField("Cust. Template Company Code");
+#if not CLEAN18
                     Contact.CreateCustomer(MarketingSetup."Cust. Template Company Code");
+#else
+                    Contact.CreateCustomerFromTemplate(MarketingSetup."Cust. Template Company Code");
+#endif
                 end;
             Contact.Type::Person:
                 begin
                     MarketingSetup.TestField("Cust. Template Person Code");
+#if not CLEAN18
                     Contact.CreateCustomer(MarketingSetup."Cust. Template Person Code");
+#else
+                    Contact.CreateCustomerFromTemplate(MarketingSetup."Cust. Template Person Code");
+#endif
                 end;
         end;
 
@@ -662,7 +670,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         if SalesLine.FindSet then
             repeat
                 SalesLine.Delete(true);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
 
         if Item.Get(CreateItemNotification.GetData('ItemNo')) then
             Item.Delete(true);
@@ -737,7 +745,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
                 end;
                 GlobalLanguage := OriginalLanguageID;
             end;
-        until ConfigTemplateLine.Next = 0;
+        until ConfigTemplateLine.Next() = 0;
 
         if CustomerFixed then
             if CustomerRecRef.Modify(true) then
@@ -747,7 +755,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
     procedure ValidateItemDescription(var SalesLine: Record "Sales Line"; var DescriptionSelected: Boolean)
     var
         Item: Record Item;
-        ItemTemplate: Record "Item Template";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
         O365SalesManagement: Codeunit "O365 Sales Management";
         ReturnValue: Text[100];
         Found: Boolean;
@@ -757,7 +765,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
 
         // Lookup by item number/description
         if not Item.TryGetItemNoOpenCard(ReturnValue, SalesLine.Description, false, false, false) then begin
-            if ItemTemplate.NewItemFromTemplate(Item) then begin
+            if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
                 Item.Validate(Description, SalesLine.Description);
                 O365SalesManagement.SetItemDefaultValues(Item);
                 SendItemCreatedNotification(Item, SalesLine);

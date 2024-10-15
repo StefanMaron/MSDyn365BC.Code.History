@@ -13,22 +13,22 @@ page 18004 "GST Registration Nos."
         {
             repeater(General)
             {
-                field(code; code)
+                field(code; Rec.code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies GST registration code of locations situated in different states.';
                 }
-                field("State Code"; "State Code")
+                field("State Code"; Rec."State Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies state code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the details of GST registration code.';
                 }
-                field("Input Service Distributor"; "Input Service Distributor")
+                field("Input Service Distributor"; Rec."Input Service Distributor")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether Input Service Distributor is applicable or not.';
@@ -65,6 +65,7 @@ page 18004 "GST Registration Nos."
             }
         }
     }
+
     var
         CodeValueLbl: Label 'Code %1', Comment = '%1 = GST Registration No.';
 }

@@ -4,10 +4,10 @@ pageextension 18013 "GST States Ext" extends States
     {
         addlast(General)
         {
-            field("State Code (GST Reg. No.)"; "State Code (GST Reg. No.)")
+            field("State Code (GST Reg. No.)"; Rec."State Code (GST Reg. No.)")
             {
                 ApplicationArea = Basic, Suite;
-				ToolTip = 'Specifies the state code for GST Registration of the state as per authorized body.';
+                ToolTip = 'Specifies the state code for GST Registration of the state as per authorized body.';
             }
         }
     }

@@ -24,6 +24,7 @@ table 18551 Party
             DataClassification = EndUserIdentifiableInformation;
         }
     }
+
     keys
     {
         key(Key1; "Code")
@@ -31,5 +32,4 @@ table 18551 Party
             Clustered = true;
         }
     }
-
 }

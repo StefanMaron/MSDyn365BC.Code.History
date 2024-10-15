@@ -91,7 +91,7 @@ table 20233 "Record Attribute Mapping"
         LocalValue := ScriptDataTypeMgmt.ConvertXmlToLocalFormat(
             ValueTxt,
             UseCaseDataTypeMgmt.GetAttributeDataTypeToVariableDataType(TaxAttribute.Type));
-        Exit(CopyStr(LocalValue, 1, 250));
+        exit(CopyStr(LocalValue, 1, 250));
     end;
 
     var

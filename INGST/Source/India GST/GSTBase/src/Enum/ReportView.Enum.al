@@ -2,7 +2,7 @@ enum 18044 "Report View"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; CGST)
     {
@@ -16,7 +16,6 @@ enum 18044 "Report View"
     {
         Caption = 'IGST';
     }
-
     value(4; CESS)
     {
         Caption = 'CESS';

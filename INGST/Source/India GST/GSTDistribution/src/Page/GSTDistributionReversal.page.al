@@ -60,6 +60,7 @@ page 18206 "GST Distribution Reversal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry''s posting date.';
+
                     trigger OnValidate()
                     begin
                         EnableFillBufferLine();
@@ -90,14 +91,13 @@ page 18206 "GST Distribution Reversal"
                 Image = "Order";
                 action(Dimensions)
                 {
-                    AccessByPermission = TableData 348 = R;
+                    AccessByPermission = TableData "Dimension" = R;
                     Caption = 'Dimensions';
                     ApplicationArea = Basic, Suite;
                     Image = Dimensions;
                     Promoted = false;
                     ShortCutKey = 'Shift+Ctrl+D';
                     ToolTip = 'Specifies the process to view or edit dimentions, that can be assigned to transactions to distribute cost and analyze transaction history.';
-
 
                     trigger OnAction()
                     begin

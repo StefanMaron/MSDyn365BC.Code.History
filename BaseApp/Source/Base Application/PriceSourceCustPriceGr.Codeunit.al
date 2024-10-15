@@ -59,6 +59,7 @@ codeunit 7033 "Price Source - Cust. Price Gr." implements "Price Source"
 
     local procedure FillAdditionalFields(var PriceSource: Record "Price Source")
     begin
+        PriceSource.Description := CustomerPriceGroup.Description;
         PriceSource."Allow Invoice Disc." := CustomerPriceGroup."Allow Invoice Disc.";
         PriceSource."Allow Line Disc." := CustomerPriceGroup."Allow Line Disc.";
         PriceSource."Price Includes VAT" := CustomerPriceGroup."Price Includes VAT";

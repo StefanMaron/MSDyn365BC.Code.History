@@ -1,22 +1,66 @@
 codeunit 18247 "Validate Bank Charges Amount"
 {
-    [EventSubscriber(ObjectType::Table, database::"Journal Bank Charges", 'OnBeforeValidateEvent', 'Amount', false, false)]
-    Local procedure CheckValidation(var Rec: Record "Journal Bank Charges")
+    var
+        GSTPostingBuffer: array[2] of Record "GST Posting Buffer" temporary;
+        BankChargeCodeGSTAmount: Decimal;
+        BankChargeGSTAmount: Decimal;
+        BankChargeAmount: Decimal;
+        PostedDocNo: Code[20];
+        GSTBankChargeBoolErr: Label 'You Can not have multiple Bank Charges, when Bank Charge Boolean in General Journal Line is True.';
+        GSTBankChargeFxBoolErr: Label 'You Can not have multiple Bank Charges with Foreign Exchange True.';
+        DiffSignErr: Label 'All bank charge lines must have same sign Amount.';
+
+    local procedure InsertDetailedGSTLedgerInformation(
+            DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
+            GenJournalLine: Record "Gen. Journal Line";
+            JournalBankCharges: Record "Journal Bank Charges";
+            DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry")
+    var
+        DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info";
+        OriginalDocTypeEnum: Enum "Original Doc Type";
+    begin
+        DetailedGSTLedgerEntryInfo.Init();
+        DetailedGSTLedgerEntryInfo."Entry No." := DetailedGSTLedgerEntry."Entry No.";
+        DetailedGSTLedgerEntryInfo."Location State Code" := DetailedGSTEntryBuffer."Location State Code";
+        DetailedGSTLedgerEntryInfo."Gen. Bus. Posting Group" := GenJournalLine."Gen. Bus. Posting Group";
+        DetailedGSTLedgerEntryInfo."Gen. Prod. Posting Group" := GenJournalLine."Gen. Prod. Posting Group";
+        DetailedGSTLedgerEntryInfo."Nature of Supply" := DetailedGSTLedgerEntryInfo."Nature of Supply"::B2B;
+        DetailedGSTLedgerEntryInfo."Original Doc. No." := DetailedGSTLedgerEntry."Document No.";
+        OriginalDocTypeEnum := DetailedGSTLedgerDocument2OriginalDocumentTypeEnum(DetailedGSTLedgerEntry."Document Type");
+        DetailedGSTLedgerEntryInfo."original Doc. Type" := OriginalDocTypeEnum;
+        DetailedGSTLedgerEntryInfo."CLE/VLE Entry No." := 0;
+        DetailedGSTLedgerEntryInfo."Buyer/Seller State Code" := DetailedGSTEntryBuffer."Buyer/Seller State Code";
+        DetailedGSTLedgerEntryInfo."User ID" := CopyStr(UserId, 1, MaxStrLen(DetailedGSTLedgerEntryInfo."User ID"));
+        DetailedGSTLedgerEntryInfo.Cess := DetailedGSTEntryBuffer.Cess;
+        DetailedGSTLedgerEntryInfo."Component Calc. Type" := DetailedGSTEntryBuffer."Component Calc. Type";
+        DetailedGSTLedgerEntryInfo."Jnl. Bank Charge" := JournalBankCharges."Bank Charge";
+        DetailedGSTLedgerEntryInfo."Bank Charge Entry" := DetailedGSTLedgerEntryInfo."Jnl. Bank Charge" <> '';
+        DetailedGSTLedgerEntryInfo."Foreign Exchange" := JournalBankCharges."Foreign Exchange";
+        if DetailedGSTLedgerEntry."GST Base Amount" > 0 then
+            DetailedGSTLedgerEntryInfo.Positive := true;
+
+        DetailedGSTLedgerEntryInfo.Insert(true);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Journal Bank Charges", 'OnBeforeValidateEvent', 'Amount', false, false)]
+    local procedure CheckValidation(var Rec: Record "Journal Bank Charges")
     var
         JnlBankChargesDummy: Record "Journal Bank Charges";
         GenJnlLine: Record "Gen. Journal Line";
         JnlBankCharges: Record "Journal Bank Charges";
     begin
-        JnlBankChargesDummy.setrange("Journal Template Name", Rec."Journal Template Name");
-        JnlBankChargesDummy.setrange("Journal Batch Name", Rec."Journal Batch Name");
-        JnlBankChargesDummy.setrange("Line No.", Rec."Line No.");
-        JnlBankChargesDummy.setrange("Foreign Exchange", true);
+        JnlBankChargesDummy.SetRange("Journal Template Name", Rec."Journal Template Name");
+        JnlBankChargesDummy.SetRange("Journal Batch Name", Rec."Journal Batch Name");
+        JnlBankChargesDummy.SetRange("Line No.", Rec."Line No.");
+        JnlBankChargesDummy.SetRange("Foreign Exchange", true);
         if JnlBankChargesDummy.Count > 1 then
             Error(GSTBankChargeFxBoolErr);
-        JnlBankChargesDummy.setrange("Foreign Exchange");
-        GenJnlLine.Get(rec."Journal Template Name", rec."Journal Batch Name", Rec."Line No.");
+
+        JnlBankChargesDummy.SetRange("Foreign Exchange");
+        GenJnlLine.Get(Rec."Journal Template Name", Rec."Journal Batch Name", Rec."Line No.");
         if GenJnlLine."Bank Charge" and (JnlBankChargesDummy.Count > 1) then
-            error(GSTBankChargeBoolErr);
+            Error(GSTBankChargeBoolErr);
+
         if JnlBankChargesDummy.FindSet() then
             repeat
                 JnlBankCharges.CheckBankChargeAmountSign(GenJnlLine, JnlBankChargesDummy);
@@ -40,12 +84,15 @@ codeunit 18247 "Validate Bank Charges Amount"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnPostBankAccOnBeforeBankAccLedgEntryInsert', '', false, false)]
-    local procedure PostBankChargesEntries(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; BankAccount: Record "Bank Account")
+    local procedure PostBankChargesEntries(
+        var BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        var GenJournalLine: Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account")
     begin
         InitPostedJnlBankCharge(GenJournalLine, 1);
     end;
 
-    [EventSubscriber(ObjectType::codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnPostBankAccOnBeforeBankAccLedgEntryInsert', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnPostBankAccOnBeforeBankAccLedgEntryInsert', '', false, false)]
     local procedure IncludeChargeAmount(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     var
         JnlBankChargesSessionMgt: Codeunit "GST Bank Charge Session Mgt.";
@@ -70,25 +117,45 @@ codeunit 18247 "Validate Bank Charges Amount"
         GenJnlLine: Record "Gen. Journal Line";
         TaxCaseExecution: Codeunit "Use Case Execution";
     begin
-        if GenJnlLine.Get(Rec."Journal Template Name", Rec."Journal Batch Name", rec."Line No.") then;
+        if GenJnlLine.Get(Rec."Journal Template Name", Rec."Journal Batch Name", Rec."Line No.") then;
+        TaxCaseExecution.HandleEvent('OnAfterAmountUpdate', Rec, GenJnlLine."Currency Code", GenJnlLine."Currency Factor");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Journal Bank Charges", 'OnAfterValidateEvent', 'Bank Charge', false, false)]
+    local procedure CallTaxEngineOnBankCharge(var Rec: Record "Journal Bank Charges")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        UseCaseExecution: Codeunit "Use Case Execution";
+    begin
+        if GenJournalLine.Get(Rec."Journal Template Name", Rec."Journal Batch Name", Rec."Line No.") then;
+        UseCaseExecution.HandleEvent('OnAfterAmountUpdate', Rec, GenJournalLine."Currency Code", GenJournalLine."Currency Factor");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Journal Bank Charges", 'OnAfterValidateEvent', 'GST Document Type', false, false)]
+    local procedure HandleBankChargeUseCaseOnDocumentType(var Rec: Record "Journal Bank Charges")
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        TaxCaseExecution: Codeunit "Use Case Execution";
+    begin
+        if GenJnlLine.Get(Rec."Journal Template Name", Rec."Journal Batch Name", Rec."Line No.") then;
         TaxCaseExecution.HandleEvent('OnAfterAmountUpdate', Rec, GenJnlLine."Currency Code", GenJnlLine."Currency Factor");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Tax Transaction Value", 'OnBeforeTableFilterApplied', '', false, false)]
-    local procedure OnBeforeTableFilterApplied(var TaxRecordID: RecordId; TemplateNameFilter: Text; BatchFilter: Text; LineNoFilter: Integer)
+    local procedure OnBeforeTableFilterApplied(var TaxRecordID: RecordID; TemplateNameFilter: Text; BatchFilter: Text; LineNoFilter: Integer)
     var
         JnlBankCharges: Record "Journal Bank Charges";
     begin
         JnlBankCharges.Reset();
-        JnlBankCharges.setrange("Journal Template Name", TemplateNameFilter);
-        JnlBankCharges.setrange("Journal Batch Name", BatchFilter);
-        JnlBankCharges.setrange("Line No.", LineNoFilter);
-        if JnlBankCharges.Findfirst() then
+        JnlBankCharges.SetRange("Journal Template Name", TemplateNameFilter);
+        JnlBankCharges.SetRange("Journal Batch Name", BatchFilter);
+        JnlBankCharges.SetRange("Line No.", LineNoFilter);
+        if JnlBankCharges.FindFirst() then
             TaxRecordID := JnlBankCharges.RecordId();
     end;
 
-    [EventSubscriber(ObjectType::codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnPostBankAccOnBeforeInitBankAccLedgEntry', '', false, false)]
-    local Procedure PostBankCharges(var GenJournalLine: Record "Gen. Journal Line"; var NextTransactionNo: Integer; var NextEntryNo: Integer)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnPostBankAccOnBeforeInitBankAccLedgEntry', '', false, false)]
+    local procedure PostBankCharges(var GenJournalLine: Record "Gen. Journal Line"; var NextTransactionNo: Integer; var NextEntryNo: Integer)
     var
         JnlBankChargesSessionMgt: Codeunit "GST Bank Charge Session Mgt.";
     begin
@@ -103,38 +170,40 @@ codeunit 18247 "Validate Bank Charges Amount"
         GLSetup: Record "General Ledger Setup";
         JnlBankCharges: Record "Journal Bank Charges";
         TaxTransValue: Record "Tax Transaction Value";
-        TaxTypeSetup: Record "Tax Type Setup";
+        GSTSetup: Record "GST Setup";
         TaxComponent: Record "Tax Component";
         DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
         Location: Record Location;
         BankAccount: Record "Bank Account";
-        TaxRecordID: RecordId;
-        GSTComponentCode: Text[10];
+        GSTBaseValidation: Codeunit "GST Base Validation";
+        TaxRecordID: RecordID;
+        GSTComponentCode: Text[30];
         LineNo: Integer;
+        Sign: Integer;
     begin
-        LineNo := GetDetailGSTEntryBufferNextLineNo();
+        LineNo := GetDetailedGSTEntryBufferNextLineNo();
 
         GLSetup.Get();
         JnlBankCharges.Reset();
-        JnlBankCharges.setrange("Journal Template Name", GenJnlLine."Journal Template Name");
-        JnlBankCharges.setrange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-        JnlBankCharges.setrange("Line No.", GenJnlLine."Line No.");
-        if JnlBankCharges.Findset() then
+        JnlBankCharges.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        JnlBankCharges.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        JnlBankCharges.SetRange("Line No.", GenJnlLine."Line No.");
+        if JnlBankCharges.FindSet() then
             repeat
                 TaxRecordID := JnlBankCharges.RecordId();
-                if not TaxTypeSetup.Get() then
+                if not GSTSetup.Get() then
                     exit;
 
-                TaxTypeSetup.TestField(code);
+                GSTSetup.TestField("GST Tax Type");
                 TaxTransValue.Reset();
-                TaxTransValue.setrange("Tax Type", TaxTypeSetup.Code);
-                TaxTransValue.setrange("Tax Record ID", TaxRecordId);
-                TaxTransValue.setrange("Value Type", TaxTransValue."Value Type"::COMPONENT);
-                if TaxTransValue.Findset() then
+                TaxTransValue.SetRange("Tax Type", GSTSetup."GST Tax Type");
+                TaxTransValue.SetRange("Tax Record ID", TaxRecordId);
+                TaxTransValue.SetRange("Value Type", TaxTransValue."Value Type"::COMPONENT);
+                if TaxTransValue.FindSet() then
                     repeat
-                        TaxComponent.setrange("Tax Type", TaxTypeSetup.Code);
-                        TaxComponent.setrange(ID, TaxTransValue."Value ID");
-                        if TaxComponent.Findfirst() then
+                        TaxComponent.SetRange("Tax Type", GSTSetup."GST Tax Type");
+                        TaxComponent.SetRange(Id, TaxTransValue."Value ID");
+                        if TaxComponent.FindFirst() then
                             GSTComponentCode := TaxComponent.Name;
 
                         DetailedGSTEntryBuffer.Init();
@@ -143,7 +212,7 @@ codeunit 18247 "Validate Bank Charges Amount"
                         DetailedGSTEntryBuffer."Transaction Type" := DetailedGSTEntryBuffer."Transaction Type"::Purchase;
                         DetailedGSTEntryBuffer."Line No." := GenJnlLine."Line No.";
                         DetailedGSTEntryBuffer."Jnl. Bank Charge" := JnlBankCharges."Bank Charge";
-                        DetailedGSTEntryBuffer."Bank Charge Entry" := True;
+                        DetailedGSTEntryBuffer."Bank Charge Entry" := true;
                         DetailedGSTEntryBuffer."Journal Template Name" := JnlBankCharges."Journal Template Name";
                         DetailedGSTEntryBuffer."Journal Batch Name" := JnlBankCharges."Journal Batch Name";
                         DetailedGSTEntryBuffer."Document No." := GenJnlLine."Document No.";
@@ -154,21 +223,28 @@ codeunit 18247 "Validate Bank Charges Amount"
                         DetailedGSTEntryBuffer."Location Code" := GenJnlLine."Location Code";
                         DetailedGSTEntryBuffer."GST Component Code" := GSTComponentCode;
                         DetailedGSTEntryBuffer."GST Group Code" := JnlBankCharges."GST Group Code";
-                        DetailedGSTEntryBuffer."GST Base Amount" := JnlBankCharges."Amount (LCY)";
+                        Sign := JnlBankCharges.CheckBankChargeAmountSign(GenJnlLine, JnlBankCharges);
+                        if GenJnlLine."Bank Charge" then
+                            DetailedGSTEntryBuffer."GST Base Amount" := Abs(GenJnlLine."Amount (LCY)") * Sign
+                        else
+                            DetailedGSTEntryBuffer."GST Base Amount" := Abs(JnlBankCharges."Amount (LCY)") * Sign;
+
                         DetailedGSTEntryBuffer."GST %" := TaxTransValue.Percent;
                         DetailedGSTEntryBuffer.Quantity := 1;
                         if not JnlBankCharges.Exempted then
                             DetailedGSTEntryBuffer."GST Amount" := TaxTransValue.Amount
                         else
-                            DetailedGSTEntryBuffer.Exempted := True;
+                            DetailedGSTEntryBuffer.Exempted := true;
+
                         DetailedGSTEntryBuffer."Currency Code" := GenJnlLine."Currency Code";
                         if DetailedGSTEntryBuffer."Currency Code" <> '' then
                             DetailedGSTEntryBuffer."Currency Factor" := GenJnlLine."Currency Factor"
                         else
                             DetailedGSTEntryBuffer."Currency Factor" := 1;
+
                         DetailedGSTEntryBuffer."GST Amount" := TaxTransValue.Amount;
-                        DetailedGSTEntryBuffer."GST Rounding Precision" := GLSetup."GST Rounding Precision";
-                        DetailedGSTEntryBuffer."GST Rounding Type" := GLSetup."GST Rounding Type";
+                        DetailedGSTEntryBuffer."GST Rounding Precision" := GLSetup."Inv. Rounding Precision (LCY)";
+                        DetailedGSTEntryBuffer."GST Rounding Type" := GSTBaseValidation.GenLedInvRoundingType2GSTInvRoundingTypeEnum(GLSetup."Inv. Rounding Type (LCY)");
                         DetailedGSTEntryBuffer."GST Inv. Rounding Precision" := JnlBankCharges."GST Inv. Rounding Precision";
                         DetailedGSTEntryBuffer."GST Inv. Rounding Type" := JnlBankCharges."GST Inv. Rounding Type";
                         DetailedGSTEntryBuffer."GST on Advance Payment" := GenJnlLine."GST on Advance Payment";
@@ -180,14 +256,17 @@ codeunit 18247 "Validate Bank Charges Amount"
                         if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::"Bank Account" then
                             if GenJnlLine."Bal. Account No." <> '' then
                                 BankAccount.Get(GenJnlLine."Bal. Account No.");
+
                         if GenJnlLine."Account Type" = GenJnlLine."Account Type"::"Bank Account" then
                             if GenJnlLine."Account No." <> '' then
                                 BankAccount.Get(GenJnlLine."Account No.");
+
                         DetailedGSTEntryBuffer."Buyer/Seller Reg. No." := BankAccount."GST Registration No.";
                         DetailedGSTEntryBuffer."Buyer/Seller State Code" := BankAccount."State Code";
                         DetailedGSTEntryBuffer."Source No." := BankAccount."No.";
                         if JnlBankCharges."GST Credit" = JnlBankCharges."GST Credit"::"Non-Availment" then
-                            DetailedGSTEntryBuffer."Non-Availment" := True;
+                            DetailedGSTEntryBuffer."Non-Availment" := true;
+
                         if DetailedGSTEntryBuffer."Non-Availment" then begin
                             DetailedGSTEntryBuffer."GST Input/Output Credit Amount" := 0;
                             DetailedGSTEntryBuffer."Amount Loaded on Item" := TaxTransValue.Amount
@@ -195,13 +274,15 @@ codeunit 18247 "Validate Bank Charges Amount"
                             DetailedGSTEntryBuffer."Amount Loaded on Item" := 0;
                             DetailedGSTEntryBuffer."GST Input/Output Credit Amount" := TaxTransValue.Amount;
                         end;
-                        if (DetailedGSTEntryBuffer."GST Amount" > 0) then
+
+                        if (DetailedGSTEntryBuffer."GST Amount" <> 0) then
                             DetailedGSTEntryBuffer.Insert();
+
                     until TaxTransValue.Next() = 0;
             until JnlBankCharges.Next() = 0;
     end;
 
-    local procedure GetDetailGSTEntryBufferNextLineNo(): Integer
+    local procedure GetDetailedGSTEntryBufferNextLineNo(): Integer
     var
         DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
         NextLineNo: Integer;
@@ -211,7 +292,11 @@ codeunit 18247 "Validate Bank Charges Amount"
         exit(NextLineNo + 10000);
     end;
 
-    local procedure UpdateBankChargeAmt(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; AmountLCY: Decimal; SignOfBankAccLedgAmount: Integer)
+    local procedure UpdateBankChargeAmt(
+        var BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        var GenJournalLine: Record "Gen. Journal Line";
+        AmountLCY: Decimal;
+        SignOfBankAccLedgAmount: Integer)
     var
         DocType: Enum "BankCharges DocumentType";
     begin
@@ -224,14 +309,16 @@ codeunit 18247 "Validate Bank Charges Amount"
         end else
             if AmountLCY > 0 then begin
                 if AmountLCY > BankChargeAmount then
-                    SignOfBankAccLedgAmount := ABS(BankAccountLedgerEntry.Amount) / BankAccountLedgerEntry.Amount
+                    SignOfBankAccLedgAmount := Abs(BankAccountLedgerEntry.Amount) / BankAccountLedgerEntry.Amount
                 else
                     SignOfBankAccLedgAmount := 1;
             end else
-                SignOfBankAccLedgAmount := ABS(BankAccountLedgerEntry.Amount) / BankAccountLedgerEntry.Amount;
+                SignOfBankAccLedgAmount := Abs(BankAccountLedgerEntry.Amount) / BankAccountLedgerEntry.Amount;
 
-        BankAccountLedgerEntry.Amount += (SignOfBankAccLedgAmount * BankChargeAmount) + BankChargeAmount;
-        BankAccountLedgerEntry."Amount (LCY)" += (SignOfBankAccLedgAmount * BankChargeAmount) + BankChargeAmount;
+        BankAccountLedgerEntry.Amount += (SignOfBankAccLedgAmount * BankChargeAmount);
+        BankAccountLedgerEntry."Amount (LCY)" += (SignOfBankAccLedgAmount * BankChargeAmount);
+        BankAccountLedgerEntry."Remaining Amount" := BankAccountLedgerEntry.Amount;
+        BankAccountLedgerEntry.UpdateDebitCredit(GenJournalLine.Correction);
         BankChargeAmount := (SignOfBankAccLedgAmount * BankChargeAmount);
         GenJournalLine."Amount (LCY)" += BankChargeAmount;
     end;
@@ -241,32 +328,33 @@ codeunit 18247 "Validate Bank Charges Amount"
         JnlBankCharges: Record "Journal Bank Charges";
     begin
         JnlBankCharges.Reset();
-        JnlBankCharges.setrange("Journal Template Name", GenJournalLine."Journal Template Name");
-        JnlBankCharges.setrange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        JnlBankCharges.setrange("Line No.", GenJournalLine."Line No.");
-        if JnlBankCharges.Findfirst() then
+        JnlBankCharges.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        JnlBankCharges.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        JnlBankCharges.SetRange("Line No.", GenJournalLine."Line No.");
+        if JnlBankCharges.FindFirst() then
             exit(JnlBankCharges."GST Document Type");
     end;
-
 
     local procedure DeleteDetailedGSTBufferBankCharges(var JnlBankCharges: Record "Journal Bank Charges")
     var
         DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
     begin
         DetailedGSTEntryBuffer.SetCurrentKey("Transaction Type", "Journal Template Name", "Journal Batch Name", "Line No.", "Jnl. Bank Charge");
-        DetailedGSTEntryBuffer.setrange("Journal Template Name", JnlBankCharges."Journal Template Name");
-        DetailedGSTEntryBuffer.setrange("Journal Batch Name", JnlBankCharges."Journal Batch Name");
-        DetailedGSTEntryBuffer.setrange("Line No.", JnlBankCharges."Line No.");
-        DetailedGSTEntryBuffer.setrange("Jnl. Bank Charge", JnlBankCharges."Bank Charge");
-        if DetailedGSTEntryBuffer.Findset() then
-            DetailedGSTEntryBuffer.Deleteall();
+        DetailedGSTEntryBuffer.SetRange("Journal Template Name", JnlBankCharges."Journal Template Name");
+        DetailedGSTEntryBuffer.SetRange("Journal Batch Name", JnlBankCharges."Journal Batch Name");
+        DetailedGSTEntryBuffer.SetRange("Line No.", JnlBankCharges."Line No.");
+        DetailedGSTEntryBuffer.SetRange("Jnl. Bank Charge", JnlBankCharges."Bank Charge");
+        if DetailedGSTEntryBuffer.FindSet() then
+            DetailedGSTEntryBuffer.DeleteAll();
     end;
 
-    local Procedure InitPostedJnlBankCharge(GenJnlLine: Record "Gen. Journal Line"; ExecutionOption: option ReturnTotChgAmount,PostGLEntriesForBankChg)
+    local procedure InitPostedJnlBankCharge(GenJnlLine: Record "Gen. Journal Line"; ExecutionOption: Option ReturnTotChgAmount,PostGLEntriesForBankChg)
     var
         JnlBankCharges: Record "Journal Bank Charges";
         GLSetup: Record "General Ledger Setup";
         BankCharge: Record "Bank Charge";
+        BankAccount: Record "Bank Account";
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
         JnlBankChargesSessionMgt: Codeunit "GST Bank Charge Session Mgt.";
         DeleteJnlBankChgRecords: Boolean;
         GSTRounding: Decimal;
@@ -274,92 +362,122 @@ codeunit 18247 "Validate Bank Charges Amount"
     begin
         if (GenJnlLine."Journal Template Name" = '') or (GenJnlLine."Journal Batch Name" = '') then
             exit;
-        CheckMultiLineBankChargesInvRounding(GenJnlLine);
+
         GLSetup.Get();
+        CheckMultiLineBankChargesInvRounding(GenJnlLine);
         CheckSameBankChargeForeignExchange(GenJnlLine);
         CheckBankChargeDocumentType(GenJnlLine);
         CheckSameBankChargeSign(GenJnlLine);
+
         JnlBankCharges.Reset();
-        JnlBankCharges.setrange("Journal Template Name", GenJnlLine."Journal Template Name");
-        JnlBankCharges.setrange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-        JnlBankCharges.setrange("Line No.", GenJnlLine."Line No.");
-        JnlBankCharges.setrange("Foreign Exchange", True);
-        if JnlBankCharges.Findset() and (JnlBankCharges.Count > 1) then
+        JnlBankCharges.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        JnlBankCharges.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        JnlBankCharges.SetRange("Line No.", GenJnlLine."Line No.");
+        JnlBankCharges.SetRange("Foreign Exchange", true);
+        if JnlBankCharges.FindSet() and (JnlBankCharges.Count > 1) then
             Error(GSTBankChargeFxBoolErr);
-        JnlBankCharges.setrange("Foreign Exchange");
+
+        JnlBankCharges.SetRange("Foreign Exchange");
         if JnlBankCharges.IsEmpty() then
             exit;
 
-        GSTPostingBuffer[1].Deleteall();
-        if JnlBankCharges.Findset() then begin
-            if GenJnlLine."Bank Charge" and (JnlBankCharges."GST Group Code" <> '') and (JnlBankCharges.COUNT > 1) then
+        GSTPostingBuffer[1].DeleteAll();
+        if JnlBankCharges.FindSet() then begin
+            if GenJnlLine."Bank Charge" and (JnlBankCharges."GST Group Code" <> '') and (JnlBankCharges.Count > 1) then
                 Error(GSTBankChargeBoolErr);
+
             if GenJnlLine."GST Input Service Distribution" and (JnlBankCharges.GETGSTBaseAmount(JnlBankCharges.RecordId) <> 0) then
-                GenJnlLine.TestField("GST Input Service Distribution", FALSE);
+                GenJnlLine.TestField("GST Input Service Distribution", false);
+
             repeat
                 Clear(BankChargeCodeGSTAmount);
                 Clear(BankChargeGSTAmount);
-                if JnlBankCharges."GST Group Code" <> '' then
-                    if GenJnlLine."Document Type" IN [GenJnlLine."Document Type"::Payment,
-                                                      GenJnlLine."Document Type"::Refund]
-                    then
-                        PostBankChargeGST(GenJnlLine, JnlBankCharges);
-                BankChargeGSTAmount := GetBankChargeCodeAmount(JnlBankCharges, FALSE);
-                BankChargeCodeGSTAmount := GetBankChargeCodeAmount(JnlBankCharges, True);
-                BankChargeGSTInvAmt += GetBankChargeCodeAmount(JnlBankCharges, FALSE);
+                if (JnlBankCharges."GST Group Code" <> '') and (GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Payment, GenJnlLine."Document Type"::Refund]) then
+                    PostBankChargeGST(GenJnlLine, JnlBankCharges);
+
+                BankChargeGSTAmount := GetBankChargeCodeAmount(JnlBankCharges, false);
+                BankChargeCodeGSTAmount := GetBankChargeCodeAmount(JnlBankCharges, true);
+                BankChargeGSTInvAmt += GetBankChargeCodeAmount(JnlBankCharges, false);
 
                 if JnlBankCharges."GST Inv. Rounding Precision" <> 0 then
                     GSTRounding :=
-                      -Round(BankChargeGSTAmount -
-                        Round(
-                          BankChargeGSTAmount,
-                          JnlBankCharges."GST Inv. Rounding Precision",
-                          JnlBankCharges.GSTInvoiceRoundingDirection()),
-                         GLSetup."GST Rounding Precision");
+                    -(BankChargeGSTAmount -
+                     Round(
+                         BankChargeGSTAmount,
+                         JnlBankCharges."GST Inv. Rounding Precision",
+                         JnlBankCharges.GSTInvoiceRoundingDirection()));
+
                 if ExecutionOption = ExecutionOption::ReturnTotChgAmount then
-                    BankChargeAmount += ABS(JnlBankCharges."Amount (LCY)" + BankChargeGSTAmount + GSTRounding);
+                    if not JnlBankCharges."Foreign Exchange" then
+                        BankChargeAmount += Abs(JnlBankCharges."Amount (LCY)" + BankChargeGSTAmount + GSTRounding)
+                    else
+                        BankChargeAmount += Abs(BankChargeGSTAmount + GSTRounding);
+
 
                 if ExecutionOption = ExecutionOption::PostGLEntriesForBankChg then begin
                     BankCharge.Get(JnlBankCharges."Bank Charge");
 
                     if JnlBankCharges."GST Group Code" <> '' then
-                        if GenJnlLine."Document Type" IN [GenJnlLine."Document Type"::Payment,
-                                                          GenJnlLine."Document Type"::Refund]
-                        then
+                        if GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Payment, GenJnlLine."Document Type"::Refund] then
                             PostBankChargeGST(GenJnlLine, JnlBankCharges);
+
                     FillGSTPostingBufferBankCharge(JnlBankCharges, GenJnlLine);
                     if JnlBankCharges."GST Group Code" <> '' then
-                        if GenJnlLine."Document Type" IN [GenJnlLine."Document Type"::Payment,
-                                                          GenJnlLine."Document Type"::Refund]
-                        then
+                        if GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Payment, GenJnlLine."Document Type"::Refund] then
                             InsertPostedJnlBankCharges(JnlBankCharges, GenJnlLine)
                         else
                             exit
                     else
                         InsertPostedJnlBankCharges(JnlBankCharges, GenJnlLine);
-                    if JnlBankCharges.Amount + BankChargeCodeGSTAmount <> 0 then
-                        JnlBankChargesSessionMgt.CreateGSTBankChargesGenJournallLine(GenJnlLine, BankCharge.Account, (JnlBankCharges.Amount + BankChargeCodeGSTAmount), (JnlBankCharges."Amount (LCY)" + BankChargeCodeGSTAmount));
-                    DeleteJnlBankChgRecords := True;
+
+                    if (JnlBankCharges.Amount + BankChargeCodeGSTAmount <> 0) and (not JnlBankCharges."Foreign Exchange") then
+                        JnlBankChargesSessionMgt.CreateGSTBankChargesGenJournallLine(
+                            GenJnlLine,
+                            BankCharge.Account,
+                            (JnlBankCharges.Amount + BankChargeCodeGSTAmount),
+                            (JnlBankCharges."Amount (LCY)" + BankChargeCodeGSTAmount));
+
+                    if (JnlBankCharges.Amount + BankChargeCodeGSTAmount <> 0) and (JnlBankCharges."Foreign Exchange") then
+                        if JnlBankCharges."GST credit" = JnlBankCharges."GST credit"::"Non-Availment" then
+                            JnlBankChargesSessionMgt.CreateGSTBankChargesGenJournallLine(
+                                GenJnlLine,
+                                BankCharge.Account,
+                                BankChargeCodeGSTAmount,
+                                BankChargeCodeGSTAmount);
+
+
+                    DeleteJnlBankChgRecords := true;
                 end;
             until JnlBankCharges.Next() = 0;
             if ExecutionOption = ExecutionOption::ReturnTotChgAmount then
                 JnlBankChargesSessionMgt.SetBankChargeAmount(BankChargeAmount);
+
             if JnlBankCharges."GST Inv. Rounding Precision" <> 0 then
                 GSTRounding :=
-                  -Round(BankChargeGSTInvAmt -
+                  -(BankChargeGSTInvAmt -
                     Round(
                       BankChargeGSTInvAmt,
                       JnlBankCharges."GST Inv. Rounding Precision",
-                      JnlBankCharges.GSTInvoiceRoundingDirection()),
-                      GLSetup."GST Rounding Precision");
+                      JnlBankCharges.GSTInvoiceRoundingDirection()));
+
             if ExecutionOption = ExecutionOption::PostGLEntriesForBankChg then begin
                 PostGSTOnBankCharge(GenJnlLine);
-                GLSetup.Get();
+
+                if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::"Bank Account" then
+                    BankAccount.Get(GenJnlLine."Bal. Account No.")
+                else
+                    if GenJnlLine."Account Type" = GenJnlLine."Account Type"::"Bank Account" then
+                        BankAccount.Get(GenJnlLine."Account No.");
+
+                BankAccountPostingGroup.Get((BankAccount."Bank Acc. Posting Group"));
+                BankAccountPostingGroup.TestField("GST Rounding Account");
+
                 if (GSTRounding <> 0) then
-                    JnlBankChargesSessionMgt.CreateGSTBankChargesGenJournallLine(GenJnlLine, GLSetup."GST Inv. Rounding Account", GSTRounding, GSTRounding);
+                    JnlBankChargesSessionMgt.CreateGSTBankChargesGenJournallLine(GenJnlLine, BankAccountPostingGroup."GST Rounding Account", GSTRounding, GSTRounding);
             end;
+
             if DeleteJnlBankChgRecords then begin
-                JnlBankCharges.Deleteall();
+                JnlBankCharges.DeleteAll();
                 JnlBankChargesSessionMgt.SetBankChargeAmount(0);
             end;
         end;
@@ -372,15 +490,20 @@ codeunit 18247 "Validate Bank Charges Amount"
         if GSTPostingBuffer[1].FindLast() then begin
             repeat
                 if (GSTPostingBuffer[1]."Account No." <> '') and (GSTPostingBuffer[1]."GST Amount" <> 0) then
-                    JnlBankChargesSessionMgt.CreateGSTBankChargesGenJournallLine(GenJnlLine, GSTPostingBuffer[1]."Account No.", GSTPostingBuffer[1]."GST Amount", GSTPostingBuffer[1]."GST Amount");
+                    JnlBankChargesSessionMgt.CreateGSTBankChargesGenJournallLine(
+                        GenJnlLine, GSTPostingBuffer[1]."Account No.",
+                        GSTPostingBuffer[1]."GST Amount",
+                        GSTPostingBuffer[1]."GST Amount");
+
                 PostedDocNo := GenJnlLine."Document No.";
-                InsertGSTLedgerEntryBankCharges(GSTPostingBuffer[1], GenJnlLine, JnlBankChargesSessionMgt.GetTranxactionNo());
+                InsertGSTLedgerEntryBankCharges(GSTPostingBuffer[1], GenJnlLine);
             until GSTPostingBuffer[1].Next(-1) = 0;
+
             InsertDetailedGSTLedgEntryBankCharges(GenJnlLine, JnlBankChargesSessionMgt.GetTranxactionNo());
         end;
     end;
 
-    local procedure InsertGSTLedgerEntryBankCharges(GSTPostingBuffer: Record "GST Posting Buffer"; GenJournalLine: Record "Gen. Journal Line"; NextTransactionNo: Integer)
+    local procedure InsertGSTLedgerEntryBankCharges(GSTPostingBuffer: Record "GST Posting Buffer"; GenJournalLine: Record "Gen. Journal Line")
     var
         BankAccount: Record "Bank Account";
         GSTLedgerEntry: Record "GST Ledger Entry";
@@ -403,7 +526,8 @@ codeunit 18247 "Validate Bank Charges Amount"
         else
             if BankAccount.Get(GenJournalLine."Account No.") then
                 GSTLedgerEntry."Source No." := GenJournalLine."Account No.";
-        GSTLedgerEntry."User ID" := Copystr(USERID, 1, MaxStrLen(GSTLedgerEntry."User ID"));
+
+        GSTLedgerEntry."User ID" := CopyStr(UserId, 1, MaxStrLen(GSTLedgerEntry."User ID"));
         GSTLedgerEntry."Source Code" := GenJournalLine."Source Code";
         GSTLedgerEntry."Reason Code" := GenJournalLine."Reason Code";
         GSTLedgerEntry.Availment := GSTPostingBuffer.Availment;
@@ -413,125 +537,26 @@ codeunit 18247 "Validate Bank Charges Amount"
             GSTLedgerEntry."Document Type" := GSTLedgerEntry."Document Type"::Invoice
         else
             GSTLedgerEntry."Document Type" := GSTLedgerEntry."Document Type"::"Credit Memo";
-        GSTLedgerEntry.Insert(True);
+
+        GSTLedgerEntry."Skip Tax Engine Trigger" := true;
+        GSTLedgerEntry.Insert(true);
     end;
 
     local procedure InsertDetailedGSTLedgEntryBankCharges(GenJournalLine: Record "Gen. Journal Line"; NextTransactionNo: Integer)
     var
-        BankAccount: Record "Bank Account";
-        BankCharge: Record "Bank Charge";
-        JnlBankCharges: Record "Journal Bank Charges";
-        DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
-        DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
-        DocumentTypeTxt: Text;
-        GSTDocumentType: Enum "original Doc Type";
+        JournalBankCharges: Record "Journal Bank Charges";
         EntryNo: Integer;
     begin
         EntryNo := GetNextGSTDetailEntryNo();
-        JnlBankCharges.Reset();
-        JnlBankCharges.setrange("Journal Template Name", GenJournalLine."Journal Template Name");
-        JnlBankCharges.setrange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        JnlBankCharges.setrange("Line No.", GenJournalLine."Line No.");
-        if JnlBankCharges.Findset() then
+        JournalBankCharges.Reset();
+        JournalBankCharges.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        JournalBankCharges.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        JournalBankCharges.SetRange("Line No.", GenJournalLine."Line No.");
+        if JournalBankCharges.FindSet() then
             repeat
-                DetailedGSTEntryBuffer.SETCURRENTKEY("Transaction Type", "Journal Template Name", "Journal Batch Name", "Line No.");
-                DetailedGSTEntryBuffer.setrange("Transaction Type", DetailedGSTEntryBuffer."Transaction Type"::Purchase);
-                DetailedGSTEntryBuffer.setrange("Journal Template Name", JnlBankCharges."Journal Template Name");
-                DetailedGSTEntryBuffer.setrange("Journal Batch Name", JnlBankCharges."Journal Batch Name");
-                DetailedGSTEntryBuffer.setrange("Line No.", JnlBankCharges."Line No.");
-                DetailedGSTEntryBuffer.setrange("Jnl. Bank Charge", JnlBankCharges."Bank Charge");
-                if DetailedGSTEntryBuffer.Findset() then
-                    repeat
-                        DetailedGSTLedgerEntry.Init();
-                        DetailedGSTLedgerEntry."Entry No." := EntryNo;
-                        EntryNo += 1;
-                        DetailedGSTLedgerEntry."Entry Type" := DetailedGSTLedgerEntry."Entry Type"::"Initial Entry";
-                        DetailedGSTLedgerEntry."Transaction No." := NextTransactionNo;
-                        DetailedGSTLedgerEntry."Document No." := GenJournalLine."Document No.";
-                        DetailedGSTLedgerEntry."Posting Date" := DetailedGSTEntryBuffer."Posting Date";
-                        DetailedGSTEntryBuffer.TestField("Location Code");
-                        DetailedGSTEntryBuffer.TestField("Location  Reg. No.");
-                        DetailedGSTEntryBuffer.TestField("Location State Code");
-                        DetailedGSTLedgerEntry."Location State Code" := DetailedGSTEntryBuffer."Location State Code";
-                        DetailedGSTLedgerEntry."Location Code" := DetailedGSTEntryBuffer."Location Code";
-                        DetailedGSTLedgerEntry."GST Vendor Type" := "GST Vendor Type"::Registered;
-                        DetailedGSTLedgerEntry."Location  Reg. No." := DetailedGSTEntryBuffer."Location  Reg. No.";
-                        DetailedGSTLedgerEntry."Gen. Bus. Posting Group" := GenJournalLine."Gen. Bus. Posting Group";
-                        DetailedGSTLedgerEntry."Gen. Prod. Posting Group" := GenJournalLine."Gen. Prod. Posting Group";
-                        DetailedGSTLedgerEntry."GST Exempted Goods" := DetailedGSTEntryBuffer.Exempted;
-                        DetailedGSTLedgerEntry."Nature of Supply" := DetailedGSTLedgerEntry."Nature of Supply"::B2B;
-                        DetailedGSTLedgerEntry."GST Rounding Type" := DetailedGSTEntryBuffer."GST Rounding Type";
-                        DetailedGSTLedgerEntry."GST Rounding Precision" := DetailedGSTEntryBuffer."GST Rounding Precision";
-                        DetailedGSTLedgerEntry."GST Inv. Rounding Type" := DetailedGSTEntryBuffer."GST Inv. Rounding Type";
-                        DetailedGSTLedgerEntry."GST Inv. Rounding Precision" := DetailedGSTEntryBuffer."GST Inv. Rounding Precision";
-                        DetailedGSTLedgerEntry."original Doc. No." := DetailedGSTLedgerEntry."Document No.";
-                        DocumentTypeTxt := Format(DetailedGSTLedgerEntry."Document Type");
-                        Evaluate(GSTDocumentType, DocumentTypeTxt);
-                        DetailedGSTLedgerEntry."original Doc. Type" := GSTDocumentType;
-                        DetailedGSTLedgerEntry."HSN/SAC Code" := DetailedGSTEntryBuffer."HSN/SAC Code";
-                        DetailedGSTLedgerEntry."GST Group Type" := DetailedGSTEntryBuffer."GST Group Type";
-                        DetailedGSTLedgerEntry."CLE/VLE Entry No." := 0;
-                        DetailedGSTLedgerEntry."Buyer/Seller State Code" := DetailedGSTEntryBuffer."Buyer/Seller State Code";
-                        DetailedGSTLedgerEntry."Buyer/Seller Reg. No." := DetailedGSTEntryBuffer."Buyer/Seller Reg. No.";
-                        if BankAccount.Get(GenJournalLine."Bal. Account No.") then
-                            DetailedGSTLedgerEntry."Source No." := GenJournalLine."Bal. Account No."
-                        else
-                            if BankAccount.Get(GenJournalLine."Account No.") then
-                                DetailedGSTLedgerEntry."Source No." := GenJournalLine."Account No.";
-                        if DetailedGSTLedgerEntry."Location State Code" <> DetailedGSTLedgerEntry."Buyer/Seller State Code" then
-                            DetailedGSTLedgerEntry."GST Jurisdiction Type" := DetailedGSTLedgerEntry."GST Jurisdiction Type"::Interstate
-                        else
-                            DetailedGSTLedgerEntry."GST Jurisdiction Type" := DetailedGSTLedgerEntry."GST Jurisdiction Type"::Intrastate;
-                        if not DetailedGSTEntryBuffer."Non-Availment" then
-                            DetailedGSTLedgerEntry."GST Credit" := DetailedGSTLedgerEntry."GST Credit"::Availment
-                        else
-                            DetailedGSTLedgerEntry."GST Credit" := DetailedGSTLedgerEntry."GST Credit"::"Non-Availment";
-                        DetailedGSTLedgerEntry."Credit Availed" := DetailedGSTLedgerEntry."GST Credit" = DetailedGSTLedgerEntry."GST Credit"::Availment;
-                        DetailedGSTLedgerEntry."Source Type" := "Source Type"::"Bank Account";
-                        DetailedGSTLedgerEntry.Type := DetailedGSTLedgerEntry.Type::"G/L Account";
-                        DetailedGSTLedgerEntry."Transaction Type" := DetailedGSTLedgerEntry."Transaction Type"::Purchase;
-                        BankCharge.Get(JnlBankCharges."Bank Charge");
-                        DetailedGSTLedgerEntry."No." := BankCharge.Account;
-                        DetailedGSTLedgerEntry."GST Component Code" := DetailedGSTEntryBuffer."GST Component Code";
-                        if DetailedGSTLedgerEntry."Credit Availed" then
-                            DetailedGSTLedgerEntry."G/L Account No." := GetGSTReceivableAccountNo(DetailedGSTLedgerEntry."Location State Code", DetailedGSTLedgerEntry."GST Component Code")
-                        else
-                            DetailedGSTLedgerEntry."G/L Account No." := DetailedGSTLedgerEntry."No.";
-                        DetailedGSTLedgerEntry."GST Group Code" := DetailedGSTEntryBuffer."GST Group Code";
-                        DetailedGSTLedgerEntry."Document Line No." := DetailedGSTEntryBuffer."Line No.";
-                        DetailedGSTLedgerEntry."GST Base Amount" := DetailedGSTEntryBuffer."GST Base Amount";
-                        DetailedGSTLedgerEntry."GST Amount" := DetailedGSTEntryBuffer."GST Amount";
-                        if DetailedGSTLedgerEntry."GST Base Amount" > 0 then begin
-                            DetailedGSTLedgerEntry."Document Type" := DetailedGSTLedgerEntry."Document Type"::Invoice;
-                            DetailedGSTLedgerEntry.Quantity := 1;
-                            DetailedGSTLedgerEntry.Positive := True;
-                        end else begin
-                            DetailedGSTLedgerEntry."Document Type" := DetailedGSTLedgerEntry."Document Type"::"Credit Memo";
-                            DetailedGSTLedgerEntry.Quantity := -1;
-                        end;
-                        DetailedGSTLedgerEntry."GST %" := DetailedGSTEntryBuffer."GST %";
-                        if DetailedGSTLedgerEntry."GST Exempted Goods" then
-                            DetailedGSTLedgerEntry."GST %" := 0;
-                        if DetailedGSTLedgerEntry."GST Credit" = DetailedGSTLedgerEntry."GST Credit"::"Non-Availment" then
-                            DetailedGSTLedgerEntry."Amount Loaded on Item" := DetailedGSTLedgerEntry."GST Amount";
-                        if JnlBankCharges.LCY then
-                            DetailedGSTLedgerEntry."Currency Factor" := 1
-                        else begin
-                            DetailedGSTLedgerEntry."Currency Code" := GenJournalLine."Currency Code";
-                            DetailedGSTLedgerEntry."Currency Factor" := GenJournalLine."Currency Factor";
-                        end;
-                        DetailedGSTLedgerEntry."User ID" := copystr(USERID, 1, MaxStrLen(DetailedGSTLedgerEntry."User ID"));
-                        DetailedGSTLedgerEntry.Cess := DetailedGSTEntryBuffer.Cess;
-                        DetailedGSTLedgerEntry."Component Calc. Type" := DetailedGSTEntryBuffer."Component Calc. Type";
-                        DetailedGSTLedgerEntry."Jnl. Bank Charge" := JnlBankCharges."Bank Charge";
-                        DetailedGSTLedgerEntry."Bank Charge Entry" := DetailedGSTLedgerEntry."Jnl. Bank Charge" <> '';
-                        DetailedGSTLedgerEntry."External Document No." := JnlBankCharges."External Document No.";
-                        DetailedGSTLedgerEntry."Foreign Exchange" := JnlBankCharges."Foreign Exchange";
-                        DetailedGSTLedgerEntry.TestField("HSN/SAC Code");
-                        DetailedGSTLedgerEntry.Insert(True);
-                    until DetailedGSTEntryBuffer.Next() = 0;
-                DeleteDetailedGSTBufferBankCharges(JnlBankCharges);
-            until JnlBankCharges.Next() = 0;
+                FillDetailedGSTLedgerEntry(JournalBankCharges, EntryNo, NextTransactionNo, GenJournalLine);
+                DeleteDetailedGSTBufferBankCharges(JournalBankCharges);
+            until JournalBankCharges.Next() = 0;
     end;
 
     local procedure GetNextGSTDetailEntryNo(): Integer
@@ -544,18 +569,18 @@ codeunit 18247 "Validate Bank Charges Amount"
         exit(EntryNo + 1);
     end;
 
-    local Procedure CheckMultiLineBankChargesInvRounding(GenJournalLine: Record "Gen. Journal Line")
+    local procedure CheckMultiLineBankChargesInvRounding(GenJournalLine: Record "Gen. Journal Line")
     var
         JnlBankCharges: Record "Journal Bank Charges";
         GSTInvRounding: Decimal;
         GSTInvRoundingType: Enum "GST Inv Rounding Type";
     begin
         JnlBankCharges.Reset();
-        JnlBankCharges.setrange("Journal Template Name", GenJournalLine."Journal Template Name");
-        JnlBankCharges.setrange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        JnlBankCharges.setrange("Line No.", GenJournalLine."Line No.");
+        JnlBankCharges.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        JnlBankCharges.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        JnlBankCharges.SetRange("Line No.", GenJournalLine."Line No.");
         JnlBankCharges.SetFilter("GST Group Code", '<>%1', '');
-        if JnlBankCharges.Findset() then begin
+        if JnlBankCharges.FindSet() then begin
             GSTInvRounding := JnlBankCharges."GST Inv. Rounding Precision";
             GSTInvRoundingType := JnlBankCharges."GST Inv. Rounding Type";
             repeat
@@ -570,11 +595,11 @@ codeunit 18247 "Validate Bank Charges Amount"
         JnlBankCharges: Record "Journal Bank Charges";
         DocType: Enum "BankCharges DocumentType";
     begin
-        JnlBankCharges.setrange("Journal Template Name", GenJournalLine."Journal Template Name");
-        JnlBankCharges.setrange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        JnlBankCharges.setrange("Line No.", GenJournalLine."Line No.");
+        JnlBankCharges.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        JnlBankCharges.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        JnlBankCharges.SetRange("Line No.", GenJournalLine."Line No.");
         JnlBankCharges.SetFilter("GST Document Type", '%1|%2', JnlBankCharges."GST Document Type"::Invoice, JnlBankCharges."GST Document Type"::"Credit Memo");
-        if JnlBankCharges.Findset() then begin
+        if JnlBankCharges.FindSet() then begin
             DocType := JnlBankCharges."GST Document Type";
             repeat
                 JnlBankCharges.TestField("GST Document Type", DocType);
@@ -588,23 +613,24 @@ codeunit 18247 "Validate Bank Charges Amount"
         Sign: Integer;
         ForeignExch: Boolean;
     begin
-        JnlBankCharges.setrange("Journal Template Name", GenJournalLine."Journal Template Name");
-        JnlBankCharges.setrange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        JnlBankCharges.setrange("Line No.", GenJournalLine."Line No.");
-        JnlBankCharges.setrange("Foreign Exchange", True);
-        if JnlBankCharges.Findfirst() then begin
-            ForeignExch := True;
+        JnlBankCharges.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        JnlBankCharges.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        JnlBankCharges.SetRange("Line No.", GenJournalLine."Line No.");
+        JnlBankCharges.SetRange("Foreign Exchange", true);
+        if JnlBankCharges.FindFirst() then begin
+            ForeignExch := true;
             if JnlBankCharges.GETGSTBaseAmount(JnlBankCharges.RecordId) > 0 then
                 Sign := 1
             else
                 if JnlBankCharges.GETGSTBaseAmount(JnlBankCharges.RecordId) < 0 then
                     Sign := -1;
+
         end;
         JnlBankCharges.Reset();
-        JnlBankCharges.setrange("Journal Template Name", GenJournalLine."Journal Template Name");
-        JnlBankCharges.setrange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        JnlBankCharges.setrange("Line No.", GenJournalLine."Line No.");
-        if JnlBankCharges.Findset() then
+        JnlBankCharges.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        JnlBankCharges.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        JnlBankCharges.SetRange("Line No.", GenJournalLine."Line No.");
+        if JnlBankCharges.FindSet() then
             repeat
                 if ForeignExch and ((JnlBankCharges.Amount > 0) and (Sign = -1)) or ((JnlBankCharges.Amount < 0) and (Sign = 1)) then
                     Error(DiffSignErr);
@@ -616,10 +642,10 @@ codeunit 18247 "Validate Bank Charges Amount"
         JnlBankCharges: Record "Journal Bank Charges";
         Sign: Integer;
     begin
-        JnlBankCharges.setrange("Journal Template Name", GenJournalLine."Journal Template Name");
-        JnlBankCharges.setrange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        JnlBankCharges.setrange("Line No.", GenJournalLine."Line No.");
-        if JnlBankCharges.Findfirst() then
+        JnlBankCharges.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        JnlBankCharges.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        JnlBankCharges.SetRange("Line No.", GenJournalLine."Line No.");
+        if JnlBankCharges.FindFirst() then
             if JnlBankCharges.Amount > 0 then
                 Sign := 1
             else
@@ -627,17 +653,17 @@ codeunit 18247 "Validate Bank Charges Amount"
                     Sign := -1;
 
         JnlBankCharges.Reset();
-        JnlBankCharges.setrange("Journal Template Name", GenJournalLine."Journal Template Name");
-        JnlBankCharges.setrange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        JnlBankCharges.setrange("Line No.", GenJournalLine."Line No.");
-        if JnlBankCharges.Findset() then
+        JnlBankCharges.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        JnlBankCharges.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        JnlBankCharges.SetRange("Line No.", GenJournalLine."Line No.");
+        if JnlBankCharges.FindSet() then
             repeat
                 if ((JnlBankCharges.Amount > 0) and (Sign = -1)) or ((JnlBankCharges.Amount < 0) and (Sign = 1)) then
                     Error(DiffSignErr);
             until JnlBankCharges.Next() = 0;
     end;
 
-    local Procedure PostBankChargeGST(GenJournalLine: Record "Gen. Journal Line"; JnlBankCharges: Record "Journal Bank Charges")
+    local procedure PostBankChargeGST(GenJournalLine: Record "Gen. Journal Line"; JnlBankCharges: Record "Journal Bank Charges")
     var
         BankCharge: Record "Bank Charge";
     begin
@@ -646,7 +672,7 @@ codeunit 18247 "Validate Bank Charges Amount"
         JnlBankCharges.CheckBankChargeAmountSign(GenJournalLine, JnlBankCharges);
     end;
 
-    local Procedure CheckGSTValidationsBankCharge(GenJournalLine: Record "Gen. Journal Line"; JnlBankCharges: Record "Journal Bank Charges")
+    local procedure CheckGSTValidationsBankCharge(GenJournalLine: Record "Gen. Journal Line"; JnlBankCharges: Record "Journal Bank Charges")
     var
         BankCharge: Record "Bank Charge";
     begin
@@ -669,42 +695,42 @@ codeunit 18247 "Validate Bank Charges Amount"
         end;
     end;
 
-    local Procedure GetBankChargeCodeAmount(JnlBankCharges: Record "Journal Bank Charges"; NonAvailment: Boolean): Decimal
+    local procedure GetBankChargeCodeAmount(JnlBankCharges: Record "Journal Bank Charges"; NonAvailment: Boolean): Decimal
     var
         DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
         BankGSTAmount: Decimal;
     begin
         SetFilterForBankCharge(DetailedGSTEntryBuffer, JnlBankCharges);
-        if not DetailedGSTEntryBuffer.Findset() then
+        if not DetailedGSTEntryBuffer.FindSet() then
             exit(0);
+
         repeat
             if NonAvailment then
                 BankGSTAmount += DetailedGSTEntryBuffer."Amount Loaded on Item"
             else
                 BankGSTAmount += DetailedGSTEntryBuffer."GST Amount";
         until DetailedGSTEntryBuffer.Next() = 0;
+
         exit(BankGSTAmount);
     end;
 
-    local Procedure SetFilterForBankCharge(var DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer"; JnlBankCharges: Record "Journal Bank Charges")
+    local procedure SetFilterForBankCharge(var DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer"; JnlBankCharges: Record "Journal Bank Charges")
     begin
         DetailedGSTEntryBuffer.SetCurrentKey("Transaction Type", "Journal Template Name", "Journal Batch Name", "Line No.");
-        DetailedGSTEntryBuffer.setrange("Transaction Type", DetailedGSTEntryBuffer."Transaction Type"::Purchase);
-        DetailedGSTEntryBuffer.setrange("Journal Template Name", JnlBankCharges."Journal Template Name");
-        DetailedGSTEntryBuffer.setrange("Journal Batch Name", JnlBankCharges."Journal Batch Name");
-        DetailedGSTEntryBuffer.setrange("Line No.", JnlBankCharges."Line No.");
-        DetailedGSTEntryBuffer.setrange("Source Type", "Source Type"::"Bank Account");
-        DetailedGSTEntryBuffer.setrange("Jnl. Bank Charge", JnlBankCharges."Bank Charge");
+        DetailedGSTEntryBuffer.SetRange("Transaction Type", DetailedGSTEntryBuffer."Transaction Type"::Purchase);
+        DetailedGSTEntryBuffer.SetRange("Journal Template Name", JnlBankCharges."Journal Template Name");
+        DetailedGSTEntryBuffer.SetRange("Journal Batch Name", JnlBankCharges."Journal Batch Name");
+        DetailedGSTEntryBuffer.SetRange("Line No.", JnlBankCharges."Line No.");
+        DetailedGSTEntryBuffer.SetRange("Source Type", "Source Type"::"Bank Account");
+        DetailedGSTEntryBuffer.SetRange("Jnl. Bank Charge", JnlBankCharges."Bank Charge");
     end;
 
-    local Procedure FillGSTPostingBufferBankCharge(JnlBankCharges: Record "Journal Bank Charges"; GenJournalLine: Record "Gen. Journal Line")
+    local procedure FillGSTPostingBufferBankCharge(JnlBankCharges: Record "Journal Bank Charges"; GenJournalLine: Record "Gen. Journal Line")
     var
         DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
-        Vendor: Record Vendor;
-        Customer: Record Customer;
     begin
         SetFilterForBankCharge(DetailedGSTEntryBuffer, JnlBankCharges);
-        if DetailedGSTEntryBuffer.Findset() then
+        if DetailedGSTEntryBuffer.FindSet() then
             repeat
                 Clear(GSTPostingBuffer[1]);
                 GSTPostingBuffer[1]."Transaction Type" := GSTPostingBuffer[1]."Transaction Type"::Purchase;
@@ -716,17 +742,18 @@ codeunit 18247 "Validate Bank Charges Amount"
                 GSTPostingBuffer[1]."GST Component Code" := DetailedGSTEntryBuffer."GST Component Code";
                 GSTPostingBuffer[1]."Party Code" := DetailedGSTEntryBuffer."Source No.";
                 if not DetailedGSTEntryBuffer."Non-Availment" then begin
-                    GSTPostingBuffer[1].Availment := True;
+                    GSTPostingBuffer[1].Availment := true;
                     GSTPostingBuffer[1]."Account No." :=
                     GetGSTReceivableAccountNo(DetailedGSTEntryBuffer."Location State Code", DetailedGSTEntryBuffer."GST Component Code");
                 end;
+
                 GSTPostingBuffer[1]."GST Base Amount" := DetailedGSTEntryBuffer."GST Base Amount";
                 GSTPostingBuffer[1]."GST Amount" := DetailedGSTEntryBuffer."GST Amount";
                 UpdateGSTPostingBufferBankCharge();
             until DetailedGSTEntryBuffer.Next() = 0;
     end;
 
-    local Procedure UpdateGSTPostingBufferBankCharge()
+    local procedure UpdateGSTPostingBufferBankCharge()
     begin
         GSTPostingBuffer[2] := GSTPostingBuffer[1];
         if GSTPostingBuffer[2].Find() then begin
@@ -746,9 +773,11 @@ codeunit 18247 "Validate Bank Charges Amount"
         if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::"Bank Account" then
             if GenJnlLine."Bal. Account No." <> '' then
                 BankAccount.Get(GenJnlLine."Bal. Account No.");
+
         if GenJnlLine."Account Type" = GenJnlLine."Account Type"::"Bank Account" then
             if GenJnlLine."Account No." <> '' then
                 BankAccount.Get(GenJnlLine."Account No.");
+
         PostedJnlBankCharges.Init();
         PostedJnlBankCharges."GL Entry No." := JnlBankChargesSessionMgt.GETEntryNo();
         PostedJnlBankCharges."Bank Charge" := JnlBankCharges."Bank Charge";
@@ -758,9 +787,10 @@ codeunit 18247 "Validate Bank Charges Amount"
         PostedJnlBankCharges."Posting Date" := GenJnlLine."Posting Date";
         if JnlBankCharges."GST Group Code" <> '' then begin
             if GenJnlLine."Bank Charge" then begin
-                PostedJnlBankCharges.Amount := ABS(GenJnlLine.Amount);
-                PostedJnlBankCharges."Amount (LCY)" := ABS(GenJnlLine."Amount (LCY)");
+                PostedJnlBankCharges.Amount := Abs(GenJnlLine.Amount);
+                PostedJnlBankCharges."Amount (LCY)" := Abs(GenJnlLine."Amount (LCY)");
             end;
+
             PostedJnlBankCharges."GST Group Code" := JnlBankCharges."GST Group Code";
             PostedJnlBankCharges."GST Group Type" := JnlBankCharges."GST Group Type";
             PostedJnlBankCharges."Foreign Exchange" := JnlBankCharges."Foreign Exchange";
@@ -771,6 +801,7 @@ codeunit 18247 "Validate Bank Charges Amount"
                 PostedJnlBankCharges."GST Jurisdiction Type" := PostedJnlBankCharges."GST Jurisdiction Type"::Interstate
             else
                 PostedJnlBankCharges."GST Jurisdiction Type" := PostedJnlBankCharges."GST Jurisdiction Type"::Intrastate;
+
             PostedJnlBankCharges."GST Bill to/Buy From State" := BankAccount."State Code";
             PostedJnlBankCharges."Location State Code" := GenJnlLine."Location State Code";
             PostedJnlBankCharges."Location  Reg. No." := GenJnlLine."Location GST Reg. No.";
@@ -783,10 +814,11 @@ codeunit 18247 "Validate Bank Charges Amount"
             PostedJnlBankCharges.LCY := JnlBankCharges.LCY;
             PostedJnlBankCharges."GST Document Type" := JnlBankCharges."GST Document Type";
         end;
-        PostedJnlBankCharges.Insert(True);
+
+        PostedJnlBankCharges.Insert(true);
     end;
 
-    local procedure GetGSTReceivableAccountNo(GSTStateCode: Code[10]; GSTComponentCode: Code[10]): Code[20]
+    local procedure GetGSTReceivableAccountNo(GSTStateCode: Code[10]; GSTComponentCode: Code[30]): Code[20]
     var
         GSTPostingSetup: Record "GST Posting Setup";
         GSTComponentID: Integer;
@@ -797,13 +829,13 @@ codeunit 18247 "Validate Bank Charges Amount"
         exit(GSTPostingSetup."Receivable Account");
     end;
 
-    local procedure GetGSTComponentID(GSTComponentCode: Code[10]): Integer
+    local procedure GetGSTComponentID(GSTComponentCode: Code[30]): Integer
     var
         TaxComponent: Record "Tax Component";
     begin
-        TaxComponent.setrange(Name, GSTComponentCode);
-        TaxComponent.Findfirst();
-        exit(TaxComponent.ID);
+        TaxComponent.SetRange(Name, GSTComponentCode);
+        TaxComponent.FindFirst();
+        exit(TaxComponent.Id);
     end;
 
     local procedure DeleteJournalBankCharges(var GenJournalLine: Record "Gen. Journal Line")
@@ -811,10 +843,10 @@ codeunit 18247 "Validate Bank Charges Amount"
         JnlBankCharges: Record "Journal Bank Charges";
     begin
         JnlBankCharges.Reset();
-        JnlBankCharges.setrange("Journal Template Name", GenJournalLine."Journal Template Name");
-        JnlBankCharges.setrange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        JnlBankCharges.setrange("Line No.", GenJournalLine."Line No.");
-        JnlBankCharges.Deleteall();
+        JnlBankCharges.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        JnlBankCharges.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        JnlBankCharges.SetRange("Line No.", GenJournalLine."Line No.");
+        JnlBankCharges.DeleteAll();
     end;
 
     local procedure CalculateGSTAmounts(JnlBankCharges: Record "journal Bank Charges")
@@ -822,20 +854,20 @@ codeunit 18247 "Validate Bank Charges Amount"
         GenJnlLine: Record "Gen. Journal Line";
         BankAccount: Record "Bank Account";
         Location: Record Location;
-        Sign: Integer;
     begin
         if (JnlBankCharges."Journal Template Name" = '') or (JnlBankCharges."Journal Batch Name" = '') then
             exit;
+
         GenJnlLine.Get(JnlBankCharges."Journal Template Name", JnlBankCharges."Journal Batch Name", JnlBankCharges."Line No.");
-        if (JnlBankCharges."GST Document Type" = JnlBankCharges."GST Document Type"::" ")
-            and (JnlBankCharges."GST Group Code" <> '') and not GenJnlLine."Bank Charge" then
+        if (JnlBankCharges."GST Document Type" = JnlBankCharges."GST Document Type"::" ") and (JnlBankCharges."GST Group Code" <> '') and not GenJnlLine."Bank Charge" then
             JnlBankCharges.TestField("GST Document Type");
-        if not (GenJnlLine."Document Type" IN [GenJnlLine."Document Type"::Payment,
-                                               GenJnlLine."Document Type"::Refund])
-        then
+
+        if not (GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Payment, GenJnlLine."Document Type"::Refund]) then
             exit;
+
         if JnlBankCharges."GST Group Code" = '' then
             exit;
+
         if JnlBankCharges."GST Group Code" <> '' then begin
             JnlBankCharges.TestField("GST Group Type");
             JnlBankCharges.TestField("HSN/SAC Code");
@@ -843,6 +875,7 @@ codeunit 18247 "Validate Bank Charges Amount"
                 BankAccount.Get(GenJnlLine."Bal. Account No.")
             else
                 BankAccount.Get(GenJnlLine."Account No.");
+
             BankAccount.TestField("GST Registration No.");
             BankAccount.TestField("State Code");
             GenJnlLine.TestField("Location Code");
@@ -854,13 +887,125 @@ codeunit 18247 "Validate Bank Charges Amount"
         end;
     end;
 
+    local procedure DetailedGSTLedgerDocument2OriginalDocumentTypeEnum(DetailedGSTLedgerDocumentType: Enum "GST Document Type"): Enum "Original Doc Type"
     var
-        GSTPostingBuffer: Array[2] of Record "GST Posting Buffer" temporary;
-        BankChargeCodeGSTAmount: Decimal;
-        BankChargeGSTAmount: Decimal;
-        BankChargeAmount: Decimal;
-        PostedDocNo: Code[20];
-        GSTBankChargeBoolErr: Label 'You Can not have multiple Bank Charges, when Bank Charge Boolean in General Journal Line is True.';
-        GSTBankChargeFxBoolErr: label 'You Can not have multiple Bank Charges with Foreign Exchange True.';
-        DiffSignErr: label 'All bank charge lines must have same sign Amount.';
+        ConversionErr: Label 'Document Type %1 is not a valid option.', Comment = '%1 = Detailed GST Ledger Document Type';
+    begin
+        case DetailedGSTLedgerDocumentType of
+            DetailedGSTLedgerDocumentType::"Credit Memo":
+                exit("Original Doc Type"::"Credit Memo");
+            DetailedGSTLedgerDocumentType::Invoice:
+                exit("Original Doc Type"::Invoice);
+            DetailedGSTLedgerDocumentType::Refund:
+                exit("Original Doc Type"::Refund);
+            DetailedGSTLedgerDocumentType::payment:
+                exit("Original Doc Type"::payment);
+            else
+                Error(ConversionErr, DetailedGSTLedgerDocumentType);
+        end;
+    end;
+
+    local procedure FillDetailedGSTLedgerEntry(JournalBankCharges: Record "Journal Bank Charges"; EntryNo: Integer; NextTransactionNo: Integer; GenJournalLine: Record "Gen. Journal Line")
+    var
+        DetailedGSTEntryBuffer: Record "Detailed GST Entry Buffer";
+        DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
+        BankAccount: Record "Bank Account";
+        BankCharge: Record "Bank Charge";
+        DocumentTypeTxt: Text;
+        GSTDocumentType: Enum "original Doc Type";
+    begin
+        DetailedGSTEntryBuffer.SetCurrentKey("Transaction Type", "Journal Template Name", "Journal Batch Name", "Line No.");
+        DetailedGSTEntryBuffer.SetRange("Transaction Type", DetailedGSTEntryBuffer."Transaction Type"::Purchase);
+        DetailedGSTEntryBuffer.SetRange("Journal Template Name", JournalBankCharges."Journal Template Name");
+        DetailedGSTEntryBuffer.SetRange("Journal Batch Name", JournalBankCharges."Journal Batch Name");
+        DetailedGSTEntryBuffer.SetRange("Line No.", JournalBankCharges."Line No.");
+        DetailedGSTEntryBuffer.SetRange("Jnl. Bank Charge", JournalBankCharges."Bank Charge");
+        if DetailedGSTEntryBuffer.FindSet() then
+            repeat
+                DetailedGSTLedgerEntry.Init();
+                DetailedGSTLedgerEntry."Entry No." := EntryNo;
+                EntryNo += 1;
+                DetailedGSTLedgerEntry."Entry Type" := DetailedGSTLedgerEntry."Entry Type"::"Initial Entry";
+                DetailedGSTLedgerEntry."Transaction No." := NextTransactionNo;
+                DetailedGSTLedgerEntry."Document No." := GenJournalLine."Document No.";
+                DetailedGSTLedgerEntry."Posting Date" := DetailedGSTEntryBuffer."Posting Date";
+                DetailedGSTEntryBuffer.TestField("Location Code");
+                DetailedGSTEntryBuffer.TestField("Location  Reg. No.");
+                DetailedGSTEntryBuffer.TestField("Location State Code");
+                DetailedGSTLedgerEntry."Location Code" := DetailedGSTEntryBuffer."Location Code";
+                DetailedGSTLedgerEntry."GST Vendor Type" := "GST Vendor Type"::Registered;
+                DetailedGSTLedgerEntry."Location  Reg. No." := DetailedGSTEntryBuffer."Location  Reg. No.";
+                DetailedGSTLedgerEntry."GST Exempted Goods" := DetailedGSTEntryBuffer.Exempted;
+                DetailedGSTLedgerEntry."GST Rounding Type" := DetailedGSTEntryBuffer."GST Rounding Type";
+                DetailedGSTLedgerEntry."GST Rounding Precision" := DetailedGSTEntryBuffer."GST Rounding Precision";
+                DetailedGSTLedgerEntry."GST Inv. Rounding Type" := DetailedGSTEntryBuffer."GST Inv. Rounding Type";
+                DetailedGSTLedgerEntry."GST Inv. Rounding Precision" := DetailedGSTEntryBuffer."GST Inv. Rounding Precision";
+                DocumentTypeTxt := Format(DetailedGSTLedgerEntry."Document Type");
+                Evaluate(GSTDocumentType, DocumentTypeTxt);
+                DetailedGSTLedgerEntry."HSN/SAC Code" := DetailedGSTEntryBuffer."HSN/SAC Code";
+                DetailedGSTLedgerEntry."GST Group Type" := DetailedGSTEntryBuffer."GST Group Type";
+                DetailedGSTLedgerEntry."Buyer/Seller Reg. No." := DetailedGSTEntryBuffer."Buyer/Seller Reg. No.";
+                if BankAccount.Get(GenJournalLine."Bal. Account No.") then
+                    DetailedGSTLedgerEntry."Source No." := GenJournalLine."Bal. Account No."
+                else
+                    if BankAccount.Get(GenJournalLine."Account No.") then
+                        DetailedGSTLedgerEntry."Source No." := GenJournalLine."Account No.";
+
+                if DetailedGSTEntryBuffer."Location State Code" <> DetailedGSTEntryBuffer."Buyer/Seller State Code" then
+                    DetailedGSTLedgerEntry."GST Jurisdiction Type" := DetailedGSTLedgerEntry."GST Jurisdiction Type"::Interstate
+                else
+                    DetailedGSTLedgerEntry."GST Jurisdiction Type" := DetailedGSTLedgerEntry."GST Jurisdiction Type"::Intrastate;
+
+                if not DetailedGSTEntryBuffer."Non-Availment" then
+                    DetailedGSTLedgerEntry."GST Credit" := DetailedGSTLedgerEntry."GST Credit"::Availment
+                else
+                    DetailedGSTLedgerEntry."GST Credit" := DetailedGSTLedgerEntry."GST Credit"::"Non-Availment";
+
+                DetailedGSTLedgerEntry."Credit Availed" := DetailedGSTLedgerEntry."GST Credit" = DetailedGSTLedgerEntry."GST Credit"::Availment;
+                DetailedGSTLedgerEntry."Source Type" := "Source Type"::"Bank Account";
+                DetailedGSTLedgerEntry.Type := DetailedGSTLedgerEntry.Type::"G/L Account";
+                DetailedGSTLedgerEntry."Transaction Type" := DetailedGSTLedgerEntry."Transaction Type"::Purchase;
+                BankCharge.Get(JournalBankCharges."Bank Charge");
+                DetailedGSTLedgerEntry."No." := BankCharge.Account;
+                DetailedGSTLedgerEntry."GST Component Code" := DetailedGSTEntryBuffer."GST Component Code";
+                if DetailedGSTLedgerEntry."Credit Availed" then
+                    DetailedGSTLedgerEntry."G/L Account No." := GetGSTReceivableAccountNo(
+                        DetailedGSTEntryBuffer."Location State Code",
+                        DetailedGSTLedgerEntry."GST Component Code")
+                else
+                    DetailedGSTLedgerEntry."G/L Account No." := DetailedGSTLedgerEntry."No.";
+
+                DetailedGSTLedgerEntry."GST Group Code" := DetailedGSTEntryBuffer."GST Group Code";
+                DetailedGSTLedgerEntry."Document Line No." := DetailedGSTEntryBuffer."Line No.";
+                DetailedGSTLedgerEntry."GST Base Amount" := DetailedGSTEntryBuffer."GST Base Amount";
+                DetailedGSTLedgerEntry."GST Amount" := DetailedGSTEntryBuffer."GST Amount";
+                if DetailedGSTLedgerEntry."GST Base Amount" > 0 then begin
+                    DetailedGSTLedgerEntry."Document Type" := DetailedGSTLedgerEntry."Document Type"::Invoice;
+                    DetailedGSTLedgerEntry.Quantity := 1;
+                end else begin
+                    DetailedGSTLedgerEntry."Document Type" := DetailedGSTLedgerEntry."Document Type"::"Credit Memo";
+                    DetailedGSTLedgerEntry.Quantity := -1;
+                end;
+
+                DetailedGSTLedgerEntry."GST %" := DetailedGSTEntryBuffer."GST %";
+                if DetailedGSTLedgerEntry."GST Exempted Goods" then
+                    DetailedGSTLedgerEntry."GST %" := 0;
+
+                if DetailedGSTLedgerEntry."GST Credit" = DetailedGSTLedgerEntry."GST Credit"::"Non-Availment" then
+                    DetailedGSTLedgerEntry."Amount Loaded on Item" := DetailedGSTLedgerEntry."GST Amount";
+
+                if JournalBankCharges.LCY then
+                    DetailedGSTLedgerEntry."Currency Factor" := 1
+                else begin
+                    DetailedGSTLedgerEntry."Currency Code" := GenJournalLine."Currency Code";
+                    DetailedGSTLedgerEntry."Currency Factor" := GenJournalLine."Currency Factor";
+                end;
+
+                DetailedGSTLedgerEntry."External Document No." := JournalBankCharges."External Document No.";
+                DetailedGSTLedgerEntry.TestField("HSN/SAC Code");
+                DetailedGSTLedgerEntry."Skip Tax Engine Trigger" := true;
+                DetailedGSTLedgerEntry.Insert(true);
+                InsertDetailedGSTLedgerInformation(DetailedGSTEntryBuffer, GenJournalLine, JournalBankCharges, DetailedGSTLedgerEntry);
+            until DetailedGSTEntryBuffer.Next() = 0;
+    end;
 }

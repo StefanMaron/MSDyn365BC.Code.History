@@ -89,7 +89,7 @@ page 18353 "Posted Serv. Trans. Receipts"
                 Image = Shipment;
                 action(Dimensions)
                 {
-                    AccessByPermission = TableData 348 = R;
+                    AccessByPermission = TableData "Dimension" = R;
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     ShortCutKey = 'Shift+Ctrl+D';

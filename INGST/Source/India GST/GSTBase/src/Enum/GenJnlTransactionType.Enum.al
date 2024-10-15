@@ -1,9 +1,10 @@
 enum 18055 "GenJnl Transaction Type"
 {
     Extensible = true;
+
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Sales)
     {
@@ -13,5 +14,4 @@ enum 18055 "GenJnl Transaction Type"
     {
         Caption = 'Purchase';
     }
-
 }

@@ -1,11 +1,16 @@
 codeunit 18767 "TDS Journals Subscribers"
 {
+    var
+        SectionErr: Label 'Section Code on Document No. %1 should be %2', Comment = '%1 = Document No.,%2 = Section Code';
+        TDSSectionErr: Label '%1 does not exist in table %2.', Comment = '%1= TDS Section Code,%2= TDS Section Table Name';
+        WorkTaxNatureofDeductionErr: Label '%1 does not exist in table %2.', Comment = '%1= Work Tax Nature of Deduction,%2= TDS Section Table Name';
+
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'Account No.', false, false)]
     local procedure AssignTDSSectionCodeGenJournalLine(var Rec: Record "Gen. Journal Line")
     var
         AllowedSections: Record "Allowed Sections";
     begin
-        if (Rec."Document Type" IN [Rec."Document Type"::Invoice, Rec."Document Type"::Payment]) and
+        if (Rec."Document Type" in [Rec."Document Type"::Invoice, Rec."Document Type"::Payment]) and
             (Rec."Account Type" = Rec."Account Type"::Vendor)
         then begin
             AllowedSections.Reset();
@@ -24,13 +29,15 @@ codeunit 18767 "TDS Journals Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'TDS Section Code', false, false)]
-    local procedure OnAfterValidateTDSSectionCodeGenJournalLine(var Rec: Record "Gen. Journal Line");
+    local procedure OnAfterValidateTDSSectionCodeGenJournalLine(var Rec: Record "Gen. Journal Line")
     var
         TDSSection: Record "TDS Section";
     begin
-        if Rec."TDS Section Code" <> '' then
-            if not TDSSection.Get(Rec."TDS Section Code") then
-                Error(TDSSectionErr, Rec."TDS Section Code", TDSSection.TableCaption());
+        if Rec."TDS Section Code" = '' then
+            exit;
+
+        if not TDSSection.Get(Rec."TDS Section Code") then
+            Error(TDSSectionErr, Rec."TDS Section Code", TDSSection.TableCaption());
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterValidateEvent', 'Work Tax Nature Of Deduction', false, false)]
@@ -38,9 +45,11 @@ codeunit 18767 "TDS Journals Subscribers"
     var
         TDSSection: Record "TDS Section";
     begin
-        if Rec."Work Tax Nature Of Deduction" <> '' then
-            if not TDSSection.Get(Rec."Work Tax Nature Of Deduction") then
-                Error(WorkTaxNatureofDeductionErr, Rec."Work Tax Nature Of Deduction", TDSSection.TableCaption());
+        if Rec."Work Tax Nature Of Deduction" = '' then
+            exit;
+
+        if not TDSSection.Get(Rec."Work Tax Nature Of Deduction") then
+            Error(WorkTaxNatureofDeductionErr, Rec."Work Tax Nature Of Deduction", TDSSection.TableCaption());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Tax Base Subscribers", 'OnBeforeCallingTaxEngineFromGenJnlLine', '', false, false)]
@@ -51,20 +60,28 @@ codeunit 18767 "TDS Journals Subscribers"
 
     local procedure ValidateGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
     var
-        VendLedgerEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        TDSEntry: Record "TDS Entry";
+        SectionFoundInTDSEntry: Boolean;
     begin
         if GenJnlLine."TDS Section Code" = '' then
             exit;
-        if GenJnlLine."Applies-to ID" <> '' then begin
-            VendLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
-            VendLedgerEntry.SetFilter("TDS Section Code", '<>%1', GenJnlLine."TDS Section Code");
-            if VendLedgerEntry.FindFirst() then
-                Error(SectionErr, VendLedgerEntry."Document No.", GenJnlLine."TDS Section Code");
-        end;
-    end;
 
-    var
-        SectionErr: Label 'Section Code on Document No. %1 should be %2', Comment = '%1 = Document No.,%2 = Section Code';
-        TDSSectionErr: Label '%1 does not exist in table %2.', Comment = '%1= TDS Section Code,%2= TDS Section Table Name';
-        WorkTaxNatureofDeductionErr: Label '%1 does not exist in table %2.', Comment = '%1= Work Tax Nature of Deduction,%2= TDS Section Table Name';
+        if GenJnlLine."Applies-to ID" = '' then
+            exit;
+
+        VendorLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
+        if VendorLedgerEntry.FindSet() then
+            repeat
+                TDSEntry.Reset();
+                TDSEntry.SetRange("Document Type", VendorLedgerEntry."Document Type");
+                TDSEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
+                TDSEntry.SetRange(Section, GenJnlLine."TDS Section Code");
+                if not TDSEntry.IsEmpty then
+                    SectionFoundInTDSEntry := true;
+            until VendorLedgerEntry.Next() = 0;
+
+        if not SectionFoundInTDSEntry then
+            Error(SectionErr, VendorLedgerEntry."Document No.", GenJnlLine."TDS Section Code");
+    end;
 }

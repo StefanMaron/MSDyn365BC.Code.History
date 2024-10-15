@@ -8,17 +8,17 @@ table 20190 "Tax Test Condition"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
     }
@@ -35,13 +35,6 @@ table 20190 "Tax Test Condition"
         ConditionItem: Record "Tax Test Condition Item";
 
     trigger OnInsert()
-    var
-        ScriptSymbolStore: Codeunit "Script Symbol Store";
-    begin
-        ScriptSymbolStore.OnBeforeValidateIfUpdateIsAllowed("Case ID");
-    end;
-
-    trigger OnModify()
     var
         ScriptSymbolStore: Codeunit "Script Symbol Store";
     begin

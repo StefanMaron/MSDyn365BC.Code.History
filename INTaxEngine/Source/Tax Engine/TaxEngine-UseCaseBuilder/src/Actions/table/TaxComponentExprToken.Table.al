@@ -8,17 +8,17 @@ table 20286 "Tax Component Expr. Token"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
         field(2; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(3; "Component Expr. ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Component Expr. ID';
             TableRelation = "Tax Component Expression".ID WHERE("Case ID" = Field("Case ID"));
         }
@@ -40,7 +40,7 @@ table 20286 "Tax Component Expr. Token"
         }
         field(7; "Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Lookup ID';
         }
     }

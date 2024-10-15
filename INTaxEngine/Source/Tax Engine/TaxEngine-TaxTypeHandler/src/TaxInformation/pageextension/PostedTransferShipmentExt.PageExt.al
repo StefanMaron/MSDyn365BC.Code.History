@@ -2,7 +2,7 @@ pageextension 20248 "Posted Transfer Shipment Ext" extends "Posted Transfer Ship
 {
     layout
     {
-        addbefore(Control1900383207)
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

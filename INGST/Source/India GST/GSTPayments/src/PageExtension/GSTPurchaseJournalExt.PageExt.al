@@ -18,11 +18,11 @@ pageextension 18248 "GST Purchase Journal Ext" extends "Purchase Journal"
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies if purchase document is without bill of entry.';
+
                 trigger OnValidate()
                 begin
                     CallTaxEngine();
                 end;
-
             }
             field("Bill of Entry No."; Rec."Bill of Entry No.")
             {
@@ -38,11 +38,21 @@ pageextension 18248 "GST Purchase Journal Ext" extends "Purchase Journal"
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the GST assessable value on the Journal line';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("Custom Duty Amount"; Rec."Custom Duty Amount")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the custom duty amount  on the Journal line.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("GST Customer Type"; Rec."GST Customer Type")
             {
@@ -58,32 +68,69 @@ pageextension 18248 "GST Purchase Journal Ext" extends "Purchase Journal"
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies an unique identifier for the GST group code used to calculate and post GST.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("HSN/SAC Code"; Rec."HSN/SAC Code")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies an unique identifier for the type of HSN or SAC that is used to calculate and post GST.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("Exempted"; Rec."Exempted")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies if the service is exempted from GST';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
+            }
+            field("GST Credit"; Rec."GST Credit")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies if the GST credit has to be availed or not.';
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("POS Out of India"; Rec."POS Out of India")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies if the place of supply of invoice is out of India.';
+
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
             field("POS as Vendor State"; Rec."POS as Vendor State")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the vendor state code';
-            }
 
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
+            }
             field("GST Input Service Distribution"; Rec."GST Input Service Distribution")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies whether the location is a GST input service distributor.';
+                trigger OnValidate()
+                begin
+                    CallTaxEngine();
+                end;
             }
         }
         modify(Amount)
@@ -128,7 +175,15 @@ pageextension 18248 "GST Purchase Journal Ext" extends "Purchase Journal"
                 CallTaxEngine();
             end;
         }
+        modify("Currency Code")
+        {
+            trigger OnAfterValidate()
+            begin
+                CallTaxEngine();
+            end;
+        }
     }
+
     actions
     {
         addafter(IncomingDocument)
@@ -143,7 +198,7 @@ pageextension 18248 "GST Purchase Journal Ext" extends "Purchase Journal"
 
                 trigger OnAction()
                 var
-                    i: integer;
+                    i: Integer;
                 begin
                     i := 0;
                     //blank OnAction created as we have a subscriber of this action in "Reference Invoice No. Mgt." codeunit;

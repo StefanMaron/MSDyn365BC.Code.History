@@ -2,7 +2,7 @@ pageextension 20256 "Sales Invoice Ext" extends "Sales Invoice"
 {
     layout
     {
-        addbefore("Attached Documents")
+        addfirst(factboxes)
         {
             part(TaxInformation; "Tax Information Factbox")
             {

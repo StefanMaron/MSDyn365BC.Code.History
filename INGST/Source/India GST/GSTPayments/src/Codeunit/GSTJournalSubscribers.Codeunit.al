@@ -1,5 +1,8 @@
 codeunit 18245 "GST Journal Subscribers"
 {
+    var
+        GSTJournalValidations: Codeunit "GST Journal Validations";
+
     //Bank Charge Subscribers
     [EventSubscriber(ObjectType::Table, Database::"Bank Charge", 'OnAfterValidateEvent', 'GST Group Code', False, False)]
     local procedure ValidateGSTGroupCodeBankCharge(var Rec: Record "Bank Charge")
@@ -9,14 +12,14 @@ codeunit 18245 "GST Journal Subscribers"
 
     //Bank Charge Deemed Value Setup - Subscribers
     [EventSubscriber(ObjectType::Table, Database::"Bank Charge Deemed Value Setup", 'OnAfterValidateEvent', 'Lower Limit', False, False)]
-    local Procedure ValidateLowerLimit(var Rec: Record "Bank Charge Deemed Value Setup")
+    local procedure ValidateLowerLimit(var Rec: Record "Bank Charge Deemed Value Setup")
     begin
 
         GSTJournalValidations.LowerLimit(rec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Bank Charge Deemed Value Setup", 'OnAfterValidateEvent', 'Upper Limit', False, False)]
-    local Procedure ValidateUpperLimit(
+    local procedure ValidateUpperLimit(
         var Rec: Record "Bank Charge Deemed Value Setup";
         var xRec: Record "Bank Charge Deemed Value Setup")
     begin
@@ -37,7 +40,7 @@ codeunit 18245 "GST Journal Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Journal Bank Charges", 'OnAfterValidateEvent', 'Amount', false, false)]
-    local Procedure ValidatejnlAmount(var Rec: Record "Journal Bank Charges")
+    local procedure ValidatejnlAmount(var Rec: Record "Journal Bank Charges")
     begin
         GSTJournalValidations.JnlBankChargeAmount(Rec);
     end;
@@ -51,7 +54,7 @@ codeunit 18245 "GST Journal Subscribers"
     [EventSubscriber(ObjectType::Table, Database::"Journal Bank Charges", 'OnAfterValidateEvent', 'LCY', false, false)]
     local procedure validateLcy(var Rec: Record "Journal Bank Charges")
     begin
-        rec.Validate(amount, rec.amount);
+        Rec.Validate(amount, Rec.amount);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Journal Bank Charges", 'OnAfterValidateEvent', 'GST Document Type', false, false)]
@@ -59,14 +62,4 @@ codeunit 18245 "GST Journal Subscribers"
     begin
         GSTJournalValidations.JnlBankChargeGSTDocumentType(rec);
     end;
-
-    //GST TDSTCS Setup - Subscribers
-    [EventSubscriber(ObjectType::Table, Database::"GST TDS/TCS Setup", 'OnAfterValidateEvent', 'Type', false, false)]
-    local procedure ValidateGSTTDSTCSType(var Rec: Record "GST TDS/TCS Setup")
-    begin
-        GSTJournalValidations.GSTTDSTCSGSTType(rec);
-    end;
-
-    var
-        GSTJournalValidations: Codeunit "GST Journal Validations";
 }

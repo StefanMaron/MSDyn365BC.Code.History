@@ -19,7 +19,9 @@ codeunit 18434 "GST Application Session Mgt."
         TotalTCSInclSHECESSAmount: Decimal;
         GSTAmountLoaded: Decimal;
 
-    procedure SetGSTApplicationSourcePurch(TransNo: Integer; VendNo: Code[20])
+    procedure SetGSTApplicationSourcePurch(
+        TransNo: Integer;
+        VendNo: Code[20])
     begin
         GSTTransactionType := GSTTransactionType::Purchase;
         TransactionNo := TransNo;
@@ -37,7 +39,9 @@ codeunit 18434 "GST Application Session Mgt."
         VendNo := VendorNo;
     end;
 
-    procedure SetGSTApplicationSourceSales(TransNo: Integer; CustNo: Code[20])
+    procedure SetGSTApplicationSourceSales(
+        TransNo: Integer;
+        CustNo: Code[20])
     begin
         GSTTransactionType := GSTTransactionType::Sales;
         TransactionNo := TransNo;
@@ -60,13 +64,17 @@ codeunit 18434 "GST Application Session Mgt."
         GSTTransType := GSTTransactionType;
     end;
 
-    procedure SetGSTApplicationAmount(AppliedAmt: Decimal; AppliedAmtLCY: Decimal)
+    procedure SetGSTApplicationAmount(
+        AppliedAmt: Decimal;
+        AppliedAmtLCY: Decimal)
     begin
         AppliedAmount := AppliedAmt;
         AppliedAmountLCY := AppliedAmtLCY;
     end;
 
-    procedure GetGSTApplicationAmount(var AppliedAmt: Decimal; var AppliedAmtLCY: Decimal)
+    procedure GetGSTApplicationAmount(
+        var AppliedAmt: Decimal;
+        var AppliedAmtLCY: Decimal)
     begin
         AppliedAmt := AppliedAmount;
         AppliedAmtLCY := AppliedAmountLCY;
@@ -110,7 +118,7 @@ codeunit 18434 "GST Application Session Mgt."
         TempGenJournalLine."Line No." := GetTempGenJournalNextLineNo();
         TempGenJournalLine."Account Type" := TempGenJournalLine."Account Type"::"G/L Account";
         TempGenJournalLine."Account No." := GLAccountNo;
-        TempGenJournalLine.Description := GetGLAccountDescription(GLAccountNo);
+        TempGenJournalLine.Description := CopyStr(GetGLAccountDescription(GLAccountNo), 1, MaxStrLen(TempGenJournalLine.Description));
         TempGenJournalLine."Bal. Account Type" := TempGenJournalLine."Bal. Account Type"::"G/L Account";
         TempGenJournalLine."Bal. Account No." := '';
         TempGenJournalLine.Amount := Amount;
@@ -148,6 +156,7 @@ codeunit 18434 "GST Application Session Mgt."
                 GenJnlPostLine.RunWithCheck(TempGenJnlLine);
                 TempGenJournalLine.Delete();
             until TempGenJournalLine.Next() = 0;
+
             ClearApplicationGenJnlLine();
             ClearAllSessionVariables();
         end;
@@ -199,6 +208,7 @@ codeunit 18434 "GST Application Session Mgt."
     begin
         if TempGenJournalLine.FindLast() then
             NextLineNo := TempGenJournalLine."Line No.";
+
         exit(NextLineNo + 10000);
     end;
 

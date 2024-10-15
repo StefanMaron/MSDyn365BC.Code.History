@@ -16,7 +16,6 @@ enum 18028 "GST Ledger Source Type"
     {
         Caption = 'Transfer';
     }
-
     value(4; "Bank Account")
     {
         Caption = 'Bank Account';

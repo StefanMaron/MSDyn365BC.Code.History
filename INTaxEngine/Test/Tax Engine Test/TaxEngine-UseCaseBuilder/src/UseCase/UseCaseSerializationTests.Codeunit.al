@@ -12,43 +12,6 @@ codeunit 136867 "Use Case Serialization Tests"
         Assert: Codeunit Assert;
 
     [Test]
-    procedure TestTableLinkToString()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        UseCaseSerialization: Codeunit "Use Case Serialization";
-        LibraryUseCaseTests: Codeunit "Library - Use Case Tests";
-        CaseID, TableLinkID : Guid;
-        ExpectedText, Text : Text;
-    begin
-        // [SCENARIO] To Serialize 'Use Case Event Table Link' to String
-
-        // [GIVEN] Use Case Event Table Link Record with two filters
-        LibraryUseCaseTests.CreateTableLink(CaseID, TableLinkID, Database::"Sales Header", Database::"Sales Line");
-        LibraryUseCaseTests.AddTableFieldLink(
-            CaseID,
-            TableLinkID,
-            Database::"Sales Header",
-            Database::"Sales Line",
-            SalesHeader.FieldNo("Document Type"),
-            SalesLine.FieldNo("Document Type"));
-        LibraryUseCaseTests.AddTableFieldLink(
-            CaseID,
-            TableLinkID,
-            Database::"Sales Header",
-            Database::"Sales Line",
-            SalesHeader.FieldNo("No."),
-            SalesLine.FieldNo("Document No."));
-
-        // [WHEN] function TableLinkToString is called
-        ExpectedText := 'Document Type equals Document Type,No. equals Document No.';
-        Text := UseCaseSerialization.TableLinkToString(CaseID, TableLinkID);
-
-        // [THEN] it should serialiaze to string
-        Assert.AreEqual(ExpectedText, Text, StrSubstNo('%1 - Expected'));
-    end;
-
-    [Test]
     procedure TestTableRelationToString()
     var
         SalesHeader: Record "Sales Header";
@@ -92,8 +55,7 @@ codeunit 136867 "Use Case Serialization Tests"
         UseCaseSerialization: Codeunit "Use Case Serialization";
         LibraryUseCaseTests: Codeunit "Library - Use Case Tests";
         LibraryScriptSymbolLookup: Codeunit "Library - Script Symbol Lookup";
-
-        CaseID, ScriptID, ComponentExpressionID, TableFilterID : Guid;
+        CaseID, ScriptID, ComponentExpressionID : Guid;
         QuantityLookupID, PriceLookupID, DiscountLookupID : Guid;
         ComponentID: Integer;
         ExpectedText, Text : Text;

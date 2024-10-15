@@ -6,7 +6,7 @@ tableextension 18390 "GST Inv. Posting Setup Ext" extends "Inventory Posting Set
         {
             Caption = 'Unrealized Profit Account';
             TableRelation = "G/L Account";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
 }

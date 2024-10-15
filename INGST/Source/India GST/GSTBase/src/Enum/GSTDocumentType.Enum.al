@@ -2,7 +2,7 @@ enum 18021 "GST Document Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Payment)
     {

@@ -13,7 +13,6 @@ codeunit 20336 "Sales Posting Subscribers"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterSalesCrMemoLineInsert', '', false, false)]
     procedure OnAfterSalesCrMemoLineInsert(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesLine: Record "Sales Line"; var SalesCrMemoLine: Record "Sales Cr.Memo Line")
     var
-        TaxTransactionValue: Record "Tax Transaction Value";
         TempTaxTransactionValue: Record "Tax Transaction Value" temporary;
         TaxDocumentGLPosting: Codeunit "Tax Document GL Posting";
         TaxPostingBufferMgmt: Codeunit "Tax Posting Buffer Mgmt.";
@@ -53,7 +52,6 @@ codeunit 20336 "Sales Posting Subscribers"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterSalesInvLineInsert', '', false, false)]
     procedure OnAfterSalesInvLineInsert(SalesInvHeader: Record "Sales Invoice Header"; SalesLine: Record "Sales Line"; var SalesInvLine: Record "Sales Invoice Line")
     var
-        TaxTransactionValue: Record "Tax Transaction Value";
         TempTaxTransactionValue: Record "Tax Transaction Value" temporary;
         TaxDocumentGLPosting: Codeunit "Tax Document GL Posting";
         TaxPostingBufferMgmt: Codeunit "Tax Posting Buffer Mgmt.";
@@ -88,6 +86,26 @@ codeunit 20336 "Sales Posting Subscribers"
             SalesLine.RecordId(),
             SalesInvLine.RecordId(),
             TempTaxTransactionValue);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeInvoiceRoundingAmount', '', false, false)]
+    local procedure OnBeforeInvoiceRoundingAmount(SalesHeader: Record "Sales Header"; TotalAmountIncludingVAT: Decimal; var InvoiceRoundingAmount: Decimal)
+    var
+        Currency: Record Currency;
+        TaxPostingHandler: Codeunit "Tax Posting Handler";
+        TaxPostingBufferMgmt: Codeunit "Tax Posting Buffer Mgmt.";
+        TotalAmount: Decimal;
+    begin
+        TaxPostingHandler.GetCurrency(SalesHeader."Currency Code", Currency);
+        Currency.TestField("Invoice Rounding Precision");
+        TotalAmount := TotalAmountIncludingVAT + TaxPostingBufferMgmt.GetTotalTaxAmount();
+
+        InvoiceRoundingAmount :=
+          -Round(
+            TotalAmount -
+            Round(
+              TotalAmount, Currency."Invoice Rounding Precision", Currency.InvoiceRoundingDirection()),
+            Currency."Amount Rounding Precision");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostCustomerEntry', '', false, false)]

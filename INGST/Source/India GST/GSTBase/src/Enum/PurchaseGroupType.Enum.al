@@ -2,7 +2,7 @@ enum 18043 "Purchase Group Type"
 {
     value(0; " ")
     {
-        Caption = '';
+        Caption = ' ';
     }
     value(1; Goods)
     {

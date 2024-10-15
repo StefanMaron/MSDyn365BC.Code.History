@@ -8,22 +8,22 @@ table 20258 "Tax Type"
     {
         field(1; Code; Code[20])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Code';
         }
         field(2; Description; Text[100])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Description';
         }
         field(3; Enabled; Boolean)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Enable';
         }
         field(4; "Accounting Period"; Text[10])
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Accounting Period';
             TableRelation = "Tax Acc. Period Setup".Code;
         }

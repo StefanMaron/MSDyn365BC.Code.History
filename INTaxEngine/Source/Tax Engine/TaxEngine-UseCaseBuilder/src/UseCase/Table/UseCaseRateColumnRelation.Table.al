@@ -8,13 +8,13 @@ table 20309 "Use Case Rate Column Relation"
     {
         field(1; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
             TableRelation = "Tax Use Case".ID;
         }
         field(2; "ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(3; "Column ID"; Integer)
@@ -24,7 +24,7 @@ table 20309 "Use Case Rate Column Relation"
         }
         field(4; "Switch Statement ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Switch Statement ID';
         }
     }
@@ -35,9 +35,6 @@ table 20309 "Use Case Rate Column Relation"
             Clustered = true;
         }
     }
-
-    var
-        EmptyGuid: Guid;
 
     trigger OnInsert()
     var

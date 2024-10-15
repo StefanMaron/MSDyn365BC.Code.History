@@ -22,12 +22,12 @@ codeunit 20361 "Tax Json Deserialization"
 
     procedure ImportTaxTypes(JsonText: Text)
     var
-        UseCaseEventHandling: Codeunit "Use Case Event Handling";
         JArray: JsonArray;
     begin
-        UseCaseEventHandling.CreateEventsLibrary();
         JArray.ReadFrom(JsonText);
+        InitTaxTypeProgressWindow();
         ReadTaxTypes(JArray);
+        CloseTaxTypeProgressWindow();
         if not GlobalHideDialog then
             Message('Tax Type(s) Imported.');
     end;
@@ -38,11 +38,13 @@ codeunit 20361 "Tax Json Deserialization"
         PresentationOrder: Integer;
     begin
         TaxUseCaseJArray.ReadFrom(JsonText);
+        InitUseCaseProgressWindow();
         ReadUseCases(TaxUseCaseJArray);
         UseCaseMgmt.IndentUseCases(EmptyGuid, PresentationOrder);
+        CloseUseCaseProgressWindow();
     end;
 
-    local procedure ReadTaxAccountingPeriod(TaxType: Code[20]; JObject: JsonObject; var AccountingPeriodCode: Text[10])
+    local procedure ReadTaxAccountingPeriod(JObject: JsonObject; var AccountingPeriodCode: Text[10])
     var
         TaxAccPeriodSetup: Record "Tax Acc. Period Setup";
         JToken: JsonToken;
@@ -70,16 +72,21 @@ codeunit 20361 "Tax Json Deserialization"
         TaxEntity: Record "Tax Entity";
         JToken: JsonToken;
         property: Text;
+        TableID: Integer;
     begin
-        TaxEntity.Init();
-        TaxEntity."Tax Type" := TaxType;
         foreach property in JObject.Keys() do begin
             JObject.Get(property, JToken);
             case property of
                 'TableName':
                     begin
-                        TaxEntity."Table ID" := AppObjectHelper.GetObjectID(ObjectType::Table, JToken2Text30(JToken));
-                        TaxEntity."Table Name" := AppObjectHelper.GetObjectName(ObjectType::Table, TaxEntity."Table ID");
+                        TableID := AppObjectHelper.GetObjectID(ObjectType::Table, JToken2Text30(JToken));
+                        if not TaxEntity.Get(TableID, TaxType) then begin
+                            TaxEntity.Init();
+                            TaxEntity."Tax Type" := TaxType;
+                            TaxEntity."Table ID" := TableID;
+                            TaxEntity."Table Name" := AppObjectHelper.GetObjectName(ObjectType::Table, TaxEntity."Table ID");
+                            TaxEntity.Insert();
+                        end;
                     end;
                 'Type':
                     TaxEntity."Entity Type" := ScriptDataTypeMgmt.GetFieldOptionIndex(
@@ -88,13 +95,12 @@ codeunit 20361 "Tax Json Deserialization"
                         JToken2Text(JToken));
             end;
         end;
-        TaxEntity.Insert();
+        TaxEntity.Modify();
     end;
 
-    local procedure ReadTaxAttributes(TaxType: Code[20]; JObject: JsonObject)
+    local procedure ReadTaxAttributes(JObject: JsonObject)
     var
         TaxAttribute: Record "Tax Attribute";
-        UseCaseDataTypeMgmt: Codeunit "Use Case Data Type Mgmt.";
         JToken: JsonToken;
         AttributeID: Integer;
         property: Text;
@@ -108,19 +114,13 @@ codeunit 20361 "Tax Json Deserialization"
             JObject.Get(property, JToken);
             case property of
                 'TaxType':
-                    TaxAttribute."Tax Type" := JToken2Text20(JToken);
-                'Name':
-                    begin
-                        TaxAttribute.Name := JToken2Text30(JToken);
-                        if not TaxAttribute.NameAlreadyExist(TaxAttribute.Name, TaxAttribute."Tax Type") then
-                            TaxAttribute.Insert()
-                        else begin
-                            TaxAttribute.Reset();
-                            TaxAttribute.SetFilter("Tax Type", '%1|%2', TaxType, '');
-                            TaxAttribute.SetRange(Name, JToken2Text30(JToken));
-                            TaxAttribute.FindFirst();
-                        end;
+                    if not TaxAttribute.Get(JToken2Text20(JToken), AttributeID) then begin
+                        TaxAttribute."Tax Type" := JToken2Text20(JToken);
+                        TaxAttribute.ID := AttributeID;
+                        TaxAttribute.Insert()
                     end;
+                'Name':
+                    TaxAttribute.Name := JToken2Text30(JToken);
                 'Type':
                     TaxAttribute.Type := ScriptDataTypeMgmt.GetFieldOptionIndex(
                         Database::"Tax Attribute",
@@ -146,11 +146,10 @@ codeunit 20361 "Tax Json Deserialization"
         TaxAttribute.Modify();
     end;
 
-    local procedure ReadTaxTypeComponent(var TempSymbol: Record "Script Symbol"; TaxType: Code[20]; JObject: JsonObject)
+    local procedure ReadTaxTypeComponent(TaxType: Code[20]; JObject: JsonObject)
     var
         TaxComponent: Record "Tax Component";
         TaxTypeObjectHelper: Codeunit "Tax Type Object Helper";
-        UseCaseDataTypeMgmt: Codeunit "Use Case Data Type Mgmt.";
         JToken: JsonToken;
         property: Text;
         ComponentID: Integer;
@@ -159,12 +158,14 @@ codeunit 20361 "Tax Json Deserialization"
         if ComponentID = 0 then
             ComponentID := GetComponentID(TaxType);
 
-        TaxComponent.Init();
-        TaxComponent."Tax Type" := TaxType;
-        TaxComponent.ID := ComponentID;
-        TaxComponent.Name := GetText30PropertyValue(JObject, 'Name');
-        TaxComponent.Type := TaxComponent.Type::Decimal;
-        TaxComponent.Insert();
+        if not TaxComponent.Get(TaxType, ComponentID) then begin
+            TaxComponent.Init();
+            TaxComponent."Tax Type" := TaxType;
+            TaxComponent.ID := ComponentID;
+            TaxComponent.Name := GetText30PropertyValue(JObject, 'Name');
+            TaxComponent.Type := TaxComponent.Type::Decimal;
+            TaxComponent.Insert();
+        end;
 
         foreach property in JObject.Keys() do begin
             JObject.Get(property, JToken);
@@ -174,6 +175,11 @@ codeunit 20361 "Tax Json Deserialization"
                 'RoundingPrecision':
                     begin
                         TaxComponent."Rounding Precision" := JToken.AsValue().AsDecimal();
+                        TaxComponent.Modify();
+                    end;
+                'VisibleOnInterface':
+                    begin
+                        TaxComponent."Visible On Interface" := JToken.AsValue().AsBoolean();
                         TaxComponent.Modify();
                     end;
                 'Direction':
@@ -240,6 +246,7 @@ codeunit 20361 "Tax Json Deserialization"
         end;
         EntityAttributeMapping2.SetRange("Attribute ID", EntityAttributeMapping."Attribute ID");
         EntityAttributeMapping2.SetRange("Entity ID", EntityAttributeMapping."Entity ID");
+        EntityAttributeMapping2.SetRange("Mapping Field ID", EntityAttributeMapping."Mapping Field ID");
         if EntityAttributeMapping2.IsEmpty() then
             EntityAttributeMapping.Insert();
     end;
@@ -247,18 +254,17 @@ codeunit 20361 "Tax Json Deserialization"
     local procedure ReadTaxRateColumnSetup(TaxType: Code[20]; JObject: JsonObject)
     var
         TaxRateColumnSetup: Record "Tax Rate Column Setup";
-        UseCaseDataTypeMgmt: Codeunit "Use Case Data Type Mgmt.";
-        ColumnName: Text[30];
         ColumnID: Integer;
         JToken: JsonToken;
         Property: Text;
     begin
         ColumnID := GetIntPropertyValue(JObject, 'ID');
-        TaxRateColumnSetup.Init();
-        if ColumnID <> 0 then
+        if not TaxRateColumnSetup.Get(TaxType, ColumnID) then begin
+            TaxRateColumnSetup.Init();
+            TaxRateColumnSetup."Tax Type" := TaxType;
             TaxRateColumnSetup."Column ID" := ColumnID;
-
-        TaxRateColumnSetup."Tax Type" := TaxType;
+            TaxRateColumnSetup.Insert();
+        end;
 
         foreach property in JObject.Keys() do begin
             JObject.Get(property, JToken);
@@ -272,6 +278,8 @@ codeunit 20361 "Tax Json Deserialization"
                         Database::"Tax Rate Column Setup",
                         TaxRateColumnSetup.FieldNo("Column Type"),
                         JToken2Text(JToken)));
+                'VisibleOnInterface':
+                    TaxRateColumnSetup."Visible On Interface" := JToken.AsValue().AsBoolean();
                 'Type':
                     TaxRateColumnSetup.Type := ScriptDataTypeMgmt.GetFieldOptionIndex(
                         Database::"Tax Rate Column Setup",
@@ -279,6 +287,8 @@ codeunit 20361 "Tax Json Deserialization"
                         JToken2Text(JToken));
                 'LinkedAttributeName':
                     TaxRateColumnSetup."Linked Attribute ID" := GetAttributeID(TaxRateColumnSetup."Tax Type", JToken2Text30(JToken));
+                'AllowBlank':
+                    TaxRateColumnSetup."Allow Blank" := JToken.AsValue().AsBoolean();
             end;
         end;
 
@@ -287,7 +297,7 @@ codeunit 20361 "Tax Json Deserialization"
         if TaxRateColumnSetup."Column Type" = TaxRateColumnSetup."Column Type"::Component then
             TaxRateColumnSetup."Attribute ID" := GetComponentID(TaxRateColumnSetup."Tax Type", TaxRateColumnSetup."Column Name");
 
-        TaxRateColumnSetup.Insert();
+        TaxRateColumnSetup.modify();
     end;
 
     local procedure ReadTaxEntities(TaxType: Code[20]; JArray: JsonArray)
@@ -298,12 +308,12 @@ codeunit 20361 "Tax Json Deserialization"
             ReadTaxTypeEntity(TaxType, JToken.AsObject());
     end;
 
-    local procedure ReadTaxAttributes(TaxType: Code[20]; JArray: JsonArray)
+    local procedure ReadTaxAttributes(JArray: JsonArray)
     var
         JToken: JsonToken;
     begin
         foreach JToken in JArray do
-            ReadTaxAttributes(TaxType, JToken.AsObject());
+            ReadTaxAttributes(JToken.AsObject());
     end;
 
     local procedure ReadTaxRateColumnSetup(TaxType: Code[20]; JArray: JsonArray)
@@ -326,11 +336,10 @@ codeunit 20361 "Tax Json Deserialization"
 
     local procedure ReadTaxComponents(TaxType: Code[20]; JArray: JsonArray)
     var
-        TempSymbol: Record "Script Symbol" temporary;
         JToken: JsonToken;
     begin
         foreach JToken in JArray do
-            ReadTaxTypeComponent(TempSymbol, TaxType, JToken.AsObject());
+            ReadTaxTypeComponent(TaxType, JToken.AsObject());
     end;
 
     local procedure ReadEntityAttributeMapping(AttributeID: Integer; JArray: JsonArray)
@@ -353,34 +362,54 @@ codeunit 20361 "Tax Json Deserialization"
         TaxType: record "Tax Type";
         JToken: JsonToken;
         JArray: JsonArray;
+        TaxTypeCode: Code[20];
         property: Text;
         JsonText: Text;
     begin
-        TaxType.Init();
+        JObject.Get('Code', JToken);
+        TaxTypeCode := JToken2Text20(JToken);
+
+        if not TaxType.Get(TaxTypeCode) then begin
+            TaxType.Init();
+            TaxType.Code := TaxTypeCode;
+            TaxType.Insert();
+        end;
+
         foreach property in JObject.Keys() do begin
             JObject.Get(property, JToken);
             case property of
-                'Code':
-                    TaxType.Code := JToken2Text20(JToken);
                 'TaxTypeDescription':
                     TaxType.Description := CopyStr(JToken2Text(JToken), 1, 100);
                 'AccountingPeriod':
-                    ReadTaxAccountingPeriod(TaxType.Code, JToken.AsObject(), TaxType."Accounting Period");
+                    ReadTaxAccountingPeriod(JToken.AsObject(), TaxType."Accounting Period");
                 'Enable':
                     begin
                         TaxType.Enabled := JToken.AsValue().AsBoolean();
-                        TaxType.Insert();
+                        TaxType.Modify();
                     end;
                 'TaxEntities':
-                    ReadTaxEntities(TaxType.Code, JToken.AsArray());
+                    begin
+                        UpdateTaxTypeProgressWindow(TaxType.Code, 'Tax Entities');
+                        ReadTaxEntities(TaxType.Code, JToken.AsArray());
+                    end;
                 'Attributes':
-                    ReadTaxAttributes(TaxType.Code, JToken.AsArray());
+                    begin
+                        UpdateTaxTypeProgressWindow(TaxType.Code, 'Tax Attributes');
+                        ReadTaxAttributes(JToken.AsArray());
+                    end;
                 'Components':
-                    ReadTaxComponents(TaxType.Code, JToken.AsArray());
+                    begin
+                        UpdateTaxTypeProgressWindow(TaxType.Code, 'Tax Components');
+                        ReadTaxComponents(TaxType.Code, JToken.AsArray());
+                    end;
                 'TaxRateColumnSetup':
-                    ReadTaxRateColumnSetup(TaxType.Code, JToken.AsArray());
+                    begin
+                        UpdateTaxTypeProgressWindow(TaxType.Code, 'Rate Setup');
+                        ReadTaxRateColumnSetup(TaxType.Code, JToken.AsArray());
+                    end;
                 'UseCases':
                     if CanImportUseCases then begin
+                        UpdateTaxTypeProgressWindow(TaxType.Code, 'Use Cases');
                         JArray := JToken.AsArray();
                         JArray.WriteTo(JsonText);
                         ImportUseCases(JsonText);
@@ -404,40 +433,56 @@ codeunit 20361 "Tax Json Deserialization"
             ReadInsertRecordField(InsertRecord, JToken.AsObject());
     end;
 
+    local procedure ReadConcatenateLines(ActionConcatenate: Record "Action Concatenate"; JArray: JsonArray)
+        JToken: JsonToken;
+    begin
+        foreach JToken in JArray do
+            ReadConcatenateLine(ActionConcatenate, JToken.AsObject());
+    end;
+
     local procedure ReadUseCase(JObject: JsonObject)
     var
         UseCase: Record "Tax Use Case";
         TaxType: Code[20];
         UseCaseID: Guid;
         Description: Text[250];
-
         property: Text;
         JToken: JsonToken;
-        Version: Decimal;
-        OldVersion: Decimal;
+        MajorVersion: Integer;
+        MinorVersion: Integer;
+        OldMajorVersion: Integer;
+        OldMinorVersion: Integer;
     begin
         UseCaseID := GetGuidPropertyValue(JObject, 'CaseID');
         TaxType := GetCode20PropertyValue(JObject, 'TaxType');
         Description := GetText250PropertyValue(JObject, 'Description');
-        Version := GetDecimalPropertyValue(JObject, 'Version');
+        MajorVersion := GetIntPropertyValue(JObject, 'Version');
+        MinorVersion := GetIntPropertyValue(JObject, 'MinorVersion');
 
-        if IsNullGuid(UseCaseID) then
+        if not IsNullGuid(UseCaseID) then begin
             if UseCase.Get(UseCaseID) then begin
-                OldVersion := UseCase.Version;
+                OldMajorVersion := UseCase."Major Version";
+                OldMinorVersion := UseCase."Minor Version";
                 UseCase.Validate(Status, UseCase.Status::Draft);
                 UseCase.Modify();
                 UseCase.Delete(true);
-            end else
-                UseCaseID := CreateGuid();
+            end;
+        end else
+            UseCaseID := CreateGuid();
 
-        if Version < OldVersion then
+        if MajorVersion < OldMajorVersion then
+            Error(HigherVersionOfUseCaseIsAlreadyDeployedErr, UseCase.Description);
+
+        if MinorVersion < OldMinorVersion then
             Error(HigherVersionOfUseCaseIsAlreadyDeployedErr, UseCase.Description);
 
         UseCase.Init();
         UseCase.ID := UseCaseID;
         UseCase."Tax Type" := TaxType;
         UseCase.Description := Description;
-        UseCase.Version := Version;
+        UpdateUseCaseProgressWindow('Preperation');
+        UseCase."Major Version" := MajorVersion;
+        UseCase."Minor Version" := MinorVersion;
         UseCase."Computation Script ID" := JsonEntityMgmt.CreateScriptContext(UseCase.ID);
         UseCase."Posting Script ID" := JsonEntityMgmt.CreateScriptContext(UseCase.ID);
         UseCase.Insert();
@@ -448,7 +493,7 @@ codeunit 20361 "Tax Json Deserialization"
         foreach property in JObject.Keys() do begin
             JObject.Get(property, JToken);
             case property of
-                'TaxType', 'CaseID', 'Description', 'Version':
+                'TaxType', 'CaseID', 'Description', 'Version', 'MinorVersion':
                     ;
                 'Components', 'ComputationVariables', 'ComputationScript',
                 'PostingVariables', 'PostingScript', 'TaxPostingSetup':
@@ -459,6 +504,7 @@ codeunit 20361 "Tax Json Deserialization"
                     UseCase.Code := JToken2Text20(JToken);
                 'ParentUseCase':
                     begin
+                        UpdateUseCaseProgressWindow('Updating Parent Use Case ID');
                         UseCase."Parent Use Case ID" := UseCaseObjectHelper.GetUseCaseID(
                             CopyStr(JToken2Text(JToken), 1, 2000));
                         GlobalUseCase := UseCase;
@@ -482,6 +528,7 @@ codeunit 20361 "Tax Json Deserialization"
                     end;
                 'PostingTableFilters':
                     begin
+                        UpdateUseCaseProgressWindow('Updating Posting Table Filters');
                         UseCase."Posting Table Filter ID" := JsonEntityMgmt.CreateTableFilters(
                             UseCase.ID,
                             EmptyGuid,
@@ -491,23 +538,31 @@ codeunit 20361 "Tax Json Deserialization"
                     end;
                 'Condition':
                     begin
+                        UpdateUseCaseProgressWindow('Preconditions');
                         UseCase."Condition ID" := JsonEntityMgmt.CreateCondition(UseCase.ID, EmptyGuid);
-                        ReadCondition(UseCase."Tax Type", UseCase.ID, EmptyGuid, UseCase."Condition ID", JToken.AsObject());
+                        ReadCondition(UseCase.ID, EmptyGuid, UseCase."Condition ID", JToken.AsObject());
                         GlobalUseCase := UseCase;
                         UseCase.Modify();
                     end;
                 'Attributes':
-                    ReadTaxAttributeMapping(UseCase.ID, JToken.AsArray());
+                    begin
+                        UpdateUseCaseProgressWindow('Attribute Mapping');
+                        ReadTaxAttributeMapping(UseCase.ID, JToken.AsArray());
+                    end;
                 'RateColumns':
-                    ReadRateColumnRelation(UseCase.ID, JToken.AsArray());
+                    begin
+                        UpdateUseCaseProgressWindow('Rate Columns');
+                        ReadRateColumnRelation(UseCase.ID, JToken.AsArray());
+                    end;
                 'AttachedEvents':
-                    ReadAttachedEvents(UseCase, JToken.AsArray());
+                    ;
                 else
                     Error(CannotReadPropertyErr, property);
             end;
         end;
-
+        UpdateUseCaseProgressWindow('Computation Scripts');
         ReadComputationScript(UseCase, JObject);
+        UpdateUseCaseProgressWindow('Posting Scripts');
         ReadPostingScript(UseCase, JObject);
 
         UseCase.Status := UseCase.Status::Released;
@@ -559,14 +614,6 @@ codeunit 20361 "Tax Json Deserialization"
     begin
         foreach JToken in JArray do
             ReadAttributeMapping(CaseID, JToken.AsObject());
-    end;
-
-    local procedure ReadAttachedEvents(TaxUseCase: Record "Tax Use Case"; JArray: JsonArray)
-    var
-        JToken: JsonToken;
-    begin
-        foreach JToken in JArray do
-            ReadUseCaseEvent(TaxUseCase, JToken.AsObject());
     end;
 
     local procedure ReadTaxPostingSetup(CaseID: Guid; JArray: JsonArray)
@@ -627,38 +674,6 @@ codeunit 20361 "Tax Json Deserialization"
         UseCaseAttributeMapping."Switch Statement ID" := SwitchStatementHelper.CreateSwitchStatement(CaseID);
         ReadSwitchStatement(CaseID, UseCaseAttributeMapping."Switch Statement ID", "Switch Case Action Type"::Relation, JToken.AsArray());
         UseCaseAttributeMapping.Modify();
-    end;
-
-    local procedure ReadUseCaseEvent(TaxUseCase: Record "Tax Use Case"; JObject: JsonObject)
-    var
-        UseCaseEventRelation: Record "Use Case Event Relation";
-        UseCaseEvent: Record "Use Case Event";
-        EventName: Text[100];
-        JToken: JsonToken;
-        property: Text;
-    begin
-        UseCaseEventRelation.Init();
-        UseCaseEventRelation."Case ID" := TaxUseCase.ID;
-        UseCaseEventRelation."Tax Type" := TaxUseCase."Tax Type";
-        foreach property in JObject.Keys() do begin
-            JObject.Get(property, JToken);
-            case property of
-                'EventName':
-                    begin
-                        EventName := JToken2Text100(JToken);
-                        UseCaseEvent.Get(EventName);
-                        UseCaseEventRelation."Event Name" := EventName;
-                        UseCaseEventRelation.Description := UseCaseEvent.Description;
-                    end;
-                'Enabled':
-                    UseCaseEventRelation.Enabled := JToken.AsValue().AsBoolean();
-                'Sequence':
-                    UseCaseEventRelation.Sequence := JToken.AsValue().AsInteger();
-                'TableRelation':
-                    ReadTableLinkings(TaxUseCase.ID, UseCaseEventRelation."Table Relation ID", JToken.AsArray());
-            end;
-        end;
-        UseCaseEventRelation.Insert();
     end;
 
     local procedure ReadTaxPostingSetup(CaseID: Guid; JObject: JsonObject)
@@ -980,8 +995,11 @@ codeunit 20361 "Tax Json Deserialization"
     begin
         if JObject.get('Condition', JToken) then begin
             SwitchCase."Condition ID" := JsonEntityMgmt.CreateCondition(SwitchCase."Case ID", EmptyGuid);
-            ReadCondition(GlobalUseCase."Tax Type", SwitchCase."Case ID", EmptyGuid, SwitchCase."Condition ID", JToken.AsObject());
+            ReadCondition(SwitchCase."Case ID", EmptyGuid, SwitchCase."Condition ID", JToken.AsObject());
         end;
+
+        if JObject.Get('Sequence', JToken) then
+            SwitchCase.Sequence := JToken.AsValue().AsInteger();
 
         case ActionType of
             ActionType::Lookup:
@@ -1017,15 +1035,15 @@ codeunit 20361 "Tax Json Deserialization"
         end;
     end;
 
-    local procedure ReadConditionBody(TaxType: Code[20]; CaseID: Guid; ScriptID: Guid; ID: Guid; JArray: JsonArray)
+    local procedure ReadConditionBody(CaseID: Guid; ScriptID: Guid; ID: Guid; JArray: JsonArray)
     var
         JToken: JsonToken;
     begin
         foreach JToken in JArray do
-            ReadConditionItem(TaxType, CaseID, ScriptID, ID, JToken.AsObject());
+            ReadConditionItem(CaseID, ScriptID, ID, JToken.AsObject());
     end;
 
-    local procedure ReadCondition(TaxType: Code[20]; CaseID: Guid; ScriptID: Guid; ID: Guid; JObject: JsonObject)
+    local procedure ReadCondition(CaseID: Guid; ScriptID: Guid; ID: Guid; JObject: JsonObject)
     var
         JToken: JsonToken;
         property: Text;
@@ -1034,7 +1052,7 @@ codeunit 20361 "Tax Json Deserialization"
             JObject.Get(property, JToken);
             case property of
                 'Body':
-                    ReadConditionBody(TaxType, CaseID, ScriptID, ID, JToken.AsArray());
+                    ReadConditionBody(CaseID, ScriptID, ID, JToken.AsArray());
                 else
                     Error(InvalidPropertyErr);
             end;
@@ -1091,7 +1109,7 @@ codeunit 20361 "Tax Json Deserialization"
         foreach property in JObject.Keys() do begin
             JObject.Get(property, JToken);
             case property of
-                'ActivityType':
+                'ActivityType', 'EXITLOOP', 'CONTINUE':
                     ;
                 'Activity':
                     begin
@@ -1113,7 +1131,7 @@ codeunit 20361 "Tax Json Deserialization"
         end;
     end;
 
-    local procedure ReadConditionItem(TaxType: Code[20]; CaseID: Guid; ScriptID: Guid; ID: Guid; JObject: JsonObject)
+    local procedure ReadConditionItem(CaseID: Guid; ScriptID: Guid; ID: Guid; JObject: JsonObject)
     var
         ConditionItem: Record "Tax Test Condition Item";
     begin
@@ -1196,7 +1214,6 @@ codeunit 20361 "Tax Json Deserialization"
 
     local procedure ReadFieldSorting(var LookupFieldSorting: Record "Lookup Field Sorting"; JObject: JsonObject)
     var
-        FieldJObject: JsonObject;
         JToken: JsonToken;
         property: Text;
     begin
@@ -1228,14 +1245,6 @@ codeunit 20361 "Tax Json Deserialization"
     begin
         foreach JToken in JArray do
             ReadTableFieldSorting(CaseID, ScriptID, ID, JToken.AsObject());
-    end;
-
-    local procedure ReadTableLinkings(CaseID: Guid; var ID: Guid; JArray: JsonArray)
-    var
-        JToken: JsonToken;
-    begin
-        foreach JToken in JArray do
-            ReadTableLinking(CaseID, ID, JToken.AsObject());
     end;
 
     local procedure ReadTableFilter(CaseID: Guid; ScriptID: Guid; var ID: Guid; JObject: JsonObject)
@@ -1270,49 +1279,6 @@ codeunit 20361 "Tax Json Deserialization"
         LookupFieldSorting."Table ID" := TableID;
         LookupFieldSorting."Line No." := GetNextSortingLineNo(CaseID, ScriptID);
         ReadFieldSorting(LookupFieldSorting, JObject);
-    end;
-
-    local procedure ReadTableLinking(CaseID: Guid; var ID: Guid; JObject: JsonObject)
-    var
-        UseCaseFieldLink: Record "Use Case Field Link";
-        UseCaseEventTableLink: Record "Use Case Event Table Link";
-        JToken: JsonToken;
-        TableID: Integer;
-        FieldID: Integer;
-        LookupTableID: Integer;
-        property: Text;
-    begin
-        UseCaseFieldLink."Case ID" := CaseID;
-        foreach property in JObject.Keys() do begin
-            JObject.Get(property, JToken);
-            case property of
-                'FiterTableName':
-                    UseCaseFieldLink."Table ID" := AppObjectHelper.GetObjectID(ObjectType::Table, JToken2Text30(JToken));
-                'FiterFieldName':
-                    UseCaseFieldLink."Field ID" := AppObjectHelper.GetFieldID(UseCaseFieldLink."Table ID", JToken2Text30(JToken));
-                'FilterType':
-                    UseCaseFieldLink."Filter Type" := ScriptDataTypeMgmt.GetFieldOptionIndex(
-                        Database::"Use Case Field Link",
-                        UseCaseFieldLink.FieldNo("Filter Type"),
-                        JToken.AsValue().AsText());
-                'ValueType':
-                    UseCaseFieldLink."Value Type" := ScriptDataTypeMgmt.GetFieldOptionIndex(
-                        Database::"Use Case Field Link",
-                        UseCaseFieldLink.FieldNo("Value Type"),
-                        JToken.AsValue().AsText());
-                'Value':
-                    UseCaseFieldLink.Value := JToken2Text30(JToken);
-                'LookupTableName':
-                    UseCaseFieldLink."Lookup Table ID" := AppObjectHelper.GetObjectID(ObjectType::Table, JToken2Text30(JToken));
-                'LookupFieldName':
-                    UseCaseFieldLink."Lookup Field ID" := AppObjectHelper.GetFieldID(UseCaseFieldLink."Lookup Table ID", JToken2Text30(JToken));
-                else
-                    Error(CannotReadPropertyErr, property);
-            end;
-        end;
-        id := JsonEntityMgmt.CreateTableLinking(CaseID, UseCaseFieldLink."Table ID", UseCaseFieldLink."Lookup Table ID");
-        UseCaseFieldLink."Table Filter ID" := ID;
-        UseCaseFieldLink.Insert();
     end;
 
     local procedure ConstantOrLookupText(CaseID: Guid; ScriptID: Guid; var ValueType: Option Constant,"Lookup"; var Value: Text[250]; var LookupID: Guid; JObject: JsonObject)
@@ -1408,15 +1374,28 @@ codeunit 20361 "Tax Json Deserialization"
     var
         TaxTableRelation: Record "Tax Table Relation";
         JToken: JsonToken;
+        property: Text;
     begin
         TaxTableRelation.get(CaseID, ID);
-
-        JObject.Get('TableName', JToken);
-        TaxTableRelation."Source ID" := AppObjectHelper.GetObjectID(ObjectType::Table, JToken2Text30(JToken));
-        TaxTableRelation."Table Filter ID" := JsonEntityMgmt.CreateTableFilters(CaseID, EmptyGuid, TaxTableRelation."Source ID");
-        JObject.Get('TableFilters', JToken);
+        foreach property in JObject.Keys() do begin
+            JObject.Get(property, JToken);
+            case property of
+                'TableName':
+                    begin
+                        TaxTableRelation."Source ID" := AppObjectHelper.GetObjectID(ObjectType::Table, JToken2Text30(JToken));
+                        TaxTableRelation."Source ID" := AppObjectHelper.GetObjectID(ObjectType::Table, JToken2Text30(JToken));
+                    end;
+                'TableFilters':
+                    begin
+                        TaxTableRelation."Table Filter ID" := JsonEntityMgmt.CreateTableFilters(CaseID, EmptyGuid, TaxTableRelation."Source ID");
+                        TaxTableRelation.Modify();
+                        ReadTableFilters(CaseID, EmptyGuid, TaxTableRelation."Table Filter ID", JToken.AsArray());
+                    end;
+                'IsCurrentRecord':
+                    TaxTableRelation."Is Current Record" := JToken.AsValue().AsBoolean();
+            end;
+        end;
         TaxTableRelation.Modify();
-        ReadTableFilters(CaseID, EmptyGuid, TaxTableRelation."Table Filter ID", JToken.AsArray());
     end;
 
     local procedure ReadJsonProperty(var ParentJObject: JsonObject; PropertyName: Text; Value: Variant)
@@ -1613,7 +1592,6 @@ codeunit 20361 "Tax Json Deserialization"
     var
         Concatenate: Record "Action Concatenate";
         JToken: JsonToken;
-        ConcatenateLineJObject: JsonObject;
         property: Text;
     begin
         Concatenate.Get(CaseID, ScriptID, ID);
@@ -1623,10 +1601,7 @@ codeunit 20361 "Tax Json Deserialization"
                 'OutputVariableName':
                     Concatenate."Variable ID" := GetVariableID(CaseID, ScriptID, JToken2Text30(JToken));
                 'Concatenate':
-                    begin
-                        ConcatenateLineJObject := JToken.AsObject();
-                        ReadConcatenateLine(Concatenate, ConcatenateLineJObject);
-                    end;
+                    ReadConcatenateLines(Concatenate, JToken.AsArray());
                 else
                     Error(CannotReadPropertyErr, property);
             end;
@@ -1634,7 +1609,7 @@ codeunit 20361 "Tax Json Deserialization"
         Concatenate.Modify();
     end;
 
-    local procedure ReadConcatenateLine(Concatenate: Record "Action Concatenate"; var JObject: JsonObject)
+    local procedure ReadConcatenateLine(Concatenate: Record "Action Concatenate"; JObject: JsonObject)
     var
         ConcatenateLine: Record "Action Concatenate Line";
         LookupJObject: JsonObject;
@@ -1833,52 +1808,6 @@ codeunit 20361 "Tax Json Deserialization"
         ActionDateToDateTime.Modify();
     end;
 
-    local procedure ReadGetRecord(CaseID: Guid; ScriptID: Guid; ID: Guid; var JObject: JsonObject)
-    var
-        ActionGetRecord: Record "Action Get Record";
-        ActionGetRecordField: Record "Action Get Record Field";
-        TableFilterJObject: JsonObject;
-        property: Text;
-        JToken: JsonToken;
-    begin
-        ActionGetRecord.Get(CaseID, ScriptID, ID);
-        foreach property in JObject.Keys() do begin
-            JObject.Get(property, JToken);
-            case property of
-                'TableName':
-                    ActionGetRecord."Table ID" := AppObjectHelper.GetObjectID(ObjectType::Table, JToken2Text30(JToken));
-                'TableFilters':
-                    begin
-                        ActionGetRecord."Table Filter ID" := JsonEntityMgmt.CreateTableFilters(ActionGetRecord."Case ID", ActionGetRecord."Script ID", ActionGetRecord."Table ID");
-                        TableFilterJObject := JToken.AsObject();
-                        ReadTableFilters(CaseID, ActionGetRecord."Script ID", ActionGetRecord."Table Filter ID", JToken.AsArray());
-                    end;
-                'RecordVariableName':
-                    ActionGetRecord."Record Variable" := GetVariableID(CaseID, ScriptID, JToken2Text30(JToken));
-                else
-                    Error(CannotReadPropertyErr, property);
-            end;
-        end;
-        ActionGetRecord.Modify();
-
-        ActionGetRecordField.Init();
-        ActionGetRecordField."Case ID" := ActionGetRecord."Case ID";
-        ActionGetRecordField."Script ID" := ActionGetRecord."Script ID";
-        ActionGetRecordField."Get Record ID" := ActionGetRecord.ID;
-
-        JObject.Get('GetRecordFields', JToken);
-        foreach property in JObject.Keys() do begin
-            JObject.Get(property, JToken);
-            case property of
-                'FieldName':
-                    ActionGetRecordField."Field ID" := AppObjectHelper.GetFieldID(ActionGetRecord."Table ID", JToken2Text30(JToken));
-                'VariableName':
-                    ActionGetRecordField."Field ID" := GetVariableID(CaseID, ScriptID, JToken2Text30(JToken));
-            end;
-        end;
-        ActionGetRecordField.Insert();
-    end;
-
     local procedure ReadMessage(CaseID: Guid; ScriptID: Guid; ID: Guid; var JObject: JsonObject)
     var
         ActionMessage: Record "Action Message";
@@ -2038,7 +1967,7 @@ codeunit 20361 "Tax Json Deserialization"
             JObject.Get(property, JToken);
             case property of
                 'ComponentName':
-                    TaxComponentFormula."Component ID" := GetComponentID(GlobalUseCase."Tax Type", JToken2Text30(JToken));
+                    TaxComponentFormula."Component ID" := GetComponentID(TaxType, JToken2Text30(JToken));
                 'Expression':
                     TaxComponentFormula.Expression := JToken2Text250(JToken);
                 'Token':
@@ -2098,7 +2027,7 @@ codeunit 20361 "Tax Json Deserialization"
                     if TaxComponentFormulaToken."Value Type" = TaxComponentFormulaToken."Value Type"::Constant then
                         TaxComponentFormulaToken.Value := JToken2Text250(JToken)
                     else
-                        TaxComponentFormulaToken."Component ID" := GetComponentID(GlobalUseCase."Tax Type", JToken2Text30(JToken));
+                        TaxComponentFormulaToken."Component ID" := GetComponentID(TaxType, JToken2Text30(JToken));
                 else
                     Error(CannotReadPropertyErr, property);
             end;
@@ -2156,7 +2085,7 @@ codeunit 20361 "Tax Json Deserialization"
                 'Condition':
                     begin
                         ActionIfStatement."Condition ID" := JsonEntityMgmt.CreateCondition(CaseID, ScriptID);
-                        ReadCondition(GlobalUseCase."Tax Type", CaseID, ScriptID, ActionIfStatement."Condition ID", JToken.AsObject());
+                        ReadCondition(CaseID, ScriptID, ActionIfStatement."Condition ID", JToken.AsObject());
                     end;
                 'Body':
                     ReadActionContainer(CaseID, ScriptID, ActionIfStatement.ID, "Container Action Type"::IFSTATEMENT, JToken.AsArray());
@@ -2208,7 +2137,7 @@ codeunit 20361 "Tax Json Deserialization"
                 'Condition':
                     begin
                         ActionLoopWithCondition."Condition ID" := JsonEntityMgmt.CreateCondition(CaseID, ScriptID);
-                        ReadCondition(GlobalUseCase."Tax Type", CaseID, ActionLoopWithCondition."Script ID", ActionLoopWithCondition."Condition ID", JToken.AsObject());
+                        ReadCondition(CaseID, ActionLoopWithCondition."Script ID", ActionLoopWithCondition."Condition ID", JToken.AsObject());
                     end;
                 'Body':
                     ReadActionContainer(CaseID, ScriptID, ActionLoopWithCondition.ID, "Container Action Type"::LOOPWITHCONDITION, JToken.AsArray());
@@ -2234,7 +2163,7 @@ codeunit 20361 "Tax Json Deserialization"
                         ObjectType::Table,
                         JToken2Text30(JToken));
                 'RecordVariableName':
-                    ActionLoopThroughRecords."Record Variable" := GetVariableID(CaseID, ScriptID, JToken2Text30(JToken));
+                    ;
                 'TableFilters':
                     begin
                         ActionLoopThroughRecords."Table Filter ID" :=
@@ -2343,8 +2272,6 @@ codeunit 20361 "Tax Json Deserialization"
                 ReadDateCalculation(CaseID, ScriptID, ActionID, ActionJObject);
             ActionType::DATETODATETIME:
                 ReadDateToDateTime(CaseID, ScriptID, ActionID, ActionJObject);
-            ActionType::GETRECORD:
-                ReadGetRecord(CaseID, ScriptID, ActionID, ActionJObject);
             ActionType::ALERTMESSAGE:
                 ReadMessage(CaseID, ScriptID, ActionID, ActionJObject);
             ActionType::EXTRACTDATEPART:
@@ -2655,6 +2582,65 @@ codeunit 20361 "Tax Json Deserialization"
         end;
     end;
 
+    procedure InitTaxTypeProgressWindow()
+    begin
+        if not GuiAllowed() then
+            exit;
+
+        TaxTypeDialog.Open(
+             ImportingLbl +
+             ValueLbl +
+             TaxTypeImportStageLbl);
+    end;
+
+    local procedure UpdateTaxTypeProgressWindow(TaxType: Code[20]; Stage: Text)
+    begin
+        if not GuiAllowed() then
+            exit;
+        TaxTypeDialog.Update(1, TaxTypesLbl);
+        TaxTypeDialog.Update(2, TaxType);
+        TaxTypeDialog.Update(3, Stage);
+    end;
+
+    local procedure CloseTaxTypeProgressWindow()
+    begin
+        if not GuiAllowed() then
+            exit;
+        TaxTypeDialog.close();
+    end;
+
+    procedure InitUseCaseProgressWindow()
+    begin
+        if not GuiAllowed() then
+            exit;
+
+        UseCaseDialog.Open(
+             ImportingLbl +
+             SpaceLbl +
+             ValueLbl +
+             SpaceLbl +
+             UseCaseNameLbl +
+             SpaceLbl +
+             UseCaseImportStageLbl);
+    end;
+
+    local procedure UpdateUseCaseProgressWindow(Stage: Text)
+    begin
+        if not GuiAllowed() then
+            exit;
+        UseCaseDialog.Update(1, UseCasesLbl);
+        UseCaseDialog.Update(2, GlobalUseCase."Tax Type");
+        UseCaseDialog.Update(3, GlobalUseCase.Description);
+        UseCaseDialog.Update(4, Stage);
+    end;
+
+    local procedure CloseUseCaseProgressWindow()
+    begin
+        if not GuiAllowed() then
+            exit;
+        UseCaseDialog.close();
+    end;
+
     var
         GlobalUseCase: Record "Tax Use Case";
         UseCaseObjectHelper: Codeunit "Use Case Object Helper";
@@ -2666,6 +2652,8 @@ codeunit 20361 "Tax Json Deserialization"
         UseCaseEntityMgmt: Codeunit "Use Case Entity Mgmt.";
         SwitchStatementHelper: Codeunit "Switch Statement Helper";
         AppObjectHelper: Codeunit "App Object Helper";
+        TaxTypeDialog: Dialog;
+        UseCaseDialog: Dialog;
         EmptyGuid: Guid;
         GlobalCaseId: Guid;
         CanImportUseCases: Boolean;
@@ -2674,4 +2662,12 @@ codeunit 20361 "Tax Json Deserialization"
         InvalidPropertyErr: Label 'Invalid Property';
         HigherVersionOfUseCaseIsAlreadyDeployedErr: Label 'An higher version of use case: %1 is already active.', Comment = '%1 = use case name';
         ColumnNameNotFoundErr: Label 'Column name %1 doest not exist for Tax Type : %2 and Use Case :%3.', Comment = '%1 = Column Name,%2 = Tax Type, %3 = use case name';
+        TaxTypesLbl: Label 'Tax Types';
+        UseCasesLbl: Label 'Use Cases';
+        SpaceLbl: Label '              #######\';
+        ImportingLbl: Label 'Importing              #1######\', Comment = 'Tax Type or Use Cases';
+        ValueLbl: Label 'Tax Type              #2######\', Comment = 'Tax Type';
+        UseCaseNameLbl: Label 'Name              #3######\', Comment = 'Use Case Description';
+        TaxTypeImportStageLbl: Label 'Stage      #3######\', Comment = 'Stage of Import for Tax Type';
+        UseCaseImportStageLbl: Label 'Stage      #4######\', Comment = 'Stage of Import for Use Case';
 }

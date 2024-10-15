@@ -21,13 +21,13 @@ report 18933 "Voucher Register"
                 DataItemTableView = sorting("Document No.", "Posting Date")
                                     order(descending);
 
-                column(VoucherSourceDesc; SourceDesc + ' Voucher')
+                column(VoucherSourceDesc; SourceDesc + VoucherLbl)
                 {
                 }
                 column(DocumentNo_GLEntry; "Document No.")
                 {
                 }
-                column(PostingDateFormatted; 'Date: ' + Format("Posting Date"))
+                column(PostingDateFormatted; DateLbl + Format("Posting Date"))
                 {
                 }
                 column(CompanyInformationAddress; CompanyInformation.Address + ' ' + CompanyInformation."Address 2" + '  ' + CompanyInformation.City)
@@ -57,7 +57,7 @@ report 18933 "Voucher Register"
                 column(CreditAmountTotal; CreditAmountTotal)
                 {
                 }
-                column(ChequeNoDateFormatted; 'Cheque No: ' + ChequeNo + '  Dated: ' + FORMAT(ChequeDate))
+                column(ChequeNoDateFormatted; ChequeNoLbl + ChequeNo + DatedLbl + Format(ChequeDate))
                 {
                 }
                 column(ChequeNo; ChequeNo)
@@ -66,7 +66,7 @@ report 18933 "Voucher Register"
                 column(ChequeDate; ChequeDate)
                 {
                 }
-                column(RsNumberText1NumberText2; 'Rs. ' + NumberText[1] + ' ' + NumberText[2])
+                column(RsNumberText1NumberText2; RsLbl + NumberText[1] + ' ' + NumberText[2])
                 {
                 }
                 column(EntryNo_GLEntry; "Entry No.")
@@ -122,7 +122,6 @@ report 18933 "Voucher Register"
                     column(IntegerOccurcesCaption; IntegerOccurcesCaptionLbl)
                     {
                     }
-
                     trigger OnAfterGetRecord()
                     begin
                         PageLoop := PageLoop - 1;
@@ -130,8 +129,7 @@ report 18933 "Voucher Register"
 
                     trigger OnPreDataItem()
                     begin
-                        GLEntry.SetCurrentKey("Document No.", "Posting Date", Amount);
-                        GLEntry.Ascending(false);
+                        GLEntry.SetCurrentKey("Document No.", "Posting Date");
                         GLEntry.SetRange(GLEntry."Posting Date", "G/L Entry"."Posting Date");
                         GLEntry.SetRange(GLEntry."Document No.", "G/L Entry"."Document No.");
                         GLEntry.SetRange(GLEntry."Entry No.", "G/L Register"."From Entry No.", "G/L Register"."To Entry No.");
@@ -153,11 +151,9 @@ report 18933 "Voucher Register"
                     column(NarrationCaption; NarrationCaptionLbl)
                     {
                     }
-
                     trigger OnPreDataItem()
                     begin
-                        GLEntry.SetCurrentKey("Document No.", "Posting Date", Amount);
-                        GLEntry.Ascending(false);
+                        GLEntry.SetCurrentKey("Document No.", "Posting Date");
                         GLEntry.SetRange(GLEntry."Posting Date", "G/L Entry"."Posting Date");
                         GLEntry.SetRange(GLEntry."Document No.", "G/L Entry"."Document No.");
                         GLEntry.FindLast();
@@ -165,24 +161,27 @@ report 18933 "Voucher Register"
                             CurrReport.Break();
                     end;
                 }
-
                 trigger OnAfterGetRecord()
                 begin
                     GLAccName := FindGLAccName("Source Type", "Entry No.", "Source No.", "G/L Account No.");
+
                     if Amount < 0 then begin
-                        CrText := 'To';
+                        CrText := ToLbl;
                         DrText := '';
                     end else begin
                         CrText := '';
-                        DrText := 'Dr';
+                        DrText := DrLbl;
                     end;
+
                     SourceDesc := '';
                     if "Source Code" <> '' then begin
                         SourceCode.Get("Source Code");
                         SourceDesc := CopyStr(SourceCode.Description, 1, MaxStrLen(SourceDesc));
                     end;
+
                     PageLoop := PageLoop - 1;
                     LinesPrinted := LinesPrinted + 1;
+
                     ChequeNo := '';
                     ChequeDate := 0D;
                     if ("Source No." <> '') and ("Source Type" = "Source Type"::"Bank Account") then
@@ -190,11 +189,13 @@ report 18933 "Voucher Register"
                             ChequeNo := BankAccLedgEntry."Cheque No.";
                             ChequeDate := BankAccLedgEntry."Cheque Date";
                         end;
+
                     PrintBody5 := (ChequeNo <> '') and (ChequeDate <> 0D);
                     if PrintBody5 or PrintLineNarration then begin
                         PageLoop := PageLoop - 1;
                         LinesPrinted := LinesPrinted + 1;
                     end;
+
                     if PostingDate <> "G/L Entry"."Posting Date" then begin
                         PostingDate := "G/L Entry"."Posting Date";
                         TotalDebitAmt := 0;
@@ -210,6 +211,7 @@ report 18933 "Voucher Register"
                         PageLoop := NUMLines;
                         LinesPrinted := 0;
                     end;
+
                     if (PrePostingDate <> "G/L Entry"."Posting Date") or (PreDocumentNo <> "G/L Entry"."Document No.") then begin
                         DebitAmountTotal := 0;
                         CreditAmountTotal := 0;
@@ -260,16 +262,7 @@ report 18933 "Voucher Register"
                 }
             }
         }
-
-        actions
-        {
-        }
     }
-
-    labels
-    {
-    }
-
 
     trigger OnPreReport()
     begin
@@ -306,7 +299,7 @@ report 18933 "Voucher Register"
         ZeroLbl: Label 'ZERO';
         HundredLbl: Label 'HUNDRED';
         AndLbl: Label 'and';
-        exceededStringErr: Label '%1 results in a written number that is too long.', Comment = '%1= AddText';
+        ExceededStringErr: Label '%1 results in a written number that is too long.', Comment = '%1= AddText';
         OneLbl: Label 'ONE';
         TwoLbl: Label 'TWO';
         ThreeLbl: Label 'THREE';
@@ -334,17 +327,26 @@ report 18933 "Voucher Register"
         SeventyLbl: Label 'SEVENTY';
         EightyLbl: Label 'EIGHTY';
         NinetyLbl: Label 'NINETY';
+        VoucherLbl: Label ' Voucher';
+        DateLbl: Label 'Date: ';
         ThousandLbl: Label 'THOUSAND';
         LakhLbl: Label 'LAKH';
         CroreLbl: Label 'CRORE';
         VoucherNoCaptionLbl: Label 'Voucher No. :';
         CreditAmountCaptionLbl: Label 'Credit Amount';
         DebitAmountCaptionLbl: Label 'Debit Amount';
+        RUPEESLbl: Label 'RUPEES';
         ParticularsCaptionLbl: Label 'Particulars';
+        DrLbl: Label 'Dr';
+        ToLbl: Label 'To';
+        RsLbl: Label 'Rs. ';
+        DatedLbl: Label '  Dated: ';
+        ChequeNoLbl: Label 'Cheque No:';
         AmountinwordsCaptionLbl: Label 'Amount (in words):';
         PreparedbyCaptionLbl: Label 'Prepared by:';
         CheckedbyCaptionLbl: Label 'Checked by:';
         ApprovedbyCaptionLbl: Label 'Approved by:';
+        PaisaOnlyLbl: Label ' PAISA ONLY';
         IntegerOccurcesCaptionLbl: Label 'IntegerOccurcesCaption';
         NarrationCaptionLbl: Label 'Narration :';
 
@@ -354,49 +356,49 @@ report 18933 "Voucher Register"
         "Source No.": Code[20];
         "G/L Account No.": Code[20]): Text[50]
     var
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        Vend: Record Vendor;
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        Cust: Record Customer;
-        BankLedgEntry: Record "Bank Account Ledger Entry";
-        Bank: Record "Bank Account";
-        FALedgEntry: Record "FA Ledger Entry";
-        FA: Record "Fixed Asset";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Vendor: Record Vendor;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Customer: Record Customer;
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccount: Record "Bank Account";
+        FALedgerEntry: Record "FA Ledger Entry";
+        FixedAsset: Record "Fixed Asset";
         GLAccount: Record "G/L Account";
         AccName: Text[50];
     begin
         case "Source Type" of
             "Source Type"::Vendor:
-                if VendLedgEntry.Get("Entry No.") then begin
-                    Vend.Get("Source No.");
-                    AccName := CopyStr(Vend.Name, 1, MaxStrLen(AccName));
+                if VendorLedgerEntry.Get("Entry No.") then begin
+                    Vendor.Get("Source No.");
+                    AccName := CopyStr(Vendor.Name, 1, MaxStrLen(AccName));
                 end else begin
                     GLAccount.Get("G/L Account No.");
                     AccName := CopyStr(GLAccount.Name, 1, MaxStrLen(AccName));
                 end;
             "Source Type"::Customer:
-                if CustLedgEntry.Get("Entry No.") then begin
-                    Cust.Get("Source No.");
-                    AccName := CopyStr(Cust.Name, 1, MaxStrLen(AccName));
+                if CustLedgerEntry.Get("Entry No.") then begin
+                    Customer.Get("Source No.");
+                    AccName := CopyStr(Customer.Name, 1, MaxStrLen(AccName));
                 end else begin
                     GLAccount.Get("G/L Account No.");
                     AccName := CopyStr(GLAccount.Name, 1, MaxStrLen(AccName));
                 end;
             "Source Type"::"Bank Account":
-                if BankLedgEntry.Get("Entry No.") then begin
-                    Bank.Get("Source No.");
-                    AccName := CopyStr(Bank.Name, 1, MaxStrLen(AccName));
+                if BankAccountLedgerEntry.Get("Entry No.") then begin
+                    BankAccount.Get("Source No.");
+                    AccName := CopyStr(BankAccount.Name, 1, MaxStrLen(AccName));
                 end else begin
                     GLAccount.Get("G/L Account No.");
                     AccName := CopyStr(GLAccount.Name, 1, MaxStrLen(AccName));
                 end;
             "Source Type"::"Fixed Asset":
                 begin
-                    FALedgEntry.Reset();
-                    FALedgEntry.SetRange("G/L Entry No.", "Entry No.");
-                    if FALedgEntry.FindFirst() then begin
-                        FA.Get("Source No.");
-                        AccName := CopyStr(FA.Description, 1, MaxStrLen(AccName));
+                    FALedgerEntry.Reset();
+                    FALedgerEntry.SetRange("G/L Entry No.", "Entry No.");
+                    if FALedgerEntry.FindFirst() then begin
+                        FixedAsset.Get("Source No.");
+                        AccName := CopyStr(FixedAsset.Description, 1, MaxStrLen(AccName));
                     end else begin
                         GLAccount.Get("G/L Account No.");
                         AccName := CopyStr(GLAccount.Name, 1, MaxStrLen(AccName));
@@ -462,7 +464,7 @@ report 18933 "Voucher Register"
             Currency.Get(CurrencyCode);
             AddToNoText(NoText, NoTextIndex, PrintExponent, ' ');
         end else
-            AddToNoText(NoText, NoTextIndex, PrintExponent, 'RUPEES');
+            AddToNoText(NoText, NoTextIndex, PrintExponent, RUPEESLbl);
         AddToNoText(NoText, NoTextIndex, PrintExponent, AndLbl);
         TensDec := ((No * 100) MOD 100) DIV 10;
         OnesDec := (No * 100) MOD 10;
@@ -478,7 +480,7 @@ report 18933 "Voucher Register"
         if (CurrencyCode <> '') then
             AddToNoText(NoText, NoTextIndex, PrintExponent, ' ')
         else
-            AddToNoText(NoText, NoTextIndex, PrintExponent, ' PAISA ONLY');
+            AddToNoText(NoText, NoTextIndex, PrintExponent, PaisaOnlyLbl);
     end;
 
     procedure InitTextVariable()
@@ -527,7 +529,7 @@ report 18933 "Voucher Register"
         while StrLen(NoText[NoTextIndex] + ' ' + AddText) > MaxStrLen(NoText[1]) do begin
             NoTextIndex := NoTextIndex + 1;
             if NoTextIndex > ArrayLen(NoText) then
-                Error(exceededStringErr, AddText);
+                Error(ExceededStringErr, AddText);
         end;
         NoText[NoTextIndex] := DelChr(NoText[NoTextIndex] + ' ' + AddText, '<');
     end;

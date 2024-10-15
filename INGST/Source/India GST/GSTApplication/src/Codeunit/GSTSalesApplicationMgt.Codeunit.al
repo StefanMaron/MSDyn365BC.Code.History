@@ -16,21 +16,18 @@ codeunit 18431 "GST Sales Application Mgt."
     begin
         ApplyingCustLedgEntry.TestField("Document Type", ApplyingCustLedgEntry."Document Type"::Invoice);
         if ApplyingCustLedgEntry."GST Customer Type" in [
-          ApplyingCustLedgEntry."GST Customer Type"::" ",
-          ApplyingCustLedgEntry."GST Customer Type"::Exempted]
+            ApplyingCustLedgEntry."GST Customer Type"::" ",
+            ApplyingCustLedgEntry."GST Customer Type"::Exempted]
         then
-            Error(StrSubstNo(
-              GSTCustomerTypeErr,
-              ApplyingCustLedgEntry."Document No.",
-              ApplyingCustLedgEntry."Entry No."));
+            Error(GSTCustomerTypeErr, ApplyingCustLedgEntry."Document No.", ApplyingCustLedgEntry."Entry No.");
 
         GSTApplicationLibrary.CheckEarlierPostingDate(
-          CustLedgerEntry."Posting Date",
-          ApplyingCustLedgEntry."Posting Date",
-          CustLedgerEntry."Document Type",
-          CustLedgerEntry."Document No.",
-          ApplyingCustLedgEntry."Document Type",
-          ApplyingCustLedgEntry."Customer No.");
+            CustLedgerEntry."Posting Date",
+            ApplyingCustLedgEntry."Posting Date",
+            CustLedgerEntry."Document Type",
+            CustLedgerEntry."Document No.",
+            ApplyingCustLedgEntry."Document Type",
+            ApplyingCustLedgEntry."Customer No.");
 
         ApplyingCustLedgEntry.CalcFields("Remaining Amount");
         ApplyingCustLedgEntry.TestField("Remaining Amount");
@@ -44,13 +41,13 @@ codeunit 18431 "GST Sales Application Mgt."
         ApplyingCustLedgEntry.TestField("Seller State Code", CustLedgerEntry."Seller State Code");
 
         GSTApplicationLibrary.FillAppBufferInvoiceOffline(
-          GenJournalLine,
-          TransactionType::Sales,
-          ApplyingCustLedgEntry."Document No.",
-          ApplyingCustLedgEntry."Customer No.",
-          CustLedgerEntry."Document No.",
-          TDSTCSAmount,
-          0);
+            GenJournalLine,
+            TransactionType::Sales,
+            ApplyingCustLedgEntry."Document No.",
+            ApplyingCustLedgEntry."Customer No.",
+            CustLedgerEntry."Document No.",
+            TDSTCSAmount,
+            0);
 
         FillSalesAppBufferPaymentOfflline(CustLedgerEntry, ApplyingCustLedgEntry);
     end;
@@ -67,15 +64,15 @@ codeunit 18431 "GST Sales Application Mgt."
         Cust.Get(CustLedgerEntry."Customer No.");
         CustLedgerEntry.TestField("Document Type", CustLedgerEntry."Document Type"::Invoice);
         if CustLedgerEntry."GST Customer Type" in [CustLedgerEntry."GST Customer Type"::" ", CustLedgerEntry."GST Customer Type"::Exempted] then
-            Error(StrSubstNo(GSTCustomerTypeErr, CustLedgerEntry."Document No.", CustLedgerEntry."Entry No."));
+            Error(GSTCustomerTypeErr, CustLedgerEntry."Document No.", CustLedgerEntry."Entry No.");
 
         GSTApplicationLibrary.CheckEarlierPostingDate(
-          ApplyingCustLedgerEntry."Posting Date",
-          CustLedgerEntry."Posting Date",
-          ApplyingCustLedgerEntry."Document Type",
-          ApplyingCustLedgerEntry."Document No.",
-          CustLedgerEntry."Document Type",
-          CustLedgerEntry."Customer No.");
+            ApplyingCustLedgerEntry."Posting Date",
+            CustLedgerEntry."Posting Date",
+            ApplyingCustLedgerEntry."Document Type",
+            ApplyingCustLedgerEntry."Document No.",
+            CustLedgerEntry."Document Type",
+            CustLedgerEntry."Customer No.");
 
         CustLedgerEntry.TestField("GST Customer Type", ApplyingCustLedgerEntry."GST Customer Type");
         CustLedgerEntry.TestField("GST Jurisdiction Type", ApplyingCustLedgerEntry."GST Jurisdiction Type");
@@ -84,14 +81,15 @@ codeunit 18431 "GST Sales Application Mgt."
         CustLedgerEntry.TestField("Seller GST Reg. No.", ApplyingCustLedgerEntry."Seller GST Reg. No.");
         CustLedgerEntry.TestField("Currency Code", ApplyingCustLedgerEntry."Currency Code");
         CustLedgerEntry.TestField("Seller State Code", ApplyingCustLedgerEntry."Seller State Code");
+
         GSTApplicationLibrary.FillAppBufferInvoiceOffline(
-           GenJournalLine,
-           TransactionType::Sales,
-           CustLedgerEntry."Document No.",
-           CustLedgerEntry."Customer No.",
-           ApplyingCustLedgerEntry."Document No.",
-           TDSTCSAmount,
-           0);
+            GenJournalLine,
+            TransactionType::Sales,
+            CustLedgerEntry."Document No.",
+            CustLedgerEntry."Customer No.",
+            ApplyingCustLedgerEntry."Document No.",
+            TDSTCSAmount,
+            0);
 
         FillSalesAppBufferPaymentOfflline(ApplyingCustLedgerEntry, CustLedgerEntry);
     end;
@@ -104,20 +102,13 @@ codeunit 18431 "GST Sales Application Mgt."
         DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";
         DetailedGSTLedgerEntryPmt: Record "Detailed GST Ledger Entry";
         GSTApplicationLibrary: Codeunit "GST Application Library";
-        OriginalDocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
+        OriginalDocumentType: Enum "Original Doc Type";
         GSTDocumentType: Enum "GST Document Type";
-        OriginalDocType: Enum "Original Doc Type";
         TransactionType: Enum "Detail Ledger Transaction Type";
     begin
         GSTApplicationLibrary.DeletePaymentAplicationBuffer(TransactionType::Sales, CustLedgerEntry."Entry No.");
 
-        DetailedGSTLedgerEntryPmt.SetCurrentKey(
-          "Transaction Type",
-          "Source No.",
-          "CLE/VLE Entry No.",
-          "Document Type",
-          "Document No.",
-          "GST Group Code");
+        DetailedGSTLedgerEntryPmt.SetCurrentKey("Transaction Type", "Source No.", "Document Type", "Document No.", "GST Group Code");
         DetailedGSTLedgerEntryPmt.SetRange("Transaction Type", TransactionType::Sales);
         DetailedGSTLedgerEntryPmt.SetRange("Source No.", CustLedgerEntry."Customer No.");
         DetailedGSTLedgerEntryPmt.SetRange("Document Type", DetailedGSTLedgerEntryPmt."Document Type"::Payment);
@@ -126,17 +117,11 @@ codeunit 18431 "GST Sales Application Mgt."
         if not DetailedGSTLedgerEntryPmt.FindFirst() then
             Error(NoGSTEntryErr, CustLedgerEntry."Entry No.");
 
-        DetailedGSTLedgerEntryInv.SetCurrentKey(
-          "Transaction Type",
-          "Source No.",
-          "CLE/VLE Entry No.",
-          "Document Type",
-          "Document No.",
-          "GST Group Code");
+        GSTApplicationLibrary.GetGSTDocumentTypeFromGenJournalDocumentType(GSTDocumentType, ApplyingCustLedgerEntry."Document Type"::Invoice);
+        DetailedGSTLedgerEntryInv.SetCurrentKey("Transaction Type", "Source No.", "Document Type", "Document No.", "GST Group Code");
         DetailedGSTLedgerEntryInv.SetRange("Transaction Type", DetailedGSTLedgerEntryInv."Transaction Type"::Sales);
         DetailedGSTLedgerEntryInv.SetRange("Source No.", ApplyingCustLedgerEntry."Customer No.");
-        GSTApplicationLibrary.GetGSTDocumentTypeFromGenJournalDocumentType(GSTDocumentType, ApplyingCustLedgerEntry."Document Type"::Invoice);
-        DetailedGSTLedgerEntryInv.SetRange("Document Type", GSTDocumentType); // Invoice
+        DetailedGSTLedgerEntryInv.SetRange("Document Type", GSTDocumentType);
         DetailedGSTLedgerEntryInv.SetRange("Document No.", ApplyingCustLedgerEntry."Document No.");
         DetailedGSTLedgerEntryInv.SetRange("GST Group Code", CustLedgerEntry."GST Group Code");
         if DetailedGSTLedgerEntryInv.FindFirst() then begin
@@ -150,29 +135,24 @@ codeunit 18431 "GST Sales Application Mgt."
             if not DetailedGSTLedgerEntryInv."GST Exempted Goods" then
                 DetailedGSTLedgerEntryInv.TestField("GST %", DetailedGSTLedgerEntryPmt."GST %");
         end else
-            Error(
-              StrSubstNo(
-                GSTGroupCodeEqualErr,
-                CustLedgerEntry."Entry No.",
-                Format(ApplyingCustLedgerEntry."Document Type"),
-                ApplyingCustLedgerEntry."Document No."));
+            Error(GSTGroupCodeEqualErr, CustLedgerEntry."Entry No.", Format(ApplyingCustLedgerEntry."Document Type"), ApplyingCustLedgerEntry."Document No.");
 
-        DetailedGSTLedgerEntry.SetCurrentKey("Transaction Type", "Source No.", "Original Doc. Type", "Original Doc. No.", "GST Group Code");
+        GSTApplicationLibrary.GetGSTDocumentTypeFromGenJournalDocumentType(GSTDocumentType, CustLedgerEntry."Document Type"::Payment);
+        DetailedGSTLedgerEntry.SetCurrentKey("Transaction Type", "Source No.", "GST Group Code");
         DetailedGSTLedgerEntry.SetRange("Transaction Type", DetailedGSTLedgerEntry."Transaction Type"::Sales);
         DetailedGSTLedgerEntry.SetRange("Source No.", CustLedgerEntry."Customer No.");
-        GSTApplicationLibrary.GetOriginalDocTypeFromGenJournalDocumentType(OriginalDocType, CustLedgerEntry."Document Type"::Payment);
-        DetailedGSTLedgerEntry.SetRange("Original Doc. Type", OriginalDocType); // Payment
-        DetailedGSTLedgerEntry.SetRange("Original Doc. No.", CustLedgerEntry."Document No.");
+        DetailedGSTLedgerEntry.SetRange("Document Type", GSTDocumentType); // Payment
+        DetailedGSTLedgerEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
         DetailedGSTLedgerEntry.SetRange("GST Group Code", CustLedgerEntry."GST Group Code");
         if DetailedGSTLedgerEntry.FindSet() then
             repeat
                 GSTApplicationLibrary.FillGSTAppBufferHSNComponentPayment(
-                  DetailedGSTLedgerEntry,
-                  OriginalDocumentType::Invoice, ApplyingCustLedgerEntry."Document No.",
-                  CustLedgerEntry."Customer No.",
-                  OriginalDocumentType::Invoice, '', 0);
+                    DetailedGSTLedgerEntry,
+                    GSTApplicationLibrary.OriginalDocumentType2CurrentDocumentTypeEnum(OriginalDocumentType::Invoice), ApplyingCustLedgerEntry."Document No.",
+                    CustLedgerEntry."Customer No.",
+                    GSTApplicationLibrary.OriginalDocumentType2CurrentDocumentTypeEnum(OriginalDocumentType::Invoice), '', 0);
             until DetailedGSTLedgerEntry.Next() = 0
         else
-            Error(StrSubstNo(NoGSTEntryErr, CustLedgerEntry."Entry No."));
+            Error(NoGSTEntryErr, CustLedgerEntry."Entry No.");
     end;
 }

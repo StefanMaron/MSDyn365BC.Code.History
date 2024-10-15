@@ -25,6 +25,8 @@ page 18320 "GST Liability Adjustment"
                     ToolTip = 'Specifies the companies GST registration number.';
 
                     trigger OnValidate()
+                    var
+                        GSTRegistrationNos: Record "GST Registration Nos.";
                     begin
                         GSTRegistrationNos.Get(GSTINNo);
                         if GSTRegistrationNos."Input Service Distributor" then
@@ -118,6 +120,8 @@ page 18320 "GST Liability Adjustment"
                 ToolTip = 'Select one or more ledger entries that you want to apply this record to so that the related posted documents are closed as paid or refunded.';
 
                 trigger OnAction()
+                var
+                    GSTLiabilityAdjustment: Record "GST Liability Adjustment";
                 begin
                     CheckMandatoryFields();
                     GSTLiabilityAdjustment.DeleteAll();
@@ -139,6 +143,8 @@ page 18320 "GST Liability Adjustment"
     }
 
     trigger OnOpenPage()
+    var
+        NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         AdjDocNo := NoSeriesManagement.GetNextNo(GSTSettlement.GetNoSeriesCode(true), PostingDate, false);
     end;
@@ -157,12 +163,8 @@ page 18320 "GST Liability Adjustment"
             Error(NatureOfAdjErr);
     end;
 
-
     var
-        GSTLiabilityAdjustment: Record "GST Liability Adjustment";
-        GSTRegistrationNos: Record "GST Registration Nos.";
         GSTSettlement: Codeunit "GST Settlement";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         LiabilityDateFormula: DateFormula;
         NatureOfAdjustment: Enum "Cr Libty Adjustment Type";
         AdjDocNo: Code[20];

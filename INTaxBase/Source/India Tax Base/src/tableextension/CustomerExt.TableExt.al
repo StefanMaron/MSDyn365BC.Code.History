@@ -14,9 +14,10 @@ tableextension 18544 "CustomerExt" extends Customer
         field(18545; "P.A.N. Status"; Enum "P.A.N.Status")
         {
             DataClassification = EndUserIdentifiableInformation;
+
             trigger OnValidate()
             begin
-                "P.A.N. No." := FORMAT("P.A.N. Status");
+                "P.A.N. No." := Format("P.A.N. Status");
             end;
         }
         field(18546; "P.A.N. Reference No."; Code[20])
@@ -30,5 +31,3 @@ tableextension 18544 "CustomerExt" extends Customer
         }
     }
 }
-
-

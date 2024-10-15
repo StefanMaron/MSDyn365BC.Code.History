@@ -710,6 +710,7 @@ codeunit 136754 "Script Entity Mgmt. Tests"
 
         Assert.RecordIsEmpty(ActionDateCalculation);
     end;
+
     [Test]
     procedure TestCreateDateToDateTime()
     var
@@ -757,55 +758,6 @@ codeunit 136754 "Script Entity Mgmt. Tests"
         ActionDateCalculation.SetRange("ID", ID);
 
         Assert.RecordIsEmpty(ActionDateCalculation);
-    end;
-
-    [Test]
-    procedure TestCreateGetRecord()
-    var
-        ActionGetRecord: Record "Action Get Record";
-        ScriptEntityMgmt: Codeunit "Script Entity Mgmt.";
-        CaseID, ScriptID, ID : Guid;
-    begin
-        // [SCENARIO] To check if the GetRecord Action is created.
-
-        // [GIVEN] There should be a CaseID and Script created to pass through the function.
-        CaseID := CreateGuid();
-        ScriptID := CreateGuid();
-
-        // [WHEN] The function CreateGetRecord is called.
-        ID := ScriptEntityMgmt.CreateGetRecord(CaseID, ScriptID);
-
-        // [THEN] it should create record in Get Record table for CaseID and ScriptID.
-        ActionGetRecord.SetRange("Case ID", CaseID);
-        ActionGetRecord.SetRange("Script ID", ScriptID);
-        ActionGetRecord.SetRange("ID", ID);
-
-        Assert.RecordIsNotEmpty(ActionGetRecord);
-    end;
-
-    [Test]
-    procedure TestDeleteGetRecord()
-    var
-        ActionGetRecord: Record "Action Get Record";
-        ScriptEntityMgmt: Codeunit "Script Entity Mgmt.";
-        CaseID, ScriptID, ID : Guid;
-    begin
-        // [SCENARIO] To check if the Get Record Action is deleted.
-
-        // [GIVEN] There should be a CaseID and Script created to pass through the function.
-        CaseID := CreateGuid();
-        ScriptID := CreateGuid();
-        ID := ScriptEntityMgmt.CreateDateCalculation(CaseID, ScriptID);
-
-        // [WHEN] The function DeleteGetRecord is called.
-        ScriptEntityMgmt.DeleteDateCalculation(CaseID, ScriptID, ID);
-
-        // [THEN] it should delete record in Get Record Calculation table for CaseID and ScriptID.
-        ActionGetRecord.SetRange("Case ID", CaseID);
-        ActionGetRecord.SetRange("Script ID", ScriptID);
-        ActionGetRecord.SetRange("ID", ID);
-
-        Assert.RecordIsEmpty(ActionGetRecord);
     end;
 
     [Test]

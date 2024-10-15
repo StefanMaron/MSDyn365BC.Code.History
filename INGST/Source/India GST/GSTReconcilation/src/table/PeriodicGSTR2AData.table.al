@@ -8,252 +8,243 @@ table 18283 "Periodic GSTR-2A Data"
         {
             Caption = 'GSTIN No.';
             TableRelation = "GST Registration Nos.";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(2; "State Code"; Code[10])
         {
             Caption = 'State Code';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             TableRelation = State;
         }
         field(3; Month; Integer)
         {
             Caption = 'Month';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(4; Year; Integer)
         {
             Caption = 'Year';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(5; "Document Type"; Option)
+        field(5; "Document Type"; enum "GSTReco Document Type")
         {
             Caption = 'Document Type';
-            OptionMembers = Invoice,"Revised Invoice","Debit Note","Revised Debit Note","Credit Note","Revised Credit Note","ISD Credit","TDS Credit","TCS Credit";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(6; "GSTIN of Supplier"; Code[20])
         {
             Caption = 'GSTIN of Supplier';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(7; "Document No."; Code[35])
         {
             Caption = 'Document No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(9; "Document Date"; Date)
         {
             Caption = 'Document Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(11; "Goods/Services"; Option)
+        field(11; "Goods/Services"; Enum "GST Credit")
         {
             Caption = 'Goods/Services';
-            OptionCaption = 'Goods,Services';
-            OptionMembers = Goods,Services;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(12; "HSN/SAC"; Code[8])
+        field(12; "HSN/SAC"; Code[10])
         {
             Caption = 'HSN/SAC';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(13; "Taxable Value"; Decimal)
         {
             Caption = 'Taxable Value';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(14; "Component 1 Rate"; Decimal)
         {
             Caption = 'Component 1 Rate';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(15; "Component 1 Amount"; Decimal)
         {
             Caption = 'Component 1 Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(16; "Component 2 Rate"; Decimal)
         {
             Caption = 'Component 2 Rate';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(17; "Component 2 Amount"; Decimal)
         {
             Caption = 'Component 2 Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(18; "Component 3 Rate"; Decimal)
         {
             Caption = 'Component 3 Rate';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(19; "Component 3 Amount"; Decimal)
         {
             Caption = 'Component 3 Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(20; POS; Text[50])
         {
             Caption = 'POS';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(21; "Revised GSTIN of Supplier"; Code[15])
+        field(21; "Revised GSTIN of Supplier"; Code[20])
         {
             Caption = 'Revised GSTIN of Supplier';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(22; "Revised Document No."; Code[35])
         {
             Caption = 'Revised Document No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(23; "Revised Document Date"; Date)
         {
             Caption = 'Revised Document Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(24; "Revised Document Value"; Decimal)
         {
             Caption = 'Revised Document Value';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(25; "Revised Goods/Services"; Option)
+        field(25; "Revised Goods/Services"; enum "GST Credit")
         {
-            OptionCaption = 'Goods, Services';
-            OptionMembers = Goods,Services;
             Caption = 'Revised Goods/Services';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(26; "Revised HSN/SAC"; Code[10])
         {
             Caption = 'Revised HSN/SAC';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(27; "Revised Taxable Value"; Decimal)
         {
             Caption = 'Revised Taxable Value';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(28; "Type of Note"; Option)
+        field(28; "Type of Note"; Enum "NoteType")
         {
             Caption = 'Type of Note';
-            OptionCaption = 'Debit, Credit';
-            OptionMembers = Debit,Credit;
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(29; "Debit/Credit Note No."; Code[35])
         {
             Caption = 'Debit/Credit Note No.';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(30; "Debit/Credit Note Date"; Date)
         {
             Caption = 'Debit/Credit Note Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(31; "Differential Value"; Decimal)
         {
             Caption = 'Differential Value';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(32; "Date of Payment to Deductee"; Date)
         {
             Caption = 'Date of Payment to Deductee';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(33; "Value on TDS has been Deducted"; Decimal)
         {
             Caption = 'Value on TDS has been Deducted';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(34; "Merch. ID alloc. By e-com port"; Code[35])
         {
             Caption = 'Merch. ID alloc. By e-com port';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(35; "Gross Value of Supplies"; Decimal)
         {
             Caption = 'Gross Value of Supplies';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(36; "Tax Value on TCS has Deducted"; Decimal)
         {
             Caption = 'Tax Value on TCS has Deducted';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(37; Reconciled; Boolean)
         {
             Caption = 'Reconciled';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(38; "Reconciliation Date"; Date)
         {
             Caption = 'Reconciliation Date';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(39; "User Id"; Code[50])
         {
             Caption = 'User Id';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
-        field(40; Matched; Option)
+        field(40; Matched; enum matched)
         {
             Caption = 'Matched';
-            OptionCaption = ' ,Rec Matched,Error Found,No Line';
-            OptionMembers = " ","Rec Matched","Error Found","No Line";
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(41; "Component 4 Rate"; Decimal)
         {
             Caption = 'Component 4 Rate';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(42; "Component 4 Amount"; Decimal)
         {
             Caption = 'Component 4 Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(43; "Component 5 Rate"; Decimal)
         {
             Caption = 'Component 5 Rate';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(44; "Component 5 Amount"; Decimal)
         {
             Caption = 'Component 5 Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(45; "Component 6 Rate"; Decimal)
         {
             Caption = 'Component 6 Rate';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(46; "Component 6 Amount"; Decimal)
         {
             Caption = 'Component 6 Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(47; "Component 7 Rate"; Decimal)
         {
             Caption = 'Component 7 Rate';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(48; "Component 7 Amount"; Decimal)
         {
             Caption = 'Component 7 Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(49; "Component 8 Rate"; Decimal)
         {
             Caption = 'Component 8 Rate';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
         field(50; "Component 8 Amount"; Decimal)
         {
             Caption = 'Component 8 Amount';
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
         }
     }
 
@@ -270,4 +261,3 @@ table 18283 "Periodic GSTR-2A Data"
         "User Id" := CopyStr(UserId(), 1, MaxStrLen("User Id"));
     end;
 }
-

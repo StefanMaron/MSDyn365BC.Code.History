@@ -8,12 +8,12 @@ table 20167 "Action Find Date Interval"
     {
         field(1; "Script ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Script ID';
         }
         field(2; ID; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'ID';
         }
         field(3; "Variable ID"; Integer)
@@ -35,7 +35,7 @@ table 20167 "Action Find Date Interval"
         }
         field(6; "Date1 Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Date1 Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
@@ -52,19 +52,19 @@ table 20167 "Action Find Date Interval"
         }
         field(9; "Date2 Lookup ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Date2 Lookup ID';
             TableRelation = "Script Symbol Lookup".ID;
         }
         field(10; Inverval; Option)
         {
-            DataClassification = EndUserIdentifiableInformation;
+            DataClassification = CustomerContent;
             Caption = 'Interval';
             OptionMembers = Days,Hours,Minutes;
         }
         field(11; "Case ID"; Guid)
         {
-            DataClassification = EndUserPseudonymousIdentifiers;
+            DataClassification = SystemMetadata;
             Caption = 'Case ID';
         }
     }

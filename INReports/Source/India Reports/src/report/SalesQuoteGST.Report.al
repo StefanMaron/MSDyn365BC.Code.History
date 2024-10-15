@@ -1050,7 +1050,6 @@ report 18017 "Sales - Quote GST"
         ShowShippingAddr: Boolean;
         i: Integer;
         DimText: Text[120];
-        OldDimText: Text[75];
         ShowIntInfo: Boolean;
         Continue: Boolean;
         ArchiveDoc: Boolean;
@@ -1059,7 +1058,6 @@ report 18017 "Sales - Quote GST"
         VATBaseAmount: Decimal;
         VATDiscountAmount: Decimal;
         TotalAmountInclVAT: Decimal;
-        NoOfRecords: Integer;
         VALVATBaseLCY: Decimal;
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
@@ -1077,7 +1075,6 @@ report 18017 "Sales - Quote GST"
         IsGSTApplicable: Boolean;
         GSTCompNo: Integer;
         j: Integer;
-        CreateFollowupLbl: Label 'Do you want to create a follow-up to-do?';
         VatAmtLbl: Label 'VAT Amount Specification in ';
         LocalCurrLbl: Label 'Local Currency';
         SalesPersLbl: Label 'Salesperson';
