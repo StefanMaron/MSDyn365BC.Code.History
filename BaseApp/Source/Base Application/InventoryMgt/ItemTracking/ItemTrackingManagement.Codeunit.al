@@ -1603,7 +1603,8 @@ codeunit 6500 "Item Tracking Management"
         if Location.RequireShipment(LocationCode) then begin
             WhseShipmentLine.SetSourceFilter(Type, Subtype, ID, RefNo, true);
             if not WhseShipmentLine.IsEmpty() then
-                exit(true);
+                if Location.RequirePicking(LocationCode) then
+                    exit(true);
         end;
 
         if Type in [DATABASE::"Prod. Order Component", DATABASE::"Prod. Order Line"] then begin
@@ -2638,7 +2639,7 @@ codeunit 6500 "Item Tracking Management"
                     ToRowID :=
                       ItemTrackingMgt.ComposeRowID(
                         "Source Type", "Source Subtype", "Source No.", '', "Source Line No.", "Source Subline No.")
-                else begin
+                else
                     if IsATOPosting then begin
                         ATOSalesLine.Get("Source Subtype", "Source No.", "Source Line No.");
                         ATOSalesLine.AsmToOrderExists(AsmHeader);
@@ -2653,7 +2654,7 @@ codeunit 6500 "Item Tracking Management"
                             ToRowID :=
                               ItemTrackingMgt.ComposeRowID(
                                 "Source Type", "Source Subtype", "Source No.", '', "Source Subline No.", "Source Line No.");
-                end;
+
                 OnSynchronizeWhseActivItemTrkgOnAfterSetToRowID(WhseActivLine, ToRowID);
                 TempReservEntry.SetPointer(ToRowID);
                 SignFactor := WhseActivitySignFactor(WhseActivLine);
@@ -2690,6 +2691,7 @@ codeunit 6500 "Item Tracking Management"
         end;
 
         SumUpItemTracking(TempReservEntry, TempTrackingSpec, false, true);
+        SynchronizeWhseActivItemTrackingReservation(WhseActivLine, IsTransferReceipt);
 
         if TempTrackingSpec.FindSet() then
             repeat
@@ -3539,6 +3541,33 @@ codeunit 6500 "Item Tracking Management"
             exit(Result);
 
         Result := ShippedQtyNotReturned * SignFactor;
+    end;
+
+    local procedure SynchronizeWhseActivItemTrackingReservation(WhseActivLine: Record "Warehouse Activity Line"; IsTransferReceipt: Boolean)
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        if not (WhseActivLine."Source Type" = Database::"Prod. Order Line") and (WhseActivLine."Source Subtype" = 3) then
+            exit;
+
+        ReservEntry.SetSourceFilter(WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.", 0, true);
+        ReservEntry.SetSourceFilter('', WhseActivLine."Source Line No.");
+        ReservEntry.SetFilter("Qty. to Handle (Base)", '<>0');
+        if IsTransferReceipt then
+            ReservEntry.SetRange("Source Ref. No.");
+        if ReservEntry.FindSet() then
+            repeat
+                WhseActivLine.Reset();
+                WhseActivLine.SetSourceFilter(
+                    WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.",
+                    WhseActivLine."Source Line No.", WhseActivLine."Source Subline No.", true);
+                WhseActivLine.SetTrackingFilterFromReservEntry(ReservEntry);
+                if WhseActivLine.IsEmpty() then begin
+                    ReservEntry.Validate("Qty. to Handle (Base)", 0);
+                    ReservEntry.Validate("Qty. to Invoice (Base)", 0);
+                    ReservEntry.Modify(true);
+                end;
+            until ReservEntry.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

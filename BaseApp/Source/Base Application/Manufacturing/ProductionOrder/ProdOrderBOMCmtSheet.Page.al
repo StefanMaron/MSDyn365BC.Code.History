@@ -2,7 +2,7 @@ page 99000795 "Prod. Order BOM Cmt. Sheet"
 {
     AutoSplitKey = true;
     Caption = 'Comment Sheet';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     LinksAllowed = false;
     MultipleNewLines = true;
     PageType = List;

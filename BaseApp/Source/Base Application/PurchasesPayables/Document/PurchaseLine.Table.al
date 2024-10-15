@@ -516,7 +516,7 @@
                         then
                             FieldError(Quantity, StrSubstNo(Text004, FieldCaption("Quantity Received")));
                         if ("Quantity (Base)" * "Qty. Received (Base)" < 0) or
-                        ((Abs("Quantity (Base)") < Abs(CalcQtyReceivedBaseFromPostedReceipt())) and ("Receipt No." = ''))
+                        ((Abs("Quantity (Base)") < Abs("Qty. Received (Base)")) and ("Receipt No." = ''))
                         then
                             FieldError("Quantity (Base)", StrSubstNo(Text004, FieldCaption("Qty. Received (Base)")));
                     end;
@@ -4717,17 +4717,19 @@
             exit;
 
         TestField("Document No.");
-        if ("Document Type" <> PurchHeader."Document Type") or ("Document No." <> PurchHeader."No.") then begin
-            PurchHeader.Get("Document Type", "Document No.");
-            if PurchHeader."Currency Code" = '' then
-                Currency.InitRoundingPrecision()
-            else begin
-                PurchHeader.TestField("Currency Factor");
-                Currency.Get(PurchHeader."Currency Code");
-                Currency.TestField("Amount Rounding Precision");
-            end;
-            CurrencyFactor := CalcCurrencyFactorACY;
-        end;
+        if ("Document Type" <> PurchHeader."Document Type") or ("Document No." <> PurchHeader."No.") then
+            if PurchHeader.Get(Rec."Document Type", Rec."Document No.") then begin
+                if PurchHeader."Currency Code" = '' then
+                    Currency.InitRoundingPrecision()
+                else begin
+                    PurchHeader.TestField("Currency Factor");
+                    Currency.Get(PurchHeader."Currency Code");
+                    Currency.TestField("Amount Rounding Precision");
+                end;
+                CurrencyFactor := CalcCurrencyFactorACY;
+            end
+            else
+                Clear(PurchHeader);
 
         OnAfterGetPurchHeader(Rec, PurchHeader, Currency);
         OutPurchHeader := PurchHeader;
@@ -5263,7 +5265,8 @@
                     OnAfterUpdateTotalAmounts(Rec, PurchLine2, TotalAmount, TotalAmountInclVAT, TotalLineAmount, TotalInvDiscAmount);
                     TotalLineAmountACY := PurchLine2."Amount (ACY)";
                     TotalAmountInclVATACY := PurchLine2."Amount Including VAT (ACY)";
-                end;
+                end else
+                    TotalVATDifference := "VAT Difference";
             end;
 
             OnUpdateVATAmountsOnBeforeCalcAmounts(
@@ -8502,7 +8505,7 @@
         if IsHandled then
             exit;
 
-        if Type = Type::Item then begin
+        if (Type = Type::Item) and IsInventoriableItem() then begin
             DialogText := Text033;
             if "Quantity (Base)" <> 0 then
                 case "Document Type" of
@@ -9220,7 +9223,6 @@
             exit;
 
         if "Line Amount" <> xRec."Line Amount" then begin
-            "VAT Difference" := 0;
             NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
             LineAmountChanged := true;
         end;
@@ -9596,28 +9598,6 @@
             end;
             LookupStateMgr.ClearSavedRecord();
         end;
-    end;
-
-    local procedure CalcQtyReceivedBaseFromPostedReceipt(): Decimal
-    var
-        PurchRcptLine: Record "Purch. Rcpt. Line";
-        QtyReceived: Decimal;
-    begin
-        if Rec."Qty. Received (Base)" = 0 then
-            exit(0);
-
-        PurchRcptLine.SetRange("Order No.", Rec."Document No.");
-        PurchRcptLine.SetRange("Order Line No.", Rec."Line No.");
-        if PurchRcptLine.IsEmpty() then
-            exit(Rec."Qty. Received (Base)");
-
-        PurchRcptLine.FindSet();
-        repeat
-            QtyReceived += PurchRcptLine."Quantity";
-        until PurchRcptLine.Next() = 0;
-
-        Rec."Qty. Received (Base)" := CalcBaseQty(QtyReceived, FieldCaption("Quantity Received"), FieldCaption("Qty. Received (Base)"));
-        exit(Rec."Qty. Received (Base)");
     end;
 
 #if not CLEAN20

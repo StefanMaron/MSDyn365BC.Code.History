@@ -205,6 +205,51 @@ codeunit 141080 "VAT On Document Statistics II"
         OpenPurchaseInvoiceStatistics(PurchaseHeader."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsVerifyUpdateHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyVatAmountShouldNotChangeWhenChangingPostingDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATAmount: Decimal;
+        TotalAmount: Decimal;
+        VatDifference: Decimal;
+    begin
+        // [SCENARIO 493308] VAT Amount changes when change the posting date causing VAT amount difference
+
+        // [GIVEN] Setup
+        LibraryERM.SetMaxVATDifferenceAllowed(LibraryRandom.RandIntInRange(1, 1));
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.UpdateVATPostingSetup(VATPostingSetup, 10);
+        LibraryPurchase.SetAllowVATDifference(true);
+
+        // [THEN] Create Purchase Invoice
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        CreatePurchaseLineWithCustomAmounts(PurchaseLine, PurchaseHeader, VATPostingSetup, 1, 220, 0);
+
+        // [VERIFY] Verify: Verify VAT Amount field on VAT Amount Lines page.
+        CalcPurchaseLineAmounts(PurchaseHeader, VATAmount, TotalAmount);
+        VatDifference := LibraryRandom.RandDecInRange(0, 1, 2);
+        VATAmount += VatDifference;
+
+        // [THEN] FALSE means update VAT Amount to get some VAT Difference
+        LibraryVariableStorage.Enqueue(TotalAmount);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(VATAmount);
+        OpenPurchaseInvoiceStatistics(PurchaseHeader."No.");
+
+        // [WHEN] Change posting date in purchase header to 02.01.2021
+        PurchaseHeader.Validate("Posting Date", PurchaseHeader."Posting Date" + LibraryRandom.RandIntInRange(10, 20));// WorkDate() + 1);
+        PurchaseHeader.Modify(true);
+
+        // [VERIFY] Verify: Vat Difference not set to Zero on Purchase Line
+        VerifyVatDifferenceOnPurchaseLine(PurchaseHeader."No.", VatDifference);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -395,6 +440,26 @@ codeunit 141080 "VAT On Document Statistics II"
             AmountErr, TotalInclVATCap, AmountInclVAT, StatisticsCap));
         Assert.AreNearlyEqual(
           VATAmountValue, VATAmount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, VATAmountCap, VATAmount, StatisticsCap));
+    end;
+
+    local procedure VerifyVatDifferenceOnPurchaseLine(DocumentNo: Code[20]; VatDifference: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        FindPurchaseLine(PurchaseLine, DocumentNo);
+        Assert.IsTrue((PurchaseLine."VAT Difference" = VatDifference), '');
+    end;
+
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
+    begin
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.FindFirst();
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 
     [ModalPageHandler]
