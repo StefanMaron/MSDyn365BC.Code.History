@@ -53,11 +53,7 @@ report 88 "VAT- VIES Declaration Disk"
                     GroupTotal := true;
 
                 if GroupTotal then begin
-                    case VATDateType of 
-                        VATDateType::"VAT Reporting Date": WriteGrTotalsToFile(TotalValueofServiceSuppliesTot, TotalValueofItemSuppliesTotal, EU3PartyServiceTradeAmt, EU3PartyItemTradeAmt, HasEU3PartyTrade, HasItemSupplies, HasServiceSupplies, "VAT Reporting Date");
-                        VATDateType::"Posting Date": WriteGrTotalsToFile(TotalValueofServiceSuppliesTot, TotalValueofItemSuppliesTotal, EU3PartyServiceTradeAmt, EU3PartyItemTradeAmt, HasEU3PartyTrade, HasItemSupplies, HasServiceSupplies, "Posting Date");
-                        VATDateType::"Document Date": WriteGrTotalsToFile(TotalValueofServiceSuppliesTot, TotalValueofItemSuppliesTotal, EU3PartyServiceTradeAmt, EU3PartyItemTradeAmt, HasEU3PartyTrade, HasItemSupplies, HasServiceSupplies, "Document Date");
-                    end;      
+                    WriteGrTotalsToFile(TotalValueofServiceSuppliesTot, TotalValueofItemSuppliesTotal, EU3PartyServiceTradeAmt, EU3PartyItemTradeAmt, HasEU3PartyTrade, HasItemSupplies, HasServiceSupplies, "VAT Reporting Date");
                     EU3PartyItemTradeTotalAmt += EU3PartyItemTradeAmt;
                     EU3PartyServiceTradeTotalAmt += EU3PartyServiceTradeAmt;
 
@@ -96,11 +92,7 @@ report 88 "VAT- VIES Declaration Disk"
                 VATFile.Write('#ve' + FileVersion2);
                 VATFile.Write('Laenderkennzeichen,USt-IdNr.,Betrag(Euro),Art der Leistung,Importmeldung');
                 NoOfGrTotal := 0;
-                case VATDateType of 
-                    VATDateType::"VAT Reporting Date": Period := GetRangeMax("VAT Reporting Date");
-                    VATDateType::"Posting Date": Period := GetRangeMax("Posting Date");
-                    VATDateType::"Document Date": Period := GetRangeMax("Document Date");
-                end;
+                Period := GetRangeMax("VAT Reporting Date");
                 InternalReferenceNo := Format(Period, 4, 2) + '000000';
             end;
         }
@@ -124,12 +116,19 @@ report 88 "VAT- VIES Declaration Disk"
                         MultiLine = true;
                         ToolTip = 'Specifies if the reported amounts are shown in the additional reporting currency.';
                     }
+#if not CLEAN22
                     field(VATDateTypeField; VATDateType)
                     {
                         ApplicationArea = VAT;
                         Caption = 'Period Date Type';
                         ToolTip = 'Specifies the type of date used for the report period.';
+                        Visible = false;
+                        Enabled = false;
+                        ObsoleteReason = 'Selected VAT Date type no longer supported.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
                     }
+#endif
                     field(SkipCustomerDataCheck; SkipCustomerDataCheck)
                     {
                         ApplicationArea = Basic, Suite;
@@ -203,7 +202,9 @@ report 88 "VAT- VIES Declaration Disk"
         ToFileNameTxt: Label 'Default.csv';
         SkipCustomerDataCheck: Boolean;
         HideFileDialog: Boolean;
+#if not CLEAN22
         VATDateType: Enum "VAT Date Type";
+#endif        
         FileVersion: Text[30];
         FileVersion2: Text[30];
         HasEU3PartyTrade: Boolean;
@@ -272,7 +273,6 @@ report 88 "VAT- VIES Declaration Disk"
     procedure InitializeRequest(NewHideFileDialog: Boolean)
     begin
         HideFileDialog := NewHideFileDialog;
-        VATDateType := VATDateType::"Posting Date";
     end;
 
     [Scope('OnPrem')]
@@ -298,11 +298,7 @@ report 88 "VAT- VIES Declaration Disk"
     begin
         VATEntry.SetRange("Country/Region Code", CountryRegionCode);
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
-        case VATDateType of 
-            VATDateType::"VAT Reporting Date": VATEntry.SetRange("VAT Reporting Date", VATDate);
-            VATDateType::"Posting Date": VATEntry.SetRange("Posting Date", VATDate);
-            VATDateType::"Document Date": VATEntry.SetRange("Document Date", VATDate);
-        end;
+        VATEntry.SetRange("VAT Reporting Date", VATDate);
         VATEntry.ModifyAll("Internal Ref. No.", InternalRefNo);
     end;
 

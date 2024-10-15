@@ -255,6 +255,7 @@ page 9027 "Accountant Role Center"
                     RunObject = Report "VAT- VIES Declaration Disk";
                     ToolTip = 'Report your sales to other EU countries or regions to the customs and tax authorities. If the information must be printed out on a printer, you can use the VAT- VIES Declaration Tax Auth report. The information is shown in the same format as in the declaration list from the customs and tax authorities.';
                 }
+#if not CLEAN22
                 action("EC Sales &List")
                 {
                     ApplicationArea = BasicEU;
@@ -262,7 +263,12 @@ page 9027 "Accountant Role Center"
                     Image = "Report";
                     RunObject = Report "EC Sales List";
                     ToolTip = 'Calculate VAT amounts from sales, and submit the amounts to a tax authority.';
+                    Visible = false;
+                    ObsoleteReason = 'Not used in the German version';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
                 }
+#endif
             }
             group(Action60)
             {
@@ -395,13 +401,19 @@ page 9027 "Accountant Role Center"
                 RunObject = Page "Purchase Invoices";
                 ToolTip = 'Create purchase invoices to mirror sales documents that vendors send to you. This enables you to record the cost of purchases and to track accounts payable. Posting purchase invoices dynamically updates inventory levels so that you can minimize inventory costs and provide better customer service. Purchase invoices can be created automatically from PDF or image files from your vendors by using the Incoming Documents feature.';
             }
+#if not CLEAN22
             action("EC Sales List")
             {
                 ApplicationArea = VAT;
                 Caption = 'EC Sales List';
                 RunObject = Page "ECSL Report List";
                 ToolTip = 'Calculate VAT amounts from sales, and submit the amounts to a tax authority.';
+                Visible = false;
+                ObsoleteReason = 'Not used in the German version';
+                ObsoleteState = Pending;
+                ObsoleteTag = '22.0';
             }
+#endif            
             action("VAT Returns")
             {
                 ApplicationArea = VAT;

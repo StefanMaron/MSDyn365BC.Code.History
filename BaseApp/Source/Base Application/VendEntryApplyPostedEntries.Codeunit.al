@@ -143,6 +143,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         GenJnlLine."Document No." := ApplyUnapplyParameters."Document No.";
         GenJnlLine."Posting Date" := ApplyUnapplyParameters."Posting Date";
         GenJnlLine."Document Date" := GenJnlLine."Posting Date";
+        GenJnlLine."VAT Reporting Date" := GenJnlLine."Posting Date";
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
         GenJnlLine."Account No." := VendLedgEntry."Vendor No.";
         VendLedgEntry.CalcFields("Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
@@ -255,14 +256,20 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     procedure UnApplyVendLedgEntry(VendLedgEntryNo: Integer)
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
+    begin
+        CheckVendorLedgerEntryToUnapply(VendLedgEntryNo, DtldVendLedgEntry);
+        UnApplyVendor(DtldVendLedgEntry);
+    end;
+
+    procedure CheckVendorLedgerEntryToUnapply(VendorLedgerEntryNo: Integer; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    var
         ApplicationEntryNo: Integer;
     begin
-        CheckReversal(VendLedgEntryNo);
-        ApplicationEntryNo := FindLastApplEntry(VendLedgEntryNo);
+        CheckReversal(VendorLedgerEntryNo);
+        ApplicationEntryNo := FindLastApplEntry(VendorLedgerEntryNo);
         if ApplicationEntryNo = 0 then
-            Error(NoApplicationEntryErr, VendLedgEntryNo);
-        DtldVendLedgEntry.Get(ApplicationEntryNo);
-        UnApplyVendor(DtldVendLedgEntry);
+            Error(NoApplicationEntryErr, VendorLedgerEntryNo);
+        DetailedVendorLedgEntry.Get(ApplicationEntryNo);
     end;
 
     local procedure UnApplyVendor(DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry")
@@ -372,6 +379,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         VendLedgEntry.Get(DtldVendLedgEntry2."Vendor Ledger Entry No.");
         GenJnlLine."Document No." := ApplyUnapplyParameters."Document No.";
         GenJnlLine."Posting Date" := ApplyUnapplyParameters."Posting Date";
+        GenJnlLine."VAT Reporting Date" := GenJnlLine."Posting Date";
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
         GenJnlLine."Account No." := DtldVendLedgEntry2."Vendor No.";
         GenJnlLine.Correction := true;

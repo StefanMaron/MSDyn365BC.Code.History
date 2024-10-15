@@ -324,6 +324,7 @@ codeunit 144051 "ERM Reports DE"
 
         // [GIVEN] Prepare VAT Entries for the customer
         VATEntry.SetRange("Posting Date", VATEntry."Posting Date");
+        VATEntry.SetRange("VAT Reporting Date", VATEntry."VAT Reporting Date");
         VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
 
         Commit();
@@ -363,6 +364,7 @@ codeunit 144051 "ERM Reports DE"
 
         // [GIVEN] Prepare VAT Entries for the Customer
         VATEntry.SetRange("Posting Date", VATEntry."Posting Date");
+        VATEntry.SetRange("VAT Reporting Date", VATEntry."VAT Reporting Date");
         VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
 
         Commit();
@@ -400,6 +402,7 @@ codeunit 144051 "ERM Reports DE"
 
         // [GIVEN] Prepare VAT Entries for the Customer
         VATEntry.SetRange("Posting Date", VATEntry."Posting Date");
+        VATEntry.SetRange("VAT Reporting Date", VATEntry."VAT Reporting Date");
         VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
 
         Commit();
@@ -440,6 +443,7 @@ codeunit 144051 "ERM Reports DE"
 
         // [GIVEN] Prepare VAT Entries for the customer
         VATEntry.SetRange("Posting Date", VATEntry."Posting Date");
+        VATEntry.SetRange("VAT Reporting Date", VATEntry."VAT Reporting Date");
         VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
 
         Commit();

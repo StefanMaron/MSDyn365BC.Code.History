@@ -514,7 +514,7 @@
         "Report Period Type" := "Report Period Type"::Month;
         "Report Period No." := Date2DMY(WorkDate(), 2);
         Validate("Report Year", Date2DMY(WorkDate(), 3));
-        Validate("Date Type", Enum::"VAT Date Type"::"VAT Reporting Date");
+        
 
         FillCompanyInfo;
 

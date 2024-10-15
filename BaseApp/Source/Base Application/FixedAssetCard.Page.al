@@ -372,7 +372,7 @@ page 5600 "Fixed Asset Card"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(5600),
+                SubPageLink = "Table ID" = CONST(Database::"Fixed Asset"),
                               "No." = FIELD("No.");
             }
             systempart(Control1900383207; Links)
