@@ -1,4 +1,4 @@
-table 7003 "Price Asset"
+﻿table 7003 "Price Asset"
 {
 #pragma warning disable AS0034
     TableType = Temporary;
@@ -73,7 +73,13 @@ table 7003 "Price Asset"
                 ItemUnitofMeasure: Record "Item Unit of Measure";
                 ResourceUnitofMeasure: Record "Resource Unit of Measure";
                 UnitofMeasure: Record "Unit of Measure";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateUnitOfMeasureCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Unit of Measure Code" <> '' then
                     case "Asset Type" of
                         "Asset Type"::Item:
@@ -251,5 +257,10 @@ table 7003 "Price Asset"
         if "Price Type" = "Price Type"::Purchase then
             if "Asset Type" = "Asset Type"::"Item Discount Group" then
                 FieldError("Asset Type");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateUnitOfMeasureCode(var PriceAsset: Record "Price Asset"; var IsHandled: Boolean)
+    begin
     end;
 }

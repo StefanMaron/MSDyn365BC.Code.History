@@ -632,7 +632,7 @@ page 6050 "Service Contract"
                 field("Expiration Date"; "Expiration Date")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the date when the service contract expires.';
+                    ToolTip = 'Specifies the date when the service contract expires, which is when the service contract is no longer valid. The date is copied to the Contract Expiration Date field for a newly added service contract line. The date in this field must not be earlier than the value in the Starting Date field.';
 
                     trigger OnValidate()
                     begin

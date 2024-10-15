@@ -525,6 +525,7 @@ page 25 "Customer Ledger Entries"
                     Scope = Repeater;
                     Ellipsis = true;
                     Image = CreateReminders;
+                    Caption = 'Create Reminder';
                     ToolTip = 'Create reminders for this customer if they have overdue payments.';
                     trigger OnAction()
                     var
@@ -554,6 +555,7 @@ page 25 "Customer Ledger Entries"
                     PromotedCategory = Process;
                     Scope = Repeater;
                     Ellipsis = true;
+                    Caption = 'Create Finance Charge Memo';
                     Image = CreateReminders;
                     ToolTip = 'Create finance charge memos for this customer if they have overdue payments';
                     trigger OnAction()

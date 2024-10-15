@@ -63,8 +63,7 @@ page 41 "Sales Quote"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if LookupSellToCustomerName() then
-                            CurrPage.Update();
+                        exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
                 field("External Document No."; "External Document No.")
@@ -379,7 +378,8 @@ page 41 "Sales Quote"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
+                        CurrPage.Update();
                     end;
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
@@ -456,7 +456,7 @@ page 41 "Sales Quote"
                 }
                 field("Transaction Type"; "Transaction Type")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")

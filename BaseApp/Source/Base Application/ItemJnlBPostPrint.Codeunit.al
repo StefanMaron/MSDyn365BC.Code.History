@@ -1,4 +1,4 @@
-codeunit 244 "Item Jnl.-B.Post+Print"
+﻿codeunit 244 "Item Jnl.-B.Post+Print"
 {
     TableNo = "Item Journal Batch";
 
@@ -45,15 +45,11 @@ codeunit 244 "Item Jnl.-B.Post+Print"
                 if ItemJnlPostBatch.Run(ItemJnlLine) then begin
                     OnAfterPostJournalBatch(ItemJnlBatch);
                     Mark(false);
-                    if ItemReg.Get(ItemJnlPostBatch.GetItemRegNo) then begin
-                        ItemReg.SetRecFilter;
-                        REPORT.Run(ItemJnlTemplate."Posting Report ID", false, false, ItemReg);
-                    end;
+                    if ItemReg.Get(ItemJnlPostBatch.GetItemRegNo()) then
+                        PrintItemRegister();
 
-                    if WhseReg.Get(ItemJnlPostBatch.GetWhseRegNo) then begin
-                        WhseReg.SetRecFilter;
-                        REPORT.Run(ItemJnlTemplate."Whse. Register Report ID", false, false, WhseReg);
-                    end;
+                    if WhseReg.Get(ItemJnlPostBatch.GetWhseRegNo()) then
+                        PrintWhseRegister();
                 end else begin
                     Mark(true);
                     JnlWithErrors := true;
@@ -74,6 +70,32 @@ codeunit 244 "Item Jnl.-B.Post+Print"
         end;
     end;
 
+    local procedure PrintItemRegister()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePrintItemRegister(ItemReg, ItemJnlTemplate, IsHandled);
+        if IsHandled then
+            exit;
+
+        ItemReg.SetRecFilter();
+        Report.Run(ItemJnlTemplate."Posting Report ID", false, false, ItemReg);
+    end;
+
+    local procedure PrintWhseRegister()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePrintWhseRegister(WhseReg, ItemJnlTemplate, IsHandled);
+        if IsHandled then
+            exit;
+
+        WhseReg.SetRecFilter();
+        Report.Run(ItemJnlTemplate."Whse. Register Report ID", false, false, WhseReg);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostJournalBatch(var ItemJournalBatch: Record "Item Journal Batch");
     begin
@@ -81,6 +103,16 @@ codeunit 244 "Item Jnl.-B.Post+Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; var HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintItemRegister(ItemRegister: Record "Item Register"; ItemJnlTemplate: Record "Item Journal Template"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintWhseRegister(WarehouseRegister: Record "Warehouse Register"; ItemJnlTemplate: Record "Item Journal Template"; var IsHandled: Boolean)
     begin
     end;
 }

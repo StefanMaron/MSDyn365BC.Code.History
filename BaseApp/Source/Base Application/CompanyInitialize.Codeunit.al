@@ -24,7 +24,8 @@
                   TableData "Warehouse Setup" = i,
                   TableData "Service Mgt. Setup" = i,
                   tabledata "Trial Balance Setup" = i,
-                  TableData "Config. Setup" = i;
+                  TableData "Config. Setup" = i,
+                  TableData "User Group Member" = d;
 
     trigger OnRun()
     var

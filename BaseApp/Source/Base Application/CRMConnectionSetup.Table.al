@@ -296,9 +296,10 @@ table 5330 "CRM Connection Setup"
             var
                 CRMSetupDefaults: Codeunit "CRM Setup Defaults";
             begin
-                if "Item Availability Enabled" then
-                    CRMSetupDefaults.RecreateItemAvailabilityJobQueueEntry(DoReadCRMData())
-                else
+                if "Item Availability Enabled" then begin
+                    CRMSetupDefaults.CreateInventoryQuantityFieldMapping();
+                    CRMSetupDefaults.RecreateItemAvailabilityJobQueueEntry(DoReadCRMData());
+                end else
                     CRMSetupDefaults.DeleteItemAvailabilityJobQueueEntry();
             end;
         }

@@ -80,6 +80,7 @@
                 end;
                 TempPurchLine := Rec;
                 Init;
+                SystemId := TempPurchLine.SystemId;
 
                 if xRec."Line Amount" <> 0 then
                     "Recalculate Invoice Disc." := true;
@@ -170,6 +171,7 @@
                 OnValidateNoOnBeforeInitRec(Rec, xRec, CurrFieldNo);
                 TempPurchLine := Rec;
                 Init;
+                SystemId := TempPurchLine.SystemId;
                 if xRec."Line Amount" <> 0 then
                     "Recalculate Invoice Disc." := true;
                 Type := TempPurchLine.Type;
@@ -455,6 +457,7 @@
 
                 "Quantity (Base)" :=
                     UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                OnValidateQuantityOnAfterCalcBaseQty(Rec, xRec);
 
                 if IsCreditDocType then begin
                     if (Quantity * "Return Qty. Shipped" < 0) or
@@ -598,8 +601,11 @@
             trigger OnValidate()
             var
                 IsHandled: Boolean;
+                ShouldCheckLocationRequireReceive: Boolean;
             begin
-                if ("Qty. to Receive" <> 0) then
+                ShouldCheckLocationRequireReceive := "Qty. to Receive" <> 0;
+                OnValidateQtyToReceiveOnAfterCalcShouldCheckLocationRequireReceive(Rec, ShouldCheckLocationRequireReceive);
+                if ShouldCheckLocationRequireReceive then
                     CheckLocationRequireReceive();
                 OnValidateQtyToReceiveOnAfterCheck(Rec, CurrFieldNo);
 
@@ -1215,6 +1221,8 @@
                     "Bin Code" := '';
                     Evaluate("Inbound Whse. Handling Time", '<0D>');
                     Validate("Inbound Whse. Handling Time");
+                    Evaluate("Safety Lead Time", '<0D>');
+                    Validate("Safety Lead Time");
                     InitOutstanding;
                     InitQtyToReceive;
                 end;
@@ -2436,11 +2444,8 @@
                         Type::Item:
                             begin
                                 GetItem(Item);
-                                CalcQtyPerUnitOfMeasure(Item);
-                                "Gross Weight" := Item."Gross Weight" * "Qty. per Unit of Measure";
-                                "Net Weight" := Item."Net Weight" * "Qty. per Unit of Measure";
-                                "Unit Volume" := Item."Unit Volume" * "Qty. per Unit of Measure";
-                                "Units per Parcel" := Round(Item."Units per Parcel" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                                AssignFieldsForQtyPerUOM(Item, CurrFieldNo);
+
                                 OnAfterAssignItemUOM(Rec, Item, CurrFieldNo);
                                 if "Qty. per Unit of Measure" > xRec."Qty. per Unit of Measure" then
                                     InitItemAppl;
@@ -2867,8 +2872,7 @@
                 if "Requested Receipt Date" <> 0D then begin
                     CustomCalendarChange[1].SetSource(CalChange."Source Type"::Vendor, "Buy-from Vendor No.", '', '');
                     CustomCalendarChange[2].SetSource(CalChange."Source Type"::Location, "Location Code", '', '');
-                    Validate("Order Date",
-                      CalendarMgmt.CalcDateBOC2(AdjustDateFormula("Lead Time Calculation"), "Requested Receipt Date", CustomCalendarChange, true))
+                    UpdateOrderDateFromRequestedReceiptDate(CustomCalendarChange);
                 end else
                     if "Requested Receipt Date" <> xRec."Requested Receipt Date" then
                         GetUpdateBasicDates;
@@ -2947,8 +2951,7 @@
                     if "Planned Receipt Date" <> 0D then begin
                         CustomCalendarChange[1].SetSource(CalChange."Source Type"::Vendor, "Buy-from Vendor No.", '', '');
                         CustomCalendarChange[2].SetSource(CalChange."Source Type"::Location, "Location Code", '', '');
-                        "Order Date" :=
-                          CalendarMgmt.CalcDateBOC2(AdjustDateFormula("Lead Time Calculation"), "Planned Receipt Date", CustomCalendarChange, true);
+                        UpdateOrderDateFromPlannedReceiptDate(CustomCalendarChange);
                         CustomCalendarChange[1].SetSource(CalChange."Source Type"::Location, "Location Code", '', '');
                         "Expected Receipt Date" :=
                           CalendarMgmt.CalcDateBOC(InternalLeadTimeDays("Planned Receipt Date"), "Planned Receipt Date", CustomCalendarChange, false)
@@ -2978,8 +2981,7 @@
                 if "Order Date" <> 0D then begin
                     CustomCalendarChange[1].SetSource(CalChange."Source Type"::Vendor, "Buy-from Vendor No.", '', '');
                     CustomCalendarChange[2].SetSource(CalChange."Source Type"::Location, "Location Code", '', '');
-                    "Planned Receipt Date" :=
-                      CalendarMgmt.CalcDateBOC(AdjustDateFormula("Lead Time Calculation"), "Order Date", CustomCalendarChange, true);
+                    UpdatePlannedReceiptDateFromOrderDate(CustomCalendarChange);
                 end;
 
                 if "Planned Receipt Date" <> 0D then begin
@@ -4111,6 +4113,45 @@
             exit;
 
         "Unit Price (LCY)" := Item."Unit Price";
+    end;
+
+    local procedure UpdateOrderDateFromRequestedReceiptDate(CustomCalendarChange: Array[2] of Record "Customized Calendar Change")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateOrderDateFromRequestedReceiptDate(Rec, CustomCalendarChange, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate("Order Date",
+          CalendarMgmt.CalcDateBOC2(AdjustDateFormula("Lead Time Calculation"), "Requested Receipt Date", CustomCalendarChange, true));
+    end;
+
+    local procedure UpdatePlannedReceiptDateFromOrderDate(CustomCalendarChange: Array[2] of Record "Customized Calendar Change")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdatePlannedReceiptDateFromOrderDate(Rec, CustomCalendarChange, IsHandled);
+        if IsHandled then
+            exit;
+
+        "Planned Receipt Date" :=
+            CalendarMgmt.CalcDateBOC(AdjustDateFormula("Lead Time Calculation"), "Order Date", CustomCalendarChange, true);
+    end;
+
+    local procedure UpdateOrderDateFromPlannedReceiptDate(CustomCalendarChange: Array[2] of Record "Customized Calendar Change")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateOrderDateFromPlannedReceiptDate(Rec, CustomCalendarChange, IsHandled);
+        if IsHandled then
+            exit;
+
+        "Order Date" :=
+            CalendarMgmt.CalcDateBOC2(AdjustDateFormula("Lead Time Calculation"), "Planned Receipt Date", CustomCalendarChange, true);
     end;
 
     local procedure CopyFromFixedAsset()
@@ -5274,6 +5315,22 @@
             Validate("Line Discount %");
     end;
 
+    local procedure AssignFieldsForQtyPerUOM(Item: Record Item; FieldNo: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAssignFieldsForQtyPerUOM(Rec, Item, FieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        CalcQtyPerUnitOfMeasure(Item);
+        "Gross Weight" := Item."Gross Weight" * "Qty. per Unit of Measure";
+        "Net Weight" := Item."Net Weight" * "Qty. per Unit of Measure";
+        "Unit Volume" := Item."Unit Volume" * "Qty. per Unit of Measure";
+        "Units per Parcel" := Round(Item."Units per Parcel" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+    end;
+
     local procedure ValidatePlannedReceiptDateWithCustomCalendarChange(CustomCalendarChange: Array[2] of Record "Customized Calendar Change")
     var
         IsHandled: Boolean;
@@ -6360,8 +6417,15 @@
         exit(SourceNo);
     end;
 
-    local procedure GetAbsMin(QtyToHandle: Decimal; QtyHandled: Decimal): Decimal
+    local procedure GetAbsMin(QtyToHandle: Decimal; QtyHandled: Decimal) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetAbsMin(Rec, QtyToHandle, QtyHandled, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Abs(QtyHandled) < Abs(QtyToHandle) then
             exit(QtyHandled);
 
@@ -6831,6 +6895,8 @@
         else
             SetFilter("Quantity (Base)", '<0');
         SetRange("Job No.", ' ');
+
+        OnAfterFilterLinesForReservation(Rec, ReservationEntry, DocumentType, AvailabilityFilter, Positive);
     end;
 
     procedure GetVPGInvRoundAcc(var PurchHeader: Record "Purchase Header") AccountNo: Code[20]
@@ -7655,7 +7721,10 @@
         if (CurrFieldNo <> 0) and (Type = Type::Item) and (not "Drop Shipment") then begin
             if Location."Require Receive" then
                 CheckWarehouse();
-            WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
+            IsHandled := false;
+            OnCheckLocationRequireReceiveOnBeforePurchaseLineVerifyChange(Rec, xRec, IsHandled);
+            if not IsHandled then
+                WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
         end;
     end;
 
@@ -7841,6 +7910,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterLinesForReservation(var PurchaseLine: Record "Purchase Line"; ReservationEntry: Record "Reservation Entry"; DocumentType: Enum "Purchase Document Type"; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterHasTypeToFillMandatoryFields(var PurchaseLine: Record "Purchase Line"; var ReturnValue: Boolean)
     begin
     end;
@@ -7856,12 +7930,37 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignFieldsForQtyPerUOM(var PurchaseLine: Record "Purchase Line"; Item: Record Item; FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAbsMin(PurchaseLine: Record "Purchase Line"; QtyToHandle: Decimal; QtyHandled: Decimal; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateItemReference(var Rec: Record "Purchase Line"; xRec: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDirectUnitCost(var PurchLine: Record "Purchase Line"; xPurchLine: Record "Purchase Line"; CalledByFieldNo: Integer; CurrFieldNo: Integer; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateOrderDateFromPlannedReceiptDate(var PurchaseLine: Record "Purchase Line"; CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePlannedReceiptDateFromOrderDate(var PurchaseLine: Record "Purchase Line"; CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateOrderDateFromRequestedReceiptDate(var PurchaseLine: Record "Purchase Line"; CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8464,6 +8563,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckLocationRequireReceiveOnBeforePurchaseLineVerifyChange(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckWarehouseOnBeforeShowDialog(var PurchLine: Record "Purchase Line"; Location2: Record Location; var ShowDialog: Option " ",Message,Error; var DialogText: Text[50])
     begin
     end;
@@ -8670,6 +8774,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateQtyToReceiveOnAfterCalcShouldCheckLocationRequireReceive(var PurchaseLine: Record "Purchase Line"; ShouldCheckLocationRequireReceive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeDropShptCheck(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -8815,6 +8924,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeCheckRcptRetShptRelation(var PurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnAfterCalcBaseQty(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 

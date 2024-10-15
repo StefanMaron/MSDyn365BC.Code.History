@@ -835,7 +835,7 @@ table 11401 "CBG Statement Line"
     var
         CBGStatement: Record "CBG Statement";
     begin
-        TestField("Account No.");
+        CheckAccountNo();
         GenJnlLine.Init();
         GenJnlLine."Journal Template Name" := "Journal Template Name";
         GenJnlLine."Journal Batch Name" := Text1000016;// STRSUBSTNO('%1',"No.");
@@ -964,6 +964,18 @@ table 11401 "CBG Statement Line"
                     GenJnlLine.Validate("VAT Amount", -"Credit VAT");
 
         OnAfterCreateGenJournalLine(GenJnlLine, Rec);
+    end;
+
+    local procedure CheckAccountNo()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckAccountNo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+            
+        TestField("Account No.");
     end;
 
     procedure ReadGenJournalLine(var GenJnlLine: Record "Gen. Journal Line")
@@ -1634,6 +1646,11 @@ table 11401 "CBG Statement Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAppliesToIDOnValidate(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAccountNo(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean);
     begin
     end;
 

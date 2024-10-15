@@ -167,6 +167,12 @@ page 1382 "Customer Templ. Card"
                     Importance = Additional;
                     ToolTip = 'Specifies how to apply payments to entries for this customer.';
                 }
+                field("Partner Type"; "Partner Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies for direct debit collections if the customer that the payment is collected from is a person or a company.';
+                }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -208,6 +214,12 @@ page 1382 "Customer Templ. Card"
             group(Shipping)
             {
                 Caption = 'Shipping';
+                field("Location Code"; "Location Code")
+                {
+                    ApplicationArea = Location;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies from which location sales to this customer will be processed by default.';
+                }
                 group("Shipment Method")
                 {
                     Caption = 'Shipment Method';

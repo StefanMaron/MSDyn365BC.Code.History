@@ -101,8 +101,9 @@ codeunit 5406 "Output Jnl.-Expl. Route"
                               BaseQtyToPost / ProdOrderLine."Qty. per Unit of Measure",
                               IsLastOperation);
                             OnRunOnAfterInsertOutputJnlLineWithRtngLine(ItemJnlLine, ProdOrderLine, ProdOrderRtngLine, NextLineNo);
-                            if IsLastOperation then
+                            if IsLastOperation then 
                                 ItemTrackingMgt.CopyItemTracking(ProdOrderLine.RowID1, LastItemJnlLine.RowID1, false);
+                            OnAfterCopyItemTracking(LastItemJnlLine, IsLastOperation, NextLineNo);
                         end;
                     end;
                     OnRunOnProdRtngLineLoopEnd(ProdOrderRtngLine, ProdOrderLine, ItemJnlLine, NextLineNo, LineSpacing, LastItemJnlLine);
@@ -123,6 +124,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
                       true);
                     OnAfterInsertOutputJnlLineWithoutRtngLine(ItemJnlLine, ProdOrderLine, ProdOrderRtngLine, NextLineNo);
                     ItemTrackingMgt.CopyItemTracking(ProdOrderLine.RowID1, LastItemJnlLine.RowID1, false);
+                    OnAfterCopyItemTracking(LastItemJnlLine, IsLastOperation, NextLineNo);
                 end;
         until ProdOrderLine.Next() = 0;
 
@@ -177,6 +179,11 @@ codeunit 5406 "Output Jnl.-Expl. Route"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcBaseQtyToPost(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var BaseQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyItemTracking(var ItemJournalLine: Record "Item Journal Line"; LastOperation: Boolean; var NextLineNo: Integer)
     begin
     end;
 

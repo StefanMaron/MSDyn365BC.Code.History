@@ -732,7 +732,14 @@ table 122 "Purch. Inv. Header"
     end;
 
     procedure ShowCanceledOrCorrCrMemo()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowCanceledOrCorrCrMemo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcFields(Cancelled, Corrective);
         case true of
             Cancelled:
@@ -774,6 +781,11 @@ table 122 "Purch. Inv. Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var PurchInvHeader: Record "Purch. Inv. Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowCanceledOrCorrCrMemo(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
     begin
     end;
 

@@ -186,7 +186,8 @@ codeunit 1393 "Cancel Issued Reminder"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.Get(EntryNo);
-        CustLedgerEntry."Last Issued Reminder Level" := CustLedgerEntry."Last Issued Reminder Level" - 1;
+        if (CustLedgerEntry."Last Issued Reminder Level" > 0) then
+            CustLedgerEntry."Last Issued Reminder Level" := CustLedgerEntry."Last Issued Reminder Level" - 1;
         CustLedgerEntry.Modify();
     end;
 

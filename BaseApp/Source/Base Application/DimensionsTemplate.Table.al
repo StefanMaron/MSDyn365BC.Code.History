@@ -27,7 +27,8 @@ table 1302 "Dimensions Template"
         field(4; "Dimension Value Code"; Code[20])
         {
             Caption = 'Dimension Value Code';
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"));
+            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"),
+                                                         Blocked = CONST(false));
         }
         field(5; "Value Posting"; Enum "Default Dimension Value Posting Type")
         {
@@ -244,7 +245,13 @@ table 1302 "Dimensions Template"
         RecRef: RecordRef;
         FieldRefArray: array[3] of FieldRef;
         NewTemplateCode: Code[10];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateTemplateFromExistingDefaultDimension(DefaultDimension, MasterRecordTemplateCode, IsHandled);
+        if IsHandled then
+            exit;
+
         RecRef.GetTable(DefaultDimension);
         CreateFieldRefArray(FieldRefArray, RecRef);
 
@@ -256,6 +263,11 @@ table 1302 "Dimensions Template"
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnAfterCreateFieldRefArray(var FieldRefArray: array[23] of FieldRef; RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTemplateFromExistingDefaultDimension(DefaultDimension: Record "Default Dimension"; MasterRecordTemplateCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }
