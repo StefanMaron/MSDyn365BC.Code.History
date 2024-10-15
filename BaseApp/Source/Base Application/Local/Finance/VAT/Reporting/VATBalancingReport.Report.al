@@ -265,7 +265,7 @@ report 10941 "VAT Balancing Report"
 
                         trigger OnValidate()
                         begin
-                            FindDates;
+                            FindDates();
                         end;
                     }
                     field(Year; YY)
@@ -279,7 +279,7 @@ report 10941 "VAT Balancing Report"
 
                         trigger OnValidate()
                         begin
-                            FindDates;
+                            FindDates();
                         end;
                     }
                     field(DateFrom; DateFrom)
@@ -290,7 +290,7 @@ report 10941 "VAT Balancing Report"
 
                         trigger OnValidate()
                         begin
-                            CheckPeriodType;
+                            CheckPeriodType();
                         end;
                     }
                     field(DateTo; DateTo)
@@ -301,7 +301,7 @@ report 10941 "VAT Balancing Report"
 
                         trigger OnValidate()
                         begin
-                            CheckPeriodType;
+                            CheckPeriodType();
                         end;
                     }
                 }
@@ -316,7 +316,7 @@ report 10941 "VAT Balancing Report"
         begin
             MM := Date2DMY(CalcDate('<-2M>', Today), 2);
             YY := Date2DMY(CalcDate('<-2M>', Today), 3);
-            FindPeriod;
+            FindPeriod();
         end;
     }
 
@@ -399,7 +399,7 @@ report 10941 "VAT Balancing Report"
             11, 12:
                 Period := Period::"November-December";
         end;
-        FindDates;
+        FindDates();
     end;
 
     [Scope('OnPrem')]

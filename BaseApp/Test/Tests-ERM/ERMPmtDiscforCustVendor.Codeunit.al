@@ -82,7 +82,7 @@
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
 
         // Create Sales Invoice with Payment Discount and Currency and Post it and Apply Payment with General Journal Line.
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         ModifyExchangeRate(CurrencyCode);
         PmtDiscAmountInclVAT := SalesInvoiceWithPaymentDisc(DocumentNo, CurrencyCode);
         PmtDiscAmountInclVAT := GetCurrencyExchRateAmount(PmtDiscAmountInclVAT, CurrencyCode);
@@ -119,7 +119,7 @@
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
 
         // Create Purchase Invoice with Payment Discount and Post it.
-        BuyfromVendorNo := CreateVendor;
+        BuyfromVendorNo := CreateVendor();
         PostedDocumentNo := CreateAndPostPurchaseInvoice(BuyfromVendorNo, '');
         Amount := GetPurchaseInvoiceHeaderAmt(PmtDiscAmountInclVAT, PostedDocumentNo);
         PmtDiscAmountVAT := FindVATAmount(VATPostingSetup, PmtDiscAmountInclVAT);
@@ -161,7 +161,7 @@
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, true);
 
         // Create Sales Invoice with Payment Discount and Currency and Post it and Apply Payment with General Journal Line.
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         PmtDiscAmountInclVAT := CreateAndPostDocument(DocumentNo, CurrencyCode);
         PmtDiscAmountInclVAT := GetCurrencyExchRateAmount(PmtDiscAmountInclVAT, CurrencyCode);
         PmtDiscAmountVAT := FindVATAmount(VATPostingSetup, PmtDiscAmountInclVAT);
@@ -194,13 +194,13 @@
         // Payment and Check VAT Adjustment and VAT Excluding entry created on Detailed Customer Ledger Entry.
 
         // Setup: Modify Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, true);
 
         // Create Sales Invoice with Payment Discount and Currency and Post it and Apply Payment with General Journal Line.
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         PmtDiscAmountInclVAT := PostSalesInvoiceAndApplyPayment(DocumentNo, CurrencyCode);
         PmtDiscAmountInclVAT := GetCurrencyExchRateAmount(PmtDiscAmountInclVAT, CurrencyCode);
         PmtDiscAmountVAT := FindVATAmount(VATPostingSetup, PmtDiscAmountInclVAT);
@@ -233,7 +233,7 @@
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
 
-        PmtDocNo := PostApplyUnapplyCustPaymentsToInvCrMemoWithPmtDisc;
+        PmtDocNo := PostApplyUnapplyCustPaymentsToInvCrMemoWithPmtDisc();
 
         VerifyUnappliedDtldCustLedgEntry(PmtDocNo, GenJnlLine."Document Type"::Payment);
         VerifyCustLedgerEntryForRemAmt(GenJnlLine."Document Type"::Payment, PmtDocNo);
@@ -261,7 +261,7 @@
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
 
-        PmtDocNo := PostApplyUnapplyVendPaymentsToInvCrMemoWithPmtDisc;
+        PmtDocNo := PostApplyUnapplyVendPaymentsToInvCrMemoWithPmtDisc();
 
         VerifyUnappliedDtldVendLedgEntry(PmtDocNo, GenJnlLine."Document Type"::Payment);
         VerifyVendLedgerEntryForRemAmt(GenJnlLine."Document Type"::Payment, PmtDocNo);
@@ -299,8 +299,8 @@
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, true);
 
         // Create Purchase Invoice with Payment Discount, Currency and Post it and Apply Payment with General Journal Line.
-        CurrencyCode := CreateCurrency;
-        BuyfromVendorNo := CreateVendor;
+        CurrencyCode := CreateCurrency();
+        BuyfromVendorNo := CreateVendor();
         PostedDocumentNo := CreateAndPostPurchaseInvoice(BuyfromVendorNo, CurrencyCode);
         Amount := GetPurchaseInvoiceHeaderAmt(PmtDiscAmountInclVAT, PostedDocumentNo);
         PmtDiscAmountVAT := FindVATAmount(VATPostingSetup, PmtDiscAmountInclVAT);
@@ -346,14 +346,14 @@
         // Line and Check VAT Adjustment and VAT Excluding entry created on Detailed Vendor Ledger Entry.
 
         // Setup: Modify Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, true);
 
         // Create Purchase Invoice with Payment Discount, Currency and Post it and Apply Payment with General Journal Line.
-        CurrencyCode := CreateCurrency;
-        BuyfromVendorNo := CreateVendor;
+        CurrencyCode := CreateCurrency();
+        BuyfromVendorNo := CreateVendor();
         PostedDocumentNo := CreateAndPostPurchaseInvoice(BuyfromVendorNo, CurrencyCode);
         Amount := GetPurchaseInvoiceHeaderAmt(PmtDiscAmountInclVAT, PostedDocumentNo);
         PmtDiscAmountVAT := FindVATAmount(VATPostingSetup, PmtDiscAmountInclVAT);
@@ -399,7 +399,7 @@
 
         // [GIVEN] Sales Invoice with Payment Discount applied to payment
         // [GIVEN] Invoice Amount = 1000, Payment Discount Amount = 50, VAT% = 20
-        CreateSalesInvoiceRevCharge(SalesHeader, VATGLAccountNo, CreateCustomer, CreateCurrency, LibraryRandom.RandIntInRange(10, 20));
+        CreateSalesInvoiceRevCharge(SalesHeader, VATGLAccountNo, CreateCustomer(), CreateCurrency(), LibraryRandom.RandIntInRange(10, 20));
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         PaymentNo :=
           CreatePostApplyCustGenJournalLine(
@@ -441,7 +441,7 @@
         // [GIVEN] Purchase Invoice with Payment Discount applied to payment
         // [GIVEN] Invoice Amount = 1000, Payment Discount Amount = 50, VAT% = 20
         VATPct := LibraryRandom.RandIntInRange(10, 20);
-        CreatePurchaseInvoiceRevCharge(PurchaseHeader, VATGLAccountNo, CreateVendor, CreateCurrency, VATPct);
+        CreatePurchaseInvoiceRevCharge(PurchaseHeader, VATGLAccountNo, CreateVendor(), CreateCurrency(), VATPct);
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         PaymentNo :=
           CreatePostApplyVendGenJournalLine(
@@ -529,8 +529,8 @@
 
         // Create and post General Journal Line with Currency with Random values.
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, CreateVendorWithApplication,
-          -LibraryRandom.RandDec(100, 2), CreateCurrency);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, CreateVendorWithApplication(),
+          -LibraryRandom.RandDec(100, 2), CreateCurrency());
 
         // Exercise: Create and Post Payment with Currency for Vendor and calculate Payment Discount Amount.
         CreatePostGeneralJournalLine(
@@ -560,7 +560,7 @@
 
         // Setup: Create and post General Journal  Line, Create Cash Receipt Journal.
         Initialize();
-        Customer.Get(CreateCustomerWithPaymentTerms);
+        Customer.Get(CreateCustomerWithPaymentTerms());
 
         // Use Random large value for Amount as Payment Term Percent is small, blank value for Currency Code.
         CreatePostGeneralJournalLine(
@@ -591,7 +591,7 @@
 
         // Setup: Create and post General Journal Line, Create Cash Receipt Journal.
         Initialize();
-        Customer.Get(CreateCustomerWithPaymentTerms);
+        Customer.Get(CreateCustomerWithPaymentTerms());
 
         // Use Random large value for Amount as Payment Term Percent is small, blank value for Currency Code.
         CreatePostGeneralJournalLine(
@@ -625,7 +625,7 @@
 
         // Setup: Create and post General Journal Line, Create Purchase Journal.
         Initialize();
-        Vendor.Get(CreateVendorWithPaymentTerms);
+        Vendor.Get(CreateVendorWithPaymentTerms());
 
         // Use Random large value for Amount as Payment Term Percent is small, blank value for Currency Code.
         CreatePostGeneralJournalLine(
@@ -656,7 +656,7 @@
 
         // Setup: Create and post General Journal Line, Create Purchase Journal.
         Initialize();
-        Vendor.Get(CreateVendorWithPaymentTerms);
+        Vendor.Get(CreateVendorWithPaymentTerms());
 
         // Use Random large value for Amount as Payment Term Percent is small, blank value for Currency Code.
         CreatePostGeneralJournalLine(
@@ -749,7 +749,7 @@
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
 
         // [GIVEN] Posted two Sales Invoices for same customer, where Amount including discount: 80 and 50.
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreatePostTwoSalesInvoices(CustomerNo, InvoiceDocNo, PaymentAmt);
         VATEntry.FindLast();
         LastVATEntryNo := VATEntry."Entry No.";
@@ -808,7 +808,7 @@
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
 
         // [GIVEN] Posted two Purchase Invoices for same vendor, where Amount including discount: 80 and 50.
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         CreatePostTwoPurchInvoices(VendorNo, InvoiceDocNo, PaymentAmt);
         VATEntry.FindLast();
         LastVATEntryNo := VATEntry."Entry No.";
@@ -865,7 +865,7 @@
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
 
         // [GIVEN] Posted Purchase Invoice with possible discount.
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         DocumentNo := CreateAndPostPurchaseInvoice(VendorNo, '');
 
         // [GIVEN] Apply Payment to Purchase Invoice. Discount is deducted.
@@ -909,7 +909,7 @@
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
 
         // [GIVEN] Posted Sales Invoice with possible discount.
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         DocumentNo := CreateAndPostSalesInvoice(CustomerNo, '');
 
         // [GIVEN] Apply Payment to Sales Invoice. Discount is deducted.
@@ -947,7 +947,7 @@
         PaymentTerms.Modify(true);
 
         // [GIVEN] Sales Invoice with "Posting Date" = 01.01
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", SalesHeader."Posting Date");
 
         // [WHEN] Assign Payment Terms "X" to Sales Invoice
@@ -975,7 +975,7 @@
         PaymentTerms.Modify(true);
 
         // [GIVEN] Purchase Invoice with "Posting Date" = 01.01
-        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", PurchHeader."Posting Date");
 
         // [WHEN] Assign Payment Terms "X" to Purchase Invoice
@@ -1003,7 +1003,7 @@
         PaymentTerms.Modify(true);
 
         // [GIVEN] Service Invoice with "Posting Date" = 01.01
-        LibraryService.CreateServiceHeader(ServHeader, ServHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServHeader, ServHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", ServHeader."Posting Date");
 
         // [WHEN] Assign Payment Terms "X" to Service Invoice
@@ -1267,7 +1267,7 @@
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibraryERMCountryData.UpdateVATPostingSetup();
 
-        FindUpdateVATPostingSetupVATPct(GetW1VATPct);
+        FindUpdateVATPostingSetupVATPct(GetW1VATPct());
         FindUpdateGeneralPostingSetupAccounts();
 
         isInitialized := true;
@@ -1400,7 +1400,7 @@
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
         VATGLAccountNo := UpdateGLAccountRevChargeVAT(GLAccountNo, SalesHeader."VAT Bus. Posting Group", VATPct);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, LibraryRandom.RandIntInRange(2, 10));
@@ -1417,7 +1417,7 @@
         for Counter := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
             LibrarySales.CreateSalesLine(
               SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-              LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandIntInRange(2, 10));
+              LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandIntInRange(2, 10));
             SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
             SalesLine.Modify(true);
         end;
@@ -1442,7 +1442,7 @@
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
         VATGLAccountNo := UpdateGLAccountRevChargeVAT(GLAccountNo, PurchaseHeader."VAT Bus. Posting Group", VATPct);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, LibraryRandom.RandIntInRange(2, 10));
@@ -1459,7 +1459,7 @@
         for Counter := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
             LibraryPurchase.CreatePurchaseLine(
               PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-              LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandIntInRange(2, 10));
+              LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandIntInRange(2, 10));
             PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
             PurchaseLine.Modify(true);
         end;
@@ -1557,7 +1557,7 @@
 
         with GenJnlLine do begin
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             Validate("Bal. Gen. Posting Type", GetGenPostingType("Account Type"));
             Validate("Bal. Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
             Validate("Bal. Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
@@ -1634,7 +1634,7 @@
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Terms Code", CreatePaymentTermsWithDiscountAndCalcPmtDiscOnCrMemos);
+        Customer.Validate("Payment Terms Code", CreatePaymentTermsWithDiscountAndCalcPmtDiscOnCrMemos());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -1662,7 +1662,7 @@
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Payment Terms Code", CreatePaymentTermsWithDiscountAndCalcPmtDiscOnCrMemos);
+        Vendor.Validate("Payment Terms Code", CreatePaymentTermsWithDiscountAndCalcPmtDiscOnCrMemos());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -1671,7 +1671,7 @@
     var
         Vendor: Record Vendor;
     begin
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
         Vendor.Validate("Application Method", Vendor."Application Method"::"Apply to Oldest");
         Vendor.Modify(true);
         exit(Vendor."No.");
@@ -1792,12 +1792,12 @@
         PostedDocumentNo: Code[20];
         SelltoCustomerNo: Code[20];
     begin
-        SelltoCustomerNo := CreateCustomer;
+        SelltoCustomerNo := CreateCustomer();
         PostedDocumentNo := CreateAndPostSalesInvoice(SelltoCustomerNo, CurrencyCode);
         CreateExchangeRate(CurrencyCode);
         FindCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode);
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date");
-        DocumentNo := CreatePostApplyCustGenJournalLine(PmtDiscAmount, SelltoCustomerNo, PostedDocumentNo, CreateCurrency);
+        DocumentNo := CreatePostApplyCustGenJournalLine(PmtDiscAmount, SelltoCustomerNo, PostedDocumentNo, CreateCurrency());
     end;
 #endif
 
@@ -1807,12 +1807,12 @@
         PostedDocumentNo: Code[20];
         SelltoCustomerNo: Code[20];
     begin
-        SelltoCustomerNo := CreateCustomer;
+        SelltoCustomerNo := CreateCustomer();
         PostedDocumentNo := CreateAndPostSalesInvoice(SelltoCustomerNo, CurrencyCode);
         CreateExchangeRate(CurrencyCode);
         FindCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode);
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date");
-        DocumentNo := CreatePostApplyCustGenJournalLine(PmtDiscAmount, SelltoCustomerNo, PostedDocumentNo, CreateCurrency);
+        DocumentNo := CreatePostApplyCustGenJournalLine(PmtDiscAmount, SelltoCustomerNo, PostedDocumentNo, CreateCurrency());
     end;
 
     local procedure CreateAndPostPurchaseInvoice(VendorNo: Code[20]; CurrencyCode: Code[10]): Code[20]
@@ -1834,7 +1834,7 @@
         VATGLAccountNo := LibraryERM.CreateGLAccountNo();
         VATPostingSetup.Validate("Sales VAT Account", VATGLAccountNo);
         VATPostingSetup.Validate("Purchase VAT Account", VATGLAccountNo);
-        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID());
         VATPostingSetup.Validate("VAT %", VATPct);
@@ -1997,7 +1997,7 @@
         Amount: Variant;
     begin
         LibraryVariableStorage.Dequeue(Amount);  // Dequeue value from ApplyVendorPageHandler.
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Validate(Amount, Amount);
         GenJournalLine.Modify(true);
     end;
@@ -2007,7 +2007,7 @@
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         FindCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode);
-        CurrencyExchangeRate.Validate("Relational Currency Code", CreateCurrency);
+        CurrencyExchangeRate.Validate("Relational Currency Code", CreateCurrency());
         CurrencyExchangeRate.Modify(true);
     end;
 
@@ -2046,7 +2046,7 @@
         SelltoCustomerNo: Code[20];
     begin
         // Setup: Create Sales Invoice and Post it.
-        SelltoCustomerNo := CreateCustomer;
+        SelltoCustomerNo := CreateCustomer();
         PostedDocumentNo := CreateAndPostSalesInvoice(SelltoCustomerNo, CurrencyCode);
 
         // Exercise: Make a Payment entry from General Journal Line, Apply Payment on Invoice from Customer Ledger Entries.
@@ -2066,10 +2066,10 @@
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
         Commit();  // Commit is require for opening Cash Receipt Journal Page.
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue := JournalBatchName;
         CashReceiptJournal.FILTER.SetFilter("Document Type", JournalBatchName);
-        CashReceiptJournal."Apply Entries".Invoke;
+        CashReceiptJournal."Apply Entries".Invoke();
     end;
 
     local procedure SetAppliesToIDToPmtJnl(JournalBatchName: Code[10])
@@ -2077,10 +2077,10 @@
         PurchaseJournal: TestPage "Purchase Journal";
     begin
         Commit();  // Commit is require for opening Cash Receipt Journal Page.
-        PurchaseJournal.OpenEdit;
+        PurchaseJournal.OpenEdit();
         PurchaseJournal.CurrentJnlBatchName.SetValue := JournalBatchName;
         PurchaseJournal.FILTER.SetFilter("Document Type", JournalBatchName);
-        PurchaseJournal."Apply Entries".Invoke;
+        PurchaseJournal."Apply Entries".Invoke();
     end;
 
     local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; AdjustforPaymentDiscount: Boolean) OldAdjustforPaymentDiscount: Boolean
@@ -2119,7 +2119,7 @@
             SetRange("Document No.", DocumentNo);
             FindFirst();
             Assert.AreNearlyEqual(
-              AmountLCY, "Amount (LCY)", LibraryERM.GetAmountRoundingPrecision,
+              AmountLCY, "Amount (LCY)", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(AmountLCYErr, FieldCaption("Entry No."), AmountLCY, TableCaption));
         end;
     end;
@@ -2133,7 +2133,7 @@
             SetRange("Document No.", DocumentNo);
             FindFirst();
             Assert.AreNearlyEqual(
-              AmountLCY, "Amount (LCY)", LibraryERM.GetAmountRoundingPrecision,
+              AmountLCY, "Amount (LCY)", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(AmountLCYErr, FieldCaption("Entry No."), AmountLCY, TableCaption));
         end;
     end;
@@ -2146,10 +2146,10 @@
         GLEntry.SetRange("Bal. Account No.", GenJournalLine."Account No.");
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          DebitAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision,
+          DebitAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountLCYErr, GLEntry.FieldCaption("Debit Amount"), GLEntry."Debit Amount", GLEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          CreditAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision,
+          CreditAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountLCYErr, GLEntry.FieldCaption("Credit Amount"), GLEntry."Credit Amount", GLEntry.TableCaption()))
     end;
 
@@ -2248,12 +2248,12 @@
         VATEntry.SetRange("Bill-to/Pay-to No.", AccountNo);
 
         VATEntry.FindFirst();
-        Assert.AreNearlyEqual(VATBase, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, VATEntry.FieldCaption(Base));
-        Assert.AreNearlyEqual(VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, VATEntry.FieldCaption(Amount));
+        Assert.AreNearlyEqual(VATBase, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), VATEntry.FieldCaption(Base));
+        Assert.AreNearlyEqual(VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), VATEntry.FieldCaption(Amount));
 
         VATEntry.FindLast();
-        Assert.AreNearlyEqual(VATBase, -VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, VATEntry.FieldCaption(Base));
-        Assert.AreNearlyEqual(VATAmount, -VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, VATEntry.FieldCaption(Amount));
+        Assert.AreNearlyEqual(VATBase, -VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), VATEntry.FieldCaption(Base));
+        Assert.AreNearlyEqual(VATAmount, -VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), VATEntry.FieldCaption(Amount));
     end;
 
     local procedure VerifyUnappliedGLEntriesSales(DocumentNo: Code[20]; SourceNo: Code[20]; VATGLAccountNo: Code[20]; GLAmount: Decimal; Qty: Integer)
@@ -2266,7 +2266,7 @@
         Customer.Get(SourceNo);
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
         VerifyUnappliedGLEntries(
-          DocumentNo, CustomerPostingGroup.GetReceivablesAccount, VATGLAccountNo,
+          DocumentNo, CustomerPostingGroup.GetReceivablesAccount(), VATGLAccountNo,
           SourceNo, SourceCodeSetup."Unapplied Sales Entry Appln.", GLAmount, 0, Qty, 0);
     end;
 
@@ -2294,11 +2294,11 @@
         Assert.RecordCount(GLEntry, Qty);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(GLAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, GLEntry.FieldCaption(Amount));
+        Assert.AreNearlyEqual(GLAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), GLEntry.FieldCaption(Amount));
         GLEntry.SetRange("G/L Account No.", VATGLAccountNo);
         Assert.RecordCount(GLEntry, VATQty);
         GLEntry.CalcSums(Amount);
-        Assert.AreNearlyEqual(VATAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, GLEntry.FieldCaption(Amount));
+        Assert.AreNearlyEqual(VATAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), GLEntry.FieldCaption(Amount));
     end;
 
     [ModalPageHandler]
@@ -2307,10 +2307,10 @@
     var
         PmtDiscAmount: Variant;
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
         LibraryVariableStorage.Dequeue(PmtDiscAmount);  // Dequeue variable.
         ApplyCustomerEntries.PmtDiscountAmount.AssertEquals(PmtDiscAmount);  // Verify Payment Discount Amount.
-        LibraryVariableStorage.Enqueue(ApplyCustomerEntries.AppliedAmount.AsDEcimal);  // Enqueue Applied Amount.
+        LibraryVariableStorage.Enqueue(ApplyCustomerEntries.AppliedAmount.AsDecimal());  // Enqueue Applied Amount.
     end;
 
     [ModalPageHandler]
@@ -2319,10 +2319,10 @@
     var
         PmtDiscAmount: Variant;
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
         LibraryVariableStorage.Dequeue(PmtDiscAmount);  // Dequeue variable.
         ApplyVendorEntries.PmtDiscountAmount.AssertEquals(PmtDiscAmount);  // Verify Payment Discount Amount.
-        LibraryVariableStorage.Enqueue(ApplyVendorEntries.AppliedAmount.AsDEcimal);  // Enqueue Applied Amount.
+        LibraryVariableStorage.Enqueue(ApplyVendorEntries.AppliedAmount.AsDecimal());  // Enqueue Applied Amount.
     end;
 
     [MessageHandler]

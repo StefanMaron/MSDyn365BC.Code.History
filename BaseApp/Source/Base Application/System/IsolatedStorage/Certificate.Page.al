@@ -202,13 +202,11 @@ page 1263 Certificate
 
     local procedure ClearCertInfoFields()
     begin
-        with Rec do begin
-            Clear("Expiry Date");
-            ThumbPrint := '';
-            "Issued By" := '';
-            "Issued To" := '';
-            "Has Private Key" := false;
-        end;
+        Clear(Rec."Expiry Date");
+        Rec.ThumbPrint := '';
+        Rec."Issued By" := '';
+        Rec."Issued To" := '';
+        Rec."Has Private Key" := false;
     end;
 
     local procedure SaveCertToIsolatedStorage()

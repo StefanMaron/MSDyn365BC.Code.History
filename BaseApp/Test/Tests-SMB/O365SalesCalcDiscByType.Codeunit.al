@@ -32,7 +32,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         CreateInvoiceWithLinesAndCustomerDiscount(SalesHeader, NumberOfLines, DiscPct);
 
@@ -56,7 +56,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         CreateInvoiceWithLinesAndCustomerDiscount(SalesHeader, NumberOfLines, DiscPct);
 
@@ -77,7 +77,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         CreateInvoiceWithLinesAndCustomerDiscount(SalesHeader, NumberOfLines, DiscPct);
 
@@ -98,7 +98,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         CreateInvoiceWithLinesAndCustomerDiscount(SalesHeader, NumberOfLines, DiscPct);
         SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(InvoiceDiscountAmount, SalesHeader);
@@ -120,7 +120,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         CreateInvoiceWithLinesAndCustomerDiscount(SalesHeader, NumberOfLines, DiscPct);
         VerifyCustomerDiscountPercentage(SalesHeader, 0);
@@ -144,7 +144,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         ItemUnitPrice := LibraryRandom.RandDecInRange(10, 10000, 2);
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         LibrarySmallBusiness.CreateCustomer(Customer);
         CreateNewInvoiceWithLines(SalesHeader, Customer, NumberOfLines, ItemUnitPrice, ItemQuantity);
@@ -166,7 +166,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         CreateInvoiceWithLinesAndCustomerDiscount(SalesHeader, NumberOfLines, DiscPct);
         SalesCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
@@ -199,7 +199,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         MinAmount1 := ItemUnitPrice * ItemQuantity * NumberOfLines - 1;
         MinAmount2 := ItemUnitPrice * ItemQuantity * NumberOfLines;
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         LibrarySmallBusiness.CreateCustomer(Customer);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscPct1, MinAmount1, '');
@@ -235,7 +235,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         CreateInvoiceWithLinesAndCustomerDiscount(SalesHeader, NumberOfLines, DiscPct);
         SetAllowInvoiceDiscountOnAllLines(SalesHeader, false);
@@ -257,7 +257,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         CreateInvoiceWithLinesAndCustomerDiscount(SalesHeader, NumberOfLines, DiscPct);
 
@@ -282,7 +282,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         Initialize();
         GenerateTestData(DiscPct, NumberOfLines, InvoiceDiscountAmount);
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         CreateInvoiceWithLinesAndCustomerDiscount(SalesHeader, NumberOfLines, DiscPct);
         SetAllowInvoiceDiscountOnAllLines(SalesHeader, false);
@@ -306,23 +306,23 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
 
         Initialize();
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
 
         // [GIVEN] Create a new customer "C" and open "Customer Card" page
         LibrarySmallBusiness.CreateCustomer(Customer);
         DiscPct := LibraryRandom.RandDecInRange(10, 20, 2);
 
-        CustomerCard.OpenView;
+        CustomerCard.OpenView();
         CustomerCard.GotoRecord(Customer);
-        CustInvoiceDiscounts.Trap;
+        CustInvoiceDiscounts.Trap();
 
         // [GIVEN] Run "Page Cust. Invoice Discounts" action from customer card to open customer discounts. Set "Discount %" = "X"
-        CustomerCard."Invoice &Discounts".Invoke;
+        CustomerCard."Invoice &Discounts".Invoke();
         CustInvoiceDiscounts."Minimum Amount".SetValue(LibraryRandom.RandDec(100, 2));
         CustInvoiceDiscounts."Discount %".SetValue(DiscPct);
-        CustInvoiceDiscounts.OK.Invoke;
-        CustomerCard.OK.Invoke;
+        CustInvoiceDiscounts.OK().Invoke();
+        CustomerCard.OK().Invoke();
 
         // [GIVEN] Create a sales invoice for customer "C"
         CreateNewInvoiceWithLines(SalesHeader, Customer, 1, LibraryRandom.RandDecInRange(200, 300, 2), LibraryRandom.RandInt(10));
@@ -346,7 +346,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
         // [SCENARIO 280220] Calculate Invoice Discount Amount based on Amount when sales line is deleted from document
         Initialize();
 
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
 
         // [GIVEN] Sales Invoice with with two lines. Amount = 200 in each line. Invoice Discount calculation is based on amount
@@ -383,7 +383,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
 
         ClearTable(DATABASE::Resource);
         ClearTable(DATABASE::"Res. Ledger Entry");
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryERMCountryData.CreateVATData();
@@ -405,7 +405,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
             DATABASE::"Res. Ledger Entry":
                 ResLedgerEntry.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     local procedure CreateItem(var Item: Record Item; UnitPrice: Decimal)
@@ -532,7 +532,7 @@ codeunit 138003 "O365 Sales Calc Disc By Type"
 
     local procedure RoundAmount(Amount: Decimal): Decimal
     begin
-        exit(Round(Amount, LibraryERM.GetAmountRoundingPrecision));
+        exit(Round(Amount, LibraryERM.GetAmountRoundingPrecision()));
     end;
 }
 

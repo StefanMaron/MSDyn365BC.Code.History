@@ -208,9 +208,6 @@ page 1286 "Payment Rec Match Details"
                 Caption = '&Set Up Payment Application Rules';
                 Ellipsis = true;
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Set up or improve existing rules that govern how bank statement lines are automatically matched with open ledger entries for payment application.';
                 RunObject = page "Payment Application Rules";
             }

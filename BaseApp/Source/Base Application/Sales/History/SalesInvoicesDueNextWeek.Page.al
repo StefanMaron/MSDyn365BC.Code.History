@@ -15,7 +15,7 @@ page 1163 "Sales Invoices Due Next Week"
     ShowFilter = false;
     SourceTable = "Sales Invoice Header";
     SourceTableView = sorting("Posting Date")
-                      order(Descending);
+                      order(descending);
 
     layout
     {

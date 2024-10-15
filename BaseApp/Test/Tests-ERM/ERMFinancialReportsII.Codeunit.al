@@ -19,8 +19,6 @@
         HeaderDimensionTxt: Label '%1 - %2';
         PostingGroupErr: Label 'The Customer Posting Group does not exist.';
         NoSeriesGapWarningMsg: Label 'There is a gap in the number series.';
-        PostingDateWarningMsg: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
-        NoSeriesWarningMsg: Label 'No number series has been used for the following entries:';
         NoSeriesInformationMsg: Label 'The number series %1 %2 has been used for the following entries:', Comment = '%1=Field Value;%2=Field Value;';
         TotalTxt: Label 'Total %1';
         AddnlFeeLabelTxt: Label 'Additional Fee';
@@ -150,7 +148,7 @@
 
         // Setup. Create Reminder for Customer. Take Random Invoice Amount.
         Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
+        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer(), LibraryRandom.RandDec(1000, 2));
         ReminderNo := CreateReminderWithGivenDocNo(GenJournalLine."Document No.", GenJournalLine."Account No.");
 
         // Exercise: Save Reminder Test Report with Show Dimensions FALSE.
@@ -204,8 +202,8 @@
 
         // Setup: Create Invoice Entry for Customer with Random Amount. Update Customer Posting Group and Create Reminder.
         Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
-        SavedAddFeeAccountNo := UpdateCustomerPostingGroup(GenJournalLine."Account No.", FindAndUpdateGLAccountWithVAT);
+        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer(), LibraryRandom.RandDec(1000, 2));
+        SavedAddFeeAccountNo := UpdateCustomerPostingGroup(GenJournalLine."Account No.", FindAndUpdateGLAccountWithVAT());
         ReminderNo := CreateReminderWithGivenDocNo(GenJournalLine."Document No.", GenJournalLine."Account No.");
 
         // Exercise: Save Reminder Test Report with Show Dimensions FALSE.
@@ -235,7 +233,7 @@
 
         // Setup: Create and Issue Finance Charge Memo for a Customer. Take Random value for Invoice Amount.
         Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
+        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer(), LibraryRandom.RandDec(1000, 2));
         FinChargeMemoNo := CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No.");
         IssuedFinChargeMemoNo := IssueAndGetFinChargeMemoNo(FinChargeMemoNo);
 
@@ -285,7 +283,7 @@
 
         // Setup: Create and Issue Finance Charge Memo for a Customer. Take Random value for Invoice Amount.
         Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
+        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer(), LibraryRandom.RandDec(1000, 2));
         FinChargeMemoNo := CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No.");
         IssuedFinChargeMemoNo := IssueAndGetFinChargeMemoNo(FinChargeMemoNo);
 
@@ -310,8 +308,8 @@
 
         // Setup: Update Customer Posting Group. Create and Issue Finance Charge Memo for Customer. Take Random value for Invoice Amount.
         Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
-        SavedAddFeeAccountNo := UpdateCustomerPostingGroup(GenJournalLine."Account No.", FindAndUpdateGLAccountWithVAT);
+        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer(), LibraryRandom.RandDec(1000, 2));
+        SavedAddFeeAccountNo := UpdateCustomerPostingGroup(GenJournalLine."Account No.", FindAndUpdateGLAccountWithVAT());
         FinChargeMemoNo := CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No.");
         IssuedFinChargeMemoNo := IssueAndGetFinChargeMemoNo(FinChargeMemoNo);
 
@@ -337,7 +335,7 @@
 
         // Setup: Create Finance Charge Memo for Customer. Take Random value for Invoice Amount.
         Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
+        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer(), LibraryRandom.RandDec(1000, 2));
         FinChargeMemoNo := CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No.");
 
         // Exercise: Save Finance Charge Memo Test Report with Show Dimensions False.
@@ -387,7 +385,7 @@
         RunReportFinanceChargeMemoTest(FinanceChargeMemoHeader."No.", false);
 
         // Verify: Verify Warnings on Finance Charge Memo Test Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_',
           StrSubstNo(CustomerNotFoundErr, FinanceChargeMemoHeader.FieldCaption("Customer No.")));
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_',
@@ -407,8 +405,8 @@
 
         // Setup: Create Finance Charge Memo and Update Customer Posting Group. Take Random Amount for Invoice.
         Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));
-        SavedAddFeeAccountNo := UpdateCustomerPostingGroup(GenJournalLine."Account No.", FindAndUpdateGLAccountWithVAT);
+        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer(), LibraryRandom.RandDec(1000, 2));
+        SavedAddFeeAccountNo := UpdateCustomerPostingGroup(GenJournalLine."Account No.", FindAndUpdateGLAccountWithVAT());
         FinChargeMemoNo := CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No.");
 
         // Exercise: Save Finance Charge Memo Test Report with Show Dimensions FALSE.
@@ -441,10 +439,10 @@
         // Verify: Verify Receivables Payables different Amounts.
         GeneralLedgerSetup.FindFirst();
         GeneralLedgerSetup.CalcFields("Cust. Balances Due", "Vendor Balances Due");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('CustBalancesDue_GLSetup', GeneralLedgerSetup."Cust. Balances Due");
         LibraryReportDataset.AssertElementWithValueExists('VenBalancesDue_GLSetup', GeneralLedgerSetup."Vendor Balances Due");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(EmptyDatasetErr);
         GeneralLedgerSetup.SetRange("Date Filter", 0D, WorkDate() - 1);
         GeneralLedgerSetup.CalcFields("Cust. Balances Due", "Vendor Balances Due");
@@ -499,7 +497,7 @@
         VerifyGeneralJournalTest(GenJournalLine);
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('DimensionsCaption', 'Dimensions');
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'DimensionsCaption', 'Dimensions');
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'DimText', StrSubstNo(HeaderDimensionTxt, DimensionValue."Dimension Code", DimensionValue.Code));
@@ -569,9 +567,9 @@
         BalanceIncreasePct := Round(FiscalYearBalance / GLAccount."Balance at Date" * 100, 0.1);
 
         // Verify: Verify Saved Report Data.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_GLAccount', GenJournalLine."Account No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'No_GLAccount', GenJournalLine."Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('FiscalYearNetChange', FiscalYearNetChange);
         LibraryReportDataset.AssertCurrentRowValueEquals('NetChangeIncreasePct', NetChangeIncreasePct);
@@ -623,15 +621,15 @@
         GLAccount.Modify(true);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, CreateCustomer, LibraryRandom.RandDec(1000, 2));
+          GenJournalLine."Account Type"::Customer, CreateCustomer(), LibraryRandom.RandDec(1000, 2));
 
         // Exercise: Save General Journal Test Report without Dimension.
         RunReportGeneralJournalTest(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", false);
 
         // Verify: Verify General Journal Test Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('GLAccNetChangeNo', GenJournalLine."Bal. Account No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'GLAccNetChangeNo', GenJournalLine."Bal. Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('GLAccNetChangeNetChangeJnl', -GenJournalLine.Amount);
         LibraryReportDataset.AssertCurrentRowValueEquals('GLAccNetChangeBalafterPost', -GenJournalLine.Amount);
@@ -650,7 +648,7 @@
 
         // Setup: Create and post General Journal Line, Create and Issue Reminder.
         Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer, LibraryRandom.RandDec(1000, 2));  // Using Random value for Amount.
+        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomer(), LibraryRandom.RandDec(1000, 2));  // Using Random value for Amount.
         ReminderNo := CreateReminderWithGivenDocNo(GenJournalLine."Document No.", GenJournalLine."Account No.");
         IssuedReminderNo := IssueReminderAndGetIssuedNo(ReminderNo);
 
@@ -766,7 +764,7 @@
 
         // 1. Setup: Create Bank Account with Currency & post Ledger Entry with General Journal Line.
         Initialize();
-        CurrencyCode := CreateCurrencyWithMultipleExchangeRates;
+        CurrencyCode := CreateCurrencyWithMultipleExchangeRates();
         BankAccountNo := CreateBankAccountWithDimension(CurrencyCode);
         CreateAndPostGenJournalLineWithCurrency(GenJournalLine, BankAccountNo, CurrencyCode);
         LibraryVariableStorage.Enqueue(CurrencyCode);
@@ -795,7 +793,7 @@
         // Create Reminder, add a line for the reminder with fee include VAT. Issued the Reminder.
         Initialize();
         UpdateVATSpecInLCYGeneralLedgerSetup(true);
-        IssuedReminderNo := CreateAndIssueReminderWithCurrencyAndVATFee;
+        IssuedReminderNo := CreateAndIssueReminderWithCurrencyAndVATFee();
 
         // Exercise: Run the Report - Reminder.
         RunReportReminder(IssuedReminderNo);
@@ -817,7 +815,7 @@
         // Create Finance Charge Memo, add a line for the Finance Charge Memo with fee include VAT. Issued the Finance Charge Memo.
         Initialize();
         UpdateVATSpecInLCYGeneralLedgerSetup(true);
-        IssuedFinanceChargeMemoNo := CreateAndIssueFinChargeMemoWithCurrencyAndVATFee;
+        IssuedFinanceChargeMemoNo := CreateAndIssueFinChargeMemoWithCurrencyAndVATFee();
 
         // Exercise: Run the Report - Finance Charge Memo.
         RunReportFinanceChargeMemo(IssuedFinanceChargeMemoNo, false, true);
@@ -838,9 +836,9 @@
     begin
         // [SCENARIO 122513] Reminder Report doesn't print Not Due documents when run with "Show Not Due Amounts" = FALSE
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
-        // [GIVEN] Posted invoice with "Posting Date" = WORKDATE + 2 Month
+        // [GIVEN] Posted invoice with "Posting Date" = WorkDate() + 2 Month
         CreateAndPostGenJournalLineWithDate(GenJournalLine, CalcDate('<2M>', WorkDate()), CustomerNo, LibraryRandom.RandDec(1000, 2));  // Using Random value for Amount.
 
         // [GIVEN] Posted invoice with "Posting Date" = WORKDATE
@@ -875,7 +873,7 @@
 
         // [GIVEN] Gen. Journal Template = "Y" has Gen. Journal Batch = "Y1" with Gen. Journal Lines
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandInt(1000));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandInt(1000));
         Commit();
 
         // [WHEN] Run "Gen. Journal - Test" report with filtered Gen. Journal Template "X"
@@ -883,7 +881,7 @@
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
 
         // [THEN] Report dataset contains records from batches "X1" and "X2"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GenJnlTemplateNameTok, GenJournalTemplateName);
         LibraryReportDataset.AssertElementWithValueExists(GenJnlBatchNameTok, FirstGenJournalBatchName);
         LibraryReportDataset.AssertElementWithValueExists(GenJnlBatchNameTok, SecondGenJournalBatchName);
@@ -934,17 +932,17 @@
 
         // [GIVEN] Create and post Bank Account Entries
         Initialize();
-        BankAccountNo := CreateBankAccount;
+        BankAccountNo := CreateBankAccount();
         CreateAndPostGenJournalLineWithCurrency(GenJournalLine, BankAccountNo, '');
 
         // [WHEN] Save Bank Acc. - Detail Trial Balance report
-        RunReportBankAccDetailTrialBal(BankAccountNo, WorkDate + 1);
+        RunReportBankAccDetailTrialBal(BankAccountNo, WorkDate() + 1);
 
         // [THEN] Report Bank Acc. - Detail Trial Bal. show field Start Balance (LCY) amount
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         BankAccountLedgerEntry.SetRange("Posting Date", WorkDate());
         BankAccountLedgerEntry.CalcSums(Amount, "Amount (LCY)");
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.VerifyCellValueByRef(
           'J', 15, 1, LibraryReportValidation.FormatDecimalValue(BankAccountLedgerEntry."Amount (LCY)"));
         LibraryReportValidation.VerifyCellValueByRef(
@@ -974,7 +972,7 @@
 
         CreateGeneralJournalWithThreeLines(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerA."No.", CustomerB."No.",
-          LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          LibraryERM.CreateGLAccountWithSalesSetup(), 1);
 
         Commit();
 
@@ -1017,7 +1015,7 @@
 
         CreateGeneralJournalWithThreeLines(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorA."No.", VendorB."No.",
-          LibraryERM.CreateGLAccountWithPurchSetup, -1);
+          LibraryERM.CreateGLAccountWithPurchSetup(), -1);
 
         Commit();
 
@@ -1051,7 +1049,7 @@
 
         // [GIVEN] Create and post Bank Account Entry with External Document No.
         Initialize();
-        BankAccountNo := CreateBankAccount;
+        BankAccountNo := CreateBankAccount();
         CreateAndPostGenJournalLineWithExtDocNo(GenJournalLine, BankAccountNo);
 
         // [WHEN] Run Bank Acc. - Detail Trial Balance report.
@@ -1062,9 +1060,9 @@
         BankAccountLedgerEntry.SetRange("Posting Date", WorkDate());
         BankAccountLedgerEntry.FindFirst();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocNo_BankAccLedg', BankAccountLedgerEntry."Document No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ExtDocNo_BankAccLedg', BankAccountLedgerEntry."External Document No.");
     end;
 
@@ -1092,10 +1090,10 @@
         REPORT.Run(REPORT::Reminder, true, false, IssuedReminderHeader);
 
         // [THEN] The first row of dataset contains logo
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueNotEquals('CompanyInfo1Picture', '');
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('CompanyInfo1Picture', '');
     end;
 
@@ -1121,7 +1119,7 @@
         // [GIVEN] "L1" and "L2" have same Posting Date, Document Type and Document No.
         CreateInvoiceGenJnlLineWithAmount(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, LibraryRandom.RandDecInRange(100, 200, 2),
-          WorkDate);
+          WorkDate());
         CreateInvoiceGenJnlLineWithAmount(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, -GenJournalLine.Amount, WorkDate());
         GenJournalLine.SetRecFilter();
@@ -1154,10 +1152,10 @@
         // [GIVEN] "L1" has Balance (LCY) = 1000; "L2" has Balance (LCY) = -1000;
         // [GIVEN] "L1" and "L2" have same Posting Date
         CreateInvoiceGenJnlLineWithAmount(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryUtility.GenerateGUID,
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryUtility.GenerateGUID(),
           LibraryRandom.RandDecInRange(100, 200, 2), WorkDate());
         CreateInvoiceGenJnlLineWithAmount(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryUtility.GenerateGUID,
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryUtility.GenerateGUID(),
           -GenJournalLine.Amount, WorkDate());
         GenJournalLine.SetRecFilter();
         Commit();
@@ -1194,7 +1192,7 @@
         // [GIVEN] "L1" and "L2" have same Document Type and Document No.
         CreateInvoiceGenJnlLineWithAmount(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, LibraryRandom.RandDecInRange(100, 200, 2),
-          WorkDate);
+          WorkDate());
         CreateInvoiceGenJnlLineWithAmount(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, -GenJournalLine.Amount,
           LibraryRandom.RandDateFrom(WorkDate(), 10));
@@ -1234,14 +1232,14 @@
         // [GIVEN] "L1" has Balance (LCY) = 700, "L2" has Balance (LCY) = 1000; "L3" has Balance (LCY) = -1000;
         // [GIVEN] "L2" and "L3" have same Document Type, Document No and Posting Date, but "L1" has other Document No and Posting Date
         CreateInvoiceGenJnlLineWithAmount(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryUtility.GenerateGUID,
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryUtility.GenerateGUID(),
           ExpectedDifference, LibraryRandom.RandDateFrom(WorkDate(), 10));
         CreateInvoiceGenJnlLineWithAmount(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, LibraryRandom.RandDecInRange(100, 200, 2),
-          WorkDate);
+          WorkDate());
         CreateInvoiceGenJnlLineWithAmount(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, -GenJournalLine.Amount,
-          WorkDate);
+          WorkDate());
         GenJournalLine.SetRecFilter();
         Commit();
 
@@ -1271,7 +1269,7 @@
 
         // [GIVEN] Gen. Journal Batch with "No Series." = "X"
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::"Cash Receipts");
-        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
         GenJournalBatch.Modify(true);
 
         // [GIVEN] Gen. Journal Line "L1" with Bal. Account, Document No. = "X-02" and Amount = 1000.0
@@ -1308,7 +1306,7 @@
 
         // [GIVEN] Gen. Journal Batch with "No Series." = "X"
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::"Cash Receipts");
-        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
         GenJournalBatch.Modify(true);
 
         // [GIVEN] Gen. Journal Line "L1" with Bal. Account, Document No. = "X-03" and Amount = 1000.0
@@ -1344,7 +1342,7 @@
 
         // [GIVEN] Gen. Journal Batch with "No Series." = "X"
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::"Cash Receipts");
-        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
         GenJournalBatch.Modify(true);
 
         // [GIVEN] Gen. Journal Line "L1" with Bal. Account, Document No. = "X-03" and Amount = 1000.0
@@ -1392,7 +1390,7 @@
 
         // [GIVEN] Gen. Journal Line with batch "B2"
         CreateInvoiceGenJnlLineWithDocNoAndBalAccount(
-          GenJournalLine, GenJournalBatch, LibraryUtility.GenerateGUID, LibraryRandom.RandDecInRange(1000, 2000, 2));
+          GenJournalLine, GenJournalBatch, LibraryUtility.GenerateGUID(), LibraryRandom.RandDecInRange(1000, 2000, 2));
         GenJournalLine.SetRecFilter();
         Commit();
 
@@ -1400,7 +1398,7 @@
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
 
         // [THEN] <JnlTmplName_GenJnlBatch> with value "T1" does not present in report dataset
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(GenJnlTmplNameTok, GenJnlTemplName);
 
         // [THEN] <JnlTmplName_GenJnlBatch> with value "T2" is in report dataset
@@ -1427,7 +1425,7 @@
 
         // [GIVEN] Gen. Journal Line with Posting Date = 01.01.2018
         CreateInvoiceGenJnlLineWithDocNoAndBalAccount(
-          GenJournalLine, GenJournalBatch, LibraryUtility.GenerateGUID, LibraryRandom.RandDecInRange(1000, 2000, 2));
+          GenJournalLine, GenJournalBatch, LibraryUtility.GenerateGUID(), LibraryRandom.RandDecInRange(1000, 2000, 2));
         GenJournalLine.SetRecFilter();
         Commit();
 
@@ -1451,7 +1449,7 @@
         // [FEATURE] [Fin. Charge Memo]
         // [SCENARIO 297976] Report "Finance Charge Memo" is printing when Customer Posting Group without Additional Fee Account
         // [GIVEN] Customer Posting Group without Additional Fee Account
-        CustomerPostingGroupCode := CreateCustPostingGroupWithoutAddFeeAcc;
+        CustomerPostingGroupCode := CreateCustPostingGroupWithoutAddFeeAcc();
 
         // [GIVEN] Issued Fin. Charge Memo without Additional Fee Account into Posting Setup
         IssuedFinChargeMemoNo := CreateIssuedFinChargeMemo(CustomerPostingGroupCode);
@@ -1460,7 +1458,7 @@
         RunReportFinanceChargeMemo(IssuedFinChargeMemoNo, false, false);
 
         // [THEN] Issued Fin. Charge Memo is printed
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('No1_IssuFinChrgMemoHr', IssuedFinChargeMemoNo);
     end;
 
@@ -1496,7 +1494,7 @@
         REPORT.Run(REPORT::Reminder, true, true, IssuedRmdrHdr);
 
         // [THEN] Total is equal to "A1" + "A2" + "A3".
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'NNCTotal', IssuedRmdrLine[1]."Remaining Amount" + IssuedRmdrLine[1].Amount + IssuedRmdrLine[3].Amount);
     end;
@@ -1515,7 +1513,7 @@
         Initialize();
 
         // [GIVEN] Bank Account.
-        BankAccountNo := LibraryERM.CreateBankAccountNo;
+        BankAccountNo := LibraryERM.CreateBankAccountNo();
 
         // [GIVEN] Check Ledger entries with:
         // [GIVEN] Amount = "A1", Entry Status = "Printed";
@@ -1536,7 +1534,7 @@
         REPORT.Run(REPORT::"Bank Account - Check Details");
 
         // [THEN] Sum of AmountPrinted = "A1" + "A2", sum of AmountVoided = "A3" + "A4";
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Assert.AreEqual(Amount[1] + Amount[2], LibraryReportDataset.Sum('AmountPrinted'), '');
         Assert.AreEqual(Amount[3] + Amount[4], LibraryReportDataset.Sum('AmountVoided'), '');
     end;
@@ -1544,6 +1542,8 @@
     local procedure Initialize()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
+        FeatureKey: Record "Feature Key";
+        FeatureKeyUpdateStatus: Record "Feature Data Update Status";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Financial Reports II");
@@ -1557,6 +1557,15 @@
         if OriginalWorkdate = 0D then
             OriginalWorkdate := WorkDate();
         WorkDate := OriginalWorkdate;
+
+        if FeatureKey.Get('ReminderTermsCommunicationTexts') then begin
+            FeatureKey.Enabled := FeatureKey.Enabled::None;
+            FeatureKey.Modify();
+        end;
+        if FeatureKeyUpdateStatus.Get('ReminderTermsCommunicationTexts', CompanyName()) then begin
+            FeatureKeyUpdateStatus."Feature Status" := FeatureKeyUpdateStatus."Feature Status"::Disabled;
+            FeatureKeyUpdateStatus.Modify();
+        end;
 
         if IsInitialized then
             exit;
@@ -1574,7 +1583,7 @@
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, JnlTemplName, JnlBatchName, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, Amount);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), Amount);
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Modify(true);
@@ -1584,9 +1593,9 @@
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, Amount);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), Amount);
         GenJournalLine.Validate("Document No.", DocNo);
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
     end;
 
@@ -1614,9 +1623,9 @@
         ClearGeneralJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::"Bank Account", CreateBankAccount, LibraryRandom.RandDec(1000, 2));
+          GenJournalLine."Account Type"::"Bank Account", CreateBankAccount(), LibraryRandom.RandDec(1000, 2));
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
-        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount);
+        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount());
         GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Manual Check");
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1746,7 +1755,7 @@
         ReminderLevel.FindFirst();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Reminder Terms Code", ReminderLevel."Reminder Terms Code");
-        Customer.Validate("Fin. Charge Terms Code", CreateFinanceChargeTerms);
+        Customer.Validate("Fin. Charge Terms Code", CreateFinanceChargeTerms());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -1783,7 +1792,7 @@
         with Customer do begin
             LibrarySales.CreateCustomer(Customer);
             Validate("Reminder Terms Code", ReminderTerms.Code);
-            Validate("Fin. Charge Terms Code", CreateFinanceChargeTerms);
+            Validate("Fin. Charge Terms Code", CreateFinanceChargeTerms());
             Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
             Modify(true);
             exit("No.");
@@ -1831,7 +1840,7 @@
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
         LibraryDimension.CreateDefaultDimensionCustomer(
-          DefaultDimension, CreateCustomer, DimensionValue."Dimension Code", DimensionValue.Code);
+          DefaultDimension, CreateCustomer(), DimensionValue."Dimension Code", DimensionValue.Code);
         exit(DefaultDimension."No.");
     end;
 
@@ -1840,8 +1849,8 @@
         Customer: Record Customer;
     begin
         with Customer do begin
-            Get(CreateCustomer);
-            Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+            Get(CreateCustomer());
+            Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
             Modify(true);
             exit("No.");
         end;
@@ -1920,7 +1929,7 @@
             Modify(true);
             CustLedgerEntry.SetRange("Customer No.", CustomerNo);
             ReminderMake.SuggestLines(ReminderHeader, CustLedgerEntry, false, false, CustLedgEntryLineFeeOn);
-            ReminderMake.Code;
+            ReminderMake.Code();
             exit("No.");
         end;
     end;
@@ -1941,7 +1950,7 @@
         IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line";
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
     begin
-        IssuedFinChargeMemoHeader."No." := LibraryUTUtility.GetNewCode;
+        IssuedFinChargeMemoHeader."No." := LibraryUTUtility.GetNewCode();
         IssuedFinChargeMemoHeader."Customer Posting Group" := CustomerPostingGroupCode;
         IssuedFinChargeMemoHeader.Insert();
 
@@ -2007,14 +2016,14 @@
         GenJournalLine: Record "Gen. Journal Line";
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandInt(1000));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandInt(1000));
         GenJnlTemplateName := GenJournalLine."Journal Template Name";
         FirstGenJnlBatchName := GenJournalLine."Journal Batch Name";
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJnlTemplateName);
         SecondGenJnlBatchName := GenJournalBatch.Name;
         LibraryJournals.CreateGenJournalLine2(GenJournalLine, GenJnlTemplateName, GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
-          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, LibraryRandom.RandInt(1000));
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), LibraryRandom.RandInt(1000));
     end;
 
     local procedure CreateGeneralJournalWithThreeLines(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNoA: Code[20]; AccountNoB: Code[20]; GLAccountNo: Code[20]; AmountSign: Integer)
@@ -2176,10 +2185,10 @@
     local procedure IssueAndGetFinChargeMemoNo(No: Code[20]) IssuedDocNo: Code[20]
     var
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         FinanceChargeMemoHeader.Get(No);
-        IssuedDocNo := NoSeriesManagement.GetNextNo(FinanceChargeMemoHeader."Issuing No. Series", WorkDate(), false);
+        IssuedDocNo := NoSeries.PeekNextNo(FinanceChargeMemoHeader."Issuing No. Series");
         IssueFinChargeMemo(FinanceChargeMemoHeader);
     end;
 
@@ -2202,10 +2211,10 @@
     local procedure IssueReminderAndGetIssuedNo(ReminderNo: Code[20]) IssuedReminderNo: Code[20]
     var
         ReminderHeader: Record "Reminder Header";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         ReminderHeader.Get(ReminderNo);
-        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate(), false);
+        IssuedReminderNo := NoSeries.PeekNextNo(ReminderHeader."Issuing No. Series");
         IssueReminder(ReminderHeader);
     end;
 
@@ -2260,20 +2269,20 @@
     var
         ReminderPage: TestPage Reminder;
     begin
-        ReminderPage.OpenEdit;
+        ReminderPage.OpenEdit();
         ReminderPage.FILTER.SetFilter("No.", ReminderHeaderNo);
-        ReminderStatisticsPage.Trap;
-        ReminderPage.Statistics.Invoke;
+        ReminderStatisticsPage.Trap();
+        ReminderPage.Statistics.Invoke();
     end;
 
     local procedure OpenIssuedReminderStatisticsPage(var IssuedReminderStatistics: TestPage "Issued Reminder Statistics"; IssuedReminderNo: Code[20])
     var
         IssuedReminder: TestPage "Issued Reminder";
     begin
-        IssuedReminder.OpenEdit;
+        IssuedReminder.OpenEdit();
         IssuedReminder.FILTER.SetFilter("No.", IssuedReminderNo);
-        IssuedReminderStatistics.Trap;
-        IssuedReminder.Statistics.Invoke;
+        IssuedReminderStatistics.Trap();
+        IssuedReminder.Statistics.Invoke();
     end;
 
     local procedure CreateAndIssueReminderWithCurrencyAndVATFee(): Code[20]
@@ -2283,12 +2292,12 @@
         ReminderNo: Code[20];
     begin
         // Create General Journal Line with Currency Code.
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomerWithCurrencyCode, LibraryRandom.RandDec(1000, 2)); // Using Random value for Amount.
+        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomerWithCurrencyCode(), LibraryRandom.RandDec(1000, 2)); // Using Random value for Amount.
         DisableInvoiceRoundingForCurrency(GenJournalLine."Currency Code");
 
         // Create Reminder, add a line for the reminder with fee include VAT. Issued the Reminder.
         ReminderNo := CreateReminderWithGivenDocNo(GenJournalLine."Document No.", GenJournalLine."Account No.");
-        AddReminderLineWithGLType(ReminderLine, ReminderNo, FindAndUpdateGLAccountWithVAT, LibraryRandom.RandDec(100, 2));
+        AddReminderLineWithGLType(ReminderLine, ReminderNo, FindAndUpdateGLAccountWithVAT(), LibraryRandom.RandDec(100, 2));
         exit(IssueReminderAndGetIssuedNo(ReminderNo));
     end;
 
@@ -2299,13 +2308,13 @@
         FinanceChargeMemoNo: Code[20];
     begin
         // Create General Journal Line with Currency Code.
-        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomerWithCurrencyCode, LibraryRandom.RandDec(1000, 2)); // Using Random value for Amount.
+        CreateAndPostGenJournalLine(GenJournalLine, CreateCustomerWithCurrencyCode(), LibraryRandom.RandDec(1000, 2)); // Using Random value for Amount.
         DisableInvoiceRoundingForCurrency(GenJournalLine."Currency Code");
 
         // Create Finance Charge Memo, add a line for the Finance Charge Memo with fee include VAT. Issued the Finance Charge Memo.
         FinanceChargeMemoNo := CreateSuggestFinanceChargeMemo(GenJournalLine."Account No.", GenJournalLine."Document No.");
         AddFinanceChargeMemoLineWithGLType(
-          FinanceChargeMemoLine, FinanceChargeMemoNo, FindAndUpdateGLAccountWithVAT, LibraryRandom.RandDec(100, 2));
+          FinanceChargeMemoLine, FinanceChargeMemoNo, FindAndUpdateGLAccountWithVAT(), LibraryRandom.RandDec(100, 2));
         exit(IssueAndGetFinChargeMemoNo(FinanceChargeMemoNo));
     end;
 
@@ -2423,10 +2432,10 @@
     local procedure UpdateNoSeriesInFinChargeMemo(No: Code[20]) IssuedDocNo: Code[20]
     var
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         FinanceChargeMemoHeader.Get(No);
-        IssuedDocNo := NoSeriesManagement.GetNextNo(FinanceChargeMemoHeader."Issuing No. Series", WorkDate(), false);
+        IssuedDocNo := NoSeries.PeekNextNo(FinanceChargeMemoHeader."Issuing No. Series");
         FinanceChargeMemoHeader.Validate("No. Series", '');
         FinanceChargeMemoHeader.Validate("Issuing No. Series", '');
         FinanceChargeMemoHeader.Modify(true);
@@ -2459,10 +2468,10 @@
 
         RunReportTrialBalancePreviousYear(GenJournalLine."Account No.", WorkDate());
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_GLAccount', GenJournalLine."Account No.");
         ActualRowQty := 0;
-        while LibraryReportDataset.GetNextRow do
+        while LibraryReportDataset.GetNextRow() do
             ActualRowQty += 1;
 
         Assert.AreEqual(NoOfBlankLines, ActualRowQty - 1, BlankLinesQtyErr);
@@ -2472,10 +2481,10 @@
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         LibraryReportDataset.SetRange('Check_Ledger_Entry__Check_Date_', Format(WorkDate()));
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Check_Ledger_Entry__Check_Date_', Format(WorkDate()));
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Check_Ledger_Entry__Bal__Account_No__', GenJournalLine."Account No.");
@@ -2486,14 +2495,14 @@
 
     local procedure VerifyBankAccReconTest(GenJournalLine: Record "Gen. Journal Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verify Header
         LibraryReportDataset.AssertElementWithValueExists('HeaderError1', Format(WarningMsg));
 
         // Verify Lines
         LibraryReportDataset.SetRange('Bank_Acc__Reconciliation_Line__Transaction_Date_', Format(WorkDate()));
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Bank_Acc__Reconciliation_Line__Transaction_Date_', Format(WorkDate()));
         LibraryReportDataset.AssertCurrentRowValueEquals('Bank_Acc__Reconciliation_Line__Applied_Amount_', -GenJournalLine.Amount);
 
@@ -2520,7 +2529,7 @@
     var
         ExpectedValue: Text;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         ExpectedValue := StrSubstNo(HeaderDimensionTxt, DimensionValue."Dimension Code", DimensionValue.Code);
         LibraryReportDataset.AssertElementWithValueExists('DimText', ExpectedValue);
     end;
@@ -2528,9 +2537,9 @@
     local procedure VerifyGeneralJournalTest(GenJournalLine: Record "Gen. Journal Line")
     begin
         // Verify Saved Report's Data.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('PostingDate_GenJnlLine', Format(GenJournalLine."Posting Date"));
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'PostingDate_GenJnlLine', Format(GenJournalLine."Posting Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('DocType_GenJnlLine', Format(GenJournalLine."Document Type"));
         LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_GenJnlLine', GenJournalLine."Document No.");
@@ -2559,21 +2568,21 @@
     begin
         GeneralLedgerSetup.Get();
         LineAmount := FindFinChargeMemoLine(IssuedFinChargeMemoLine, No, IssuedFinChargeMemoLine.Type::"Customer Ledger Entry");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocDt_IssuFinChrgMemoLine', Format(IssuedFinChargeMemoLine."Document Date"));
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'DocDt_IssuFinChrgMemoLine', Format(IssuedFinChargeMemoLine."Document Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_IssuFinChrgMemoLine', IssuedFinChargeMemoLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_IssuFinChrgMemoLine', IssuedFinChargeMemoLine.Amount);
         AddnlFeeAmount := FindFinChargeMemoLine(IssuedFinChargeMemoLine, No, IssuedFinChargeMemoLine.Type::"G/L Account");
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Desc_IssuFinChrgMemoLine', AddnlFeeLabelTxt);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Desc_IssuFinChrgMemoLine', AddnlFeeLabelTxt);
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_IssuFinChrgMemoLine', IssuedFinChargeMemoLine.Amount);
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TotalText', StrSubstNo(TotalTxt, GeneralLedgerSetup."LCY Code"));
-        while LibraryReportDataset.GetNextRow do;
+        while LibraryReportDataset.GetNextRow() do;
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalAmount', LineAmount + AddnlFeeAmount);
     end;
 
@@ -2585,11 +2594,11 @@
     begin
         IssuedFinChargeMemoHeader.Get(No);
         NoSeries.Get(IssuedFinChargeMemoHeader."No. Series");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15',
           StrSubstNo(NoSeriesInformationMsg, NoSeries.Code, NoSeries.Description));
         LibraryReportDataset.SetRange('IssuedFinChrgMemoHeader__No__', No);
-        while LibraryReportDataset.GetNextRow do begin
+        while LibraryReportDataset.GetNextRow() do begin
             ValidateRowValue('IssuedFinChrgMemoHeader__Posting_Date_', Format(IssuedFinChargeMemoHeader."Posting Date"));
             ValidateRowValue('IssuedFinChrgMemoHeader__Customer_No__', IssuedFinChargeMemoHeader."Customer No.");
             ValidateRowValue('IssuedFinChrgMemoHeader__Source_Code_', IssuedFinChargeMemoHeader."Source Code");
@@ -2612,9 +2621,9 @@
         GeneralLedgerSetup.Get();
         GetFinanceChargeMemoLine(FinanceChargeMemoLine, No, FinanceChargeMemoLine.Type::"Customer Ledger Entry");
         LineAmount := FinanceChargeMemoLine.Amount;
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Finance_Charge_Memo_Line__Document_Type_', Format(GenJournalLine."Document Type"));
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Finance_Charge_Memo_Line__Document_Type_', Format(GenJournalLine."Document Type"));
         LibraryReportDataset.AssertCurrentRowValueEquals('Finance_Charge_Memo_Line__Original_Amount_',
           FinanceChargeMemoLine."Original Amount");
@@ -2625,13 +2634,13 @@
         AddnlFeeAmount := FinanceChargeMemoLine.Amount;
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Finance_Charge_Memo_Line_Description', AddnlFeeLabelTxt);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Finance_Charge_Memo_Line_Description', AddnlFeeLabelTxt);
         LibraryReportDataset.AssertCurrentRowValueEquals('Finance_Charge_Memo_Line_Amount', FinanceChargeMemoLine.Amount);
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TotalText', StrSubstNo(TotalTxt, GeneralLedgerSetup."LCY Code"));
         LibraryReportDataset.SetRange('Finance_Charge_Memo_Line_Description', AddnlFeeLabelTxt);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'TotalText', StrSubstNo(TotalTxt, GeneralLedgerSetup."LCY Code"));
         LibraryReportDataset.GetElementValueInCurrentRow('TotalAmount', Variant);
         TotalAmt := Variant;
@@ -2647,11 +2656,11 @@
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoNo);
         FinanceChargeMemoLine.SetFilter("VAT %", '>0');
         FinanceChargeMemoLine.FindSet();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         repeat
             LibraryReportDataset.SetRange('VATAmountLine__VAT_Base_', FinanceChargeMemoLine.Amount);
-            if LibraryReportDataset.GetNextRow then begin
+            if LibraryReportDataset.GetNextRow() then begin
                 LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__VAT___', FinanceChargeMemoLine."VAT %");
                 LibraryReportDataset.AssertCurrentRowValueEquals(
                   'VATAmountLine__Amount_Including_VAT_',
@@ -2670,23 +2679,23 @@
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoNo);
         IssuedFinChargeMemoLine.SetFilter("VAT %", '>0');
         IssuedFinChargeMemoLine.FindSet();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         LibraryReportDataset.Reset();
         repeat
             LibraryReportDataset.SetRange('VATAmtSpecCaption', VATAmtSpecLabelTxt);
             LibraryReportDataset.SetRange('VatAmtLineVAT', Format(IssuedFinChargeMemoLine."VAT %"));
-            if not LibraryReportDataset.GetNextRow then
+            if not LibraryReportDataset.GetNextRow() then
                 Error(RowNotFoundErr, 'VatAmtLineVAT', Format(IssuedFinChargeMemoLine."VAT %"));
             LibraryReportDataset.FindCurrentRowValue('VALVATBase', Amount);
             Assert.AreNearlyEqual(
               IssuedFinChargeMemoLine.Amount,
-              Amount, LibraryERM.GetAmountRoundingPrecision,
+              Amount, LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(ValidationErr, VATBaseLabelTxt, IssuedFinChargeMemoLine.Amount));
             LibraryReportDataset.FindCurrentRowValue('ValVatBaseValVatAmt', AmountIncludingVAT);
             Assert.AreNearlyEqual(
               IssuedFinChargeMemoLine.Amount + IssuedFinChargeMemoLine."VAT Amount", AmountIncludingVAT,
-              LibraryERM.GetAmountRoundingPrecision,
+              LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(ValidationErr, AmtInclVATLabelTxt, IssuedFinChargeMemoLine.Amount + IssuedFinChargeMemoLine."VAT Amount"));
         until IssuedFinChargeMemoLine.Next() = 0;
     end;
@@ -2708,11 +2717,11 @@
     begin
         IssuedReminderHeader.Get(No);
         NoSeries.Get(IssuedReminderHeader."No. Series");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15',
           StrSubstNo(NoSeriesInformationMsg, NoSeries.Code, NoSeries.Description));
         LibraryReportDataset.SetRange('IssuedReminderHeader__No__', No);
-        while LibraryReportDataset.GetNextRow do begin
+        while LibraryReportDataset.GetNextRow() do begin
             ValidateRowValue('IssuedReminderHeader__Posting_Date_', Format(IssuedReminderHeader."Posting Date"));
             ValidateRowValue('IssuedReminderHeader__Customer_No__', IssuedReminderHeader."Customer No.");
             ValidateRowValue('IssuedReminderHeader__Source_Code_', IssuedReminderHeader."Source Code");
@@ -2729,7 +2738,7 @@
         ReminderLine: Record "Reminder Line";
         ReminderLevel: Record "Reminder Level";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         ReminderHeader.Get(No);
         ReminderHeader.CalcFields("Remaining Amount");
@@ -2737,7 +2746,7 @@
         CustomerPostingGroup.Get(ReminderHeader."Customer Posting Group");
 
         LibraryReportDataset.SetRange('Reminder_Line__Document_Type_', Format(ReminderLine."Document Type"::Invoice));
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Reminder_Line__Document_Type_', Format(ReminderLine."Document Type"::Invoice));
         LibraryReportDataset.AssertCurrentRowValueEquals('Reminder_Line__Document_No__', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Reminder_Line__Original_Amount_', GenJournalLine.Amount);
@@ -2746,7 +2755,7 @@
         FindReminderLevel(ReminderLevel, ReminderHeader."Reminder Terms Code");
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Reminder_Line__No__', CustomerPostingGroup."Additional Fee Account");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Reminder_Line__No__', CustomerPostingGroup."Additional Fee Account");
         LibraryReportDataset.AssertCurrentRowValueEquals('Remaining_Amount____ReminderInterestAmount____VAT_Amount_',
           ReminderLevel."Additional Fee (LCY)")
@@ -2754,7 +2763,7 @@
 
     local procedure VerifyInterestOnReminderReport(InterestAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Interest', InterestAmount);
     end;
 
@@ -2763,14 +2772,14 @@
         ReminderLine: Record "Reminder Line";
     begin
         // Use Precision Value with FORMAT to generate output with two Decimal Places.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetFilter("VAT %", '>0');
         ReminderLine.FindSet();
         repeat
             LibraryReportDataset.SetRange('VATAmountLine__VAT___', ReminderLine."VAT %");
-            if not LibraryReportDataset.GetNextRow then
+            if not LibraryReportDataset.GetNextRow() then
                 Error(RowNotFoundErr, 'VATAmountLine__VAT___', ReminderLine."VAT %");
             LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__VAT_Base_', ReminderLine.Amount);
             LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__Amount_Including_VAT_',
@@ -2784,9 +2793,9 @@
     begin
         IssuedReminderLine.SetRange("Reminder No.", No);
         IssuedReminderLine.FindFirst();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocDate_IssuedReminderLine', Format(IssuedReminderLine."Document Date"));
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'DocDate_IssuedReminderLine', Format(IssuedReminderLine."Document Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_IssuedReminderLine', IssuedReminderLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt_IssuedReminderLine', IssuedReminderLine."Original Amount");
@@ -2846,7 +2855,7 @@
 
         // Use Precision to take Decimal Value upto 2 Decimal Places.
         FindIssuedReminderLine(IssuedReminderLine, ReminderNo, IssuedReminderLine.Type::"G/L Account");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         repeat
             SumAmountOnIssuedReminderFeeLineWithVAT(
               ReminderNo, IssuedReminderLine.Type::"G/L Account", IssuedReminderLine."VAT %", TotalAmount, TotalVATAmount);
@@ -2879,7 +2888,7 @@
 
         // Use Precision to take Decimal Value upto 2 Decimal Places.
         FindIssuedFinChargeMemoLine(IssuedFinChargeMemoLine, FinanceChargeMemoNo);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         repeat
             SumAmountOnIssuedFinChargeMemoLineWithVAT(
               FinanceChargeMemoNo, IssuedFinChargeMemoLine."VAT %", TotalAmount, TotalVATAmount);
@@ -2899,13 +2908,13 @@
     begin
         LibraryReportDataset.SetRange('VATAmtSpecCaption', VATAmtSpecLabelTxt);
         LibraryReportDataset.SetRange('VATAmtLineVAT', VAT);
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, StrSubstNo(RowNotFoundErr, 'VATAmtLineVAT', VAT));
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), StrSubstNo(RowNotFoundErr, 'VATAmtLineVAT', VAT));
         LibraryReportDataset.FindCurrentRowValue('VALVATBase', Amount);
         Assert.AreNearlyEqual(
-          VATBase, Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(ValidationErr, VATBaseLabelTxt, VATBase));
+          VATBase, Amount, LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(ValidationErr, VATBaseLabelTxt, VATBase));
         LibraryReportDataset.FindCurrentRowValue('VALVATAmount', VATAmount);
         Assert.AreNearlyEqual(
-          TotalVATAmount, VATAmount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(ValidationErr, VATAmtLbl, TotalVATAmount));
+          TotalVATAmount, VATAmount, LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(ValidationErr, VATAmtLbl, TotalVATAmount));
     end;
 
     local procedure VerifyVATAmountSpecificationInGBPOnReminderReport(VAT: Text[50]; VATBase: Decimal; TotalVATAmount: Decimal)
@@ -2915,14 +2924,14 @@
     begin
         LibraryReportDataset.SetRange('VALSpecLCYHeader', VATAmtSpecLCYLbl);
         LibraryReportDataset.SetRange('VATAmtLineVATCtrl107', VAT);
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, StrSubstNo(RowNotFoundErr, 'VATAmtLineVATCtrl107', VAT));
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), StrSubstNo(RowNotFoundErr, 'VATAmtLineVATCtrl107', VAT));
         LibraryReportDataset.FindCurrentRowValue('VALVATBaseLCY', Amount);
         Assert.AreNearlyEqual(
-          VATBase, Amount, LibraryERM.GetAmountRoundingPrecision,
+          VATBase, Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationErr, VATBaseLabelTxt, VATBase));
         LibraryReportDataset.FindCurrentRowValue('VALVATAmountLCY', VATAmount);
         Assert.AreNearlyEqual(
-          TotalVATAmount, VATAmount, LibraryERM.GetAmountRoundingPrecision,
+          TotalVATAmount, VATAmount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationErr, VATAmtLbl, TotalVATAmount));
     end;
 
@@ -2933,14 +2942,14 @@
     begin
         LibraryReportDataset.SetRange('ValspecLCYHdr', VATAmtSpecLCYLbl);
         LibraryReportDataset.SetRange('VatAmtLnVat1', VAT);
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, StrSubstNo(RowNotFoundErr, 'VatAmtLnVat1', VAT));
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), StrSubstNo(RowNotFoundErr, 'VatAmtLnVat1', VAT));
         LibraryReportDataset.FindCurrentRowValue('ValvataBaseLCY', Amount);
         Assert.AreNearlyEqual(
-          VATBase, Amount, LibraryERM.GetAmountRoundingPrecision,
+          VATBase, Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationErr, VATBaseLabelTxt, VATBase));
         LibraryReportDataset.FindCurrentRowValue('ValvatamountLCY', VATAmount);
         Assert.AreNearlyEqual(
-          TotalVATAmount, VATAmount, LibraryERM.GetAmountRoundingPrecision,
+          TotalVATAmount, VATAmount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationErr, VATAmtLbl, TotalVATAmount));
     end;
 
@@ -2951,9 +2960,9 @@
 
     local procedure VerifyWarningOnReport(No: Code[20]; IssuedHeaderNo: Text[1024]; ExpectedWarningMessage: Text[1024])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(IssuedHeaderNo, No);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, IssuedHeaderNo, No);
         LibraryReportDataset.AssertCurrentRowValueEquals('ErrorText_Number_', ExpectedWarningMessage);
     end;
@@ -2964,42 +2973,42 @@
         Row: Integer;
         ElementValue: Text;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Row :=
           LibraryReportDataset.FindRow(
             'Desc1_IssuedReminderLine',
             GetRemitPaymentsMsg(IssuedReminderNo, Amount + GetCustAddFeeAmount(CustomerNo)));
         LibraryReportDataset.MoveToRow(Row + 1);
-        if LibraryReportDataset.GetNextRow then
+        if LibraryReportDataset.GetNextRow() then
             repeat
                 if LibraryReportDataset.CurrentRowHasElement('Desc1_IssuedReminderLine') then begin
                     LibraryReportDataset.GetElementValueInCurrentRow('Desc1_IssuedReminderLine', Variant);
                     Evaluate(ElementValue, Variant);
                     Assert.IsTrue(StrLen(ElementValue) = 0, ReminderReportLastLineErr);
                 end;
-            until not LibraryReportDataset.GetNextRow;
+            until not LibraryReportDataset.GetNextRow();
     end;
 
     local procedure VerifyEmptyValueOfField(GenJnlTemplateName: Text; GenJnlBatchName: Text; LineNo: Integer)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(GenJnlTemplateNameTok, GenJnlTemplateName);
         LibraryReportDataset.SetRange(GenJnlBatchNameTok, GenJnlBatchName);
         LibraryReportDataset.SetRange(LineNoTok, LineNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         repeat
             Assert.IsFalse(LibraryReportDataset.CurrentRowHasElement(WarningCaptionTok), StrSubstNo(WarningErrorErr, LineNo));
             Assert.IsFalse(LibraryReportDataset.CurrentRowHasElement(ErrorTextNumberTok), WarningErrorErr);
-        until not LibraryReportDataset.GetNextRow;
+        until not LibraryReportDataset.GetNextRow();
     end;
 
     local procedure VerifyGeneralJournalTestLineErrorText(GenJnlTemplateName: Text; GenJnlBatchName: Text; LineNo: Integer; ExpectedErrorText: Text)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(GenJnlTemplateNameTok, GenJnlTemplateName);
         LibraryReportDataset.SetRange(GenJnlBatchNameTok, GenJnlBatchName);
         LibraryReportDataset.SetRange(LineNoTok, LineNo);
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.GetLastRow();
         Assert.IsTrue(LibraryReportDataset.CurrentRowHasElement(WarningCaptionTok), StrSubstNo(WarningErrorErr, LineNo));
         Assert.IsTrue(LibraryReportDataset.CurrentRowHasElement(ErrorTextNumberTok), ExpectedErrorText);
     end;
@@ -3015,10 +3024,10 @@
         LibraryVariableStorage.Dequeue(Code);
         AdjustExchangeRate.StartingDate.SetValue(WorkDate());
         AdjustExchangeRate.EndingDate.SetValue(CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(3)), WorkDate()));
-        AdjustExchangeRate.DocumentNo.SetValue(LibraryUTUtility.GetNewCode);
+        AdjustExchangeRate.DocumentNo.SetValue(LibraryUTUtility.GetNewCode());
         AdjustExchangeRate.Currency.SetFilter(Code, Code);
         LibraryVariableStorage.Enqueue(AdjustExchangeRate.DocumentNo.Value);
-        AdjustExchangeRate.OK.Invoke;
+        AdjustExchangeRate.OK().Invoke();
     end;
 #else
     [RequestPageHandler]
@@ -3034,7 +3043,7 @@
         ExchRateAdjustment.DocumentNo.SetValue(LibraryUTUtility.GetNewCode());
         ExchRateAdjustment.CurrencyFilter.SetFilter(Code, Code);
         LibraryVariableStorage.Enqueue(ExchRateAdjustment.DocumentNo.Value);
-        ExchRateAdjustment.OK.Invoke();
+        ExchRateAdjustment.OK().Invoke();
     end;
 #endif
 
@@ -3110,7 +3119,7 @@
 
         BankAccReconTest."Bank Acc. Reconciliation".SetFilter("Bank Account No.", BalAccNo);
         BankAccReconTest."Bank Acc. Reconciliation".SetFilter("Statement No.", StatemenNo);
-        BankAccReconTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        BankAccReconTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
@@ -3123,7 +3132,7 @@
         LibraryVariableStorage.Dequeue(BankAccountNo);
 
         BankAccountCheckDetails."Bank Account".SetFilter("No.", BankAccountNo);
-        BankAccountCheckDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        BankAccountCheckDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
@@ -3139,7 +3148,7 @@
 
         ReminderTest."Reminder Header".SetFilter("No.", ReminderNo);
         ReminderTest.ShowDimensions.SetValue(ShowDimensions);
-        ReminderTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        ReminderTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
@@ -3154,7 +3163,7 @@
         LibraryVariableStorage.Dequeue(ReminderNo2);
 
         ReminderNos."Issued Reminder Header".SetFilter("No.", StrSubstNo('%1|%2', ReminderNo1, ReminderNo2));
-        ReminderNos.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        ReminderNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
@@ -3162,9 +3171,9 @@
     procedure RHReminder(var Reminder: TestRequestPage Reminder)
     begin
         CurrentSaveValuesId := REPORT::Reminder;
-        Reminder."Issued Reminder Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
+        Reminder."Issued Reminder Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
         Reminder.ShowNotDueAmounts.SetValue(false);
-        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
@@ -3183,7 +3192,7 @@
         FinanceChargeMemo."Issued Fin. Charge Memo Header".SetFilter("No.", IssuedFinChargeMemoNo);
         FinanceChargeMemo.ShowInternalInformation.SetValue(ShowInternalInfo);
         FinanceChargeMemo.LogInteraction.SetValue(LogInteraction);
-        FinanceChargeMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FinanceChargeMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3199,7 +3208,7 @@
 
         FinanceChargeMemoTest."Finance Charge Memo Header".SetFilter("No.", FinChargeMemoNo);
         FinanceChargeMemoTest.ShowDimensions.SetValue(ShowDimension);
-        FinanceChargeMemoTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FinanceChargeMemoTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3214,7 +3223,7 @@
         LibraryVariableStorage.Dequeue(FinanceChargeMemoNo2);
         FinanceChargeMemoNos."Issued Fin. Charge Memo Header".SetFilter(
           "No.", StrSubstNo('%1|%2', FinanceChargeMemoNo1, FinanceChargeMemoNo2));
-        FinanceChargeMemoNos.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FinanceChargeMemoNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3232,7 +3241,7 @@
         ReceivablesPayables.StartDate.SetValue(StartingDate);
         ReceivablesPayables.NoOfPeriods.SetValue(NoOfPeriods);
         ReceivablesPayables.PeriodLength.SetValue(PeriodLength);
-        ReceivablesPayables.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReceivablesPayables.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3250,14 +3259,14 @@
         GeneralJournalTest."Gen. Journal Line".SetFilter("Journal Template Name", JournalTemplateName);
         GeneralJournalTest."Gen. Journal Line".SetFilter("Journal Batch Name", JournalBatchName);
         GeneralJournalTest.ShowDim.SetValue(ShowDimension);
-        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHGeneralJournalTestSimple(var GeneralJournalTest: TestRequestPage "General Journal - Test")
     begin
-        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3272,7 +3281,7 @@
         LibraryVariableStorage.Dequeue(DateFilter);
         TrialBalancePreviousYear."G/L Account".SetFilter("No.", GLAccountNo);
         TrialBalancePreviousYear."G/L Account".SetFilter("Date Filter", Format(DateFilter));
-        TrialBalancePreviousYear.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TrialBalancePreviousYear.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]
@@ -3287,7 +3296,7 @@
     procedure RHGenJournalTest(var GeneralJournalTest: TestRequestPage "General Journal - Test")
     begin
         CurrentSaveValuesId := REPORT::"General Journal - Test";
-        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3295,7 +3304,7 @@
     procedure RHBankAccDetailTrialBalance(var BankAccDetailTrialBalance: TestRequestPage "Bank Acc. - Detail Trial Bal.")
     begin
         CurrentSaveValuesId := REPORT::"Bank Acc. - Detail Trial Bal.";
-        BankAccDetailTrialBalance.SaveAsExcel(LibraryReportValidation.GetFileName);
+        BankAccDetailTrialBalance.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3303,14 +3312,14 @@
     procedure RHBankAccDetailTrialBalanceXML(var BankAccDetailTrialBalance: TestRequestPage "Bank Acc. - Detail Trial Bal.")
     begin
         CurrentSaveValuesId := REPORT::"Bank Acc. - Detail Trial Bal.";
-        BankAccDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReminderRequestPageHandler(var Reminder: TestRequestPage Reminder)
     begin
-        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

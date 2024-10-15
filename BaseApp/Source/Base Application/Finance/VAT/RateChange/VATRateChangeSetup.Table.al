@@ -15,6 +15,7 @@ using Microsoft.Service.Document;
 table 550 "VAT Rate Change Setup"
 {
     Caption = 'VAT Rate Change Setup';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -101,7 +102,7 @@ table 550 "VAT Rate Change Setup"
         field(35; "Update Job Journal Lines"; Option)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Update Job Journal Lines';
+            Caption = 'Update Project Journal Lines';
             InitValue = "Gen. Prod. Posting Group";
             OptionCaption = ',Gen. Prod. Posting Group,,No';
             OptionMembers = ,"Gen. Prod. Posting Group",,No;

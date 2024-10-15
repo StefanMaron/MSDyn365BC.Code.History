@@ -37,7 +37,7 @@ codeunit 134822 "DimFilter Unit Tests"
     var
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        SetupTestData;
+        SetupTestData();
         DimensionMgt.GetDimSetIDsForFilter('', '');
         DimensionMgt.GetTempDimSetEntry(TempDimSetEntry);
         Assert.IsFalse(TempDimSetEntry.IsEmpty, StrSubstNo(Text005, TempDimSetEntry.TableCaption()));
@@ -85,10 +85,10 @@ codeunit 134822 "DimFilter Unit Tests"
         "Count": Integer;
     begin
         // Try to add a single DimSetID
-        SetupTestData;
+        SetupTestData();
         Count := 1;
         AddDimSetIDsToTemp(DimensionValue, DimSetEntry, TempDimSetEntry, DimCode3, Count);
-        Assert.AreEqual(0, TempDimSetEntry.Next, StrSubstNo(Text001, TempDimSetEntry.TableCaption()));
+        Assert.AreEqual(0, TempDimSetEntry.Next(), StrSubstNo(Text001, TempDimSetEntry.TableCaption()));
         DimSetEntry.TestField("Dimension Code", DimCode3);
         DimSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
         Assert.AreEqual(Count, TempDimSetEntry."Dimension Value ID", Text003);
@@ -104,10 +104,10 @@ codeunit 134822 "DimFilter Unit Tests"
         "count": Integer;
     begin
         // Try to add the same DimSetID multiple times (between 2 and 10)
-        SetupTestData;
+        SetupTestData();
         count := 1 + LibraryRandom.RandInt(9);
         AddDimSetIDsToTemp(DimensionValue, DimSetEntry, TempDimSetEntry, DimCode3, count);
-        Assert.AreEqual(0, TempDimSetEntry.Next, StrSubstNo(Text001, TempDimSetEntry.TableCaption()));
+        Assert.AreEqual(0, TempDimSetEntry.Next(), StrSubstNo(Text001, TempDimSetEntry.TableCaption()));
         DimSetEntry.TestField("Dimension Code", DimCode3);
         DimSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
         Assert.AreEqual(count, TempDimSetEntry."Dimension Value ID", Text003);
@@ -126,7 +126,7 @@ codeunit 134822 "DimFilter Unit Tests"
         count2: Integer;
     begin
         // Try to add different DimSetID's
-        SetupTestData;
+        SetupTestData();
         count1 := 1 + LibraryRandom.RandInt(9);
         AddDimSetIDsToTemp(DimensionValue, DimSetEntry, TempDimSetEntry, DimCode3, count1);
         DimValueCode1 := DimensionValue.Code;
@@ -167,7 +167,7 @@ codeunit 134822 "DimFilter Unit Tests"
     begin
         // Empty filter includes all DimSetIDs in Table
         // Compare first and last DimSetIDs from expected and actualcreated by function
-        SetupTestData;
+        SetupTestData();
         ExpectedDimSetEntry.FindLast();
         ExpectedLastDimSetID := ExpectedDimSetEntry."Dimension Set ID";
 
@@ -190,7 +190,7 @@ codeunit 134822 "DimFilter Unit Tests"
         ExpectedDimSetEntry: Record "Dimension Set Entry";
         TempActualDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        SetupTestData;
+        SetupTestData();
         CreateExpectedTable(ExpectedDimSetEntry, DimCode1, '');
         CreateTempActualTable(TempActualDimSetEntry, DimCode1, '');
     end;
@@ -203,7 +203,7 @@ codeunit 134822 "DimFilter Unit Tests"
         TempActualDimSetEntry: Record "Dimension Set Entry" temporary;
         RandomDimValue: Code[20];
     begin
-        SetupTestData;
+        SetupTestData();
         RandomDimValue := GetRandomDimValue(DimCode1);
         CreateExpectedTable(ExpectedDimSetEntry, DimCode1, RandomDimValue);
         CreateTempActualTable(TempActualDimSetEntry, DimCode1, RandomDimValue);
@@ -219,7 +219,7 @@ codeunit 134822 "DimFilter Unit Tests"
         DimensionValue: Record "Dimension Value";
         InvalidDimValue: Code[250];
     begin
-        SetupTestData;
+        SetupTestData();
         InvalidDimValue := LibraryUtility.GenerateRandomCode(DimensionValue.FieldNo(Code), DATABASE::"Dimension Value");
         CreateExpectedTable(ExpectedDimSetEntry, DimCode1, InvalidDimValue);
         CreateTempActualTable(TempActualDimSetEntry, DimCode1, InvalidDimValue);
@@ -235,7 +235,7 @@ codeunit 134822 "DimFilter Unit Tests"
     begin
         // Filter '..X' behaves as it has blank filter in string
         // so the result is all DimSetIDs without DimCode1 + smaller values than X for DimCode1
-        SetupTestData;
+        SetupTestData();
         RandomDimValue := GetRandomDimValue(DimCode1);
         CreateTempActualTable(TempActualDimSetEntry, DimCode1, RandomDimValue);
         Assert.IsFalse(CheckTempActualTable(TempActualDimSetEntry, DimCode1, RandomDimValue + '..'), Text006);
@@ -249,7 +249,7 @@ codeunit 134822 "DimFilter Unit Tests"
         TempActualDimSetEntry: Record "Dimension Set Entry" temporary;
         RandomDimValue: Code[20];
     begin
-        SetupTestData;
+        SetupTestData();
         RandomDimValue := GetRandomDimValue(DimCode1);
         CreateExpectedTable(ExpectedDimSetEntry, DimCode1, RandomDimValue + '..');
         CreateTempActualTable(TempActualDimSetEntry, DimCode1, RandomDimValue + '..');
@@ -265,7 +265,7 @@ codeunit 134822 "DimFilter Unit Tests"
     begin
         // Filter 'X|''' behaves as it has blank filter in string
         // so the result is all DimSetIDs without DimCode1 + X for DimCode1
-        SetupTestData;
+        SetupTestData();
         RandomDimValue := GetRandomDimValue(DimCode1);
         CreateTempActualTable(TempActualDimSetEntry, DimCode1, RandomDimValue + '|''''');
         Assert.IsFalse(CheckTempActualTable(TempActualDimSetEntry, DimCode1, '<>' + RandomDimValue), Text006);
@@ -280,7 +280,7 @@ codeunit 134822 "DimFilter Unit Tests"
         MultipleDimValueFilter: Text[250];
     begin
         // A..C
-        SetupTestData;
+        SetupTestData();
         CreateMultipleDimValueFilter(DimCode1, MultipleDimValueFilter, '..');
         CreateExpectedTable(ExpectedDimSetEntry, DimCode1, MultipleDimValueFilter);
         CreateTempActualTable(TempActualDimSetEntry, DimCode1, MultipleDimValueFilter);
@@ -296,7 +296,7 @@ codeunit 134822 "DimFilter Unit Tests"
         MultipleDimValueFilter: Text[250];
     begin
         // A|B
-        SetupTestData;
+        SetupTestData();
         CreateMultipleDimValueFilter(DimCode1, MultipleDimValueFilter, '|');
         CreateExpectedTable(ExpectedDimSetEntry, DimCode1, MultipleDimValueFilter);
         CreateTempActualTable(TempActualDimSetEntry, DimCode1, MultipleDimValueFilter);
@@ -313,7 +313,7 @@ codeunit 134822 "DimFilter Unit Tests"
         InvalidDimValue: Code[250];
     begin
         // Invalid Dimension value should return an empty string
-        SetupTestData;
+        SetupTestData();
         InvalidDimValue := LibraryUtility.GenerateRandomCode(DimensionValue.FieldNo(Code), DATABASE::"Dimension Value");
         CreateTempActualTable(TempActualDimSetEntry, DimCode1, InvalidDimValue);
         DimFilter := DimensionMgt.GetDimSetFilter();
@@ -330,7 +330,7 @@ codeunit 134822 "DimFilter Unit Tests"
         // FilterChunk with one Dimension Set ID.
         // DimCode4 has one dimension value
         // DimFiterChunk should not have a '|'
-        SetupTestData;
+        SetupTestData();
         CreateTempActualTable(TempActualDimSetEntry, DimCode4, GetRandomDimValue(DimCode4));
         DimFilter := DimensionMgt.GetDimSetFilter();
         Assert.AreEqual(0, StrPos(DimFilter, '|'), StrSubstNo(Text001, TempActualDimSetEntry.TableCaption()));
@@ -345,7 +345,7 @@ codeunit 134822 "DimFilter Unit Tests"
     begin
         // Filter Chunk with two Dimension Set ID
         // DimFilterChunk should have one '|'
-        SetupTestData;
+        SetupTestData();
         CreateTempActualTable(TempActualDimSetEntry, DimCode5, GetRandomDimValue(DimCode5));
         DimFilter := DimensionMgt.GetDimSetFilter();
         Assert.AreEqual(0, StrPos(CopyStr(DimFilter, StrPos(DimFilter, '|') + 1), '|'),
@@ -361,7 +361,7 @@ codeunit 134822 "DimFilter Unit Tests"
     begin
         // DimCode1 has multiple dimension combinations
         // Compare the values in Temp table with FilterChunk
-        SetupTestData;
+        SetupTestData();
         CreateTempActualTable(TempActualDimSetEntry, DimCode1, GetRandomDimValue(DimCode1));
         DimFilter := DimensionMgt.GetDimSetFilter();
         CompareTempTableAndFilter(TempActualDimSetEntry, DimFilter);
@@ -378,10 +378,10 @@ codeunit 134822 "DimFilter Unit Tests"
         // Test Column Name on Page Dimension Combinations
 
         // Setup : Create the Dimension Values.
-        SetupTestData;
+        SetupTestData();
 
         // Exercise: Open Dimension Combinations Page and set Show Column Name.
-        DimensionCombinations.OpenEdit;
+        DimensionCombinations.OpenEdit();
         DimensionCombinations.ShowColumnName.SetValue(true);
         DimensionCombinations.MatrixForm.Next();
         Dimension.Get(DimensionCombinations.MatrixForm.Code.Value);
@@ -403,8 +403,8 @@ codeunit 134822 "DimFilter Unit Tests"
         // Test Column Name on My DimValue Combinations
 
         // Setup : Create the Dimension Values.
-        FirstDimCode := CreateDimension;
-        SecondDimCode := CreateDimension;
+        FirstDimCode := CreateDimension();
+        SecondDimCode := CreateDimension();
         CreateDimensionValues(FirstDimCode, 2);
         CreateDimensionValues(SecondDimCode, 2);
 
@@ -428,7 +428,7 @@ codeunit 134822 "DimFilter Unit Tests"
         Dimension.DeleteAll();
 
         // [WHEN] Open "Dimension Combinations" page
-        asserterror DimensionCombinations.OpenEdit;
+        asserterror DimensionCombinations.OpenEdit();
 
         // [THEN] "No dimensions are available in the database." error appears
         Assert.ExpectedError('No dimensions are available in the database.');
@@ -445,7 +445,7 @@ codeunit 134822 "DimFilter Unit Tests"
 
         // [GIVEN] Dimension Value with Code "=A<B>.C@ &D(E)F"|" for Department Dimension.
         // [WHEN] Set this Dimension Value as Department Filter on page "Acc. Schedule Overview" using Lookup.
-        AccScheduleOverview.OpenEdit;
+        AccScheduleOverview.OpenEdit();
         AccScheduleOverview.Dim1Filter.SetValue('''=A<B>.C@ &D(E)F"|''');
 
         // [THEN] Department Filter value is '=A<B>.C@ &D(E)F"|'.
@@ -458,12 +458,12 @@ codeunit 134822 "DimFilter Unit Tests"
         if TestDataSetUp then
             exit;
 
-        DimCode1 := CreateDimension;
-        DimCode2 := CreateDimension;
-        DimCode3 := CreateDimension;
-        DimCode4 := CreateDimension;
-        DimCode5 := CreateDimension;
-        DimCode6 := CreateDimension;
+        DimCode1 := CreateDimension();
+        DimCode2 := CreateDimension();
+        DimCode3 := CreateDimension();
+        DimCode4 := CreateDimension();
+        DimCode5 := CreateDimension();
+        DimCode6 := CreateDimension();
         CreateDimensionValues(DimCode1, 26);
         CreateDimensionValues(DimCode2, 26);
         CreateDimensionValues(DimCode3, 1);

@@ -10,6 +10,7 @@ table 5481 "Account Entity Setup"
     ObsoleteReason = 'Became obsolete after refactoring of the NAV APIs.';
     ObsoleteState = Removed;
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

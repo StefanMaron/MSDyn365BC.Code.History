@@ -46,14 +46,14 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Pre-verify.
         Vendor.Find();
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
+        Assert.IsTrue(Vendor.HasAddress(), StrSubstNo(HasAddressErr, Vendor.TableCaption()));
 
         // Exercise.
         PurchaseHeader.Modify(true);
 
         // Verify.
         Vendor.Find();
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
+        Assert.IsTrue(Vendor.HasAddress(), StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -80,14 +80,14 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Pre-verify.
         Vendor.Find();
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
+        Assert.IsTrue(Vendor.HasAddress(), StrSubstNo(HasAddressErr, Vendor.TableCaption()));
 
         // Exercise.
         PurchaseHeader.Modify(true);
 
         // Verify.
         Vendor.Find();
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
+        Assert.IsTrue(Vendor.HasAddress(), StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -123,12 +123,12 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Verify
         FindBuyFromVendorPurchaseInvoice(PurchaseHeader, ReplacementVendor."No.");
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -162,12 +162,12 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Verify
         FindPayToVendorPurchaseInvoice(PurchaseHeader, ReplacementVendor."No.");
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -203,12 +203,12 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Verify
         FindBuyFromVendorPurchaseInvoice(PurchaseHeader, ReplacementVendor."No.");
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -251,7 +251,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         VerifyPayToAddressSyncedFromVendor(PurchaseHeader, ReplacementVendor);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -269,7 +269,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         Vendor.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
+        Assert.IsTrue(Vendor.HasAddress(), StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -287,7 +287,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         Vendor.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
+        Assert.IsTrue(Vendor.HasAddress(), StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -305,7 +305,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         Vendor.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
+        Assert.IsTrue(Vendor.HasAddress(), StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -323,7 +323,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         Vendor.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
+        Assert.IsTrue(Vendor.HasAddress(), StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -341,7 +341,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         Vendor.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
+        Assert.IsTrue(Vendor.HasAddress(), StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -359,7 +359,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         Vendor.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
+        Assert.IsTrue(Vendor.HasAddress(), StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -377,7 +377,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         Vendor.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Vendor.HasAddress, StrSubstNo(HasAddressErr, Vendor.TableCaption()));
+        Assert.IsTrue(Vendor.HasAddress(), StrSubstNo(HasAddressErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -391,16 +391,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Buy-from Address" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Buy-from Address")),
             1, MaxStrLen(PurchaseHeader."Buy-from Address"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -414,16 +414,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Buy-from Address 2" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Buy-from Address 2")),
             1, MaxStrLen(PurchaseHeader."Buy-from Address 2"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -437,16 +437,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Buy-from City" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Buy-from City")),
             1, MaxStrLen(PurchaseHeader."Buy-from City"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -460,16 +460,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Buy-from Country/Region Code" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Buy-from Country/Region Code")),
             1, MaxStrLen(PurchaseHeader."Buy-from Country/Region Code"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -483,16 +483,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Buy-from County" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Buy-from County")),
             1, MaxStrLen(PurchaseHeader."Buy-from County"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -506,16 +506,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Buy-from Post Code" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Buy-from Post Code")),
             1, MaxStrLen(PurchaseHeader."Buy-from Post Code"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -529,16 +529,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Buy-from Contact" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Buy-from Contact")),
             1, MaxStrLen(PurchaseHeader."Buy-from Contact"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -552,16 +552,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Ship-to Address" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Ship-to Address")),
             1, MaxStrLen(PurchaseHeader."Ship-to Address"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -575,16 +575,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Ship-to Address 2" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Ship-to Address 2")),
             1, MaxStrLen(PurchaseHeader."Ship-to Address 2"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -598,16 +598,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Ship-to City" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Ship-to City")),
             1, MaxStrLen(PurchaseHeader."Ship-to City"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -621,16 +621,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Ship-to Country/Region Code" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Ship-to Country/Region Code")),
             1, MaxStrLen(PurchaseHeader."Ship-to Country/Region Code"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -644,16 +644,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Ship-to County" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Ship-to County")),
             1, MaxStrLen(PurchaseHeader."Ship-to County"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -667,16 +667,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Ship-to Post Code" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Ship-to Post Code")),
             1, MaxStrLen(PurchaseHeader."Ship-to Post Code"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -690,16 +690,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Ship-to Contact" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Ship-to Contact")),
             1, MaxStrLen(PurchaseHeader."Ship-to Contact"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsFalse(PurchaseHeader.HasPayToAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasPayToAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -713,16 +713,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Pay-to Address" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Pay-to Address")),
             1, MaxStrLen(PurchaseHeader."Pay-to Address"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -736,16 +736,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Pay-to Address 2" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Pay-to Address 2")),
             1, MaxStrLen(PurchaseHeader."Pay-to Address 2"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -759,16 +759,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Pay-to City" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Pay-to City")),
             1, MaxStrLen(PurchaseHeader."Pay-to City"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -782,16 +782,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Pay-to Country/Region Code" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Pay-to Country/Region Code")),
             1, MaxStrLen(PurchaseHeader."Pay-to Country/Region Code"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -805,16 +805,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Pay-to County" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Pay-to County")),
             1, MaxStrLen(PurchaseHeader."Pay-to County"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -828,16 +828,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Pay-to Post Code" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Pay-to Post Code")),
             1, MaxStrLen(PurchaseHeader."Pay-to Post Code"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     [Test]
@@ -851,16 +851,16 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
 
         // Setup.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, '', 1, '', 0D);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), '', 1, '', 0D);
         PurchaseHeader."Pay-to Contact" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(PurchaseHeader."Pay-to Contact")),
             1, MaxStrLen(PurchaseHeader."Pay-to Contact"));
         PurchaseHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress, StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasShipToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
-        Assert.IsTrue(PurchaseHeader.HasPayToAddress, StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsFalse(PurchaseHeader.HasBuyFromAddress(), StrSubstNo(DoesNotHaveAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
+        Assert.IsTrue(PurchaseHeader.HasPayToAddress(), StrSubstNo(HasAddressErr, PurchaseHeader.TableCaption()));
     end;
 
     local procedure Initialize()
@@ -871,14 +871,14 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Simple UI: Vend. Address Sync");
         LibraryVariableStorage.Clear();
         LibraryApplicationArea.EnableFoundationSetup();
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Simple UI: Vend. Address Sync");
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         isInitialized := true;
@@ -938,11 +938,11 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseInvoice.OpenNew();
         PurchaseInvoice."Posting Date".SetValue(WorkDate());
         PurchaseInvoice."Buy-from Post Code".SetValue(BuyFromPostCode.Code);
-        PurchaseInvoice."Buy-from Address".SetValue(GenerateBuyFromAddress);
+        PurchaseInvoice."Buy-from Address".SetValue(GenerateBuyFromAddress());
         PurchaseInvoice."Pay-to Post Code".SetValue(PayToPostCode.Code);
-        PurchaseInvoice."Pay-to Address".SetValue(GeneratePayToAddress);
+        PurchaseInvoice."Pay-to Address".SetValue(GeneratePayToAddress());
         PurchaseInvoice."Buy-from Vendor Name".SetValue(BuyFromVendorName);
-        PurchaseInvoice.OK.Invoke;
+        PurchaseInvoice.OK().Invoke();
     end;
 
     local procedure CreateVendorWithAddress(var Vendor: Record Vendor)
@@ -952,8 +952,8 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         LibraryERM.CreatePostCode(PostCode);
 
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate(Address, GenerateBuyFromAddress);
-        Vendor.Validate("Address 2", CopyStr(GenerateBuyFromAddress, 1, MaxStrLen(Vendor."Address 2")));
+        Vendor.Validate(Address, GenerateBuyFromAddress());
+        Vendor.Validate("Address 2", CopyStr(GenerateBuyFromAddress(), 1, MaxStrLen(Vendor."Address 2")));
         Vendor.Validate("Post Code", PostCode.Code);
         Vendor.Modify(true);
     end;
@@ -985,10 +985,10 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
     begin
         FindBuyFromVendorPurchaseInvoice(PurchaseHeader, OriginalVendorNo);
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice."Buy-from Vendor Name".SetValue(ReplacementVendorName);
-        PurchaseInvoice.OK.Invoke;
+        PurchaseInvoice.OK().Invoke();
     end;
 
     local procedure ReplacePurchaseInvoicePayToVendor(OriginalVendorNo: Code[20]; ReplacementVendorName: Text[100])
@@ -998,10 +998,10 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
     begin
         FindPayToVendorPurchaseInvoice(PurchaseHeader, OriginalVendorNo);
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice."Pay-to Name".SetValue(ReplacementVendorName);
-        PurchaseInvoice.OK.Invoke;
+        PurchaseInvoice.OK().Invoke();
     end;
 
     local procedure VerifyBuyFromAddressSyncedFromVendor(var PurchaseHeader: Record "Purchase Header"; Vendor: Record Vendor)
@@ -1058,8 +1058,8 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
     procedure ConfirmHandlerWithMessageValidation(Question: Text[1024]; var Reply: Boolean)
     begin
         // Due to a platform bug in ALConfirm, the placehoders in a CONFIRM question do not get replaced.
-        // Assert.ExpectedMessage(LibraryVariableStorage.DequeueText,Question);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        // Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(),Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

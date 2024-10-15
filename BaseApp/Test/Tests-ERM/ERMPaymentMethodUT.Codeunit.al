@@ -169,10 +169,10 @@ codeunit 134405 "ERM Payment Method UT"
         LibraryVariableStorage.Enqueue('Name A');
 
         // Exercise
-        TestPaymentMethods.OpenEdit;
+        TestPaymentMethods.OpenEdit();
         TestPaymentMethods.GotoRecord(PaymentMethod);
-        TestPaymentMethods."Pmt. Export Line Definition".Lookup;
-        TestPaymentMethods.OK.Invoke;
+        TestPaymentMethods."Pmt. Export Line Definition".Lookup();
+        TestPaymentMethods.OK().Invoke();
 
         // Verify
         PaymentMethod.Get(PaymentMethod.Code);
@@ -201,16 +201,16 @@ codeunit 134405 "ERM Payment Method UT"
         LibraryVariableStorage.Enqueue(LibraryERM.CreatePaymentMethodTranslation(PaymentMethod.Code));
 
         // [GIVEN] Page "Payment Method" with selected "PM2"
-        PaymentMethods.OpenEdit;
+        PaymentMethods.OpenEdit();
         PaymentMethods.GotoKey(ExpectedPaymentMethodCode);
 
         // [WHEN] Invoke "Translations"
-        PaymentMethods."T&ranslation".Invoke;
+        PaymentMethods."T&ranslation".Invoke();
 
         // [THEN] Page "Payment Method Translations" contains only "PMT2"
         // Verification in the PaymentMethodTranslationsHandler
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -276,7 +276,7 @@ codeunit 134405 "ERM Payment Method UT"
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.Insert(true);
         // [GIVEN] Customer with "Payment Method Code" <> ''
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // [WHEN] Sales Header "Sell-to Customer No." validated with Customer's "No."
         SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
@@ -300,7 +300,7 @@ codeunit 134405 "ERM Payment Method UT"
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Return Order");
         SalesHeader.Insert(true);
         // [GIVEN] Customer with "Payment Method Code" <> ''
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // [WHEN] Sales Header "Sell-to Customer No." validated with Customer's "No."
         SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
@@ -326,7 +326,7 @@ codeunit 134405 "ERM Payment Method UT"
         PurchaseHeader.Insert(true);
 
         // [GIVEN] Vendor with "Payment Method Code" <> ''
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
 
         // [WHEN] Purchase Header "Bill-to Contact No." validated with Vendor's "No."
         PurchaseHeader.Validate("Buy-from Vendor No.", VendorNo);
@@ -354,7 +354,7 @@ codeunit 134405 "ERM Payment Method UT"
         PurchaseHeader.Insert(true);
 
         // [GIVEN] Vendor with "Payment Method Code" <> ''
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
 
         // [WHEN] Purchase Header "Bill-to Contact No." validated with Vendor's "No."
         PurchaseHeader.Validate("Buy-from Vendor No.", VendorNo);
@@ -379,10 +379,10 @@ codeunit 134405 "ERM Payment Method UT"
         // [GIVEN] "Credit Memo" Service header
         ServiceHeader.Init();
         ServiceHeader.Validate("Document Type", ServiceHeader."Document Type"::"Credit Memo");
-        ServiceHeader.Validate("No.", LibraryUTUtility.GetNewCode);
+        ServiceHeader.Validate("No.", LibraryUTUtility.GetNewCode());
         ServiceHeader.Insert(true);
         // [GIVEN] Customer with "Payment Method Code" <> ''
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // [WHEN] ServiceHeader "Bill-to Customer No." validated with Customer's "No."
         ServiceHeader.Validate("Bill-to Customer No.", CustomerNo);
@@ -480,16 +480,16 @@ codeunit 134405 "ERM Payment Method UT"
 
         PaymentIdentifiers.FILTER.SetFilter(Code, ExchDefLineCode);
         PaymentIdentifiers.FILTER.SetFilter(Name, ExchDefLineName);
-        PaymentIdentifiers.First;
+        PaymentIdentifiers.First();
 
-        PaymentIdentifiers.OK.Invoke;
+        PaymentIdentifiers.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PaymentMethodTranslationsHandler(var PaymentMethodTranslations: TestPage "Payment Method Translations")
     begin
-        PaymentMethodTranslations."Language Code".AssertEquals(LibraryVariableStorage.DequeueText);
+        PaymentMethodTranslations."Language Code".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 }
 

@@ -13,7 +13,7 @@ page 374 "Check Ledger Entries"
     PageType = List;
     SourceTable = "Check Ledger Entry";
     SourceTableView = sorting("Bank Account No.", "Check Date")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout

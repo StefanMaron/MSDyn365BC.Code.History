@@ -46,7 +46,6 @@ page 1306 "O365 Tour Complete"
                 Caption = 'Return to Getting Started';
                 Image = NextRecord;
                 InFooterBar = true;
-                Promoted = true;
 
                 trigger OnAction()
                 var

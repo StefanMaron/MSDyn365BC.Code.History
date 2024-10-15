@@ -30,22 +30,22 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         InternalGLAccountNotSetErr: Label 'Internal G/L Account is not set. Create it first.';
         InternalGeneralPostingSetupNotSetErr: Label 'Internal General Posting Setup is not set. Create it first.';
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnMigrateGlAccount(RecordIdToMigrate: RecordID)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnCreateOpeningBalanceTrx(RecordIdToMigrate: RecordID)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnMigratePostingGroups(RecordIdToMigrate: RecordID)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnMigrateAccountTransactions(RecordIdToMigrate: RecordID)
     begin
     end;
@@ -492,7 +492,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Modify(true);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnMigrateGlAccountDimensions(RecordIdToMigrate: RecordID)
     begin
     end;

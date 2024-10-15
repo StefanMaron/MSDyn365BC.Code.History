@@ -1,11 +1,11 @@
-#if not CLEAN21
+#if not CLEAN23
 namespace Microsoft.Projects.Project.Pricing;
 
 using Microsoft.Pricing.Calculation;
 
 page 1013 "Job G/L Account Prices"
 {
-    Caption = 'Job G/L Account Prices';
+    Caption = 'Project G/L Account Prices';
     PageType = List;
     SourceTable = "Job G/L Account Price";
     ObsoleteState = Pending;
@@ -22,12 +22,12 @@ page 1013 "Job G/L Account Prices"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the job task if the general ledger price should only apply to a specific job task.';
+                    ToolTip = 'Specifies the number of the project task if the general ledger price should only apply to a specific project task.';
                 }
                 field("G/L Account No."; Rec."G/L Account No.")
                 {
@@ -52,7 +52,7 @@ page 1013 "Job G/L Account Prices"
                 field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies a line discount percent that applies to expenses related to this general ledger account. This is useful, for example if you want invoice lines for the job to show a discount percent.';
+                    ToolTip = 'Specifies a line discount percent that applies to expenses related to this general ledger account. This is useful, for example if you want invoice lines for the project to show a discount percent.';
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {

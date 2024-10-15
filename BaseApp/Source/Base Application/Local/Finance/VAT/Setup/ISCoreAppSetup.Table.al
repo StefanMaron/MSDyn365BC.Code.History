@@ -15,6 +15,7 @@ table 10903 "IS Core App Setup"
     ObsoleteState = Removed;
     ObsoleteTag = '27.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -35,6 +35,8 @@ page 9101 "Untracked Plng. Elements Part"
                 field(Source; Rec.Source)
                 {
                     ApplicationArea = Planning;
+                    Style = Strong;
+                    StyleExpr = Rec."Warning Level" > 0;
                     ToolTip = 'Specifies what the source of this untracked surplus quantity is.';
                 }
                 field("Source ID"; Rec."Source ID")

@@ -18,6 +18,7 @@ codeunit 136501 "UT Time Sheets Approval"
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
+        NoTimeSheetLinesToProcessErr: Label 'There are no time sheet lines to process in %1 action.', Comment = '%1 = Action';
 
     [Test]
     [Scope('OnPrem')]
@@ -30,7 +31,7 @@ codeunit 136501 "UT Time Sheets Approval"
 
         DoSubmitApprove(TimeSheetLine);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -49,7 +50,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetApprovalMgt.ReopenApproved(TimeSheetLine);
         TimeSheetLine.TestField(Status, TimeSheetLine.Status::Submitted);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -63,7 +64,7 @@ codeunit 136501 "UT Time Sheets Approval"
 
         DoSubmitReject(TimeSheetLine);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -86,7 +87,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetApprovalMgt.ReopenSubmitted(TimeSheetLine);
         TimeSheetLine.TestField(Status, TimeSheetLine.Status::Open);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -104,7 +105,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetApprovalMgt.Submit(TimeSheetLine);
         TimeSheetLine.TestField(Status, TimeSheetLine.Status::Submitted);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -188,7 +189,7 @@ codeunit 136501 "UT Time Sheets Approval"
         asserterror TimeSheetApprovalMgt.ReopenSubmitted(TimeSheetLine);
 
         UnbindSubscription(UTTimeSheetsApproval);
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -205,7 +206,7 @@ codeunit 136501 "UT Time Sheets Approval"
         // try to submit
         asserterror TimeSheetApprovalMgt.Submit(TimeSheetLine);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -251,7 +252,7 @@ codeunit 136501 "UT Time Sheets Approval"
           '',
           '',
           '',
-          GetCauseOfAbsenceCode);
+          GetCauseOfAbsenceCode());
 
         LibraryTimeSheet.CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", 1);
 
@@ -266,7 +267,7 @@ codeunit 136501 "UT Time Sheets Approval"
         EmployeeAbsence.SetRange("From Date", TimeSheetHeader."Starting Date");
         EmployeeAbsence.FindFirst();
 
-        TearDown;
+        TearDown();
     end;
 
 #if not CLEAN22
@@ -294,11 +295,11 @@ codeunit 136501 "UT Time Sheets Approval"
         BindSubscription(LibraryTimeSheetLocal);
 
         // [GIVEN] Open TimeSheet page
-        TimeSheet.OpenEdit;
+        TimeSheet.OpenEdit();
         TimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
 
         // [WHEN] Submit all lines action is being invoked
-        TimeSheet.Submit.Invoke;
+        TimeSheet.Submit.Invoke();
 
         // [THEN] TimeSheet.OnAfterProcess event provided all processed lines
         LibraryTimeSheetLocal.GetTimeSheetLineBuffer(TempTimeSheetLine);
@@ -333,11 +334,11 @@ codeunit 136501 "UT Time Sheets Approval"
         BindSubscription(LibraryTimeSheetLocal);
 
         // [GIVEN] Open Manager TimeSheet page
-        ManagerTimeSheet.OpenEdit;
+        ManagerTimeSheet.OpenEdit();
         ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
 
         // [WHEN] Reject all lines action is being invoked
-        ManagerTimeSheet.Reject.Invoke;
+        ManagerTimeSheet.Reject.Invoke();
 
         // [THEN] ManagerTimeSheet.OnAfterProcess event provided all processed lines
         LibraryTimeSheetLocal.GetTimeSheetLineBuffer(TempTimeSheetLine);
@@ -359,6 +360,7 @@ codeunit 136501 "UT Time Sheets Approval"
     begin
         // [FEATURE] [UT] [UI] [Reject]
         // [SCENARIO 271237] Extension has possibility to catch reject of timesheet lines on ManagerTimeSheetByJob page for further processing
+        // [SCENARIO 448247] Error when there are no lines to process.
         Initialize();
 
         LibraryTimeSheet.FindJob(Job);
@@ -376,14 +378,24 @@ codeunit 136501 "UT Time Sheets Approval"
         BindSubscription(LibraryTimeSheetLocal);
 
         // [GIVEN] Open Manager TimeSheet page
-        ManagerTimeSheetByJob.OpenEdit;
+        ManagerTimeSheetByJob.OpenEdit();
 
         // [WHEN] Reject all lines action is being invoked
-        ManagerTimeSheetByJob.Reject.Invoke;
+        ManagerTimeSheetByJob.Reject.Invoke();
 
         // [THEN] ManagerTimeSheetbyJob.OnAfterProcess event provided all processed lines
         LibraryTimeSheetLocal.GetTimeSheetLineBuffer(TempTimeSheetLine);
         VerifyTimeSheetLineBuffer(TempTimeSheetLine, TimeSheetHeader."No.");
+
+        // [GIVEN] Open Manager TimeSheet page
+        ManagerTimeSheetByJob.Close();
+        ManagerTimeSheetByJob.OpenEdit();
+
+        // [WHEN] Try to reject all lines again
+        asserterror ManagerTimeSheetByJob.Reject.Invoke();
+
+        // [THEN] Error is thrown that there are no lines to process
+        Assert.ExpectedError(StrSubstNo(NoTimeSheetLinesToProcessErr, Enum::"Time Sheet Action"::Reject));
     end;
 
     local procedure Initialize()
@@ -433,7 +445,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine: Record "Time Sheet Line";
         LineNo: Integer;
     begin
-        LineNo := TimeSheetHeader.GetLastLineNo + 10000;
+        LineNo := TimeSheetHeader.GetLastLineNo() + 10000;
 
         TimeSheetLine.Init();
         TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
@@ -452,7 +464,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine: Record "Time Sheet Line";
         LineNo: Integer;
     begin
-        LineNo := TimeSheetHeader.GetLastLineNo + 10000;
+        LineNo := TimeSheetHeader.GetLastLineNo() + 10000;
 
         TimeSheetLine.Init();
         TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";

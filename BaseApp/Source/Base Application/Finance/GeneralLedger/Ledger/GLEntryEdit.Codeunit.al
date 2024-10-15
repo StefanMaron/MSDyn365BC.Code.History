@@ -19,6 +19,12 @@ codeunit 115 "G/L Entry-Edit"
         GLEntry.Description := Rec.Description;
         OnBeforeGLLedgEntryModify(GLEntry, Rec);
         GLEntry.TestField("Entry No.", Rec."Entry No.");
+        GLEntry.TestField("Posting Date", Rec."Posting Date");
+        GLEntry.TestField(Amount, Rec.Amount);
+        GLEntry.TestField("Document No.", Rec."Document No.");
+        GLEntry.TestField("VAT Amount", Rec."VAT Amount");
+        GLEntry.TestField("Debit Amount", Rec."Debit Amount");
+        GLEntry.TestField("Credit Amount", Rec."Credit Amount");
         GLEntry.Modify(true);
         Rec := GLEntry;
     end;

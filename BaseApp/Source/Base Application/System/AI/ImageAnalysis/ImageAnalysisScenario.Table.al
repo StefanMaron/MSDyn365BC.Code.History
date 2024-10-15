@@ -9,6 +9,7 @@ table 2023 "Image Analysis Scenario"
     Extensible = false;
     Permissions = tabledata "Image Analysis Scenario" = Rimd;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

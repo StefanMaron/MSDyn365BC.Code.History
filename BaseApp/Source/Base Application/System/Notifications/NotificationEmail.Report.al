@@ -475,7 +475,7 @@ report 1320 "Notification Email"
             Field1Value += FormatAmount(ApprovalEntry.Amount);
         end else begin
             AmountFieldRef.CalcField();
-            Amount := AmountFieldRef.Value;
+            Amount := AmountFieldRef.Value();
             Field1Value += FormatAmount(Amount);
         end;
     end;

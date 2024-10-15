@@ -3,6 +3,7 @@ namespace Microsoft.Purchases.Vendor;
 table 267 "Vendor Amount"
 {
     Caption = 'Vendor Amount';
+    DataClassification = CustomerContent;
 
     fields
     {

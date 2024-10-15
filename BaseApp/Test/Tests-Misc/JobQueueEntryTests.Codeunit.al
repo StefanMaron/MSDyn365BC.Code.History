@@ -16,7 +16,6 @@ codeunit 139018 "Job Queue Entry Tests"
         LibraryJobQueue: Codeunit "Library - Job Queue";
         NoErrorMessageMsg: Label 'There is no error message.';
         OnlyActiveCanBeMarkedErr: Label 'Only entries with the status In Progress can be marked as errors.';
-        BackgroundSessionErr: Label 'Sessions cannot be started in tests that are run by a TestRunner that has TestIsolation set to Test or Codeunit.';
 
     [Test]
     [Scope('OnPrem')]
@@ -189,7 +188,7 @@ codeunit 139018 "Job Queue Entry Tests"
             "Ending Time" := 001500T; // 00:15:00
         end;
         Assert.AreEqual(
-          CreateDateTime(WorkDate + 1, JobQueueEntry."Ending Time"),
+          CreateDateTime(WorkDate() + 1, JobQueueEntry."Ending Time"),
           JobQueueEntry.GetEndingDateTime(CreateDateTime(WorkDate(), 0T)),
           WrongEndingDateErr);
     end;
@@ -212,7 +211,7 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueEntry.Insert(false);
 
         // [WHEN] Opening the Job Queue Entry Card
-        JobQueueEntryCard.Trap;
+        JobQueueEntryCard.Trap();
         PAGE.Run(PAGE::"Job Queue Entry Card", JobQueueEntry);
 
         // [THEN] Card is opened on the correct record and no notification is triggered
@@ -344,7 +343,7 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueLogEntry.Insert(true);
 
         // [WHEN] Mark the Log entry as Error
-        JobQueueLogEntry.MarkAsError;
+        JobQueueLogEntry.MarkAsError();
 
         // [THEN] Job Queue Entry "A" and Log entry "X" got Status "Error", "Error Message" is 'Marked as Error by UserID.'
         JobQueueLogEntry.Find();
@@ -367,7 +366,7 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueLogEntry.Insert(true);
 
         // [WHEN] Mark the Log entry as Error
-        JobQueueLogEntry.MarkAsError;
+        JobQueueLogEntry.MarkAsError();
 
         // [THEN] Log entry "X" got Status "Error", "Error Message" is 'Marked as Error by UserID.'
         JobQueueLogEntry.Find();
@@ -388,7 +387,7 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
         JobQueueLogEntry.Insert(true);
         // [WHEN] Mark the Log entry as Error
-        asserterror JobQueueLogEntry.MarkAsError;
+        asserterror JobQueueLogEntry.MarkAsError();
         // [THEN] Error message: 'Only active entries can be marked as error.'
         Assert.ExpectedError(OnlyActiveCanBeMarkedErr);
 
@@ -396,7 +395,7 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Success;
         JobQueueLogEntry.Insert(true);
         // [WHEN] Mark the Log entry as Error
-        asserterror JobQueueLogEntry.MarkAsError;
+        asserterror JobQueueLogEntry.MarkAsError();
         // [THEN] Error message: 'Only active entries can be marked as error.'
         Assert.ExpectedError(OnlyActiveCanBeMarkedErr);
     end;
@@ -412,23 +411,23 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         // [FEATURE] [Job Queue Log Entry]
         Clear(ZeroDuration);
-        Assert.AreEqual(ZeroDuration, JobQueueLogEntry.Duration, 'should be zero if nothing is defined');
+        Assert.AreEqual(ZeroDuration, JobQueueLogEntry.Duration(), 'should be zero if nothing is defined');
 
         JobQueueLogEntry."Start Date/Time" := CurrentDateTime;
-        Assert.AreEqual(ZeroDuration, JobQueueLogEntry.Duration, 'should be zero if end is not defined');
+        Assert.AreEqual(ZeroDuration, JobQueueLogEntry.Duration(), 'should be zero if end is not defined');
 
         JobQueueLogEntry."Start Date/Time" := 0DT;
         JobQueueLogEntry."End Date/Time" := CurrentDateTime;
-        Assert.AreEqual(ZeroDuration, JobQueueLogEntry.Duration, 'should be zero if start is not defined');
+        Assert.AreEqual(ZeroDuration, JobQueueLogEntry.Duration(), 'should be zero if start is not defined');
 
         Duration100 := 100;
         ExpectedDuration := 50;
         JobQueueLogEntry."Start Date/Time" := JobQueueLogEntry."End Date/Time" - ExpectedDuration;
-        Assert.AreEqual(Duration100, JobQueueLogEntry.Duration, 'should be rounded up from 50 to 100');
+        Assert.AreEqual(Duration100, JobQueueLogEntry.Duration(), 'should be rounded up from 50 to 100');
 
         ExpectedDuration := 49;
         JobQueueLogEntry."Start Date/Time" := JobQueueLogEntry."End Date/Time" - ExpectedDuration;
-        Assert.AreEqual(ZeroDuration, JobQueueLogEntry.Duration, 'should be rounded down from 49 to 0');
+        Assert.AreEqual(ZeroDuration, JobQueueLogEntry.Duration(), 'should be rounded down from 49 to 0');
     end;
 
     [Test]
@@ -441,7 +440,7 @@ codeunit 139018 "Job Queue Entry Tests"
         // [FEATURE] [Job Queue Log Entry]
         JobQueueLogEntry."Error Message" := '';
         LibraryVariableStorage.Enqueue(NoErrorMessageMsg);
-        JobQueueLogEntry.ShowErrorMessage;
+        JobQueueLogEntry.ShowErrorMessage();
         // Handled by LogErrorMessageHandler
     end;
 
@@ -458,7 +457,7 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
         JobQueueLogEntry."Error Message" := CopyStr(ExpectedErrorMessage, 1, 2048);
         LibraryVariableStorage.Enqueue(ExpectedErrorMessage);
-        JobQueueLogEntry.ShowErrorMessage;
+        JobQueueLogEntry.ShowErrorMessage();
         // Handled by LogErrorMessageHandler
     end;
 
@@ -476,7 +475,7 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueLogEntry.SetErrorCallStack(ExpectedErrorMessage);
         JobQueueLogEntry.Insert();
         LibraryVariableStorage.Enqueue(ExpectedErrorMessage);
-        JobQueueLogEntry.ShowErrorCallStack;
+        JobQueueLogEntry.ShowErrorCallStack();
         // Handled by LogErrorMessageHandler
     end;
 
@@ -491,7 +490,7 @@ codeunit 139018 "Job Queue Entry Tests"
         BindSubscription(LibraryJobQueue);
         CreateJobQueueEntry(JobQueueEntry, JobQueueEntry.Status::Error);
 
-        JobQueueEntry.Restart;
+        JobQueueEntry.Restart();
 
         JobQueueEntry.Find();
         JobQueueEntry.TestField("No. of Attempts to Run", 0);
@@ -607,7 +606,7 @@ codeunit 139018 "Job Queue Entry Tests"
 
         // [WHEN] Running SheduleTask on this Job Queue Entry
         BindSubscription(LibraryJobQueue);
-        JobQueueEntry.ScheduleTask;
+        JobQueueEntry.ScheduleTask();
 
         // [THEN] Job Queue Entry User ID is changed
         JobQueueEntry.Find();
@@ -721,9 +720,7 @@ codeunit 139018 "Job Queue Entry Tests"
         ApprovalEntry: Record "Approval Entry";
         Workflow: Record Workflow;
         EmailAccount: Record "Email Account";
-        EmailScenario: Codeunit "Email Scenario";
         ConnectorMock: Codeunit "Connector Mock";
-        ApprovalMgmt: Codeunit "Approvals Mgmt.";
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         WorkflowSetup: Codeunit "Workflow Setup";
@@ -746,7 +743,6 @@ codeunit 139018 "Job Queue Entry Tests"
         // [GIVEN] Approval users setup
         ConnectorMock.Initialize();
         ConnectorMock.AddAccount(EmailAccount);
-        EmailScenario.SetDefaultEmailAccount(EmailAccount);
 
         LibraryDocumentApprovals.SetupUserWithApprover(UserSetup);
         UserSetup."E-Mail" := EmailAccount."Email Address";
@@ -803,7 +799,7 @@ codeunit 139018 "Job Queue Entry Tests"
     [Scope('OnPrem')]
     procedure LogErrorMessageHandler(Message: Text)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 
     [MessageHandler]
@@ -828,9 +824,9 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueSendNotification: Codeunit "Job Queue - Send Notification";
         JobQueueEntryCard: Page "Job Queue Entry Card";
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, Notification.GetData(JobQueueEntry.FieldName(ID)),
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), Notification.GetData(JobQueueEntry.FieldName(ID)),
           'Notification contained wrong job queue entry ID');
-        Assert.AreEqual(JobQueueEntryCard.GetChooseSetOnHoldMsg, Notification.Message, 'Notification contained wrong message');
+        Assert.AreEqual(JobQueueEntryCard.GetChooseSetOnHoldMsg(), Notification.Message, 'Notification contained wrong message');
         JobQueueSendNotification.SetJobQueueEntryStatusToOnHold(Notification);
     end;
 

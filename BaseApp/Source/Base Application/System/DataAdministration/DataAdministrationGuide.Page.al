@@ -31,7 +31,7 @@ page 9040 "Data Administration Guide"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND NOT FinishVisible;
+                Visible = TopBannerVisible and not FinishVisible;
                 field(TopBanner; MediaResourcesStandard."Media Reference")
                 {
                     ApplicationArea = All;
@@ -43,7 +43,7 @@ page 9040 "Data Administration Guide"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND FinishVisible;
+                Visible = TopBannerVisible and FinishVisible;
                 field(TopBannerDone; MediaResourcesDone."Media Reference")
                 {
                     ApplicationArea = All;

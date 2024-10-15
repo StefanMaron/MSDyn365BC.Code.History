@@ -770,8 +770,8 @@ report 210 "Blanket Sales Order"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Sales Header");
@@ -918,7 +918,6 @@ report 210 "Blanket Sales Order"
         GLSetup: Record "General Ledger Setup";
         SalesSetup: Record "Sales & Receivables Setup";
         CompanyBankAccount: Record "Bank Account";
-        CompanyInfo: Record "Company Information";
         TempSalesLine: Record "Sales Line" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
@@ -926,7 +925,7 @@ report 210 "Blanket Sales Order"
         CurrExchRate: Record "Currency Exchange Rate";
         SellToContact: Record Contact;
         BillToContact: Record Contact;
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
@@ -994,6 +993,7 @@ report 210 "Blanket Sales Order"
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyInfo: Record "Company Information";
         CompanyInfo3: Record "Company Information";
         CompanyInfo2: Record "Company Information";
         CompanyInfo1: Record "Company Information";
@@ -1051,24 +1051,20 @@ report 210 "Blanket Sales Order"
 
     local procedure FormatAddressFields(var SalesHeader: Record "Sales Header")
     begin
-        with SalesHeader do begin
-            FormatAddr.GetCompanyAddr("Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
-            FormatAddr.SalesHeaderBillTo(CustAddr, SalesHeader);
-            ShowShippingAddr := FormatAddr.SalesHeaderShipTo(ShipToAddr, CustAddr, SalesHeader);
-        end;
+        FormatAddr.GetCompanyAddr(SalesHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
+        FormatAddr.SalesHeaderBillTo(CustAddr, SalesHeader);
+        ShowShippingAddr := FormatAddr.SalesHeaderShipTo(ShipToAddr, CustAddr, SalesHeader);
     end;
 
     local procedure FormatDocumentFields(SalesHeader: Record "Sales Header")
     begin
-        with SalesHeader do begin
-            FormatDocument.SetTotalLabels("Currency Code", TotalText, TotalInclVATText, TotalExclVATText);
-            FormatDocument.SetSalesPerson(SalesPurchPerson, "Salesperson Code", SalesPersonText);
-            FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
-            FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
+        FormatDocument.SetTotalLabels(SalesHeader."Currency Code", TotalText, TotalInclVATText, TotalExclVATText);
+        FormatDocument.SetSalesPerson(SalesPurchPerson, SalesHeader."Salesperson Code", SalesPersonText);
+        FormatDocument.SetPaymentTerms(PaymentTerms, SalesHeader."Payment Terms Code", SalesHeader."Language Code");
+        FormatDocument.SetShipmentMethod(ShipmentMethod, SalesHeader."Shipment Method Code", SalesHeader."Language Code");
 
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-            VATNoText := FormatDocument.SetText("VAT Registration No." <> '', FieldCaption("VAT Registration No."));
-        end;
+        ReferenceText := FormatDocument.SetText(SalesHeader."Your Reference" <> '', SalesHeader.FieldCaption("Your Reference"));
+        VATNoText := FormatDocument.SetText(SalesHeader."VAT Registration No." <> '', SalesHeader.FieldCaption("VAT Registration No."));
     end;
 }
 

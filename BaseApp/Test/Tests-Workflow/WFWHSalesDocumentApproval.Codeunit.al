@@ -41,11 +41,11 @@ codeunit 134216 "WFWH Sales Document Approval"
         LibraryVariableStorage.Clear();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
         UserSetup.DeleteAll();
         WorkflowWebhookEntry.DeleteAll();
-        LibraryWorkflow.DisableAllWorkflows;
-        RemoveBogusUser;
+        LibraryWorkflow.DisableAllWorkflows();
+        RemoveBogusUser();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WFWH Sales Document Approval");
@@ -75,9 +75,9 @@ codeunit 134216 "WFWH Sales Document Approval"
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
 
         // Exercise
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoRecord(SalesHeader);
-        asserterror SalesOrder.Release.Invoke;
+        asserterror SalesOrder.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(DocCannotBeReleasedErr);
@@ -105,9 +105,9 @@ codeunit 134216 "WFWH Sales Document Approval"
         Commit();
 
         // Exercise
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoRecord(SalesHeader);
-        asserterror SalesOrder.Release.Invoke;
+        asserterror SalesOrder.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(SalesHeader.RecordId, 0, 1)));
@@ -136,9 +136,9 @@ codeunit 134216 "WFWH Sales Document Approval"
         Commit();
 
         // Exercise
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoRecord(SalesHeader);
-        asserterror SalesOrder.Reopen.Invoke;
+        asserterror SalesOrder.Reopen.Invoke();
 
         // Verify
         Assert.ExpectedError(ApprovalShouldBeHandledErr);
@@ -164,9 +164,9 @@ codeunit 134216 "WFWH Sales Document Approval"
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
 
         // Exercise
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoRecord(SalesHeader);
-        asserterror SalesOrder.Post.Invoke;
+        asserterror SalesOrder.Post.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(DocCannotBePostedErr, SalesHeader."Document Type", SalesHeader."No."));
@@ -187,7 +187,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         // [THEN] Workflow table relations for sales order and workflow webhook entry exist.
 
         // Setup
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
 
         // Excercise
         WorkflowSetup.InitWorkflow();
@@ -255,7 +255,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         CreateAndEnableOpenSalesOrderWorkflowDefinition(UserId);
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
         SalesOrderPageSendForApproval(SalesHeader);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
 
         Commit();
 
@@ -287,7 +287,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         CreateAndEnableOpenSalesOrderWorkflowDefinition(UserId);
         CreateSalesOrder(SalesHeader, LibraryRandom.RandIntInRange(5000, 10000));
         SalesOrderPageSendForApproval(SalesHeader);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
 
         Commit();
 
@@ -449,12 +449,12 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Order card is opened.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(SalesOrder.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesOrder.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesOrder.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         SalesOrder.Close();
@@ -476,12 +476,12 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Order list is opened.
-        SalesOrderList.OpenEdit;
+        SalesOrderList.OpenEdit();
         SalesOrderList.GotoRecord(SalesHeader);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(SalesOrderList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesOrderList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesOrderList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesOrderList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         SalesOrderList.Close();
@@ -503,12 +503,12 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Quote card is opened.
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(SalesQuote.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesQuote.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesQuote.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesQuote.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         SalesQuote.Close();
@@ -530,12 +530,12 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Quote list is opened.
-        SalesQuotes.OpenEdit;
+        SalesQuotes.OpenEdit();
         SalesQuotes.GotoRecord(SalesHeader);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(SalesQuotes.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesQuotes.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesQuotes.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesQuotes.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         SalesQuotes.Close();
@@ -557,12 +557,12 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Invoice card is opened.
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(SalesInvoice.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesInvoice.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesInvoice.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesInvoice.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         SalesInvoice.Close();
@@ -584,12 +584,12 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Invoice list is opened.
-        SalesInvoiceList.OpenEdit;
+        SalesInvoiceList.OpenEdit();
         SalesInvoiceList.GotoRecord(SalesHeader);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(SalesInvoiceList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesInvoiceList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesInvoiceList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesInvoiceList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         SalesInvoiceList.Close();
@@ -611,12 +611,12 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Credit Memo card is opened.
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(SalesCreditMemo.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesCreditMemo.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesCreditMemo.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesCreditMemo.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         SalesCreditMemo.Close();
@@ -638,12 +638,12 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Credit Memo list is opened.
-        SalesCreditMemos.OpenEdit;
+        SalesCreditMemos.OpenEdit();
         SalesCreditMemos.GotoRecord(SalesHeader);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(SalesCreditMemos.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesCreditMemos.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesCreditMemos.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesCreditMemos.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         SalesCreditMemos.Close();
@@ -666,9 +666,9 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Order card is opened and Cancel button is clicked.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.CancelApprovalRequest.Invoke;
+        SalesOrder.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -695,9 +695,9 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Order list is opened and Cancel button is clicked.
-        SalesOrderList.OpenEdit;
+        SalesOrderList.OpenEdit();
         SalesOrderList.GotoRecord(SalesHeader);
-        SalesOrderList.CancelApprovalRequest.Invoke;
+        SalesOrderList.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -724,9 +724,9 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Quote card is opened and Cancel button is clicked.
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
-        SalesQuote.CancelApprovalRequest.Invoke;
+        SalesQuote.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -753,9 +753,9 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Quote list is opened and Cancel button is clicked.
-        SalesQuotes.OpenEdit;
+        SalesQuotes.OpenEdit();
         SalesQuotes.GotoRecord(SalesHeader);
-        SalesQuotes.CancelApprovalRequest.Invoke;
+        SalesQuotes.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -782,9 +782,9 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Invoice card is opened and Cancel button is clicked.
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.CancelApprovalRequest.Invoke;
+        SalesInvoice.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -811,9 +811,9 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Invoice list is opened and Cancel button is clicked.
-        SalesInvoiceList.OpenEdit;
+        SalesInvoiceList.OpenEdit();
         SalesInvoiceList.GotoRecord(SalesHeader);
-        SalesInvoiceList.CancelApprovalRequest.Invoke;
+        SalesInvoiceList.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -840,9 +840,9 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Credit Memo card is opened and Cancel button is clicked.
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.CancelApprovalRequest.Invoke;
+        SalesCreditMemo.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -869,9 +869,9 @@ codeunit 134216 "WFWH Sales Document Approval"
         WebhookHelper.CreatePendingFlowApproval(SalesHeader.RecordId);
 
         // [WHEN] Sales Credit Memo list is opened and Cancel button is clicked.
-        SalesCreditMemos.OpenEdit;
+        SalesCreditMemos.OpenEdit();
         SalesCreditMemos.GotoRecord(SalesHeader);
-        SalesCreditMemos.CancelApprovalRequest.Invoke;
+        SalesCreditMemos.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -901,7 +901,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         WorkflowWebhookSetup: Codeunit "Workflow Webhook Setup";
         WorkflowCode: Code[20];
     begin
-        WorkflowCode := WorkflowWebhookSetup.CreateWorkflowDefinition(WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode, '',
+        WorkflowCode := WorkflowWebhookSetup.CreateWorkflowDefinition(WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode(), '',
             DynamicRequestPageParametersOpenSalesOrderTxt, ResponseUserID);
         Workflow.Get(WorkflowCode);
         LibraryWorkflow.EnableWorkflow(Workflow);
@@ -994,9 +994,9 @@ codeunit 134216 "WFWH Sales Document Approval"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.SendApprovalRequest.Invoke;
+        SalesOrder.SendApprovalRequest.Invoke();
         SalesOrder.Close();
 
         VerifySalesDocumentStatus(SalesHeader, SalesHeader.Status::"Pending Approval");

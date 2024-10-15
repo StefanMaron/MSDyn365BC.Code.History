@@ -12,6 +12,7 @@ table 7190 "Sales Shipment Buffer"
 {
     Caption = 'Sales Shipment Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

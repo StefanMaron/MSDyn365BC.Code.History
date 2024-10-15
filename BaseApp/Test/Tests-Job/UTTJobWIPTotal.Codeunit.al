@@ -56,7 +56,7 @@ codeunit 136357 "UT T Job WIP Total"
             if FindSet() then
                 repeat
                     LibraryJob.UpdateJobPostingGroup(JobPostingGroup);
-                until Next = 0;
+                until Next() = 0;
     end;
 
     [Normal]
@@ -91,7 +91,7 @@ codeunit 136357 "UT T Job WIP Total"
         JobWIPWarning: Record "Job WIP Warning";
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         // Verify that a Job WIP Total can be deleted and that all Job WIP Warnings are deleted as well.
         JobWIPWarning.Init();
@@ -99,12 +99,12 @@ codeunit 136357 "UT T Job WIP Total"
         JobWIPWarning.Insert(true);
 
         JobWIPWarning.SetRange("Job WIP Total Entry No.", JobWIPTotal."Entry No.");
-        Assert.IsTrue(JobWIPWarning.FindFirst, 'No Job WIP Warnings were found.');
+        Assert.IsTrue(JobWIPWarning.FindFirst(), 'No Job WIP Warnings were found.');
 
         Assert.IsTrue(JobWIPTotal.Delete(true), 'The Job WIP Total could not be deleted.');
-        Assert.IsFalse(JobWIPWarning.FindFirst, 'Job WIP Warnings still exist after deletion of Record.');
+        Assert.IsFalse(JobWIPWarning.FindFirst(), 'Job WIP Warnings still exist after deletion of Record.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -114,7 +114,7 @@ codeunit 136357 "UT T Job WIP Total"
         JobWIPWarning: Record "Job WIP Warning";
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         // Verify that WIP Warnings is false when no warnings exist.
         Assert.IsFalse(JobWIPTotal."WIP Warnings", 'WIP Warning is true, even if no warnings exist.');
@@ -128,7 +128,7 @@ codeunit 136357 "UT T Job WIP Total"
         JobWIPTotal.CalcFields("WIP Warnings");
         Assert.IsTrue(JobWIPTotal."WIP Warnings", 'WIP Warning is false, even if warnings exist.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -382,7 +382,6 @@ codeunit 136357 "UT T Job WIP Total"
         JobWIPMethod: Record "Job WIP Method";
         Job: Record Job;
         JobTask: Record "Job Task";
-        JobJournalLine: Record "Job Journal Line";
         JobPlanningLine: Record "Job Planning Line";
         SalesHeader: Record "Sales Header";
         JobCreateInvoice: Codeunit "Job Create-Invoice";
@@ -448,7 +447,6 @@ codeunit 136357 "UT T Job WIP Total"
         JobWIPMethod: Record "Job WIP Method";
         Job: Record Job;
         JobTask: Record "Job Task";
-        JobJournalLine: Record "Job Journal Line";
         JobPlanningLine: Record "Job Planning Line";
         SalesHeader: Record "Sales Header";
         JobCreateInvoice: Codeunit "Job Create-Invoice";
@@ -917,7 +915,7 @@ codeunit 136357 "UT T Job WIP Total"
         JobCalculateWIP.SetTableView(Job);
 
         // Use Document No. as Job No. because value is not important.
-        JobCalculateWIP.InitializeRequest;
+        JobCalculateWIP.InitializeRequest();
         JobCalculateWIP.UseRequestPage(false);
         JobCalculateWIP.Run();
     end;
@@ -1025,14 +1023,14 @@ codeunit 136357 "UT T Job WIP Total"
     [Scope('OnPrem')]
     procedure TransferToInvoiceHandler(var RequestPage: TestRequestPage "Job Transfer to Sales Invoice")
     begin
-        RequestPage.OK.Invoke
+        RequestPage.OK().Invoke();
     end;
 
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerMultipleResponses(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ConfirmHandler]

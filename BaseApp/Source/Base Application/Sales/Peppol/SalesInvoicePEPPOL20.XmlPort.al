@@ -1994,7 +1994,9 @@ xmlport 1602 "Sales Invoice - PEPPOL 2.0"
                 group(Control2)
                 {
                     ShowCaption = false;
+#pragma warning disable AA0100
                     field("SalesInvoiceHeader.""No."""; SalesInvoiceHeader."No.")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Sales Invoice No.';
@@ -2028,23 +2030,23 @@ xmlport 1602 "Sales Invoice - PEPPOL 2.0"
     begin
         case ProcessedDocType of
             ProcessedDocType::Sale:
-                with SalesInvoiceLine do begin
-                    SetRange("Document No.", SalesInvoiceHeader."No.");
-                    if FindSet() then
+                begin
+                    SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+                    if SalesInvoiceLine.FindSet() then
                         repeat
                             SalesLine.TransferFields(SalesInvoiceLine);
                             PEPPOLMgt.GetTotals(SalesLine, TempVATAmtLine);
-                        until Next() = 0;
+                        until SalesInvoiceLine.Next() = 0;
                 end;
             ProcessedDocType::Service:
-                with ServiceInvoiceLine do begin
-                    SetRange("Document No.", ServiceInvoiceHeader."No.");
-                    if FindSet() then
+                begin
+                    ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
+                    if ServiceInvoiceLine.FindSet() then
                         repeat
                             PEPPOLMgt.TransferLineToSalesLine(ServiceInvoiceLine, SalesLine);
-                            SalesLine.Type := PEPPOLMgt.MapServiceLineTypeToSalesLineTypeEnum(Type);
+                            SalesLine.Type := PEPPOLMgt.MapServiceLineTypeToSalesLineTypeEnum(ServiceInvoiceLine.Type);
                             PEPPOLMgt.GetTotals(SalesLine, TempVATAmtLine);
-                        until Next() = 0;
+                        until ServiceInvoiceLine.Next() = 0;
                 end;
         end;
     end;

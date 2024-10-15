@@ -18,7 +18,6 @@ codeunit 139196 "CDS Connection Setup Test"
         URLNeededErr: Label 'A URL is required.';
         URLNamePswNeededErr: Label 'A URL, user name and password are required.';
         OnlyBasicAppAreaMsg: Label 'You do not have access to this page, because your experience is set to Basic.';
-        UnfavorableCDSVersionMsg: Label 'This version of Dataverse might not work correctly with the Dataverse Base Integration solution. We recommend you upgrade to a supported version.';
         UnfavorableSolutionMsg: Label 'The base integration solution was not detected in Dataverse.';
         JobQueueEntryStatusOnHoldErr: Label 'Job Queue Entry status should be On Hold.';
         SetupSuccessfulMsg: Label 'The default setup for Dataverse synchronization has completed successfully.';
@@ -691,30 +690,6 @@ codeunit 139196 "CDS Connection Setup Test"
         Assert.IsTrue(JobQueueEntries.First(), 'First');
         Assert.IsTrue(JobQueueEntries.Next(), 'Second');
         Assert.IsFalse(JobQueueEntries.Next(), 'Third should fail');
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageDequeue')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure CDSVersionDrillDownInvalid()
-    var
-        CDSConnectionSetupPage: TestPage "CDS Connection Setup";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO] CDS Connection Setup page shows a message on drilldown if SDK vesrion is valid
-        Initialize();
-        // [GIVEN] CDS Connection Setup, where "Is Enabled" = Yes
-        RegisterTestTableConnection();
-        // [GIVEN] Open CDS Connection Setup page
-        CDSConnectionSetupPage.OpenView();
-        // [GIVEN] "CDS Version" is not empty
-        CDSConnectionSetupPage."CDS Version".SetValue('6.7.1.0');
-        // [WHEN] DrillDown on "CDS Version" control
-        LibraryVariableStorage.Enqueue(UnfavorableCDSVersionMsg);
-        CDSConnectionSetupPage."CDS Version".DrillDown();
-        // [THEN] The message: "CDS is installed."
-        // handled by MessageDequeue
     end;
 
     [Test]

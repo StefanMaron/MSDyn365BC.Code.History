@@ -229,7 +229,7 @@ report 10940 "VAT Reconciliation A"
 
                         trigger OnValidate()
                         begin
-                            FindDates;
+                            FindDates();
                         end;
                     }
                     field(Year; YY)
@@ -241,7 +241,7 @@ report 10940 "VAT Reconciliation A"
 
                         trigger OnValidate()
                         begin
-                            FindDates;
+                            FindDates();
                         end;
                     }
                     field(DFrom; DateFrom)
@@ -252,7 +252,7 @@ report 10940 "VAT Reconciliation A"
 
                         trigger OnValidate()
                         begin
-                            CheckPeriodType;
+                            CheckPeriodType();
                         end;
                     }
                     field(DTil; DateTo)
@@ -263,7 +263,7 @@ report 10940 "VAT Reconciliation A"
 
                         trigger OnValidate()
                         begin
-                            CheckPeriodType;
+                            CheckPeriodType();
                         end;
                     }
                 }
@@ -278,7 +278,7 @@ report 10940 "VAT Reconciliation A"
         begin
             MM := Date2DMY(CalcDate('<-2M>', Today), 2);
             YY := Date2DMY(CalcDate('<-2M>', Today), 3);
-            FindPeriod;
+            FindPeriod();
         end;
     }
 
@@ -349,7 +349,7 @@ report 10940 "VAT Reconciliation A"
             11, 12:
                 Period := Period::"November-December";
         end;
-        FindDates;
+        FindDates();
     end;
 
     [Scope('OnPrem')]

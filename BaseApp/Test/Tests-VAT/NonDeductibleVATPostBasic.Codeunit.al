@@ -29,7 +29,7 @@ codeunit 134285 "Non-Deductible VAT Post. Basic"
         // Verify that Reverse Charge VAT and Non-deductible reverse charge vat should be split into two different accounts that are Reverse Charge VAT Account and Nondeductible VAT Account with Random Deductible Pct.
         Initialize();
         PurchaseInvoiceWithDeductiblePct(
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandDecInRange(10, 50, 2));  // Using Random value.
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandDecInRange(10, 50, 2));  // Using Random value.
     end;
 
     [Test]
@@ -38,7 +38,7 @@ codeunit 134285 "Non-Deductible VAT Post. Basic"
     begin
         // Verify that Reverse Charge VAT and Non-deductible reverse charge vat should be split into two different accounts that are Reverse Charge VAT Account and Nondeductible VAT Account with 100 Deductible Pct.
         Initialize();
-        PurchaseInvoiceWithDeductiblePct(LibraryERM.CreateGLAccountWithSalesSetup, 100);  // Using 100 for Deductible Percent.
+        PurchaseInvoiceWithDeductiblePct(LibraryERM.CreateGLAccountWithSalesSetup(), 100);  // Using 100 for Deductible Percent.
     end;
 
     [Test]
@@ -246,9 +246,9 @@ codeunit 134285 "Non-Deductible VAT Post. Basic"
             Validate("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
             Validate("VAT %", LibraryRandom.RandInt(10));
             AssignDeductibleVATPct(VATPostingSetup, 0);
-            Validate("Purchase VAT Account", CreateSimpleGLAccount);
-            Validate("Reverse Chrg. VAT Acc.", CreateSimpleGLAccount);
-            Validate("Sales VAT Account", CreateSimpleGLAccount);
+            Validate("Purchase VAT Account", CreateSimpleGLAccount());
+            Validate("Reverse Chrg. VAT Acc.", CreateSimpleGLAccount());
+            Validate("Sales VAT Account", CreateSimpleGLAccount());
             AssignNonDeductibleVATAccount(VATPostingSetup, CreateSimpleGLAccount());
             Modify(true);
         end;
@@ -260,7 +260,7 @@ codeunit 134285 "Non-Deductible VAT Post. Basic"
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandIntInRange(10, 30));
         VATPostingSetup.Get(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         AssignNonDeductibleVATAccount(VATPostingSetup, GLAccountNo);
-        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
         AssignDeductibleVATPct(VATPostingSetup, DeductiblePct);
         VATPostingSetup.Modify(true);
     end;
@@ -306,7 +306,7 @@ codeunit 134285 "Non-Deductible VAT Post. Basic"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount2, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount2, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount2, GLEntry.TableCaption()));
     end;
 
@@ -315,10 +315,10 @@ codeunit 134285 "Non-Deductible VAT Post. Basic"
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount2, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision,
+          Amount2, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), Amount2, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), Amount, VATEntry.TableCaption()));
     end;
 
@@ -330,7 +330,7 @@ codeunit 134285 "Non-Deductible VAT Post. Basic"
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange("G/L Account No.", GLAccNo);
-            Assert.IsTrue(FindFirst, StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
+            Assert.IsTrue(FindFirst(), StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
             Assert.AreEqual(Abs(Amount), "Credit Amount", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Credit Amount")));
         end;
     end;

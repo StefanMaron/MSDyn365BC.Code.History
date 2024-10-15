@@ -121,74 +121,70 @@ report 5067 "Questionnaire - Test"
     begin
         ProfileQuestnLine.Reset();
         ProfileQuestnLine2.Reset();
-        with "Profile Questionnaire Line" do begin
-            if "Auto Contact Classification" then begin
-                if ("Customer Class. Field" = "Customer Class. Field"::" ") and
-                   ("Vendor Class. Field" = "Vendor Class. Field"::" ") and
-                   ("Contact Class. Field" = "Contact Class. Field"::" ")
-                then
-                    AddError(StrSubstNo(Text000, FieldCaption("Auto Contact Classification")));
-                if "Contact Class. Field" <> "Contact Class. Field"::Rating then begin
-                    if Format("Starting Date Formula") = '' then
-                        AddError(StrSubstNo(
-                            Text002,
-                            FieldCaption("Starting Date Formula"), FieldCaption("Auto Contact Classification")));
-                    if Format("Ending Date Formula") = '' then
-                        AddError(StrSubstNo(
-                            Text002,
-                            FieldCaption("Ending Date Formula"), FieldCaption("Auto Contact Classification")));
-                end;
-                if "Classification Method" = "Classification Method"::" " then
+        if "Profile Questionnaire Line"."Auto Contact Classification" then begin
+            if ("Profile Questionnaire Line"."Customer Class. Field" = "Profile Questionnaire Line"."Customer Class. Field"::" ") and
+               ("Profile Questionnaire Line"."Vendor Class. Field" = "Profile Questionnaire Line"."Vendor Class. Field"::" ") and
+               ("Profile Questionnaire Line"."Contact Class. Field" = "Profile Questionnaire Line"."Contact Class. Field"::" ")
+            then
+                AddError(StrSubstNo(Text000, "Profile Questionnaire Line".FieldCaption("Auto Contact Classification")));
+            if "Profile Questionnaire Line"."Contact Class. Field" <> "Profile Questionnaire Line"."Contact Class. Field"::Rating then begin
+                if Format("Profile Questionnaire Line"."Starting Date Formula") = '' then
                     AddError(StrSubstNo(
                         Text002,
-                        FieldCaption("Classification Method"), FieldCaption("Auto Contact Classification")));
-                if ("Classification Method"
-                    in ["Classification Method"::"Percentage of Value", "Classification Method"::"Percentage of Contacts"]) and
-                   ("Sorting Method" = "Sorting Method"::" ")
-                then
+                        "Profile Questionnaire Line".FieldCaption("Starting Date Formula"), "Profile Questionnaire Line".FieldCaption("Auto Contact Classification")));
+                if Format("Profile Questionnaire Line"."Ending Date Formula") = '' then
                     AddError(StrSubstNo(
-                        Text003,
-                        FieldCaption("Sorting Method"), FieldCaption("Classification Method"), "Classification Method"));
+                        Text002,
+                        "Profile Questionnaire Line".FieldCaption("Ending Date Formula"), "Profile Questionnaire Line".FieldCaption("Auto Contact Classification")));
             end;
-            ProfileQuestnLine := "Profile Questionnaire Line";
-            ProfileQuestnLine.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
-            ProfileQuestnLine.SetRange(Type, Type::Question);
-            if ProfileQuestnLine.Find('>') then
-                ProfileQuestnLine2.SetRange("Line No.", "Line No.", ProfileQuestnLine."Line No.")
-            else
-                ProfileQuestnLine2.SetFilter("Line No.", '%1..', "Line No.");
-            ProfileQuestnLine2.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
-            ProfileQuestnLine2.SetRange(Type, Type::Answer);
-            if not ProfileQuestnLine2.FindFirst() then
-                AddError(Text004);
+            if "Profile Questionnaire Line"."Classification Method" = "Profile Questionnaire Line"."Classification Method"::" " then
+                AddError(StrSubstNo(
+                    Text002,
+                    "Profile Questionnaire Line".FieldCaption("Classification Method"), "Profile Questionnaire Line".FieldCaption("Auto Contact Classification")));
+            if ("Profile Questionnaire Line"."Classification Method"
+                in ["Profile Questionnaire Line"."Classification Method"::"Percentage of Value", "Profile Questionnaire Line"."Classification Method"::"Percentage of Contacts"]) and
+               ("Profile Questionnaire Line"."Sorting Method" = "Profile Questionnaire Line"."Sorting Method"::" ")
+            then
+                AddError(StrSubstNo(
+                    Text003,
+                    "Profile Questionnaire Line".FieldCaption("Sorting Method"), "Profile Questionnaire Line".FieldCaption("Classification Method"), "Profile Questionnaire Line"."Classification Method"));
         end;
+        ProfileQuestnLine := "Profile Questionnaire Line";
+        ProfileQuestnLine.SetRange("Profile Questionnaire Code", "Profile Questionnaire Line"."Profile Questionnaire Code");
+        ProfileQuestnLine.SetRange(Type, "Profile Questionnaire Line".Type::Question);
+        if ProfileQuestnLine.Find('>') then
+            ProfileQuestnLine2.SetRange("Line No.", "Profile Questionnaire Line"."Line No.", ProfileQuestnLine."Line No.")
+        else
+            ProfileQuestnLine2.SetFilter("Line No.", '%1..', "Profile Questionnaire Line"."Line No.");
+        ProfileQuestnLine2.SetRange("Profile Questionnaire Code", "Profile Questionnaire Line"."Profile Questionnaire Code");
+        ProfileQuestnLine2.SetRange(Type, "Profile Questionnaire Line".Type::Answer);
+        if not ProfileQuestnLine2.FindFirst() then
+            AddError(Text004);
     end;
 
     local procedure TestAnswer()
     begin
         ProfileQuestnLine.Reset();
         ProfileQuestnLine2.Reset();
-        with "Profile Questionnaire Line" do begin
-            ProfileQuestnLine := "Profile Questionnaire Line";
-            ProfileQuestnLine.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
-            ProfileQuestnLine.SetRange(Type, Type::Question);
-            if ProfileQuestnLine.Find('<') then begin
-                if ProfileQuestnLine."Auto Contact Classification" and
-                   ("From Value" = 0) and ("To Value" = 0)
-                then
-                    AddError(StrSubstNo(
-                        Text005, FieldCaption("From Value"), FieldCaption("To Value")));
-                if "From Value" <> Round("From Value", 1 / Power(10, ProfileQuestnLine."No. of Decimals")) then
-                    AddError(StrSubstNo(
-                        Text006, FieldCaption("From Value"), "From Value",
-                        FieldCaption("No. of Decimals"), ProfileQuestnLine."No. of Decimals"));
-                if "To Value" <> Round("To Value", 1 / Power(10, ProfileQuestnLine."No. of Decimals")) then
-                    AddError(StrSubstNo(
-                        Text006, FieldCaption("To Value"), "To Value",
-                        FieldCaption("No. of Decimals"), ProfileQuestnLine."No. of Decimals"));
-            end else
-                AddError(Text007);
-        end;
+        ProfileQuestnLine := "Profile Questionnaire Line";
+        ProfileQuestnLine.SetRange("Profile Questionnaire Code", "Profile Questionnaire Line"."Profile Questionnaire Code");
+        ProfileQuestnLine.SetRange(Type, "Profile Questionnaire Line".Type::Question);
+        if ProfileQuestnLine.Find('<') then begin
+            if ProfileQuestnLine."Auto Contact Classification" and
+               ("Profile Questionnaire Line"."From Value" = 0) and ("Profile Questionnaire Line"."To Value" = 0)
+            then
+                AddError(StrSubstNo(
+                    Text005, "Profile Questionnaire Line".FieldCaption("From Value"), "Profile Questionnaire Line".FieldCaption("To Value")));
+            if "Profile Questionnaire Line"."From Value" <> Round("Profile Questionnaire Line"."From Value", 1 / Power(10, ProfileQuestnLine."No. of Decimals")) then
+                AddError(StrSubstNo(
+                    Text006, "Profile Questionnaire Line".FieldCaption("From Value"), "Profile Questionnaire Line"."From Value",
+                    "Profile Questionnaire Line".FieldCaption("No. of Decimals"), ProfileQuestnLine."No. of Decimals"));
+            if "Profile Questionnaire Line"."To Value" <> Round("Profile Questionnaire Line"."To Value", 1 / Power(10, ProfileQuestnLine."No. of Decimals")) then
+                AddError(StrSubstNo(
+                    Text006, "Profile Questionnaire Line".FieldCaption("To Value"), "Profile Questionnaire Line"."To Value",
+                    "Profile Questionnaire Line".FieldCaption("No. of Decimals"), ProfileQuestnLine."No. of Decimals"));
+        end else
+            AddError(Text007);
     end;
 
     local procedure AddError(Text: Text[250])

@@ -39,7 +39,6 @@
         CannotCreatePurchaseOrderWithoutVendorErr: Label 'You cannot create purchase orders without specifying a vendor for all lines.';
         EntireOrderIsAvailableTxt: Label 'All items on the sales order are available.';
         NoPurchaseOrdersCreatedErr: Label 'No purchase orders are created.';
-        AllItemsAreAvailableErr: Label 'All items are available and no planning lines are created.';
         CombineShipmentMsg: Label 'The shipments are now combined';
 
     [Test]
@@ -61,14 +60,14 @@
         LibrarySmallBusiness.CreateSalesInvoiceHeader(SalesHeader, Customer);
         AddRandomNumberOfLinesToSalesHeader(SalesHeader, Item);
 
-        PostedSalesInvoice.Trap;
+        PostedSalesInvoice.Trap();
 
         // Exercise
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
-        LibrarySales.EnableWarningOnCloseUnpostedDoc;
-        LibrarySales.EnableConfirmOnPostingDoc;
-        SalesInvoice.Post.Invoke;
+        LibrarySales.EnableWarningOnCloseUnpostedDoc();
+        LibrarySales.EnableConfirmOnPostingDoc();
+        SalesInvoice.Post.Invoke();
 
         // Verify - The document was posted and opened in the Posted Sales Invoice page
         PostedSalesInvoice.Close();
@@ -93,13 +92,13 @@
         LibrarySmallBusiness.CreateSalesInvoiceHeader(SalesHeader, Customer);
         AddRandomNumberOfLinesToSalesHeader(SalesHeader, Item);
 
-        PostedSalesInvoice.Trap;
+        PostedSalesInvoice.Trap();
 
         // Exercise
-        SalesInvoiceList.OpenView;
+        SalesInvoiceList.OpenView();
         SalesInvoiceList.Filter.SetFilter("No.", SalesHeader."No.");
-        LibrarySales.EnableWarningOnCloseUnpostedDoc;
-        SalesInvoiceList.Post.Invoke;
+        LibrarySales.EnableWarningOnCloseUnpostedDoc();
+        SalesInvoiceList.Post.Invoke();
 
         // Verify
         PostedSalesInvoice.Close();
@@ -125,14 +124,14 @@
         LibrarySmallBusiness.CreatePurchaseInvoiceHeader(PurchaseHeader, Vendor);
         LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, LibraryRandom.RandDecInRange(1, 100, 2));
 
-        PostedPurchaseInvoice.Trap;
+        PostedPurchaseInvoice.Trap();
 
         // Exercise
-        PurchaseInvoice.OpenView;
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
-        LibrarySales.EnableWarningOnCloseUnpostedDoc;
-        LibrarySales.EnableConfirmOnPostingDoc;
-        PurchaseInvoice.Post.Invoke;
+        LibrarySales.EnableWarningOnCloseUnpostedDoc();
+        LibrarySales.EnableConfirmOnPostingDoc();
+        PurchaseInvoice.Post.Invoke();
 
         // Verify - The document was posted and opened in the Posted Purchase Invoice page
         PostedPurchaseInvoice.Close();
@@ -158,13 +157,13 @@
         LibrarySmallBusiness.CreatePurchaseInvoiceHeader(PurchaseHeader, Vendor);
         LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, LibraryRandom.RandDecInRange(1, 100, 2));
 
-        PostedPurchaseInvoice.Trap;
+        PostedPurchaseInvoice.Trap();
 
         // Exercise
-        PurchaseInvoices.OpenView;
+        PurchaseInvoices.OpenView();
         PurchaseInvoices.Filter.SetFilter("No.", PurchaseHeader."No.");
-        LibrarySales.EnableWarningOnCloseUnpostedDoc;
-        PurchaseInvoices.PostSelected.Invoke;
+        LibrarySales.EnableWarningOnCloseUnpostedDoc();
+        PurchaseInvoices.PostSelected.Invoke();
 
         // Verify - The document was posted and opened in the Posted Purchase Invoice page
         PostedPurchaseInvoice.Close();
@@ -190,14 +189,14 @@
 
         SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
-        SalesQuote.SalesLines.New;
+        SalesQuote.SalesLines.New();
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
         SalesQuote.SalesLines.Quantity.SetValue(1);
         SalesQuote.SalesLines.Next();
         Commit();
 
         // Exercise
-        SalesQuote.Print.Invoke;
+        SalesQuote.Print.Invoke();
         SalesQuote.Close();
     end;
 
@@ -222,17 +221,17 @@
 
         SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
-        SalesQuote.SalesLines.New;
+        SalesQuote.SalesLines.New();
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
         SalesQuote.SalesLines.Quantity.SetValue(1);
         SalesQuote.Close();
 
-        SalesQuotes.OpenView;
-        SalesQuotes.First;
+        SalesQuotes.OpenView();
+        SalesQuotes.First();
         Commit();
 
         // Exercise
-        SalesQuotes.Print.Invoke;
+        SalesQuotes.Print.Invoke();
         SalesQuotes.Close();
     end;
 
@@ -259,7 +258,7 @@
 
         SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Cust.Name);
-        SalesInvoice."Currency Code".AssistEdit;
+        SalesInvoice."Currency Code".AssistEdit();
         SalesInvoice.Close();
     end;
 
@@ -286,7 +285,7 @@
 
         SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
-        SalesQuote."Currency Code".AssistEdit;
+        SalesQuote."Currency Code".AssistEdit();
         SalesQuote.Close();
     end;
 
@@ -313,7 +312,7 @@
 
         PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
-        PurchaseInvoice."Currency Code".AssistEdit;
+        PurchaseInvoice."Currency Code".AssistEdit();
         PurchaseInvoice.Close();
     end;
 
@@ -353,7 +352,7 @@
         UserSetup.Validate("Sales Resp. Ctr. Filter", ResponsibilityCenter.Code);
         UserSetup.Modify();
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
         SalesInvoice."No.".AssertEquals('');
         SalesInvoice.Close();
@@ -468,7 +467,7 @@
         UserSetup.Validate("Purchase Resp. Ctr. Filter", ResponsibilityCenter.Code);
         UserSetup.Modify();
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
         PurchaseInvoice."No.".AssertEquals('');
         PurchaseInvoice.Close();
@@ -582,9 +581,9 @@
         SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Cust.Name);
 
-        SalesInvoice.SalesLines.New;
+        SalesInvoice.SalesLines.New();
         SalesInvoice.SalesLines."No.".SetValue(Item."No.");
-        SalesInvoice.SalesLines.InsertExtTexts.Invoke;
+        SalesInvoice.SalesLines.InsertExtTexts.Invoke();
         SalesInvoice.Close();
 
         ExtendedTextLine.Delete();
@@ -615,9 +614,9 @@
         PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
 
-        PurchaseInvoice.PurchLines.New;
+        PurchaseInvoice.PurchLines.New();
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
-        PurchaseInvoice.PurchLines.InsertExtTexts.Invoke;
+        PurchaseInvoice.PurchLines.InsertExtTexts.Invoke();
         PurchaseInvoice.Close();
     end;
 
@@ -634,7 +633,7 @@
         LibrarySmallBusiness.CreateCustomer(Cust);
         LibraryVariableStorage.Enqueue(Cust."No.");
         SalesInvoice.OpenNew();
-        SalesInvoice."Sell-to Customer Name".Lookup;
+        SalesInvoice."Sell-to Customer Name".Lookup();
         Assert.AreEqual(Cust.Name, SalesInvoice."Sell-to Customer Name".Value, 'Wrong Customer Name');
     end;
 
@@ -650,7 +649,7 @@
         LibrarySmallBusiness.CreateCustomer(Cust);
         LibraryVariableStorage.Enqueue(Cust."No.");
         SalesQuote.OpenNew();
-        SalesQuote."Sell-to Customer Name".Lookup;
+        SalesQuote."Sell-to Customer Name".Lookup();
         Assert.AreEqual(Cust.Name, SalesQuote."Sell-to Customer Name".Value, 'Wrong Customer Name');
     end;
 
@@ -666,7 +665,7 @@
         LibrarySmallBusiness.CreateVendor(Vend);
         LibraryVariableStorage.Enqueue(Vend."No.");
         PurchaseInvoice.OpenNew();
-        PurchaseInvoice."Buy-from Vendor Name".Lookup;
+        PurchaseInvoice."Buy-from Vendor Name".Lookup();
         Assert.AreEqual(Vend.Name, PurchaseInvoice."Buy-from Vendor Name".Value, 'Wrong Vendor Name');
     end;
 
@@ -690,7 +689,7 @@
         SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Cust.Name);
 
-        SalesInvoice.SalesLines.New;
+        SalesInvoice.SalesLines.New();
         SalesInvoice.SalesLines."No.".SetValue(Item."No.");
         SalesInvoice.Close();
     end;
@@ -715,7 +714,7 @@
         PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
 
-        PurchaseInvoice.PurchLines.New;
+        PurchaseInvoice.PurchLines.New();
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
         PurchaseInvoice.Close();
     end;
@@ -738,7 +737,7 @@
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
         LibraryVariableStorage.Enqueue(false);
-        SalesQuote.MakeInvoice.Invoke;
+        SalesQuote.MakeInvoice.Invoke();
         SalesQuote.Close();
     end;
 
@@ -753,15 +752,15 @@
     begin
         Initialize();
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         CreateCustomerWithNumberAsName(Cust);
 
         LibrarySmallBusiness.CreateSalesQuoteHeader(SalesHeader, Cust);
 
-        SalesQuotes.OpenView;
+        SalesQuotes.OpenView();
         SalesQuotes.FILTER.SetFilter("No.", SalesHeader."No.");
         LibraryVariableStorage.Enqueue(false);
-        SalesQuotes.MakeInvoice.Invoke;
+        SalesQuotes.MakeInvoice.Invoke();
     end;
 
     [Test]
@@ -791,7 +790,7 @@
         SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Cust.Name);
 
-        SalesInvoice.SalesLines.New;
+        SalesInvoice.SalesLines.New();
         SalesInvoice.SalesLines."No.".SetValue(Item."No.");
         SalesInvoice.SalesLines.Quantity.SetValue(ItemQuantity);
         SalesInvoice.Close();
@@ -807,15 +806,15 @@
         SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
-        SalesQuote.SalesLines.New;
+        SalesQuote.SalesLines.New();
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
         SalesQuote.SalesLines.Quantity.SetValue(ItemQuantity);
 
         Clear(SalesInvoice);
-        SalesInvoice.Trap;
+        SalesInvoice.Trap();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
-        SalesQuote.MakeInvoice.Invoke;
+        SalesQuote.MakeInvoice.Invoke();
 
         SalesInvoice.Close();
 
@@ -902,7 +901,7 @@
         Initialize();
         ClearTable(DATABASE::"Job Planning Line");
         ClearTable(DATABASE::"Res. Ledger Entry");
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -927,7 +926,7 @@
         Initialize();
         ClearTable(DATABASE::"Job Planning Line");
         ClearTable(DATABASE::"Res. Ledger Entry");
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         ItemQuantity := LibraryRandom.RandIntInRange(2, 100);
         SetupDataForDiscountTypePct(Item, ItemQuantity, Cust, DiscPct);
@@ -948,7 +947,7 @@
         Initialize();
         ClearTable(DATABASE::"Job Planning Line");
         ClearTable(DATABASE::"Res. Ledger Entry");
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         ItemQuantity := LibraryRandom.RandIntInRange(2, 100);
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Cust, InvDiscAmt);
@@ -975,13 +974,13 @@
 
         MakeQuoteTransfersComments(QuoteSalesHeader, Item, Cust, TempSalesCommentLine, SalesCommentLine);
 
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.Filter.SetFilter("No.", QuoteSalesHeader."No.");
 
-        SalesInvoice.Trap;
+        SalesInvoice.Trap();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
-        SalesQuote.MakeInvoice.Invoke;
+        SalesQuote.MakeInvoice.Invoke();
 
         SalesInvoice.Close();
 
@@ -1014,7 +1013,7 @@
 
         MakeQuoteKeepsUserEnteredInformation(QuoteSalesHeader);
 
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.Filter.SetFilter("No.", QuoteSalesHeader."No.");
 
         NewShipToAddress := LibraryUtility.GenerateRandomCode(QuoteSalesHeader.FieldNo("Ship-to Address"), DATABASE::"Sales Header");
@@ -1022,10 +1021,10 @@
         SalesQuote."Ship-to Name".SetValue(NewShipToName);
         SalesQuote."Ship-to Address".SetValue(NewShipToAddress);
 
-        SalesInvoice.Trap;
+        SalesInvoice.Trap();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
-        SalesQuote.MakeInvoice.Invoke;
+        SalesQuote.MakeInvoice.Invoke();
 
         Assert.AreEqual(SalesInvoice."Ship-to Name".Value, NewShipToName, 'Validation has overrided value set by user');
         Assert.AreEqual(SalesInvoice."Ship-to Address".Value, NewShipToAddress, 'Validation has overrided value set by user');
@@ -1071,7 +1070,7 @@
         ReferenceQuoteSalesHeader.Modify(true);
 
         // Open both in the quote page to ensure they look the same
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.Filter.SetFilter("No.", QuoteSalesHeader."No.");
         SalesQuote.Filter.SetFilter("No.", ReferenceQuoteSalesHeader."No.");
         SalesQuote.Close();
@@ -1082,14 +1081,14 @@
         SalesQuote: TestPage "Sales Quote";
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.Filter.SetFilter("No.", QuoteSalesHeader."No.");
 
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
 
-        SalesInvoice.Trap;
-        SalesQuote.MakeInvoice.Invoke;
+        SalesInvoice.Trap();
+        SalesQuote.MakeInvoice.Invoke();
     end;
 
     local procedure ConvertQuoteToOrder(QuoteSalesHeader: Record "Sales Header")
@@ -1097,14 +1096,14 @@
         SalesQuote: TestPage "Sales Quote";
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.Filter.SetFilter("No.", QuoteSalesHeader."No.");
 
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
 
-        SalesOrder.Trap;
-        SalesQuote.MakeOrder.Invoke;
+        SalesOrder.Trap();
+        SalesQuote.MakeOrder.Invoke();
     end;
 
     local procedure VerifyConvertedDocument(ReferenceQuoteSalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
@@ -1172,7 +1171,7 @@
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
         LibraryVariableStorage.Enqueue(false);
-        SalesQuote.MakeOrder.Invoke;
+        SalesQuote.MakeOrder.Invoke();
         SalesQuote.Close();
     end;
 
@@ -1187,15 +1186,15 @@
     begin
         Initialize();
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         CreateCustomerWithNumberAsName(Cust);
 
         LibrarySmallBusiness.CreateSalesQuoteHeader(SalesHeader, Cust);
 
-        SalesQuotes.OpenView;
+        SalesQuotes.OpenView();
         SalesQuotes.FILTER.SetFilter("No.", SalesHeader."No.");
         LibraryVariableStorage.Enqueue(false);
-        SalesQuotes.MakeOrder.Invoke;
+        SalesQuotes.MakeOrder.Invoke();
     end;
 
     [Test]
@@ -1225,7 +1224,7 @@
         SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer Name".SetValue(Cust.Name);
 
-        SalesOrder.SalesLines.New;
+        SalesOrder.SalesLines.New();
         SalesOrder.SalesLines."No.".SetValue(Item."No.");
         SalesOrder.SalesLines.Quantity.SetValue(ItemQuantity);
         SalesOrder.Close();
@@ -1241,14 +1240,14 @@
         SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
-        SalesQuote.SalesLines.New;
+        SalesQuote.SalesLines.New();
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
         SalesQuote.SalesLines.Quantity.SetValue(ItemQuantity);
 
-        SalesOrder.Trap;
+        SalesOrder.Trap();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
-        SalesQuote.MakeOrder.Invoke;
+        SalesQuote.MakeOrder.Invoke();
 
         SalesOrder.Close();
 
@@ -1289,11 +1288,11 @@
         SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
-        SalesQuote.SalesLines.New;
+        SalesQuote.SalesLines.New();
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
         SalesQuote.SalesLines.Quantity.SetValue(ItemQuantity);
 
-        AssertError SalesQuote.MakeInvoice.Invoke;
+        AssertError SalesQuote.MakeInvoice.Invoke();
 
         Assert.ExpectedError(CannotConvertAssembleToOrderItemErr);
 
@@ -1370,7 +1369,7 @@
         Initialize();
         ClearTable(DATABASE::"Job Planning Line");
         ClearTable(DATABASE::"Res. Ledger Entry");
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Name := Cust."No.";
@@ -1395,7 +1394,7 @@
         Initialize();
         ClearTable(DATABASE::"Job Planning Line");
         ClearTable(DATABASE::"Res. Ledger Entry");
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         ItemQuantity := LibraryRandom.RandIntInRange(2, 100);
         SetupDataForDiscountTypePct(Item, ItemQuantity, Cust, DiscPct);
@@ -1416,7 +1415,7 @@
         Initialize();
         ClearTable(DATABASE::"Job Planning Line");
         ClearTable(DATABASE::"Res. Ledger Entry");
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         ItemQuantity := LibraryRandom.RandIntInRange(2, 100);
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Cust, InvDiscAmt);
@@ -1443,13 +1442,13 @@
 
         MakeQuoteTransfersComments(QuoteSalesHeader, Item, Cust, TempSalesCommentLine, SalesCommentLine);
 
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.Filter.SetFilter("No.", QuoteSalesHeader."No.");
 
-        SalesOrder.Trap;
+        SalesOrder.Trap();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
-        SalesQuote.MakeOrder.Invoke;
+        SalesQuote.MakeOrder.Invoke();
 
         SalesOrder.Close();
 
@@ -1482,7 +1481,7 @@
 
         MakeQuoteKeepsUserEnteredInformation(QuoteSalesHeader);
 
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.Filter.SetFilter("No.", QuoteSalesHeader."No.");
 
         NewShipToAddress := LibraryUtility.GenerateRandomCode(QuoteSalesHeader.FieldNo("Ship-to Address"), DATABASE::"Sales Header");
@@ -1490,10 +1489,10 @@
         SalesQuote."Ship-to Name".SetValue(NewShipToName);
         SalesQuote."Ship-to Address".SetValue(NewShipToAddress);
 
-        SalesOrder.Trap;
+        SalesOrder.Trap();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
-        SalesQuote.MakeOrder.Invoke;
+        SalesQuote.MakeOrder.Invoke();
 
         Assert.AreEqual(SalesOrder."Ship-to Name".Value, NewShipToName, 'Validation has overrided value set by user');
         Assert.AreEqual(SalesOrder."Ship-to Address".Value, NewShipToAddress, 'Validation has overrided value set by user');
@@ -1582,7 +1581,7 @@
         UserSetup.Validate("Sales Resp. Ctr. Filter", ResponsibilityCenter.Code);
         UserSetup.Modify();
 
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
         SalesQuote."No.".AssertEquals('');
         SalesQuote.Close();
@@ -1611,9 +1610,9 @@
         SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
-        SalesQuote.SalesLines.New;
+        SalesQuote.SalesLines.New();
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
-        SalesQuote.SalesLines.InsertExtTexts.Invoke;
+        SalesQuote.SalesLines.InsertExtTexts.Invoke();
         SalesQuote.Close();
     end;
 
@@ -1637,7 +1636,7 @@
         SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
 
-        SalesQuote.SalesLines.New;
+        SalesQuote.SalesLines.New();
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
         SalesQuote.Close();
     end;
@@ -1726,9 +1725,9 @@
         SalesHeader2.Validate("Document Type", SalesHeader2."Document Type"::Quote);
         SalesHeader2.Insert(true);
         Commit();
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.Filter.SetFilter("No.", SalesHeader2."No.");
-        SalesQuote.SalesLines.First;
+        SalesQuote.SalesLines.First();
 
         // Enqueue for the request page handler
         LibraryVariableStorage.Enqueue(3); // doc type on the request page
@@ -1738,7 +1737,7 @@
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(false);
         Commit();
-        SalesQuote.CopyDocument.Invoke;
+        SalesQuote.CopyDocument.Invoke();
         SalesQuote.Close();
 
         // Verify
@@ -1770,9 +1769,9 @@
         SalesHeader2.Validate("Document Type", SalesHeader2."Document Type"::Invoice);
         SalesHeader2.Insert(true);
         Commit();
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.Filter.SetFilter("No.", SalesHeader2."No.");
-        SalesInvoice.SalesLines.First;
+        SalesInvoice.SalesLines.First();
 
         // Enqueue for the request page handler
         LibraryVariableStorage.Enqueue(3); // doc type on the request page
@@ -1782,7 +1781,7 @@
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(false);
         Commit();
-        SalesInvoice.CopyDocument.Invoke;
+        SalesInvoice.CopyDocument.Invoke();
         SalesInvoice.Close();
 
         // Verify
@@ -1814,9 +1813,9 @@
         PurchaseHeader2.Validate("Document Type", PurchaseHeader2."Document Type"::Invoice);
         PurchaseHeader2.Insert(true);
         Commit();
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader2."No.");
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
 
         // Enqueue for the request page handler
         LibraryVariableStorage.Enqueue(3); // doc type on the request page
@@ -1826,7 +1825,7 @@
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(false);
         Commit();
-        PurchaseInvoice.CopyDocument.Invoke;
+        PurchaseInvoice.CopyDocument.Invoke();
         PurchaseInvoice.Close();
 
         // Verify
@@ -1846,14 +1845,14 @@
     begin
         Initialize();
 
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         CreateCustomer(Customer);
         CreateCustomer(Customer1);
 
         // Exercise: Select existing customer.
         SalesInvoice.OpenNew();
-        SalesInvoice.SalesLines.First;
+        SalesInvoice.SalesLines.First();
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
         SalesInvoice."Sell-to Customer Name".SetValue(Customer1.Name);
 
@@ -1872,14 +1871,14 @@
         SalesQuote: TestPage "Sales Quote";
     begin
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         CreateCustomer(Customer);
         CreateCustomer(Customer1);
 
         // Exercise: Select existing customer.
         SalesQuote.OpenNew();
-        SalesQuote.SalesLines.First;
+        SalesQuote.SalesLines.First();
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
         SalesQuote."Sell-to Customer Name".SetValue(Customer1.Name);
 
@@ -1901,8 +1900,8 @@
         BillToCustomerName: Text[100];
     begin
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         CreateCustomer(Customer);
@@ -1913,7 +1912,7 @@
         LibraryVariableStorage.Enqueue(true); // for the confirm handler when asking whether you want to change the bill-to customer no.
 
         SalesInvoice.OpenNew();
-        SalesInvoice.SalesLines.First;
+        SalesInvoice.SalesLines.First();
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
         SalesInvoice."Bill-to Name".SetValue(BillToCustomerName);
 
@@ -1944,7 +1943,7 @@
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
 
         SalesInvoice.OpenNew();
-        SalesInvoice.SalesLines.First;
+        SalesInvoice.SalesLines.First();
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerName);
 
         // Verify.
@@ -1974,7 +1973,7 @@
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
 
         SalesQuote.OpenNew();
-        SalesQuote.SalesLines.First;
+        SalesQuote.SalesLines.First();
         SalesQuote."Sell-to Customer Name".SetValue(CustomerName);
 
         // Verify.
@@ -2008,7 +2007,7 @@
         LibraryVariableStorage.Enqueue(true); // for the new customer confirm handler
 
         SalesInvoice.OpenNew();
-        SalesInvoice.SalesLines.First;
+        SalesInvoice.SalesLines.First();
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerName);
 
         // Verify.
@@ -2042,7 +2041,7 @@
         LibraryVariableStorage.Enqueue(true);
 
         SalesQuote.OpenNew();
-        SalesQuote.SalesLines.First;
+        SalesQuote.SalesLines.First();
         SalesQuote."Sell-to Customer Name".SetValue(CustomerName);
 
         // Verify.
@@ -2069,7 +2068,7 @@
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
         LibraryVariableStorage.Enqueue(CustomerName); // for the customer card page handler
         SalesInvoice.OpenNew();
-        SalesInvoice.SalesLines.First;
+        SalesInvoice.SalesLines.First();
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerName);
 
         // Verify.
@@ -2095,7 +2094,7 @@
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
         LibraryVariableStorage.Enqueue(CustomerName); // for the customer card page handler
         SalesQuote.OpenNew();
-        SalesQuote.SalesLines.First;
+        SalesQuote.SalesLines.First();
         SalesQuote."Sell-to Customer Name".SetValue(CustomerName);
 
         // Verify.
@@ -2125,7 +2124,7 @@
         LibraryVariableStorage.Enqueue(true); // for the confirm handler when asking whether you want to change the pay-to vendor no.
 
         PurchaseInvoice.OpenNew();
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
         PurchaseInvoice."Pay-to Name".SetValue(PayToVendorName);
 
@@ -2155,7 +2154,7 @@
         VendorName := LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Name), DATABASE::Vendor);
 
         PurchaseInvoice.OpenNew();
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(VendorName);
 
         // Verify.
@@ -2185,7 +2184,7 @@
         // Verify.
         Customer.SetRange(Name, CustomerName);
         asserterror Customer.FindFirst();
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
 
         VerifySellToEmptyOnSalesInvoice(SalesInvoice);
     end;
@@ -2210,7 +2209,7 @@
         // Verify.
         Customer.SetRange(Name, CustomerName);
         asserterror Customer.FindFirst();
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
 
         VerifySellToEmptyOnSalesQuote(SalesQuote);
     end;
@@ -2576,15 +2575,15 @@
         LibrarySmallBusiness.CreateSalesInvoiceHeader(SalesHeader, Customer);
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, TestItem, LibraryRandom.RandInt(100));
         LibrarySmallBusiness.PostSalesInvoice(SalesHeader);
-        // [GIVEN] Sales Invoice posted on (WORKDATE + 1)
-        WorkDate := WorkDate + 1;
+        // [GIVEN] Sales Invoice posted on (WorkDate() + 1)
+        WorkDate := WorkDate() + 1;
         LibrarySmallBusiness.CreateSalesInvoiceHeader(SalesHeader, Customer);
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, TestItem, LibraryRandom.RandInt(100));
         LibrarySmallBusiness.PostSalesInvoice(SalesHeader);
         WorkDate := WorkDate() - 1;
 
         // [GIVEN] Sort Customers by "Balance Due" in the Customer List
-        CustomerList.OpenView;
+        CustomerList.OpenView();
         CustomerList.FILTER.SetFilter("No.", Customer."No."); // decrease number of shown customers
         CustomerList.FILTER.SetCurrentKey("Balance Due");
 
@@ -2608,7 +2607,7 @@
 
         // Exercise: Select existing Vendor.
         PurchaseInvoice.OpenNew();
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
         // Enqueue for ChangeSellToBillToVendorConfirmHandler that is called twice
         // for sell-to and bill-to
@@ -2667,7 +2666,7 @@
     begin
         Initialize();
 
-        RunCreateInvoiceFromStandardPurchaseCodes;
+        RunCreateInvoiceFromStandardPurchaseCodes();
     end;
 
     [Test]
@@ -2676,9 +2675,9 @@
     procedure CreateInvoiceFromStandardPurchaseCodesStandard()
     begin
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
-        RunCreateInvoiceFromStandardPurchaseCodes;
+        RunCreateInvoiceFromStandardPurchaseCodes();
     end;
 
     local procedure RunCreateInvoiceFromStandardPurchaseCodes()
@@ -2699,9 +2698,9 @@
 
         // Exercise
         LibrarySmallBusiness.CreatePurchaseInvoiceHeader(PurchaseHeader, Vendor);
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseInvoice.GetRecurringPurchaseLines.Invoke;
+        PurchaseInvoice.GetRecurringPurchaseLines.Invoke();
 
         // Verify
         VerifyPurchaseInvoiceLinesFromStandardCodes(PurchaseHeader, StandardPurchaseCode);
@@ -2713,7 +2712,7 @@
     begin
         Initialize();
 
-        RunCheckStandardCodeCreationPurchase;
+        RunCheckStandardCodeCreationPurchase();
     end;
 
     [Test]
@@ -2721,9 +2720,9 @@
     procedure CheckStandardCodeCreationPurchaseStandard()
     begin
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
-        RunCheckStandardCodeCreationPurchase;
+        RunCheckStandardCodeCreationPurchase();
     end;
 
     local procedure RunCheckStandardCodeCreationPurchase()
@@ -2752,13 +2751,13 @@
     begin
         Initialize();
         ClearTable(DATABASE::"Production BOM Line");
-        LibraryLowerPermissions.AddItemCreate;
+        LibraryLowerPermissions.AddItemCreate();
 
         LibrarySmallBusiness.CreateItem(Item);
         LibrarySmallBusiness.CreateItemAsService(ItemAsService);
 
         LibraryLowerPermissions.SetOutsideO365Scope();
-        ItemList.OpenView;
+        ItemList.OpenView();
         ItemList.Filter.SetFilter("No.", ItemAsService."No.");
         ItemList.Type.AssertEquals(ItemAsService.Type);
         ItemList.Filter.SetFilter("No.", Item."No.");
@@ -2780,22 +2779,22 @@
         ClearTable(DATABASE::"Service Item Component");
         ClearTable(Database::"Item Templ.");
 
-        LibraryLowerPermissions.AddItemCreate;
+        LibraryLowerPermissions.AddItemCreate();
 
         ItemCard.OpenNew();
         ItemCard.Description.SetValue(
           LibraryUtility.GenerateRandomCode(Item.FieldNo(Description),
             DATABASE::Item));
 
-        Assert.IsTrue(ItemCard."Unit Cost".Editable,
+        Assert.IsTrue(ItemCard."Unit Cost".Editable(),
           Format('Unit Cost should be enabled when Type is %1 and no ILEs exists', Item.Type::Service.AsInteger()));
 
         ItemCard.Type.SetValue(Format(Item.Type::Service));
-        Assert.IsFalse(ItemCard."Inventory Posting Group".Editable,
+        Assert.IsFalse(ItemCard."Inventory Posting Group".Editable(),
           Format('Inventory Posting Group should be disabled when Type is %1.', Item.Type::Service.AsInteger()));
-        Assert.IsFalse(ItemCard.Inventory.Editable,
+        Assert.IsFalse(ItemCard.Inventory.Editable(),
           Format('Inventory should be disabled when Type is %1.', Item.Type::Service.AsInteger()));
-        Assert.IsTrue(ItemCard."Unit Cost".Editable,
+        Assert.IsTrue(ItemCard."Unit Cost".Editable(),
           Format('Unit Cost should be enabled when Type is %1.', Item.Type::Service.AsInteger()));
     end;
 
@@ -2814,10 +2813,10 @@
         LibrarySmallBusiness.CreateVendor(Vendor);
 
         // invoke Edit on the created vendor, from the vendor list
-        VendorList.OpenView;
+        VendorList.OpenView();
         VendorList.Filter.SetFilter("No.", Vendor."No.");
-        VendorCard.Trap;
-        VendorList.Edit.Invoke;
+        VendorCard.Trap();
+        VendorList.Edit().Invoke();
 
         // modify some fields on the vendor card
         VendorCard.Address.SetValue(LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Address), DATABASE::Vendor));
@@ -2829,7 +2828,7 @@
         VendorCard.Control16.SetValue(RandomContact);
         PhoneNumber := '+4544444444';
         VendorCard."Phone No.".SetValue(PhoneNumber);
-        VendorCard.OK.Invoke;
+        VendorCard.OK().Invoke();
 
         // verify vendor card modifications on the vendor list controls
         VendorList.Filter.SetFilter("No.", Vendor."No.");
@@ -2848,12 +2847,12 @@
     begin
         Initialize();
         LibrarySmallBusiness.CreateVendor(Vendor);
-        VendorList.OpenView;
+        VendorList.OpenView();
         VendorList.Filter.SetFilter("No.", Vendor."No.");
-        PurchaseInvoice.Trap;
-        VendorList.NewPurchaseInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        VendorList.NewPurchaseInvoice.Invoke();
         PurchaseInvoice."Buy-from Vendor Name".AssertEquals(Vendor.Name);
-        PurchaseInvoice.OK.Invoke;
+        PurchaseInvoice.OK().Invoke();
     end;
 
     [Test]
@@ -2866,12 +2865,12 @@
     begin
         Initialize();
         LibrarySmallBusiness.CreateVendor(Vendor);
-        VendorCard.OpenView;
+        VendorCard.OpenView();
         VendorCard.Filter.SetFilter("No.", Vendor."No.");
-        PurchaseInvoice.Trap;
-        VendorCard.NewPurchaseInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        VendorCard.NewPurchaseInvoice.Invoke();
         PurchaseInvoice."Buy-from Vendor Name".AssertEquals(Vendor.Name);
-        PurchaseInvoice.OK.Invoke;
+        PurchaseInvoice.OK().Invoke();
     end;
 
     [Test]
@@ -2883,10 +2882,10 @@
     begin
         Initialize();
         LibrarySmallBusiness.CreateVendor(Vendor);
-        VendorList.OpenView;
+        VendorList.OpenView();
         VendorList.Filter.SetFilter("No.", Vendor."No.");
         LibraryVariableStorage.Enqueue(Vendor.Name);
-        VendorList.NewPurchaseCrMemo.Invoke;
+        VendorList.NewPurchaseCrMemo.Invoke();
     end;
 
     [Test]
@@ -2898,10 +2897,10 @@
     begin
         Initialize();
         LibrarySmallBusiness.CreateVendor(Vendor);
-        VendorCard.OpenView;
+        VendorCard.OpenView();
         VendorCard.Filter.SetFilter("No.", Vendor."No.");
         LibraryVariableStorage.Enqueue(Vendor.Name);
-        VendorCard.NewPurchaseCrMemo.Invoke;
+        VendorCard.NewPurchaseCrMemo.Invoke();
     end;
 
     [Test]
@@ -3013,7 +3012,6 @@
     var
         SalesHeader: Record "Sales Header";
         Item: Record Item;
-        PurchaseHeader: Record "Purchase Header";
         DummyPurchaseOrder: TestPage "Purchase Order";
         VendorNo: Code[20];
     begin
@@ -3267,7 +3265,9 @@
     begin
         // [SCENARIO] User creates Purchase Order from Sales Order, Item is already available
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
         LibraryLowerPermissions.SetOutsideO365Scope();
+
         // [GIVEN] Sales Order with 1 items, fully available
         VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
 
@@ -3290,6 +3290,7 @@
 
         // [THEN] Purchase Order for Vendor."No." is created
         VerifyPurchaseDocumentCreationFromSalesDocumentCanceled(VendorNo, PurchaseHeader."Document Type"::Order);
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -3713,16 +3714,16 @@
         Initialize();
         ClearTable(DATABASE::"Res. Ledger Entry");
 
-        MakeQuoteNoSeriesNotManual;
+        MakeQuoteNoSeriesNotManual();
         LibrarySmallBusiness.CreateCustomer(Cust);
 
-        CustomerCard.OpenView;
+        CustomerCard.OpenView();
         CustomerCard.Filter.SetFilter("No.", Cust."No.");
         SellToCustomerName4HandlerFunction := Cust.Name;
 
-        CustomerCard.NewSalesQuote.Invoke;
+        CustomerCard.NewSalesQuote.Invoke();
 
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
     end;
 
     [Test]
@@ -3735,16 +3736,16 @@
     begin
         Initialize();
 
-        MakeQuoteNoSeriesNotManual;
+        MakeQuoteNoSeriesNotManual();
         LibrarySmallBusiness.CreateCustomer(Cust);
 
-        CustomerList.OpenView;
+        CustomerList.OpenView();
         CustomerList.Filter.SetFilter("No.", Cust."No.");
         SellToCustomerName4HandlerFunction := Cust.Name;
 
-        CustomerList.NewSalesQuote.Invoke;
+        CustomerList.NewSalesQuote.Invoke();
 
-        CustomerList.OK.Invoke;
+        CustomerList.OK().Invoke();
     end;
 
     [PageHandler]
@@ -3753,7 +3754,7 @@
     begin
         Assert.AreEqual(SellToCustomerName4HandlerFunction, SalesQuote."Sell-to Customer Name".Value, 'Wrong Customer selected');
 
-        SalesQuote.OK.Invoke;
+        SalesQuote.OK().Invoke();
     end;
 
     [Test]
@@ -3778,8 +3779,8 @@
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(100, 2));
 
         LibraryVariableStorage.Enqueue(true); // for the posting confirm handler
-        LibrarySales.DisableConfirmOnPostingDoc;
-        SalesInvoice.Post.Invoke;
+        LibrarySales.DisableConfirmOnPostingDoc();
+        SalesInvoice.Post.Invoke();
 
         VerifyUnitCostOnItemCard(Item, false); // ILEs exist and control should be non - editable
     end;
@@ -3807,8 +3808,8 @@
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(100, 2));
 
         LibraryVariableStorage.Enqueue(true); // for the posting confirm handler
-        LibrarySales.DisableConfirmOnPostingDoc;
-        SalesInvoice.Post.Invoke;
+        LibrarySales.DisableConfirmOnPostingDoc();
+        SalesInvoice.Post.Invoke();
 
         VerifyUnitCostOnItemCard(Item, true); // ILEs exist and control should be editable
     end;
@@ -3830,7 +3831,7 @@
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
 
         Assert.AreEqual(SalesInvoice."Payment Terms Code".Value, '', 'Payment Terms Code should be empty by default');
-        Assert.AreEqual(SalesInvoice."Due Date".AsDate, SalesInvoice."Document Date".AsDate, 'Due Date incorrectly calculated.');
+        Assert.AreEqual(SalesInvoice."Due Date".AsDate(), SalesInvoice."Document Date".AsDate(), 'Due Date incorrectly calculated.');
     end;
 
     [Test]
@@ -3851,8 +3852,8 @@
 
         PaymentTerms.FindLast();
         SalesInvoice."Payment Terms Code".SetValue(PaymentTerms.Code);
-        ExpectedDueDate := CalcDate(PaymentTerms."Due Date Calculation", SalesInvoice."Document Date".AsDate);
-        Assert.AreEqual(SalesInvoice."Due Date".AsDate, ExpectedDueDate, 'Due Date incorrectly calculated.');
+        ExpectedDueDate := CalcDate(PaymentTerms."Due Date Calculation", SalesInvoice."Document Date".AsDate());
+        Assert.AreEqual(SalesInvoice."Due Date".AsDate(), ExpectedDueDate, 'Due Date incorrectly calculated.');
     end;
 
     [Test]
@@ -3865,11 +3866,11 @@
         Initialize();
 
         SalesInvoice.OpenNew();
-        Assert.IsTrue(SalesInvoice."Shipment Date".Enabled,
+        Assert.IsTrue(SalesInvoice."Shipment Date".Enabled(),
           Format('Shipment Date should be present on Sales Invoice'));
 
-        PostedSalesInvoice.OpenView;
-        Assert.IsTrue(SalesInvoice."Shipment Date".Enabled,
+        PostedSalesInvoice.OpenView();
+        Assert.IsTrue(SalesInvoice."Shipment Date".Enabled(),
           Format('Shipment Date should be present on Posted Sales Invoice'));
     end;
 
@@ -3880,7 +3881,7 @@
     begin
         Initialize();
 
-        RunCreateInvoiceFromStandardSalesCodes;
+        RunCreateInvoiceFromStandardSalesCodes();
     end;
 
     [Test]
@@ -3889,9 +3890,9 @@
     procedure CreateInvoiceFromStandardSalesCodesStandard()
     begin
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
-        RunCreateInvoiceFromStandardSalesCodes;
+        RunCreateInvoiceFromStandardSalesCodes();
     end;
 
     local procedure RunCreateInvoiceFromStandardSalesCodes()
@@ -3912,9 +3913,9 @@
 
         // Exercise
         LibrarySmallBusiness.CreateSalesInvoiceHeader(SalesHeader, Customer);
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
-        SalesInvoice.GetRecurringSalesLines.Invoke;
+        SalesInvoice.GetRecurringSalesLines.Invoke();
 
         // Verify
         VerifyInvoiceLinesFromStandardCodes(SalesHeader, StandardSalesCode);
@@ -3927,7 +3928,7 @@
     begin
         Initialize();
 
-        RunCreateQuoteFromStandardSalesCodes;
+        RunCreateQuoteFromStandardSalesCodes();
     end;
 
     [Test]
@@ -3938,9 +3939,9 @@
         Initialize();
         ClearTable(DATABASE::"Job Planning Line");
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
-        RunCreateQuoteFromStandardSalesCodes;
+        RunCreateQuoteFromStandardSalesCodes();
     end;
 
     local procedure RunCreateQuoteFromStandardSalesCodes()
@@ -3961,9 +3962,9 @@
 
         // Exercise
         LibrarySmallBusiness.CreateSalesQuoteHeader(SalesHeader, Customer);
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
-        SalesQuote.GetRecurringSalesLines.Invoke;
+        SalesQuote.GetRecurringSalesLines.Invoke();
 
         // Verify
         VerifyInvoiceLinesFromStandardCodes(SalesHeader, StandardSalesCode);
@@ -3999,16 +4000,16 @@
         // [SCENARIO 207959] Sales Invoice's "External Document No." field must be visible in Basic application area setup
 
         // [GIVEN] Setup "Experience" = "Basic"
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         // [WHEN] Open Sales Invoice page
         SalesInvoice.OpenNew();
 
         // [THEN] Field "External Document No." is visible
-        Assert.IsTrue(SalesInvoice."External Document No.".Visible, '');
+        Assert.IsTrue(SalesInvoice."External Document No.".Visible(), '');
 
         // Tear Down
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -4180,7 +4181,7 @@
         // [GIVEN] "Sell-to Customer Name" is being changed to 'Test'
         NewName := LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("Sell-to Customer Name"), DATABASE::"Sales Header");
 
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
         SalesOrder."Sell-to Customer Name".SetValue(NewName);
 
@@ -4280,8 +4281,8 @@
         VendorTempl.DeleteAll();
         LibraryApplicationArea.EnableFoundationSetup();
         LibrarySales.DisableWarningOnCloseUnpostedDoc();
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
 
         Customer.DeleteAll();
         Vendor.DeleteAll();
@@ -4294,7 +4295,7 @@
         LibraryTemplates.EnableTemplatesFeature();
         ClearTable(DATABASE::Resource);
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryERMCountryData.CreateVATData();
@@ -4322,7 +4323,7 @@
         // Assembly Setup
         if not AssemblySetup.Get() then
             AssemblySetup.Insert();
-        LibraryAssembly.CreateAssemblySetup(AssemblySetup, '', 0, LibraryUtility.GetGlobalNoSeriesCode);
+        LibraryAssembly.CreateAssemblySetup(AssemblySetup, '', 0, LibraryUtility.GetGlobalNoSeriesCode());
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
@@ -4366,7 +4367,7 @@
             Database::"Item Templ.":
                 ItemTempl.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)
@@ -4515,9 +4516,9 @@
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.Filter.SetFilter("No.", Item."No.");
-        Assert.IsTrue(ItemCard."Unit Cost".Editable = Editable,
+        Assert.IsTrue(ItemCard."Unit Cost".Editable() = Editable,
           'Editable property for Unit cost field should be: ' + Format(Editable));
     end;
 
@@ -4537,7 +4538,7 @@
                 SalesLine.SetRange(Quantity, StandardSalesLine.Quantity);
                 SalesLine.SetRange(Type, StandardSalesLine.Type);
 
-                Assert.IsTrue(SalesLine.FindFirst, 'No lines with filter ' + SalesLine.GetFilters);
+                Assert.IsTrue(SalesLine.FindFirst(), 'No lines with filter ' + SalesLine.GetFilters);
             until StandardSalesLine.Next() = 0;
     end;
 
@@ -4557,7 +4558,7 @@
                 PurchaseLine.SetRange(Quantity, StandardPurchaseLine.Quantity);
                 PurchaseLine.SetRange(Type, StandardPurchaseLine.Type);
 
-                Assert.IsTrue(PurchaseLine.FindFirst, 'No lines with filter ' + PurchaseLine.GetFilters);
+                Assert.IsTrue(PurchaseLine.FindFirst(), 'No lines with filter ' + PurchaseLine.GetFilters);
             until StandardPurchaseLine.Next() = 0;
     end;
 
@@ -4679,11 +4680,11 @@
         CustomerCard: TestPage "Customer Card";
         CurrentCustomerNo: Code[20];
     begin
-        CustomerList.First;
+        CustomerList.First();
         repeat
-            CurrentCustomerNo := CustomerList."No.".Value;
-            CustomerCard.Trap;
-            CustomerList.View.Invoke;
+            CurrentCustomerNo := CustomerList."No.".Value();
+            CustomerCard.Trap();
+            CustomerList.View().Invoke();
             Assert.AreEqual(CustomerCard."No.".Value, CurrentCustomerNo, 'Unexpected customer opened.');
         until not CustomerList.Next();
     end;
@@ -4918,13 +4919,13 @@
         StandardSalesCodeCard: TestPage "Standard Sales Code Card";
     begin
         // Create Standard Code lines with one item and one description line
-        StandardSalesCodeCard.OpenEdit;
+        StandardSalesCodeCard.OpenEdit();
         StandardSalesCodeCard.Filter.SetFilter(Code, StandardSalesCode.Code);
-        StandardSalesCodeCard.StdSalesLines.New;
+        StandardSalesCodeCard.StdSalesLines.New();
         StandardSalesCodeCard.StdSalesLines.Description.SetValue(
           LibraryUtility.GenerateRandomCode(StandardSalesLine.FieldNo(Description), DATABASE::"Standard Sales Line"));
-        StandardSalesCodeCard.StdSalesLines.New;
-        if not LibraryApplicationArea.FoundationSetupExists then
+        StandardSalesCodeCard.StdSalesLines.New();
+        if not LibraryApplicationArea.FoundationSetupExists() then
             StandardSalesCodeCard.StdSalesLines.Type.SetValue(StandardSalesLine.Type::Item);
         StandardSalesCodeCard.StdSalesLines."No.".SetValue(Item."No.");
         StandardSalesCodeCard.StdSalesLines.Quantity.SetValue(LibraryRandom.RandDec(1000, 2));
@@ -4936,13 +4937,13 @@
         StandardPurchaseCodeCard: TestPage "Standard Purchase Code Card";
     begin
         // Create Standard Code lines with one item and one description line
-        StandardPurchaseCodeCard.OpenEdit;
+        StandardPurchaseCodeCard.OpenEdit();
         StandardPurchaseCodeCard.Filter.SetFilter(Code, StandardPurchaseCode.Code);
-        StandardPurchaseCodeCard.StdPurchaseLines.New;
+        StandardPurchaseCodeCard.StdPurchaseLines.New();
         StandardPurchaseCodeCard.StdPurchaseLines.Description.SetValue(
           LibraryUtility.GenerateRandomCode(StandardPurchaseLine.FieldNo(Description), DATABASE::"Standard Purchase Line"));
-        StandardPurchaseCodeCard.StdPurchaseLines.New;
-        if not LibraryApplicationArea.FoundationSetupExists then
+        StandardPurchaseCodeCard.StdPurchaseLines.New();
+        if not LibraryApplicationArea.FoundationSetupExists() then
             StandardPurchaseCodeCard.StdPurchaseLines.Type.SetValue(StandardPurchaseLine.Type::Item);
         StandardPurchaseCodeCard.StdPurchaseLines."No.".SetValue(Item."No.");
         StandardPurchaseCodeCard.StdPurchaseLines.Quantity.SetValue(LibraryRandom.RandDec(1000, 2));
@@ -5011,7 +5012,7 @@
     local procedure CreatePurchaseInvoiceFromSalesDocument(var PurchaseInvoice: TestPage "Purchase Invoice"; var SalesHeader: Record "Sales Header"; CopyItemsOpt: Option; VendorNo: Code[20]; ConfirmOnVendorSelection: Boolean)
     begin
         EnqueueForCreatePurchaseInvoiceHandlers(CopyItemsOpt, VendorNo, ConfirmOnVendorSelection);
-        PurchaseInvoice.Trap;
+        PurchaseInvoice.Trap();
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Invoice:
                 SalesInvoiceCreatePurchaseInvoice(SalesHeader);
@@ -5024,55 +5025,55 @@
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
-        SalesInvoice.CreatePurchaseInvoice.Invoke;
+        SalesInvoice.CreatePurchaseInvoice.Invoke();
     end;
 
     local procedure SalesOrderCreatePurchaseInvoice(var SalesHeader: Record "Sales Header")
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.CreatePurchaseInvoice.Invoke;
+        SalesOrder.CreatePurchaseInvoice.Invoke();
     end;
 
     local procedure SalesOrderCreatePurchaseOrder(var SalesHeader: Record "Sales Header"; PurchaseOrder: TestPage "Purchase Order")
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        PurchaseOrder.Trap;
-        SalesOrder.OpenEdit;
+        PurchaseOrder.Trap();
+        SalesOrder.OpenEdit();
         SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.CreatePurchaseOrder.Invoke;
+        SalesOrder.CreatePurchaseOrder.Invoke();
     end;
 
     local procedure SalesOrderCreatePurchaseOrders(var SalesHeader: Record "Sales Header"; PurchaseOrderList: TestPage "Purchase Order List")
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        PurchaseOrderList.Trap;
-        SalesOrder.OpenEdit;
+        PurchaseOrderList.Trap();
+        SalesOrder.OpenEdit();
         SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.CreatePurchaseOrder.Invoke;
+        SalesOrder.CreatePurchaseOrder.Invoke();
     end;
 
     local procedure PostPurchaseOrder(var PurchaseOrder: TestPage "Purchase Order")
     begin
         PurchaseOrder."Vendor Invoice No.".SetValue(LibraryRandom.RandInt(1000));
-        LibrarySales.DisableConfirmOnPostingDoc;
+        LibrarySales.DisableConfirmOnPostingDoc();
 
-        PurchaseOrder.Post.Invoke;
+        PurchaseOrder.Post.Invoke();
     end;
 
     local procedure PostPurchaseInvoice(var PurchaseInvoice: TestPage "Purchase Invoice")
     begin
         PurchaseInvoice."Vendor Invoice No.".SetValue(LibraryRandom.RandInt(1000));
         LibraryVariableStorage.Enqueue(true); // Enqueue for ConfirmHandler
-        LibrarySales.DisableConfirmOnPostingDoc;
+        LibrarySales.DisableConfirmOnPostingDoc();
 
-        PurchaseInvoice.Post.Invoke;
+        PurchaseInvoice.Post.Invoke();
     end;
 
     local procedure GetNewCustNoWithStandardSalesCodeForCode(DocType: Option; Mode: Integer; SalesCode: code[10]): Code[20]
@@ -5080,7 +5081,7 @@
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
     begin
         StandardCustomerSalesCode.Init();
-        StandardCustomerSalesCode.Validate("Customer No.", LibrarySales.CreateCustomerNo);
+        StandardCustomerSalesCode.Validate("Customer No.", LibrarySales.CreateCustomerNo());
         StandardCustomerSalesCode.Validate(Code, SalesCode);
         case DocType of
             RefDocType::Quote:
@@ -5103,7 +5104,7 @@
         LibraryInventory: Codeunit "Library - Inventory";
     begin
         StandardSalesLine[1].Init();
-        StandardSalesLine[1]."Standard Sales Code" := CreateStandardSalesCode;
+        StandardSalesLine[1]."Standard Sales Code" := CreateStandardSalesCode();
         StandardSalesLine[1]."Line No." := 10000;
         StandardSalesLine[1].Type := StandardSalesLine[1].Type::Item;
         StandardSalesLine[1]."No." := LibraryInventory.CreateItemNo();
@@ -5136,7 +5137,7 @@
         SalesShipmentHeader.SetRange("Sell-to Customer No.", CustomerNo);
         LibraryVariableStorage.Enqueue(CombineShipmentMsg);  // Enqueue for MessageHandler.
         LibrarySales.CombineShipments(
-          SalesHeader, SalesShipmentHeader, WorkDate(), WorkDate, CalcInvDisc, PostInvoices, OnlyStdPmtTerms, CopyTextLines);
+          SalesHeader, SalesShipmentHeader, WorkDate(), WorkDate(), CalcInvDisc, PostInvoices, OnlyStdPmtTerms, CopyTextLines);
     end;
 
     local procedure VerifySalesInvoice(SellToCustomerNo: Code[20]; ExpectedCount: Integer)
@@ -5172,8 +5173,8 @@
     begin
         LibraryVariableStorage.Dequeue(CustomerName);
         CustomerList.FILTER.SetFilter(Name, CustomerName);
-        CustomerList.Last;
-        CustomerList.OK.Invoke;
+        CustomerList.Last();
+        CustomerList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5184,29 +5185,29 @@
     begin
         LibraryVariableStorage.Dequeue(VendorName);
         VendorList.FILTER.SetFilter(Name, VendorName);
-        VendorList.Last;
-        VendorList.OK.Invoke;
+        VendorList.Last();
+        VendorList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomerListCancelPageHandler(var CustomerList: TestPage "Customer List")
     begin
-        CustomerList.Cancel.Invoke;
+        CustomerList.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VendorListCancelPageHandler(var VendorList: TestPage "Vendor List")
     begin
-        VendorList.Cancel.Invoke;
+        VendorList.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VendorLookupCancelPageHandler(var VendorLookup: TestPage "Vendor Lookup")
     begin
-        VendorLookup.Cancel.Invoke;
+        VendorLookup.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5230,7 +5231,7 @@
         CustomerCard."Customer Posting Group".SetValue(Customer2."Customer Posting Group");
 
         LibraryVariableStorage.Enqueue(CustomerCard."No.".Value);
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5248,7 +5249,7 @@
         CustomerCard."Post Code".SetValue(PostCode.Code);
 
         LibraryVariableStorage.Enqueue(CustomerCard."No.".Value);
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5276,7 +5277,7 @@
         VendorCard."Post Code".SetValue(PostCode.Code);
 
         LibraryVariableStorage.Enqueue(VendorCard."No.".Value);
-        VendorCard.OK.Invoke;
+        VendorCard.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -5293,23 +5294,23 @@
     [Scope('OnPrem')]
     procedure StandardSalesCodeCardPageHandler(var StandardCustomerSalesCodes: TestPage "Standard Customer Sales Codes")
     begin
-        StandardCustomerSalesCodes.First;
-        StandardCustomerSalesCodes.OK.Invoke;
+        StandardCustomerSalesCodes.First();
+        StandardCustomerSalesCodes.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure StandardPurchaseCodeCardPageHandler(var StandardVendorPurchaseCodes: TestPage "Standard Vendor Purchase Codes")
     begin
-        StandardVendorPurchaseCodes.First;
-        StandardVendorPurchaseCodes.OK.Invoke;
+        StandardVendorPurchaseCodes.First();
+        StandardVendorPurchaseCodes.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CurrencyHandler(var ChangeExchRate: TestPage "Change Exchange Rate")
     begin
-        ChangeExchRate.OK.Invoke;
+        ChangeExchRate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5322,7 +5323,7 @@
         LibraryVariableStorage.Dequeue(CustNo);
         Cust.Get(CustNo);
         CustomerLookup.Filter.SetFilter("No.", Cust."No.");
-        CustomerLookup.OK.Invoke;
+        CustomerLookup.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5335,7 +5336,7 @@
         LibraryVariableStorage.Dequeue(VendNo);
         Vendor.Get(VendNo);
         VendorLookup.Filter.SetFilter("No.", Vendor."No.");
-        VendorLookup.OK.Invoke;
+        VendorLookup.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -5368,7 +5369,7 @@
         LibraryVariableStorage.Dequeue(ValueFromQueue); // Recalc lines
         CopySalesDocument.RecalculateLines.SetValue(ValueFromQueue);
 
-        CopySalesDocument.OK.Invoke;
+        CopySalesDocument.OK().Invoke();
     end;
 
     local procedure AddRandomNumberOfLinesToSalesHeader(SalesHeader: Record "Sales Header"; Item: Record Item)
@@ -5410,9 +5411,9 @@
         Cancel := CancelVariant;
 
         if Cancel then
-            VendorList.Cancel.Invoke
+            VendorList.Cancel().Invoke()
         else
-            VendorList.OK.Invoke;
+            VendorList.OK().Invoke();
     end;
 
     local procedure VerifyDimensionSetForPurchaseLineCreatedFromSalesLine(SalesHeader: Record "Sales Header"; VendorNo: Code[20])
@@ -5576,7 +5577,7 @@
         LibraryVariableStorage.Dequeue(ValueFromQueue); // Recalc lines
         CopyPurchaseDocument.RecalculateLines.SetValue(ValueFromQueue);
 
-        CopyPurchaseDocument.OK.Invoke;
+        CopyPurchaseDocument.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5590,15 +5591,15 @@
 
         NumberOfRows := 0;
 
-        if CustomerList.First then begin
+        if CustomerList.First() then begin
             NumberOfRows := 1;
             while CustomerList.Next() do
                 NumberOfRows += 1;
         end;
 
         Assert.AreEqual(ExpectedNoOfUsers, NumberOfRows, 'Wrong number of users on select customer page');
-        CustomerList.First;
-        CustomerList.OK.Invoke;
+        CustomerList.First();
+        CustomerList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5612,15 +5613,15 @@
 
         NumberOfRows := 0;
 
-        if VendorList.First then begin
+        if VendorList.First() then begin
             NumberOfRows := 1;
             while VendorList.Next() do
                 NumberOfRows += 1;
         end;
 
         Assert.AreEqual(ExpectedNoOfUsers, NumberOfRows, 'Wrong number of users on select vendor page');
-        VendorList.First;
-        VendorList.OK.Invoke;
+        VendorList.First();
+        VendorList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5629,12 +5630,12 @@
     var
         CustomerTempl: Record "Customer Templ.";
     begin
-        CustomerTempl.Get(LibraryVariableStorage.DequeueText);
+        CustomerTempl.Get(LibraryVariableStorage.DequeueText());
         SelectCustomerTemplList.Filter.SetFilter(Code, CustomerTempl.Code);
-        if LibraryVariableStorage.DequeueBoolean then
-            SelectCustomerTemplList.OK.Invoke
+        if LibraryVariableStorage.DequeueBoolean() then
+            SelectCustomerTemplList.OK().Invoke()
         else
-            SelectCustomerTemplList.Cancel.Invoke;
+            SelectCustomerTemplList.Cancel().Invoke();
     end;
 
     local procedure SetCreditWarning(var OldCreditWarning: Option; NewCreditWarning: Option)
@@ -5736,19 +5737,19 @@
         SalesInvoice.OpenNew();
 
         // [THEN] All controls related to customer (and on SaaS) are disabled
-        Assert.IsFalse(SalesInvoice.GetRecurringSalesLines.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesInvoice.Statistics.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesInvoice.CalculateInvoiceDiscount.Enabled, ControlShouldBeDisabledErr);
-        Assert.IsFalse(SalesInvoice.CopyDocument.Enabled, ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesInvoice.GetRecurringSalesLines.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesInvoice.Statistics.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesInvoice.CalculateInvoiceDiscount.Enabled(), ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesInvoice.CopyDocument.Enabled(), ControlShouldBeDisabledErr);
 
         SalesInvoice.Close();
 
         // [WHEN] Sales invoice page is opened with no application area
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         SalesInvoice.OpenNew();
 
         // [THEN] All controls related to customer (and not on SaaS) are disabled
-        Assert.IsFalse(SalesInvoice.Release.Enabled, ControlShouldBeDisabledErr);
+        Assert.IsFalse(SalesInvoice.Release.Enabled(), ControlShouldBeDisabledErr);
     end;
 
     [Test]
@@ -5769,24 +5770,24 @@
         LibrarySmallBusiness.CreateSalesInvoiceHeader(SalesHeader, Customer);
 
         // [WHEN] Sales invoice page is opened on SaaS
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] All controls related to customer (and on SaaS) are enabled
-        Assert.IsTrue(SalesInvoice.GetRecurringSalesLines.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesInvoice.Statistics.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesInvoice.CalculateInvoiceDiscount.Enabled, ControlShouldBeEnabledErr);
-        Assert.IsTrue(SalesInvoice.CopyDocument.Enabled, ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesInvoice.GetRecurringSalesLines.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesInvoice.Statistics.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesInvoice.CalculateInvoiceDiscount.Enabled(), ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesInvoice.CopyDocument.Enabled(), ControlShouldBeEnabledErr);
 
         SalesInvoice.Close();
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] All controls related to customer (and not on SaaS) are disabled
-        Assert.IsTrue(SalesInvoice.Release.Enabled, ControlShouldBeEnabledErr);
+        Assert.IsTrue(SalesInvoice.Release.Enabled(), ControlShouldBeEnabledErr);
     end;
 
     [ModalPageHandler]
@@ -5795,13 +5796,13 @@
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(Vendor."No."));
-        PurchOrderFromSalesOrder.First;
+        Vendor."No." := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(Vendor."No."));
+        PurchOrderFromSalesOrder.First();
         repeat
             PurchOrderFromSalesOrder.Vendor.AssertEquals('');
             PurchOrderFromSalesOrder.Vendor.SetValue(Vendor."No.");
         until not PurchOrderFromSalesOrder.Next();
-        PurchOrderFromSalesOrder.OK.Invoke;
+        PurchOrderFromSalesOrder.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5818,21 +5819,21 @@
         VendorNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(VendorNo);
-        PurchOrderFromSalesOrder.First;
+        PurchOrderFromSalesOrder.First();
         repeat
             PurchOrderFromSalesOrder.Vendor.AssertEquals('');
             LibraryVariableStorage.Enqueue(VendorNo);
-            PurchOrderFromSalesOrder.Vendor.Lookup;
+            PurchOrderFromSalesOrder.Vendor.Lookup();
         until not PurchOrderFromSalesOrder.Next();
-        PurchOrderFromSalesOrder.OK.Invoke;
+        PurchOrderFromSalesOrder.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure LookupCancelVendorPurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
     begin
-        PurchOrderFromSalesOrder.Vendor.Lookup;
-        PurchOrderFromSalesOrder.Cancel.Invoke;
+        PurchOrderFromSalesOrder.Vendor.Lookup();
+        PurchOrderFromSalesOrder.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5841,12 +5842,12 @@
     var
         Vendor: Record Vendor;
     begin
-        Vendor.Get(CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(Vendor."No.")));
-        PurchOrderFromSalesOrder.First;
+        Vendor.Get(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(Vendor."No.")));
+        PurchOrderFromSalesOrder.First();
         repeat
             PurchOrderFromSalesOrder.Vendor.AssertEquals(Vendor.Name);
         until not PurchOrderFromSalesOrder.Next();
-        PurchOrderFromSalesOrder.OK.Invoke;
+        PurchOrderFromSalesOrder.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5855,12 +5856,12 @@
     var
         Vendor: Record Vendor;
     begin
-        PurchOrderFromSalesOrder.First;
+        PurchOrderFromSalesOrder.First();
         repeat
-            Vendor.Get(CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(Vendor."No.")));
+            Vendor.Get(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(Vendor."No.")));
             PurchOrderFromSalesOrder.Vendor.AssertEquals(Vendor.Name);
         until not PurchOrderFromSalesOrder.Next();
-        PurchOrderFromSalesOrder.OK.Invoke;
+        PurchOrderFromSalesOrder.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5870,30 +5871,30 @@
         Quantity: Decimal;
         SalesOrderQuantity: Decimal;
     begin
-        if PurchOrderFromSalesOrder.First then begin
+        if PurchOrderFromSalesOrder.First() then begin
             repeat
-                Quantity := LibraryVariableStorage.DequeueDecimal;
-                SalesOrderQuantity := LibraryVariableStorage.DequeueDecimal;
+                Quantity := LibraryVariableStorage.DequeueDecimal();
+                SalesOrderQuantity := LibraryVariableStorage.DequeueDecimal();
                 PurchOrderFromSalesOrder.Quantity.AssertEquals(Quantity);
                 PurchOrderFromSalesOrder."Demand Quantity".AssertEquals(SalesOrderQuantity);
             until not PurchOrderFromSalesOrder.Next();
-            PurchOrderFromSalesOrder.OK.Invoke;
+            PurchOrderFromSalesOrder.OK().Invoke();
         end else
-            PurchOrderFromSalesOrder.Cancel.Invoke();
+            PurchOrderFromSalesOrder.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UserCancelsPurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
     begin
-        PurchOrderFromSalesOrder.Cancel.Invoke;
+        PurchOrderFromSalesOrder.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UserAcceptsWithoutChangesPurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
     begin
-        PurchOrderFromSalesOrder.OK.Invoke;
+        PurchOrderFromSalesOrder.OK().Invoke();
     end;
 
     [StrMenuHandler]
@@ -5912,7 +5913,7 @@
             SetRange("Document Type", SalesHeader."Document Type");
             FindSet();
             while LineIndex > 1 do begin
-                Assert.AreEqual(1, Next, 'Expected more sales lines');
+                Assert.AreEqual(1, Next(), 'Expected more sales lines');
                 LineIndex -= 1;
             end;
             exit("Line No.");
@@ -5923,7 +5924,7 @@
     [Scope('OnPrem')]
     procedure AssertMessageHandler(Message: Text)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 
     [SendNotificationHandler]
@@ -5941,8 +5942,8 @@
     begin
         LibraryVariableStorage.Dequeue(VendorNo);
         ItemVendorCatalog.FILTER.SetFilter("Vendor No.", VendorNo);
-        ItemVendorCatalog.Last;
-        ItemVendorCatalog.OK.Invoke;
+        ItemVendorCatalog.Last();
+        ItemVendorCatalog.OK().Invoke();
     end;
 
     [IntegrationEvent(false, false)]

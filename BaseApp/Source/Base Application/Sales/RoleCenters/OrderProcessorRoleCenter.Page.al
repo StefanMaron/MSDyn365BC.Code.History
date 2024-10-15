@@ -13,7 +13,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-#if CLEAN21
+#if CLEAN23
 using Microsoft.Pricing.Reports;
 using Microsoft.Pricing.Worksheet;
 #endif
@@ -27,7 +27,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
-#if CLEAN21
+#if CLEAN23
 using Microsoft.Sales.Pricing;
 #endif
 using Microsoft.Sales.Reminder;
@@ -105,16 +105,6 @@ page 9006 "Order Processor Role Center"
                 AccessByPermission = TableData "Report Inbox" = R;
                 ApplicationArea = Suite;
             }
-#if not CLEAN21
-            part(Control13; "Power BI Report Spinner Part")
-            {
-                ApplicationArea = Basic, Suite;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(Control1901377608; MyNotes)
             {
                 ApplicationArea = Basic, Suite;
@@ -686,7 +676,7 @@ page 9006 "Order Processor Role Center"
                     RunObject = Page "Sales Journal";
                     ToolTip = 'Open a sales journal where you can batch post sales transactions to G/L, bank, customer, vendor and fixed assets accounts.';
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action("Sales Price &Worksheet")
                 {
                     ApplicationArea = Basic, Suite;
@@ -713,7 +703,7 @@ page 9006 "Order Processor Role Center"
             group(Action42)
             {
                 Caption = 'Sales';
-#if not CLEAN21
+#if not CLEAN23
                 action("&Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -793,7 +783,7 @@ page 9006 "Order Processor Role Center"
                         RunObject = Report "Salesperson - Sales Statistics";
                         ToolTip = 'View amounts for sales, profit, invoice discount, and payment discount, as well as profit percentage, for each salesperson for a selected period. The report also shows the adjusted profit and adjusted profit percentage, which reflect any changes to the original costs of the items in the sales.';
                     }
-#if not CLEAN21 
+#if not CLEAN23 
                     action("Price &List")
                     {
                         ApplicationArea = Basic, Suite;

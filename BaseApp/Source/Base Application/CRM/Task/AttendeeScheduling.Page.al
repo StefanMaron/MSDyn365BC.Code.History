@@ -155,7 +155,7 @@ page 5199 "Attendee Scheduling"
 
                         trigger OnAction()
                         begin
-                            Rec.OpenAttachment(not CurrPage.Editable);
+                            Rec.OpenAttachment(not CurrPage.Editable());
                         end;
                     }
                     action(Create)
@@ -167,7 +167,7 @@ page 5199 "Attendee Scheduling"
 
                         trigger OnAction()
                         begin
-                            Rec.CreateAttachment(not CurrPage.Editable);
+                            Rec.CreateAttachment(not CurrPage.Editable());
                         end;
                     }
                     action(Import)
@@ -277,7 +277,7 @@ page 5199 "Attendee Scheduling"
             end else
                 Rec.OpenAttachment(false);
         end else
-            Rec.CreateAttachment(not CurrPage.Editable);
+            Rec.CreateAttachment(not CurrPage.Editable());
     end;
 
     local procedure EnableFields()

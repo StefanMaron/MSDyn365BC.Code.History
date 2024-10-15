@@ -399,7 +399,6 @@ page 9652 "Report Layout Selection"
     end;
 
     local procedure SetDefaultSelectionFromReportLayoutList(var ReportLayoutList: Record "Report Layout List"; LayoutName: Text[250])
-    var
     begin
         Rec.Validate(Type, LayoutFormatToType(ReportLayoutList."Layout Format"));
         Rec."Report Layout Description" := LayoutName;
@@ -515,7 +514,7 @@ page 9652 "Report Layout Selection"
 
     procedure GetSelectedCompanyName(): Text[30]
     begin
-        Exit(SelectedCompany);
+        exit(SelectedCompany);
     end;
 
     [IntegrationEvent(false, false)]

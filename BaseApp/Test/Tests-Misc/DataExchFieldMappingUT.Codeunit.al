@@ -53,7 +53,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         DataExchFieldMapping."Column No." := DataExchColumnDef."Column No.";
 
         // Verify
-        Assert.AreEqual(DataExchFieldMapping.GetColumnCaption, DataExchColumnDef.Name, '');
+        Assert.AreEqual(DataExchFieldMapping.GetColumnCaption(), DataExchColumnDef.Name, '');
     end;
 
     [Test]
@@ -88,8 +88,8 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         DataExchLineDef.Validate("Data Line Tag", LibraryUtility.GenerateGUID());
         DataExchLineDef.Modify(true);
         DataExchColDef.InsertRecordForImport(
-			DataExchDef.Code, DataExchLineDef.Code, 1,
-			LibraryUtility.GenerateRandomCode(DataExchColDef.FieldNo(Name),
+            DataExchDef.Code, DataExchLineDef.Code, 1,
+            LibraryUtility.GenerateRandomCode(DataExchColDef.FieldNo(Name),
             DATABASE::"Data Exch. Column Def"), '', true, DataExchColDef."Data Type"::Decimal, '', '');
         DataExchMapping.InsertRecForImport(DataExchDef.Code, DataExchLineDef.Code,
           DATABASE::"Gen. Journal Line", '', 0, 0);
@@ -119,8 +119,8 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         DataExchLineDef.Validate("Data Line Tag", LibraryUtility.GenerateGUID());
         DataExchLineDef.Modify(true);
         DataExchColDef.InsertRecordForImport(
-			DataExchDef.Code, DataExchLineDef.Code, 1,
-			LibraryUtility.GenerateRandomCode(DataExchColDef.FieldNo(Name),
+            DataExchDef.Code, DataExchLineDef.Code, 1,
+            LibraryUtility.GenerateRandomCode(DataExchColDef.FieldNo(Name),
             DATABASE::"Data Exch. Column Def"), '', true, DataExchColDef."Data Type"::Decimal, '', '');
         DataExchColDef.Validate(Path,
           CopyStr(DataExchLineDef."Data Line Tag" + '/' + DataExchColDef.Name, 1, MaxStrLen(DataExchColDef.Path)));
@@ -351,7 +351,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         DataExchLineDef."Data Exch. Def Code" := DataExchDef.Code;
         DataExchLineDef.Code :=
           LibraryUtility.GenerateRandomCode(DataExchLineDef.FieldNo(Code), DATABASE::"Data Exch. Line Def");
-        DataExchLineDef.Insert
+        DataExchLineDef.Insert();
     end;
 
     [Test]
@@ -364,14 +364,14 @@ codeunit 132546 "Data Exch. Field Mapping UT"
     begin
         // Setup
         LibraryPaymentExport.CreateSimpleDataExchDefWithMapping(DataExchMapping, DATABASE::"Bank Acc. Reconciliation", 1);
-        DataExchMappingPage.OpenEdit;
+        DataExchMappingPage.OpenEdit();
         DataExchMappingPage.GotoRecord(DataExchMapping);
 
         // Exercise
-        DataExchMappingPage."Field Mapping"."Field ID".Lookup;
+        DataExchMappingPage."Field Mapping"."Field ID".Lookup();
 
         // Verify
-        Assert.AreEqual(2, DataExchMappingPage."Field Mapping"."Field ID".AsInteger, 'Handler must set FieldID to 2');
+        Assert.AreEqual(2, DataExchMappingPage."Field Mapping"."Field ID".AsInteger(), 'Handler must set FieldID to 2');
     end;
 
     [Test]
@@ -458,7 +458,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         DataExchMappingCard: TestPage "Data Exch Mapping Card";
     begin
         // [SCENARIO] "Data Exch Mapping Card" Page must may be opened even if mapping is set for table with a 250 symbols (max possible) length
-        DataExchMappingCard.Trap;
+        DataExchMappingCard.Trap();
 
         CreateDataExchColumnDef(DataExchColumnDef, DummyDataExchLineDef);
         CreateDataExchMapping(DataExchMapping, DummyDataExchLineDef, DATABASE::"Payment Export Remittance Text");
@@ -549,7 +549,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
     procedure FieldsModalPageHandler(var FieldsLookup: TestPage "Fields Lookup")
     begin
         FieldsLookup.Next();
-        FieldsLookup.OK.Invoke;
+        FieldsLookup.OK().Invoke();
     end;
 }
 

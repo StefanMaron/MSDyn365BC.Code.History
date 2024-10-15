@@ -97,7 +97,7 @@ codeunit 136360 "UT T Service Line Usage Link"
         // Verify that "Remaining Qty." is initialized correctly.
         Assert.AreEqual(0, ServiceLine."Job Remaining Qty. (Base)", 'Remaining Qty. is not 0 by default.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -115,7 +115,7 @@ codeunit 136360 "UT T Service Line Usage Link"
         // Verify that "Line Type" can't be changed if a "Job Planning Line No." is defined.
         asserterror ServiceLine.Validate("Job Line Type", 0);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -132,7 +132,7 @@ codeunit 136360 "UT T Service Line Usage Link"
         Assert.AreEqual(0, ServiceLine."Job Remaining Qty.", 'Remaining Qty. is not 0 when No. changes.');
         Assert.AreEqual(0, ServiceLine."Job Remaining Qty. (Base)", 'Remaining Qty. (Base) is not 0 when No. changes.');
 
-        TearDown;
+        TearDown();
 
         Initialize();
 
@@ -144,7 +144,7 @@ codeunit 136360 "UT T Service Line Usage Link"
 
         // Remaining test for this field are found in test function TestFieldRemainingQty.
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -159,7 +159,7 @@ codeunit 136360 "UT T Service Line Usage Link"
         // Verify that "Remaining Qty." can't be set if "Job Planning Line No." isn't set.
         asserterror ServiceLine.Validate("Job Remaining Qty.", LibraryRandom.RandInt(Round(ServiceLine.Quantity, 1)));
 
-        TearDown;
+        TearDown();
 
         Initialize();
 
@@ -193,7 +193,7 @@ codeunit 136360 "UT T Service Line Usage Link"
         Assert.AreEqual(ServiceLine."Job Remaining Qty.", ServiceLine."Job Remaining Qty. (Base)",
           'Remaining Qty. (Base) is not updated correctly');
 
-        TearDown;
+        TearDown();
     end;
 
     [Normal]

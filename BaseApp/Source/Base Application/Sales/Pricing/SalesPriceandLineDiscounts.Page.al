@@ -1,4 +1,4 @@
-#if not CLEAN21
+#if not CLEAN23
 namespace Microsoft.Sales.Pricing;
 
 using Microsoft.Inventory.Item;

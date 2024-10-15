@@ -167,23 +167,21 @@ codeunit 99000837 "Prod. Order Line-Reserve"
         if Blocked then
             exit;
 
-        with NewProdOrderLine do begin
-            if Status = Status::Finished then
+        if NewProdOrderLine.Status = NewProdOrderLine.Status::Finished then
+            exit;
+        if NewProdOrderLine."Line No." = OldProdOrderLine."Line No." then
+            if NewProdOrderLine."Quantity (Base)" = OldProdOrderLine."Quantity (Base)" then
                 exit;
-            if "Line No." = OldProdOrderLine."Line No." then
-                if "Quantity (Base)" = OldProdOrderLine."Quantity (Base)" then
-                    exit;
-            if "Line No." = 0 then
-                if not ProdOrderLine.Get(Status, "Prod. Order No.", "Line No.") then
-                    exit;
-            ReservationManagement.SetReservSource(NewProdOrderLine);
-            if "Qty. per Unit of Measure" <> OldProdOrderLine."Qty. per Unit of Measure" then
-                ReservationManagement.ModifyUnitOfMeasure();
-            ReservationManagement.DeleteReservEntries(false, "Remaining Qty. (Base)");
-            ReservationManagement.ClearSurplus();
-            ReservationManagement.AutoTrack("Remaining Qty. (Base)");
-            AssignForPlanning(NewProdOrderLine);
-        end;
+        if NewProdOrderLine."Line No." = 0 then
+            if not ProdOrderLine.Get(NewProdOrderLine.Status, NewProdOrderLine."Prod. Order No.", NewProdOrderLine."Line No.") then
+                exit;
+        ReservationManagement.SetReservSource(NewProdOrderLine);
+        if NewProdOrderLine."Qty. per Unit of Measure" <> OldProdOrderLine."Qty. per Unit of Measure" then
+            ReservationManagement.ModifyUnitOfMeasure();
+        ReservationManagement.DeleteReservEntries(false, NewProdOrderLine."Remaining Qty. (Base)");
+        ReservationManagement.ClearSurplus();
+        ReservationManagement.AutoTrack(NewProdOrderLine."Remaining Qty. (Base)");
+        AssignForPlanning(NewProdOrderLine);
     end;
 
     procedure UpdatePlanningFlexibility(var ProdOrderLine: Record "Prod. Order Line")
@@ -210,7 +208,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
         OldReservationEntry.TransferReservations(
             OldReservationEntry, OldProdOrderLine."Item No.", OldProdOrderLine."Variant Code", OldProdOrderLine."Location Code",
             TransferAll, TransferQty, NewProdOrderLine."Qty. per Unit of Measure",
-            Database::"Prod. Order Line", NewProdOrderLine.Status, NewProdOrderLine."Prod. Order No.", '', NewProdOrderLine."Line No.", 0);
+            Database::"Prod. Order Line", NewProdOrderLine.Status.AsInteger(), NewProdOrderLine."Prod. Order No.", '', NewProdOrderLine."Line No.", 0);
     end;
 
     procedure TransferPOLineToItemJnlLine(var OldProdOrderLine: Record "Prod. Order Line"; var NewItemJournalLine: Record "Item Journal Line"; TransferQty: Decimal)
@@ -317,44 +315,42 @@ codeunit 99000837 "Prod. Order Line-Reserve"
     begin
         ProdOrderLine.SetReservationFilters(ReservationEntry);
 
-        with ReservationEntry do begin
-            SetFilter("Item Tracking", '<> %1', "Item Tracking"::None);
-            if not IsEmpty() then
-                HasItemTracking := HasItemTracking::Line;
+        ReservationEntry.SetFilter("Item Tracking", '<> %1', ReservationEntry."Item Tracking"::None);
+        if not ReservationEntry.IsEmpty() then
+            HasItemTracking := HasItemTracking::Line;
 
-            SetRange("Source Type", Database::"Prod. Order Component");
-            SetFilter("Source Ref. No.", ' > %1', 0);
-            if not IsEmpty() then
-                if HasItemTracking = HasItemTracking::Line then
-                    HasItemTracking := HasItemTracking::"Line and Components"
-                else
-                    HasItemTracking := HasItemTracking::Components;
+        ReservationEntry.SetRange("Source Type", Database::"Prod. Order Component");
+        ReservationEntry.SetFilter("Source Ref. No.", ' > %1', 0);
+        if not ReservationEntry.IsEmpty() then
+            if HasItemTracking = HasItemTracking::Line then
+                HasItemTracking := HasItemTracking::"Line and Components"
+            else
+                HasItemTracking := HasItemTracking::Components;
 
-            if HasItemTracking = HasItemTracking::None then
-                exit(true);
+        if HasItemTracking = HasItemTracking::None then
+            exit(true);
 
-            case HasItemTracking of
-                HasItemTracking::Line:
-                    ConfirmMessage := Text006;
-                HasItemTracking::Components:
-                    ConfirmMessage := Text007;
-                HasItemTracking::"Line and Components":
-                    ConfirmMessage := Text008;
-            end;
-
-            if not Confirm(ConfirmMessage, false, ProdOrderLine.Status, ProdOrderLine.TableCaption(), ProdOrderLine."Line No.") then
-                exit(false);
-
-            SetFilter("Source Type", '%1|%2', Database::"Prod. Order Line", Database::"Prod. Order Component");
-            SetRange("Source Ref. No.");
-            if FindSet() then
-                repeat
-                    ReservationEntry2 := ReservationEntry;
-                    ReservationEntry2.ClearItemTrackingFields();
-                    ReservationEntry2.Modify();
-                    OnDeleteLineConfirmOnAfterReservEntry2Modify(ReservationEntry);
-                until Next() = 0;
+        case HasItemTracking of
+            HasItemTracking::Line:
+                ConfirmMessage := Text006;
+            HasItemTracking::Components:
+                ConfirmMessage := Text007;
+            HasItemTracking::"Line and Components":
+                ConfirmMessage := Text008;
         end;
+
+        if not Confirm(ConfirmMessage, false, ProdOrderLine.Status, ProdOrderLine.TableCaption(), ProdOrderLine."Line No.") then
+            exit(false);
+
+        ReservationEntry.SetFilter(ReservationEntry."Source Type", '%1|%2', Database::"Prod. Order Line", Database::"Prod. Order Component");
+        ReservationEntry.SetRange(ReservationEntry."Source Ref. No.");
+        if ReservationEntry.FindSet() then
+            repeat
+                ReservationEntry2 := ReservationEntry;
+                ReservationEntry2.ClearItemTrackingFields();
+                ReservationEntry2.Modify();
+                OnDeleteLineConfirmOnAfterReservEntry2Modify(ReservationEntry);
+            until ReservationEntry.Next() = 0;
 
         exit(true);
     end;
@@ -364,26 +360,22 @@ codeunit 99000837 "Prod. Order Line-Reserve"
         if Blocked then
             exit;
 
-        with ProdOrderLine do begin
-            ReservationManagement.SetReservSource(ProdOrderLine);
-            ReservationManagement.DeleteReservEntries(true, 0);
-            OnDeleteLineOnAfterDeleteReservEntries(ProdOrderLine);
-            ReservationManagement.ClearActionMessageReferences();
-            CalcFields("Reserved Qty. (Base)");
-            AssignForPlanning(ProdOrderLine);
-        end;
+        ReservationManagement.SetReservSource(ProdOrderLine);
+        ReservationManagement.DeleteReservEntries(true, 0);
+        OnDeleteLineOnAfterDeleteReservEntries(ProdOrderLine);
+        ReservationManagement.ClearActionMessageReferences();
+        ProdOrderLine.CalcFields(ProdOrderLine."Reserved Qty. (Base)");
+        AssignForPlanning(ProdOrderLine);
     end;
 
     procedure AssignForPlanning(var ProdOrderLine: Record "Prod. Order Line")
     var
         PlanningAssignment: Record "Planning Assignment";
     begin
-        with ProdOrderLine do begin
-            if Status = Status::Simulated then
-                exit;
-            if "Item No." <> '' then
-                PlanningAssignment.ChkAssignOne("Item No.", "Variant Code", "Location Code", WorkDate());
-        end;
+        if ProdOrderLine.Status = ProdOrderLine.Status::Simulated then
+            exit;
+        if ProdOrderLine."Item No." <> '' then
+            PlanningAssignment.ChkAssignOne(ProdOrderLine."Item No.", ProdOrderLine."Variant Code", ProdOrderLine."Location Code", WorkDate());
     end;
 
     procedure Block(SetBlocked: Boolean)
@@ -607,7 +599,7 @@ codeunit 99000837 "Prod. Order Line-Reserve"
             exit;
 
         AvailabilityFilter := ReservationEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
-        ProdOrderLine.FilterLinesForReservation(ReservationEntry, Status, AvailabilityFilter, Positive);
+        ProdOrderLine.FilterLinesForReservation(ReservationEntry, Status.AsInteger(), AvailabilityFilter, Positive);
         if ProdOrderLine.FindSet() then
             repeat
                 ProdOrderLine.CalcFields("Reserved Qty. (Base)");
@@ -618,18 +610,17 @@ codeunit 99000837 "Prod. Order Line-Reserve"
         if TotalQuantity = 0 then
             exit;
 
-        with TempEntrySummary do
-            if (TotalQuantity > 0) = Positive then begin
-                "Table ID" := Database::"Prod. Order Line";
-                if Status = ProdOrderLine.Status::"Firm Planned" then
-                    "Summary Type" := CopyStr(StrSubstNo(Text010, ProdOrderLine.TableCaption()), 1, MaxStrLen("Summary Type"))
-                else
-                    "Summary Type" := CopyStr(StrSubstNo(Text011, ProdOrderLine.TableCaption()), 1, MaxStrLen("Summary Type"));
-                "Total Quantity" := TotalQuantity;
-                "Total Available Quantity" := "Total Quantity" - "Total Reserved Quantity";
-                if not Insert() then
-                    Modify();
-            end;
+        if (TotalQuantity > 0) = Positive then begin
+            TempEntrySummary."Table ID" := Database::"Prod. Order Line";
+            if Status = ProdOrderLine.Status::"Firm Planned" then
+                TempEntrySummary."Summary Type" := CopyStr(StrSubstNo(Text010, ProdOrderLine.TableCaption()), 1, MaxStrLen(TempEntrySummary."Summary Type"))
+            else
+                TempEntrySummary."Summary Type" := CopyStr(StrSubstNo(Text011, ProdOrderLine.TableCaption()), 1, MaxStrLen(TempEntrySummary."Summary Type"));
+            TempEntrySummary."Total Quantity" := TotalQuantity;
+            TempEntrySummary."Total Available Quantity" := TempEntrySummary."Total Quantity" - TempEntrySummary."Total Reserved Quantity";
+            if not TempEntrySummary.Insert() then
+                TempEntrySummary.Modify();
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnUpdateStatistics', '', false, false)]

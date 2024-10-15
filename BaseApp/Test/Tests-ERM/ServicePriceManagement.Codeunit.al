@@ -108,7 +108,7 @@ codeunit 136105 "Service - Price Management"
         CreateServiceHeader(ServiceHeader);
         LibraryService.CreateServiceItemLine(ServiceItemLine2, ServiceHeader, '');
         UpdateServPriceOnServItemLine(ServiceItemLine2, ServicePriceGroup.Code);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         UpdateWarrantyOnServiceLine(ServiceLine, ServiceItemLine2."Line No.");
         ServiceItemLine := ServiceItemLine2;
 
@@ -553,7 +553,7 @@ codeunit 136105 "Service - Price Management"
     var
         ServiceItem: Record "Service Item";
     begin
-        LibraryService.CreateServiceItem(ServiceItem, FindCustomer);
+        LibraryService.CreateServiceItem(ServiceItem, FindCustomer());
         LibraryService.CreateServiceContractHeader(
           ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, ServiceItem."Customer No.");
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");

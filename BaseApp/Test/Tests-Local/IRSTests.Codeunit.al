@@ -31,7 +31,7 @@ codeunit 141003 "IRS - Tests"
 
         Initialized := true;
         LibrarySales.SetStockoutWarning(false);
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
 
         PurchasesSetup.Get();
         PurchasesSetup.Validate("Ext. Doc. No. Mandatory", false);
@@ -143,67 +143,61 @@ codeunit 141003 "IRS - Tests"
     begin
         REPORT.Run(REPORT::"IRS notification", true, false);
 
-        with LibraryReportDataset do begin
-            LoadDataSetFile;
-            while GetNextRow do begin
-                // Contain the company info
-                CompanyInfo.Get();
-                AssertCurrentRowValueEquals('CompanyInfoName', CompanyInfo.Name);
-                AssertCurrentRowValueEquals('CompanyInfoAddress', CompanyInfo.Address);
-                AssertCurrentRowValueEquals('CompanyInfoPostCodeAndCity', CompanyInfo."Post Code" + ' ' + CompanyInfo.City);
-                AssertCurrentRowValueEquals('CompanyInfoRegNo', 'Kt. ' + CompanyInfo."Registration No.");
-
-                // Describe intent to use single copy invoices
-                AssertCurrentRowValueEquals(
-                  'InvInAccordanceCaption',
-                  'intents to utilize the possibility to issue single copy invoices in accordance with IS regulation no. 598/1999');
-                AssertCurrentRowValueEquals(
-                  'VersionOfNavisionCaption',
-                  'It is also confirmed that the company uses a version of Navision that complies with the regulation.');
-            end;
+        LibraryReportDataset.LoadDataSetFile();
+        while LibraryReportDataset.GetNextRow() do begin
+            // Contain the company info
+            CompanyInfo.Get();
+            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyInfoName', CompanyInfo.Name);
+            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyInfoAddress', CompanyInfo.Address);
+            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyInfoPostCodeAndCity', CompanyInfo."Post Code" + ' ' + CompanyInfo.City);
+            LibraryReportDataset.AssertCurrentRowValueEquals('CompanyInfoRegNo', 'Kt. ' + CompanyInfo."Registration No.");
+            // Describe intent to use single copy invoices
+            LibraryReportDataset.AssertCurrentRowValueEquals(
+              'InvInAccordanceCaption',
+              'intents to utilize the possibility to issue single copy invoices in accordance with IS regulation no. 598/1999');
+            LibraryReportDataset.AssertCurrentRowValueEquals(
+              'VersionOfNavisionCaption',
+              'It is also confirmed that the company uses a version of Navision that complies with the regulation.');
         end;
     end;
 
     local procedure VerifyIRSVAT(var IRS_GLAcc: Record "G/L Account")
     begin
-        with LibraryReportDataset do begin
-            LoadDataSetFile;
-            IRS_GLAcc.FindFirst();
-            while GetNextRow do begin
-                AssertCurrentRowValueEquals('IRSNumber_IRSNumbers', IRS_GLAcc."IRS Number");
-                AssertCurrentRowValueEquals('No_GLAcc', IRS_GLAcc."No.");
+        LibraryReportDataset.LoadDataSetFile();
+        IRS_GLAcc.FindFirst();
+        while LibraryReportDataset.GetNextRow() do begin
+            LibraryReportDataset.AssertCurrentRowValueEquals('IRSNumber_IRSNumbers', IRS_GLAcc."IRS Number");
+            LibraryReportDataset.AssertCurrentRowValueEquals('No_GLAcc', IRS_GLAcc."No.");
 
-                IRS_GLAcc.CalcFields("Balance at Date");
-                AssertCurrentRowValueEquals('BalanceAtDate_GLAcc', IRS_GLAcc."Balance at Date");
+            IRS_GLAcc.CalcFields("Balance at Date");
+            LibraryReportDataset.AssertCurrentRowValueEquals('BalanceAtDate_GLAcc', IRS_GLAcc."Balance at Date");
 
-                IRS_GLAcc.Next();
-            end;
-
-            Assert.IsTrue(IRS_GLAcc.Next() = 0, '');
+            IRS_GLAcc.Next();
         end;
+
+        Assert.IsTrue(IRS_GLAcc.Next() = 0, '');
     end;
 
     local procedure VerifyIRSTrialBalance(var IRS_GLAcc: Record "G/L Account")
     begin
-        with LibraryReportDataset do begin
-            LoadDataSetFile;
-            IRS_GLAcc.FindFirst();
-            while GetNextRow do begin
-                GetNextRow; // This report outputs alternating empty lines
-                AssertCurrentRowValueEquals('No_GLAcc', IRS_GLAcc."No.");
-                AssertCurrentRowValueEquals('IRSNumber_GLAcc', IRS_GLAcc."IRS Number");
+        LibraryReportDataset.LoadDataSetFile();
+        IRS_GLAcc.FindFirst();
+        while LibraryReportDataset.GetNextRow() do begin
+            LibraryReportDataset.GetNextRow();
+            // This report outputs alternating empty lines
+            LibraryReportDataset.AssertCurrentRowValueEquals('No_GLAcc', IRS_GLAcc."No.");
+            LibraryReportDataset.AssertCurrentRowValueEquals('IRSNumber_GLAcc', IRS_GLAcc."IRS Number");
 
-                IRS_GLAcc.CalcFields("Balance at Date");
-                AssertCurrentRowValueEquals('BalanceAtDate_GLAcc', IRS_GLAcc."Balance at Date");
+            IRS_GLAcc.CalcFields("Balance at Date");
+            LibraryReportDataset.AssertCurrentRowValueEquals('BalanceAtDate_GLAcc', IRS_GLAcc."Balance at Date");
 
-                IRS_GLAcc.Next();
-            end;
-
-            Assert.IsTrue(IRS_GLAcc.Next() = 0, '');
+            IRS_GLAcc.Next();
         end;
+
+        Assert.IsTrue(IRS_GLAcc.Next() = 0, '');
     end;
 
-    local procedure CreateSalesDocWithMultipleVAT(var SalesHeader: Record "Sales Header"; DocType: Option)
+    local procedure CreateSalesDocWithMultipleVAT(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         Cust: Record Customer;
@@ -239,7 +233,7 @@ codeunit 141003 "IRS - Tests"
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreatePurchDocWithMultipleVAT(var PurchHeader: Record "Purchase Header"; DocType: Option)
+    local procedure CreatePurchDocWithMultipleVAT(var PurchHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type")
     var
         PurchLine: Record "Purchase Line";
         Vend: Record Vendor;
@@ -353,21 +347,21 @@ codeunit 141003 "IRS - Tests"
     [Scope('OnPrem')]
     procedure IRSDetailsHandler(var IRSDetails: TestRequestPage "IRS Details")
     begin
-        IRSDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IRSDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure TrialBalanceIRSNumberHandler(var TrialBalanceIRSNumber: TestRequestPage "Trial Balance - IRS Number")
     begin
-        TrialBalanceIRSNumber.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TrialBalanceIRSNumber.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure IRSNotificationHandler(var IRSNotification: TestRequestPage "IRS notification")
     begin
-        IRSNotification.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IRSNotification.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 #endif

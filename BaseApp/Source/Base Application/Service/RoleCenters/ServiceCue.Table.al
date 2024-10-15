@@ -7,6 +7,7 @@ using System.Security.User;
 table 9052 "Service Cue"
 {
     Caption = 'Service Cue';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -16,7 +17,7 @@ table 9052 "Service Cue"
         }
         field(2; "Service Orders - in Process"; Integer)
         {
-            CalcFormula = Count("Service Header" where("Document Type" = filter(Order),
+            CalcFormula = count("Service Header" where("Document Type" = filter(Order),
                                                         Status = filter("In Process"),
                                                         "Responsibility Center" = field("Responsibility Center Filter")));
             Caption = 'Service Orders - in Process';
@@ -25,7 +26,7 @@ table 9052 "Service Cue"
         }
         field(3; "Service Orders - Finished"; Integer)
         {
-            CalcFormula = Count("Service Header" where("Document Type" = filter(Order),
+            CalcFormula = count("Service Header" where("Document Type" = filter(Order),
                                                         Status = filter(Finished),
                                                         "Responsibility Center" = field("Responsibility Center Filter")));
             Caption = 'Service Orders - Finished';
@@ -34,7 +35,7 @@ table 9052 "Service Cue"
         }
         field(4; "Service Orders - Inactive"; Integer)
         {
-            CalcFormula = Count("Service Header" where("Document Type" = filter(Order),
+            CalcFormula = count("Service Header" where("Document Type" = filter(Order),
                                                         Status = filter(Pending | "On Hold"),
                                                         "Responsibility Center" = field("Responsibility Center Filter")));
             Caption = 'Service Orders - Inactive';
@@ -43,7 +44,7 @@ table 9052 "Service Cue"
         }
         field(5; "Open Service Quotes"; Integer)
         {
-            CalcFormula = Count("Service Header" where("Document Type" = filter(Quote),
+            CalcFormula = count("Service Header" where("Document Type" = filter(Quote),
                                                         Status = filter(Pending | "On Hold"),
                                                         "Responsibility Center" = field("Responsibility Center Filter")));
             Caption = 'Open Service Quotes';
@@ -52,7 +53,7 @@ table 9052 "Service Cue"
         }
         field(6; "Open Service Contract Quotes"; Integer)
         {
-            CalcFormula = Count("Service Contract Header" where("Contract Type" = filter(Quote),
+            CalcFormula = count("Service Contract Header" where("Contract Type" = filter(Quote),
                                                                  Status = filter(" "),
                                                                  "Responsibility Center" = field("Responsibility Center Filter")));
             Caption = 'Open Service Contract Quotes';
@@ -61,7 +62,7 @@ table 9052 "Service Cue"
         }
         field(7; "Service Contracts to Expire"; Integer)
         {
-            CalcFormula = Count("Service Contract Header" where("Contract Type" = filter(Contract),
+            CalcFormula = count("Service Contract Header" where("Contract Type" = filter(Contract),
                                                                  "Expiration Date" = field("Date Filter"),
                                                                  "Responsibility Center" = field("Responsibility Center Filter")));
             Caption = 'Service Contracts to Expire';
@@ -70,7 +71,7 @@ table 9052 "Service Cue"
         }
         field(8; "Service Orders - Today"; Integer)
         {
-            CalcFormula = Count("Service Header" where("Document Type" = filter(Order),
+            CalcFormula = count("Service Header" where("Document Type" = filter(Order),
                                                         "Response Date" = field("Date Filter"),
                                                         "Responsibility Center" = field("Responsibility Center Filter")));
             Caption = 'Service Orders - Today';
@@ -79,7 +80,7 @@ table 9052 "Service Cue"
         }
         field(9; "Service Orders - to Follow-up"; Integer)
         {
-            CalcFormula = Count("Service Header" where("Document Type" = filter(Order),
+            CalcFormula = count("Service Header" where("Document Type" = filter(Order),
                                                         Status = filter("In Process"),
                                                         "Responsibility Center" = field("Responsibility Center Filter")));
             Caption = 'Service Orders - to Follow-up';

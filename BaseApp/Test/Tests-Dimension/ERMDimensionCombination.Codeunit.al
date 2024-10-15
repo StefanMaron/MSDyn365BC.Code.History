@@ -119,7 +119,7 @@ codeunit 134479 "ERM Dimension Combination"
         UpdateSalesLineDimensionSetID(SalesLine, DimensionValue);
 
         // [WHEN] Post Sales Invoice.
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         Assert.IsFalse(SalesHeader.SendToPosting(CODEUNIT::"Sales-Post"), 'Posting should fail');
 
         // [THEN] Verify Restrict Dimension Error.
@@ -155,7 +155,7 @@ codeunit 134479 "ERM Dimension Combination"
         UpdatePurchaseLineDimensionSetID(PurchaseLine, DimensionValue);
 
         // [WHEN] Post Purchase Invoice.
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         Assert.IsFalse(PurchaseHeader.SendToPosting(CODEUNIT::"Purch.-Post"), 'Posting should fail');
 
         // [THEN] Verify Blocked Dimension Error.
@@ -186,7 +186,7 @@ codeunit 134479 "ERM Dimension Combination"
         UpdatePurchaseHeaderDimensionSetID(PurchaseHeader, DimensionValue);
 
         // [WHEN] Post Purchase Invoice.
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         Assert.IsFalse(PurchaseHeader.SendToPosting(CODEUNIT::"Purch.-Post"), 'Posting should fail');
 
         // [THEN] Verify Blocked Dimension Error.
@@ -433,7 +433,7 @@ codeunit 134479 "ERM Dimension Combination"
     begin
         // Using Random Number Generator for Amount and Quantity.
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader,
-          SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
     end;
@@ -528,18 +528,18 @@ codeunit 134479 "ERM Dimension Combination"
     [Scope('OnPrem')]
     procedure MyDimValueCombinationsPageHandler(var MyDimValueCombinations: TestPage "MyDim Value Combinations")
     begin
-        MyDimValueCombinations.MatrixForm.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        MyDimValueCombinations.MatrixForm.Field32.AssistEdit;
-        MyDimValueCombinations.OK.Invoke;
+        MyDimValueCombinations.MatrixForm.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        MyDimValueCombinations.MatrixForm.Field32.AssistEdit();
+        MyDimValueCombinations.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure MyDimValueCombinationsCheckVisibilityPageHandler(var MyDimValueCombinations: TestPage "MyDim Value Combinations")
     begin
-        Assert.IsTrue(MyDimValueCombinations.MatrixForm.Field32.Visible, ColumnInvisibleErr);
-        MyDimValueCombinations.NextColumn.Invoke;
-        Assert.IsFalse(MyDimValueCombinations.MatrixForm.Field32.Visible, ColumnVisibleErr);
+        Assert.IsTrue(MyDimValueCombinations.MatrixForm.Field32.Visible(), ColumnInvisibleErr);
+        MyDimValueCombinations.NextColumn.Invoke();
+        Assert.IsFalse(MyDimValueCombinations.MatrixForm.Field32.Visible(), ColumnVisibleErr);
     end;
 
     [StrMenuHandler]

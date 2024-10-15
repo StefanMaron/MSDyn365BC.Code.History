@@ -35,6 +35,7 @@ table 156 Resource
     DataCaptionFields = "No.", Name;
     DrillDownPageID = "Resource List";
     LookupPageID = "Resource List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -53,7 +54,7 @@ table 156 Resource
 
                 if "No." <> xRec."No." then begin
                     ResSetup.Get();
-                    NoSeriesMgt.TestManual(ResSetup."Resource Nos.");
+                    NoSeries.TestManual(ResSetup."Resource Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -117,7 +118,7 @@ table 156 Resource
         }
         field(10; "Job Title"; Text[30])
         {
-            Caption = 'Job Title';
+            Caption = 'Project Title';
         }
         field(11; Education; Text[30])
         {
@@ -361,7 +362,7 @@ table 156 Resource
                                                                            Type = const(Resource),
                                                                            "No." = field("No."),
                                                                            "Planning Date" = field("Date Filter")));
-            Caption = 'Qty. on Order (Job)';
+            Caption = 'Qty. on Order (Project)';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
@@ -373,7 +374,7 @@ table 156 Resource
                                                                            Type = const(Resource),
                                                                            "No." = field("No."),
                                                                            "Planning Date" = field("Date Filter")));
-            Caption = 'Qty. Quoted (Job)';
+            Caption = 'Qty. Quoted (Project)';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
@@ -773,6 +774,10 @@ table 156 Resource
 
     trigger OnInsert()
     var
+        Resource: Record Resource;
+#if not CLEAN24        
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -783,7 +788,22 @@ table 156 Resource
         if "No." = '' then begin
             ResSetup.Get();
             ResSetup.TestField("Resource Nos.");
-            NoSeriesMgt.InitSeries(ResSetup."Resource Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(ResSetup."Resource Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := ResSetup."Resource Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+                Resource.ReadIsolation(IsolationLevel::ReadUncommitted);
+                Resource.SetLoadFields("No.");
+                while Resource.Get("No.") do
+                    "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", ResSetup."Resource Nos.", 0D, "No.");
+            end;
+#endif
         end;
 
         if GetFilter("Resource Group No.") <> '' then
@@ -834,7 +854,7 @@ table 156 Resource
         ResServZone: Record "Resource Service Zone";
         ResUnitMeasure: Record "Resource Unit of Measure";
         PlanningLine: Record "Job Planning Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         MoveEntries: Codeunit MoveEntries;
         DimMgt: Codeunit DimensionManagement;
 
@@ -843,7 +863,7 @@ table 156 Resource
         Text005: Label '%1 cannot be changed since unprocessed time sheet lines exist for this resource.';
         Text006: Label 'You cannot delete %1 %2 because unprocessed time sheet lines exist for this resource.', Comment = 'You cannot delete Resource LIFT since unprocessed time sheet lines exist for this resource.';
         BaseUnitOfMeasureQtyMustBeOneErr: Label 'The quantity per base unit of measure must be 1. %1 is set up with %2 per unit of measure.', Comment = '%1 Name of Unit of measure (e.g. BOX, PCS, KG...), %2 Qty. of %1 per base unit of measure ';
-        CannotDeleteResourceErr: Label 'You cannot delete resource %1 because it is used in one or more job planning lines.', Comment = '%1 = Resource No.';
+        CannotDeleteResourceErr: Label 'You cannot delete resource %1 because it is used in one or more project planning lines.', Comment = '%1 = Resource No.';
         DocumentExistsErr: Label 'You cannot delete resource %1 because there are one or more outstanding %2 that include this resource.', Comment = '%1 = Resource No.';
         PrivacyBlockedPostErr: Label 'You cannot post this line because resource %1 is blocked due to privacy.', Comment = '%1=resource no.';
         PrivacyBlockedErr: Label 'You cannot create this line because resource %1 is blocked due to privacy.', Comment = '%1=resource no.';
@@ -859,17 +879,13 @@ table 156 Resource
         if IsHandled then
             exit(Result);
 
-        with Res do begin
-            Res := Rec;
-            ResSetup.Get();
-            ResSetup.TestField("Resource Nos.");
-            if NoSeriesMgt.SelectSeries(ResSetup."Resource Nos.", OldRes."No. Series", "No. Series") then begin
-                ResSetup.Get();
-                ResSetup.TestField("Resource Nos.");
-                NoSeriesMgt.SetSeries("No.");
-                Rec := Res;
-                exit(true);
-            end;
+        Res := Rec;
+        ResSetup.Get();
+        ResSetup.TestField("Resource Nos.");
+        if NoSeries.LookupRelatedNoSeries(ResSetup."Resource Nos.", OldRes."No. Series", Res."No. Series") then begin
+            Res."No." := NoSeries.GetNextNo(Res."No. Series");
+            Rec := Res;
+            exit(true);
         end;
     end;
 

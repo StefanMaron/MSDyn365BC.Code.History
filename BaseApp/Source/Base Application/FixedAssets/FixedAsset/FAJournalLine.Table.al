@@ -14,6 +14,7 @@ using Microsoft.Foundation.NoSeries;
 table 5621 "FA Journal Line"
 {
     Caption = 'FA Journal Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -372,39 +373,38 @@ table 5621 "FA Journal Line"
         FAJnlLine: Record "FA Journal Line";
         FAJnlSetup: Record "FA Journal Setup";
         FADeprBook: Record "FA Depreciation Book";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
 
     procedure ConvertToLedgEntry(var FAJnlLine: Record "FA Journal Line"): Option
     var
         FALedgEntry: Record "FA Ledger Entry";
     begin
-        with FALedgEntry do begin
-            case FAJnlLine."FA Posting Type" of
-                FAJnlLine."FA Posting Type"::"Acquisition Cost":
-                    "FA Posting Type" := "FA Posting Type"::"Acquisition Cost";
-                FAJnlLine."FA Posting Type"::Depreciation:
-                    "FA Posting Type" := "FA Posting Type"::Depreciation;
-                FAJnlLine."FA Posting Type"::"Write-Down":
-                    "FA Posting Type" := "FA Posting Type"::"Write-Down";
-                FAJnlLine."FA Posting Type"::Appreciation:
-                    "FA Posting Type" := "FA Posting Type"::Appreciation;
-                FAJnlLine."FA Posting Type"::"Custom 1":
-                    "FA Posting Type" := "FA Posting Type"::"Custom 1";
-                FAJnlLine."FA Posting Type"::"Custom 2":
-                    "FA Posting Type" := "FA Posting Type"::"Custom 2";
-                FAJnlLine."FA Posting Type"::Disposal:
-                    "FA Posting Type" := "FA Posting Type"::"Proceeds on Disposal";
-                FAJnlLine."FA Posting Type"::"Salvage Value":
-                    "FA Posting Type" := "FA Posting Type"::"Salvage Value";
-                else
-                    OnConvertToLedgEntryCase(FALedgEntry, FAJnlLine);
-            end;
-            exit("FA Posting Type".AsInteger());
+        case FAJnlLine."FA Posting Type" of
+            FAJnlLine."FA Posting Type"::"Acquisition Cost":
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Acquisition Cost";
+            FAJnlLine."FA Posting Type"::Depreciation:
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::Depreciation;
+            FAJnlLine."FA Posting Type"::"Write-Down":
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Write-Down";
+            FAJnlLine."FA Posting Type"::Appreciation:
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::Appreciation;
+            FAJnlLine."FA Posting Type"::"Custom 1":
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Custom 1";
+            FAJnlLine."FA Posting Type"::"Custom 2":
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Custom 2";
+            FAJnlLine."FA Posting Type"::Disposal:
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Proceeds on Disposal";
+            FAJnlLine."FA Posting Type"::"Salvage Value":
+                FALedgEntry."FA Posting Type" := FALedgEntry."FA Posting Type"::"Salvage Value";
+            else
+                OnConvertToLedgEntryCase(FALedgEntry, FAJnlLine);
         end;
+        exit(FALedgEntry."FA Posting Type".AsInteger());
     end;
 
     procedure SetUpNewLine(LastFAJnlLine: Record "FA Journal Line")
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         FAJnlTemplate.Get("Journal Template Name");
         FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -415,10 +415,8 @@ table 5621 "FA Journal Line"
             "Document No." := LastFAJnlLine."Document No.";
         end else begin
             "FA Posting Date" := WorkDate();
-            if FAJnlBatch."No. Series" <> '' then begin
-                Clear(NoSeriesMgt);
-                "Document No." := NoSeriesMgt.TryGetNextNo(FAJnlBatch."No. Series", "FA Posting Date");
-            end;
+            if FAJnlBatch."No. Series" <> '' then 
+                "Document No." := NoSeries.PeekNextNo(FAJnlBatch."No. Series", "FA Posting Date");
         end;
         "Recurring Method" := LastFAJnlLine."Recurring Method";
         "Source Code" := FAJnlTemplate."Source Code";

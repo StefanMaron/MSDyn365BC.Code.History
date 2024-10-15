@@ -166,7 +166,9 @@ page 6034 "Service Credit Memo Statistics"
             group(Customer)
             {
                 Caption = 'Customer';
+#pragma warning disable AA0100
                 field("Cust.""Balance (LCY)"""; Cust."Balance (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;

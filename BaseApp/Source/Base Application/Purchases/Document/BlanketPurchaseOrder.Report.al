@@ -500,8 +500,8 @@ report 410 "Blanket Purchase Order"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Purchase Header");
@@ -611,7 +611,6 @@ report 410 "Blanket Purchase Order"
     end;
 
     var
-        CompanyInfo: Record "Company Information";
         TempPurchaseLine: Record "Purchase Line" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
@@ -619,7 +618,7 @@ report 410 "Blanket Purchase Order"
         PurchSetup: Record "Purchases & Payables Setup";
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         PurchPost: Codeunit "Purch.-Post";
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;
@@ -666,12 +665,13 @@ report 410 "Blanket Purchase Order"
         PayToContactEmailLbl: Label 'Pay-to Contact E-Mail';
 
     protected var
+        CompanyInfo: Record "Company Information";
+        ShipmentMethod: Record "Shipment Method";
+        SalesPurchPerson: Record "Salesperson/Purchaser";
+        FormatDocument: Codeunit "Format Document";
         VendAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
-        FormatDocument: Codeunit "Format Document";
-        ShipmentMethod: Record "Shipment Method";
-        SalesPurchPerson: Record "Salesperson/Purchaser";
         PurchaserText: Text[50];
 
     procedure InitializeRequest(NewNoOfCopies: Integer; NewShowInternalInfo: Boolean; NewLogInteraction: Boolean)
@@ -702,12 +702,10 @@ report 410 "Blanket Purchase Order"
 
     local procedure FormatDocumentFields(PurchaseHeader: Record "Purchase Header")
     begin
-        with PurchaseHeader do begin
-            FormatDocument.SetPurchaser(SalesPurchPerson, "Purchaser Code", PurchaserText);
-            FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-            VATNoText := FormatDocument.SetText("VAT Registration No." <> '', FieldCaption("VAT Registration No."));
-        end;
+        FormatDocument.SetPurchaser(SalesPurchPerson, PurchaseHeader."Purchaser Code", PurchaserText);
+        FormatDocument.SetShipmentMethod(ShipmentMethod, PurchaseHeader."Shipment Method Code", PurchaseHeader."Language Code");
+        ReferenceText := FormatDocument.SetText(PurchaseHeader."Your Reference" <> '', PurchaseHeader.FieldCaption("Your Reference"));
+        VATNoText := FormatDocument.SetText(PurchaseHeader."VAT Registration No." <> '', PurchaseHeader.FieldCaption("VAT Registration No."));
     end;
 }
 

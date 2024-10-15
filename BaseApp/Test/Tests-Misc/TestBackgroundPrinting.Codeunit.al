@@ -30,7 +30,7 @@ codeunit 139030 "Test Background Printing"
         JobQueueEntryCard."Report Request Page Options".SetValue(true);
 
         // Verify that the field has been filled with an xml value.
-        Assert.IsTrue(JobQueueEntryCard."Report Request Page Options".AsBoolean, '');
+        Assert.IsTrue(JobQueueEntryCard."Report Request Page Options".AsBoolean(), '');
     end;
 
     [Test]
@@ -53,7 +53,7 @@ codeunit 139030 "Test Background Printing"
         BindSubscription(LibraryJobQueue);
         // [GIVEN] First run of report "Detail Trial Balance" inserts one Job Queue Entry with ID = 'X'
         REPORT.Run(REPORT::"Detail Trial Balance");
-        Assert.IsTrue(JobQueueEntry.FindFirst, 'Job Queue Entry should be inserted.');
+        Assert.IsTrue(JobQueueEntry.FindFirst(), 'Job Queue Entry should be inserted.');
         ExpectedID := JobQueueEntry.ID;
         // [WHEN] run Report "Detail Trial Balance" again
         asserterror REPORT.RunModal(REPORT::"Detail Trial Balance");
@@ -81,10 +81,10 @@ codeunit 139030 "Test Background Printing"
 
         // [GIVEN] Open "Schedule A Report" page, set "Object ID to Run" as 'Detail Trial Balance'
         BindSubscription(LibraryJobQueue);
-        ScheduleaReport.OpenEdit;
+        ScheduleaReport.OpenEdit();
         ScheduleaReport."Object ID to Run".SetValue(REPORT::"Detail Trial Balance");
         // [WHEN] Push OK
-        ScheduleaReport.OK.Invoke;
+        ScheduleaReport.OK().Invoke();
 
         // [THEN] The job queue entry, where "Run in User Session" is 'Yes', "Recurring Job" is 'No'
         Assert.RecordCount(JobQueueEntry, 1);
@@ -115,7 +115,7 @@ codeunit 139030 "Test Background Printing"
         ExpectedDateTime := CreateDateTime(CalcDate(DateFormula, Today), 0T);
         // [GIVEN] Open "Schedule A Report" page, set "Object ID to Run" as 'Detail Trial Balance'
         BindSubscription(LibraryJobQueue);
-        ScheduleaReport.OpenEdit;
+        ScheduleaReport.OpenEdit();
         ScheduleaReport."Object ID to Run".SetValue(REPORT::"Detail Trial Balance");
         // [GIVEN] "Earliest Start Date/Time" is blank
         Assert.AreEqual(
@@ -130,7 +130,7 @@ codeunit 139030 "Test Background Printing"
           'cannot evaluate Earliest Start Date/Time');
         Assert.AreEqual(ExpectedDateTime, DateTime, 'wrong Earliest Start Date/Time');
 
-        ScheduleaReport.OK.Invoke;
+        ScheduleaReport.OK().Invoke();
 
         // [THEN] The job queue entry, where "Next Run Date Formula" is '<1M+CM>',"Recurring Job" is 'Yes', "Run in User Session" is 'No'.
         Assert.RecordCount(JobQueueEntry, 1);
@@ -219,7 +219,7 @@ codeunit 139030 "Test Background Printing"
           false);
     end;
 
-    local procedure ReportInboxJobQueueEntry(ObjectType: Option; ReportOutputType: Option; Expected: Boolean)
+    local procedure ReportInboxJobQueueEntry(ObjectType: Option; ReportOutputType: Enum "Job Queue Report Output Type"; Expected: Boolean)
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
@@ -227,7 +227,7 @@ codeunit 139030 "Test Background Printing"
             Init();
             "Object Type to Run" := ObjectType;
             "Report Output Type" := ReportOutputType;
-            Assert.AreEqual(Expected, IsToReportInbox, WrongToReportInboxValErr);
+            Assert.AreEqual(Expected, IsToReportInbox(), WrongToReportInboxValErr);
         end;
     end;
 
@@ -259,24 +259,24 @@ codeunit 139030 "Test Background Printing"
     [Scope('OnPrem')]
     procedure DetailTrialBalanceRequestpageHandler(var DetailTrialBalance: TestRequestPage "Detail Trial Balance")
     begin
-        DetailTrialBalance.OK.Invoke;
+        DetailTrialBalance.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerTop10RequestHandler(var DetailTrialBalance: TestRequestPage "Detail Trial Balance")
     begin
-        DetailTrialBalance.Schedule.Invoke;
+        DetailTrialBalance.Schedule().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ScheduleAReportHandler(var ScheduleaReport: TestPage "Schedule a Report")
     begin
-        Assert.AreEqual(REPORT::"Detail Trial Balance", ScheduleaReport."Object ID to Run".AsInteger, '');
-        Assert.IsFalse(ScheduleaReport."Object ID to Run".Editable, '');
-        Assert.IsFalse(ScheduleaReport."Report Request Page Options".Visible, '');
-        ScheduleaReport.OK.Invoke;
+        Assert.AreEqual(REPORT::"Detail Trial Balance", ScheduleaReport."Object ID to Run".AsInteger(), '');
+        Assert.IsFalse(ScheduleaReport."Object ID to Run".Editable(), '');
+        Assert.IsFalse(ScheduleaReport."Report Request Page Options".Visible(), '');
+        ScheduleaReport.OK().Invoke();
     end;
 
     [MessageHandler]

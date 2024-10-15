@@ -40,7 +40,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         // Setup: Find VAT Posting Setup, Create Sales Invoice. Compute VAT Amount.
         Initialize();
         FindVATPostingSetup(VATPostingSetup);
-        CreateSalesDocument(SalesHeader, Amount, SalesHeader."Document Type"::Invoice, CreateCustomer, true);
+        CreateSalesDocument(SalesHeader, Amount, SalesHeader."Document Type"::Invoice, CreateCustomer(), true);
         VATAmount :=
           Round(
             CalculateVATAmount(
@@ -68,7 +68,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         // Setup: Find VAT Posting Setup, Create Sales Credit Memo. Compute VAT Amount.
         Initialize();
         FindVATPostingSetup(VATPostingSetup);
-        CreateSalesDocument(SalesHeader, Amount, SalesHeader."Document Type"::"Credit Memo", CreateCustomer, false);
+        CreateSalesDocument(SalesHeader, Amount, SalesHeader."Document Type"::"Credit Memo", CreateCustomer(), false);
         VATAmount :=
           Round(CalculateVATAmount(SalesHeader."No.", SalesHeader."Document Type"::"Credit Memo", VATPostingSetup."VAT %" / 100));
 
@@ -217,7 +217,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         Initialize();
         LibraryPurchase.SetCalcInvDiscount(true);
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, CreateInvoiceDiscForVendor(CreateVendor), true);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, CreateInvoiceDiscForVendor(CreateVendor()), true);
         UpdatePartialQtyRcveAndInvoice(PurchaseLine);
         InvoiceDiscAmount :=
           Round(PurchaseLine."Qty. to Invoice" * PurchaseLine."Direct Unit Cost" * PurchaseHeader."Invoice Discount Value" / 100);
@@ -306,10 +306,10 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
 
         // Setup: Modify General Ledger Setup,Find VAT Posting Setup and create Sales Invoice.
         Initialize();
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         FindVATPostingSetup(VATPostingSetup);
-        CreateSalesDocument(SalesHeader, Amount, SalesHeader."Document Type"::Invoice, CreateCustomer, true);
+        CreateSalesDocument(SalesHeader, Amount, SalesHeader."Document Type"::Invoice, CreateCustomer(), true);
 
         // Exercise: Calculate VAT Base Amount.
         SalesLine.CalcVATAmountLines(QtyType::General, SalesHeader, SalesLine, VATAmountLine);
@@ -338,10 +338,10 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
 
         // Setup: Modify General Ledger Setup,Find VAT Posting Setup and create Sales Invoice.
         Initialize();
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        CreateSalesDocument(SalesHeader, Amount, SalesHeader."Document Type"::Invoice, CreateCustomer, true);
+        CreateSalesDocument(SalesHeader, Amount, SalesHeader."Document Type"::Invoice, CreateCustomer(), true);
 
         // Exercise: Calculate VAT Base Amount after Validating Invoice Discount Amount using RANDOM values on VAT Amount Line.
         SalesLine.CalcVATAmountLines(QtyType::General, SalesHeader, SalesLine, VATAmountLine);
@@ -370,10 +370,10 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
 
         // Setup: Modify General Ledger Setup,Find VAT Posting Setup and create Sales Invoice.
         Initialize();
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         FindVATPostingSetup(VATPostingSetup);
-        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, CreateVendor, true);
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, CreateVendor(), true);
 
         // Exercise: Calculate VAT Base Amount.
         PurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, PurchaseLine, VATAmountLine);
@@ -401,10 +401,10 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
 
         // Setup: Modify General Ledger Setup,Find VAT Posting Setup and create Sales Invoice.
         Initialize();
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, CreateVendor, true);
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, CreateVendor(), true);
 
         // Exercise: Calculate VAT Base Amount after Validating Invoice Discount Amount using RANDOM values on VAT Amount Line.
         PurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, PurchaseLine, VATAmountLine);
@@ -866,7 +866,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         OpenSalesRetOrdPage(SalesReturnOrder, SalesHeader."No.");
 
         // Exercise: Open Sales Order Statistics page.
-        SalesReturnOrder.Statistics.Invoke;
+        SalesReturnOrder.Statistics.Invoke();
 
         // Verify: Verify Total Incl. VAT of Sales Return Order on Sales Invoice Statistics page, Verification done in SalesOrderStatisticsHandler.
     end;
@@ -892,7 +892,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         OpenSalesRetOrdPage(SalesReturnOrder, SalesHeader."No.");
 
         // Exercise: Open Apply Customer Entries page.
-        SalesReturnOrder."Apply Entries".Invoke;
+        SalesReturnOrder."Apply Entries".Invoke();
 
         // Verify: Verify Amount Including VAT on Apply Customer Entries page, Verification done in SalesOrderStatisticsHandler.
     end;
@@ -918,7 +918,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         OpenPurchRetOrdPage(PurchaseReturnOrder, PurchaseHeader."No.");
 
         // Exercise: Open Purchase Order Statistics page.
-        PurchaseReturnOrder.Statistics.Invoke;
+        PurchaseReturnOrder.Statistics.Invoke();
 
         // Verify: Verify Amount Including VAT on Purchase Order Statistics page.
         // Verification done in handler.
@@ -945,7 +945,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         OpenPurchRetOrdPage(PurchaseReturnOrder, PurchaseHeader."No.");
 
         // Exercise: Open Apply Vendor Entries page.
-        PurchaseReturnOrder."Apply Entries".Invoke;  // Using Action119 for Apply Entris Action.
+        PurchaseReturnOrder."Apply Entries".Invoke();  // Using Action119 for Apply Entris Action.
 
         // Verify: Verify Amount Including VAT on Apply Vendor Entries page.
         // Verification done in handler.
@@ -956,7 +956,6 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     procedure LineAmtAfterChangeVATProdPostingGroupInSalesDocWithPricesInclVATAndLineDisc()
     var
         SalesLine: Record "Sales Line";
-        VATProductPostingGroup: Record "VAT Product Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [Sales] [Line Discount]
@@ -979,7 +978,6 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     procedure LineAmtAfterChangeVATProdPostingGroupInPurchDocWithPricesInclVATAndLineDisc()
     var
         PurchaseLine: Record "Purchase Line";
-        VATProductPostingGroup: Record "VAT Product Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [Purchase] [Line Discount]
@@ -1002,7 +1000,6 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     procedure LineAmtAfterChangeVATProdPostingGroupInServDocWithPricesInclVATAndLineDisc()
     var
         ServiceLine: Record "Service Line";
-        VATProductPostingGroup: Record "VAT Product Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [Service] [Line Discount]
@@ -1047,7 +1044,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Setup: Create Purchase Document and Calculate VAT Amount.
-        Amount := CreatePurchaseDocument(PurchaseHeader, PurchaseLine, DocumentType, CreateVendor, true);
+        Amount := CreatePurchaseDocument(PurchaseHeader, PurchaseLine, DocumentType, CreateVendor(), true);
 
         // Exercise: Post Purchase Document.
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1098,7 +1095,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     local procedure CreateAndPostPurchasePartQty(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
         // Modify Purchase Payables Setup and create and Post Purchase order and update purchase Line for Remaining quantity.
-        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, CreateVendor, true);
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, CreateVendor(), true);
         UpdatePartialQtyRcveAndInvoice(PurchaseLine);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
@@ -1160,7 +1157,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         PurchaseLine: Record "Purchase Line";
     begin
         // Create Purchase Document with 2 Lines and Random Quantity. Take positive quantity in first line and negative in next line.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor());
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
@@ -1244,7 +1241,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     begin
         // Create Sales Document with 2 lines and random quantity. Take positive quantity in first line and negative in next line.
         CreateItem(Item);
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", -SalesLine.Quantity);
         GenProdPostingGroup := Item."Gen. Prod. Posting Group";
@@ -1264,7 +1261,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     begin
         // Take Random Quantity for Purchase Line.
         CreateItem(Item);
-        CreatePurchaseHeader(PurchaseHeader, DocumentType, CreateVendor, Currency.Code, true);
+        CreatePurchaseHeader(PurchaseHeader, DocumentType, CreateVendor(), Currency.Code, true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
@@ -1281,7 +1278,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     begin
         // Create Sales Line with Random Quantity.
         CreateItem(Item);
-        CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer, Currency.Code, true);
+        CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer(), Currency.Code, true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
@@ -1358,13 +1355,13 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
 
     local procedure OpenSalesRetOrdPage(var SalesReturnOrder: TestPage "Sales Return Order"; No: Code[20])
     begin
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenPurchRetOrdPage(var PurchaseReturnOrder: TestPage "Purchase Return Order"; No: Code[20])
     begin
-        PurchaseReturnOrder.OpenView;
+        PurchaseReturnOrder.OpenView();
         PurchaseReturnOrder.FILTER.SetFilter("No.", No);
     end;
 
@@ -1388,7 +1385,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         // Find VAT Posting Setup and Create Vendor and Create Invoice Discount for Vendor.Create Purchase Document
         // and Calculate VAT Amount.
         FindVATPostingSetup(VATPostingSetup);
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         CreateInvoiceDiscForVendor(VendorNo);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, DocumentType, VendorNo, false);
         VATAmount := Round(PurchaseVATAmountCalculation(PurchaseHeader."No.", DocumentType, VATPostingSetup."VAT %" / 100));
@@ -1411,7 +1408,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         // Find VAT Postng Setup and Create Customer and Create Invoice Discount for Customer.Create Sales Document
         // and Calculate VAT Amount.
         FindVATPostingSetup(VATPostingSetup);
-        CreateSalesDocument(SalesHeader, Amount, DocumentType, CreateInvoiceDiscForCustomer(CreateCustomer), false);
+        CreateSalesDocument(SalesHeader, Amount, DocumentType, CreateInvoiceDiscForCustomer(CreateCustomer()), false);
         VATAmount := Round(SalesVATAmountCalculation(SalesHeader."No.", DocumentType, VATPostingSetup."VAT %" / 100));
     end;
 

@@ -44,14 +44,14 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesOrder.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
-        AssertVisibility(1, SalesOrder.SalesLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, SalesOrder.SalesLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, SalesOrder.SalesLines.ShortcutDimCode3.Visible);
-        AssertVisibility(4, SalesOrder.SalesLines.ShortcutDimCode4.Visible);
-        AssertVisibility(5, SalesOrder.SalesLines.ShortcutDimCode5.Visible);
-        AssertVisibility(6, SalesOrder.SalesLines.ShortcutDimCode6.Visible);
-        AssertVisibility(7, SalesOrder.SalesLines.ShortcutDimCode7.Visible);
-        AssertVisibility(8, SalesOrder.SalesLines.ShortcutDimCode8.Visible);
+        AssertVisibility(1, SalesOrder.SalesLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, SalesOrder.SalesLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, SalesOrder.SalesLines.ShortcutDimCode3.Visible());
+        AssertVisibility(4, SalesOrder.SalesLines.ShortcutDimCode4.Visible());
+        AssertVisibility(5, SalesOrder.SalesLines.ShortcutDimCode5.Visible());
+        AssertVisibility(6, SalesOrder.SalesLines.ShortcutDimCode6.Visible());
+        AssertVisibility(7, SalesOrder.SalesLines.ShortcutDimCode7.Visible());
+        AssertVisibility(8, SalesOrder.SalesLines.ShortcutDimCode8.Visible());
         SalesOrder.Close();
     end;
 
@@ -71,14 +71,14 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesQuote.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
-        AssertVisibility(1, SalesQuote.SalesLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, SalesQuote.SalesLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, SalesQuote.SalesLines.ShortcutDimCode3.Visible);
-        AssertVisibility(4, SalesQuote.SalesLines.ShortcutDimCode4.Visible);
-        AssertVisibility(5, SalesQuote.SalesLines.ShortcutDimCode5.Visible);
-        AssertVisibility(6, SalesQuote.SalesLines.ShortcutDimCode6.Visible);
-        AssertVisibility(7, SalesQuote.SalesLines.ShortcutDimCode7.Visible);
-        AssertVisibility(8, SalesQuote.SalesLines.ShortcutDimCode8.Visible);
+        AssertVisibility(1, SalesQuote.SalesLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, SalesQuote.SalesLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, SalesQuote.SalesLines.ShortcutDimCode3.Visible());
+        AssertVisibility(4, SalesQuote.SalesLines.ShortcutDimCode4.Visible());
+        AssertVisibility(5, SalesQuote.SalesLines.ShortcutDimCode5.Visible());
+        AssertVisibility(6, SalesQuote.SalesLines.ShortcutDimCode6.Visible());
+        AssertVisibility(7, SalesQuote.SalesLines.ShortcutDimCode7.Visible());
+        AssertVisibility(8, SalesQuote.SalesLines.ShortcutDimCode8.Visible());
         SalesQuote.Close();
     end;
 
@@ -98,14 +98,14 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesInvoice.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
-        AssertVisibility(1, SalesInvoice.SalesLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, SalesInvoice.SalesLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, SalesInvoice.SalesLines.ShortcutDimCode3.Visible);
-        AssertVisibility(4, SalesInvoice.SalesLines.ShortcutDimCode4.Visible);
-        AssertVisibility(5, SalesInvoice.SalesLines.ShortcutDimCode5.Visible);
-        AssertVisibility(6, SalesInvoice.SalesLines.ShortcutDimCode6.Visible);
-        AssertVisibility(7, SalesInvoice.SalesLines.ShortcutDimCode7.Visible);
-        AssertVisibility(8, SalesInvoice.SalesLines.ShortcutDimCode8.Visible);
+        AssertVisibility(1, SalesInvoice.SalesLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, SalesInvoice.SalesLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, SalesInvoice.SalesLines.ShortcutDimCode3.Visible());
+        AssertVisibility(4, SalesInvoice.SalesLines.ShortcutDimCode4.Visible());
+        AssertVisibility(5, SalesInvoice.SalesLines.ShortcutDimCode5.Visible());
+        AssertVisibility(6, SalesInvoice.SalesLines.ShortcutDimCode6.Visible());
+        AssertVisibility(7, SalesInvoice.SalesLines.ShortcutDimCode7.Visible());
+        AssertVisibility(8, SalesInvoice.SalesLines.ShortcutDimCode8.Visible());
         SalesInvoice.Close();
     end;
 
@@ -125,14 +125,14 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesCreditMemo.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
-        AssertVisibility(1, SalesCreditMemo.SalesLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, SalesCreditMemo.SalesLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, SalesCreditMemo.SalesLines.ShortcutDimCode3.Visible);
-        AssertVisibility(4, SalesCreditMemo.SalesLines.ShortcutDimCode4.Visible);
-        AssertVisibility(5, SalesCreditMemo.SalesLines.ShortcutDimCode5.Visible);
-        AssertVisibility(6, SalesCreditMemo.SalesLines.ShortcutDimCode6.Visible);
-        AssertVisibility(7, SalesCreditMemo.SalesLines.ShortcutDimCode7.Visible);
-        AssertVisibility(8, SalesCreditMemo.SalesLines.ShortcutDimCode8.Visible);
+        AssertVisibility(1, SalesCreditMemo.SalesLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, SalesCreditMemo.SalesLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, SalesCreditMemo.SalesLines.ShortcutDimCode3.Visible());
+        AssertVisibility(4, SalesCreditMemo.SalesLines.ShortcutDimCode4.Visible());
+        AssertVisibility(5, SalesCreditMemo.SalesLines.ShortcutDimCode5.Visible());
+        AssertVisibility(6, SalesCreditMemo.SalesLines.ShortcutDimCode6.Visible());
+        AssertVisibility(7, SalesCreditMemo.SalesLines.ShortcutDimCode7.Visible());
+        AssertVisibility(8, SalesCreditMemo.SalesLines.ShortcutDimCode8.Visible());
         SalesCreditMemo.Close();
     end;
 
@@ -152,14 +152,14 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesReturnOrder.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
-        AssertVisibility(1, SalesReturnOrder.SalesLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, SalesReturnOrder.SalesLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, SalesReturnOrder.SalesLines.ShortcutDimCode3.Visible);
-        AssertVisibility(4, SalesReturnOrder.SalesLines.ShortcutDimCode4.Visible);
-        AssertVisibility(5, SalesReturnOrder.SalesLines.ShortcutDimCode5.Visible);
-        AssertVisibility(6, SalesReturnOrder.SalesLines.ShortcutDimCode6.Visible);
-        AssertVisibility(7, SalesReturnOrder.SalesLines.ShortcutDimCode7.Visible);
-        AssertVisibility(8, SalesReturnOrder.SalesLines.ShortcutDimCode8.Visible);
+        AssertVisibility(1, SalesReturnOrder.SalesLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, SalesReturnOrder.SalesLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, SalesReturnOrder.SalesLines.ShortcutDimCode3.Visible());
+        AssertVisibility(4, SalesReturnOrder.SalesLines.ShortcutDimCode4.Visible());
+        AssertVisibility(5, SalesReturnOrder.SalesLines.ShortcutDimCode5.Visible());
+        AssertVisibility(6, SalesReturnOrder.SalesLines.ShortcutDimCode6.Visible());
+        AssertVisibility(7, SalesReturnOrder.SalesLines.ShortcutDimCode7.Visible());
+        AssertVisibility(8, SalesReturnOrder.SalesLines.ShortcutDimCode8.Visible());
         SalesReturnOrder.Close();
     end;
 
@@ -179,14 +179,14 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchOrder.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
-        AssertVisibility(1, PurchOrder.PurchLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, PurchOrder.PurchLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, PurchOrder.PurchLines.ShortcutDimCode3.Visible);
-        AssertVisibility(4, PurchOrder.PurchLines.ShortcutDimCode4.Visible);
-        AssertVisibility(5, PurchOrder.PurchLines.ShortcutDimCode5.Visible);
-        AssertVisibility(6, PurchOrder.PurchLines.ShortcutDimCode6.Visible);
-        AssertVisibility(7, PurchOrder.PurchLines.ShortcutDimCode7.Visible);
-        AssertVisibility(8, PurchOrder.PurchLines.ShortcutDimCode8.Visible);
+        AssertVisibility(1, PurchOrder.PurchLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, PurchOrder.PurchLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, PurchOrder.PurchLines.ShortcutDimCode3.Visible());
+        AssertVisibility(4, PurchOrder.PurchLines.ShortcutDimCode4.Visible());
+        AssertVisibility(5, PurchOrder.PurchLines.ShortcutDimCode5.Visible());
+        AssertVisibility(6, PurchOrder.PurchLines.ShortcutDimCode6.Visible());
+        AssertVisibility(7, PurchOrder.PurchLines.ShortcutDimCode7.Visible());
+        AssertVisibility(8, PurchOrder.PurchLines.ShortcutDimCode8.Visible());
         PurchOrder.Close();
     end;
 
@@ -206,14 +206,14 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchQuote.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
-        AssertVisibility(1, PurchQuote.PurchLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, PurchQuote.PurchLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, PurchQuote.PurchLines.ShortcutDimCode3.Visible);
-        AssertVisibility(4, PurchQuote.PurchLines.ShortcutDimCode4.Visible);
-        AssertVisibility(5, PurchQuote.PurchLines.ShortcutDimCode5.Visible);
-        AssertVisibility(6, PurchQuote.PurchLines.ShortcutDimCode6.Visible);
-        AssertVisibility(7, PurchQuote.PurchLines.ShortcutDimCode7.Visible);
-        AssertVisibility(8, PurchQuote.PurchLines.ShortcutDimCode8.Visible);
+        AssertVisibility(1, PurchQuote.PurchLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, PurchQuote.PurchLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, PurchQuote.PurchLines.ShortcutDimCode3.Visible());
+        AssertVisibility(4, PurchQuote.PurchLines.ShortcutDimCode4.Visible());
+        AssertVisibility(5, PurchQuote.PurchLines.ShortcutDimCode5.Visible());
+        AssertVisibility(6, PurchQuote.PurchLines.ShortcutDimCode6.Visible());
+        AssertVisibility(7, PurchQuote.PurchLines.ShortcutDimCode7.Visible());
+        AssertVisibility(8, PurchQuote.PurchLines.ShortcutDimCode8.Visible());
         PurchQuote.Close();
     end;
 
@@ -233,14 +233,14 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchInvoice.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
-        AssertVisibility(1, PurchInvoice.PurchLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, PurchInvoice.PurchLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, PurchInvoice.PurchLines.ShortcutDimCode3.Visible);
-        AssertVisibility(4, PurchInvoice.PurchLines.ShortcutDimCode4.Visible);
-        AssertVisibility(5, PurchInvoice.PurchLines.ShortcutDimCode5.Visible);
-        AssertVisibility(6, PurchInvoice.PurchLines.ShortcutDimCode6.Visible);
-        AssertVisibility(7, PurchInvoice.PurchLines.ShortcutDimCode7.Visible);
-        AssertVisibility(8, PurchInvoice.PurchLines.ShortcutDimCode8.Visible);
+        AssertVisibility(1, PurchInvoice.PurchLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, PurchInvoice.PurchLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, PurchInvoice.PurchLines.ShortcutDimCode3.Visible());
+        AssertVisibility(4, PurchInvoice.PurchLines.ShortcutDimCode4.Visible());
+        AssertVisibility(5, PurchInvoice.PurchLines.ShortcutDimCode5.Visible());
+        AssertVisibility(6, PurchInvoice.PurchLines.ShortcutDimCode6.Visible());
+        AssertVisibility(7, PurchInvoice.PurchLines.ShortcutDimCode7.Visible());
+        AssertVisibility(8, PurchInvoice.PurchLines.ShortcutDimCode8.Visible());
         PurchInvoice.Close();
     end;
 
@@ -260,14 +260,14 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchCreditMemo.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
-        AssertVisibility(1, PurchCreditMemo.PurchLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, PurchCreditMemo.PurchLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, PurchCreditMemo.PurchLines.ShortcutDimCode3.Visible);
-        AssertVisibility(4, PurchCreditMemo.PurchLines.ShortcutDimCode4.Visible);
-        AssertVisibility(5, PurchCreditMemo.PurchLines.ShortcutDimCode5.Visible);
-        AssertVisibility(6, PurchCreditMemo.PurchLines.ShortcutDimCode6.Visible);
-        AssertVisibility(7, PurchCreditMemo.PurchLines.ShortcutDimCode7.Visible);
-        AssertVisibility(8, PurchCreditMemo.PurchLines.ShortcutDimCode8.Visible);
+        AssertVisibility(1, PurchCreditMemo.PurchLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, PurchCreditMemo.PurchLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, PurchCreditMemo.PurchLines.ShortcutDimCode3.Visible());
+        AssertVisibility(4, PurchCreditMemo.PurchLines.ShortcutDimCode4.Visible());
+        AssertVisibility(5, PurchCreditMemo.PurchLines.ShortcutDimCode5.Visible());
+        AssertVisibility(6, PurchCreditMemo.PurchLines.ShortcutDimCode6.Visible());
+        AssertVisibility(7, PurchCreditMemo.PurchLines.ShortcutDimCode7.Visible());
+        AssertVisibility(8, PurchCreditMemo.PurchLines.ShortcutDimCode8.Visible());
         PurchCreditMemo.Close();
     end;
 
@@ -287,14 +287,14 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchReturnOrder.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible, others are not
-        AssertVisibility(1, PurchReturnOrder.PurchLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, PurchReturnOrder.PurchLines."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, PurchReturnOrder.PurchLines.ShortcutDimCode3.Visible);
-        AssertVisibility(4, PurchReturnOrder.PurchLines.ShortcutDimCode4.Visible);
-        AssertVisibility(5, PurchReturnOrder.PurchLines.ShortcutDimCode5.Visible);
-        AssertVisibility(6, PurchReturnOrder.PurchLines.ShortcutDimCode6.Visible);
-        AssertVisibility(7, PurchReturnOrder.PurchLines.ShortcutDimCode7.Visible);
-        AssertVisibility(8, PurchReturnOrder.PurchLines.ShortcutDimCode8.Visible);
+        AssertVisibility(1, PurchReturnOrder.PurchLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, PurchReturnOrder.PurchLines."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, PurchReturnOrder.PurchLines.ShortcutDimCode3.Visible());
+        AssertVisibility(4, PurchReturnOrder.PurchLines.ShortcutDimCode4.Visible());
+        AssertVisibility(5, PurchReturnOrder.PurchLines.ShortcutDimCode5.Visible());
+        AssertVisibility(6, PurchReturnOrder.PurchLines.ShortcutDimCode6.Visible());
+        AssertVisibility(7, PurchReturnOrder.PurchLines.ShortcutDimCode7.Visible());
+        AssertVisibility(8, PurchReturnOrder.PurchLines.ShortcutDimCode8.Visible());
         PurchReturnOrder.Close();
     end;
 
@@ -309,7 +309,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         // [GIVEN] All Dimension Shortcuts defined by General Ledger Setup
         Initialize();
 
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
 
@@ -317,12 +317,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesOrder.OpenNew();
 
         // [THEN] All Dimension Shortcuts are visible
-        Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode3.Visible, 'Dim Shortcut 3 must be visible');
-        Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode4.Visible, 'Dim Shortcut 4 must be visible');
-        Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode5.Visible, 'Dim Shortcut 5 must be visible');
-        Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode6.Visible, 'Dim Shortcut 6 must be visible');
-        Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode7.Visible, 'Dim Shortcut 7 must be visible');
-        Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode8.Visible, 'Dim Shortcut 8 must be visible');
+        Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode3.Visible(), 'Dim Shortcut 3 must be visible');
+        Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode4.Visible(), 'Dim Shortcut 4 must be visible');
+        Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode5.Visible(), 'Dim Shortcut 5 must be visible');
+        Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode6.Visible(), 'Dim Shortcut 6 must be visible');
+        Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode7.Visible(), 'Dim Shortcut 7 must be visible');
+        Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode8.Visible(), 'Dim Shortcut 8 must be visible');
         SalesOrder.Close();
     end;
 
@@ -336,7 +336,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
     begin
         // [GIVEN] None Dimension Shortcuts defined by General Ledger Setup
         Initialize();
-        ClearDimShortcuts;
+        ClearDimShortcuts();
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
 
@@ -344,12 +344,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesOrder.OpenNew();
 
         // [THEN] None Dimension Shortcuts are visible
-        Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode3.Visible, 'Dim Shortcut 3 must not be visible');
-        Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode4.Visible, 'Dim Shortcut 4 must not be visible');
-        Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode5.Visible, 'Dim Shortcut 5 must not be visible');
-        Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode6.Visible, 'Dim Shortcut 6 must not be visible');
-        Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode7.Visible, 'Dim Shortcut 7 must not be visible');
-        Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode8.Visible, 'Dim Shortcut 8 must not be visible');
+        Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode3.Visible(), 'Dim Shortcut 3 must not be visible');
+        Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode4.Visible(), 'Dim Shortcut 4 must not be visible');
+        Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode5.Visible(), 'Dim Shortcut 5 must not be visible');
+        Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode6.Visible(), 'Dim Shortcut 6 must not be visible');
+        Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode7.Visible(), 'Dim Shortcut 7 must not be visible');
+        Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode8.Visible(), 'Dim Shortcut 8 must not be visible');
         SalesOrder.Close();
     end;
 
@@ -369,7 +369,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimShortcuts[LibraryRandom.RandIntInRange(1, 6)] := true;
         DimShortcuts[LibraryRandom.RandIntInRange(1, 6)] := true;
         DimShortcuts[LibraryRandom.RandIntInRange(1, 6)] := true;
-        ClearDimShortcuts;
+        ClearDimShortcuts();
         AssignGLSetupShortcuts(DimShortcuts);
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', '', 1, '', 0D);
@@ -378,12 +378,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         SalesOrder.OpenNew();
 
         // [THEN] Only 3 defined Dimension Shortcuts are visible, others 3 are not
-        Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode3.Visible, DimShortcuts[1], 'Dim Shortcut 3');
-        Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode4.Visible, DimShortcuts[2], 'Dim Shortcut 4');
-        Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode5.Visible, DimShortcuts[3], 'Dim Shortcut 5');
-        Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode6.Visible, DimShortcuts[4], 'Dim Shortcut 6');
-        Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode7.Visible, DimShortcuts[5], 'Dim Shortcut 7');
-        Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode8.Visible, DimShortcuts[6], 'Dim Shortcut 8');
+        Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode3.Visible(), DimShortcuts[1], 'Dim Shortcut 3');
+        Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode4.Visible(), DimShortcuts[2], 'Dim Shortcut 4');
+        Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode5.Visible(), DimShortcuts[3], 'Dim Shortcut 5');
+        Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode6.Visible(), DimShortcuts[4], 'Dim Shortcut 6');
+        Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode7.Visible(), DimShortcuts[5], 'Dim Shortcut 7');
+        Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode8.Visible(), DimShortcuts[6], 'Dim Shortcut 8');
         SalesOrder.Close();
     end;
 
@@ -401,25 +401,25 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [GIVEN] Make sales quote archive
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote, '', '', 1, '', 0D);
         ArchiveManagement.ArchiveSalesDocument(SalesHeader);
 
         // [WHEN] Open page Sales Quote Archive
-        SalesQuoteArchive.OpenEdit;
+        SalesQuoteArchive.OpenEdit();
         SalesQuoteArchive.FILTER.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] All defined Dimension Shortcuts are visible
-        AssertVisibility(1, SalesQuoteArchive.SalesLinesArchive."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, SalesQuoteArchive.SalesLinesArchive."Shortcut Dimension 2 Code".Visible);
-        AssertVisibility(3, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode3.Visible);
-        AssertVisibility(4, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode4.Visible);
-        AssertVisibility(5, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode5.Visible);
-        AssertVisibility(6, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode6.Visible);
-        AssertVisibility(7, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode7.Visible);
-        AssertVisibility(8, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode8.Visible);
+        AssertVisibility(1, SalesQuoteArchive.SalesLinesArchive."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, SalesQuoteArchive.SalesLinesArchive."Shortcut Dimension 2 Code".Visible());
+        AssertVisibility(3, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode3.Visible());
+        AssertVisibility(4, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode4.Visible());
+        AssertVisibility(5, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode5.Visible());
+        AssertVisibility(6, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode6.Visible());
+        AssertVisibility(7, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode7.Visible());
+        AssertVisibility(8, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode8.Visible());
         SalesQuoteArchive.Close();
     end;
 
@@ -437,25 +437,25 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [GIVEN] Make purchase quote archive
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote, '', '', 1, '', 0D);
         ArchiveManagement.ArchivePurchDocument(PurchaseHeader);
 
         // [WHEN] Open page Purchase Quote Archive
-        PurchaseQuoteArchive.OpenEdit;
+        PurchaseQuoteArchive.OpenEdit();
         PurchaseQuoteArchive.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] All defined Dimension Shortcuts are visible
-        AssertVisibility(1, PurchaseQuoteArchive.PurchLinesArchive."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, PurchaseQuoteArchive.PurchLinesArchive."Shortcut Dimension 2 Code".Visible);
-        AssertVisibility(3, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode3.Visible);
-        AssertVisibility(4, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode4.Visible);
-        AssertVisibility(5, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode5.Visible);
-        AssertVisibility(6, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode6.Visible);
-        AssertVisibility(7, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode7.Visible);
-        AssertVisibility(8, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode8.Visible);
+        AssertVisibility(1, PurchaseQuoteArchive.PurchLinesArchive."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, PurchaseQuoteArchive.PurchLinesArchive."Shortcut Dimension 2 Code".Visible());
+        AssertVisibility(3, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode3.Visible());
+        AssertVisibility(4, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode4.Visible());
+        AssertVisibility(5, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode5.Visible());
+        AssertVisibility(6, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode6.Visible());
+        AssertVisibility(7, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode7.Visible());
+        AssertVisibility(8, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode8.Visible());
         PurchaseQuoteArchive.Close();
     end;
 
@@ -469,20 +469,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open page "Sales Order Archive Subform"
         SalesOrderArchiveSubform.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, SalesOrderArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, SalesOrderArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, SalesOrderArchiveSubform.ShortcutDimCode3.Visible);
-        AssertVisibility(4, SalesOrderArchiveSubform.ShortcutDimCode4.Visible);
-        AssertVisibility(5, SalesOrderArchiveSubform.ShortcutDimCode5.Visible);
-        AssertVisibility(6, SalesOrderArchiveSubform.ShortcutDimCode6.Visible);
-        AssertVisibility(7, SalesOrderArchiveSubform.ShortcutDimCode7.Visible);
-        AssertVisibility(8, SalesOrderArchiveSubform.ShortcutDimCode8.Visible);
+        AssertVisibility(1, SalesOrderArchiveSubform."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, SalesOrderArchiveSubform."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, SalesOrderArchiveSubform.ShortcutDimCode3.Visible());
+        AssertVisibility(4, SalesOrderArchiveSubform.ShortcutDimCode4.Visible());
+        AssertVisibility(5, SalesOrderArchiveSubform.ShortcutDimCode5.Visible());
+        AssertVisibility(6, SalesOrderArchiveSubform.ShortcutDimCode6.Visible());
+        AssertVisibility(7, SalesOrderArchiveSubform.ShortcutDimCode7.Visible());
+        AssertVisibility(8, SalesOrderArchiveSubform.ShortcutDimCode8.Visible());
         SalesOrderArchiveSubform.Close();
     end;
 
@@ -496,20 +496,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open page "Purchase Order Archive Subform"
         PurchaseOrderArchiveSubform.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, PurchaseOrderArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, PurchaseOrderArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, PurchaseOrderArchiveSubform.ShortcutDimCode3.Visible);
-        AssertVisibility(4, PurchaseOrderArchiveSubform.ShortcutDimCode4.Visible);
-        AssertVisibility(5, PurchaseOrderArchiveSubform.ShortcutDimCode5.Visible);
-        AssertVisibility(6, PurchaseOrderArchiveSubform.ShortcutDimCode6.Visible);
-        AssertVisibility(7, PurchaseOrderArchiveSubform.ShortcutDimCode7.Visible);
-        AssertVisibility(8, PurchaseOrderArchiveSubform.ShortcutDimCode8.Visible);
+        AssertVisibility(1, PurchaseOrderArchiveSubform."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, PurchaseOrderArchiveSubform."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, PurchaseOrderArchiveSubform.ShortcutDimCode3.Visible());
+        AssertVisibility(4, PurchaseOrderArchiveSubform.ShortcutDimCode4.Visible());
+        AssertVisibility(5, PurchaseOrderArchiveSubform.ShortcutDimCode5.Visible());
+        AssertVisibility(6, PurchaseOrderArchiveSubform.ShortcutDimCode6.Visible());
+        AssertVisibility(7, PurchaseOrderArchiveSubform.ShortcutDimCode7.Visible());
+        AssertVisibility(8, PurchaseOrderArchiveSubform.ShortcutDimCode8.Visible());
         PurchaseOrderArchiveSubform.Close();
     end;
 
@@ -523,20 +523,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open page "Sales Quote Archive Subform"
         SalesQuoteArchiveSubform.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, SalesQuoteArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, SalesQuoteArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, SalesQuoteArchiveSubform.ShortcutDimCode3.Visible);
-        AssertVisibility(4, SalesQuoteArchiveSubform.ShortcutDimCode4.Visible);
-        AssertVisibility(5, SalesQuoteArchiveSubform.ShortcutDimCode5.Visible);
-        AssertVisibility(6, SalesQuoteArchiveSubform.ShortcutDimCode6.Visible);
-        AssertVisibility(7, SalesQuoteArchiveSubform.ShortcutDimCode7.Visible);
-        AssertVisibility(8, SalesQuoteArchiveSubform.ShortcutDimCode8.Visible);
+        AssertVisibility(1, SalesQuoteArchiveSubform."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, SalesQuoteArchiveSubform."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, SalesQuoteArchiveSubform.ShortcutDimCode3.Visible());
+        AssertVisibility(4, SalesQuoteArchiveSubform.ShortcutDimCode4.Visible());
+        AssertVisibility(5, SalesQuoteArchiveSubform.ShortcutDimCode5.Visible());
+        AssertVisibility(6, SalesQuoteArchiveSubform.ShortcutDimCode6.Visible());
+        AssertVisibility(7, SalesQuoteArchiveSubform.ShortcutDimCode7.Visible());
+        AssertVisibility(8, SalesQuoteArchiveSubform.ShortcutDimCode8.Visible());
         SalesQuoteArchiveSubform.Close();
     end;
 
@@ -550,20 +550,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open page "Purchase Quote Archive Subform"
         PurchaseQuoteArchiveSubform.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, PurchaseQuoteArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, PurchaseQuoteArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, PurchaseQuoteArchiveSubform.ShortcutDimCode3.Visible);
-        AssertVisibility(4, PurchaseQuoteArchiveSubform.ShortcutDimCode4.Visible);
-        AssertVisibility(5, PurchaseQuoteArchiveSubform.ShortcutDimCode5.Visible);
-        AssertVisibility(6, PurchaseQuoteArchiveSubform.ShortcutDimCode6.Visible);
-        AssertVisibility(7, PurchaseQuoteArchiveSubform.ShortcutDimCode7.Visible);
-        AssertVisibility(8, PurchaseQuoteArchiveSubform.ShortcutDimCode8.Visible);
+        AssertVisibility(1, PurchaseQuoteArchiveSubform."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, PurchaseQuoteArchiveSubform."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, PurchaseQuoteArchiveSubform.ShortcutDimCode3.Visible());
+        AssertVisibility(4, PurchaseQuoteArchiveSubform.ShortcutDimCode4.Visible());
+        AssertVisibility(5, PurchaseQuoteArchiveSubform.ShortcutDimCode5.Visible());
+        AssertVisibility(6, PurchaseQuoteArchiveSubform.ShortcutDimCode6.Visible());
+        AssertVisibility(7, PurchaseQuoteArchiveSubform.ShortcutDimCode7.Visible());
+        AssertVisibility(8, PurchaseQuoteArchiveSubform.ShortcutDimCode8.Visible());
         PurchaseQuoteArchiveSubform.Close();
     end;
 
@@ -577,20 +577,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open page "Blanket Sales Order Arch. Sub."
         BlanketSalesOrderArchSub.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, BlanketSalesOrderArchSub."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, BlanketSalesOrderArchSub."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, BlanketSalesOrderArchSub.ShortcutDimCode3.Visible);
-        AssertVisibility(4, BlanketSalesOrderArchSub.ShortcutDimCode4.Visible);
-        AssertVisibility(5, BlanketSalesOrderArchSub.ShortcutDimCode5.Visible);
-        AssertVisibility(6, BlanketSalesOrderArchSub.ShortcutDimCode6.Visible);
-        AssertVisibility(7, BlanketSalesOrderArchSub.ShortcutDimCode7.Visible);
-        AssertVisibility(8, BlanketSalesOrderArchSub.ShortcutDimCode8.Visible);
+        AssertVisibility(1, BlanketSalesOrderArchSub."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, BlanketSalesOrderArchSub."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, BlanketSalesOrderArchSub.ShortcutDimCode3.Visible());
+        AssertVisibility(4, BlanketSalesOrderArchSub.ShortcutDimCode4.Visible());
+        AssertVisibility(5, BlanketSalesOrderArchSub.ShortcutDimCode5.Visible());
+        AssertVisibility(6, BlanketSalesOrderArchSub.ShortcutDimCode6.Visible());
+        AssertVisibility(7, BlanketSalesOrderArchSub.ShortcutDimCode7.Visible());
+        AssertVisibility(8, BlanketSalesOrderArchSub.ShortcutDimCode8.Visible());
         BlanketSalesOrderArchSub.Close();
     end;
 
@@ -604,20 +604,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open page "Blanket Purch. Order Arch.Sub."
         BlanketPurchOrderArchSub.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, BlanketPurchOrderArchSub."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, BlanketPurchOrderArchSub."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, BlanketPurchOrderArchSub.ShortcutDimCode3.Visible);
-        AssertVisibility(4, BlanketPurchOrderArchSub.ShortcutDimCode4.Visible);
-        AssertVisibility(5, BlanketPurchOrderArchSub.ShortcutDimCode5.Visible);
-        AssertVisibility(6, BlanketPurchOrderArchSub.ShortcutDimCode6.Visible);
-        AssertVisibility(7, BlanketPurchOrderArchSub.ShortcutDimCode7.Visible);
-        AssertVisibility(8, BlanketPurchOrderArchSub.ShortcutDimCode8.Visible);
+        AssertVisibility(1, BlanketPurchOrderArchSub."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, BlanketPurchOrderArchSub."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, BlanketPurchOrderArchSub.ShortcutDimCode3.Visible());
+        AssertVisibility(4, BlanketPurchOrderArchSub.ShortcutDimCode4.Visible());
+        AssertVisibility(5, BlanketPurchOrderArchSub.ShortcutDimCode5.Visible());
+        AssertVisibility(6, BlanketPurchOrderArchSub.ShortcutDimCode6.Visible());
+        AssertVisibility(7, BlanketPurchOrderArchSub.ShortcutDimCode7.Visible());
+        AssertVisibility(8, BlanketPurchOrderArchSub.ShortcutDimCode8.Visible());
         BlanketPurchOrderArchSub.Close();
     end;
 
@@ -631,20 +631,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open page "Sales Return Order Arc Subform"
         SalesReturnOrderArcSubform.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, SalesReturnOrderArcSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, SalesReturnOrderArcSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, SalesReturnOrderArcSubform.ShortcutDimCode3.Visible);
-        AssertVisibility(4, SalesReturnOrderArcSubform.ShortcutDimCode4.Visible);
-        AssertVisibility(5, SalesReturnOrderArcSubform.ShortcutDimCode5.Visible);
-        AssertVisibility(6, SalesReturnOrderArcSubform.ShortcutDimCode6.Visible);
-        AssertVisibility(7, SalesReturnOrderArcSubform.ShortcutDimCode7.Visible);
-        AssertVisibility(8, SalesReturnOrderArcSubform.ShortcutDimCode8.Visible);
+        AssertVisibility(1, SalesReturnOrderArcSubform."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, SalesReturnOrderArcSubform."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, SalesReturnOrderArcSubform.ShortcutDimCode3.Visible());
+        AssertVisibility(4, SalesReturnOrderArcSubform.ShortcutDimCode4.Visible());
+        AssertVisibility(5, SalesReturnOrderArcSubform.ShortcutDimCode5.Visible());
+        AssertVisibility(6, SalesReturnOrderArcSubform.ShortcutDimCode6.Visible());
+        AssertVisibility(7, SalesReturnOrderArcSubform.ShortcutDimCode7.Visible());
+        AssertVisibility(8, SalesReturnOrderArcSubform.ShortcutDimCode8.Visible());
         SalesReturnOrderArcSubform.Close();
     end;
 
@@ -658,20 +658,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open page "Purch Return Order Arc Subform"
         PurchReturnOrderArcSubform.OpenNew();
 
         // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, PurchReturnOrderArcSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, PurchReturnOrderArcSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, PurchReturnOrderArcSubform.ShortcutDimCode3.Visible);
-        AssertVisibility(4, PurchReturnOrderArcSubform.ShortcutDimCode4.Visible);
-        AssertVisibility(5, PurchReturnOrderArcSubform.ShortcutDimCode5.Visible);
-        AssertVisibility(6, PurchReturnOrderArcSubform.ShortcutDimCode6.Visible);
-        AssertVisibility(7, PurchReturnOrderArcSubform.ShortcutDimCode7.Visible);
-        AssertVisibility(8, PurchReturnOrderArcSubform.ShortcutDimCode8.Visible);
+        AssertVisibility(1, PurchReturnOrderArcSubform."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(2, PurchReturnOrderArcSubform."Shortcut Dimension 1 Code".Visible());
+        AssertVisibility(3, PurchReturnOrderArcSubform.ShortcutDimCode3.Visible());
+        AssertVisibility(4, PurchReturnOrderArcSubform.ShortcutDimCode4.Visible());
+        AssertVisibility(5, PurchReturnOrderArcSubform.ShortcutDimCode5.Visible());
+        AssertVisibility(6, PurchReturnOrderArcSubform.ShortcutDimCode6.Visible());
+        AssertVisibility(7, PurchReturnOrderArcSubform.ShortcutDimCode7.Visible());
+        AssertVisibility(8, PurchReturnOrderArcSubform.ShortcutDimCode8.Visible());
         PurchReturnOrderArcSubform.Close();
     end;
 
@@ -685,20 +685,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "G/L Entries Preview" page
         GLEntriesPreview.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, GLEntriesPreview."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, GLEntriesPreview."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, GLEntriesPreview."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, GLEntriesPreview."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, GLEntriesPreview."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, GLEntriesPreview."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, GLEntriesPreview."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, GLEntriesPreview."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, GLEntriesPreview."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, GLEntriesPreview."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, GLEntriesPreview."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, GLEntriesPreview."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, GLEntriesPreview."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, GLEntriesPreview."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, GLEntriesPreview."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, GLEntriesPreview."Shortcut Dimension 8 Code".Visible());
 
         GLEntriesPreview.Close();
     end;
@@ -719,12 +719,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GLEntriesPreview.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(GLEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(GLEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(GLEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(GLEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(GLEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(GLEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(GLEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(GLEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(GLEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(GLEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(GLEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(GLEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         GLEntriesPreview.Close();
     end;
@@ -750,12 +750,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GLEntriesPreview.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], GLEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], GLEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], GLEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], GLEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], GLEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], GLEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], GLEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], GLEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], GLEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], GLEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], GLEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], GLEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         GLEntriesPreview.Close();
     end;
@@ -2624,20 +2624,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Bank Acc. Ledg. Entr. Preview" page
         BankAccLedgEntrPreview.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, BankAccLedgEntrPreview."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, BankAccLedgEntrPreview."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, BankAccLedgEntrPreview."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, BankAccLedgEntrPreview."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, BankAccLedgEntrPreview."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, BankAccLedgEntrPreview."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, BankAccLedgEntrPreview."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, BankAccLedgEntrPreview."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, BankAccLedgEntrPreview."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, BankAccLedgEntrPreview."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, BankAccLedgEntrPreview."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, BankAccLedgEntrPreview."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, BankAccLedgEntrPreview."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, BankAccLedgEntrPreview."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, BankAccLedgEntrPreview."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, BankAccLedgEntrPreview."Shortcut Dimension 8 Code".Visible());
 
         BankAccLedgEntrPreview.Close();
     end;
@@ -2658,12 +2658,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         BankAccLedgEntrPreview.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(BankAccLedgEntrPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(BankAccLedgEntrPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(BankAccLedgEntrPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(BankAccLedgEntrPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(BankAccLedgEntrPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(BankAccLedgEntrPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(BankAccLedgEntrPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(BankAccLedgEntrPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(BankAccLedgEntrPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(BankAccLedgEntrPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(BankAccLedgEntrPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(BankAccLedgEntrPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         BankAccLedgEntrPreview.Close();
     end;
@@ -2689,12 +2689,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         BankAccLedgEntrPreview.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], BankAccLedgEntrPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], BankAccLedgEntrPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], BankAccLedgEntrPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], BankAccLedgEntrPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], BankAccLedgEntrPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], BankAccLedgEntrPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], BankAccLedgEntrPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], BankAccLedgEntrPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], BankAccLedgEntrPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], BankAccLedgEntrPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], BankAccLedgEntrPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], BankAccLedgEntrPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         BankAccLedgEntrPreview.Close();
     end;
@@ -2709,20 +2709,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Bank Account Ledger Entries" page
         BankAccountLedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, BankAccountLedgerEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, BankAccountLedgerEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, BankAccountLedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, BankAccountLedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, BankAccountLedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, BankAccountLedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, BankAccountLedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, BankAccountLedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, BankAccountLedgerEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, BankAccountLedgerEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, BankAccountLedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, BankAccountLedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, BankAccountLedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, BankAccountLedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, BankAccountLedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, BankAccountLedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         BankAccountLedgerEntries.Close();
     end;
@@ -2743,12 +2743,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         BankAccountLedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(BankAccountLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(BankAccountLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(BankAccountLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(BankAccountLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(BankAccountLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(BankAccountLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(BankAccountLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(BankAccountLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(BankAccountLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(BankAccountLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(BankAccountLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(BankAccountLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         BankAccountLedgerEntries.Close();
     end;
@@ -2774,12 +2774,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         BankAccountLedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], BankAccountLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], BankAccountLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], BankAccountLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], BankAccountLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], BankAccountLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], BankAccountLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], BankAccountLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], BankAccountLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], BankAccountLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], BankAccountLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], BankAccountLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], BankAccountLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         BankAccountLedgerEntries.Close();
     end;
@@ -2794,20 +2794,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Capacity Ledger Entries" page
         CapacityLedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, CapacityLedgerEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, CapacityLedgerEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, CapacityLedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, CapacityLedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, CapacityLedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, CapacityLedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, CapacityLedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, CapacityLedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, CapacityLedgerEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, CapacityLedgerEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, CapacityLedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, CapacityLedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, CapacityLedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, CapacityLedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, CapacityLedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, CapacityLedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         CapacityLedgerEntries.Close();
     end;
@@ -2828,12 +2828,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CapacityLedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(CapacityLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(CapacityLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(CapacityLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(CapacityLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(CapacityLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(CapacityLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(CapacityLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(CapacityLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(CapacityLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(CapacityLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(CapacityLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(CapacityLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         CapacityLedgerEntries.Close();
     end;
@@ -2859,12 +2859,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CapacityLedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], CapacityLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], CapacityLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], CapacityLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], CapacityLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], CapacityLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], CapacityLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], CapacityLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], CapacityLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], CapacityLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], CapacityLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], CapacityLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], CapacityLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         CapacityLedgerEntries.Close();
     end;
@@ -2879,20 +2879,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Cash Flow Forecast Entries" page
         CashFlowForecastEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, CashFlowForecastEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, CashFlowForecastEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, CashFlowForecastEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, CashFlowForecastEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, CashFlowForecastEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, CashFlowForecastEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, CashFlowForecastEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, CashFlowForecastEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, CashFlowForecastEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, CashFlowForecastEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, CashFlowForecastEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, CashFlowForecastEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, CashFlowForecastEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, CashFlowForecastEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, CashFlowForecastEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, CashFlowForecastEntries."Shortcut Dimension 8 Code".Visible());
 
         CashFlowForecastEntries.Close();
     end;
@@ -2913,12 +2913,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CashFlowForecastEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(CashFlowForecastEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(CashFlowForecastEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(CashFlowForecastEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(CashFlowForecastEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(CashFlowForecastEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(CashFlowForecastEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(CashFlowForecastEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(CashFlowForecastEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(CashFlowForecastEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(CashFlowForecastEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(CashFlowForecastEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(CashFlowForecastEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         CashFlowForecastEntries.Close();
     end;
@@ -2944,12 +2944,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CashFlowForecastEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], CashFlowForecastEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], CashFlowForecastEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], CashFlowForecastEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], CashFlowForecastEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], CashFlowForecastEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], CashFlowForecastEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], CashFlowForecastEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], CashFlowForecastEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], CashFlowForecastEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], CashFlowForecastEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], CashFlowForecastEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], CashFlowForecastEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         CashFlowForecastEntries.Close();
     end;
@@ -2964,20 +2964,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Cust. Ledg. Entries Preview" page
         CustLedgEntriesPreview.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, CustLedgEntriesPreview."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, CustLedgEntriesPreview."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, CustLedgEntriesPreview."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, CustLedgEntriesPreview."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, CustLedgEntriesPreview."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, CustLedgEntriesPreview."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, CustLedgEntriesPreview."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, CustLedgEntriesPreview."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, CustLedgEntriesPreview."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, CustLedgEntriesPreview."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, CustLedgEntriesPreview."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, CustLedgEntriesPreview."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, CustLedgEntriesPreview."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, CustLedgEntriesPreview."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, CustLedgEntriesPreview."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, CustLedgEntriesPreview."Shortcut Dimension 8 Code".Visible());
 
         CustLedgEntriesPreview.Close();
     end;
@@ -2998,12 +2998,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CustLedgEntriesPreview.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(CustLedgEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(CustLedgEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(CustLedgEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(CustLedgEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(CustLedgEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(CustLedgEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(CustLedgEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(CustLedgEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(CustLedgEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(CustLedgEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(CustLedgEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(CustLedgEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         CustLedgEntriesPreview.Close();
     end;
@@ -3029,12 +3029,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CustLedgEntriesPreview.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], CustLedgEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], CustLedgEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], CustLedgEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], CustLedgEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], CustLedgEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], CustLedgEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], CustLedgEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], CustLedgEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], CustLedgEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], CustLedgEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], CustLedgEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], CustLedgEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         CustLedgEntriesPreview.Close();
     end;
@@ -3049,20 +3049,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Customer Ledger Entries" page
         CustomerLedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, CustomerLedgerEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, CustomerLedgerEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, CustomerLedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, CustomerLedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, CustomerLedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, CustomerLedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, CustomerLedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, CustomerLedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, CustomerLedgerEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, CustomerLedgerEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, CustomerLedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, CustomerLedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, CustomerLedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, CustomerLedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, CustomerLedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, CustomerLedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         CustomerLedgerEntries.Close();
     end;
@@ -3083,12 +3083,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CustomerLedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(CustomerLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(CustomerLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(CustomerLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(CustomerLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(CustomerLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(CustomerLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(CustomerLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(CustomerLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(CustomerLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(CustomerLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(CustomerLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(CustomerLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         CustomerLedgerEntries.Close();
     end;
@@ -3114,12 +3114,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         CustomerLedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], CustomerLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], CustomerLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], CustomerLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], CustomerLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], CustomerLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], CustomerLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], CustomerLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], CustomerLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], CustomerLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], CustomerLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], CustomerLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], CustomerLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         CustomerLedgerEntries.Close();
     end;
@@ -3134,18 +3134,18 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Empl. Ledger Entries Preview" page
         EmplLedgerEntriesPreview.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(3, EmplLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, EmplLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, EmplLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, EmplLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, EmplLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, EmplLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(3, EmplLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, EmplLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, EmplLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, EmplLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, EmplLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, EmplLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible());
 
         EmplLedgerEntriesPreview.Close();
     end;
@@ -3166,12 +3166,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         EmplLedgerEntriesPreview.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(EmplLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(EmplLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(EmplLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(EmplLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(EmplLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(EmplLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(EmplLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(EmplLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(EmplLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(EmplLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(EmplLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(EmplLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         EmplLedgerEntriesPreview.Close();
     end;
@@ -3197,12 +3197,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         EmplLedgerEntriesPreview.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], EmplLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], EmplLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], EmplLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], EmplLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], EmplLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], EmplLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], EmplLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], EmplLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], EmplLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], EmplLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], EmplLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], EmplLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         EmplLedgerEntriesPreview.Close();
     end;
@@ -3217,18 +3217,18 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "EmployeeLedgerEntries" page
         EmployeeLedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(3, EmployeeLedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, EmployeeLedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, EmployeeLedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, EmployeeLedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, EmployeeLedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, EmployeeLedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(3, EmployeeLedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, EmployeeLedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, EmployeeLedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, EmployeeLedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, EmployeeLedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, EmployeeLedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         EmployeeLedgerEntries.Close();
     end;
@@ -3249,12 +3249,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         EmployeeLedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(EmployeeLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(EmployeeLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(EmployeeLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(EmployeeLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(EmployeeLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(EmployeeLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(EmployeeLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(EmployeeLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(EmployeeLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(EmployeeLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(EmployeeLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(EmployeeLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         EmployeeLedgerEntries.Close();
     end;
@@ -3280,12 +3280,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         EmployeeLedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], EmployeeLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], EmployeeLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], EmployeeLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], EmployeeLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], EmployeeLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], EmployeeLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], EmployeeLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], EmployeeLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], EmployeeLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], EmployeeLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], EmployeeLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], EmployeeLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         EmployeeLedgerEntries.Close();
     end;
@@ -3300,20 +3300,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "FA Error Ledger Entries" page
         FAErrorLedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, FAErrorLedgerEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, FAErrorLedgerEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, FAErrorLedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, FAErrorLedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, FAErrorLedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, FAErrorLedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, FAErrorLedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, FAErrorLedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, FAErrorLedgerEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, FAErrorLedgerEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, FAErrorLedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, FAErrorLedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, FAErrorLedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, FAErrorLedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, FAErrorLedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, FAErrorLedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         FAErrorLedgerEntries.Close();
     end;
@@ -3334,12 +3334,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         FAErrorLedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(FAErrorLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(FAErrorLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(FAErrorLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(FAErrorLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(FAErrorLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(FAErrorLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(FAErrorLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(FAErrorLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(FAErrorLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(FAErrorLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(FAErrorLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(FAErrorLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         FAErrorLedgerEntries.Close();
     end;
@@ -3365,12 +3365,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         FAErrorLedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], FAErrorLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], FAErrorLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], FAErrorLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], FAErrorLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], FAErrorLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], FAErrorLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], FAErrorLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], FAErrorLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], FAErrorLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], FAErrorLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], FAErrorLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], FAErrorLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         FAErrorLedgerEntries.Close();
     end;
@@ -3385,20 +3385,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "FA Ledger Entries" page
         FALedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, FALedgerEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, FALedgerEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, FALedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, FALedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, FALedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, FALedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, FALedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, FALedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, FALedgerEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, FALedgerEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, FALedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, FALedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, FALedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, FALedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, FALedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, FALedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         FALedgerEntries.Close();
     end;
@@ -3419,12 +3419,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         FALedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(FALedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(FALedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(FALedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(FALedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(FALedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(FALedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(FALedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(FALedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(FALedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(FALedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(FALedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(FALedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         FALedgerEntries.Close();
     end;
@@ -3450,12 +3450,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         FALedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], FALedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], FALedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], FALedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], FALedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], FALedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], FALedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], FALedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], FALedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], FALedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], FALedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], FALedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], FALedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         FALedgerEntries.Close();
     end;
@@ -3470,20 +3470,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "FA Ledger Entries Preview" page
         FALedgerEntriesPreview.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, FALedgerEntriesPreview."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, FALedgerEntriesPreview."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, FALedgerEntriesPreview."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, FALedgerEntriesPreview."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, FALedgerEntriesPreview."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, FALedgerEntriesPreview."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, FALedgerEntriesPreview."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, FALedgerEntriesPreview."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, FALedgerEntriesPreview."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, FALedgerEntriesPreview."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, FALedgerEntriesPreview."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, FALedgerEntriesPreview."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, FALedgerEntriesPreview."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, FALedgerEntriesPreview."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, FALedgerEntriesPreview."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, FALedgerEntriesPreview."Shortcut Dimension 8 Code".Visible());
 
         FALedgerEntriesPreview.Close();
     end;
@@ -3504,12 +3504,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         FALedgerEntriesPreview.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(FALedgerEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(FALedgerEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(FALedgerEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(FALedgerEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(FALedgerEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(FALedgerEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(FALedgerEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(FALedgerEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(FALedgerEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(FALedgerEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(FALedgerEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(FALedgerEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         FALedgerEntriesPreview.Close();
     end;
@@ -3535,12 +3535,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         FALedgerEntriesPreview.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], FALedgerEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], FALedgerEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], FALedgerEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], FALedgerEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], FALedgerEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], FALedgerEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], FALedgerEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], FALedgerEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], FALedgerEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], FALedgerEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], FALedgerEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], FALedgerEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         FALedgerEntriesPreview.Close();
     end;
@@ -3555,20 +3555,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "General Ledger Entries" page
         GeneralLedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, GeneralLedgerEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, GeneralLedgerEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, GeneralLedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, GeneralLedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, GeneralLedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, GeneralLedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, GeneralLedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, GeneralLedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, GeneralLedgerEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, GeneralLedgerEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, GeneralLedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, GeneralLedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, GeneralLedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, GeneralLedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, GeneralLedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, GeneralLedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         GeneralLedgerEntries.Close();
     end;
@@ -3589,12 +3589,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GeneralLedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(GeneralLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(GeneralLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(GeneralLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(GeneralLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(GeneralLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(GeneralLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(GeneralLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(GeneralLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(GeneralLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(GeneralLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(GeneralLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(GeneralLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         GeneralLedgerEntries.Close();
     end;
@@ -3620,12 +3620,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GeneralLedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], GeneralLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], GeneralLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], GeneralLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], GeneralLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], GeneralLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], GeneralLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], GeneralLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], GeneralLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], GeneralLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], GeneralLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], GeneralLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], GeneralLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         GeneralLedgerEntries.Close();
     end;
@@ -3640,20 +3640,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Item Ledger Entries" page
         ItemLedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, ItemLedgerEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, ItemLedgerEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, ItemLedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, ItemLedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, ItemLedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, ItemLedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, ItemLedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, ItemLedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, ItemLedgerEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, ItemLedgerEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, ItemLedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, ItemLedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, ItemLedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, ItemLedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, ItemLedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, ItemLedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         ItemLedgerEntries.Close();
     end;
@@ -3674,12 +3674,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ItemLedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(ItemLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(ItemLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(ItemLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(ItemLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(ItemLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(ItemLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(ItemLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(ItemLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(ItemLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(ItemLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(ItemLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(ItemLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         ItemLedgerEntries.Close();
     end;
@@ -3705,12 +3705,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ItemLedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], ItemLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], ItemLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], ItemLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], ItemLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], ItemLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], ItemLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], ItemLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], ItemLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], ItemLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], ItemLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], ItemLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], ItemLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         ItemLedgerEntries.Close();
     end;
@@ -3725,20 +3725,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Item Ledger Entries Preview" page
         ItemLedgerEntriesPreview.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, ItemLedgerEntriesPreview."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, ItemLedgerEntriesPreview."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, ItemLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, ItemLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, ItemLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, ItemLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, ItemLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, ItemLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, ItemLedgerEntriesPreview."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, ItemLedgerEntriesPreview."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, ItemLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, ItemLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, ItemLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, ItemLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, ItemLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, ItemLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible());
 
         ItemLedgerEntriesPreview.Close();
     end;
@@ -3759,12 +3759,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ItemLedgerEntriesPreview.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(ItemLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(ItemLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(ItemLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(ItemLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(ItemLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(ItemLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(ItemLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(ItemLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(ItemLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(ItemLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(ItemLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(ItemLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         ItemLedgerEntriesPreview.Close();
     end;
@@ -3790,12 +3790,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ItemLedgerEntriesPreview.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], ItemLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], ItemLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], ItemLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], ItemLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], ItemLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], ItemLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], ItemLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], ItemLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], ItemLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], ItemLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], ItemLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], ItemLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         ItemLedgerEntriesPreview.Close();
     end;
@@ -3810,18 +3810,18 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Job Ledger Entries" page
         JobLedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(3, JobLedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, JobLedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, JobLedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, JobLedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, JobLedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, JobLedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(3, JobLedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, JobLedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, JobLedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, JobLedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, JobLedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, JobLedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         JobLedgerEntries.Close();
     end;
@@ -3842,12 +3842,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobLedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(JobLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(JobLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(JobLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(JobLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(JobLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(JobLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(JobLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(JobLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(JobLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(JobLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(JobLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(JobLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         JobLedgerEntries.Close();
     end;
@@ -3873,12 +3873,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobLedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], JobLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], JobLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], JobLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], JobLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], JobLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], JobLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], JobLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], JobLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], JobLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], JobLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], JobLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], JobLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         JobLedgerEntries.Close();
     end;
@@ -3893,18 +3893,18 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Job Ledger Entries Preview" page
         JobLedgerEntriesPreview.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(3, JobLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, JobLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, JobLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, JobLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, JobLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, JobLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(3, JobLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, JobLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, JobLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, JobLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, JobLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, JobLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible());
 
         JobLedgerEntriesPreview.Close();
     end;
@@ -3925,12 +3925,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobLedgerEntriesPreview.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(JobLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(JobLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(JobLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(JobLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(JobLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(JobLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(JobLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(JobLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(JobLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(JobLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(JobLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(JobLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         JobLedgerEntriesPreview.Close();
     end;
@@ -3956,12 +3956,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobLedgerEntriesPreview.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], JobLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], JobLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], JobLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], JobLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], JobLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], JobLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], JobLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], JobLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], JobLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], JobLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], JobLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], JobLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         JobLedgerEntriesPreview.Close();
     end;
@@ -3976,20 +3976,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Job WIP Entries" page
         JobWIPEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, JobWIPEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, JobWIPEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, JobWIPEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, JobWIPEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, JobWIPEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, JobWIPEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, JobWIPEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, JobWIPEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, JobWIPEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, JobWIPEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, JobWIPEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, JobWIPEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, JobWIPEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, JobWIPEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, JobWIPEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, JobWIPEntries."Shortcut Dimension 8 Code".Visible());
 
         JobWIPEntries.Close();
     end;
@@ -4010,12 +4010,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobWIPEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(JobWIPEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(JobWIPEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(JobWIPEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(JobWIPEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(JobWIPEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(JobWIPEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(JobWIPEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(JobWIPEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(JobWIPEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(JobWIPEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(JobWIPEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(JobWIPEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         JobWIPEntries.Close();
     end;
@@ -4041,12 +4041,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobWIPEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], JobWIPEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], JobWIPEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], JobWIPEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], JobWIPEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], JobWIPEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], JobWIPEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], JobWIPEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], JobWIPEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], JobWIPEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], JobWIPEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], JobWIPEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], JobWIPEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         JobWIPEntries.Close();
     end;
@@ -4061,20 +4061,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Job WIP G/L Entries" page
         JobWIPGLEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, JobWIPGLEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, JobWIPGLEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, JobWIPGLEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, JobWIPGLEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, JobWIPGLEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, JobWIPGLEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, JobWIPGLEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, JobWIPGLEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, JobWIPGLEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, JobWIPGLEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, JobWIPGLEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, JobWIPGLEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, JobWIPGLEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, JobWIPGLEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, JobWIPGLEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, JobWIPGLEntries."Shortcut Dimension 8 Code".Visible());
 
         JobWIPGLEntries.Close();
     end;
@@ -4095,12 +4095,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobWIPGLEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(JobWIPGLEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(JobWIPGLEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(JobWIPGLEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(JobWIPGLEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(JobWIPGLEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(JobWIPGLEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(JobWIPGLEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(JobWIPGLEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(JobWIPGLEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(JobWIPGLEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(JobWIPGLEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(JobWIPGLEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         JobWIPGLEntries.Close();
     end;
@@ -4126,12 +4126,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         JobWIPGLEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], JobWIPGLEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], JobWIPGLEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], JobWIPGLEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], JobWIPGLEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], JobWIPGLEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], JobWIPGLEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], JobWIPGLEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], JobWIPGLEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], JobWIPGLEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], JobWIPGLEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], JobWIPGLEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], JobWIPGLEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         JobWIPGLEntries.Close();
     end;
@@ -4146,20 +4146,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Maintenance Ledger Entries" page
         MaintenanceLedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, MaintenanceLedgerEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, MaintenanceLedgerEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, MaintenanceLedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, MaintenanceLedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, MaintenanceLedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, MaintenanceLedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, MaintenanceLedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, MaintenanceLedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, MaintenanceLedgerEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, MaintenanceLedgerEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, MaintenanceLedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, MaintenanceLedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, MaintenanceLedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, MaintenanceLedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, MaintenanceLedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, MaintenanceLedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         MaintenanceLedgerEntries.Close();
     end;
@@ -4180,12 +4180,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         MaintenanceLedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(MaintenanceLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(MaintenanceLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(MaintenanceLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(MaintenanceLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(MaintenanceLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(MaintenanceLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(MaintenanceLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(MaintenanceLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(MaintenanceLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(MaintenanceLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(MaintenanceLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(MaintenanceLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         MaintenanceLedgerEntries.Close();
     end;
@@ -4211,12 +4211,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         MaintenanceLedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], MaintenanceLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], MaintenanceLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], MaintenanceLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], MaintenanceLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], MaintenanceLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], MaintenanceLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], MaintenanceLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], MaintenanceLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], MaintenanceLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], MaintenanceLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], MaintenanceLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], MaintenanceLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         MaintenanceLedgerEntries.Close();
     end;
@@ -4231,20 +4231,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Maint. Ledg. Entries Preview" page
         MaintLedgEntriesPreview.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, MaintLedgEntriesPreview."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, MaintLedgEntriesPreview."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, MaintLedgEntriesPreview."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, MaintLedgEntriesPreview."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, MaintLedgEntriesPreview."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, MaintLedgEntriesPreview."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, MaintLedgEntriesPreview."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, MaintLedgEntriesPreview."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, MaintLedgEntriesPreview."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, MaintLedgEntriesPreview."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, MaintLedgEntriesPreview."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, MaintLedgEntriesPreview."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, MaintLedgEntriesPreview."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, MaintLedgEntriesPreview."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, MaintLedgEntriesPreview."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, MaintLedgEntriesPreview."Shortcut Dimension 8 Code".Visible());
 
         MaintLedgEntriesPreview.Close();
     end;
@@ -4265,12 +4265,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         MaintLedgEntriesPreview.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(MaintLedgEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(MaintLedgEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(MaintLedgEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(MaintLedgEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(MaintLedgEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(MaintLedgEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(MaintLedgEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(MaintLedgEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(MaintLedgEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(MaintLedgEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(MaintLedgEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(MaintLedgEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         MaintLedgEntriesPreview.Close();
     end;
@@ -4296,12 +4296,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         MaintLedgEntriesPreview.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], MaintLedgEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], MaintLedgEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], MaintLedgEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], MaintLedgEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], MaintLedgEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], MaintLedgEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], MaintLedgEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], MaintLedgEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], MaintLedgEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], MaintLedgEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], MaintLedgEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], MaintLedgEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         MaintLedgEntriesPreview.Close();
     end;
@@ -4316,20 +4316,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Phys. Inventory Ledger Entries" page
         PhysInventoryLedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, PhysInventoryLedgerEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, PhysInventoryLedgerEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, PhysInventoryLedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, PhysInventoryLedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, PhysInventoryLedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, PhysInventoryLedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, PhysInventoryLedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, PhysInventoryLedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, PhysInventoryLedgerEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, PhysInventoryLedgerEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, PhysInventoryLedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, PhysInventoryLedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, PhysInventoryLedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, PhysInventoryLedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, PhysInventoryLedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, PhysInventoryLedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         PhysInventoryLedgerEntries.Close();
     end;
@@ -4350,12 +4350,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PhysInventoryLedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(PhysInventoryLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(PhysInventoryLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(PhysInventoryLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(PhysInventoryLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(PhysInventoryLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(PhysInventoryLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(PhysInventoryLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(PhysInventoryLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(PhysInventoryLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(PhysInventoryLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(PhysInventoryLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(PhysInventoryLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         PhysInventoryLedgerEntries.Close();
     end;
@@ -4381,12 +4381,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PhysInventoryLedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], PhysInventoryLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], PhysInventoryLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], PhysInventoryLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], PhysInventoryLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], PhysInventoryLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], PhysInventoryLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], PhysInventoryLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], PhysInventoryLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], PhysInventoryLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], PhysInventoryLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], PhysInventoryLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], PhysInventoryLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         PhysInventoryLedgerEntries.Close();
     end;
@@ -4401,20 +4401,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Resource Ledg. Entries Preview" page
         ResourceLedgEntriesPreview.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, ResourceLedgEntriesPreview."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, ResourceLedgEntriesPreview."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, ResourceLedgEntriesPreview."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, ResourceLedgEntriesPreview."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, ResourceLedgEntriesPreview."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, ResourceLedgEntriesPreview."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, ResourceLedgEntriesPreview."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, ResourceLedgEntriesPreview."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, ResourceLedgEntriesPreview."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, ResourceLedgEntriesPreview."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, ResourceLedgEntriesPreview."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, ResourceLedgEntriesPreview."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, ResourceLedgEntriesPreview."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, ResourceLedgEntriesPreview."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, ResourceLedgEntriesPreview."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, ResourceLedgEntriesPreview."Shortcut Dimension 8 Code".Visible());
 
         ResourceLedgEntriesPreview.Close();
     end;
@@ -4435,12 +4435,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ResourceLedgEntriesPreview.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(ResourceLedgEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(ResourceLedgEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(ResourceLedgEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(ResourceLedgEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(ResourceLedgEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(ResourceLedgEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(ResourceLedgEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(ResourceLedgEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(ResourceLedgEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(ResourceLedgEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(ResourceLedgEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(ResourceLedgEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         ResourceLedgEntriesPreview.Close();
     end;
@@ -4466,12 +4466,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ResourceLedgEntriesPreview.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], ResourceLedgEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], ResourceLedgEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], ResourceLedgEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], ResourceLedgEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], ResourceLedgEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], ResourceLedgEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], ResourceLedgEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], ResourceLedgEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], ResourceLedgEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], ResourceLedgEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], ResourceLedgEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], ResourceLedgEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         ResourceLedgEntriesPreview.Close();
     end;
@@ -4486,20 +4486,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Resource Ledger Entries" page
         ResourceLedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, ResourceLedgerEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, ResourceLedgerEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, ResourceLedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, ResourceLedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, ResourceLedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, ResourceLedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, ResourceLedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, ResourceLedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, ResourceLedgerEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, ResourceLedgerEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, ResourceLedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, ResourceLedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, ResourceLedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, ResourceLedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, ResourceLedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, ResourceLedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         ResourceLedgerEntries.Close();
     end;
@@ -4520,12 +4520,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ResourceLedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(ResourceLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(ResourceLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(ResourceLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(ResourceLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(ResourceLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(ResourceLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(ResourceLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(ResourceLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(ResourceLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(ResourceLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(ResourceLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(ResourceLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         ResourceLedgerEntries.Close();
     end;
@@ -4551,12 +4551,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ResourceLedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], ResourceLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], ResourceLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], ResourceLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], ResourceLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], ResourceLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], ResourceLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], ResourceLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], ResourceLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], ResourceLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], ResourceLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], ResourceLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], ResourceLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         ResourceLedgerEntries.Close();
     end;
@@ -4571,20 +4571,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Service Ledger Entries" page
         ServiceLedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, ServiceLedgerEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, ServiceLedgerEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, ServiceLedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, ServiceLedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, ServiceLedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, ServiceLedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, ServiceLedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, ServiceLedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, ServiceLedgerEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, ServiceLedgerEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, ServiceLedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, ServiceLedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, ServiceLedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, ServiceLedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, ServiceLedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, ServiceLedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         ServiceLedgerEntries.Close();
     end;
@@ -4605,12 +4605,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ServiceLedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(ServiceLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(ServiceLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(ServiceLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(ServiceLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(ServiceLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(ServiceLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(ServiceLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(ServiceLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(ServiceLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(ServiceLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(ServiceLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(ServiceLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         ServiceLedgerEntries.Close();
     end;
@@ -4636,12 +4636,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ServiceLedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], ServiceLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], ServiceLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], ServiceLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], ServiceLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], ServiceLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], ServiceLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], ServiceLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], ServiceLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], ServiceLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], ServiceLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], ServiceLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], ServiceLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         ServiceLedgerEntries.Close();
     end;
@@ -4656,20 +4656,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Service Ledger Entries Preview" page
         ServiceLedgerEntriesPreview.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, ServiceLedgerEntriesPreview."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, ServiceLedgerEntriesPreview."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, ServiceLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, ServiceLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, ServiceLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, ServiceLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, ServiceLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, ServiceLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, ServiceLedgerEntriesPreview."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, ServiceLedgerEntriesPreview."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, ServiceLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, ServiceLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, ServiceLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, ServiceLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, ServiceLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, ServiceLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible());
 
         ServiceLedgerEntriesPreview.Close();
     end;
@@ -4690,12 +4690,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ServiceLedgerEntriesPreview.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(ServiceLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(ServiceLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(ServiceLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(ServiceLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(ServiceLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(ServiceLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(ServiceLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(ServiceLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(ServiceLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(ServiceLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(ServiceLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(ServiceLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         ServiceLedgerEntriesPreview.Close();
     end;
@@ -4721,12 +4721,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ServiceLedgerEntriesPreview.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], ServiceLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], ServiceLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], ServiceLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], ServiceLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], ServiceLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], ServiceLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], ServiceLedgerEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], ServiceLedgerEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], ServiceLedgerEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], ServiceLedgerEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], ServiceLedgerEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], ServiceLedgerEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         ServiceLedgerEntriesPreview.Close();
     end;
@@ -4741,20 +4741,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Value Entries" page
         ValueEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, ValueEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, ValueEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, ValueEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, ValueEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, ValueEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, ValueEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, ValueEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, ValueEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, ValueEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, ValueEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, ValueEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, ValueEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, ValueEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, ValueEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, ValueEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, ValueEntries."Shortcut Dimension 8 Code".Visible());
 
         ValueEntries.Close();
     end;
@@ -4775,12 +4775,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ValueEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(ValueEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(ValueEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(ValueEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(ValueEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(ValueEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(ValueEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(ValueEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(ValueEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(ValueEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(ValueEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(ValueEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(ValueEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         ValueEntries.Close();
     end;
@@ -4806,12 +4806,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ValueEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], ValueEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], ValueEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], ValueEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], ValueEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], ValueEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], ValueEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], ValueEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], ValueEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], ValueEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], ValueEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], ValueEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], ValueEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         ValueEntries.Close();
     end;
@@ -4826,20 +4826,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Value Entries Preview" page
         ValueEntriesPreview.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, ValueEntriesPreview."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, ValueEntriesPreview."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, ValueEntriesPreview."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, ValueEntriesPreview."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, ValueEntriesPreview."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, ValueEntriesPreview."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, ValueEntriesPreview."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, ValueEntriesPreview."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, ValueEntriesPreview."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, ValueEntriesPreview."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, ValueEntriesPreview."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, ValueEntriesPreview."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, ValueEntriesPreview."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, ValueEntriesPreview."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, ValueEntriesPreview."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, ValueEntriesPreview."Shortcut Dimension 8 Code".Visible());
 
         ValueEntriesPreview.Close();
     end;
@@ -4860,12 +4860,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ValueEntriesPreview.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(ValueEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(ValueEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(ValueEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(ValueEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(ValueEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(ValueEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(ValueEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(ValueEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(ValueEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(ValueEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(ValueEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(ValueEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         ValueEntriesPreview.Close();
     end;
@@ -4891,12 +4891,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         ValueEntriesPreview.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], ValueEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], ValueEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], ValueEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], ValueEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], ValueEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], ValueEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], ValueEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], ValueEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], ValueEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], ValueEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], ValueEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], ValueEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         ValueEntriesPreview.Close();
     end;
@@ -4911,20 +4911,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Vend. Ledg. Entries Preview" page
         VendLedgEntriesPreview.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, VendLedgEntriesPreview."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, VendLedgEntriesPreview."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, VendLedgEntriesPreview."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, VendLedgEntriesPreview."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, VendLedgEntriesPreview."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, VendLedgEntriesPreview."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, VendLedgEntriesPreview."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, VendLedgEntriesPreview."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, VendLedgEntriesPreview."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, VendLedgEntriesPreview."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, VendLedgEntriesPreview."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, VendLedgEntriesPreview."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, VendLedgEntriesPreview."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, VendLedgEntriesPreview."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, VendLedgEntriesPreview."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, VendLedgEntriesPreview."Shortcut Dimension 8 Code".Visible());
 
         VendLedgEntriesPreview.Close();
     end;
@@ -4945,12 +4945,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         VendLedgEntriesPreview.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(VendLedgEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(VendLedgEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(VendLedgEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(VendLedgEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(VendLedgEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(VendLedgEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(VendLedgEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(VendLedgEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(VendLedgEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(VendLedgEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(VendLedgEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(VendLedgEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         VendLedgEntriesPreview.Close();
     end;
@@ -4976,12 +4976,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         VendLedgEntriesPreview.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], VendLedgEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], VendLedgEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], VendLedgEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], VendLedgEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], VendLedgEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], VendLedgEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], VendLedgEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], VendLedgEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], VendLedgEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], VendLedgEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], VendLedgEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], VendLedgEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         VendLedgEntriesPreview.Close();
     end;
@@ -4996,20 +4996,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Vendor Ledger Entries" page
         VendorLedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, VendorLedgerEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, VendorLedgerEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, VendorLedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, VendorLedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, VendorLedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, VendorLedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, VendorLedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, VendorLedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, VendorLedgerEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, VendorLedgerEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, VendorLedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, VendorLedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, VendorLedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, VendorLedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, VendorLedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, VendorLedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         VendorLedgerEntries.Close();
     end;
@@ -5030,12 +5030,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         VendorLedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(VendorLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(VendorLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(VendorLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(VendorLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(VendorLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(VendorLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(VendorLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(VendorLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(VendorLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(VendorLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(VendorLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(VendorLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         VendorLedgerEntries.Close();
     end;
@@ -5061,12 +5061,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         VendorLedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], VendorLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], VendorLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], VendorLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], VendorLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], VendorLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], VendorLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], VendorLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], VendorLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], VendorLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], VendorLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], VendorLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], VendorLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         VendorLedgerEntries.Close();
     end;
@@ -5081,20 +5081,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Warranty Ledg. Entries Preview" page
         WarrantyLedgEntriesPreview.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, WarrantyLedgEntriesPreview."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, WarrantyLedgEntriesPreview."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, WarrantyLedgEntriesPreview."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, WarrantyLedgEntriesPreview."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, WarrantyLedgEntriesPreview."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, WarrantyLedgEntriesPreview."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, WarrantyLedgEntriesPreview."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, WarrantyLedgEntriesPreview."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, WarrantyLedgEntriesPreview."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, WarrantyLedgEntriesPreview."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, WarrantyLedgEntriesPreview."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, WarrantyLedgEntriesPreview."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, WarrantyLedgEntriesPreview."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, WarrantyLedgEntriesPreview."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, WarrantyLedgEntriesPreview."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, WarrantyLedgEntriesPreview."Shortcut Dimension 8 Code".Visible());
 
         WarrantyLedgEntriesPreview.Close();
     end;
@@ -5115,12 +5115,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         WarrantyLedgEntriesPreview.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(WarrantyLedgEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(WarrantyLedgEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(WarrantyLedgEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(WarrantyLedgEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(WarrantyLedgEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(WarrantyLedgEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(WarrantyLedgEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(WarrantyLedgEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(WarrantyLedgEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(WarrantyLedgEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(WarrantyLedgEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(WarrantyLedgEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         WarrantyLedgEntriesPreview.Close();
     end;
@@ -5146,12 +5146,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         WarrantyLedgEntriesPreview.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], WarrantyLedgEntriesPreview."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], WarrantyLedgEntriesPreview."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], WarrantyLedgEntriesPreview."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], WarrantyLedgEntriesPreview."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], WarrantyLedgEntriesPreview."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], WarrantyLedgEntriesPreview."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], WarrantyLedgEntriesPreview."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], WarrantyLedgEntriesPreview."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], WarrantyLedgEntriesPreview."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], WarrantyLedgEntriesPreview."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], WarrantyLedgEntriesPreview."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], WarrantyLedgEntriesPreview."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         WarrantyLedgEntriesPreview.Close();
     end;
@@ -5166,20 +5166,20 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
 
         // [GIVEN] Dimensions 3-8 are filled in the general ledger setup
-        SetGLSetupAllDimensions;
+        SetGLSetupAllDimensions();
 
         // [WHEN] Open "Warranty Ledger Entries" page
         WarrantyLedgerEntries.OpenView();
 
         // [THEN] Dimensions 1-8 are visible
-        AssertVisibility(1, WarrantyLedgerEntries."Global Dimension 1 Code".Visible);
-        AssertVisibility(2, WarrantyLedgerEntries."Global Dimension 2 Code".Visible);
-        AssertVisibility(3, WarrantyLedgerEntries."Shortcut Dimension 3 Code".Visible);
-        AssertVisibility(4, WarrantyLedgerEntries."Shortcut Dimension 4 Code".Visible);
-        AssertVisibility(5, WarrantyLedgerEntries."Shortcut Dimension 5 Code".Visible);
-        AssertVisibility(6, WarrantyLedgerEntries."Shortcut Dimension 6 Code".Visible);
-        AssertVisibility(7, WarrantyLedgerEntries."Shortcut Dimension 7 Code".Visible);
-        AssertVisibility(8, WarrantyLedgerEntries."Shortcut Dimension 8 Code".Visible);
+        AssertVisibility(1, WarrantyLedgerEntries."Global Dimension 1 Code".Visible());
+        AssertVisibility(2, WarrantyLedgerEntries."Global Dimension 2 Code".Visible());
+        AssertVisibility(3, WarrantyLedgerEntries."Shortcut Dimension 3 Code".Visible());
+        AssertVisibility(4, WarrantyLedgerEntries."Shortcut Dimension 4 Code".Visible());
+        AssertVisibility(5, WarrantyLedgerEntries."Shortcut Dimension 5 Code".Visible());
+        AssertVisibility(6, WarrantyLedgerEntries."Shortcut Dimension 6 Code".Visible());
+        AssertVisibility(7, WarrantyLedgerEntries."Shortcut Dimension 7 Code".Visible());
+        AssertVisibility(8, WarrantyLedgerEntries."Shortcut Dimension 8 Code".Visible());
 
         WarrantyLedgerEntries.Close();
     end;
@@ -5200,12 +5200,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         WarrantyLedgerEntries.OpenView();
 
         // [THEN] Dimensions 3-8 are not visible
-        Assert.IsFalse(WarrantyLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code should not be visible');
-        Assert.IsFalse(WarrantyLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code should not be visible');
-        Assert.IsFalse(WarrantyLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code should not be visible');
-        Assert.IsFalse(WarrantyLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code should not be visible');
-        Assert.IsFalse(WarrantyLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code should not be visible');
-        Assert.IsFalse(WarrantyLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code should not be visible');
+        Assert.IsFalse(WarrantyLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code should not be visible');
+        Assert.IsFalse(WarrantyLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code should not be visible');
+        Assert.IsFalse(WarrantyLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code should not be visible');
+        Assert.IsFalse(WarrantyLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code should not be visible');
+        Assert.IsFalse(WarrantyLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code should not be visible');
+        Assert.IsFalse(WarrantyLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code should not be visible');
 
         WarrantyLedgerEntries.Close();
     end;
@@ -5231,12 +5231,12 @@ codeunit 134485 "ERM Dimension Shortcuts"
         WarrantyLedgerEntries.OpenView();
 
         // [THEN] Three random dimensions are visible
-        Assert.AreEqual(DimShortcuts[1], WarrantyLedgerEntries."Shortcut Dimension 3 Code".Visible, 'Dimension 3 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[2], WarrantyLedgerEntries."Shortcut Dimension 4 Code".Visible, 'Dimension 4 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[3], WarrantyLedgerEntries."Shortcut Dimension 5 Code".Visible, 'Dimension 5 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[4], WarrantyLedgerEntries."Shortcut Dimension 6 Code".Visible, 'Dimension 6 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[5], WarrantyLedgerEntries."Shortcut Dimension 7 Code".Visible, 'Dimension 7 Code has wrong visibility');
-        Assert.AreEqual(DimShortcuts[6], WarrantyLedgerEntries."Shortcut Dimension 8 Code".Visible, 'Dimension 8 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[1], WarrantyLedgerEntries."Shortcut Dimension 3 Code".Visible(), 'Dimension 3 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[2], WarrantyLedgerEntries."Shortcut Dimension 4 Code".Visible(), 'Dimension 4 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[3], WarrantyLedgerEntries."Shortcut Dimension 5 Code".Visible(), 'Dimension 5 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[4], WarrantyLedgerEntries."Shortcut Dimension 6 Code".Visible(), 'Dimension 6 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[5], WarrantyLedgerEntries."Shortcut Dimension 7 Code".Visible(), 'Dimension 7 Code has wrong visibility');
+        Assert.AreEqual(DimShortcuts[6], WarrantyLedgerEntries."Shortcut Dimension 8 Code".Visible(), 'Dimension 8 Code has wrong visibility');
 
         WarrantyLedgerEntries.Close();
     end;
@@ -5276,7 +5276,6 @@ codeunit 134485 "ERM Dimension Shortcuts"
     procedure DimSetEntryGlobalDimNoAddedDimensions()
     var
         DimensionValue: array[6] of Record "Dimension Value";
-        DefaultDimension: Record "Default Dimension";
         SalesHeader: Record "Sales Header";
         SalesOrder: TestPage "Sales Order";
         i: Integer;
@@ -5398,7 +5397,6 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GenJnlAllocation: Record "Gen. Jnl. Allocation";
         ERMDimensionShortcuts: Codeunit "ERM Dimension Shortcuts";
         i: Integer;
-        AllocGLAccNo: code[20];
     begin
         // [SCENARIO 388380] Posted recurring journal lines contain original batch name, not the temporary one
         Initialize();
@@ -5534,7 +5532,6 @@ codeunit 134485 "ERM Dimension Shortcuts"
         DimensionValue: array[6] of Record "Dimension Value";
         GLAccount: Record "G/L Account";
         GLEntry: Record "G/L Entry";
-        GenJnlAllocation: Record "Gen. Jnl. Allocation";
         GenJournalBatch: Record "Gen. Journal Batch";
         ERMDimensionShortcuts: Codeunit "ERM Dimension Shortcuts";
         i: Integer;
@@ -5589,8 +5586,6 @@ codeunit 134485 "ERM Dimension Shortcuts"
         RecurringGenJournalLine: Record "Gen. Journal Line";
         DimensionValue: array[6] of Record "Dimension Value";
         GLEntry: Record "G/L Entry";
-        GenJnlAllocation: Record "Gen. Jnl. Allocation";
-        GenJournalBatch: Record "Gen. Journal Batch";
         i: Integer;
         GLAccNo: array[6] of Code[20];
     begin
@@ -5627,8 +5622,6 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GenJournalLine: Record "Gen. Journal Line";
         RecurringGenJournalLine: Record "Gen. Journal Line";
         DimensionValue: array[6] of Record "Dimension Value";
-        GLEntry: Record "G/L Entry";
-        GenJnlAllocation: Record "Gen. Jnl. Allocation";
         i: Integer;
         GLAccNo: array[6] of Code[20];
     begin
@@ -5878,7 +5871,6 @@ codeunit 134485 "ERM Dimension Shortcuts"
     procedure PurchOrderSubformDescriptionUpdateDimShortcuts()
     var
         PurchHeader: Record "Purchase Header";
-        PurchLine: Record "Purchase Line";
         Vendor: Record Vendor;
         Item: Record Item;
         DimensionValue: array[6] of Record "Dimension Value";
@@ -5924,7 +5916,6 @@ codeunit 134485 "ERM Dimension Shortcuts"
     procedure PurchReturnOrderSubformDescriptionUpdateDimShortcuts()
     var
         PurchHeader: Record "Purchase Header";
-        PurchLine: Record "Purchase Line";
         Vendor: Record Vendor;
         Item: Record Item;
         DimensionValue: array[6] of Record "Dimension Value";
@@ -5970,7 +5961,6 @@ codeunit 134485 "ERM Dimension Shortcuts"
     procedure PurchQuoteSubformDescriptionUpdateDimShortcuts()
     var
         PurchHeader: Record "Purchase Header";
-        PurchLine: Record "Purchase Line";
         Vendor: Record Vendor;
         Item: Record Item;
         DimensionValue: array[6] of Record "Dimension Value";

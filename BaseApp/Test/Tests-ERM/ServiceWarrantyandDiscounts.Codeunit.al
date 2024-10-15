@@ -12,7 +12,6 @@ codeunit 136120 "Service Warranty and Discounts"
     var
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
@@ -119,13 +118,13 @@ codeunit 136120 "Service Warranty and Discounts"
         // 2. Exercise: Create Item, Create Service Item. Create a new Contract with Contract/Service Discounts, Sign the Contract.
         // Create Service Order. Update Exclude Warranty and Exclude Contract Discount fields as per parameter.
         // Update Service Line and post the Service Order as Ship and Invoice.
-        CreateItem(Item, Customer."No.", LibraryUtility.GenerateRandomFraction);
-        CreateServiceItem(ServiceItem, Customer."No.", Item."No.", LibraryUtility.GenerateRandomFraction);
+        CreateItem(Item, Customer."No.", LibraryUtility.GenerateRandomFraction());
+        CreateServiceItem(ServiceItem, Customer."No.", Item."No.", LibraryUtility.GenerateRandomFraction());
 
         CreateServiceContract(ServiceContractHeader, ServiceItem);
         CreateDiscountServiceContract(
           ServiceContractHeader, ServiceItem."Service Item Group Code", Resource."Resource Group No.",
-          LibraryUtility.GenerateRandomFraction);
+          LibraryUtility.GenerateRandomFraction());
         SignServContractDoc.SignContract(ServiceContractHeader);
 
         CreateServiceOrder(ServiceHeader, ServiceItem, ServiceContractHeader."Contract No.", Resource."No.");
@@ -163,7 +162,7 @@ codeunit 136120 "Service Warranty and Discounts"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         AssignResourceGroupToResource(Resource);
-        LineDiscountPercentage := LibraryUtility.GenerateRandomFraction;
+        LineDiscountPercentage := LibraryUtility.GenerateRandomFraction();
 
         // 2. Exercise: Create Item, Create Service Item. Create a new Contract with Contract/Service Discounts,
         // Sign the Contract. Create Service Order. Update Service Line and post the Service Order as Ship and Invoice.
@@ -212,7 +211,7 @@ codeunit 136120 "Service Warranty and Discounts"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         AssignResourceGroupToResource(Resource);
-        ContractDiscountPercentage := LibraryUtility.GenerateRandomFraction;
+        ContractDiscountPercentage := LibraryUtility.GenerateRandomFraction();
 
         // 2. Exercise: Create Item, Create Service Item. Create a new Contract with Contract/Service Discounts,
         // Sign the Contract. Create Service Order. Update Service Line and post the Service Order as Ship and Invoice.
@@ -260,7 +259,7 @@ codeunit 136120 "Service Warranty and Discounts"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         AssignResourceGroupToResource(Resource);
-        LineDiscountPercentage := LibraryUtility.GenerateRandomFraction;
+        LineDiscountPercentage := LibraryUtility.GenerateRandomFraction();
 
         // 2. Exercise: Create Item, Create Service Item. Create a new Contract with Contract/Service Discounts,
         // Sign the Contract. Create Service Order. Update Service Line and post the Service Order as Ship and Invoice.
@@ -310,7 +309,7 @@ codeunit 136120 "Service Warranty and Discounts"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         AssignResourceGroupToResource(Resource);
-        ContractDiscountPercentage := LibraryUtility.GenerateRandomFraction;
+        ContractDiscountPercentage := LibraryUtility.GenerateRandomFraction();
         LineDiscountPercentage := ContractDiscountPercentage + LibraryRandom.RandInt(10);  // Use Random for Discounts because value is not important.
 
         // 2. Exercise: Create Item, Create Service Item. Create a new Contract with Contract/Service Discounts, Sign the Contract.
@@ -368,7 +367,7 @@ codeunit 136120 "Service Warranty and Discounts"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         AssignResourceGroupToResource(Resource);
-        LineDiscountPercentage := LibraryUtility.GenerateRandomFraction;
+        LineDiscountPercentage := LibraryUtility.GenerateRandomFraction();
         WarrantyDiscount := LineDiscountPercentage + LibraryRandom.RandInt(10);  // Use Random for Discounts because value is not important.
 
         // 2. Exercise: Create Item, Create Service Item. Create a new Contract with Contract/Service Discounts, Sign the Contract.
@@ -621,20 +620,18 @@ codeunit 136120 "Service Warranty and Discounts"
 
     local procedure CreateModifyServiceDiscount(ServiceContractHeader: Record "Service Contract Header"; var ContractServiceDiscount: Record "Contract/Service Discount"; ServiceItemGroupCode: Code[10])
     begin
-        with ContractServiceDiscount do begin
-            LibraryService.CreateContractServiceDiscount(
-              ContractServiceDiscount, ServiceContractHeader,
-              Type::"Service Item Group", ServiceItemGroupCode);
+        LibraryService.CreateContractServiceDiscount(
+            ContractServiceDiscount, ServiceContractHeader,
+            ContractServiceDiscount.Type::"Service Item Group", ServiceItemGroupCode);
 
-            SetRange("Contract No.", ServiceContractHeader."Contract No.");
-            SetRange("Contract Type", ServiceContractHeader."Contract Type");
-            FindFirst();
-            Validate("Discount %", LibraryRandom.RandDec(10, 2));
-            Modify(true);
-        end;
+        ContractServiceDiscount.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        ContractServiceDiscount.SetRange("Contract Type", ServiceContractHeader."Contract Type");
+        ContractServiceDiscount.FindFirst();
+        ContractServiceDiscount.Validate("Discount %", LibraryRandom.RandDec(10, 2));
+        ContractServiceDiscount.Modify(true);
     end;
 
-    local procedure DiscountServiceContract(ServiceContractHeader: Record "Service Contract Header"; Type: Option; No: Code[20]; ContractDiscountPercentage: Decimal)
+    local procedure DiscountServiceContract(ServiceContractHeader: Record "Service Contract Header"; Type: Enum "Service Contract Discount Type"; No: Code[20]; ContractDiscountPercentage: Decimal)
     var
         ContractServiceDiscount: Record "Contract/Service Discount";
     begin
@@ -663,7 +660,7 @@ codeunit 136120 "Service Warranty and Discounts"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure UpdateItemDiscount(var Item: Record Item; CustomerNo: Code[20]; LineDiscountPercentage: Decimal)
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -679,6 +676,7 @@ codeunit 136120 "Service Warranty and Discounts"
     local procedure UpdateItemDiscount(var Item: Record Item; CustomerNo: Code[20]; LineDiscountPercentage: Decimal)
     var
         PriceListLine: Record "Price List Line";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
     begin
         LibraryPriceCalculation.CreateSalesDiscountLine(
             PriceListLine, '', "Price Source Type"::Customer, CustomerNo, "Price Asset Type"::Item, Item."No.");

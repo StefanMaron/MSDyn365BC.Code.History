@@ -387,8 +387,8 @@ report 1302 "Standard Sales - Pro Forma Inv"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatDocumentFields(Header);
                 if SellToContact.Get("Sell-to Contact No.") then;
                 if BillToContact.Get("Bill-to Contact No.") then;
@@ -455,7 +455,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
         DummyShipmentMethod: Record "Shipment Method";
         DummyCurrency: Record Currency;
         AutoFormat: Codeunit "Auto Format";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         CountryOfManufactuctureLbl: Label 'Country';
         TotalWeightLbl: Label 'Total Weight';
         SalespersonPurchaserName: Text;
@@ -515,29 +515,27 @@ report 1302 "Standard Sales - Pro Forma Inv"
         TotalAmounExclVATLbl: Text[50];
     begin
         FormatAddress.SetLanguageCode(SalesHeader."Language Code");
-        with SalesHeader do begin
-            Customer.Get("Sell-to Customer No.");
-            FormatDocument.SetSalesPerson(SalespersonPurchaser, "Salesperson Code", SalesPersonLblText);
-            SalespersonPurchaserName := SalespersonPurchaser.Name;
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        FormatDocument.SetSalesPerson(SalespersonPurchaser, SalesHeader."Salesperson Code", SalesPersonLblText);
+        SalespersonPurchaserName := SalespersonPurchaser.Name;
 
-            FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
-            ShipmentMethodDescription := ShipmentMethod.Description;
+        FormatDocument.SetShipmentMethod(ShipmentMethod, SalesHeader."Shipment Method Code", SalesHeader."Language Code");
+        ShipmentMethodDescription := ShipmentMethod.Description;
 
-            FormatAddress.GetCompanyAddr("Responsibility Center", ResponsibilityCenter, CompanyInformation, CompanyAddress);
-            FormatAddress.SalesHeaderBillTo(CustomerAddress, SalesHeader);
+        FormatAddress.GetCompanyAddr(SalesHeader."Responsibility Center", ResponsibilityCenter, CompanyInformation, CompanyAddress);
+        FormatAddress.SalesHeaderBillTo(CustomerAddress, SalesHeader);
 
-            if "Currency Code" = '' then begin
-                GeneralLedgerSetup.Get();
-                GeneralLedgerSetup.TestField("LCY Code");
-                CurrencyCode := GeneralLedgerSetup."LCY Code";
-                Currency.InitRoundingPrecision();
-            end else begin
-                CurrencyCode := "Currency Code";
-                Currency.Get("Currency Code");
-            end;
-
-            FormatDocument.SetTotalLabels("Currency Code", TotalAmountLbl, TotalAmountInclVATLbl, TotalAmounExclVATLbl);
+        if SalesHeader."Currency Code" = '' then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetup.TestField("LCY Code");
+            CurrencyCode := GeneralLedgerSetup."LCY Code";
+            Currency.InitRoundingPrecision();
+        end else begin
+            CurrencyCode := SalesHeader."Currency Code";
+            Currency.Get(SalesHeader."Currency Code");
         end;
+
+        FormatDocument.SetTotalLabels(SalesHeader."Currency Code", TotalAmountLbl, TotalAmountInclVATLbl, TotalAmounExclVATLbl);
     end;
 
     local procedure DocumentCaption(): Text

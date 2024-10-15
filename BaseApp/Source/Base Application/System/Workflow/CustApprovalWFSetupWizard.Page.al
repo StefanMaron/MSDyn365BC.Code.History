@@ -25,8 +25,10 @@ page 1813 "Cust. Approval WF Setup Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND NOT DoneVisible;
+                Visible = TopBannerVisible and not DoneVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Suite;
                     Editable = false;
@@ -37,8 +39,10 @@ page 1813 "Cust. Approval WF Setup Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND DoneVisible;
+                Visible = TopBannerVisible and DoneVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesDone.""Media Reference"""; MediaResourcesDone."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Suite;
                     Editable = false;
@@ -207,7 +211,7 @@ page 1813 "Cust. Approval WF Setup Wizard"
                         MultiLine = true;
                         ShowCaption = false;
                         Style = StrongAccent;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                     }
                 }
                 group("Para10.2")

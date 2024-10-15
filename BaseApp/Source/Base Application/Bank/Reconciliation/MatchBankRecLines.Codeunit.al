@@ -212,18 +212,6 @@ codeunit 1252 "Match Bank Rec. Lines"
             Message(NoMatchMsg);
     end;
 
-#if not CLEAN21
-    [Obsolete('Use BankAccReconciliationAutoMatch instead', '21.0')]
-    procedure MatchSingle(BankAccReconciliation: Record "Bank Acc. Reconciliation"; DateRange: Integer)
-    var
-        TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
-        CountMatchCandidates: Integer;
-    begin
-        BankAccReconciliationAutoMatch(BankAccReconciliation, DateRange);
-        OnAfterMatchBankRecLinesMatchSingle(CountMatchCandidates, TempBankStatementMatchingBuffer);
-    end;
-#endif
-
     /// <summary>
     /// Algorithm for auto matching used in the Bank Acc. Reconciliation page.
     /// It updates matched Bank Account Ledger Entries by applying them and setting their Statement No., Statement Line No., etc.
@@ -533,37 +521,48 @@ codeunit 1252 "Match Bank Rec. Lines"
             exit(false);
     end;
 
+    /// <summary>
+    /// There are 3 scores associated to how well does Bank Rec. Line **text fields** match a specific Bank Account Ledger Entry:
+    /// - Doc. No Score
+    /// - Ext. Doc. No Score
+    /// - Description Score
+    /// When we compare two matches, we first compare how well they do on each category. If one match is better in a category, it wins that category.
+    /// The Option parameter values are used to store the winner of each category. The Integer parameter values contain the winning score for that category.
+    ///
+    /// The best match is considered as the one for which a category has the highest winning score. This reflects the fact that there is usually one field used to match exactly, while the other fields do not necessarily matter.
+    /// The result of the best match is stored in the output parameter BestMaxWinner.
+    /// </summary>
     local procedure GetMaxScoreOfWinner(ComparisonResultDocNo: Option; WinnerDocNoScore: Integer; ComparisonResultExtDocNo: Option; WinnerExtDocNoScore: Integer; ComparisonResultDescription: Option; WinnerDescriptionScore: Integer; var BestMaxWinner: Option)
     var
-        MaxWinnerScore: Integer;
+        MaxWinningScore: Integer;
     begin
         BestMaxWinner := TextMatchGreater::Tie;
         if ComparisonResultDocNo <> TextMatchGreater::Tie then begin
-            MaxWinnerScore := WinnerDocNoScore;
+            MaxWinningScore := WinnerDocNoScore;
             BestMaxWinner := ComparisonResultDocNo
         end;
 
         if BestMaxWinner = TextMatchGreater::Tie then begin
             if ComparisonResultExtDocNo <> TextMatchGreater::Tie then begin
-                MaxWinnerScore := WinnerExtDocNoScore;
+                MaxWinningScore := WinnerExtDocNoScore;
                 BestMaxWinner := ComparisonResultExtDocNo;
             end;
         end else
             if ComparisonResultExtDocNo <> TextMatchGreater::Tie then
-                if MaxWinnerScore < WinnerExtDocNoScore then begin
-                    MaxWinnerScore := WinnerExtDocNoScore;
+                if MaxWinningScore < WinnerExtDocNoScore then begin
+                    MaxWinningScore := WinnerExtDocNoScore;
                     BestMaxWinner := ComparisonResultExtDocNo;
                 end;
 
         if BestMaxWinner = TextMatchGreater::Tie then begin
             if ComparisonResultDescription <> TextMatchGreater::Tie then begin
-                MaxWinnerScore := WinnerDescriptionScore;
+                MaxWinningScore := WinnerDescriptionScore;
                 BestMaxWinner := ComparisonResultDescription;
             end;
         end else
             if ComparisonResultDescription <> TextMatchGreater::Tie then
-                if MaxWinnerScore < WinnerDescriptionScore then begin
-                    MaxWinnerScore := WinnerDescriptionScore;
+                if MaxWinningScore < WinnerDescriptionScore then begin
+                    MaxWinningScore := WinnerDescriptionScore;
                     BestMaxWinner := ComparisonResultDescription;
                 end;
     end;
@@ -952,14 +951,6 @@ codeunit 1252 "Match Bank Rec. Lines"
     begin
         exit(NormalizingFactor);
     end;
-
-#if not CLEAN21
-    [IntegrationEvent(false, false)]
-    [Obsolete('Use BankAccReconciliationAutoMatch instead', '21.0')]
-    local procedure OnAfterMatchBankRecLinesMatchSingle(CountMatchCandidates: Integer; TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnShowMatchSummaryOnAfterSetFinalText(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; FinalText: Text; var IsHandled: Boolean)

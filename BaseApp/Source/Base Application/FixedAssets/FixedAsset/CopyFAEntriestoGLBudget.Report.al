@@ -39,17 +39,13 @@ report 5684 "Copy FA Entries to G/L Budget"
 
             trigger OnPreDataItem()
             begin
-                with FALedgEntry do begin
-                    SetCurrentKey(
-                      "FA No.", "Depreciation Book Code",
-                      "FA Posting Category", "FA Posting Type", "Posting Date");
-                    SetRange("Depreciation Book Code", DeprBookCode);
-                    SetRange("FA Posting Category", "FA Posting Category"::" ");
-                    SetRange(
-                      "FA Posting Type",
-                      "FA Posting Type"::"Acquisition Cost", "FA Posting Type"::"Custom 2");
-                    SetRange("Posting Date", StartingDate, EndingDate2);
-                end;
+                FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "Posting Date");
+                FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
+                FALedgEntry.SetRange("FA Posting Category", FALedgEntry."FA Posting Category"::" ");
+                FALedgEntry.SetRange(
+                  "FA Posting Type",
+                  FALedgEntry."FA Posting Type"::"Acquisition Cost", FALedgEntry."FA Posting Type"::"Custom 2");
+                FALedgEntry.SetRange("Posting Date", StartingDate, EndingDate2);
             end;
         }
     }
@@ -202,21 +198,20 @@ report 5684 "Copy FA Entries to G/L Budget"
 
     local procedure GetTransferType(var FALedgEntry: Record "FA Ledger Entry"): Boolean
     begin
-        with FALedgEntry do
-            case "FA Posting Type" of
-                "FA Posting Type"::"Acquisition Cost":
-                    exit(TransferType[1]);
-                "FA Posting Type"::Depreciation:
-                    exit(TransferType[2]);
-                "FA Posting Type"::"Write-Down":
-                    exit(TransferType[3]);
-                "FA Posting Type"::Appreciation:
-                    exit(TransferType[4]);
-                "FA Posting Type"::"Custom 1":
-                    exit(TransferType[5]);
-                "FA Posting Type"::"Custom 2":
-                    exit(TransferType[6]);
-            end;
+        case FALedgEntry."FA Posting Type" of
+            FALedgEntry."FA Posting Type"::"Acquisition Cost":
+                exit(TransferType[1]);
+            FALedgEntry."FA Posting Type"::Depreciation:
+                exit(TransferType[2]);
+            FALedgEntry."FA Posting Type"::"Write-Down":
+                exit(TransferType[3]);
+            FALedgEntry."FA Posting Type"::Appreciation:
+                exit(TransferType[4]);
+            FALedgEntry."FA Posting Type"::"Custom 1":
+                exit(TransferType[5]);
+            FALedgEntry."FA Posting Type"::"Custom 2":
+                exit(TransferType[6]);
+        end;
         exit(false);
     end;
 

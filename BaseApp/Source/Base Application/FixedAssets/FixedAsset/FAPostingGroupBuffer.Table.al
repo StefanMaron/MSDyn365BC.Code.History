@@ -4,6 +4,7 @@ table 5649 "FA Posting Group Buffer"
 {
     Caption = 'FA Posting Group Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

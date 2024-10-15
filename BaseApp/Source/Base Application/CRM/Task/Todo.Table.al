@@ -23,6 +23,7 @@ table 5080 "To-do"
 {
     Caption = 'Task';
     DataCaptionFields = "No.", Description;
+    DataClassification = CustomerContent;
     DrillDownPageID = "Task List";
     LookupPageID = "Task List";
     Permissions = tabledata "To-Do" = RI,
@@ -39,7 +40,7 @@ table 5080 "To-do"
             begin
                 if "No." <> xRec."No." then begin
                     RMSetup.Get();
-                    NoSeriesMgt.TestManual(RMSetup."To-do Nos.");
+                    NoSeries.TestManual(RMSetup."To-do Nos.");
                     "No. Series" := '';
                     if ("System To-do Type" = "System To-do Type"::Organizer) or
                        ("System To-do Type" = "System To-do Type"::Team)
@@ -391,14 +392,14 @@ table 5080 "To-do"
         }
         field(18; "Contact Name"; Text[100])
         {
-            CalcFormula = Lookup(Contact.Name where("No." = field("Contact No.")));
+            CalcFormula = lookup(Contact.Name where("No." = field("Contact No.")));
             Caption = 'Contact Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(19; "Team Name"; Text[50])
         {
-            CalcFormula = Lookup(Team.Name where(Code = field("Team Code")));
+            CalcFormula = lookup(Team.Name where(Code = field("Team Code")));
             Caption = 'Team Name';
             Editable = false;
             FieldClass = FlowField;
@@ -406,14 +407,14 @@ table 5080 "To-do"
         }
         field(20; "Salesperson Name"; Text[50])
         {
-            CalcFormula = Lookup("Salesperson/Purchaser".Name where(Code = field("Salesperson Code")));
+            CalcFormula = lookup("Salesperson/Purchaser".Name where(Code = field("Salesperson Code")));
             Caption = 'Salesperson Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(21; "Campaign Description"; Text[100])
         {
-            CalcFormula = Lookup(Campaign.Description where("No." = field("Campaign No.")));
+            CalcFormula = lookup(Campaign.Description where("No." = field("Campaign No.")));
             Caption = 'Campaign Description';
             Editable = false;
             FieldClass = FlowField;
@@ -425,7 +426,7 @@ table 5080 "To-do"
         }
         field(23; "Contact Company Name"; Text[100])
         {
-            CalcFormula = Lookup(Contact.Name where("No." = field("Contact Company No.")));
+            CalcFormula = lookup(Contact.Name where("No." = field("Contact Company No.")));
             Caption = 'Contact Company Name';
             Editable = false;
             FieldClass = FlowField;
@@ -458,7 +459,7 @@ table 5080 "To-do"
         }
         field(27; "Opportunity Description"; Text[100])
         {
-            CalcFormula = Lookup(Opportunity.Description where("No." = field("Opportunity No.")));
+            CalcFormula = lookup(Opportunity.Description where("No." = field("Opportunity No.")));
             Caption = 'Opportunity Description';
             Editable = false;
             FieldClass = FlowField;
@@ -815,11 +816,32 @@ table 5080 "To-do"
     end;
 
     trigger OnInsert()
+#if not CLEAN24
+    var
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if "No." = '' then begin
             RMSetup.Get();
             RMSetup.TestField("To-do Nos.");
-            NoSeriesMgt.InitSeries(RMSetup."To-do Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RMSetup."To-do Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+                if NoSeries.AreRelated(RMSetup."To-do Nos.", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series"
+                else
+                    "No. Series" := RMSetup."To-do Nos.";
+                "No." := NoSeries.GetNextNo("No. Series");
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", RMSetup."To-do Nos.", 0D, "No.");
+            end;
+#else
+			if NoSeries.AreRelated(RMSetup."To-do Nos.", xRec."No. Series") then
+				"No. Series" := xRec."No. Series"
+			else
+				"No. Series" := RMSetup."To-do Nos.";
+            "No." := NoSeries.GetNextNo("No. Series");
+#endif
         end;
         if (("System To-do Type" = "System To-do Type"::Organizer) and
             ("Team Code" = '')) or
@@ -854,7 +876,7 @@ table 5080 "To-do"
         Opp: Record Opportunity;
         SegHeader: Record "Segment Header";
         TempAttendee: Record Attendee temporary;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         Text004: Label 'Do you want to register an Interaction Log Entry?';
         Text005: Label 'Information that you have entered in this field will cause the duration to be negative which is not allowed. Please modify the ending date/time value.';
         Text006: Label 'The valid range of dates is from %1 to %2. Please enter a date within this range.';
@@ -983,36 +1005,34 @@ table 5080 "To-do"
             Error(Text000, FieldCaption("Calc. Due Date From"));
 
         Task2 := Rec;
-        with Task2 do begin
-            Status := Status::"Not Started";
-            Closed := false;
-            Canceled := false;
-            "Date Closed" := 0D;
-            "Completed By" := '';
-            case "Calc. Due Date From" of
-                "Calc. Due Date From"::"Due Date":
-                    Date := CalcDate("Recurring Date Interval", Date);
-                "Calc. Due Date From"::"Closing Date":
-                    Date := CalcDate("Recurring Date Interval", Today);
-            end;
-            GetEndDateTime();
+        Task2.Status := Task2.Status::"Not Started";
+        Task2.Closed := false;
+        Task2.Canceled := false;
+        Task2."Date Closed" := 0D;
+        Task2."Completed By" := '';
+        case Task2."Calc. Due Date From" of
+            Task2."Calc. Due Date From"::"Due Date":
+                Task2.Date := CalcDate(Task2."Recurring Date Interval", Task2.Date);
+            Task2."Calc. Due Date From"::"Closing Date":
+                Task2.Date := CalcDate(Task2."Recurring Date Interval", Today);
+        end;
+        Task2.GetEndDateTime();
 
-            RMCommentLine3.Reset();
-            RMCommentLine3.SetRange("Table Name", RMCommentLine."Table Name"::"To-do");
-            RMCommentLine3.SetRange("No.", "No.");
-            RMCommentLine3.SetRange("Sub No.", 0);
+        RMCommentLine3.Reset();
+        RMCommentLine3.SetRange("Table Name", RMCommentLine."Table Name"::"To-do");
+        RMCommentLine3.SetRange("No.", Task2."No.");
+        RMCommentLine3.SetRange("Sub No.", 0);
 
-            TaskInteractLanguage.SetRange("To-do No.", "No.");
+        TaskInteractLanguage.SetRange("To-do No.", Task2."No.");
 
-            if Type = Type::Meeting then begin
-                Attendee.SetRange("To-do No.", "No.");
-                Get(InsertTaskAndRelatedData(
-                    Task2, TaskInteractLanguage, Attachment, Attendee, RMCommentLine3));
-            end else begin
-                CreateAttendeesFromTask(TempAttendee, Task2, '');
-                Get(InsertTaskAndRelatedData(
-                    Task2, TaskInteractLanguage, Attachment, TempAttendee, RMCommentLine3));
-            end;
+        if Task2.Type = Task2.Type::Meeting then begin
+            Attendee.SetRange("To-do No.", Task2."No.");
+            Task2.Get(InsertTaskAndRelatedData(
+                Task2, TaskInteractLanguage, Attachment, Attendee, RMCommentLine3));
+        end else begin
+            CreateAttendeesFromTask(TempAttendee, Task2, '');
+            Task2.Get(InsertTaskAndRelatedData(
+                Task2, TaskInteractLanguage, Attachment, TempAttendee, RMCommentLine3));
         end;
 
         Message(

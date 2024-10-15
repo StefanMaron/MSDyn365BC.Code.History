@@ -31,7 +31,7 @@ codeunit 141002 "VAT Reporting - Tests"
 
         Initialized := true;
         LibrarySales.SetStockoutWarning(false);
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
 
         PurchasesSetup.Get();
         PurchasesSetup.Validate("Ext. Doc. No. Mandatory", false);
@@ -376,58 +376,52 @@ codeunit 141002 "VAT Reporting - Tests"
 
     local procedure VerifyShowVATSpecDataset(AlwaysShowVATSum: Boolean; var VATAmtLine: Record "VAT Amount Line"; VATId: Text)
     begin
-        with LibraryReportDataset do begin
-            LoadDataSetFile;
-            Reset();
-            VATAmtLine.FindFirst();
-            repeat
-                SetRange(VATId, VATAmtLine."VAT Identifier");
-                Assert.AreEqual(AlwaysShowVATSum, GetNextRow, '');
-            until VATAmtLine.Next() = 0;
-        end;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.Reset();
+        VATAmtLine.FindFirst();
+        repeat
+            LibraryReportDataset.SetRange(VATId, VATAmtLine."VAT Identifier");
+            Assert.AreEqual(AlwaysShowVATSum, LibraryReportDataset.GetNextRow(), '');
+        until VATAmtLine.Next() = 0;
     end;
 
     local procedure VerifyVATReconciliation(var VATAmtLine: Record "VAT Amount Line"; IsSale: Boolean)
     begin
-        with LibraryReportDataset do begin
-            LoadDataSetFile;
-            VATAmtLine.FindFirst();
-            repeat
-                Reset();
-                SetRange('VATProdPostingGrp_VATPostingSetup', VATAmtLine."VAT Identifier");
-                Assert.IsTrue(GetNextRow, '');
-                if IsSale then begin
-                    AssertCurrentRowValueEquals('VatReceivable', -VATAmtLine."VAT Amount");
-                    AssertCurrentRowValueEquals('TurnoverReceivable', -VATAmtLine."VAT Base");
-                end else begin
-                    AssertCurrentRowValueEquals('VATPayable', VATAmtLine."VAT Amount");
-                    AssertCurrentRowValueEquals('TurnoverPayable', VATAmtLine."VAT Base");
-                end;
-            until VATAmtLine.Next() = 0;
-        end;
+        LibraryReportDataset.LoadDataSetFile();
+        VATAmtLine.FindFirst();
+        repeat
+            LibraryReportDataset.Reset();
+            LibraryReportDataset.SetRange('VATProdPostingGrp_VATPostingSetup', VATAmtLine."VAT Identifier");
+            Assert.IsTrue(LibraryReportDataset.GetNextRow(), '');
+            if IsSale then begin
+                LibraryReportDataset.AssertCurrentRowValueEquals('VatReceivable', -VATAmtLine."VAT Amount");
+                LibraryReportDataset.AssertCurrentRowValueEquals('TurnoverReceivable', -VATAmtLine."VAT Base");
+            end else begin
+                LibraryReportDataset.AssertCurrentRowValueEquals('VATPayable', VATAmtLine."VAT Amount");
+                LibraryReportDataset.AssertCurrentRowValueEquals('TurnoverPayable', VATAmtLine."VAT Base");
+            end;
+        until VATAmtLine.Next() = 0;
     end;
 
     local procedure VerifyVATBalancingReport(var VATAmtLine: Record "VAT Amount Line"; IsSale: Boolean)
     begin
-        with LibraryReportDataset do begin
-            LoadDataSetFile;
-            VATAmtLine.FindFirst();
-            repeat
-                Reset();
-                SetRange('VATProdPostingGroup_VATPostingSetup', VATAmtLine."VAT Identifier");
-                Assert.IsTrue(GetNextRow, '');
-                if IsSale then begin
-                    AssertCurrentRowValueEquals('VatReceivable', -VATAmtLine."VAT Amount");
-                    AssertCurrentRowValueEquals('TurnoverOut', -VATAmtLine."VAT Base");
-                end else begin
-                    AssertCurrentRowValueEquals('VatPayableVariance', VATAmtLine."VAT Amount");
-                    AssertCurrentRowValueEquals('TurnoverIn', VATAmtLine."VAT Base");
-                end;
-            until VATAmtLine.Next() = 0;
-        end;
+        LibraryReportDataset.LoadDataSetFile();
+        VATAmtLine.FindFirst();
+        repeat
+            LibraryReportDataset.Reset();
+            LibraryReportDataset.SetRange('VATProdPostingGroup_VATPostingSetup', VATAmtLine."VAT Identifier");
+            Assert.IsTrue(LibraryReportDataset.GetNextRow(), '');
+            if IsSale then begin
+                LibraryReportDataset.AssertCurrentRowValueEquals('VatReceivable', -VATAmtLine."VAT Amount");
+                LibraryReportDataset.AssertCurrentRowValueEquals('TurnoverOut', -VATAmtLine."VAT Base");
+            end else begin
+                LibraryReportDataset.AssertCurrentRowValueEquals('VatPayableVariance', VATAmtLine."VAT Amount");
+                LibraryReportDataset.AssertCurrentRowValueEquals('TurnoverIn', VATAmtLine."VAT Base");
+            end;
+        until VATAmtLine.Next() = 0;
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Option)
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         Cust: Record Customer;
@@ -459,7 +453,7 @@ codeunit 141002 "VAT Reporting - Tests"
         SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesDocWithMultipleVAT(var SalesHeader: Record "Sales Header"; DocType: Option)
+    local procedure CreateSalesDocWithMultipleVAT(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         Cust: Record Customer;
@@ -503,7 +497,7 @@ codeunit 141002 "VAT Reporting - Tests"
         SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreatePurchDoc(var PurchHeader: Record "Purchase Header"; DocType: Option)
+    local procedure CreatePurchDoc(var PurchHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type")
     var
         PurchLine: Record "Purchase Line";
         Vend: Record Vendor;
@@ -535,7 +529,7 @@ codeunit 141002 "VAT Reporting - Tests"
         PurchCrMemoHdr.Get(LibraryPurch.PostPurchaseDocument(PurchHeader, true, true));
     end;
 
-    local procedure CreatePurchDocWithMultipleVAT(var PurchHeader: Record "Purchase Header"; DocType: Option)
+    local procedure CreatePurchDocWithMultipleVAT(var PurchHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type")
     var
         PurchLine: Record "Purchase Line";
         Vend: Record Vendor;
@@ -607,19 +601,17 @@ codeunit 141002 "VAT Reporting - Tests"
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
         if SalesInvoiceLine.FindSet() then
             repeat
-                with VATAmtLine do begin
-                    Init();
-                    "VAT Identifier" := SalesInvoiceLine."VAT Identifier";
-                    "VAT Calculation Type" := SalesInvoiceLine."VAT Calculation Type";
-                    "Tax Group Code" := SalesInvoiceLine."Tax Group Code";
+                VATAmtLine.Init();
+                VATAmtLine."VAT Identifier" := SalesInvoiceLine."VAT Identifier";
+                VATAmtLine."VAT Calculation Type" := SalesInvoiceLine."VAT Calculation Type";
+                VATAmtLine."Tax Group Code" := SalesInvoiceLine."Tax Group Code";
 
-                    "VAT %" := SalesInvoiceLine."VAT %";
-                    "VAT Base" := SalesInvoiceLine.Amount;
-                    "Amount Including VAT" := SalesInvoiceLine."Amount Including VAT";
-                    "Line Amount" := SalesInvoiceLine."Line Amount";
+                VATAmtLine."VAT %" := SalesInvoiceLine."VAT %";
+                VATAmtLine."VAT Base" := SalesInvoiceLine.Amount;
+                VATAmtLine."Amount Including VAT" := SalesInvoiceLine."Amount Including VAT";
+                VATAmtLine."Line Amount" := SalesInvoiceLine."Line Amount";
 
-                    InsertLine;
-                end;
+                VATAmtLine.InsertLine();
             until SalesInvoiceLine.Next() = 0;
     end;
 
@@ -630,20 +622,18 @@ codeunit 141002 "VAT Reporting - Tests"
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
         if SalesCrMemoLine.FindSet() then
             repeat
-                with VATAmtLine do begin
-                    Init();
-                    "VAT Identifier" := SalesCrMemoLine."VAT Identifier";
-                    "VAT Calculation Type" := SalesCrMemoLine."VAT Calculation Type";
-                    "Tax Group Code" := SalesCrMemoLine."Tax Group Code";
-                    "Line Amount" := SalesCrMemoLine."Line Amount";
+                VATAmtLine.Init();
+                VATAmtLine."VAT Identifier" := SalesCrMemoLine."VAT Identifier";
+                VATAmtLine."VAT Calculation Type" := SalesCrMemoLine."VAT Calculation Type";
+                VATAmtLine."Tax Group Code" := SalesCrMemoLine."Tax Group Code";
+                VATAmtLine."Line Amount" := SalesCrMemoLine."Line Amount";
 
-                    "VAT %" := SalesCrMemoLine."VAT %";
-                    "VAT Base" := SalesCrMemoLine.Amount;
-                    "Amount Including VAT" := SalesCrMemoLine."Amount Including VAT";
-                    "Line Amount" := SalesCrMemoLine."Line Amount";
+                VATAmtLine."VAT %" := SalesCrMemoLine."VAT %";
+                VATAmtLine."VAT Base" := SalesCrMemoLine.Amount;
+                VATAmtLine."Amount Including VAT" := SalesCrMemoLine."Amount Including VAT";
+                VATAmtLine."Line Amount" := SalesCrMemoLine."Line Amount";
 
-                    InsertLine;
-                end;
+                VATAmtLine.InsertLine();
             until SalesCrMemoLine.Next() = 0;
     end;
 
@@ -655,19 +645,17 @@ codeunit 141002 "VAT Reporting - Tests"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         if SalesLine.FindSet() then
             repeat
-                with VATAmtLine do begin
-                    Init();
-                    "VAT Identifier" := SalesLine."VAT Identifier";
-                    "VAT Calculation Type" := SalesLine."VAT Calculation Type";
-                    "Tax Group Code" := SalesLine."Tax Group Code";
+                VATAmtLine.Init();
+                VATAmtLine."VAT Identifier" := SalesLine."VAT Identifier";
+                VATAmtLine."VAT Calculation Type" := SalesLine."VAT Calculation Type";
+                VATAmtLine."Tax Group Code" := SalesLine."Tax Group Code";
 
-                    "VAT %" := SalesLine."VAT %";
-                    "VAT Base" := SalesLine.Amount;
-                    "Amount Including VAT" := SalesLine."Amount Including VAT";
-                    "Line Amount" := SalesLine."Line Amount";
+                VATAmtLine."VAT %" := SalesLine."VAT %";
+                VATAmtLine."VAT Base" := SalesLine.Amount;
+                VATAmtLine."Amount Including VAT" := SalesLine."Amount Including VAT";
+                VATAmtLine."Line Amount" := SalesLine."Line Amount";
 
-                    InsertLine;
-                end;
+                VATAmtLine.InsertLine();
             until SalesLine.Next() = 0;
     end;
 
@@ -678,20 +666,18 @@ codeunit 141002 "VAT Reporting - Tests"
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         if PurchInvLine.FindSet() then
             repeat
-                with VATAmtLine do begin
-                    Init();
-                    "VAT Identifier" := PurchInvLine."VAT Identifier";
-                    "VAT Calculation Type" := PurchInvLine."VAT Calculation Type";
-                    "Tax Group Code" := PurchInvLine."Tax Group Code";
-                    "Line Amount" := PurchInvLine."Line Amount";
+                VATAmtLine.Init();
+                VATAmtLine."VAT Identifier" := PurchInvLine."VAT Identifier";
+                VATAmtLine."VAT Calculation Type" := PurchInvLine."VAT Calculation Type";
+                VATAmtLine."Tax Group Code" := PurchInvLine."Tax Group Code";
+                VATAmtLine."Line Amount" := PurchInvLine."Line Amount";
 
-                    "VAT %" := PurchInvLine."VAT %";
-                    "VAT Base" := PurchInvLine.Amount;
-                    "Amount Including VAT" := PurchInvLine."Amount Including VAT";
-                    "Line Amount" := PurchInvLine."Line Amount";
+                VATAmtLine."VAT %" := PurchInvLine."VAT %";
+                VATAmtLine."VAT Base" := PurchInvLine.Amount;
+                VATAmtLine."Amount Including VAT" := PurchInvLine."Amount Including VAT";
+                VATAmtLine."Line Amount" := PurchInvLine."Line Amount";
 
-                    InsertLine;
-                end;
+                VATAmtLine.InsertLine();
             until PurchInvLine.Next() = 0;
     end;
 
@@ -702,19 +688,17 @@ codeunit 141002 "VAT Reporting - Tests"
         PurchCrMemoLine.SetRange("Document No.", PurchCrMemoHdr."No.");
         if PurchCrMemoLine.FindSet() then
             repeat
-                with VATAmtLine do begin
-                    Init();
-                    "VAT Identifier" := PurchCrMemoLine."VAT Identifier";
-                    "VAT Calculation Type" := PurchCrMemoLine."VAT Calculation Type";
-                    "Tax Group Code" := PurchCrMemoLine."Tax Group Code";
+                VATAmtLine.Init();
+                VATAmtLine."VAT Identifier" := PurchCrMemoLine."VAT Identifier";
+                VATAmtLine."VAT Calculation Type" := PurchCrMemoLine."VAT Calculation Type";
+                VATAmtLine."Tax Group Code" := PurchCrMemoLine."Tax Group Code";
 
-                    "VAT %" := PurchCrMemoLine."VAT %";
-                    "VAT Base" := PurchCrMemoLine.Amount;
-                    "Amount Including VAT" := PurchCrMemoLine."Amount Including VAT";
-                    "Line Amount" := PurchCrMemoLine."Line Amount";
+                VATAmtLine."VAT %" := PurchCrMemoLine."VAT %";
+                VATAmtLine."VAT Base" := PurchCrMemoLine.Amount;
+                VATAmtLine."Amount Including VAT" := PurchCrMemoLine."Amount Including VAT";
+                VATAmtLine."Line Amount" := PurchCrMemoLine."Line Amount";
 
-                    InsertLine;
-                end;
+                VATAmtLine.InsertLine();
             until PurchCrMemoLine.Next() = 0;
     end;
 
@@ -726,19 +710,17 @@ codeunit 141002 "VAT Reporting - Tests"
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         if PurchLine.FindSet() then
             repeat
-                with VATAmtLine do begin
-                    Init();
-                    "VAT Identifier" := PurchLine."VAT Identifier";
-                    "VAT Calculation Type" := PurchLine."VAT Calculation Type";
-                    "Tax Group Code" := PurchLine."Tax Group Code";
+                VATAmtLine.Init();
+                VATAmtLine."VAT Identifier" := PurchLine."VAT Identifier";
+                VATAmtLine."VAT Calculation Type" := PurchLine."VAT Calculation Type";
+                VATAmtLine."Tax Group Code" := PurchLine."Tax Group Code";
 
-                    "VAT %" := PurchLine."VAT %";
-                    "VAT Base" := PurchLine.Amount;
-                    "Amount Including VAT" := PurchLine."Amount Including VAT";
-                    "Line Amount" := PurchLine."Line Amount";
+                VATAmtLine."VAT %" := PurchLine."VAT %";
+                VATAmtLine."VAT Base" := PurchLine.Amount;
+                VATAmtLine."Amount Including VAT" := PurchLine."Amount Including VAT";
+                VATAmtLine."Line Amount" := PurchLine."Line Amount";
 
-                    InsertLine;
-                end;
+                VATAmtLine.InsertLine();
             until PurchLine.Next() = 0;
     end;
 
@@ -750,7 +732,7 @@ codeunit 141002 "VAT Reporting - Tests"
     begin
         LibraryVariableStorage.Dequeue(AlwaysShowVATSum);
         BlanketSalesOrder.AlwShowVATSum.SetValue := AlwaysShowVATSum;
-        BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -761,7 +743,7 @@ codeunit 141002 "VAT Reporting - Tests"
     begin
         LibraryVariableStorage.Dequeue(AlwaysShowVATSum);
         Order.AlwShowVATSum.SetValue := AlwaysShowVATSum;
-        Order.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Order.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -772,7 +754,7 @@ codeunit 141002 "VAT Reporting - Tests"
     begin
         LibraryVariableStorage.Dequeue(AlwaysShowVATSum);
         PurchInvoice.AlwShowVATSum.SetValue := AlwaysShowVATSum;
-        PurchInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -783,7 +765,7 @@ codeunit 141002 "VAT Reporting - Tests"
     begin
         LibraryVariableStorage.Dequeue(AlwaysShowVATSum);
         PurchCrMemo.AlwShowVATSum.SetValue := AlwaysShowVATSum;
-        PurchCrMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchCrMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -793,9 +775,9 @@ codeunit 141002 "VAT Reporting - Tests"
         VATPeriod: Option Custom,"January-February","March-April","May-June","July-August","September-October","November-December";
     begin
         VATReconciliationA.Year.SetValue := Date2DMY(WorkDate(), 3);
-        VATPeriod := GetVATReportPeriod;
+        VATPeriod := GetVATReportPeriod();
         VATReconciliationA.Period.SetValue := Format(VATPeriod);
-        VATReconciliationA.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATReconciliationA.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -805,9 +787,9 @@ codeunit 141002 "VAT Reporting - Tests"
         VATPeriod: Option Custom,"January-February","March-April","May-June","July-August","September-October","November-December";
     begin
         VATBalancingReport.Year.SetValue := Date2DMY(WorkDate(), 3);
-        VATPeriod := GetVATReportPeriod;
+        VATPeriod := GetVATReportPeriod();
         VATBalancingReport.Period.SetValue := Format(VATPeriod);
-        VATBalancingReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATBalancingReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

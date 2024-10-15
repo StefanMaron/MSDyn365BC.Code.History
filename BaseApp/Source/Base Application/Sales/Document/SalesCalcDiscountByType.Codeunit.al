@@ -68,35 +68,33 @@ codeunit 56 "Sales - Calc Discount By Type"
         InvDiscBaseAmount: Decimal;
     begin
         OnBeforeApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
-        with SalesHeader do begin
 
-            SalesSetup.Get();
-            DiscountNotificationMgt.NotifyAboutMissingSetup(
-                SalesSetup.RecordId, "Gen. Bus. Posting Group",
-                SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Line Discounts");
+        SalesSetup.Get();
+        DiscountNotificationMgt.NotifyAboutMissingSetup(
+            SalesSetup.RecordId, SalesHeader."Gen. Bus. Posting Group",
+            SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Line Discounts");
 
-            SalesLine.SetRange("Document No.", "No.");
-            SalesLine.SetRange("Document Type", "Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
 
-            SalesLine.CalcVATAmountLines(0, SalesHeader, SalesLine, TempVATAmountLine);
+        SalesLine.CalcVATAmountLines(0, SalesHeader, SalesLine, TempVATAmountLine);
 
-            InvDiscBaseAmount := TempVATAmountLine.GetTotalInvDiscBaseAmount(false, "Currency Code");
+        InvDiscBaseAmount := TempVATAmountLine.GetTotalInvDiscBaseAmount(false, SalesHeader."Currency Code");
 
-            if (InvDiscBaseAmount = 0) and (InvoiceDiscountAmount > 0) then
-                Error(InvDiscBaseAmountIsZeroErr);
+        if (InvDiscBaseAmount = 0) and (InvoiceDiscountAmount > 0) then
+            Error(InvDiscBaseAmountIsZeroErr);
 
-            TempVATAmountLine.SetInvoiceDiscountAmount(InvoiceDiscountAmount, "Currency Code",
-              "Prices Including VAT", "VAT Base Discount %");
+        TempVATAmountLine.SetInvoiceDiscountAmount(InvoiceDiscountAmount, SalesHeader."Currency Code",
+          SalesHeader."Prices Including VAT", SalesHeader."VAT Base Discount %");
 
-            SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, TempVATAmountLine);
+        SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, TempVATAmountLine);
 
-            "Invoice Discount Calculation" := "Invoice Discount Calculation"::Amount;
-            "Invoice Discount Value" := InvoiceDiscountAmount;
+        SalesHeader."Invoice Discount Calculation" := SalesHeader."Invoice Discount Calculation"::Amount;
+        SalesHeader."Invoice Discount Value" := InvoiceDiscountAmount;
 
-            ResetRecalculateInvoiceDisc(SalesHeader);
+        ResetRecalculateInvoiceDisc(SalesHeader);
 
-            Modify();
-        end;
+        SalesHeader.Modify();
     end;
 
     local procedure ApplyInvDiscBasedOnPct(var SalesHeader: Record "Sales Header")
@@ -104,16 +102,14 @@ codeunit 56 "Sales - Calc Discount By Type"
         SalesLine: Record "Sales Line";
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
     begin
-        with SalesHeader do begin
-            SalesLine.SetRange("Document No.", "No.");
-            SalesLine.SetRange("Document Type", "Document Type");
-            if SalesLine.FindFirst() then begin
-                if CalcInvoiceDiscountOnSalesLine then
-                    SalesCalcDiscount.CalculateInvoiceDiscountOnLine(SalesLine)
-                else
-                    CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
-                Get("Document Type", "No.");
-            end;
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        if SalesLine.FindFirst() then begin
+            if CalcInvoiceDiscountOnSalesLine then
+                SalesCalcDiscount.CalculateInvoiceDiscountOnLine(SalesLine)
+            else
+                CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
+            SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         end;
     end;
 
@@ -124,39 +120,37 @@ codeunit 56 "Sales - Calc Discount By Type"
         AmountIncludingVATDiscountAllowed: Decimal;
         AmountDiscountAllowed: Decimal;
     begin
-        with SalesHeader do begin
-            if not Get(SalesLine."Document Type", SalesLine."Document No.") then
-                exit(0);
+        if not SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
+            exit(0);
 
-            CalcFields("Invoice Discount Amount");
-            if "Invoice Discount Amount" = 0 then
-                exit(0);
+        SalesHeader.CalcFields("Invoice Discount Amount");
+        if SalesHeader."Invoice Discount Amount" = 0 then
+            exit(0);
 
-            case "Invoice Discount Calculation" of
-                "Invoice Discount Calculation"::"%":
-                    begin
-                        // Only if CustInvDisc table is empty header is not updated
-                        if not CustInvDiscRecExists("Invoice Disc. Code") then
-                            exit(0);
+        case SalesHeader."Invoice Discount Calculation" of
+            SalesHeader."Invoice Discount Calculation"::"%":
+                begin
+                    // Only if CustInvDisc table is empty header is not updated
+                    if not CustInvDiscRecExists(SalesHeader."Invoice Disc. Code") then
+                        exit(0);
 
-                        exit("Invoice Discount Value");
-                    end;
-                "Invoice Discount Calculation"::None,
-                "Invoice Discount Calculation"::Amount:
-                    begin
-                        InvoiceDiscountValue := "Invoice Discount Amount";
+                    exit(SalesHeader."Invoice Discount Value");
+                end;
+            SalesHeader."Invoice Discount Calculation"::None,
+            SalesHeader."Invoice Discount Calculation"::Amount:
+                begin
+                    InvoiceDiscountValue := SalesHeader."Invoice Discount Amount";
 
-                        CalcAmountWithDiscountAllowed(SalesHeader, AmountIncludingVATDiscountAllowed, AmountDiscountAllowed);
+                    CalcAmountWithDiscountAllowed(SalesHeader, AmountIncludingVATDiscountAllowed, AmountDiscountAllowed);
 
-                        if AmountDiscountAllowed + InvoiceDiscountValue = 0 then
-                            exit(0);
+                    if AmountDiscountAllowed + InvoiceDiscountValue = 0 then
+                        exit(0);
 
-                        if "Prices Including VAT" then
-                            exit(Round(InvoiceDiscountValue / (AmountIncludingVATDiscountAllowed + InvoiceDiscountValue) * 100, 0.01));
+                    if SalesHeader."Prices Including VAT" then
+                        exit(Round(InvoiceDiscountValue / (AmountIncludingVATDiscountAllowed + InvoiceDiscountValue) * 100, 0.01));
 
-                        exit(Round(InvoiceDiscountValue / AmountDiscountAllowed * 100, 0.01));
-                    end;
-            end;
+                    exit(Round(InvoiceDiscountValue / AmountDiscountAllowed * 100, 0.01));
+                end;
         end;
 
         exit(0);
@@ -228,14 +222,12 @@ codeunit 56 "Sales - Calc Discount By Type"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange("Allow Invoice Disc.", true);
-            CalcSums(Amount, "Amount Including VAT", "Inv. Discount Amount");
-            AmountIncludingVATDiscountAllowed := "Amount Including VAT";
-            AmountDiscountAllowed := Amount + "Inv. Discount Amount";
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Allow Invoice Disc.", true);
+        SalesLine.CalcSums(Amount, "Amount Including VAT", "Inv. Discount Amount");
+        AmountIncludingVATDiscountAllowed := SalesLine."Amount Including VAT";
+        AmountDiscountAllowed := SalesLine.Amount + SalesLine."Inv. Discount Amount";
     end;
 
     [IntegrationEvent(false, false)]

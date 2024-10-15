@@ -7,6 +7,7 @@ namespace Microsoft.Projects.TimeSheet;
 table 957 "Time Sheet Cmt. Line Archive"
 {
     Caption = 'Time Sheet Cmt. Line Archive';
+    DataClassification = CustomerContent;
 
     fields
     {

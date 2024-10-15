@@ -24,12 +24,12 @@ codeunit 139315 "CF Forecast Wizard Tests"
         IsInitialized: Boolean;
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"CF Forecast Wizard Tests");
-        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
+        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider();
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
-        DeleteCashFlowSetup;
-        CashFlowManagement.DeleteJobQueueEntries;
+        DeleteCashFlowSetup();
+        CashFlowManagement.DeleteJobQueueEntries();
 
         if IsInitialized then
             exit;
@@ -98,7 +98,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         Initialize();
 
         // [WHEN] The Cash Flow Forecast Wizard is exited right away
-        CashFlowForecastWizard.Trap;
+        CashFlowForecastWizard.Trap();
         PAGE.Run(PAGE::"Cash Flow Forecast Wizard");
         CashFlowForecastWizard.Close();
 
@@ -118,7 +118,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
 
         // [WHEN] The Cash Flow Forecast Wizard is completed
         RunWizardToCompletion(CashFlowForecastWizard, UpdateFrequency::Never);
-        CashFlowForecastWizard.ActionFinish.Invoke;
+        CashFlowForecastWizard.ActionFinish.Invoke();
 
         // [THEN] Status of the setup is set to Completed
         Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Cash Flow Forecast Wizard"), 'Set Up Cash Flow Forecast status should be completed.');
@@ -137,7 +137,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         Initialize();
 
         // [WHEN] The data migration wizard is closed but closing is not confirmed
-        CashFlowForecastWizard.Trap;
+        CashFlowForecastWizard.Trap();
         PAGE.Run(PAGE::"Cash Flow Forecast Wizard");
         CashFlowForecastWizard.Close();
 
@@ -157,13 +157,13 @@ codeunit 139315 "CF Forecast Wizard Tests"
         Initialize();
 
         // [WHEN] The setup page is shown
-        CashFlowForecastWizard.Trap;
+        CashFlowForecastWizard.Trap();
         PAGE.Run(PAGE::"Cash Flow Forecast Wizard");
-        CashFlowForecastWizard.ActionNext.Invoke; // Setup page
+        CashFlowForecastWizard.ActionNext.Invoke(); // Setup page
 
         // [THEN] The LiquidFundsGLAccountFilter has the correct value
         Assert.AreEqual(CashFlowForecastWizard.LiquidFundsGLAccountFilter.Value,
-          GetLiquidFundsGLAccountFilter, 'The liquid funds filter has a wrong value.');
+          GetLiquidFundsGLAccountFilter(), 'The liquid funds filter has a wrong value.');
     end;
 
     [Test]
@@ -186,11 +186,11 @@ codeunit 139315 "CF Forecast Wizard Tests"
         Assert.RecordIsEmpty(CashFlowChartSetup);
 
         // [GIVEN] Mock customer ledger entry
-        LibraryCashFlow.MockCashFlowCustOverdueData;
+        LibraryCashFlow.MockCashFlowCustOverdueData();
 
         // [WHEN] The Cash Flow Forecast Wizard is completed
         RunWizardToCompletion(CashFlowForecastWizard, UpdateFrequency::Never);
-        CashFlowForecastWizard.ActionFinish.Invoke;
+        CashFlowForecastWizard.ActionFinish.Invoke();
 
         // [THEN] Cash Flow Forecast is set up and data is available for the chart to be consumed
         Assert.RecordIsNotEmpty(CashFlowForecast);
@@ -211,20 +211,20 @@ codeunit 139315 "CF Forecast Wizard Tests"
 
     local procedure RunWizardToCompletion(var CashFlowForecastWizard: TestPage "Cash Flow Forecast Wizard"; Frequency: Option)
     begin
-        CashFlowForecastWizard.Trap;
+        CashFlowForecastWizard.Trap();
         PAGE.Run(PAGE::"Cash Flow Forecast Wizard");
 
         with CashFlowForecastWizard do begin
-            ActionNext.Invoke; // Setup page
-            ActionBack.Invoke; // Welcome page
-            Assert.IsFalse(ActionBack.Enabled, 'Back should not be enabled at the end of the wizard');
-            ActionNext.Invoke; // Setup page
+            ActionNext.Invoke(); // Setup page
+            ActionBack.Invoke(); // Welcome page
+            Assert.IsFalse(ActionBack.Enabled(), 'Back should not be enabled at the end of the wizard');
+            ActionNext.Invoke(); // Setup page
             UpdateFrequency.SetValue(Frequency);
-            ActionNext.Invoke; // Azure AI Page
-            ActionNext.Invoke; // Tax page
-            ActionNext.Invoke; // That's it page
-            Assert.IsTrue(ActionBack.Enabled, 'Back should be enabled at the end of the wizard');
-            Assert.IsFalse(ActionNext.Enabled, 'Next should not be enabled at the end of the wizard');
+            ActionNext.Invoke(); // Azure AI Page
+            ActionNext.Invoke(); // Tax page
+            ActionNext.Invoke(); // That's it page
+            Assert.IsTrue(ActionBack.Enabled(), 'Back should be enabled at the end of the wizard');
+            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
         end;
     end;
 

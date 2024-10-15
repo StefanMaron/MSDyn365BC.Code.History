@@ -68,7 +68,7 @@ codeunit 133770 "ERM Remittance Report UT"
         SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, CreateVendor, -InvoiceAmount);
+          GenJournalLine."Account Type"::Vendor, CreateVendor(), -InvoiceAmount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
     end;

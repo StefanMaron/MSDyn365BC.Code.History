@@ -5,10 +5,6 @@ using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
-#if not CLEAN21
-using Microsoft.Sales.Document;
-using Microsoft.Sales.History;
-#endif
 using System;
 using System.IO;
 using System.Threading;
@@ -21,13 +17,7 @@ codeunit 260 "Document-Mailing"
     trigger OnRun()
     var
         ReportSelections: Record "Report Selections";
-#if not CLEAN21
-        O365DocumentSentHistory: Record "O365 Document Sent History";
-#endif
     begin
-#if not CLEAN21
-        O365DocumentSentHistory.NewInProgressFromJobQueue(Rec);
-#endif
         ReportSelections.SendEmailInBackground(Rec);
     end;
 
@@ -38,9 +28,6 @@ codeunit 260 "Document-Mailing"
         PdfFileNamePluralPurchaseTxt: Label '%1 (Purchase).pdf', Comment = '%1 = Document Type in plural form';
         PdfFileNamePluralSalesTxt: Label '%1 (Sales).pdf', Comment = '%1 = Document Type in plural form';
         PdfFileNamePluralTxt: Label '%1.pdf', Comment = '%1 = Document Type in plural form';
-#if not CLEAN21 
-        TestInvoiceEmailSubjectTxt: Label 'Test invoice from %1', Comment = '%1 = name of the company';
-#endif
         CustomerLbl: Label '<Customer>';
 
     internal procedure EnqueueEmailFile(AttachmentInStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
@@ -474,78 +461,7 @@ codeunit 260 "Document-Mailing"
             Subject := CopyStr(
                 StrSubstNo(EmailSubjectCapTxt, CompanyInformation.Name, EmailDocumentName, PostedDocNo), 1, MaxStrLen(Subject))
     end;
-#if not CLEAN21 
-    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
-    procedure GetTestInvoiceEmailBody(CustomerNo: Code[20]): Text
-    var
-        O365DefaultEmailMessage: Record "O365 Default Email Message";
-        Customer: Record Customer;
-        String: DotNet String;
-    begin
-        if Customer.Get(CustomerNo) then;
-        String := O365DefaultEmailMessage.GetTestInvoiceMessage();
-        exit(String.Replace(CustomerLbl, Customer.Name));
-    end;
 
-    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
-    procedure GetTestInvoiceEmailSubject(): Text[250]
-    var
-        CompanyInformation: Record "Company Information";
-    begin
-        if CompanyInformation.Get() then;
-        exit(StrSubstNo(TestInvoiceEmailSubjectTxt, CompanyInformation.Name));
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
-    procedure SendQuoteInForeground(SalesHeader: Record "Sales Header"): Boolean
-    var
-        O365DocumentSentHistory: Record "O365 Document Sent History";
-        ReportSelections: Record "Report Selections";
-        O365SalesEmailManagement: Codeunit "O365 Sales Email Management";
-    begin
-        if not O365SalesEmailManagement.ShowEmailDialog(SalesHeader."No.") then
-            exit;
-
-        O365DocumentSentHistory.NewInProgressFromSalesHeader(SalesHeader);
-        O365DocumentSentHistory.SetStatusAsFailed(); // In case the code below throws an error, we want to default to failed.
-
-        if ReportSelections.SendEmailInForeground(
-             SalesHeader.RecordId, SalesHeader."No.", SalesHeader.GetDocTypeTxt(), ReportSelections.Usage::"S.Quote".AsInteger(),
-             true, SalesHeader."Bill-to Customer No.")
-        then begin
-            O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
-            exit(true);
-        end;
-
-        exit(false);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
-    procedure SendPostedInvoiceInForeground(SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
-    var
-        O365DocumentSentHistory: Record "O365 Document Sent History";
-        ReportSelections: Record "Report Selections";
-        O365SalesEmailManagement: Codeunit "O365 Sales Email Management";
-    begin
-        if not O365SalesEmailManagement.ShowEmailDialog(SalesInvoiceHeader."No.") then
-            exit;
-
-        O365DocumentSentHistory.NewInProgressFromSalesInvoiceHeader(SalesInvoiceHeader);
-        O365DocumentSentHistory.SetStatusAsFailed(); // In case the code below throws an error, we want to default to failed.
-
-        if ReportSelections.SendEmailInForeground(
-             SalesInvoiceHeader.RecordId, SalesInvoiceHeader."No.", 'Invoice', ReportSelections.Usage::"S.Invoice".AsInteger(),
-             true, SalesInvoiceHeader."Bill-to Customer No.")
-        then begin
-            O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
-            exit(true);
-        end;
-
-        exit(false);
-    end;
-#endif
     // Email Item needs to be passed by var so the attachments are available
     local procedure EmailFileInternal(var TempEmailItem: Record "Email Item" temporary; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; ToEmailAddress: Text[250]; PostedDocNo: Code[20]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; IsFromPostedDoc: Boolean; SenderUserID: Code[50]; EmailScenario: Enum "Email Scenario"; Enqueue: Boolean): Boolean
     var
@@ -565,9 +481,6 @@ codeunit 260 "Document-Mailing"
             exit(EmailSentSuccesfully);
 
         TempEmailItem."Send to" := ToEmailAddress;
-#if not CLEAN21
-        TempEmailItem.AddCcBcc();
-#endif
 
         TempEmailItem.GetAttachments(Attachments, AttachmentNames);
         // If true, that means we came from "EmailFile" call and need to get data from the document
@@ -592,8 +505,10 @@ codeunit 260 "Document-Mailing"
 
         IsHandled := false;
         OnBeforeSendEmail(TempEmailItem, IsFromPostedDoc, PostedDocNo, HideDialog, ReportUsage, EmailSentSuccesfully, IsHandled, EmailDocName, SenderUserID, EmailScenario);
-        if IsHandled then
+        if IsHandled then begin
+            OnAfterEmailSent(TempEmailItem, PostedDocNo, ReportUsage, EmailSentSuccesfully);
             exit(EmailSentSuccesfully);
+        end;
 
         if OfficeMgt.AttachAvailable() and (Attachments.Count() > 0) then begin
             Attachments.Get(1, Attachment);
@@ -609,6 +524,8 @@ codeunit 260 "Document-Mailing"
             EmailSentSuccesfully := TempEmailItem.Send(HideDialog, EmailScenario, Enqueue);
             if EmailSentSuccesfully then
                 OnAfterEmailSentSuccesfully(TempEmailItem, PostedDocNo, ReportUsage);
+
+            OnAfterEmailSent(TempEmailItem, PostedDocNo, ReportUsage, EmailSentSuccesfully);
             exit(EmailSentSuccesfully);
         end;
     end;
@@ -693,6 +610,11 @@ codeunit 260 "Document-Mailing"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterEmailSentSuccesfully(var TempEmailItem: Record "Email Item" temporary; PostedDocNo: Code[20]; ReportUsage: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterEmailSent(var TempEmailItem: Record "Email Item" temporary; PostedDocNo: Code[20]; ReportUsage: Integer; EmailSentSuccesfully: Boolean)
     begin
     end;
 

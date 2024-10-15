@@ -5,6 +5,7 @@ table 294 "Reminder Text"
     Caption = 'Reminder Text';
     DrillDownPageID = "Reminder Text";
     LookupPageID = "Reminder Text";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -32,6 +33,10 @@ table 294 "Reminder Text"
         field(5; Text; Text[100])
         {
             Caption = 'Text';
+        }
+        field(55; "Email Text"; Blob)
+        {
+            Caption = 'Email Text';
         }
     }
 

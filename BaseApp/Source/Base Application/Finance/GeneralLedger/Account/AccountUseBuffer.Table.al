@@ -4,6 +4,7 @@ table 63 "Account Use Buffer"
 {
     Caption = 'Account Use Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -42,7 +43,7 @@ table 63 "Account Use Buffer"
         if RecRef.FindSet() then
             repeat
                 FieldRef := RecRef.Field(AccountFieldNo);
-                AccNo := FieldRef.Value;
+                AccNo := FieldRef.Value();
                 if AccNo <> '' then
                     if Get(AccNo) then begin
                         "No. of Use" += 1;

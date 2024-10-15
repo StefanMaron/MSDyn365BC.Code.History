@@ -399,7 +399,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
             TargetRecordRef.Modify(true);
         end;
 
-        PurchInvEntityAggregate."No." := NoFieldRef.Value;
+        PurchInvEntityAggregate."No." := NoFieldRef.Value();
         PurchInvEntityAggregate.Get(PurchInvEntityAggregate."No.", PurchInvEntityAggregate.Posted);
     end;
 
@@ -478,7 +478,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
             until PurchInvHeader.Next() = 0;
 
         PurchInvEntityAggregate.SetRange(Posted, false);
-        if PurchInvEntityAggregate.FindSet(true, false) then
+        if PurchInvEntityAggregate.FindSet(true) then
             repeat
                 if not PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchInvEntityAggregate."No.") then begin
                     PurchInvEntityAggregate.Delete(true);
@@ -487,7 +487,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
             until PurchInvEntityAggregate.Next() = 0;
 
         PurchInvEntityAggregate.SetRange(Posted, true);
-        if PurchInvEntityAggregate.FindSet(true, false) then
+        if PurchInvEntityAggregate.FindSet(true) then
             repeat
                 if not PurchInvHeader.Get(PurchInvEntityAggregate."No.") then begin
                     PurchInvEntityAggregate.Delete(true);
@@ -528,7 +528,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     procedure GetPurchaseInvoiceHeaderFromId(Id: Text; var PurchInvHeader: Record "Purch. Inv. Header"): Boolean
     begin
         PurchInvHeader.SetFilter("Draft Invoice SystemId", Id);
-        IF PurchInvHeader.FINDFIRST() THEN
+        if PurchInvHeader.FINDFIRST() then
             exit(true);
 
         PurchInvHeader.SetRange("Draft Invoice SystemId");
@@ -881,7 +881,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     begin
         PurchInvLine.SetRange("Document No.", PurchInvEntityAggregate."No.");
 
-        if PurchInvLine.FindSet(false, false) then
+        if PurchInvLine.FindSet(false) then
             repeat
                 Clear(PurchInvLineAggregate);
                 PurchInvLineAggregate.TransferFields(PurchInvLine, true);
@@ -912,7 +912,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
         PurchaseLine.SetRange("Document No.", PurchInvEntityAggregate."No.");
 
-        if PurchaseLine.FindSet(false, false) then
+        if PurchaseLine.FindSet(false) then
             repeat
                 TransferFromPurchaseLine(PurchInvLineAggregate, PurchInvEntityAggregate, PurchaseLine);
                 PurchInvLineAggregate.Insert(true);

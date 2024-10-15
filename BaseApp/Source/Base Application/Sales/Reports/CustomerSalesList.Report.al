@@ -168,23 +168,21 @@ report 119 "Customer - Sales List"
         Amt: Decimal;
         i: Integer;
     begin
-        with CustLedgEntry do begin
-            SetCurrentKey("Document Type", "Customer No.", "Posting Date");
-            SetRange("Customer No.", Customer."No.");
-            SetFilter("Posting Date", Customer.GetFilter("Date Filter"));
-            OnCalculateAmtOfSaleLCYOnAfterSetCustLedgEntryFilters(CustLedgEntry, Customer);
-            for i := 1 to 2 do begin
-                case i of
-                    1:
-                        SetRange("Document Type", "Document Type"::Invoice);
-                    2:
-                        SetRange("Document Type", "Document Type"::"Credit Memo");
-                end;
-                CalcSums("Sales (LCY)");
-                Amt := Amt + "Sales (LCY)";
+        CustLedgEntry.SetCurrentKey("Document Type", "Customer No.", "Posting Date");
+        CustLedgEntry.SetRange("Customer No.", Customer."No.");
+        CustLedgEntry.SetFilter("Posting Date", Customer.GetFilter("Date Filter"));
+        OnCalculateAmtOfSaleLCYOnAfterSetCustLedgEntryFilters(CustLedgEntry, Customer);
+        for i := 1 to 2 do begin
+            case i of
+                1:
+                    CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
+                2:
+                    CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::"Credit Memo");
             end;
-            exit(Amt);
+            CustLedgEntry.CalcSums("Sales (LCY)");
+            Amt := Amt + CustLedgEntry."Sales (LCY)";
         end;
+        exit(Amt);
     end;
 
     procedure InitializeRequest(MinimumAmtLCY: Decimal; HideAddressDetails: Boolean)

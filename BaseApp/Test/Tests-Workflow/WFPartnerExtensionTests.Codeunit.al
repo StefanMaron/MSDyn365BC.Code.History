@@ -29,14 +29,14 @@ codeunit 134319 "WF Partner Extension Tests"
         // [THEN] the new event is added to the library.
 
         // Setup
-        asserterror WorkflowEvent.Get(OnNewCustomEventCode);
+        asserterror WorkflowEvent.Get(OnNewCustomEventCode());
         BindSubscription(WFPartnerExtensionTests);
 
         // Exercise
-        Workflows.OpenView;
+        Workflows.OpenView();
 
         // Verify
-        WorkflowEvent.Get(OnNewCustomEventCode)
+        WorkflowEvent.Get(OnNewCustomEventCode());
     end;
 
     [Test]
@@ -54,14 +54,14 @@ codeunit 134319 "WF Partner Extension Tests"
         // [THEN] the new response is added to the library.
 
         // Setup
-        asserterror WorkflowResponse.Get(NewCustomResponseCode);
+        asserterror WorkflowResponse.Get(NewCustomResponseCode());
         BindSubscription(WFPartnerExtensionTests);
 
         // Exercise
-        Workflows.OpenView;
+        Workflows.OpenView();
 
         // Verify
-        WorkflowResponse.Get(NewCustomResponseCode)
+        WorkflowResponse.Get(NewCustomResponseCode());
     end;
 
     [Test]
@@ -85,11 +85,11 @@ codeunit 134319 "WF Partner Extension Tests"
         BindSubscription(WFPartnerExtensionTests);
 
         // Exercise
-        Workflows.OpenView;
+        Workflows.OpenView();
         WorkflowStepInstance.Init(); // silly, useless preCAL rule
         Integer.Init(); // silly, useless preCAL rule
         Variant := Integer;
-        WorkflowStepInstance."Function Name" := NewCustomResponseCode;
+        WorkflowStepInstance."Function Name" := NewCustomResponseCode();
         asserterror WorkflowResponseHandling.ExecuteResponse(Variant, WorkflowStepInstance, Variant);
 
         // Verify
@@ -117,10 +117,10 @@ codeunit 134319 "WF Partner Extension Tests"
         BindSubscription(WFPartnerExtensionTests);
 
         // Exercise
-        Workflows.OpenView;
+        Workflows.OpenView();
         WorkflowStepInstance.Init(); // silly, useless preCAL rule
         Integer.Init(); // silly, useless preCAL rule
-        WorkflowStepInstance."Function Name" := NewCustomResponse2Code;
+        WorkflowStepInstance."Function Name" := NewCustomResponse2Code();
         Variant := Integer;
         asserterror WorkflowResponseHandling.ExecuteResponse(Variant, WorkflowStepInstance, Variant);
 
@@ -133,7 +133,7 @@ codeunit 134319 "WF Partner Extension Tests"
     var
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
-        WorkflowEventHandling.AddEventToLibrary(OnNewCustomEventCode, DATABASE::Integer, OnNewCustomEventCode, 0, false)
+        WorkflowEventHandling.AddEventToLibrary(OnNewCustomEventCode(), DATABASE::Integer, OnNewCustomEventCode(), 0, false)
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnAddWorkflowResponsesToLibrary', '', false, false)]
@@ -141,8 +141,8 @@ codeunit 134319 "WF Partner Extension Tests"
     var
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
-        WorkflowResponseHandling.AddResponseToLibrary(NewCustomResponseCode, DATABASE::Integer, NewCustomResponseCode, 'GROUP 0');
-        WorkflowResponseHandling.AddResponseToLibrary(NewCustomResponse2Code, DATABASE::Integer, NewCustomResponse2Code, 'GROUP 0')
+        WorkflowResponseHandling.AddResponseToLibrary(NewCustomResponseCode(), DATABASE::Integer, NewCustomResponseCode(), 'GROUP 0');
+        WorkflowResponseHandling.AddResponseToLibrary(NewCustomResponse2Code(), DATABASE::Integer, NewCustomResponse2Code(), 'GROUP 0')
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnExecuteWorkflowResponse', '', false, false)]
@@ -151,12 +151,12 @@ codeunit 134319 "WF Partner Extension Tests"
         ResponseExecuted := false;
 
         case ResponseWorkflowStepInstance."Function Name" of
-            NewCustomResponseCode:
+            NewCustomResponseCode():
                 begin
                     ResponseExecuted := true;
                     NewCustomResponse(Variant);
                 end;
-            NewCustomResponse2Code:
+            NewCustomResponse2Code():
                 ;
         end;
     end;

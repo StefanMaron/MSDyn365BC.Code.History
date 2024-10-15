@@ -7,6 +7,7 @@ table 99000774 "Family Line"
     Caption = 'Family Line';
     DrillDownPageID = "Family Line List";
     LookupPageID = "Family Line List";
+    DataClassification = CustomerContent;
 
     fields
     {

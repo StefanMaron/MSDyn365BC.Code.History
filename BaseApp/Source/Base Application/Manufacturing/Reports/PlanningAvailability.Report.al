@@ -658,18 +658,16 @@ report 99001048 "Planning Availability"
     begin
         TempForecastPlanningBuffer.Init();
         TempForecastPlanningBuffer."Buffer No." := BufferCounter;
-        with ProdForecastEntry do begin
-            TempForecastPlanningBuffer.Date := "Forecast Date";
-            if "Component Forecast" then
-                TempForecastPlanningBuffer."Document Type" := TempForecastPlanningBuffer."Document Type"::"Production Forecast-Component"
-            else
-                TempForecastPlanningBuffer."Document Type" := TempForecastPlanningBuffer."Document Type"::"Production Forecast-Sales";
-            TempForecastPlanningBuffer."Document No." := "Production Forecast Name";
-            TempForecastPlanningBuffer."Item No." := "Item No.";
-            TempForecastPlanningBuffer.Description := Description;
-            TempForecastPlanningBuffer."Gross Requirement" := "Forecast Quantity";
-            TempForecastPlanningBuffer.Insert();
-        end;
+        TempForecastPlanningBuffer.Date := ProdForecastEntry."Forecast Date";
+        if ProdForecastEntry."Component Forecast" then
+            TempForecastPlanningBuffer."Document Type" := TempForecastPlanningBuffer."Document Type"::"Production Forecast-Component"
+        else
+            TempForecastPlanningBuffer."Document Type" := TempForecastPlanningBuffer."Document Type"::"Production Forecast-Sales";
+        TempForecastPlanningBuffer."Document No." := ProdForecastEntry."Production Forecast Name";
+        TempForecastPlanningBuffer."Item No." := ProdForecastEntry."Item No.";
+        TempForecastPlanningBuffer.Description := ProdForecastEntry.Description;
+        TempForecastPlanningBuffer."Gross Requirement" := ProdForecastEntry."Forecast Quantity";
+        TempForecastPlanningBuffer.Insert();
     end;
 
     local procedure ModifyForecast(ItemNo: Code[20]; Date: Date; DocumentType: Option; Quantity: Decimal)

@@ -57,10 +57,10 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         Initialize();
 
-        FCY1 := RandomCurrency;
+        FCY1 := RandomCurrency();
         FCY2 := FCY1;
         while FCY2 = FCY1 do
-            FCY2 := RandomCurrency;
+            FCY2 := RandomCurrency();
 
         TestApplication('', '', 1.0, 1, 1, '<0D>', false);
     end;
@@ -76,10 +76,10 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         VendorLedgerEntries.DeleteAll(false);
         Initialize();
 
-        FCY1 := RandomCurrency;
+        FCY1 := RandomCurrency();
         FCY2 := FCY1;
         while FCY2 = FCY1 do
-            FCY2 := RandomCurrency;
+            FCY2 := RandomCurrency();
 
         TestApplication(FCY1, '', 1.0, 1, 1, '<0D>', false);
     end;
@@ -93,10 +93,10 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         Initialize();
 
-        FCY1 := RandomCurrency;
+        FCY1 := RandomCurrency();
         FCY2 := FCY1;
         while FCY2 = FCY1 do
-            FCY2 := RandomCurrency;
+            FCY2 := RandomCurrency();
 
         TestApplication('', FCY1, 1.0, 1, 1, '<0D>', false);
     end;
@@ -110,10 +110,10 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         Initialize();
 
-        FCY1 := RandomCurrency;
+        FCY1 := RandomCurrency();
         FCY2 := FCY1;
         while FCY2 = FCY1 do
-            FCY2 := RandomCurrency;
+            FCY2 := RandomCurrency();
 
         TestApplication(FCY1, FCY1, 1.0, 1, 1, '<0D>', false);
     end;
@@ -127,10 +127,10 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         Initialize();
 
-        FCY1 := RandomCurrency;
+        FCY1 := RandomCurrency();
         FCY2 := FCY1;
         while FCY2 = FCY1 do
-            FCY2 := RandomCurrency;
+            FCY2 := RandomCurrency();
 
         TestApplication(FCY2, FCY1, 1.0, 1, 1, '<0D>', false);
     end;
@@ -216,7 +216,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         Initialize();
 
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryLowerPermissions.AddO365Setup();
 
         // Fuzzy testing on discount percentage, currency and number of payments.
@@ -249,14 +249,14 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         VendorNo := CreateVendorWithPaymentTerms(PaymentTerms);
         SetApplicationMethodOnVendor(VendorNo, Vendor."Application Method"::Manual);
 
-        CurrencyCode := RandomCurrency;
+        CurrencyCode := RandomCurrency();
         Amount := LibraryRandom.RandDec(200, 2);
         CreateVendorInvoice(InvVendorLedgerEntry, VendorNo, -Amount, '');
         AmountLCY := LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate());
         CreateVendorPayment(PmtVendorLedgerEntry, VendorNo, AmountLCY, CurrencyCode, '<0D>');
         SetupApplyingEntry(PmtVendorLedgerEntry, PmtVendorLedgerEntry.Amount);
         SetupApplyEntry(InvVendorLedgerEntry);
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         CODEUNIT.Run(CODEUNIT::"VendEntry-Apply Posted Entries", PmtVendorLedgerEntry);
 
         // Validation.
@@ -270,7 +270,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Test G/L Entries and Remaining Amount on Vendor Ledger Entry after Posting of Purchase Invoice.
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryLowerPermissions.AddO365Setup();
         TestRemainingAmountOnVendorLedgerEntry(PurchaseHeader."Document Type"::Invoice, 1, -1);
     end;
@@ -282,7 +282,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Test G/L Entries and Remaining Amount on Vendor Ledger Entry after Posting of Purchase Credit Memo.
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryLowerPermissions.AddO365Setup();
         TestRemainingAmountOnVendorLedgerEntry(PurchaseHeader."Document Type"::"Credit Memo", -1, 1);
     end;
@@ -295,10 +295,10 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         // Test G/L Entries on Posted General Journal.
         // Setup: Create and Post General Journal Line.
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryLowerPermissions.AddO365Setup();
         Initialize();
-        CreateAndPostGenJournalLine(GenJournalLine, CreateVendor, LibraryRandom.RandDec(1000, 2));
+        CreateAndPostGenJournalLine(GenJournalLine, CreateVendor(), LibraryRandom.RandDec(1000, 2));
 
         // Verify: Verify G/L Entries.
         VerifyGLEntry(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.", -1 * GenJournalLine."Amount (LCY)");
@@ -318,11 +318,11 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         // Test when apply Remaining Amount fully when Amount to Apply is reduced to the extent of payment discount in the Invoice and with Credit Memo.
         // Setup: Create and Post Purchase Invoice,Purchase Credit Memo and General Journal.
         Initialize();
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryLowerPermissions.AddO365Setup();
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndPostPurchaseDocument(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, CreateVendor, CreateItem,
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, CreateVendor(), CreateItem(),
           LibraryRandom.RandDecInDecimalRange(100, 500, 2), Quantity);
         InvAmountIncludingVAT := PurchaseLine."Amount Including VAT";
         RemainingPmtDiscPossible := (PurchaseLine."Amount Including VAT" * PurchaseHeader."Payment Discount %") / 100;
@@ -347,9 +347,9 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         // To verify that program calculate correct payment discount value in Vendor ledger entry when Pmt. Disc. Excl. VAT is true while Bal Account Type having VAT.
         Initialize();
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryLowerPermissions.AddO365Setup();
-        CreateAndPostGenJournalLineWithPmtDiscExclVAT(true, LibraryERM.CreateGLAccountWithPurchSetup);
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(true, LibraryERM.CreateGLAccountWithPurchSetup());
     end;
 
     [Test]
@@ -358,9 +358,9 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         // To verify that program calculate correct payment discount value in Vendor ledger entry when Pmt. Disc. Excl. VAT is true while Bal Account Type does not having VAT.
         Initialize();
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryLowerPermissions.AddO365Setup();
-        CreateAndPostGenJournalLineWithPmtDiscExclVAT(true, LibraryERM.CreateGLAccountNo);
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(true, LibraryERM.CreateGLAccountNo());
     end;
 
     [Test]
@@ -369,9 +369,9 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         // To verify that program calculate correct payment discount value in Vendor ledger entry when Pmt. Disc. Excl. VAT is false while Bal Account Type having VAT.
         Initialize();
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryLowerPermissions.AddO365Setup();
-        CreateAndPostGenJournalLineWithPmtDiscExclVAT(false, LibraryERM.CreateGLAccountWithPurchSetup);
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(false, LibraryERM.CreateGLAccountWithPurchSetup());
     end;
 
     [Test]
@@ -380,9 +380,9 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         // To verify that program calculate correct payment discount value in Vendor ledger entry when Pmt. Disc. Excl. VAT is false while Bal Account Type does not having VAT.
         Initialize();
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryLowerPermissions.AddO365Setup();
-        CreateAndPostGenJournalLineWithPmtDiscExclVAT(false, LibraryERM.CreateGLAccountNo);
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(false, LibraryERM.CreateGLAccountNo());
     end;
 
     [Test]
@@ -398,7 +398,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
 
         // Setup: Update Pmt. Disc. Excl. VAT in General Ledger & Create Vendor with Payment Terms & Create Gen. Journal Line.
         Initialize();
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryLowerPermissions.AddO365Setup();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(true);
@@ -424,7 +424,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
 
         // [GIVEN] Vendor Ledger Entry and General Journal Line with the same Applies-to ID
         Initialize();
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryLowerPermissions.AddO365Setup();
         FindOpenInvVendLedgEntry(VendLedgEntry);
         SetAppliesToIDOnVendLedgEntry(VendLedgEntry);
@@ -432,7 +432,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
           GenJnlLine, GenJnlLine."Account Type"::Vendor, VendLedgEntry."Vendor No.", VendLedgEntry."Applies-to ID");
 
         // [WHEN] Change "Applies-to ID" in General Journal Line
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         GenJnlLine.Validate("Applies-to ID", LibraryUtility.GenerateGUID());
         GenJnlLine.Modify(true);
 
@@ -459,7 +459,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
           GenJnlLine, GenJnlLine."Account Type"::Vendor, VendLedgEntry."Vendor No.", VendLedgEntry."Applies-to ID");
 
         // [WHEN] Delete General Journal Line
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         GenJnlLine.Delete(true);
 
         // [THEN] "Applies-to ID" in Vendor Ledger Entry is empty
@@ -484,7 +484,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
           GenJnlLine, GenJnlLine."Account Type"::Vendor, VendLedgEntry."Vendor No.", VendLedgEntry."Document No.");
 
         // [WHEN] Blank "Applies-to Doc. No." field in General Journal Line
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         GenJnlLine.Validate("Applies-to Doc. No.", '');
         GenJnlLine.Modify(true);
 
@@ -508,7 +508,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
           GenJnlLine, GenJnlLine."Account Type"::Vendor, VendLedgEntry."Vendor No.", VendLedgEntry."Document No.");
 
         // [WHEN] Delete General Journal Line
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         GenJnlLine.Validate("Applies-to Doc. No.", '');
         GenJnlLine.Modify(true);
 
@@ -541,13 +541,13 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         Commit();
 
-        LibraryLowerPermissions.SetAccountPayables;
-        PaymentJournal.OpenEdit;
+        LibraryLowerPermissions.SetAccountPayables();
+        PaymentJournal.OpenEdit();
         PaymentJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // [WHEN] Set 'Applies-to Doc. No.' manually to Posted Invoice doc. no.
         PaymentJournal.AppliesToDocNo.SetValue(PostedDocNo);
-        PaymentJournal.OK.Invoke;
+        PaymentJournal.OK().Invoke();
 
         // [THEN] External doc. no. transferred to 'Applied-to Ext. Doc. No.', but Amount is not.
         VerifyExtDocNoAmount(GenJournalLine, ExpectedExtDocNo, 0);
@@ -577,13 +577,13 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         Commit();
 
-        LibraryLowerPermissions.SetAccountPayables;
-        PaymentJournal.OpenEdit;
+        LibraryLowerPermissions.SetAccountPayables();
+        PaymentJournal.OpenEdit();
         PaymentJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // [WHEN] Look up and set 'Applies-to Doc. No.' to Posted Invoice doc. no.
-        PaymentJournal.AppliesToDocNo.Lookup;
-        PaymentJournal.OK.Invoke;
+        PaymentJournal.AppliesToDocNo.Lookup();
+        PaymentJournal.OK().Invoke();
 
         // [THEN] External doc. no. transferred to 'Applied-to Ext. Doc. No.' as well as Amount.
         VerifyExtDocNoAmount(GenJournalLine, ExpectedExtDocNo, ExpectedAmount);
@@ -604,12 +604,12 @@ codeunit 134001 "ERM Apply Purchase/Payables"
 
         // [GIVEN] Vendor with "Payment Disc. Credit Acc." = "A"
         // [GIVEN] Default Dimension "D" with "Value Posting" = "Same Code" is set for G/L Account "A"
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         CreateDefaultDimensionGLAccSameValue(DimensionValue, CreateVendPostingGrPmtDiscCreditAccNo(VendorNo));
 
         // [GIVEN] Posted Purchase Invoice with Amount Including VAT = 10000 and possible Discount = 2%. No dimension is set.
         CreatePostGenJnlLineWithBalAccount(GenJournalLine, VendorNo);
-        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct / 100;
+        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct() / 100;
 
         // [GIVEN] Purchase Journal with Payment Amount = 9800 and applied to posted Invoice. No dimension is set.
         CreateGenJnlLineWithAppliesToDocNo(
@@ -618,7 +618,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         GenJournalLine.Modify();
 
         // [WHEN] Post Purchase Journal
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Error occurs: "A dimension used in Gen. Journal Line GENERAL, CASH, 10000 has caused an error."
@@ -646,13 +646,13 @@ codeunit 134001 "ERM Apply Purchase/Payables"
 
         // [GIVEN] Vendor with "Payment Disc. Credit Acc." = "A"
         // [GIVEN] Default Dimension "D" with "Value Posting" = "Same Code" is set for G/L Account "A"
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         GLAccountNo := CreateVendPostingGrPmtDiscCreditAccNo(VendorNo);
         CreateDefaultDimensionGLAccSameValue(DimensionValue, GLAccountNo);
 
         // [GIVEN] Posted Purchase Invoice with Amount Including VAT = 10000 and possible Discount = 2%. No dimension is set.
         CreatePostGenJnlLineWithBalAccount(GenJournalLine, VendorNo);
-        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct / 100;
+        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct() / 100;
 
         // [GIVEN] Purchase Journal with Payment Amount = 9800 and applied to posted Invoice. No dimension is set.
         CreateGenJnlLineWithAppliesToDocNo(
@@ -662,7 +662,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         GenJournalLine.Modify();
 
         // [WHEN] Post Purchase Journal
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Posted G/L Entry with "G/L Account No." = "A" has Dimension "D"
@@ -687,19 +687,19 @@ codeunit 134001 "ERM Apply Purchase/Payables"
 
         // [GIVEN] Vendor with "Payment Disc. Credit Acc." = "A"
         // [GIVEN] Default Dimension "D" with "Value Posting" = "Same Code" is set for G/L Account "A"
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         GLAccountNo := CreateVendPostingGrPmtDiscCreditAccNo(VendorNo);
         CreateDefaultDimensionGLAccSameValue(DimensionValue, GLAccountNo);
 
         // [GIVEN] Posted Purchase Invoice with Amount Including VAT = 10000 and possible Discount = 2%. No dimension is set.
         CreatePostGenJnlLineWithBalAccount(GenJournalLine, VendorNo);
-        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct / 100;
+        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct() / 100;
 
         // [GIVEN] Posted Purcahse Payment with Amount = 9800. No dimension is set.
         CreateAndPostGenJournalLine(GenJournalLine, GenJournalLine."Account No.", PaymentAmount);
 
         // [WHEN] Post Payment to Invoice application
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         ApplyAndPostVendorEntry(GenJournalLine."Document Type", GenJournalLine."Document No.");
 
         // [THEN] Posted G/L Entry with "G/L Account No." = "A" has no Dimension ("Dimension Set ID" = 0).
@@ -730,13 +730,13 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         Commit();
 
-        LibraryLowerPermissions.SetAccountPayables;
-        PaymentJournal.OpenEdit;
+        LibraryLowerPermissions.SetAccountPayables();
+        PaymentJournal.OpenEdit();
         PaymentJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // [GIVEN] Open "Apply Vendor Entries" page
         LibraryVariableStorage.Enqueue(ExpectedAmount);
-        PaymentJournal.ApplyEntries.Invoke;
+        PaymentJournal.ApplyEntries.Invoke();
 
         // [GIVEN] Use "Set Applies-to ID"
         // Done in ApplyVendorEntriesWithSetAppliesToIDModalPageHandler
@@ -769,12 +769,12 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         Commit();
 
-        LibraryLowerPermissions.SetAccountPayables;
-        PaymentJournal.OpenEdit;
+        LibraryLowerPermissions.SetAccountPayables();
+        PaymentJournal.OpenEdit();
         PaymentJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // [GIVEN] Open "Apply Vendor Entries" page with two lines
-        PaymentJournal.ApplyEntries.Invoke;
+        PaymentJournal.ApplyEntries.Invoke();
 
         // [GIVEN] Use "Set Applies-to ID" on both lines, "Applies-to ID" of the 1st line = "A", "Applies-to ID" of the 2nd line = "A"
         // Done in TwoEntriesWithSameAppliesToIDModalPageHandler
@@ -785,7 +785,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         // [THEN] "Applies-to ID" of the 1st line = "A"
         // Done in TwoEntriesWithSameAppliesToIDModalPageHandler
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -809,12 +809,12 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         Commit();
 
-        LibraryLowerPermissions.SetAccountPayables;
-        PaymentJournal.OpenEdit;
+        LibraryLowerPermissions.SetAccountPayables();
+        PaymentJournal.OpenEdit();
         PaymentJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // [GIVEN] Open "Apply Vendor Entries" page with two lines
-        PaymentJournal.ApplyEntries.Invoke;
+        PaymentJournal.ApplyEntries.Invoke();
 
         // [GIVEN] Use "Set Applies-to ID" action on 1st line, "Applies-to ID" of the 1st line = "A"
         // Done in TwoApplyVendorEntriesModalPageHandler
@@ -825,7 +825,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         // [THEN] "Applies-to ID" of the 1st line = "A"
         // Done in TwoApplyVendorEntriesModalPageHandler
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -849,12 +849,12 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         Commit();
 
-        LibraryLowerPermissions.SetAccountPayables;
-        PaymentJournal.OpenEdit;
+        LibraryLowerPermissions.SetAccountPayables();
+        PaymentJournal.OpenEdit();
         PaymentJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // [GIVEN] Open "Apply Vendor Entries" page with two lines
-        PaymentJournal.ApplyEntries.Invoke;
+        PaymentJournal.ApplyEntries.Invoke();
 
         // [GIVEN] Use "Set Applies-to ID" action on 1st line, "Applies-to ID" of the 1st line = "A"
         // Done in TwoEntriesWithDifferentAppliesToIDModalPageHandler
@@ -865,7 +865,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         // [THEN] "Applies-to ID" of the 1st line = "A", "Applies-to ID" of the 2nd line = "B"
         // Done in TwoEntriesWithDifferentAppliesToIDModalPageHandler
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -905,7 +905,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         PaymentJournal.OpenEdit();
         LibraryVariableStorage.Enqueue(VendorLedgerEntry."Document No.");
         LibraryVariableStorage.Enqueue(VendorLedgerEntry.Amount);
-        PaymentJournal.ApplyEntries.Invoke;
+        PaymentJournal.ApplyEntries.Invoke();
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.FindFirst();
         GenJournalLine.TestField(Amount, -VendorLedgerEntry.Amount);
@@ -914,8 +914,8 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryVariableStorage.Enqueue(GenJournalLineInv."Document No.");
         LibraryVariableStorage.Enqueue(GenJournalLineInv.Amount / 2);
         PaymentJournal.Next();
-        PaymentJournal.ApplyEntries.Invoke;
-        PaymentJournal.OK.Invoke;
+        PaymentJournal.ApplyEntries.Invoke();
+        PaymentJournal.OK().Invoke();
 
         // [THEN] Second payment journal line gets Amount = 1000
         GenJournalLine.FindLast();
@@ -971,7 +971,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         GenJournalLine."Line No." := LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No."));
         GenJournalLine.Insert();
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"Bank Account");
-        GenJournalLine.Validate("Account No.", LibraryERM.CreateBankAccountNo);
+        GenJournalLine.Validate("Account No.", LibraryERM.CreateBankAccountNo());
         UpdateGenJnlLineAppln(
           GenJournalLine, '', VendorLedgerEntry1."Amount (LCY)" / 2 + VendorLedgerEntry2."Amount (LCY)");
 
@@ -1039,7 +1039,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         GenJournalLine."Line No." := LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No."));
         GenJournalLine.Insert();
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"Bank Account");
-        GenJournalLine.Validate("Account No.", LibraryERM.CreateBankAccountNo);
+        GenJournalLine.Validate("Account No.", LibraryERM.CreateBankAccountNo());
         UpdateGenJnlLineAppln(
           GenJournalLine, '', VendorLedgerEntry1."Amount (LCY)" / 2 + VendorLedgerEntry2."Amount (LCY)");
 
@@ -1172,7 +1172,6 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         Vendor: Record Vendor;
         PaymentJournal: TestPage "Payment Journal";
-        VendorLedgerEntryNo: Integer;
     begin
         // [SCENARIO 449685] Applies-to ID is removed when copying lines to Journal
         Initialize();
@@ -1238,7 +1237,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryLowerPermissions.SetOutsideO365Scope();
         ReplacePaymentTerms(
           PmtTerms, 'NEW', '<1M>', '<' + Format(LibraryRandom.RandInt(20)) + 'D>', LibraryRandom.RandInt(200) / 10);
-        ModifyGenJnlBatchNoSeries;
+        ModifyGenJnlBatchNoSeries();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
@@ -1353,7 +1352,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         // Create an Invoice.
         for i := 1 to NumberOfInvoices do begin
             // Make a partial invoice.
-            CreateVendorPartialInvoice(InvVendorLedgerEntry[i], InvLCYFullAmount, Vendor, RandomCurrency, i, NumberOfInvoices);
+            CreateVendorPartialInvoice(InvVendorLedgerEntry[i], InvLCYFullAmount, Vendor, RandomCurrency(), i, NumberOfInvoices);
             InvVendorLedgerEntry[i].CalcFields("Remaining Amount");
             TotalPmtAmount += InvVendorLedgerEntry[i]."Remaining Pmt. Disc. Possible" - InvVendorLedgerEntry[i]."Remaining Amount";
         end;
@@ -1363,7 +1362,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
             // Make a partial payment in a random currency.
             CreateVendorPartialPaymentWithRemainder(
               PmtVendorLedgerEntry[i], PmtLCYFullAmount,
-              TotalPmtAmount, Vendor, '<0D>', RandomCurrency, i, NumberOfPayments);
+              TotalPmtAmount, Vendor, '<0D>', RandomCurrency(), i, NumberOfPayments);
             PmtVendorLedgerEntry[i].CalcFields("Remaining Amount");
             TotalPmtAmount -= PmtVendorLedgerEntry[i]."Remaining Amount";
         end;
@@ -1502,7 +1501,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         with GenJournalLine do begin
             CreateGenJournalLine(
               GenJournalLine, "Document Type"::Invoice,
-              LibraryPurchase.CreateVendorNo, -LibraryRandom.RandIntInRange(10, 100));
+              LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandIntInRange(10, 100));
             Validate("External Document No.", LibraryUtility.GenerateGUID());
             Modify(true);
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1599,7 +1598,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         CreateGenJnlTemplateAndBatch(GenJournalBatch);
         CreateGenJnlLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandIntInRange(1000, 2000));
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithPurchSetup);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithPurchSetup());
         GenJournalLine.Validate("Sales/Purch. (LCY)", 0);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1787,7 +1786,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, AccountNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 0);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 0);
     end;
 
     local procedure CreatePaymentJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -1817,7 +1816,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         Vendor.Get(VendorNo);
         VendorPostingGroup.Get(Vendor."Vendor Posting Group");
-        VendorPostingGroup.Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo);
+        VendorPostingGroup.Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo());
         VendorPostingGroup.Modify(true);
         exit(VendorPostingGroup."Payment Disc. Credit Acc.");
     end;
@@ -1852,7 +1851,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
         LibraryERM.SelectGenJnlBatch(GenJnlBatch);
-        GenJnlBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJnlBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJnlBatch.Modify(true);
     end;
 
@@ -1933,7 +1932,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         // Exercise: Create and Post Purchase Document.
         PostedDocumentNo :=
           CreateAndPostPurchaseDocument(
-            PurchaseHeader, PurchaseLine, DocumentType, CreateVendor, CreateItem, LibraryRandom.RandDec(1000, 2),
+            PurchaseHeader, PurchaseLine, DocumentType, CreateVendor(), CreateItem(), LibraryRandom.RandDec(1000, 2),
             LibraryRandom.RandDec(100, 2));
 
         // Verify: Verify G/L and Vendor Ledger Entries.
@@ -1993,8 +1992,8 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document No.");
-        Assert.AreNearlyEqual(PmtDiscountAmount, VendorLedgerEntry."Original Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, Round(PmtDiscountAmount, LibraryERM.GetAmountRoundingPrecision), PmtDiscountAmount));
+        Assert.AreNearlyEqual(PmtDiscountAmount, VendorLedgerEntry."Original Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(AmountErr, Round(PmtDiscountAmount, LibraryERM.GetAmountRoundingPrecision()), PmtDiscountAmount));
         VendorLedgerEntry.TestField("Remaining Pmt. Disc. Possible", VendorLedgerEntry."Original Pmt. Disc. Possible");
     end;
 
@@ -2066,32 +2065,32 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesWithSetAppliesToIDModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.AppliedAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.AppliedAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal());
 
         ApplyVendorEntries.AppliesToID.SetValue('');
         ApplyVendorEntries.AppliedAmount.AssertEquals(0);
         ApplyVendorEntries."Amount to Apply".AssertEquals(0);
         ApplyVendorEntries.ApplnAmountToApply.AssertEquals(0);
 
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesWithAmountModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText);
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries."Amount to Apply".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries."Amount to Apply".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2110,18 +2109,18 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     var
         AppliesToID: Code[20];
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        AppliesToID := ApplyVendorEntries.AppliesToID.Value;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        AppliesToID := ApplyVendorEntries.AppliesToID.Value();
 
         ApplyVendorEntries.Next();
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
         ApplyVendorEntries.AppliesToID.SetValue('');
         ApplyVendorEntries.AppliesToID.AssertEquals('');
 
-        ApplyVendorEntries.Previous;
+        ApplyVendorEntries.Previous();
         ApplyVendorEntries.AppliesToID.AssertEquals(AppliesToID);
 
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2130,17 +2129,17 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     var
         AppliesToID: Code[20];
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        AppliesToID := ApplyVendorEntries.AppliesToID.Value;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        AppliesToID := ApplyVendorEntries.AppliesToID.Value();
 
         ApplyVendorEntries.Next();
         ApplyVendorEntries.AppliesToID.SetValue(AppliesToID);
         ApplyVendorEntries.AppliesToID.AssertEquals(AppliesToID);
 
-        ApplyVendorEntries.Previous;
+        ApplyVendorEntries.Previous();
         ApplyVendorEntries.AppliesToID.AssertEquals(AppliesToID);
 
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2150,25 +2149,25 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         AppliesToID: Code[20];
         AlternativeAppliesToID: Code[20];
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        AppliesToID := ApplyVendorEntries.AppliesToID.Value;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        AppliesToID := ApplyVendorEntries.AppliesToID.Value();
 
         ApplyVendorEntries.Next();
         AlternativeAppliesToID := LibraryUtility.GenerateGUID();
         ApplyVendorEntries.AppliesToID.SetValue(AlternativeAppliesToID);
 
-        ApplyVendorEntries.Previous;
+        ApplyVendorEntries.Previous();
         ApplyVendorEntries.AppliesToID.AssertEquals(AppliesToID);
 
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GeneralJournalTemplateListPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText);
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2180,9 +2179,9 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         DocNo := LibraryVariableStorage.DequeueText();
         ApplyVendorEntries.FILTER.SetFilter("Document No.", DocNo);
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries."Amount to Apply".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries."Amount to Apply".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ApplyVendorEntries.OK().Invoke();
         VendorLedgerEntry.SetRange("Document No.", DocNo);
         VendorLedgerEntry.FindFirst();
         LibraryVariableStorage.Enqueue(VendorLedgerEntry."Entry No.");

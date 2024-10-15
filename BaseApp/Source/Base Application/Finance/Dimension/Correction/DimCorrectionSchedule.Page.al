@@ -20,7 +20,7 @@ page 2593 "Dim Correction Schedule"
                 {
                     ApplicationArea = All;
                     Caption = 'Run immediately';
-                    ToolTip = 'Specifies whether to start the job as soon as possible. We recommend that you turn this on only when jobs have a small number of entries. For example, fewer than 1000. For large jobs, consider scheduling the run to happen outside working hours.';
+                    ToolTip = 'Specifies whether to start the job as soon as possible. We recommend that you turn this on only when jobs have a small number of entries. For example, fewer than 1000. For large projects, consider scheduling the run to happen outside working hours.';
 
                     trigger OnValidate()
                     begin

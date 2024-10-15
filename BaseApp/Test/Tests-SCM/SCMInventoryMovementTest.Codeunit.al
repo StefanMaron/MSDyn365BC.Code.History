@@ -500,7 +500,7 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         // [GIVEN] Item had stock of 10 PCS in the Bin
         LibraryInventory.CreateItemJournalLineInItemTemplate(
-          ItemJournalLine, LibraryInventory.CreateItemNo, Bin."Location Code", Bin.Code, LibraryRandom.RandInt(10));
+          ItemJournalLine, LibraryInventory.CreateItemNo(), Bin."Location Code", Bin.Code, LibraryRandom.RandInt(10));
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Internal Movement with 10 PCS of the Item with the Bin set as From-Bin
@@ -976,7 +976,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         ItemTrackingCode.Validate("SN Warehouse Tracking", true);
         ItemTrackingCode.Modify(true);
         ItemRec.Validate("Item Tracking Code", ItemTrackingCode.Code);
-        ItemRec."Serial Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        ItemRec."Serial Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         ItemRec.Modify(true);
     end;
 
@@ -1183,7 +1183,7 @@ codeunit 137200 "SCM Inventory Movement Test"
           ProductionOrder, ProductionOrder.Status::"Firm Planned",
           ProductionOrder."Source Type"::Item, ItemRec."No.", 3);
 
-        ProductionOrder.SetUpdateEndDate;
+        ProductionOrder.SetUpdateEndDate();
         ProductionOrder.Validate("Due Date", CalcDate('<CM+1M>', WorkDate()));
         ProductionOrder.Validate("Location Code", LocationCode);
         ProductionOrder.Validate("Bin Code", BinCode);
@@ -1237,7 +1237,7 @@ codeunit 137200 "SCM Inventory Movement Test"
 
         ItemJournalLine.FindLast();
         ItemJournalLine.Delete(true);
-        LibraryManufacturing.PostOutputJournal;
+        LibraryManufacturing.PostOutputJournal();
 
         // post output of the second operation via Inventory Put-away
         WarehouseRequest.Reset();
@@ -1286,8 +1286,8 @@ codeunit 137200 "SCM Inventory Movement Test"
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderComponent.FindFirst();
-        LibraryManufacturing.CalculateConsumptionForJournal(ProductionOrder, ProdOrderComponent, WorkDate + 30, true);
-        LibraryManufacturing.PostConsumptionJournal;
+        LibraryManufacturing.CalculateConsumptionForJournal(ProductionOrder, ProdOrderComponent, WorkDate() + 30, true);
+        LibraryManufacturing.PostConsumptionJournal();
     end;
 
     local procedure VerifyConsumption(ProductionOrder: Record "Production Order")
@@ -1330,7 +1330,7 @@ codeunit 137200 "SCM Inventory Movement Test"
                     BinContent.FindFirst();
                     Validate("Bin Code", BinContent."Bin Code");
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1392,21 +1392,16 @@ codeunit 137200 "SCM Inventory Movement Test"
             //WhseItemTrackingLines.Next();
             ItemLedgerEntry.Next();
         end;
-        WhseItemTrackingLines.OK.Invoke();
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SetSNOnItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
-    var
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        Index: Integer;
-        QtyToHandle: Integer;
-        ItemNo: Code[20];
     begin
         ItemTrackingLines."Assign &Serial No.".Invoke();
         ItemTrackingLines.OK().Invoke();
-        /*        ItemNo := WhseItemTrackingLines."Item No.".Value;
+        /*        ItemNo := WhseItemTrackingLines."Item No.".Value();
                 QtyToHandle := WhseItemTrackingLines."Qty. to Handle (Base)".AsInteger();
 
                 ItemLedgerEntry.SetRange("Item No.", ItemNo);
@@ -1418,14 +1413,14 @@ codeunit 137200 "SCM Inventory Movement Test"
                     WhseItemTrackingLines.Next();
                     ItemLedgerEntry.Next();
                 end;
-                WhseItemTrackingLines.OK.Invoke();*/
+                WhseItemTrackingLines.OK().Invoke();*/
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 }
 

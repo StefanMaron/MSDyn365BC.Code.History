@@ -12,6 +12,7 @@ table 5356 "CRM Invoicedetail"
     Description = 'Line item in an invoice containing detailed billing information for a product.';
     ExternalName = 'invoicedetail';
     TableType = CRM;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -323,7 +324,7 @@ table 5356 "CRM Invoicedetail"
         }
         field(41; ProductIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Product".Name where(ProductId = field(ProductId)));
+            CalcFormula = lookup("CRM Product".Name where(ProductId = field(ProductId)));
             Caption = 'ProductIdName';
             ExternalAccess = Read;
             ExternalName = 'productidname';
@@ -332,7 +333,7 @@ table 5356 "CRM Invoicedetail"
         }
         field(42; UoMIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Uom".Name where(UoMId = field(UoMId)));
+            CalcFormula = lookup("CRM Uom".Name where(UoMId = field(UoMId)));
             Caption = 'UoMIdName';
             ExternalAccess = Read;
             ExternalName = 'uomidname';
@@ -341,7 +342,7 @@ table 5356 "CRM Invoicedetail"
         }
         field(43; SalesRepIdName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(SalesRepId)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(SalesRepId)));
             Caption = 'SalesRepIdName';
             ExternalAccess = Read;
             ExternalName = 'salesrepidname';
@@ -362,7 +363,7 @@ table 5356 "CRM Invoicedetail"
         }
         field(45; CreatedByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
             Caption = 'CreatedByName';
             ExternalAccess = Read;
             ExternalName = 'createdbyname';
@@ -371,7 +372,7 @@ table 5356 "CRM Invoicedetail"
         }
         field(46; ModifiedByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
             Caption = 'ModifiedByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedbyname';
@@ -485,7 +486,7 @@ table 5356 "CRM Invoicedetail"
         }
         field(60; TransactionCurrencyIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
+            CalcFormula = lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
             Caption = 'TransactionCurrencyIdName';
             ExternalAccess = Read;
             ExternalName = 'transactioncurrencyidname';
@@ -548,7 +549,7 @@ table 5356 "CRM Invoicedetail"
         }
         field(67; CreatedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
             Caption = 'CreatedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'createdonbehalfbyname';
@@ -566,7 +567,7 @@ table 5356 "CRM Invoicedetail"
         }
         field(69; ModifiedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
             Caption = 'ModifiedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedonbehalfbyname';

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -10,6 +10,10 @@ using Microsoft.CRM.Team;
 using Microsoft.Finance.Currency;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Shipping;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Service.Item;
+using Microsoft.Integration.FieldService;
 using Microsoft.Foundation.UOM;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
@@ -76,7 +80,7 @@ codeunit 5334 "CRM Setup Defaults"
         if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then begin
             ResetPriceListHeaderPricelevelMapping('PLHEADER-PRICE', EnqueueJobQueEntries);
             ResetPriceListLineProductPricelevelMapping('PLLINE-PRODPRICE', EnqueueJobQueEntries);
-#if not CLEAN21
+#if not CLEAN23
         end else begin
             ResetCustomerPriceGroupPricelevelMapping('CUSTPRCGRP-PRICE', EnqueueJobQueEntries);
             ResetSalesPriceProductPricelevelMapping('SALESPRC-PRODPRICE', EnqueueJobQueEntries);
@@ -1030,7 +1034,7 @@ codeunit 5334 "CRM Setup Defaults"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange(Status, SalesHeader.Status::Released);
         IntegrationTableMapping.SetTableFilter(
-          GetTableFilterFromView(Database::"Sales Header", SalesHeader.TableCaption, SalesHeader.GetView));
+          GetTableFilterFromView(Database::"Sales Header", SalesHeader.TableCaption, SalesHeader.GetView()));
 
         IntegrationTableMapping."Dependency Filter" := 'CUSTOMER|ITEM-PRODUCT|RESOURCE-PRODUCT|OPPORTUNITY';
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::Bidirectional;
@@ -1040,7 +1044,7 @@ codeunit 5334 "CRM Setup Defaults"
             CRMSalesorder.SetFilter(CompanyId, StrSubstno(OrTok, CDSCompany.CompanyId, EmptyGuid));
         CRMSalesorder.SetRange(StateCode, CRMSalesorder.StateCode::Submitted);
         IntegrationTableMapping.SetIntegrationTableFilter(
-                      GetTableFilterFromView(Database::"CRM Salesorder", CRMSalesorder.TableCaption, CRMSalesorder.GetView));
+                      GetTableFilterFromView(Database::"CRM Salesorder", CRMSalesorder.TableCaption, CRMSalesorder.GetView()));
         IntegrationTableMapping.Modify();
 
         if not IsTeamOwnershipModel then begin
@@ -1058,7 +1062,7 @@ codeunit 5334 "CRM Setup Defaults"
               CRMSalesorder.FieldNo(OwnerId),
               IntegrationFieldMapping.Direction::ToIntegrationTable,
               '', true, false);
-            SetIntegrationFieldMappingNotNull;
+            SetIntegrationFieldMappingNotNull();
         end;
 
         // Type
@@ -1286,7 +1290,6 @@ codeunit 5334 "CRM Setup Defaults"
         IntegrationFieldMapping: Record "Integration Field Mapping";
         SalesLine: Record "Sales Line";
         CRMSalesorderdetail: Record "CRM Salesorderdetail";
-        CDSCompany: Record "CDS Company";
         IsHandled: Boolean;
     begin
         OnBeforeResetBidirectionalSalesOrderLineMapping(IntegrationTableMappingName, IsHandled);
@@ -1302,7 +1305,7 @@ codeunit 5334 "CRM Setup Defaults"
         SalesLine.SetFilter("Type", OrTok, SalesLine."Type"::Item, SalesLine."Type"::Resource);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         IntegrationTableMapping.SetTableFilter(
-          GetTableFilterFromView(DATABASE::"Sales Line", SalesLine.TableCaption, SalesLine.GetView));
+          GetTableFilterFromView(DATABASE::"Sales Line", SalesLine.TableCaption, SalesLine.GetView()));
 
         IntegrationTableMapping."Dependency Filter" := 'SALESORDER-ORDER';
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::Bidirectional;
@@ -1354,14 +1357,6 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationTableMappingName,
           SalesLine.FieldNo("Quantity Shipped"),
           CRMSalesorderdetail.FieldNo(QuantityShipped),
-          IntegrationFieldMapping.Direction::Bidirectional,
-          '', true, false);
-
-        // "Line Discount Amount" > ManualDiscountAmount
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          SalesLine.FieldNo("Line Discount Amount"),
-          CRMSalesorderdetail.FieldNo(ManualDiscountAmount),
           IntegrationFieldMapping.Direction::Bidirectional,
           '', true, false);
 
@@ -1442,7 +1437,7 @@ codeunit 5334 "CRM Setup Defaults"
         end;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '18.0')]
     [Scope('OnPrem')]
     procedure ResetCustomerPriceGroupPricelevelMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
@@ -2177,50 +2172,44 @@ codeunit 5334 "CRM Setup Defaults"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
-            SetRange("Object ID to Run", CodeunitId);
-            DeleteTasks();
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", CodeunitId);
+        JobQueueEntry.DeleteTasks();
 
-            InitRecurringJob(MinutesBetweenRun);
-            "Object Type to Run" := "Object Type to Run"::Codeunit;
-            "Object ID to Run" := CodeunitId;
-            Description := CopyStr(EntryDescription, 1, MaxStrLen(Description));
-            "Maximum No. of Attempts to Run" := 2;
-            if StatusReady then
-                Status := Status::Ready
-            else begin
-                Status := Status::"On Hold with Inactivity Timeout";
-                "Inactivity Timeout Period" := MinutesBetweenRun;
-            end;
-            "Rerun Delay (sec.)" := 30;
-            if EnqueueJobQueEntry then
-                CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry)
-            else
-                Insert(true);
+        JobQueueEntry.InitRecurringJob(MinutesBetweenRun);
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := CodeunitId;
+        JobQueueEntry.Description := CopyStr(EntryDescription, 1, MaxStrLen(JobQueueEntry.Description));
+        JobQueueEntry."Maximum No. of Attempts to Run" := 2;
+        if StatusReady then
+            JobQueueEntry.Status := JobQueueEntry.Status::Ready
+        else begin
+            JobQueueEntry.Status := JobQueueEntry.Status::"On Hold with Inactivity Timeout";
+            JobQueueEntry."Inactivity Timeout Period" := MinutesBetweenRun;
         end;
+        JobQueueEntry."Rerun Delay (sec.)" := 30;
+        if EnqueueJobQueEntry then
+            CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry)
+        else
+            JobQueueEntry.Insert(true);
     end;
 
     procedure DeleteAutoCreateSalesOrdersJobQueueEntry()
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
-            SetRange("Object ID to Run", CODEUNIT::"Auto Create Sales Orders");
-            DeleteTasks();
-        end;
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Auto Create Sales Orders");
+        JobQueueEntry.DeleteTasks();
     end;
 
     procedure DeleteAutoProcessSalesQuotesJobQueueEntry()
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
-            SetRange("Object ID to Run", CODEUNIT::"Auto Process Sales Quotes");
-            DeleteTasks();
-        end;
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Auto Process Sales Quotes");
+        JobQueueEntry.DeleteTasks();
     end;
 
     procedure GetAddPostedSalesDocumentToCRMAccountWallConfig(): Boolean
@@ -2238,6 +2227,7 @@ codeunit 5334 "CRM Setup Defaults"
 
     procedure GetCRMTableNo(NAVTableID: Integer): Integer
     var
+        FSConnectionSetup: Record "FS Connection Setup";
         CDSTableNo: Integer;
         handled: Boolean;
     begin
@@ -2255,14 +2245,18 @@ codeunit 5334 "CRM Setup Defaults"
             DATABASE::"Price List Header",
             DATABASE::"Customer Price Group":
                 exit(DATABASE::"CRM Pricelevel");
-            DATABASE::Item,
-            DATABASE::Resource:
+            DATABASE::Item:
                 exit(DATABASE::"CRM Product");
+            DATABASE::Resource:
+                if FSConnectionSetup.IsEnabled() then
+                    exit(DATABASE::"FS Bookable Resource")
+                else
+                    exit(DATABASE::"CRM Product");
             DATABASE::"Sales Invoice Header":
                 exit(DATABASE::"CRM Invoice");
             DATABASE::"Sales Invoice Line":
                 exit(DATABASE::"CRM Invoicedetail");
-#if not CLEAN21
+#if not CLEAN23
             DATABASE::"Sales Price",
 #endif
             DATABASE::"Price List Line":
@@ -2282,6 +2276,10 @@ codeunit 5334 "CRM Setup Defaults"
                 exit(DATABASE::"CRM Salesorder");
             DATABASE::"Record Link":
                 exit(DATABASE::"CRM Annotation");
+            DATABASE::"Service Item":
+                exit(DATABASE::"FS Customer Asset");
+            DATABASE::"Job Task":
+                exit(DATABASE::"FS Project Task");
         end;
     end;
 
@@ -2307,7 +2305,7 @@ codeunit 5334 "CRM Setup Defaults"
           DATABASE::"Price List Line",
           DATABASE::"Sales Invoice Header",
           DATABASE::"Sales Invoice Line",
-#if not CLEAN21
+#if not CLEAN23
           DATABASE::"Sales Price",
 #endif
           DATABASE::"Unit of Measure",
@@ -2360,6 +2358,14 @@ codeunit 5334 "CRM Setup Defaults"
         CRMShippingMethod: Record "CRM Shipping Method";
         SalesHeader: Record "Sales Header";
         CRMSalesorder: Record "CRM Salesorder";
+        ServiceItem: Record "Service Item";
+        FSCustomerAsset: Record "FS Customer Asset";
+        FSBookableResource: Record "FS Bookable Resource";
+        FSWorkOrderProduct: Record "FS Work Order Product";
+        FSWorkOrderService: Record "FS Work Order Service";
+        FSProjectTask: Record "FS Project Task";
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
         FieldNo: Integer;
     begin
         OnBeforeGetNameFieldNo(TableID, FieldNo);
@@ -2426,6 +2432,22 @@ codeunit 5334 "CRM Setup Defaults"
                 exit(SalesHeader.FieldNo("No."));
             DATABASE::"CRM Salesorder":
                 exit(CRMSalesorder.FieldNo(Name));
+            DATABASE::"Service Item":
+                exit(ServiceItem.FieldNo("No."));
+            DATABASE::"FS Customer Asset":
+                exit(FSCustomerAsset.FieldNo(Name));
+            DATABASE::"FS Bookable Resource":
+                exit(FSBookableResource.FieldNo(Name));
+            DATABASE::"FS Work Order Product":
+                exit(FSWorkOrderProduct.FieldNo(Name));
+            DATABASE::"FS Work Order Service":
+                exit(FSWorkOrderService.FieldNo(Name));
+            DATABASE::"FS Project Task":
+                exit(FSProjectTask.FieldNo(ProjectNumber));
+            DATABASE::"Job Task":
+                exit(JobTask.FieldNo("Job Task No."));
+            DATABASE::"Job Journal Line":
+                exit(JobJournalLine.FieldNo(Description));
         end;
     end;
 
@@ -2477,41 +2499,38 @@ codeunit 5334 "CRM Setup Defaults"
         "Field": Record "Field";
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        with IntegrationTableMapping do begin
-            Reset();
-            SetRange("Delete After Synchronization", false);
-            if TableID > 0 then
-                SetRange("Table ID", TableID);
-            if IntegrationTableID > 0 then
-                SetRange("Integration Table ID", IntegrationTableID);
-            SetRange("Int. Table UID Field Type", Field.Type::GUID);
-            if FindSet() then
-                repeat
-                    AddPrioritizedMappingToList(NameValueBuffer, Priority, Name);
-                until Next() = 0;
-        end;
+        IntegrationTableMapping.Reset();
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        if TableID > 0 then
+            IntegrationTableMapping.SetRange("Table ID", TableID);
+        if IntegrationTableID > 0 then
+            IntegrationTableMapping.SetRange("Integration Table ID", IntegrationTableID);
+        IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
+        if IntegrationTableMapping.FindSet() then
+            repeat
+                AddPrioritizedMappingToList(NameValueBuffer, Priority, IntegrationTableMapping.Name);
+            until IntegrationTableMapping.Next() = 0;
     end;
 
     local procedure AddPrioritizedMappingToList(var NameValueBuffer: Record "Name/Value Buffer"; var Priority: Integer; MappingName: Code[20])
     begin
-        with NameValueBuffer do begin
-            SetRange(Value, MappingName);
+        NameValueBuffer.SetRange(Value, MappingName);
 
-            if not FindFirst() then begin
-                Init();
-                ID := Priority;
-                Name := Format(Priority);
-                Value := MappingName;
-                Insert();
-                Priority := Priority + 1;
-            end;
-
-            Reset();
+        if not NameValueBuffer.FindFirst() then begin
+            NameValueBuffer.Init();
+            NameValueBuffer.ID := Priority;
+            NameValueBuffer.Name := Format(Priority);
+            NameValueBuffer.Value := MappingName;
+            NameValueBuffer.Insert();
+            Priority := Priority + 1;
         end;
+
+        NameValueBuffer.Reset();
     end;
 
     procedure GetTableIDCRMEntityNameMapping(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
     var
+        FSConnectionSetup: Record "FS Connection Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         TempNameValueBuffer.Reset();
@@ -2527,8 +2546,25 @@ codeunit 5334 "CRM Setup Defaults"
         AddEntityTableMapping('contact', DATABASE::"CRM Contact", TempNameValueBuffer);
 
         AddEntityTableMapping('product', DATABASE::Item, TempNameValueBuffer);
-        AddEntityTableMapping('product', DATABASE::Resource, TempNameValueBuffer);
         AddEntityTableMapping('product', DATABASE::"CRM Product", TempNameValueBuffer);
+
+        if FSConnectionSetup.IsEnabled() then begin
+            AddEntityTableMapping('bookableresource', DATABASE::Resource, TempNameValueBuffer);
+            AddEntityTableMapping('bookableresource', DATABASE::"FS Bookable Resource", TempNameValueBuffer);
+
+            AddEntityTableMapping('msdyn_customerasset', DATABASE::"Service Item", TempNameValueBuffer);
+            AddEntityTableMapping('msdyn_customerasset', DATABASE::"FS Customer Asset", TempNameValueBuffer);
+
+            AddEntityTableMapping('bcbi_projecttask', DATABASE::"Job Task", TempNameValueBuffer);
+            AddEntityTableMapping('bcbi_projecttask', DATABASE::"FS Project Task", TempNameValueBuffer);
+
+            AddEntityTableMapping('msdyn_workorderproduct', DATABASE::"Job Journal Line", TempNameValueBuffer);
+            AddEntityTableMapping('msdyn_workorderproduct', DATABASE::"FS Work Order Product", TempNameValueBuffer);
+
+            AddEntityTableMapping('msdyn_workorderservice', DATABASE::"Job Journal Line", TempNameValueBuffer);
+            AddEntityTableMapping('msdyn_workorderservice', DATABASE::"FS Work Order Service", TempNameValueBuffer);
+        end else
+            AddEntityTableMapping('product', DATABASE::Resource, TempNameValueBuffer);
 
         AddEntityTableMapping('salesorder', DATABASE::"Sales Header", TempNameValueBuffer);
         AddEntityTableMapping('salesorder', DATABASE::"CRM Salesorder", TempNameValueBuffer);
@@ -2570,13 +2606,11 @@ codeunit 5334 "CRM Setup Defaults"
     procedure AddEntityTableMapping(CRMEntityTypeName: Text; TableID: Integer; var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
     begin
         OnBeforeAddEntityTableMapping(CRMEntityTypeName, TableID, TempNameValueBuffer);
-        with TempNameValueBuffer do begin
-            Init();
-            ID := Count + 1;
-            Name := CopyStr(CRMEntityTypeName, 1, MaxStrLen(Name));
-            Value := Format(TableID);
-            Insert();
-        end;
+        TempNameValueBuffer.Init();
+        TempNameValueBuffer.ID := TempNameValueBuffer.Count + 1;
+        TempNameValueBuffer.Name := CopyStr(CRMEntityTypeName, 1, MaxStrLen(TempNameValueBuffer.Name));
+        TempNameValueBuffer.Value := Format(TableID);
+        TempNameValueBuffer.Insert();
     end;
 
     local procedure ResetDefaultCRMPricelevel(CRMConnectionSetup: Record "CRM Connection Setup")
@@ -2745,7 +2779,7 @@ codeunit 5334 "CRM Setup Defaults"
     begin
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnResetCustomerPriceGroupPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
@@ -2803,7 +2837,7 @@ codeunit 5334 "CRM Setup Defaults"
     begin
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnResetSalesPriceProductPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])

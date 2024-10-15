@@ -43,16 +43,14 @@ codeunit 6310 "PBI Top Opportunities Calc."
 
     local procedure InsertToBuffer(var TempPowerBIChartBuffer: Record "Power BI Chart Buffer" temporary; TempOpportunity: Record Opportunity temporary)
     begin
-        with TempPowerBIChartBuffer do begin
-            if FindLast() then
-                ID += 1
-            else
-                ID := 1;
-            Value := TempOpportunity."Estimated Value (LCY)";
-            "Measure Name" := TempOpportunity.Description;
-            "Measure No." := TempOpportunity."No.";
-            Insert();
-        end;
+        if TempPowerBIChartBuffer.FindLast() then
+            TempPowerBIChartBuffer.ID += 1
+        else
+            TempPowerBIChartBuffer.ID := 1;
+        TempPowerBIChartBuffer.Value := TempOpportunity."Estimated Value (LCY)";
+        TempPowerBIChartBuffer."Measure Name" := TempOpportunity.Description;
+        TempPowerBIChartBuffer."Measure No." := TempOpportunity."No.";
+        TempPowerBIChartBuffer.Insert();
     end;
 }
 

@@ -7,9 +7,9 @@ using Microsoft.Projects.Project.Setup;
 
 report 1086 "Job Calculate WIP"
 {
-    AdditionalSearchTerms = 'calculate work in process,calculate work in progress';
+    AdditionalSearchTerms = 'calculate work in process,calculate work in progress, Job Calculate WIP';
     ApplicationArea = Jobs;
-    Caption = 'Job Calculate WIP';
+    Caption = 'Project Calculate WIP';
     ProcessingOnly = true;
     UsageCategory = Tasks;
 
@@ -63,6 +63,10 @@ report 1086 "Job Calculate WIP"
 
         trigger OnOpenPage()
         var
+            NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+            IsHandled: Boolean;
+#endif
             NewNoSeriesCode: Code[20];
         begin
             if PostingDate = 0D then
@@ -71,7 +75,16 @@ report 1086 "Job Calculate WIP"
             JobsSetup.Get();
 
             JobsSetup.TestField("Job Nos.");
-            NoSeriesMgt.InitSeries(JobsSetup."Job WIP Nos.", JobsSetup."Job WIP Nos.", 0D, DocNo, NewNoSeriesCode);
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(JobsSetup."Job WIP Nos.", '', 0D, DocNo, NewNoSeriesCode, IsHandled);
+            if not IsHandled then begin
+#endif
+                NewNoSeriesCode := JobsSetup."Job WIP Nos.";
+                DocNo := NoSeries.GetNextNo(NewNoSeriesCode);
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries(NewNoSeriesCode, JobsSetup."Job WIP Nos.", 0D, DocNo);
+            end;
+#endif
         end;
     }
 
@@ -109,13 +122,26 @@ report 1086 "Job Calculate WIP"
 
     trigger OnPreReport()
     var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        IsHandled: Boolean;
+#endif
         NewNoSeriesCode: Code[20];
     begin
         JobsSetup.Get();
 
         if DocNo = '' then begin
             JobsSetup.TestField("Job Nos.");
-            NoSeriesMgt.InitSeries(JobsSetup."Job WIP Nos.", JobsSetup."Job WIP Nos.", 0D, DocNo, NewNoSeriesCode);
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(JobsSetup."Job WIP Nos.", '', 0D, DocNo, NewNoSeriesCode, IsHandled);
+            if not IsHandled then begin
+#endif
+                NewNoSeriesCode := JobsSetup."Job WIP Nos.";
+                DocNo := NoSeries.GetNextNo(NewNoSeriesCode);
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries(NewNoSeriesCode, JobsSetup."Job WIP Nos.", 0D, DocNo);
+            end;
+#endif
         end;
 
         if PostingDate = 0D then
@@ -129,13 +155,16 @@ report 1086 "Job Calculate WIP"
         Text001: Label 'There were no new WIP entries created.';
         Text002: Label 'WIP was calculated with warnings.\';
         PreviewQst: Label 'Do you want to preview the posting accounts?';
-        RunWIPFunctionsQst: Label 'You must run the %1 function to post the completion entries for this job. \Do you want to run this function now?', Comment = '%1 = The name of the Job Post WIP to G/L report';
+        RunWIPFunctionsQst: Label 'You must run the %1 function to post the completion entries for this project. \Do you want to run this function now?', Comment = '%1 = The name of the Project Post WIP to G/L report';
 
     protected var
         JobWIPEntry: Record "Job WIP Entry";
         JobsSetup: Record "Jobs Setup";
         JobCalculateBatches: Codeunit "Job Calculate Batches";
+#if not CLEAN24
+        [Obsolete('Please use codeunit No. Series instead.', '24.0')]
         NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
         PostingDate: Date;
         DocNo: Code[20];
         WIPPostedWithWarnings: Boolean;

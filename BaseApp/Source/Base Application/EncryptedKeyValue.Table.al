@@ -8,6 +8,7 @@ table 1805 "Encrypted Key/Value"
     ObsoleteState = Removed;
     ReplicateData = false;
     ObsoleteTag = '15.0';
+    DataClassification = CustomerContent;
 
     fields
     {

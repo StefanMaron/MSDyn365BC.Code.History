@@ -6,6 +6,7 @@ table 752 "Standard Item Journal"
 {
     Caption = 'Standard Item Journal';
     LookupPageID = "Standard Item Journals";
+    DataClassification = CustomerContent;
 
     fields
     {

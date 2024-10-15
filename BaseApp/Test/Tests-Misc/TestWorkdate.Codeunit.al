@@ -22,9 +22,9 @@ codeunit 139028 "Test Workdate"
     begin
         FoundWorkDate := LogInManagement.GetDefaultWorkDate();
         if StrPos(CompanyName, CRONUSTxt) = 1 then
-            Assert.AreEqual(WorkDate(), LogInManagement.GetDefaultWorkDate, WrongWorkdateErr)
+            Assert.AreEqual(WorkDate(), LogInManagement.GetDefaultWorkDate(), WrongWorkdateErr)
         else
-            Assert.IsTrue(WorkDate in [CalcDate('<-1D>', FoundWorkDate), FoundWorkDate, CalcDate('<+1D>', FoundWorkDate)], WrongWorkdateErr)
+            Assert.IsTrue(WorkDate() in [CalcDate('<-1D>', FoundWorkDate), FoundWorkDate, CalcDate('<+1D>', FoundWorkDate)], WrongWorkdateErr)
     end;
 }
 

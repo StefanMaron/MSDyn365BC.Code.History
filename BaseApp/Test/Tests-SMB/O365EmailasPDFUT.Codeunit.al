@@ -61,16 +61,16 @@ codeunit 138002 "O365 Email as PDF UT"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Email as PDF UT");
-        BindActiveDirectoryMockEvents;
+        BindActiveDirectoryMockEvents();
         LibraryApplicationArea.EnableFoundationSetup();
     end;
 
     local procedure BindActiveDirectoryMockEvents()
     begin
-        if ActiveDirectoryMockEvents.Enabled then
+        if ActiveDirectoryMockEvents.Enabled() then
             exit;
         BindSubscription(ActiveDirectoryMockEvents);
-        ActiveDirectoryMockEvents.Enable;
+        ActiveDirectoryMockEvents.Enable();
     end;
 }
 

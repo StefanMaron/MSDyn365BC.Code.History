@@ -60,7 +60,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         SetupItemWithRoutingWithCosts(Item);
 
         UpdateItemLotSize(Item, LibraryRandom.RandIntInRange(3, 5));
-        BOMCostShares.Trap;
+        BOMCostShares.Trap();
         RunBOMCostSharesPage(Item);
         TotalLeafsRolledUpCapacityCost += GetRolledUpCapacityCostValue(BOMCostShares, BOMBuffer.Type::"Machine Center");
         TotalLeafsRolledUpCapacityCost += GetRolledUpCapacityCostValue(BOMCostShares, BOMBuffer.Type::"Work Center");
@@ -479,7 +479,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         LibraryTrees.CreateMixedTree(Item, Item."Replenishment System"::"Prod. Order", Item."Costing Method"::Standard, 2, 2, 0);
 
         // [WHEN] Run BOM Cost Shares page.
-        BOMCostShares.Trap;
+        BOMCostShares.Trap();
         RunBOMCostSharesPage(Item);
 
         // [THEN] Verify "Qty. per Parent" field on the page.
@@ -488,7 +488,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         while BOMCostShares.Next() do begin
             BOMCostShares.Expand(true);
             LibraryTrees.GetQtyPerInTree(QtyPerParent, QtyPerTopItem, Item."No.", Format(BOMCostShares."No."));
-            Assert.AreEqual(QtyPerParent, BOMCostShares."Qty. per Parent".AsDEcimal, 'Qty. per Parent is invalid.');
+            Assert.AreEqual(QtyPerParent, BOMCostShares."Qty. per Parent".AsDecimal(), 'Qty. per Parent is invalid.');
         end;
     end;
 
@@ -639,7 +639,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         Assert.AreNearlyEqual(61, ProdItem."Standard Cost", ProdItem."Rounding Precision", StrSubstNo(IncorrectValueErr, ProdItem.TableName, ProdItem.FieldName("Standard Cost")));
 
         // [WHEN] Cost Shares
-        BOMCostShares.Trap;
+        BOMCostShares.Trap();
         RunBOMCostSharesPage(ProdItem);
 
         // [THEN] Verify Cost Shares for Work Center
@@ -740,9 +740,9 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         CostAmount: Decimal;
         RoundingFactor: Decimal;
     begin
-        RoundingFactor := 100 * LibraryERM.GetUnitAmountRoundingPrecision;
+        RoundingFactor := 100 * LibraryERM.GetUnitAmountRoundingPrecision();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ItemNo', ItemNo);
 
         CostAmount := LibraryReportDataset.Sum('MaterialCost');
@@ -780,26 +780,26 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
     begin
         BOMCostShares.FILTER.SetFilter(Type, Format(BOMBuffer.Type::Item));
         BOMCostShares.FILTER.SetFilter("No.", ItemNo);
-        BOMCostShares.First;
+        BOMCostShares.First();
 
-        RoundingFactor := 100 * LibraryERM.GetUnitAmountRoundingPrecision;
+        RoundingFactor := 100 * LibraryERM.GetUnitAmountRoundingPrecision();
         Assert.AreNearlyEqual(
-          ExpMaterialCost, BOMCostShares."Rolled-up Material Cost".AsDEcimal, RoundingFactor,
+          ExpMaterialCost, BOMCostShares."Rolled-up Material Cost".AsDecimal(), RoundingFactor,
           'Wrong Material Cost in item ' + ItemNo);
         Assert.AreNearlyEqual(
-          ExpCapacityCost, BOMCostShares."Rolled-up Capacity Cost".AsDEcimal, RoundingFactor,
+          ExpCapacityCost, BOMCostShares."Rolled-up Capacity Cost".AsDecimal(), RoundingFactor,
           'Wrong Capacity Cost in item ' + ItemNo);
         Assert.AreNearlyEqual(
-          ExpMfgOvhdCost, BOMCostShares."Rolled-up Mfg. Ovhd Cost".AsDEcimal, RoundingFactor,
+          ExpMfgOvhdCost, BOMCostShares."Rolled-up Mfg. Ovhd Cost".AsDecimal(), RoundingFactor,
           'Wrong Mfg. Overhead in item ' + ItemNo);
         Assert.AreNearlyEqual(
-          ExpCapOvhdCost, BOMCostShares."Rolled-up Capacity Ovhd. Cost".AsDEcimal, RoundingFactor,
+          ExpCapOvhdCost, BOMCostShares."Rolled-up Capacity Ovhd. Cost".AsDecimal(), RoundingFactor,
           'Wrong Cap. Overhead in item ' + ItemNo);
         Assert.AreNearlyEqual(
-          ExpSubcontractedCost, BOMCostShares."Rolled-up Subcontracted Cost".AsDEcimal, RoundingFactor,
+          ExpSubcontractedCost, BOMCostShares."Rolled-up Subcontracted Cost".AsDecimal(), RoundingFactor,
           'Wrong Subcontracted Cost in item ' + ItemNo);
         Assert.AreNearlyEqual(
-          ExpTotalCost, BOMCostShares."Total Cost".AsDEcimal, RoundingFactor, 'Wrong Total Cost in item ' + ItemNo);
+          ExpTotalCost, BOMCostShares."Total Cost".AsDecimal(), RoundingFactor, 'Wrong Total Cost in item ' + ItemNo);
     end;
 
     local procedure VerifyParentItemMaterialAndCapacityCost(var BOMCostShares: TestPage "BOM Cost Shares"; ItemNo: Code[20]; ExpectedItemCost: Decimal; ExpectedCapacityCost: Decimal)
@@ -808,7 +808,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
     begin
         BOMCostShares.FILTER.SetFilter(Type, Format(BOMBuffer.Type::Item));
         BOMCostShares.FILTER.SetFilter("No.", ItemNo);
-        BOMCostShares.First;
+        BOMCostShares.First();
         BOMCostShares."Rolled-up Material Cost".AssertEquals(ExpectedItemCost);
         BOMCostShares."Rolled-up Capacity Cost".AssertEquals(ExpectedCapacityCost);
     end;
@@ -816,8 +816,8 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
     local procedure GetRolledUpCapacityCostValue(var BOMCostShares: TestPage "BOM Cost Shares"; BOMBufferType: Enum "BOM Type"): Decimal
     begin
         BOMCostShares.FILTER.SetFilter(Type, Format(BOMBufferType));
-        BOMCostShares.First;
-        exit(BOMCostShares."Rolled-up Capacity Cost".AsDEcimal);
+        BOMCostShares.First();
+        exit(BOMCostShares."Rolled-up Capacity Cost".AsDecimal());
     end;
 
     local procedure RunBOMStructurePage(var Item: Record Item)
@@ -859,14 +859,14 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
           Item."Rolled-up Mfg. Ovhd Cost", Item."Rolled-up Cap. Overhead Cost", Item."Rolled-up Subcontracted Cost", Item."Unit Cost");
 
         Commit();
-        BOMCostShares."Show Warnings".Invoke; // Call Show Warnings for code coverage purposes.
+        BOMCostShares."Show Warnings".Invoke(); // Call Show Warnings for code coverage purposes.
 
         // Enqueue parameters for report.
         LibraryVariableStorage.Enqueue(ShowCostShareAs::"Single-level");
         LibraryVariableStorage.Enqueue(ShowLevelAs::"BOM Leaves");
         LibraryVariableStorage.Enqueue(true);
-        BOMCostShares."BOM Cost Share Distribution".Invoke; // Call BOM Cost Shares distribution report for code coverage purposes.
-        BOMCostShares.OK.Invoke;
+        BOMCostShares."BOM Cost Share Distribution".Invoke(); // Call BOM Cost Shares distribution report for code coverage purposes.
+        BOMCostShares.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -890,7 +890,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         BOMCostShareDistribution.ShowCostShareAs.SetValue(ShowCostShareAs);
         BOMCostShareDistribution.ShowLevelAs.SetValue(ShowLevelAs);
         BOMCostShareDistribution.ShowDetails.SetValue(ShowDetails);
-        BOMCostShareDistribution.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BOMCostShareDistribution.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [PageHandler]
@@ -900,7 +900,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
 
         Commit();
         BOMCostShares."BOM Cost Share Distribution".Invoke();
-        BOMCostShares.OK.Invoke();
+        BOMCostShares.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -931,19 +931,19 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         while BOMStructure.Next() do begin
             LibraryTrees.GetQtyPerInTree(QtyPerParent, QtyPerTopItem, ItemNo, Format(BOMStructure."No."));
             Assert.AreEqual(
-              QtyPerParent, BOMStructure."Qty. per Parent".AsDEcimal, 'Wrong Qty per parent on page for item ' + Format(BOMStructure."No."));
-            Assert.AreEqual(false, BOMStructure.HasWarning.AsBoolean, 'Unexpected warning present in item ' + Format(BOMStructure."No."));
+              QtyPerParent, BOMStructure."Qty. per Parent".AsDecimal(), 'Wrong Qty per parent on page for item ' + Format(BOMStructure."No."));
+            Assert.AreEqual(false, BOMStructure.HasWarning.AsBoolean(), 'Unexpected warning present in item ' + Format(BOMStructure."No."));
         end;
 
         Commit();
-        BOMStructure."Show Warnings".Invoke; // Call Show Warnings for code coverage purposes.
+        BOMStructure."Show Warnings".Invoke(); // Call Show Warnings for code coverage purposes.
 
         // Enqueue parameters for report.
         LibraryVariableStorage.Enqueue(ShowCostShareAs::"Single-level");
         LibraryVariableStorage.Enqueue(ShowLevelAs::"BOM Leaves");
         LibraryVariableStorage.Enqueue(true);
-        BOMStructure."BOM Level".Invoke; // Call BOM Cost Shares distribution report for code coverage purposes.
-        BOMStructure.OK.Invoke;
+        BOMStructure."BOM Level".Invoke(); // Call BOM Cost Shares distribution report for code coverage purposes.
+        BOMStructure.OK().Invoke();
     end;
 
     [PageHandler]
@@ -958,7 +958,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
     [Scope('OnPrem')]
     procedure ItemAvailabilityByBOMPageHandler(var ItemAvailByBOMLevel: TestPage "Item Availability by BOM Level")
     begin
-        ItemAvailByBOMLevel.OK.Invoke;
+        ItemAvailByBOMLevel.OK().Invoke();
     end;
 
     [StrMenuHandler]

@@ -66,7 +66,7 @@ codeunit 134395 "ERM Document Totals UT"
 
         // Verify
         SalesVerifyTotalsAreCalculated(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, SalesHeader);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -108,7 +108,7 @@ codeunit 134395 "ERM Document Totals UT"
         // Verify
         Assert.AreNotEqual(PreviousTotalAmount, TotalsSalesLine.Amount, 'Total amount should be updated');
         SalesVerifyTotalsAreCalculated(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, SalesHeader);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -139,7 +139,7 @@ codeunit 134395 "ERM Document Totals UT"
 
         // Verify
         SalesVerifyTotalsAreSetToZero(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, TotalsSalesLine, VATAmount);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -184,7 +184,7 @@ codeunit 134395 "ERM Document Totals UT"
 
         // Verify
         SalesVerifyTotalsAreSetToZero(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, TotalsSalesLine, VATAmount);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -227,7 +227,7 @@ codeunit 134395 "ERM Document Totals UT"
 
         // Verify
         SalesVerifyTotalsAreCalculated(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, SalesHeader);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -299,7 +299,7 @@ codeunit 134395 "ERM Document Totals UT"
 
         // Verify
         PurchaseVerifyTotalsAreCalculated(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, PurchaseHeader);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -341,7 +341,7 @@ codeunit 134395 "ERM Document Totals UT"
         // Verify
         Assert.AreNotEqual(PreviousTotalAmount, TotalsPurchaseLine.Amount, 'Total amount should be updated');
         PurchaseVerifyTotalsAreCalculated(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, PurchaseHeader);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -372,7 +372,7 @@ codeunit 134395 "ERM Document Totals UT"
 
         // Verify
         PurchaseVerifyTotalsAreSetToZero(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, TotalsPurchaseLine, VATAmount);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -417,7 +417,7 @@ codeunit 134395 "ERM Document Totals UT"
 
         // Verify
         PurchaseVerifyTotalsAreSetToZero(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, TotalsPurchaseLine, VATAmount);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -460,7 +460,7 @@ codeunit 134395 "ERM Document Totals UT"
 
         // Verify
         PurchaseVerifyTotalsAreCalculated(RefreshMessageEnabled, ControlStyle, InvDiscAmountEditable, PurchaseHeader);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -774,7 +774,7 @@ codeunit 134395 "ERM Document Totals UT"
 
         CreateSalesDocumentWithTwoLines(SalesHeader, SalesHeader."Document Type"::Order, VATPostingSetup, 50.45, -1.47);
 
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder.SalesLines."Total VAT Amount".AssertEquals(9.79);
     end;
@@ -796,7 +796,7 @@ codeunit 134395 "ERM Document Totals UT"
 
         CreatePurchaseDocumentWithTwoLines(PurchaseHeader, PurchaseHeader."Document Type"::Order, VATPostingSetup, 50.45, -1.47);
 
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.PurchLines."Total VAT Amount".AssertEquals(9.79);
     end;
@@ -819,7 +819,7 @@ codeunit 134395 "ERM Document Totals UT"
 
         CreateSalesDocumentWithTwoLines(SalesHeader, SalesHeader."Document Type"::Invoice, VATPostingSetup, 50.45, -1.47);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice.SalesLines."Total VAT Amount".AssertEquals(9.79);
     end;
@@ -841,7 +841,7 @@ codeunit 134395 "ERM Document Totals UT"
 
         CreatePurchaseDocumentWithTwoLines(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VATPostingSetup, 50.45, -1.47);
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice.PurchLines."Total VAT Amount".AssertEquals(9.79);
     end;
@@ -960,9 +960,9 @@ codeunit 134395 "ERM Document Totals UT"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LineQuantity);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LineQuantity);
         PurchaseLine.Validate("Direct Unit Cost", LineDirectUnitCost);
         PurchaseLine.Validate("Line Discount Amount", LineDiscountAmount);
         PurchaseLine.Modify(true);
@@ -972,9 +972,9 @@ codeunit 134395 "ERM Document Totals UT"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LineQuantity);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LineQuantity);
         SalesLine.Validate("Unit Price", LineUnitPrice);
         SalesLine.Validate("Line Discount Amount", LineDiscountAmount);
         SalesLine.Modify(true);
@@ -1032,14 +1032,14 @@ codeunit 134395 "ERM Document Totals UT"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         LibraryVariableStorage.Clear();
-        LibraryVariableStorage.Enqueue(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal);
+        LibraryVariableStorage.Enqueue(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal());
         LibraryVariableStorage.Enqueue(
-          DoInvoiceRounding(SalesHeader."Currency Code", SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal));
-        LibraryVariableStorage.Enqueue(SalesOrder.SalesLines."Total VAT Amount".AsDEcimal);
-        SalesOrder.Statistics.Invoke;
+          DoInvoiceRounding(SalesHeader."Currency Code", SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal()));
+        LibraryVariableStorage.Enqueue(SalesOrder.SalesLines."Total VAT Amount".AsDecimal());
+        SalesOrder.Statistics.Invoke();
     end;
 
     local procedure SalesVerifyTotalsAreSetToZero(RefreshMessageEnabled: Boolean; ControlStyle: Text; InvDiscAmountEditable: Boolean; TotalsSalesLine: Record "Sales Line"; VATAmount: Decimal)
@@ -1066,13 +1066,13 @@ codeunit 134395 "ERM Document Totals UT"
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         LibraryVariableStorage.Clear();
-        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal);
-        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal);
-        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal);
-        PurchaseOrder.Statistics.Invoke;
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal());
+        LibraryVariableStorage.Enqueue(PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal());
+        PurchaseOrder.Statistics.Invoke();
     end;
 
     local procedure PurchaseVerifyTotalsAreSetToZero(RefreshMessageEnabled: Boolean; ControlStyle: Text; InvDiscAmountEditable: Boolean; TotalsPurchaseLine: Record "Purchase Line"; VATAmount: Decimal)
@@ -1107,11 +1107,11 @@ codeunit 134395 "ERM Document Totals UT"
         LibraryVariableStorage.Dequeue(TotalAmountInclVAT);
         LibraryVariableStorage.Dequeue(VATApplied);
 
-        Assert.AreEqual(InvDiscAmount, SalesOrderStatistics.InvDiscountAmount_General.AsDEcimal,
+        Assert.AreEqual(InvDiscAmount, SalesOrderStatistics.InvDiscountAmount_General.AsDecimal(),
           'Invoice Discount Amount is not correct');
-        Assert.AreEqual(TotalAmountInclVAT, SalesOrderStatistics."TotalAmount2[1]".AsDEcimal,
+        Assert.AreEqual(TotalAmountInclVAT, SalesOrderStatistics."TotalAmount2[1]".AsDecimal(),
           'Total Amount Incl. VAT is not correct');
-        Assert.AreEqual(VATApplied, SalesOrderStatistics.VATAmount.AsDEcimal,
+        Assert.AreEqual(VATApplied, SalesOrderStatistics.VATAmount.AsDecimal(),
           'VAT Amount is not correct');
     end;
 
@@ -1127,11 +1127,11 @@ codeunit 134395 "ERM Document Totals UT"
         LibraryVariableStorage.Dequeue(TotalAmountInclVAT);
         LibraryVariableStorage.Dequeue(VATApplied);
 
-        Assert.AreEqual(InvDiscAmount, PurchaseOrderStatistics.InvDiscountAmount_General.AsDEcimal,
+        Assert.AreEqual(InvDiscAmount, PurchaseOrderStatistics.InvDiscountAmount_General.AsDecimal(),
           'Invoice Discount Amount is not correct');
-        Assert.AreEqual(TotalAmountInclVAT, PurchaseOrderStatistics.TotalInclVAT_General.AsDEcimal,
+        Assert.AreEqual(TotalAmountInclVAT, PurchaseOrderStatistics.TotalInclVAT_General.AsDecimal(),
           'Total Amount Incl. VAT is not correct');
-        Assert.AreEqual(VATApplied, PurchaseOrderStatistics."VATAmount[1]".AsDEcimal,
+        Assert.AreEqual(VATApplied, PurchaseOrderStatistics."VATAmount[1]".AsDecimal(),
           'VAT Amount is not correct');
     end;
 

@@ -38,6 +38,7 @@ codeunit 134047 "ERM VAT Setup"
         SalesAccounts: Boolean;
         PurchaseAccounts: Boolean;
         VATError: Label '%1 must be %2 in %3.';
+        FormatError2: Label 'The entered VAT Registration number for %1 %2 is not in agreement with the format specified for Country/Region Code %3.\The following formats are acceptable: %4', Comment = '%1 - Record Type, %2 - Record No., %3 - Country Region Code, %4 - VAT Format';
 
     [Test]
     [HandlerFunctions('InvalidCharConfirmHandler')]
@@ -118,7 +119,7 @@ codeunit 134047 "ERM VAT Setup"
         asserterror Customer.Validate("VAT Registration No.", 'TestInvalid.' + Format(999 + LibraryRandom.RandInt(10)));
 
         // Verify: Verify the Error Message appeared while changing VAT Registration No.
-        Assert.AreEqual(StrSubstNo(FormatError, CountryRegionCode, VATFormat), GetLastErrorText, ErrorMustAppear);
+        Assert.AreEqual(StrSubstNo(FormatError2, Customer.TableCaption, Customer."No.", CountryRegionCode, VATFormat), GetLastErrorText, ErrorMustAppear);
     end;
 
     [Test]
@@ -211,7 +212,7 @@ codeunit 134047 "ERM VAT Setup"
         asserterror Vendor.Validate("VAT Registration No.", 'TestInvalid.' + Format(100 + LibraryRandom.RandInt(899)) + '.1');
 
         // Verify: Verify the Error Message appeared while changing VAT Registration No.
-        Assert.AreEqual(StrSubstNo(FormatError, CountryRegionCode, VATFormat), GetLastErrorText, ErrorMustAppear);
+        Assert.AreEqual(StrSubstNo(FormatError2, Vendor.TableCaption, Vendor."No.", CountryRegionCode, VATFormat), GetLastErrorText, ErrorMustAppear);
     end;
 
     [Test]
@@ -271,7 +272,7 @@ codeunit 134047 "ERM VAT Setup"
         asserterror Contact.Validate("VAT Registration No.", 'TestInvalid' + Format(LibraryRandom.RandInt(100)));
 
         // Verify: Verify the Error Message appeared while changing VAT Registration No.
-        Assert.AreEqual(StrSubstNo(FormatError, CountryRegionCode, VATFormat), GetLastErrorText, ErrorMustAppear);
+        Assert.AreEqual(StrSubstNo(FormatError2, Contact.TableCaption, Contact."No.", CountryRegionCode, VATFormat), GetLastErrorText, ErrorMustAppear);
     end;
 
     [Test]
@@ -485,7 +486,7 @@ codeunit 134047 "ERM VAT Setup"
 
         // Verify.
         Assert.IsFalse(
-          CountriesRegions."VAT Reg. No. Formats".Enabled, 'VAT Registration No. Formats button must not be enabled.');
+          CountriesRegions."VAT Reg. No. Formats".Enabled(), 'VAT Registration No. Formats button must not be enabled.');
     end;
 
     [Test]
@@ -507,7 +508,7 @@ codeunit 134047 "ERM VAT Setup"
         DeleteCountryRegion(CountryRegionCode);
 
         // Verify: Verify VAT Format does not exist on VAT Registration No. Formats page.
-        VATRegistrationNoFormats.OpenView;
+        VATRegistrationNoFormats.OpenView();
         VATRegistrationNoFormats.FILTER.SetFilter("Country/Region Code", CountryRegionCode);
         asserterror VATRegistrationNoFormats.Format.AssertEquals(VATFormat);
     end;
@@ -530,7 +531,7 @@ codeunit 134047 "ERM VAT Setup"
         CreateVATPostingSetup(VATPostingSetup);
 
         // Exercise: Copy VAT Posting Setup with all fields.
-        FindVATPostingSetup;
+        FindVATPostingSetup();
         Commit();
         CopyVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");  // Use CopyAllFieldHandler here.
 
@@ -556,7 +557,7 @@ codeunit 134047 "ERM VAT Setup"
         CreateVATPostingSetup(VATPostingSetup);
 
         // Exercise: Copy VAT Posting Setup with selected fields.
-        FindVATPostingSetup;
+        FindVATPostingSetup();
         Commit();
         CopyVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");    // Use CopySelectedFieldHandler here.
 
@@ -760,8 +761,8 @@ codeunit 134047 "ERM VAT Setup"
         // [THEN] A message is shown:
         // [THEN] "This VAT registration number has already been entered for the following customers:"
         // [THEN] "C1, ... CK..."
-        VerifyMessageWithLast3DotChars(StrSubstNo(MultiCustomerMsg, ''), LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        VerifyMessageWithLast3DotChars(StrSubstNo(MultiCustomerMsg, ''), LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -791,8 +792,8 @@ codeunit 134047 "ERM VAT Setup"
         // [THEN] A message is shown:
         // [THEN] "This VAT registration number has already been entered for the following vendors:"
         // [THEN] "V1, ... VK..."
-        VerifyMessageWithLast3DotChars(StrSubstNo(MultiVendorMsg, ''), LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        VerifyMessageWithLast3DotChars(StrSubstNo(MultiVendorMsg, ''), LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -822,8 +823,8 @@ codeunit 134047 "ERM VAT Setup"
         // [THEN] A message is shown:
         // [THEN] "This VAT registration number has already been entered for the following contacts:"
         // [THEN] "C1, ... CK..."
-        VerifyMessageWithLast3DotChars(StrSubstNo(MultiContactMsg, ''), LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        VerifyMessageWithLast3DotChars(StrSubstNo(MultiContactMsg, ''), LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -934,15 +935,11 @@ codeunit 134047 "ERM VAT Setup"
     [Test]
     procedure TestVATPostingSetupChangeVATCalcTypeError()
     var
-        GeneralPostingSetup: Record "General Posting Setup";
-        GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        ItemNo: Code[20];
-        CustomerNo: Code[20];
         VatPostingSetupTestPage: TestPage "VAT Posting Setup";
     begin
 
@@ -990,7 +987,7 @@ codeunit 134047 "ERM VAT Setup"
         Counter: Integer;
     begin
         // Take Random Quantity and Unit Price.
-        CreateSalesHeader(SalesHeader, VATPostingSetup, DocumentType, false);
+        CreateSalesHeader(SalesHeader, VATPostingSetup, DocumentType);
         for Counter := 1 to NoOfLine do begin  // Create Multiple Sales Line.
             CreateSalesLine(SalesLine, SalesHeader, VATPostingSetup);
             SalesLine.Validate("Qty. to Ship", SalesLine.Quantity / 2);
@@ -999,7 +996,7 @@ codeunit 134047 "ERM VAT Setup"
         end;
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type"; PricesInclVAT: Boolean)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type")
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibrarySales.CreateSalesHeader(
@@ -1023,7 +1020,7 @@ codeunit 134047 "ERM VAT Setup"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        ExecuteUIHandler;
+        ExecuteUIHandler();
         LibraryVariableStorage.Clear();
 
         // Clear global variable.
@@ -1059,10 +1056,10 @@ codeunit 134047 "ERM VAT Setup"
     var
         VATPostingSetupPage: TestPage "VAT Posting Setup";
     begin
-        VATPostingSetupPage.OpenEdit;
+        VATPostingSetupPage.OpenEdit();
         VATPostingSetupPage.FILTER.SetFilter("VAT Bus. Posting Group", VATBusPostingGroup);
         VATPostingSetupPage.FILTER.SetFilter("VAT Prod. Posting Group", VATProdPostingGroup);
-        VATPostingSetupPage.Copy.Invoke;
+        VATPostingSetupPage.Copy.Invoke();
     end;
 
     local procedure CreateAndUpdateCountryCustomer(var Customer: Record Customer; CountryRegionCode: Code[10])
@@ -1317,20 +1314,20 @@ codeunit 134047 "ERM VAT Setup"
 
     local procedure CopyVATPostingSetupCard(var VATPostingSetupCard: TestPage "VAT Posting Setup Card"; VATPostingSetup: Record "VAT Posting Setup")
     begin
-        VATPostingSetupCard.OpenEdit;
+        VATPostingSetupCard.OpenEdit();
         VATPostingSetupCard.FILTER.SetFilter("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         VATPostingSetupCard.FILTER.SetFilter("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         Commit();
-        VATPostingSetupCard.Copy.Invoke;
+        VATPostingSetupCard.Copy.Invoke();
     end;
 
     local procedure CopyGenPostingSetupCard(var GenPostingSetupCard: TestPage "General Posting Setup Card"; GenPostingSetup: Record "General Posting Setup")
     begin
-        GenPostingSetupCard.OpenEdit;
+        GenPostingSetupCard.OpenEdit();
         GenPostingSetupCard.FILTER.SetFilter("Gen. Bus. Posting Group", GenPostingSetup."Gen. Bus. Posting Group");
         GenPostingSetupCard.FILTER.SetFilter("Gen. Prod. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
         Commit();
-        GenPostingSetupCard.Copy.Invoke;
+        GenPostingSetupCard.Copy.Invoke();
     end;
 
     local procedure VerifyVATPostingSetupWithAccounts(VATPostingSetupPageCard: TestPage "VAT Posting Setup Card"; VATPostingSetup: Record "VAT Posting Setup")
@@ -1377,7 +1374,7 @@ codeunit 134047 "ERM VAT Setup"
             CopyVATPostingSetup.SalesAccounts.SetValue(SalesAccounts);
             CopyVATPostingSetup.PurchaseAccounts.SetValue(PurchaseAccounts);
         end;
-        CopyVATPostingSetup.OK.Invoke;
+        CopyVATPostingSetup.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1393,7 +1390,7 @@ codeunit 134047 "ERM VAT Setup"
         CopyVatPostingSetup.VATProdPostingGroup.SetValue(VATProdPostingGroup);
         CopyVatPostingSetup.SalesAccounts.SetValue(true);
         CopyVatPostingSetup.PurchaseAccounts.SetValue(true);
-        CopyVatPostingSetup.OK.Invoke;
+        CopyVatPostingSetup.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1409,7 +1406,7 @@ codeunit 134047 "ERM VAT Setup"
         CopyGenPostingSetup.GenProdPostingGroup.SetValue(GenProdPostingGroup);
         CopyGenPostingSetup.SalesAccounts.SetValue(true);
         CopyGenPostingSetup.PurchaseAccounts.SetValue(true);
-        CopyGenPostingSetup.OK.Invoke;
+        CopyGenPostingSetup.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1457,7 +1454,7 @@ codeunit 134047 "ERM VAT Setup"
     [Scope('OnPrem')]
     procedure VATRegistrationLogHandlerSimple(var VATRegistrationLog: TestPage "VAT Registration Log")
     begin
-        VATRegistrationLog.OK.Invoke;
+        VATRegistrationLog.OK().Invoke();
     end;
 }
 

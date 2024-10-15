@@ -78,7 +78,7 @@ codeunit 99000770 "Where-Used Management"
         ItemAssembly: Record Item;
         ProdBOMComponent: Record "Production BOM Line";
     begin
-        OnBeforeBuildWhereUsedList(Type, No, MultiLevel, CalcDate, Level, Quantity, NextWhereUsedEntryNo, TempWhereUsedList);
+        OnBeforeBuildWhereUsedList(Type.AsInteger(), No, MultiLevel, CalcDate, Level, Quantity, NextWhereUsedEntryNo, TempWhereUsedList);
         if Level > 30 then
             exit;
 
@@ -143,7 +143,7 @@ codeunit 99000770 "Where-Used Management"
                 end;
             until ProdBOMComponent.Next() = 0;
 
-        OnAfterBuildWhereUsedList(Type, No, CalcDate, TempWhereUsedList, NextWhereUsedEntryNo, Level, Quantity, MultiLevel);
+        OnAfterBuildWhereUsedList(Type.AsInteger(), No, CalcDate, TempWhereUsedList, NextWhereUsedEntryNo, Level, Quantity, MultiLevel);
     end;
 
     procedure IsActiveProductionBOM(ProductionBOMLine: Record "Production BOM Line") Result: Boolean

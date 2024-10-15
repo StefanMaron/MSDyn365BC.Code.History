@@ -12,6 +12,7 @@ table 2003 "Cortana Intelligence Usage"
     ObsoleteReason = 'Renamed to Azure AI Usage';
     ObsoleteTag = '15.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -105,7 +106,7 @@ table 2003 "Cortana Intelligence Usage"
         MLPredictionManagement: Codeunit "ML Prediction Management";
         EnvironmentInfo: Codeunit "Environment Information";
         ApiUri: Text[250];
-        ApiKey: Text[200];
+        ApiKey: SecretText;
         LimitType: Option;
         LimitValue: Decimal;
         LimitValueInt: Integer;
@@ -137,7 +138,7 @@ table 2003 "Cortana Intelligence Usage"
                     end;
 
                     if (not ImageAnalysisIsSetup) and
-                       (ImageAnalysisSetup.GetApiKey() = '') and (ImageAnalysisSetup."Api Uri" = '') and
+                       ImageAnalysisSetup.GetApiKeyAsSecret().IsEmpty() and (ImageAnalysisSetup."Api Uri" = '') and
                        EnvironmentInfo.IsSaaS()
                     then
                         if ImageAnalysisManagement.GetImageAnalysisCredentials(ApiKey, ApiUri, LimitType, LimitValueInt) then begin

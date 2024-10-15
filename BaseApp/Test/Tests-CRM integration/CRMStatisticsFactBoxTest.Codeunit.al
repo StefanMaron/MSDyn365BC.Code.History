@@ -83,7 +83,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         // [FEATURE] [Customer List] [Case]
         LibraryApplicationArea.EnableFoundationSetup();
         OpenCRMCasesFromCRMStatisticsFactBox(HostPageName::CustomerList);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -95,7 +95,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         // [FEATURE] [Customer List] [Opportunity]
         LibraryApplicationArea.EnableFoundationSetup();
         OpenCRMOpportunitiesFromCRMStatisticsFactBox(HostPageName::CustomerList);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -107,7 +107,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         // [FEATURE] [Customer List] [Quote]
         LibraryApplicationArea.EnableFoundationSetup();
         OpenCRMQuotesFromCRMStatisticsFactBox(HostPageName::CustomerList);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -119,7 +119,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         // [FEATURE] [Customer Card] [Case]
         LibraryApplicationArea.EnableFoundationSetup();
         OpenCRMCasesFromCRMStatisticsFactBox(HostPageName::CustomerCard);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -131,7 +131,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         // [FEATURE] [Customer Card] [Opportunity]
         LibraryApplicationArea.EnableFoundationSetup();
         OpenCRMOpportunitiesFromCRMStatisticsFactBox(HostPageName::CustomerCard);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -143,7 +143,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         // [FEATURE] [Customer Card] [Quote]
         LibraryApplicationArea.EnableFoundationSetup();
         OpenCRMQuotesFromCRMStatisticsFactBox(HostPageName::CustomerCard);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -175,7 +175,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         // [FEATURE] [Customer Card]
         LibraryApplicationArea.EnableFoundationSetup();
         CRMStatisticsFactBoxNotVisibleOnHostPage(HostPageName::CustomerCard);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -187,7 +187,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         // [FEATURE] [Customer List]
         LibraryApplicationArea.EnableFoundationSetup();
         CRMStatisticsFactBoxNotVisibleOnHostPage(HostPageName::CustomerList);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -219,7 +219,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         // [FEATURE] [Customer Card]
         LibraryApplicationArea.EnableFoundationSetup();
         CRMStatisticsFactBoxNotVisibleWhenCRMDisabled(HostPageName::CustomerCard);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -231,17 +231,17 @@ codeunit 139176 "CRM Statistics FactBox Test"
         // [FEATURE] [Customer List]
         LibraryApplicationArea.EnableFoundationSetup();
         CRMStatisticsFactBoxNotVisibleWhenCRMDisabled(HostPageName::CustomerList);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     local procedure CRMStatisticsFactBoxNotVisibleOnHostPage(HostPageName: Option CustomerCard,CustomerList)
     var
         Customer: Record Customer;
     begin
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
         // [SCENARIO] The CRM Statistics FactBox is only visible when the customer has a CRM coupling
         // [GIVEN] No matter if the CRM is enabled globally
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ConfigureCRM();
 
         // [WHEN] The customer is not coupled in CRM
         LibrarySales.CreateCustomer(Customer);
@@ -256,8 +256,8 @@ codeunit 139176 "CRM Statistics FactBox Test"
         CRMAccount: Record "CRM Account";
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
 
         // [SCENARIO] The CRM Statistics FactBox is not visible when the customer has a CRM coupling, but CRM is disabled
         // [GIVEN] A customer having a CRM Coupling
@@ -281,8 +281,8 @@ codeunit 139176 "CRM Statistics FactBox Test"
         LinkedPageName: Option Cases,Opportunities,Quotes;
         CaseCounter: Integer;
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
 
         // [SCENARIO] Open the CRM Opportunities list page from the CRM Statistics FactBox on the Customer List
         // [GIVEN] CRM is enabled, coupled customer and account with cases exist
@@ -292,7 +292,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         LibraryCRMIntegration.AddCRMCaseWithStatusToCRMAccount(CRMAccount, CRMIncident.StateCode::Resolved);
         LibraryCRMIntegration.AddCRMCaseWithStatusToCRMAccount(CRMAccount, CRMIncident.StateCode::Active);
         CRMIncident.Get(LibraryCRMIntegration.AddCRMCaseToCRMAccount(CRMAccount));
-        CRMCaseList.Trap;
+        CRMCaseList.Trap();
 
         // [WHEN] The user clicks on the CRM Cases link in the CRM Statistics FactBox
         LibraryCRMIntegration.OpenNAVLinkOnHostPage(HostPageName, LinkedPageName::Cases, Customer."No.");
@@ -319,8 +319,8 @@ codeunit 139176 "CRM Statistics FactBox Test"
         LinkedPageName: Option Cases,Opportunities,Quotes;
         OpportunityCounter: Integer;
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
 
         // [SCENARIO] Open the CRM Opportunities list page from the CRM Statistics FactBox on the Customer List
         // [GIVEN] CRM is enabled, coupled customer and account with opportunities exist
@@ -329,7 +329,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         LibraryCRMIntegration.AddCRMOpportunityWithStatusToCRMAccount(CRMAccount, CRMOpportunity.StateCode::Won);
         LibraryCRMIntegration.AddCRMOpportunityWithStatusToCRMAccount(CRMAccount, CRMOpportunity.StateCode::Open);
         CRMOpportunity.Get(LibraryCRMIntegration.AddCRMOpportunityToCRMAccount(CRMAccount));
-        CRMOpportunityList.Trap;
+        CRMOpportunityList.Trap();
 
         // [WHEN] The user clicks on the CRM Opportunities link in the CRM Statistics FactBox
         LibraryCRMIntegration.OpenNAVLinkOnHostPage(HostPageName, LinkedPageName::Opportunities, Customer."No.");
@@ -356,8 +356,8 @@ codeunit 139176 "CRM Statistics FactBox Test"
         LinkedPageName: Option Cases,Opportunities,Quotes;
         QuoteCounter: Integer;
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
 
         // [SCENARIO] Open the CRM Opportunities list page from the CRM Statistics FactBox on the Customer List
         // [GIVEN] CRM is enabled, coupled customer and account with opportunities exist
@@ -367,7 +367,7 @@ codeunit 139176 "CRM Statistics FactBox Test"
         LibraryCRMIntegration.AddCRMQuoteWithStatusToCRMAccount(CRMAccount, CRMQuote.StateCode::Won);
         LibraryCRMIntegration.AddCRMQuoteWithStatusToCRMAccount(CRMAccount, CRMQuote.StateCode::Active);
         CRMQuote.Get(LibraryCRMIntegration.AddCRMQuoteToCRMAccount(CRMAccount));
-        CRMQuoteList.Trap;
+        CRMQuoteList.Trap();
 
         // [WHEN] The user clicks on the CRM Quotes link in the CRM Statistics FactBox
         LibraryCRMIntegration.OpenNAVLinkOnHostPage(HostPageName, LinkedPageName::Quotes, Customer."No.");

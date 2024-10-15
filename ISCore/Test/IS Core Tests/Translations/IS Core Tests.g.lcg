@@ -5,4 +5,13 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 707197624 - NamedType 2231244182" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The posted document cannot be deleted. Deleting is only permitted for documents whose Posting Date is before]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IS Allow Doc. Deletion Tests - NamedType PostingDateWithinLegalPeriodErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

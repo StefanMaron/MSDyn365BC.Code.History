@@ -27,7 +27,7 @@ codeunit 136211 "Marketing Matrix Management"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Matrix Management");
-        InitGlobalVariables;
+        InitGlobalVariables();
         LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
@@ -61,11 +61,11 @@ codeunit 136211 "Marketing Matrix Management"
         TempTask.CreateTaskFromTask(Task);
 
         // 2. Exercise: Run Show Matrix from Tasks page with Show as Lines Salesperson and Salesperson filter.
-        Tasks.OpenEdit;
+        Tasks.OpenEdit();
         Tasks.TableOption.SetValue(TableOption::Salesperson);
         Tasks.FilterSalesPerson.SetValue(SalespersonPurchaser.Code);
         Commit();
-        Tasks.ShowMatrix.Invoke;
+        Tasks.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Tasks Matrix performed on Tasks Matrix page handler.
 
@@ -95,11 +95,11 @@ codeunit 136211 "Marketing Matrix Management"
         TempTask.CreateTaskFromTask(Task);
 
         // 2. Exercise: Run Show Matrix from Tasks page with Show as Lines Team and Team filter.
-        Tasks.OpenEdit;
+        Tasks.OpenEdit();
         Tasks.TableOption.SetValue(TableOption::Team);
         Tasks.FilterTeam.SetValue(Team.Code);
         Commit();
-        Tasks.ShowMatrix.Invoke;
+        Tasks.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Tasks Matrix performed on Tasks Matrix page handler.
 
@@ -131,11 +131,11 @@ codeunit 136211 "Marketing Matrix Management"
         TempTask.CreateTaskFromTask(Task);
 
         // 2. Exercise: Run Show Matrix from Tasks page with Show as Lines Campaign and Campaign filter.
-        Tasks.OpenEdit;
+        Tasks.OpenEdit();
         Tasks.TableOption.SetValue(TableOption::Campaign);
         Tasks.FilterCampaign.SetValue(CampaignNo);
         Commit();
-        Tasks.ShowMatrix.Invoke;
+        Tasks.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Tasks Matrix performed on Tasks Matrix page handler.
 
@@ -165,11 +165,11 @@ codeunit 136211 "Marketing Matrix Management"
         TempTask.CreateTaskFromTask(Task);
 
         // 2. Exercise: Run Show Matrix from Tasks page with Show as Lines Contact and Contact filter.
-        Tasks.OpenEdit;
+        Tasks.OpenEdit();
         Tasks.TableOption.SetValue(TableOption::Contact);
         Tasks.FilterContact.SetValue(Contact."No.");
         Commit();
-        Tasks.ShowMatrix.Invoke;
+        Tasks.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Tasks Matrix performed on Tasks Matrix page handler.
 
@@ -201,12 +201,12 @@ codeunit 136211 "Marketing Matrix Management"
 
         // 2. Exercise: Run Show Matrix from Tasks page with Show as Lines Salesperson, Salesperson filter and Status filter as
         // Not Started.
-        Tasks.OpenEdit;
+        Tasks.OpenEdit();
         Tasks.TableOption.SetValue(TableOption::Salesperson);
         Tasks.FilterSalesPerson.SetValue(SalespersonPurchaser.Code);
         Tasks.StatusFilter.SetValue(StatusFilter::"Not Started");
         Commit();
-        Tasks.ShowMatrix.Invoke;
+        Tasks.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Tasks Matrix performed on Tasks Matrix page handler.
 
@@ -267,7 +267,7 @@ codeunit 136211 "Marketing Matrix Management"
         TaskWithStatus(Task.Status::Completed, StatusFilter::Completed);
     end;
 
-    local procedure TaskWithStatus(Status: Option; StatusFilter: Option " ","Not Started","In Progress",Completed,Waiting,Postponed)
+    local procedure TaskWithStatus(Status: Enum "Task Status"; StatusFilter: Option " ","Not Started","In Progress",Completed,Waiting,Postponed)
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         Task: Record "To-do";
@@ -287,12 +287,12 @@ codeunit 136211 "Marketing Matrix Management"
 
         // 2. Exercise: Run Show Matrix from Tasks page with Show as Lines Salesperson, Salesperson filter and Status filter as
         // per parameter.
-        Tasks.OpenEdit;
+        Tasks.OpenEdit();
         Tasks.TableOption.SetValue(TableOption::Salesperson);
         Tasks.FilterSalesPerson.SetValue(SalespersonPurchaser.Code);
         Tasks.StatusFilter.SetValue(StatusFilter);
         Commit();
-        Tasks.ShowMatrix.Invoke;
+        Tasks.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Tasks Matrix performed on Tasks Matrix page handler.
 
@@ -328,13 +328,13 @@ codeunit 136211 "Marketing Matrix Management"
 
         // 2. Exercise: Run Show Matrix from Tasks page with Show as Lines Salesperson, Salesperson filter, Status filter as Completed
         // and Include Closed as True.
-        Tasks.OpenEdit;
+        Tasks.OpenEdit();
         Tasks.TableOption.SetValue(TableOption::Salesperson);
         Tasks.FilterSalesPerson.SetValue(SalespersonPurchaser.Code);
         Tasks.StatusFilter.SetValue(StatusFilter::Completed);
         Tasks.IncludeClosed.SetValue(true);
         Commit();
-        Tasks.ShowMatrix.Invoke;
+        Tasks.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Tasks Matrix performed on Tasks Matrix page handler.
 
@@ -373,10 +373,10 @@ codeunit 136211 "Marketing Matrix Management"
         CreateAndUpdateOpportunity(ContactNo);
 
         // 2. Exercise: Run Show Matrix from Opportunities page with Show as Lines Salesperson and Show as No of Opportunities.
-        Opportunities.OpenEdit;
+        Opportunities.OpenEdit();
         Opportunities.TableOption.SetValue(TableOption::SalesPerson);
         Opportunities.OutPutOption.SetValue(OutPutOption::"No of Opportunities");
-        Opportunities.ShowMatrix.Invoke;
+        Opportunities.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Opportunities Matrix performed on Opportunities Matrix page handler.
     end;
@@ -409,10 +409,10 @@ codeunit 136211 "Marketing Matrix Management"
         CreateAndUpdateOpportunity(ContactNo);
 
         // 2. Exercise: Run Show Matrix from Opportunities page with Show as Lines Contact and Show as No of Opportunities.
-        Opportunities.OpenEdit;
+        Opportunities.OpenEdit();
         Opportunities.TableOption.SetValue(TableOption::Contact);
         Opportunities.OutPutOption.SetValue(OutPutOption::"No of Opportunities");
-        Opportunities.ShowMatrix.Invoke;
+        Opportunities.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Opportunities Matrix performed on Opportunities Matrix page handler.
     end;
@@ -450,14 +450,14 @@ codeunit 136211 "Marketing Matrix Management"
         TempOpportunity.CreateOppFromOpp(Opportunity);
         asserterror UpdateCampaignOnOpportunity(Opportunity, Campaign."No.");
         Assert.KnownFailure(StrSubstNo(OppCampaignNoErr, Campaign."No.", Opportunity."No."), 186663);
-        Opportunity.UpdateOpportunity;
+        Opportunity.UpdateOpportunity();
         Commit();
 
         // 2. Exercise: Run Show Matrix from Opportunities page with Show as Lines Campaign and Show as No of Opportunities.
-        Opportunities.OpenEdit;
+        Opportunities.OpenEdit();
         Opportunities.TableOption.SetValue(TableOption::Campaign);
         Opportunities.OutPutOption.SetValue(OutPutOption::"No of Opportunities");
-        Opportunities.ShowMatrix.Invoke;
+        Opportunities.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Opportunities Matrix performed on Opportunities Matrix page handler.
     end;
@@ -492,10 +492,10 @@ codeunit 136211 "Marketing Matrix Management"
         EstimatedValue := CalculateEstimatedValue(ContactNo);
 
         // 2. Exercise: Run Show Matrix from Opportunities page with Show as Lines Salesperson and Show as Estimated Value (LCY).
-        Opportunities.OpenEdit;
+        Opportunities.OpenEdit();
         Opportunities.TableOption.SetValue(TableOption::SalesPerson);
         Opportunities.OutPutOption.SetValue(OutPutOption::"Estimated Value (LCY)");
-        Opportunities.ShowMatrix.Invoke;
+        Opportunities.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Opportunities Matrix performed on Opportunities Matrix page handler.
     end;
@@ -531,10 +531,10 @@ codeunit 136211 "Marketing Matrix Management"
         EstimatedValue := CalculateCurrentValue(ContactNo);  // Assign global variable for page handler.
 
         // 2. Exercise: Run Show Matrix from Opportunities page with Show as Lines Salesperson and Show as Calc. Current Value (LCY).
-        Opportunities.OpenEdit;
+        Opportunities.OpenEdit();
         Opportunities.TableOption.SetValue(TableOption::SalesPerson);
         Opportunities.OutPutOption.SetValue(OutPutOption::"Calc. Current Value (LCY)");
-        Opportunities.ShowMatrix.Invoke;
+        Opportunities.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Opportunities Matrix performed on Opportunities Matrix page handler.
     end;
@@ -573,10 +573,10 @@ codeunit 136211 "Marketing Matrix Management"
         EstimatedValue := CalculateEstimatedValue(ContactNo) / 2;
 
         // 2. Exercise: Run Show Matrix from Opportunities page with Show as Lines Salesperson and Show as Avg. Estimated Value (LCY).
-        Opportunities.OpenEdit;
+        Opportunities.OpenEdit();
         Opportunities.TableOption.SetValue(TableOption::SalesPerson);
         Opportunities.OutPutOption.SetValue(OutPutOption::"Avg. Estimated Value (LCY)");
-        Opportunities.ShowMatrix.Invoke;
+        Opportunities.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Opportunities Matrix performed on Opportunities Matrix page handler.
     end;
@@ -615,10 +615,10 @@ codeunit 136211 "Marketing Matrix Management"
         EstimatedValue := CalculateCurrentValue(ContactNo) / 2;
 
         // 2. Exercise: Run Show Matrix from Opportunities page with Show as Lines Salesperson and Show as Avg. Calc. Current Value (LCY).
-        Opportunities.OpenEdit;
+        Opportunities.OpenEdit();
         Opportunities.TableOption.SetValue(TableOption::SalesPerson);
         Opportunities.OutPutOption.SetValue(OutPutOption::"Avg. Calc. Current Value (LCY)");
-        Opportunities.ShowMatrix.Invoke;
+        Opportunities.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Opportunities Matrix performed on Opportunities Matrix page handler.
     end;
@@ -697,16 +697,16 @@ codeunit 136211 "Marketing Matrix Management"
         CreateAndUpdateOpportunity(ContactNo);
         Opportunity.SetRange("Contact No.", ContactNo);
         Opportunity.FindFirst();
-        Opportunity.CloseOpportunity;
+        Opportunity.CloseOpportunity();
         Commit();
 
         // 2. Exercise: Run Show Matrix from Opportunities page with Show as Lines Salesperson, Show as No of Opportunities and Status
         // filter as per parameter.
-        Opportunities.OpenEdit;
+        Opportunities.OpenEdit();
         Opportunities.TableOption.SetValue(TableOption::SalesPerson);
         Opportunities.OutPutOption.SetValue(OutPutOption::"No of Opportunities");
         Opportunities.OptionStatusFilter.SetValue(OptionStatusFilter);
-        Opportunities.ShowMatrix.Invoke;
+        Opportunities.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Opportunities Matrix performed on Opportunities Matrix page handler.
 
@@ -736,7 +736,7 @@ codeunit 136211 "Marketing Matrix Management"
         until OpportunityEntry.Next() = 0;
     end;
 
-    local procedure ChangeStatusOfTask(Task: Record "To-do"; Status: Option)
+    local procedure ChangeStatusOfTask(Task: Record "To-do"; Status: Enum "Task Status")
     begin
         Task.Validate(Status, Status);
         Task.Modify(true);
@@ -751,7 +751,7 @@ codeunit 136211 "Marketing Matrix Management"
         TempOpportunity.CreateOppFromOpp(Opportunity);
 
         Opportunity.FindLast();
-        Opportunity.UpdateOpportunity;
+        Opportunity.UpdateOpportunity();
         Commit();
     end;
 
@@ -784,7 +784,7 @@ codeunit 136211 "Marketing Matrix Management"
         // Use Random for Completed %.
         SalesCycleStage.Validate("Completed %", LibraryRandom.RandDec(99, 2));
         SalesCycleStage.Validate("Chances of Success %", LibraryRandom.RandDec(99, 2));
-        SalesCycleStage.Validate("Activity Code", FindActivityCode);
+        SalesCycleStage.Validate("Activity Code", FindActivityCode());
         SalesCycleStage.Modify(true);
         exit(SalesCycleStage.Stage);
     end;
@@ -792,7 +792,7 @@ codeunit 136211 "Marketing Matrix Management"
     local procedure CreateSalespersonWithEmail(var SalespersonPurchaser: Record "Salesperson/Purchaser")
     begin
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        SalespersonPurchaser.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+        SalespersonPurchaser.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
         SalespersonPurchaser.Modify(true);
     end;
 
@@ -841,8 +841,8 @@ codeunit 136211 "Marketing Matrix Management"
 
         // Use Random for Calcd. Current Value (LCY).
         OpportunityEntry.Validate("Calcd. Current Value (LCY)", LibraryRandom.RandDec(1000, 2));
-        OpportunityEntry.CheckStatus;
-        OpportunityEntry.FinishWizard;
+        OpportunityEntry.CheckStatus();
+        OpportunityEntry.FinishWizard();
     end;
 
     local procedure OpenShowMatrixTask(FilterContactNo: Code[20])
@@ -852,11 +852,11 @@ codeunit 136211 "Marketing Matrix Management"
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         Commit();
-        Tasks.OpenEdit;
+        Tasks.OpenEdit();
         Tasks.OutputOption.SetValue(OutputOption::"Contact No.");
         Tasks.PeriodType.SetValue(PeriodType::Day);
         Tasks.FilterContact.SetValue(FilterContactNo);
-        Tasks.ShowMatrix.Invoke;
+        Tasks.ShowMatrix.Invoke();
     end;
 
     local procedure TaskShowMatrix(ContactNoOnMatrix: Code[20]; TaskNo: Code[20])
@@ -945,7 +945,7 @@ codeunit 136211 "Marketing Matrix Management"
         TempTask.Validate(Date, WorkDate());
 
         TempTask.Modify();
-        TempTask.CheckStatus;
+        TempTask.CheckStatus();
         TempTask.FinishWizard(false);
     end;
 
@@ -961,8 +961,8 @@ codeunit 136211 "Marketing Matrix Management"
         TempOpportunity.Validate(Description, TempOpportunity."Contact No.");
         TempOpportunity.Validate("Sales Cycle Code", SalesCycleCode);
 
-        TempOpportunity.CheckStatus;
-        TempOpportunity.FinishWizard;
+        TempOpportunity.CheckStatus();
+        TempOpportunity.FinishWizard();
     end;
 
     [ModalPageHandler]
@@ -992,7 +992,7 @@ codeunit 136211 "Marketing Matrix Management"
         TempOpportunityEntry.Init();
         UpdateOpportunity.GetRecord(TempOpportunityEntry);
         TempOpportunityEntry.Insert();
-        TempOpportunityEntry.CreateStageList;
+        TempOpportunityEntry.CreateStageList();
         TempOpportunityEntry.Validate("Action Type", TempOpportunityEntry."Action Type"::First);
         TempOpportunityEntry.Validate("Sales Cycle Stage", CurrentSalesCycleStage);
 
@@ -1002,8 +1002,8 @@ codeunit 136211 "Marketing Matrix Management"
         TempOpportunityEntry.Validate("Estimated Close Date", WorkDate());
         TempOpportunityEntry.Modify();
 
-        TempOpportunityEntry.CheckStatus2;
-        TempOpportunityEntry.FinishWizard2;
+        TempOpportunityEntry.CheckStatus2();
+        TempOpportunityEntry.FinishWizard2();
     end;
 
     [ModalPageHandler]

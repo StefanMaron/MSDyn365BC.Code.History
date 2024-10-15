@@ -6,6 +6,7 @@ table 56 "Invoice Posting Parameters"
 {
     Caption = 'Invoice Posting Parameters';
     TableType = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {

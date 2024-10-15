@@ -26,13 +26,15 @@ page 242 "Consolidate Wizard"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Starting Date';
-                    ToolTip = 'Specifies the starting date for the consolidation period';
+                    ClosingDates = true;
+                    ToolTip = 'Specifies the starting date for the consolidation period.';
                     ShowMandatory = true;
 
                     trigger OnValidate()
                     begin
                         if (TempConsolidationProcess."Starting Date" <> 0D) and (TempConsolidationProcess."Ending Date" <> 0D) then
                             ConsolidateBusinessUnits.ValidateDatesForConsolidation(TempConsolidationProcess."Starting Date", TempConsolidationProcess."Ending Date", true);
+                        UpdateBusinessUnitDefaultConsolidateState();
                         SetNextActionEnabled();
                     end;
                 }
@@ -40,13 +42,15 @@ page 242 "Consolidate Wizard"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ending Date';
-                    ToolTip = 'Specifies the ending date for the consolidation period';
+                    ClosingDates = true;
+                    ToolTip = 'Specifies the ending date for the consolidation period. This date is used as the posting date of the consolidation entries.';
                     ShowMandatory = true;
 
                     trigger OnValidate()
                     begin
                         if (TempConsolidationProcess."Starting Date" <> 0D) and (TempConsolidationProcess."Ending Date" <> 0D) then
                             ConsolidateBusinessUnits.ValidateDatesForConsolidation(TempConsolidationProcess."Starting Date", TempConsolidationProcess."Ending Date", true);
+                        UpdateBusinessUnitDefaultConsolidateState();
                         SetNextActionEnabled();
                     end;
                 }
@@ -118,7 +122,7 @@ page 242 "Consolidate Wizard"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Dimensions';
                     Editable = false;
-                    ToolTip = 'Specifies the dimensions to transfer from the imported entries';
+                    ToolTip = 'Specifies the dimensions to transfer from the imported entries.';
 
                     trigger OnAssistEdit()
                     var
@@ -170,6 +174,25 @@ page 242 "Consolidate Wizard"
                             Editable = false;
                             StyleExpr = StyleTxt;
                         }
+                        field(LastConsolidationEndingDate; LastConsolidationEndingDate)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Last Consolidation Ending Date';
+                            ToolTip = 'Specifies the last consolidation''s run ending date for this business unit.';
+                            Editable = false;
+                            StyleExpr = StyleTxt;
+
+                            trigger OnDrillDown()
+                            var
+                                BusUnitInConsProcess: Record "Bus. Unit In Cons. Process";
+                                ConsForBusinessUnits: Page "Cons. for Business Units";
+                            begin
+                                BusUnitInConsProcess.SetRange("Business Unit Code", Rec.Code);
+                                BusUnitInConsProcess.SetRange(Status, BusUnitInConsProcess.Status::Finished);
+                                ConsForBusinessUnits.SetTableView(BusUnitInConsProcess);
+                                ConsForBusinessUnits.Run();
+                            end;
+                        }
                         field(Consolidate; Rec.Consolidate)
                         {
                             ApplicationArea = Basic, Suite;
@@ -177,7 +200,14 @@ page 242 "Consolidate Wizard"
                             ToolTip = 'Specifies if the business unit should be included in the consolidation.';
 
                             trigger OnValidate()
+                            var
+                                ImportConsolidationFromAPI: Codeunit "Import Consolidation from API";
                             begin
+                                if Rec.Consolidate and (Rec."Default Data Import Method" = Rec."Default Data Import Method"::API) then begin
+                                    ImportConsolidationFromAPI.AcquireTokenAndStoreInIsolatedStorage(Rec);
+                                    if not ImportConsolidationFromAPI.IsStoredTokenValidForBusinessUnit(Rec) then
+                                        Error(NotPossibleToGetTokenMsg);
+                                end;
                                 UpdateCurrentRecAccessGrantedState();
                             end;
                         }
@@ -188,6 +218,7 @@ page 242 "Consolidate Wizard"
                             ToolTip = 'Specifies if access to the Business Central company of this business unit has been granted.';
                             OptionCaption = 'Not Needed,No,Yes';
                             Editable = false;
+                            Visible = false;
                         }
                         field("Default Data Import Method"; Rec."Default Data Import Method")
                         {
@@ -198,7 +229,106 @@ page 242 "Consolidate Wizard"
                         }
                     }
                 }
+            }
+            group(Step2)
+            {
+                Visible = (Step = 2);
+                label(CurrencyDescription)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Review and configure the currency exchange rates used for the business units that require currency translation.';
+                }
+                group(CurrencyBusinessUnitsGroup)
+                {
+                    Caption = 'Business Units to consolidate';
+                    ShowCaption = false;
+                    Editable = true;
+                    Enabled = true;
+                    repeater(CurrencyBusinessUnits)
+                    {
+                        Editable = RequiresCurrencyTranslation;
+                        field(BUCode; Rec.Code)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Code';
+                            ToolTip = 'Specifies the code of the business unit.';
+                            Editable = false;
+                            TableRelation = "Business Unit";
+                        }
+                        field(BUName; CompanyName)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Company Name';
+                            ToolTip = 'Specifies the name of business unit.';
+                            Editable = false;
+                        }
+                        field(CurrencyCode; Rec."Currency Code")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Currency Code';
+                            Editable = false;
+                            ToolTip = 'Specifies the currency code.';
+                        }
+                        field(CurrencySource; Rec."Currency Exchange Rate Table")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Exchange Rates Source';
+                            Tooltip = 'Specifies where are the exchange rates taken from for the Historical accounts';
+                        }
+                        field(AverageCurrencyFactor; Rec."Income Currency Factor")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Average Currency Factor';
+                            ToolTip = 'Specifies the exchange rate to use for balance sheet accounts.';
+                            AutoFormatType = 0;
+                            DecimalPlaces = 2;
+                            trigger OnDrillDown()
+                            begin
+                                if not Rec.Consolidate then
+                                    Error(BusinessUnitNotSelectedForConsolidationErr);
+                                UpdateBusinessUnitCurrencyFactors();
+                            end;
+                        }
+                        field(ClosingCurrencyFactor; Rec."Balance Currency Factor")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Closing Currency Factor';
+                            ToolTip = 'Specifies the exchange rate to use for income statement accounts.';
+                            AutoFormatType = 0;
+                            DecimalPlaces = 2;
+                            trigger OnDrillDown()
+                            begin
+                                if not Rec.Consolidate then
+                                    Error(BusinessUnitNotSelectedForConsolidationErr);
+                                UpdateBusinessUnitCurrencyFactors();
+                            end;
+                        }
+                        field(LastClosingCurrencyFactor; Rec."Last Balance Currency Factor")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Last Closing Currency Factor';
+                            ToolTip = 'Specifies the last closing currency factor used in the previous reconciliation. This will be used to adjust the balance entries.';
+                            AutoFormatType = 0;
+                            DecimalPlaces = 2;
+                            trigger OnDrillDown()
+                            begin
+                                if not Rec.Consolidate then
+                                    Error(BusinessUnitNotSelectedForConsolidationErr);
+                                UpdateBusinessUnitCurrencyFactors();
+                            end;
+                        }
 
+                    }
+                }
+            }
+            group(Step3)
+            {
+                Visible = (Step = 3);
+                label(ConfirmFinalize)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Ready to perform the consolidation. Click "Finish" to start the consolidation process.';
+                }
             }
         }
     }
@@ -212,7 +342,7 @@ page 242 "Consolidate Wizard"
                 InFooterBar = true;
                 Caption = 'Finish';
                 Image = Approve;
-                Visible = (Step = 1);
+                Visible = (Step = 3);
 
                 trigger OnAction()
                 begin
@@ -229,11 +359,24 @@ page 242 "Consolidate Wizard"
                 Caption = 'Next';
                 Image = NextRecord;
                 Enabled = NextActionEnabled;
-                Visible = (Step <> 1);
+                Visible = (Step <> 3);
 
                 trigger OnAction()
                 begin
                     Step += 1;
+                    if Step = 2 then begin
+                        Rec.SetRange(Consolidate, true);
+                        if Rec.IsEmpty() then begin
+                            Step -= 1;
+                            Rec.Reset();
+                            Message(NoBusinessUnitsSelectedErr);
+                            SetNextActionEnabled();
+                            exit;
+                        end;
+                        ConsolidateBusinessUnits.ValidateBusinessUnitsToConsolidate(Rec);
+                        if not BusinessUnitsToConsolidateNeedCurrencyTranslation() then
+                            Step += 1;
+                    end;
                     SetNextActionEnabled();
                 end;
             }
@@ -247,7 +390,27 @@ page 242 "Consolidate Wizard"
 
                 trigger OnAction()
                 begin
+                    if Step = 3 then
+                        if not BusinessUnitsToConsolidateNeedCurrencyTranslation() then
+                            Step -= 1;
                     Step -= 1;
+                    if Step = 1 then
+                        Rec.SetRange(Consolidate);
+                end;
+            }
+            action(ConfigureCurrency)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Configure currency';
+                InFooterBar = true;
+                Visible = (Step = 2);
+                Image = Currency;
+
+                trigger OnAction()
+                begin
+                    if not Rec.Consolidate then
+                        Error(BusinessUnitNotSelectedForConsolidationErr);
+                    UpdateBusinessUnitCurrencyFactors();
                 end;
             }
             action(GrantAccess)
@@ -255,7 +418,7 @@ page 242 "Consolidate Wizard"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Grant Access';
                 InFooterBar = true;
-                Visible = (Step = 1);
+                Visible = (Step = 1) and AnyBusinessUnitNeedsAccessGranted;
                 Image = Lock;
 
                 trigger OnAction()
@@ -281,22 +444,26 @@ page 242 "Consolidate Wizard"
         TempConsolidationProcess: Record "Consolidation Process" temporary;
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
         ConsolidateBusinessUnits: Codeunit "Consolidate Business Units";
+        ConsolidationCurrency: Codeunit "Consolidation Currency";
         AccessGrantedStates: Dictionary of [Code[20], Integer];
+        LastConsolidationEndingDate: Date;
         CompanyName: Text;
         StyleTxt: Text;
         FullDescriptionTxt: Text;
         Step: Integer;
         AccessGranted: Option NotNeeded,No,Yes;
-        JournalTemplateNameMandatory: Boolean;
-        NextActionEnabled: Boolean;
+        AnyBusinessUnitNeedsAccessGranted, JournalTemplateNameMandatory : Boolean;
+        NextActionEnabled, RequiresCurrencyTranslation : Boolean;
+        BusinessUnitNotSelectedForConsolidationErr: Label 'This business unit has not been selected for consolidation.';
         NoBusinessUnitsToConsolidateErr: Label 'There are no business units configured for consolidation. You can enable the field "Consolidate" in each of the business unit''s setup page.';
         ConsolidationScheduledMsg: Label 'The consolidation has been succesful. The current consolidation company has imported the entries from the selected business units. You can use reports like the "Consolidated Trial Balance" to view the consolidated entries';
         AccessIsAlreadyGrantedMsg: Label 'Access is already granted.';
-        DescriptionTxt: Label 'Select the business units to consolidate with the column "Consolidate".';
+        DescriptionTxt: Label 'Select the business units to consolidate in the period %1..%2 with the column "Consolidate".', Comment = '%1 - starting date, %2 - ending date';
         DescriptionMissingAuthTxt: Label 'The business units %1 have not been granted access. Select each of them and use the action "Grant Access" to authenticate into these companies.', Comment = '%1 - list of comma separated business units'' codes';
         NoDimensionsInConsolidationCompanyErr: Label 'There are no dimensions configured for the current consolidation company. You can add and configure dimensions in the "Dimensions" page.';
         SelectOneBusinessUnitToProvideAccessErr: Label 'Select only one business unit to provide access to.';
         NotPossibleToGetTokenMsg: Label 'It was not possible to get authorization for this business unit. You can verify the setup in the Business Unit Card page.';
+        NoBusinessUnitsSelectedErr: Label 'You have to select at least one business unit to consolidate.';
 
 
     trigger OnOpenPage()
@@ -310,13 +477,14 @@ page 242 "Consolidate Wizard"
         GeneralLedgerSetup.Get();
         TempConsolidationProcess."Parent Currency Code" := GeneralLedgerSetup."LCY Code";
         JournalTemplateNameMandatory := GeneralLedgerSetup."Journal Templ. Name Mandatory";
-        FullDescriptionTxt := DescriptionTxt;
+        FullDescriptionTxt := StrSubstNo(DescriptionTxt, TempConsolidationProcess."Starting Date", TempConsolidationProcess."Ending Date");
         BusinessUnit.SetRange(Consolidate, true);
         if not BusinessUnit.FindSet() then
             Error(NoBusinessUnitsToConsolidateErr);
         repeat
             if BusinessUnitConfiguredForAutomaticImport(BusinessUnit) then begin
                 Rec.TransferFields(BusinessUnit);
+                Rec.Consolidate := GetDefaultConsolidateState(Rec, TempConsolidationProcess."Starting Date", TempConsolidationProcess."Ending Date");
                 AccessGrantedStates.Add(BusinessUnit.Code, AccessGranted::NotNeeded);
                 Rec.Insert();
             end;
@@ -329,6 +497,37 @@ page 242 "Consolidate Wizard"
         UpdateCurrentRecState();
     end;
 
+    local procedure UpdateBusinessUnitDefaultConsolidateState()
+    begin
+        Rec.Reset();
+        Rec.FindSet();
+        repeat
+            Rec.Consolidate := GetDefaultConsolidateState(Rec, TempConsolidationProcess."Starting Date", TempConsolidationProcess."Ending Date");
+            Rec.Modify();
+        until Rec.Next() = 0;
+    end;
+
+    local procedure GetDefaultConsolidateState(BusinessUnit: Record "Business Unit"; StartingDate: Date; EndingDate: Date): Boolean
+    var
+        ImportConsolidationFromAPI: Codeunit "Import Consolidation from API";
+        ShouldConsolidateByDefaultDueToAccess: Boolean;
+        ShouldConsolidateByDefaultDueToDatePeriod: Boolean;
+    begin
+        if BusinessUnit."Default Data Import Method" <> BusinessUnit."Default Data Import Method"::API then
+            ShouldConsolidateByDefaultDueToAccess := true
+        else
+            ShouldConsolidateByDefaultDueToAccess := ImportConsolidationFromAPI.IsStoredTokenValidForBusinessUnit(BusinessUnit);
+        ShouldConsolidateByDefaultDueToDatePeriod := BusinessUnitHasNotBeenConsolidatedInPeriod(BusinessUnit, StartingDate, EndingDate);
+        exit(ShouldConsolidateByDefaultDueToAccess and ShouldConsolidateByDefaultDueToDatePeriod);
+    end;
+
+    local procedure BusinessUnitHasNotBeenConsolidatedInPeriod(BusinessUnit: Record "Business Unit"; FromDate: Date; ToDate: Date): Boolean
+    begin
+        if (FromDate = 0D) or (ToDate = 0D) then
+            exit(true);
+        exit(not ConsolidateBusinessUnits.BusinessUnitConsolidationProcessesInDateRange(BusinessUnit, FromDate, ToDate));
+    end;
+
     local procedure BusinessUnitConfiguredForAutomaticImport(BusinessUnit: Record "Business Unit"): Boolean
     begin
         if BusinessUnit."Default Data Import Method" = BusinessUnit."Default Data Import Method"::Database then
@@ -337,13 +536,48 @@ page 242 "Consolidate Wizard"
             exit(BusinessUnit."BC API URL" <> '');
     end;
 
+    local procedure UpdateBusinessUnitCurrencyFactors()
+    var
+        BusinessUnit: Record "Business Unit";
+    begin
+        ConsolidationCurrency.ConfigureBusinessUnitCurrencies(Rec, TempConsolidationProcess);
+        BusinessUnit.Get(Rec.Code);
+        BusinessUnit."Balance Currency Factor" := Rec."Balance Currency Factor";
+        BusinessUnit."Last Balance Currency Factor" := Rec."Last Balance Currency Factor";
+        BusinessUnit."Income Currency Factor" := Rec."Income Currency Factor";
+        BusinessUnit."Currency Exchange Rate Table" := Rec."Currency Exchange Rate Table";
+        BusinessUnit.Modify();
+    end;
+
+    local procedure BusinessUnitsToConsolidateNeedCurrencyTranslation(): Boolean
+    begin
+        Rec.SetRange(Consolidate, true);
+        if not Rec.FindSet() then
+            exit(false);
+        repeat
+            if BusinessUnitNeedsCurrencyTranslation(Rec) then
+                exit(true);
+        until Rec.Next() = 0;
+        exit(false);
+    end;
+
+    local procedure BusinessUnitNeedsCurrencyTranslation(BusinessUnit: Record "Business Unit"): Boolean
+    begin
+        exit((BusinessUnit."Currency Code" <> '') and (BusinessUnit."Currency Code" <> TempConsolidationProcess."Parent Currency Code"));
+    end;
+
     local procedure UpdateCurrentRecState()
     begin
-        if Rec."Default Data Import Method" = Rec."Default Data Import Method"::Database then
-            CompanyName := Rec."Company Name";
-        if Rec."Default Data Import Method" = Rec."Default Data Import Method"::API then
-            CompanyName := Rec."External Company Name";
-        UpdateCurrentRecAccessGrantedState();
+        if Step = 1 then begin
+            if Rec."Default Data Import Method" = Rec."Default Data Import Method"::Database then
+                CompanyName := Rec."Company Name";
+            if Rec."Default Data Import Method" = Rec."Default Data Import Method"::API then
+                CompanyName := Rec."External Company Name";
+            UpdateCurrentRecAccessGrantedState();
+            LastConsolidationEndingDate := ConsolidateBusinessUnits.GetLastConsolidationEndingDate(Rec);
+        end;
+        if Step = 2 then
+            RequiresCurrencyTranslation := BusinessUnitNeedsCurrencyTranslation(Rec);
     end;
 
     local procedure UpdateCurrentRecAccessGrantedState()
@@ -365,7 +599,7 @@ page 242 "Consolidate Wizard"
         BusinessUnitState: Option;
         CompaniesTxt: Text;
     begin
-        FullDescriptionTxt := DescriptionTxt;
+        FullDescriptionTxt := StrSubstNo(DescriptionTxt, TempConsolidationProcess."Starting Date", TempConsolidationProcess."Ending Date");
         foreach BusinessUnitCode in AccessGrantedStates.Keys() do begin
             BusinessUnitState := AccessGrantedStates.Get(BusinessUnitCode);
             if BusinessUnitState = AccessGranted::No then begin
@@ -395,6 +629,7 @@ page 242 "Consolidate Wizard"
     begin
         if BusinessUnit."Default Data Import Method" = BusinessUnit."Default Data Import Method"::Database then
             exit(AccessGranted::NotNeeded);
+        AnyBusinessUnitNeedsAccessGranted := true;
         if ImportConsolidationFromAPI.IsStoredTokenValidForBusinessUnit(BusinessUnit) then
             exit(AccessGranted::Yes);
         if WarnConfig then

@@ -11,6 +11,7 @@ table 1050 "Additional Fee Setup"
     Caption = 'Additional Fee Setup';
     DrillDownPageID = "Additional Fee Setup";
     LookupPageID = "Additional Fee Setup";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -108,28 +109,26 @@ table 1050 "Additional Fee Setup"
     var
         AdditionalFee: Decimal;
     begin
-        with AdditionalFeeSetup do begin
-            if not FindSet() then
-                exit(0);
-            repeat
-                if RemainingAmount >= "Threshold Remaining Amount" then begin
-                    if "Additional Fee Amount" > 0 then
-                        AdditionalFee := "Additional Fee Amount";
-
-                    if "Additional Fee %" > 0 then
-                        AdditionalFee += RemainingAmount * "Additional Fee %" / 100;
-
-                    if ("Max. Additional Fee Amount" > 0) and (AdditionalFee > "Max. Additional Fee Amount") then
-                        AdditionalFee := "Max. Additional Fee Amount";
-
-                    if AdditionalFee < "Min. Additional Fee Amount" then
-                        AdditionalFee := "Min. Additional Fee Amount";
-
-                    exit(AdditionalFee);
-                end;
-            until Next() = 0;
+        if not AdditionalFeeSetup.FindSet() then
             exit(0);
-        end;
+        repeat
+            if RemainingAmount >= AdditionalFeeSetup."Threshold Remaining Amount" then begin
+                if AdditionalFeeSetup."Additional Fee Amount" > 0 then
+                    AdditionalFee := AdditionalFeeSetup."Additional Fee Amount";
+
+                if AdditionalFeeSetup."Additional Fee %" > 0 then
+                    AdditionalFee += RemainingAmount * AdditionalFeeSetup."Additional Fee %" / 100;
+
+                if (AdditionalFeeSetup."Max. Additional Fee Amount" > 0) and (AdditionalFee > AdditionalFeeSetup."Max. Additional Fee Amount") then
+                    AdditionalFee := AdditionalFeeSetup."Max. Additional Fee Amount";
+
+                if AdditionalFee < AdditionalFeeSetup."Min. Additional Fee Amount" then
+                    AdditionalFee := AdditionalFeeSetup."Min. Additional Fee Amount";
+
+                exit(AdditionalFee);
+            end;
+        until AdditionalFeeSetup.Next() = 0;
+        exit(0);
     end;
 
     local procedure CalculateAddFeeAccumulatedDynamic(var AdditionalFeeSetup: Record "Additional Fee Setup"; RemainingAmount: Decimal): Decimal
@@ -137,31 +136,29 @@ table 1050 "Additional Fee Setup"
         AdditionalFee: Decimal;
         RangeAddFeeAmount: Decimal;
     begin
-        with AdditionalFeeSetup do begin
-            if not FindSet() then
-                exit(0);
-            repeat
-                if RemainingAmount >= "Threshold Remaining Amount" then begin
-                    RangeAddFeeAmount := 0;
+        if not AdditionalFeeSetup.FindSet() then
+            exit(0);
+        repeat
+            if RemainingAmount >= AdditionalFeeSetup."Threshold Remaining Amount" then begin
+                RangeAddFeeAmount := 0;
 
-                    if "Additional Fee Amount" > 0 then
-                        RangeAddFeeAmount := "Additional Fee Amount";
+                if AdditionalFeeSetup."Additional Fee Amount" > 0 then
+                    RangeAddFeeAmount := AdditionalFeeSetup."Additional Fee Amount";
 
-                    if "Additional Fee %" > 0 then
-                        RangeAddFeeAmount += ((RemainingAmount - "Threshold Remaining Amount") * "Additional Fee %") / 100;
+                if AdditionalFeeSetup."Additional Fee %" > 0 then
+                    RangeAddFeeAmount += ((RemainingAmount - AdditionalFeeSetup."Threshold Remaining Amount") * AdditionalFeeSetup."Additional Fee %") / 100;
 
-                    if "Max. Additional Fee Amount" > 0 then
-                        if RangeAddFeeAmount > "Max. Additional Fee Amount" then
-                            RangeAddFeeAmount := "Max. Additional Fee Amount";
+                if AdditionalFeeSetup."Max. Additional Fee Amount" > 0 then
+                    if RangeAddFeeAmount > AdditionalFeeSetup."Max. Additional Fee Amount" then
+                        RangeAddFeeAmount := AdditionalFeeSetup."Max. Additional Fee Amount";
 
-                    if RangeAddFeeAmount < "Min. Additional Fee Amount" then
-                        RangeAddFeeAmount := "Min. Additional Fee Amount";
+                if RangeAddFeeAmount < AdditionalFeeSetup."Min. Additional Fee Amount" then
+                    RangeAddFeeAmount := AdditionalFeeSetup."Min. Additional Fee Amount";
 
-                    RemainingAmount := "Threshold Remaining Amount";
-                    AdditionalFee += RangeAddFeeAmount;
-                end;
-            until Next() = 0;
-        end;
+                RemainingAmount := AdditionalFeeSetup."Threshold Remaining Amount";
+                AdditionalFee += RangeAddFeeAmount;
+            end;
+        until AdditionalFeeSetup.Next() = 0;
         exit(AdditionalFee);
     end;
 
@@ -172,39 +169,37 @@ table 1050 "Additional Fee Setup"
         FeeAmountInLCY: Decimal;
         RemAmountLCY: Decimal;
     begin
-        with AdditionalFeeSetup do begin
-            Ascending(false);
-            SetRange("Charge Per Line", ChargePerLine);
-            SetRange("Reminder Terms Code", ReminderLevel."Reminder Terms Code");
-            SetRange("Reminder Level No.", ReminderLevel."No.");
-            SetRange("Currency Code", CurrencyCode);
-            if FindFirst() then begin
-                if AddFeeCalcType = ReminderLevel."Add. Fee Calculation Type"::"Single Dynamic" then
-                    exit(CalculateAddFeeSingleDynamic(AdditionalFeeSetup, RemAmount));
+        AdditionalFeeSetup.Ascending(false);
+        AdditionalFeeSetup.SetRange("Charge Per Line", ChargePerLine);
+        AdditionalFeeSetup.SetRange("Reminder Terms Code", ReminderLevel."Reminder Terms Code");
+        AdditionalFeeSetup.SetRange("Reminder Level No.", ReminderLevel."No.");
+        AdditionalFeeSetup.SetRange("Currency Code", CurrencyCode);
+        if AdditionalFeeSetup.FindFirst() then begin
+            if AddFeeCalcType = ReminderLevel."Add. Fee Calculation Type"::"Single Dynamic" then
+                exit(CalculateAddFeeSingleDynamic(AdditionalFeeSetup, RemAmount));
 
-                if AddFeeCalcType = ReminderLevel."Add. Fee Calculation Type"::"Accumulated Dynamic" then
-                    exit(CalculateAddFeeAccumulatedDynamic(AdditionalFeeSetup, RemAmount));
-            end else
-                if CurrencyCode <> '' then begin
-                    SetRange("Currency Code", '');
-                    if FindFirst() then begin
-                        RemAmountLCY :=
-                          CurrExchRate.ExchangeAmtFCYToLCY(
-                            PostingDate, CurrencyCode, RemAmount, CurrExchRate.ExchangeRate(PostingDate, CurrencyCode));
-                        if AddFeeCalcType = ReminderLevel."Add. Fee Calculation Type"::"Single Dynamic" then
-                            FeeAmountInLCY := CalculateAddFeeSingleDynamic(AdditionalFeeSetup, RemAmountLCY)
-                        else
-                            if AddFeeCalcType = ReminderLevel."Add. Fee Calculation Type"::"Accumulated Dynamic" then
-                                FeeAmountInLCY := CalculateAddFeeAccumulatedDynamic(AdditionalFeeSetup, RemAmountLCY);
-                        exit(CurrExchRate.ExchangeAmtLCYToFCY(
-                            PostingDate, CurrencyCode,
-                            FeeAmountInLCY,
-                            CurrExchRate.ExchangeRate(PostingDate, CurrencyCode)));
-                    end;
-                    exit(0);
+            if AddFeeCalcType = ReminderLevel."Add. Fee Calculation Type"::"Accumulated Dynamic" then
+                exit(CalculateAddFeeAccumulatedDynamic(AdditionalFeeSetup, RemAmount));
+        end else
+            if CurrencyCode <> '' then begin
+                AdditionalFeeSetup.SetRange("Currency Code", '');
+                if AdditionalFeeSetup.FindFirst() then begin
+                    RemAmountLCY :=
+                      CurrExchRate.ExchangeAmtFCYToLCY(
+                        PostingDate, CurrencyCode, RemAmount, CurrExchRate.ExchangeRate(PostingDate, CurrencyCode));
+                    if AddFeeCalcType = ReminderLevel."Add. Fee Calculation Type"::"Single Dynamic" then
+                        FeeAmountInLCY := CalculateAddFeeSingleDynamic(AdditionalFeeSetup, RemAmountLCY)
+                    else
+                        if AddFeeCalcType = ReminderLevel."Add. Fee Calculation Type"::"Accumulated Dynamic" then
+                            FeeAmountInLCY := CalculateAddFeeAccumulatedDynamic(AdditionalFeeSetup, RemAmountLCY);
+                    exit(CurrExchRate.ExchangeAmtLCYToFCY(
+                        PostingDate, CurrencyCode,
+                        FeeAmountInLCY,
+                        CurrExchRate.ExchangeRate(PostingDate, CurrencyCode)));
                 end;
-            exit(0);
-        end;
+                exit(0);
+            end;
+        exit(0);
     end;
 }
 

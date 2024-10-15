@@ -44,4 +44,3 @@ codeunit 104010 "Upg Set Country App Areas"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag());
     end;
 }
-

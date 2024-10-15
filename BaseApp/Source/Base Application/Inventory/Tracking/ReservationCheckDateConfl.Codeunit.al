@@ -282,7 +282,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
                         IssueError(TransferLine."Shipment Date");
 
             IsHandled := false;
-            OnTransLineCheckOnBeforeUpdateDate(ReservationEntry, TransferLine, Direction, IsHandled);
+            OnTransLineCheckOnBeforeUpdateDate(ReservationEntry, TransferLine, Direction.AsInteger(), IsHandled);
             if not IsHandled then
                 UpdateDate(ReservationEntry, TransferLine."Shipment Date");
         end;
@@ -299,7 +299,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
                         IssueError(TransferLine."Receipt Date");
 
             IsHandled := false;
-            OnTransLineCheckOnBeforeUpdateDate(ReservationEntry, TransferLine, Direction, IsHandled);
+            OnTransLineCheckOnBeforeUpdateDate(ReservationEntry, TransferLine, Direction.AsInteger(), IsHandled);
             if not IsHandled then
                 UpdateDate(ReservationEntry, TransferLine."Receipt Date");
         end;

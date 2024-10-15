@@ -23,7 +23,7 @@ codeunit 132567 "Catch DotNet Exception"
         ServerFileName: Text;
     begin
         // Setup
-        ServerFileName := CreateServerFile;
+        ServerFileName := CreateServerFile();
         ConfigureMasterDataSetup(ServerFileName);
 
         // Pre-Exercise

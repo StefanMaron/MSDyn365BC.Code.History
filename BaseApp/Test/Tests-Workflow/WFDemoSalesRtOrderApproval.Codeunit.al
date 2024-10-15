@@ -45,14 +45,14 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // Setup
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode());
 
         CreateSalesReturnOrder(SalesHeader);
 
         // Exercise
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        asserterror SalesReturnOrder.Post.Invoke;
+        asserterror SalesReturnOrder.Post.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(DocCannotBePostedErr, SalesHeader."Document Type", SalesHeader."No."));
@@ -76,14 +76,14 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // Setup
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode());
 
         CreateSalesReturnOrder(SalesHeader);
 
         // Exercise
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        asserterror SalesReturnOrder.Release.Invoke;
+        asserterror SalesReturnOrder.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(DocCannotBeReleasedErr);
@@ -108,7 +108,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -127,9 +127,9 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
 
         // Exercise
         Commit();
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        asserterror SalesReturnOrder.Release.Invoke;
+        asserterror SalesReturnOrder.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(SalesHeader.RecordId, 0, 1)));
@@ -154,7 +154,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -172,9 +172,9 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         VerifySalesReturnOrderIsPendingApproval(SalesHeader);
 
         // Exercise
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        asserterror SalesReturnOrder.Reopen.Invoke;
+        asserterror SalesReturnOrder.Reopen.Invoke();
 
         // Verify
         Assert.ExpectedError(ApprovalShouldBeHandledErr);
@@ -199,7 +199,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [THEN] Sales ReturnOrder is released.
 
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -256,7 +256,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [THEN] Sales ReturnOrder is reopened and approval entries are marked as rejected.
 
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -317,7 +317,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [THEN] Sales ReturnOrder is released.
 
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
@@ -394,7 +394,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [THEN] Sales ReturnOrder is opend and approval requests are marked as cancelled.
 
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -447,15 +447,15 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [WHEN] SalesHeader card is opened.
         CreateSalesReturnOrder(SalesHeader);
         Commit();
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesReturnOrder.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesReturnOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should NOT be enabled');
+        Assert.IsTrue(SalesReturnOrder.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesReturnOrder.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should NOT be enabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror SalesReturnOrder.SendApprovalRequest.Invoke;
+        asserterror SalesReturnOrder.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -464,33 +464,33 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         SalesReturnOrder.Close();
 
         // [GIVEN] SalesHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode());
 
         // [WHEN] SalesHeader card is opened.
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesReturnOrder.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesReturnOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(SalesReturnOrder.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(SalesReturnOrder.Reject.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(SalesReturnOrder.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(SalesReturnOrder.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesReturnOrder.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(SalesReturnOrder.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(SalesReturnOrder.Reject.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(SalesReturnOrder.Delegate.Visible(), 'Delegate should NOT be visible');
         SalesReturnOrder.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
         SetSalesDocSalespersonCode(SalesHeader, ApproverUserSetup."Salespers./Purch. Code");
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
 
         // [WHEN] SalesHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        SalesReturnOrder.SendApprovalRequest.Invoke;
+        SalesReturnOrder.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(SalesReturnOrder.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesReturnOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesReturnOrder.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesReturnOrder.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Clenup
         SalesReturnOrder.Close();
@@ -499,13 +499,13 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(SalesHeader.RecordId);
 
         // [WHEN] SalesHeader card is opened.
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
 
         // [THEN] Approval action are shown.
-        Assert.IsTrue(SalesReturnOrder.Approve.Visible, 'Approva should be visible');
-        Assert.IsTrue(SalesReturnOrder.Reject.Visible, 'Reject should be visible');
-        Assert.IsTrue(SalesReturnOrder.Delegate.Visible, 'Delegate should be visible');
+        Assert.IsTrue(SalesReturnOrder.Approve.Visible(), 'Approva should be visible');
+        Assert.IsTrue(SalesReturnOrder.Reject.Visible(), 'Reject should be visible');
+        Assert.IsTrue(SalesReturnOrder.Delegate.Visible(), 'Delegate should be visible');
     end;
 
     [Test]
@@ -526,15 +526,15 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         // [WHEN] SalesHeader card is opened.
         CreateSalesReturnOrder(SalesHeader);
         Commit();
-        SalesReturnOrderList.OpenEdit;
+        SalesReturnOrderList.OpenEdit();
         SalesReturnOrderList.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesReturnOrderList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesReturnOrderList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(SalesReturnOrderList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesReturnOrderList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror SalesReturnOrderList.SendApprovalRequest.Invoke;
+        asserterror SalesReturnOrderList.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -543,30 +543,30 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         SalesReturnOrderList.Close();
 
         // [GIVEN] SalesHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode());
 
         // [WHEN] SalesHeader card is opened.
-        SalesReturnOrderList.OpenEdit;
+        SalesReturnOrderList.OpenEdit();
         SalesReturnOrderList.GotoRecord(SalesHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(SalesReturnOrderList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(SalesReturnOrderList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(SalesReturnOrderList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(SalesReturnOrderList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         SalesReturnOrderList.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
         SetSalesDocSalespersonCode(SalesHeader, ApproverUserSetup."Salespers./Purch. Code");
-        SalesReturnOrderList.OpenEdit;
+        SalesReturnOrderList.OpenEdit();
         SalesReturnOrderList.GotoRecord(SalesHeader);
 
         // [WHEN] SalesHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        SalesReturnOrderList.SendApprovalRequest.Invoke;
+        SalesReturnOrderList.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(SalesReturnOrderList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(SalesReturnOrderList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(SalesReturnOrderList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(SalesReturnOrderList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
     end;
 
     [Test]
@@ -589,7 +589,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -656,7 +656,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -727,7 +727,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"WF Demo Sales RtOrder Approval");
@@ -765,9 +765,9 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        SalesReturnOrder.SendApprovalRequest.Invoke;
+        SalesReturnOrder.SendApprovalRequest.Invoke();
         SalesReturnOrder.Close();
     end;
 
@@ -829,9 +829,9 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        SalesReturnOrder.Approve.Invoke;
+        SalesReturnOrder.Approve.Invoke();
         SalesReturnOrder.Close();
     end;
 
@@ -839,9 +839,9 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        SalesReturnOrder.Reject.Invoke;
+        SalesReturnOrder.Reject.Invoke();
         SalesReturnOrder.Close();
     end;
 
@@ -849,9 +849,9 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        SalesReturnOrder.Delegate.Invoke;
+        SalesReturnOrder.Delegate.Invoke();
         SalesReturnOrder.Close();
     end;
 
@@ -859,9 +859,9 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        SalesReturnOrder.CancelApprovalRequest.Invoke;
+        SalesReturnOrder.CancelApprovalRequest.Invoke();
         SalesReturnOrder.Close();
     end;
 
@@ -877,16 +877,16 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         SalesReturnOrder: TestPage "Sales Return Order";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
 
-        Assert.AreEqual(CommentActionIsVisible, SalesReturnOrder.Comment.Visible, 'The Comments action has the wrong visibility');
+        Assert.AreEqual(CommentActionIsVisible, SalesReturnOrder.Comment.Visible(), 'The Comments action has the wrong visibility');
 
         if CommentActionIsVisible then begin
-            SalesReturnOrder.Comment.Invoke;
-            if ApprovalComments.First then
+            SalesReturnOrder.Comment.Invoke();
+            if ApprovalComments.First() then
                 repeat
                     NumberOfComments += 1;
                 until ApprovalComments.Next();
@@ -906,13 +906,13 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         ApprovalEntries: TestPage "Approval Entries";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.GotoRecord(ApprovalEntry);
 
-        ApprovalEntries.Comments.Invoke;
-        if ApprovalComments.First then
+        ApprovalEntries.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -929,13 +929,13 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         RequeststoApprove: TestPage "Requests to Approve";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
-        RequeststoApprove.Comments.Invoke;
-        if ApprovalComments.First then
+        RequeststoApprove.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -951,15 +951,15 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         SalesReturnOrder: TestPage "Sales Return Order";
         SalesReturnOrderList: TestPage "Sales Return Order List";
     begin
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, SalesReturnOrder.CancelApprovalRequest.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, SalesReturnOrder.CancelApprovalRequest.Enabled(),
           'Wrong state for the Cancel action');
         SalesReturnOrder.Close();
 
-        SalesReturnOrderList.OpenView;
+        SalesReturnOrderList.OpenView();
         SalesReturnOrderList.GotoRecord(SalesHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, SalesReturnOrderList.CancelApprovalRequest.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, SalesReturnOrderList.CancelApprovalRequest.Enabled(),
           'Wrong state for the Cancel action');
         SalesReturnOrderList.Close();
     end;

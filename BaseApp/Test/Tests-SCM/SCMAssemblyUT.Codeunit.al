@@ -198,7 +198,7 @@ codeunit 137928 "SCM Assembly UT"
         SetupFullATOPostedCheckWarehouseShpt(ATSWhseShptLine, 2, 1, 0, 0, 1, false);
 
         // Exercise + Verify
-        Assert.IsFalse(ATSWhseShptLine.FullATOPosted, StrSubstNo(FullATOPostedMismatchMsg, false));
+        Assert.IsFalse(ATSWhseShptLine.FullATOPosted(), StrSubstNo(FullATOPostedMismatchMsg, false));
     end;
 
     [Test]
@@ -212,7 +212,7 @@ codeunit 137928 "SCM Assembly UT"
         SetupFullATOPostedCheckWarehouseShpt(ATSWhseShptLine, 2, 1, 0, 0, 1, true);
 
         // Exercise + Verify
-        Assert.IsFalse(ATSWhseShptLine.FullATOPosted, StrSubstNo(FullATOPostedMismatchMsg, false));
+        Assert.IsFalse(ATSWhseShptLine.FullATOPosted(), StrSubstNo(FullATOPostedMismatchMsg, false));
     end;
 
     [Test]
@@ -226,7 +226,7 @@ codeunit 137928 "SCM Assembly UT"
         SetupFullATOPostedCheckWarehouseShpt(ATSWhseShptLine, 2, 1, 0, 1, 1, false);
 
         // Exercise + Verify
-        Assert.IsTrue(ATSWhseShptLine.FullATOPosted, StrSubstNo(FullATOPostedMismatchMsg, true));
+        Assert.IsTrue(ATSWhseShptLine.FullATOPosted(), StrSubstNo(FullATOPostedMismatchMsg, true));
     end;
 
     [Test]
@@ -240,7 +240,7 @@ codeunit 137928 "SCM Assembly UT"
         SetupFullATOPostedCheckWarehouseShpt(ATSWhseShptLine, 2, 1, 1, 0, 1, false);
 
         // Exercise + Verify
-        Assert.IsTrue(ATSWhseShptLine.FullATOPosted, StrSubstNo(FullATOPostedMismatchMsg, true));
+        Assert.IsTrue(ATSWhseShptLine.FullATOPosted(), StrSubstNo(FullATOPostedMismatchMsg, true));
     end;
 
     [Test]
@@ -402,13 +402,13 @@ codeunit 137928 "SCM Assembly UT"
         AssemblyHeader.Modify();
 
         // [GIVEN] Navigate to the list of assembly orders from the sales order.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        AssemblyOrders.Trap;
-        SalesOrder.AssemblyOrders.Invoke;
+        AssemblyOrders.Trap();
+        SalesOrder.AssemblyOrders.Invoke();
 
         // [WHEN] Push "Release" button on the assembly order list.
-        AssemblyOrders.Release.Invoke;
+        AssemblyOrders.Release.Invoke();
 
         // [THEN] The Assembly Order is released.
         AssemblyHeader.Find();
@@ -434,13 +434,13 @@ codeunit 137928 "SCM Assembly UT"
         CreateATOAssembly(SalesHeader."Document Type"::Order, AssemblyHeader, SalesLine);
 
         // [GIVEN] Navigate to the list of assembly orders from the sales order.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        AssemblyOrders.Trap;
-        SalesOrder.AssemblyOrders.Invoke;
+        AssemblyOrders.Trap();
+        SalesOrder.AssemblyOrders.Invoke();
 
         // [WHEN] Push "Reopen" button on the assembly order list.
-        AssemblyOrders.Reopen.Invoke;
+        AssemblyOrders.Reopen.Invoke();
 
         // [THEN] The Assembly Order is open.
         AssemblyHeader.Find();
@@ -582,12 +582,12 @@ codeunit 137928 "SCM Assembly UT"
 
         // [GIVEN] Add an Item to Assembly BOM of Item "I1".
         LibraryManufacturing.CreateBOMComponent(
-          BOMComponent, LibraryInventory.CreateItemNo,
-          BOMComponent.Type::Item, LibraryInventory.CreateItemNo, 1, '');
+          BOMComponent, LibraryInventory.CreateItemNo(),
+          BOMComponent.Type::Item, LibraryInventory.CreateItemNo(), 1, '');
 
         // [WHEN] Add Item "I1" to Assembly BOM of Item "I2".
         LibraryManufacturing.CreateBOMComponent(
-          BOMComponent, LibraryInventory.CreateItemNo,
+          BOMComponent, LibraryInventory.CreateItemNo(),
           BOMComponent.Type::Item, BOMComponent."Parent Item No.", 1, '');
 
         // [THEN] "Assembly BOM" field value for Assembly BOM line of "I2" is TRUE.
@@ -606,12 +606,12 @@ codeunit 137928 "SCM Assembly UT"
 
         // [GIVEN] Add a Resource to Assembly BOM of Item "I1".
         LibraryManufacturing.CreateBOMComponent(
-          BOMComponent, LibraryInventory.CreateItemNo,
-          BOMComponent.Type::Resource, LibraryResource.CreateResourceNo, 1, '');
+          BOMComponent, LibraryInventory.CreateItemNo(),
+          BOMComponent.Type::Resource, LibraryResource.CreateResourceNo(), 1, '');
 
         // [WHEN] Add Item "I1" to Assembly BOM of Item "I2".
         LibraryManufacturing.CreateBOMComponent(
-          BOMComponent, LibraryInventory.CreateItemNo,
+          BOMComponent, LibraryInventory.CreateItemNo(),
           BOMComponent.Type::Item, BOMComponent."Parent Item No.", 1, '');
 
         // [THEN] "Assembly BOM" field value for Assembly BOM line of "I2" is TRUE.
@@ -630,8 +630,8 @@ codeunit 137928 "SCM Assembly UT"
 
         // [WHEN] Add an Item without Assembly BOM to Assembly BOM of Item "I1".
         LibraryManufacturing.CreateBOMComponent(
-          BOMComponent, LibraryInventory.CreateItemNo,
-          BOMComponent.Type::Item, LibraryInventory.CreateItemNo, 1, '');
+          BOMComponent, LibraryInventory.CreateItemNo(),
+          BOMComponent.Type::Item, LibraryInventory.CreateItemNo(), 1, '');
 
         // [THEN] "Assembly BOM" field value for Assembly BOM line of "I1" is FALSE.
         BOMComponent.CalcFields("Assembly BOM");
@@ -647,7 +647,7 @@ codeunit 137928 "SCM Assembly UT"
     begin
         // [SCENARIO 294619] Variant Code field in posted assembly header is related to Item Variant table by Item No. and Variant Code fields.
 
-        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo);
+        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo());
 
         PostedAssemblyHeader.Init();
         PostedAssemblyHeader."No." := LibraryUtility.GenerateGUID();
@@ -711,15 +711,15 @@ codeunit 137928 "SCM Assembly UT"
         // [FEATURE] [Inventory Posting Setup] [UI]
         // [SCENARIO 318473] Material Variance Account is available on Inventory Posting Setup pages with Essential user experience, as it is required for posting an assembly of standard cost item.
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
-        InventoryPostingSetup.OpenView;
-        Assert.IsTrue(InventoryPostingSetup."Material Variance Account".Visible, '');
+        InventoryPostingSetup.OpenView();
+        Assert.IsTrue(InventoryPostingSetup."Material Variance Account".Visible(), '');
 
-        InventoryPostingSetupCard.OpenView;
-        Assert.IsTrue(InventoryPostingSetupCard."Material Variance Account".Visible, '');
+        InventoryPostingSetupCard.OpenView();
+        Assert.IsTrue(InventoryPostingSetupCard."Material Variance Account".Visible(), '');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -1201,8 +1201,8 @@ codeunit 137928 "SCM Assembly UT"
     [Scope('OnPrem')]
     procedure ItemSubstitutionEntriesModalPageHandler(var ItemSubstitutionEntries: TestPage "Item Substitution Entries")
     begin
-        ItemSubstitutionEntries.First;
-        ItemSubstitutionEntries.OK.Invoke;
+        ItemSubstitutionEntries.First();
+        ItemSubstitutionEntries.OK().Invoke();
     end;
 
     [ConfirmHandler]

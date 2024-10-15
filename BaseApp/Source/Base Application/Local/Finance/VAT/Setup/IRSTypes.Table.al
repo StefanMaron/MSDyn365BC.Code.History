@@ -16,6 +16,7 @@ table 10902 "IRS Types"
     ObsoleteState = Pending;
     ObsoleteTag = '24.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {

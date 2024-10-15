@@ -304,7 +304,7 @@ codeunit 228 "Test Report-Print"
         REPORT.Run(JobJnlTemplate."Test Report ID", true, false, JobJnlLine);
     end;
 
-    local procedure CalcSalesDiscount(var SalesHeader: Record "Sales Header")
+    procedure CalcSalesDiscount(var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
         SalesSetup: Record "Sales & Receivables Setup";
@@ -325,7 +325,7 @@ codeunit 228 "Test Report-Print"
         OnAfterCalcSalesDiscount(SalesHeader, SalesLine);
     end;
 
-    local procedure CalcPurchDiscount(var PurchHeader: Record "Purchase Header")
+    procedure CalcPurchDiscount(var PurchHeader: Record "Purchase Header")
     var
         PurchLine: Record "Purchase Line";
         PurchSetup: Record "Purchases & Payables Setup";

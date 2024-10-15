@@ -132,24 +132,22 @@ codeunit 5992 "Purchases Warehouse Mgt."
 
         NewRecordRef.GetTable(NewPurchaseLine);
         OldRecordRef.GetTable(OldPurchaseLine);
-        with NewPurchaseLine do begin
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo(Type));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Variant Code"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Location Code"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Unit of Measure Code"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Drop Shipment"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Sales Order No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Sales Order Line No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Special Order"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Special Order Sales No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Special Order Sales Line No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Job No."));
-            if not OverReceiptMgt.IsQuantityUpdatedFromInvtPutAwayOverReceipt(NewPurchaseLine) then begin
-                if not OverReceiptMgt.IsQuantityUpdatedFromWarehouseOverReceipt(NewPurchaseLine) then
-                    WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo(Quantity));
-                WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Qty. to Receive"));
-            end;
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo(Type));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Variant Code"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Location Code"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Unit of Measure Code"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Drop Shipment"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Sales Order No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Sales Order Line No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Special Order"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Special Order Sales No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Special Order Sales Line No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Job No."));
+        if not OverReceiptMgt.IsQuantityUpdatedFromInvtPutAwayOverReceipt(NewPurchaseLine) then begin
+            if not OverReceiptMgt.IsQuantityUpdatedFromWarehouseOverReceipt(NewPurchaseLine) then
+                WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo(Quantity));
+            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Qty. to Receive"));
         end;
 
         OnAfterPurchaseLineVerifyChange(NewPurchaseLine, OldPurchaseLine, NewRecordRef, OldRecordRef);
@@ -254,45 +252,43 @@ codeunit 5992 "Purchases Warehouse Mgt."
         if IsHandled then
             exit(Result);
 
-        with WarehouseShipmentLine do begin
-            InitNewLine(WarehouseShipmentHeader."No.");
-            SetSource(DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.");
-            PurchaseLine.TestField("Unit of Measure Code");
-            SetItemData(
-              PurchaseLine."No.", PurchaseLine.Description, PurchaseLine."Description 2", PurchaseLine."Location Code",
-              PurchaseLine."Variant Code", PurchaseLine."Unit of Measure Code", PurchaseLine."Qty. per Unit of Measure",
-              PurchaseLine."Qty. Rounding Precision", PurchaseLine."Qty. Rounding Precision (Base)");
+        WarehouseShipmentLine.InitNewLine(WarehouseShipmentHeader."No.");
+        WarehouseShipmentLine.SetSource(DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.");
+        PurchaseLine.TestField("Unit of Measure Code");
+        WarehouseShipmentLine.SetItemData(
+          PurchaseLine."No.", PurchaseLine.Description, PurchaseLine."Description 2", PurchaseLine."Location Code",
+          PurchaseLine."Variant Code", PurchaseLine."Unit of Measure Code", PurchaseLine."Qty. per Unit of Measure",
+          PurchaseLine."Qty. Rounding Precision", PurchaseLine."Qty. Rounding Precision (Base)");
 #if not CLEAN23
-            WhseCreateSourceDocument.RunOnFromPurchLine2ShptLineOnAfterInitNewLine(WarehouseShipmentLine, WarehouseShipmentHeader, PurchaseLine);
+        WhseCreateSourceDocument.RunOnFromPurchLine2ShptLineOnAfterInitNewLine(WarehouseShipmentLine, WarehouseShipmentHeader, PurchaseLine);
 #endif
-            OnFromPurchLine2ShptLineOnAfterInitNewLine(WarehouseShipmentLine, WarehouseShipmentHeader, PurchaseLine);
-            WhseCreateSourceDocument.SetQtysOnShptLine(WarehouseShipmentLine, Abs(PurchaseLine."Outstanding Quantity"), Abs(PurchaseLine."Outstanding Qty. (Base)"));
-            if PurchaseLine."Document Type" = PurchaseLine."Document Type"::Order then
-                "Due Date" := PurchaseLine."Expected Receipt Date";
-            if PurchaseLine."Document Type" = PurchaseLine."Document Type"::"Return Order" then
-                "Due Date" := WorkDate();
-            if WarehouseShipmentHeader."Shipment Date" = 0D then
-                "Shipment Date" := PurchaseLine."Planned Receipt Date"
-            else
-                "Shipment Date" := WarehouseShipmentHeader."Shipment Date";
-            "Destination Type" := "Destination Type"::Vendor;
-            "Destination No." := PurchaseLine."Buy-from Vendor No.";
-            if "Location Code" = WarehouseShipmentHeader."Location Code" then
-                "Bin Code" := WarehouseShipmentHeader."Bin Code";
-            if "Bin Code" = '' then
-                "Bin Code" := PurchaseLine."Bin Code";
-            WhseCreateSourceDocument.UpdateShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
+        OnFromPurchLine2ShptLineOnAfterInitNewLine(WarehouseShipmentLine, WarehouseShipmentHeader, PurchaseLine);
+        WhseCreateSourceDocument.SetQtysOnShptLine(WarehouseShipmentLine, Abs(PurchaseLine."Outstanding Quantity"), Abs(PurchaseLine."Outstanding Qty. (Base)"));
+        if PurchaseLine."Document Type" = PurchaseLine."Document Type"::Order then
+            WarehouseShipmentLine."Due Date" := PurchaseLine."Expected Receipt Date";
+        if PurchaseLine."Document Type" = PurchaseLine."Document Type"::"Return Order" then
+            WarehouseShipmentLine."Due Date" := WorkDate();
+        if WarehouseShipmentHeader."Shipment Date" = 0D then
+            WarehouseShipmentLine."Shipment Date" := PurchaseLine."Planned Receipt Date"
+        else
+            WarehouseShipmentLine."Shipment Date" := WarehouseShipmentHeader."Shipment Date";
+        WarehouseShipmentLine."Destination Type" := WarehouseShipmentLine."Destination Type"::Vendor;
+        WarehouseShipmentLine."Destination No." := PurchaseLine."Buy-from Vendor No.";
+        if WarehouseShipmentLine."Location Code" = WarehouseShipmentHeader."Location Code" then
+            WarehouseShipmentLine."Bin Code" := WarehouseShipmentHeader."Bin Code";
+        if WarehouseShipmentLine."Bin Code" = '' then
+            WarehouseShipmentLine."Bin Code" := PurchaseLine."Bin Code";
+        WhseCreateSourceDocument.UpdateShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
 #if not CLEAN23
-            WhseCreateSourceDocument.RunOnFromPurchLine2ShptLineOnBeforeCreateShptLine(WarehouseShipmentLine, WarehouseShipmentHeader, PurchaseLine);
+        WhseCreateSourceDocument.RunOnFromPurchLine2ShptLineOnBeforeCreateShptLine(WarehouseShipmentLine, WarehouseShipmentHeader, PurchaseLine);
 #endif
-            OnFromPurchLine2ShptLineOnBeforeCreateShptLine(WarehouseShipmentLine, WarehouseShipmentHeader, PurchaseLine);
-            WhseCreateSourceDocument.CreateShipmentLine(WarehouseShipmentLine);
+        OnFromPurchLine2ShptLineOnBeforeCreateShptLine(WarehouseShipmentLine, WarehouseShipmentHeader, PurchaseLine);
+        WhseCreateSourceDocument.CreateShipmentLine(WarehouseShipmentLine);
 #if not CLEAN23
-            WhseCreateSourceDocument.RunOnAfterCreateShptLineFromPurchLine(WarehouseShipmentLine, WarehouseShipmentHeader, PurchaseLine);
+        WhseCreateSourceDocument.RunOnAfterCreateShptLineFromPurchLine(WarehouseShipmentLine, WarehouseShipmentHeader, PurchaseLine);
 #endif
-            OnAfterCreateShptLineFromPurchLine(WarehouseShipmentLine, WarehouseShipmentHeader, PurchaseLine);
-            exit(not HasErrorOccured());
-        end;
+        OnAfterCreateShptLineFromPurchLine(WarehouseShipmentLine, WarehouseShipmentHeader, PurchaseLine);
+        exit(not WarehouseShipmentLine.HasErrorOccured());
     end;
 
     procedure PurchLine2ReceiptLine(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; PurchaseLine: Record "Purchase Line"): Boolean
@@ -309,56 +305,54 @@ codeunit 5992 "Purchases Warehouse Mgt."
         if IsHandled then
             exit(Result);
 
-        with WarehouseReceiptLine do begin
-            InitNewLine(WarehouseReceiptHeader."No.");
-            SetSource(DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.");
-            PurchaseLine.TestField("Unit of Measure Code");
-            SetItemData(
-              PurchaseLine."No.", PurchaseLine.Description, PurchaseLine."Description 2", PurchaseLine."Location Code",
-              PurchaseLine."Variant Code", PurchaseLine."Unit of Measure Code", PurchaseLine."Qty. per Unit of Measure",
-              PurchaseLine."Qty. Rounding Precision", PurchaseLine."Qty. Rounding Precision (Base)");
-            "Over-Receipt Code" := PurchaseLine."Over-Receipt Code";
-            IsHandled := false;
+        WarehouseReceiptLine.InitNewLine(WarehouseReceiptHeader."No.");
+        WarehouseReceiptLine.SetSource(DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.");
+        PurchaseLine.TestField("Unit of Measure Code");
+        WarehouseReceiptLine.SetItemData(
+          PurchaseLine."No.", PurchaseLine.Description, PurchaseLine."Description 2", PurchaseLine."Location Code",
+          PurchaseLine."Variant Code", PurchaseLine."Unit of Measure Code", PurchaseLine."Qty. per Unit of Measure",
+          PurchaseLine."Qty. Rounding Precision", PurchaseLine."Qty. Rounding Precision (Base)");
+        WarehouseReceiptLine."Over-Receipt Code" := PurchaseLine."Over-Receipt Code";
+        IsHandled := false;
 #if not CLEAN23
-            WhseCreateSourceDocument.RunOnPurchLine2ReceiptLineOnAfterInitNewLine(WarehouseReceiptLine, WarehouseReceiptHeader, PurchaseLine, IsHandled);
+        WhseCreateSourceDocument.RunOnPurchLine2ReceiptLineOnAfterInitNewLine(WarehouseReceiptLine, WarehouseReceiptHeader, PurchaseLine, IsHandled);
 #endif
-            OnPurchLine2ReceiptLineOnAfterInitNewLine(WarehouseReceiptLine, WarehouseReceiptHeader, PurchaseLine, IsHandled);
-            if not IsHandled then begin
-                case PurchaseLine."Document Type" of
-                    PurchaseLine."Document Type"::Order:
-                        begin
-                            Validate("Qty. Received", Abs(PurchaseLine."Quantity Received"));
-                            "Due Date" := PurchaseLine."Expected Receipt Date";
-                        end;
-                    PurchaseLine."Document Type"::"Return Order":
-                        begin
-                            Validate("Qty. Received", Abs(PurchaseLine."Return Qty. Shipped"));
-                            "Due Date" := WorkDate();
-                        end;
-                end;
-                WhseCreateSourceDocument.SetQtysOnRcptLine(WarehouseReceiptLine, Abs(PurchaseLine.Quantity), Abs(PurchaseLine."Quantity (Base)"));
+        OnPurchLine2ReceiptLineOnAfterInitNewLine(WarehouseReceiptLine, WarehouseReceiptHeader, PurchaseLine, IsHandled);
+        if not IsHandled then begin
+            case PurchaseLine."Document Type" of
+                PurchaseLine."Document Type"::Order:
+                    begin
+                        WarehouseReceiptLine.Validate("Qty. Received", Abs(PurchaseLine."Quantity Received"));
+                        WarehouseReceiptLine."Due Date" := PurchaseLine."Expected Receipt Date";
+                    end;
+                PurchaseLine."Document Type"::"Return Order":
+                    begin
+                        WarehouseReceiptLine.Validate("Qty. Received", Abs(PurchaseLine."Return Qty. Shipped"));
+                        WarehouseReceiptLine."Due Date" := WorkDate();
+                    end;
             end;
-#if not CLEAN23
-            WhseCreateSourceDocument.RunOnPurchLine2ReceiptLineOnAfterSetQtysOnRcptLine(WarehouseReceiptLine, PurchaseLine);
-#endif
-            OnPurchLine2ReceiptLineOnAfterSetQtysOnRcptLine(WarehouseReceiptLine, PurchaseLine);
-            "Starting Date" := PurchaseLine."Planned Receipt Date";
-            if "Location Code" = WarehouseReceiptHeader."Location Code" then
-                "Bin Code" := WarehouseReceiptHeader."Bin Code";
-            if "Bin Code" = '' then
-                "Bin Code" := PurchaseLine."Bin Code";
-            WhseCreateSourceDocument.UpdateReceiptLine(WarehouseReceiptLine, WarehouseReceiptHeader);
-#if not CLEAN23
-            WhseCreateSourceDocument.RunOnPurchLine2ReceiptLineOnAfterUpdateReceiptLine(WarehouseReceiptLine, WarehouseReceiptHeader, PurchaseLine);
-#endif
-            OnPurchLine2ReceiptLineOnAfterUpdateReceiptLine(WarehouseReceiptLine, WarehouseReceiptHeader, PurchaseLine);
-            WhseCreateSourceDocument.CreateReceiptLine(WarehouseReceiptLine);
-#if not CLEAN23
-            WhseCreateSourceDocument.RunOnAfterCreateRcptLineFromPurchLine(WarehouseReceiptLine, WarehouseReceiptHeader, PurchaseLine);
-#endif
-            OnAfterCreateRcptLineFromPurchLine(WarehouseReceiptLine, WarehouseReceiptHeader, PurchaseLine);
-            exit(not HasErrorOccured());
+            WhseCreateSourceDocument.SetQtysOnRcptLine(WarehouseReceiptLine, Abs(PurchaseLine.Quantity), Abs(PurchaseLine."Quantity (Base)"));
         end;
+#if not CLEAN23
+        WhseCreateSourceDocument.RunOnPurchLine2ReceiptLineOnAfterSetQtysOnRcptLine(WarehouseReceiptLine, PurchaseLine);
+#endif
+        OnPurchLine2ReceiptLineOnAfterSetQtysOnRcptLine(WarehouseReceiptLine, PurchaseLine);
+        WarehouseReceiptLine."Starting Date" := PurchaseLine."Planned Receipt Date";
+        if WarehouseReceiptLine."Location Code" = WarehouseReceiptHeader."Location Code" then
+            WarehouseReceiptLine."Bin Code" := WarehouseReceiptHeader."Bin Code";
+        if WarehouseReceiptLine."Bin Code" = '' then
+            WarehouseReceiptLine."Bin Code" := PurchaseLine."Bin Code";
+        WhseCreateSourceDocument.UpdateReceiptLine(WarehouseReceiptLine, WarehouseReceiptHeader);
+#if not CLEAN23
+        WhseCreateSourceDocument.RunOnPurchLine2ReceiptLineOnAfterUpdateReceiptLine(WarehouseReceiptLine, WarehouseReceiptHeader, PurchaseLine);
+#endif
+        OnPurchLine2ReceiptLineOnAfterUpdateReceiptLine(WarehouseReceiptLine, WarehouseReceiptHeader, PurchaseLine);
+        WhseCreateSourceDocument.CreateReceiptLine(WarehouseReceiptLine);
+#if not CLEAN23
+        WhseCreateSourceDocument.RunOnAfterCreateRcptLineFromPurchLine(WarehouseReceiptLine, WarehouseReceiptHeader, PurchaseLine);
+#endif
+        OnAfterCreateRcptLineFromPurchLine(WarehouseReceiptLine, WarehouseReceiptHeader, PurchaseLine);
+        exit(not WarehouseReceiptLine.HasErrorOccured());
     end;
 
     procedure CheckIfFromPurchLine2ShptLine(PurchaseLine: Record "Purchase Line"): Boolean
@@ -387,11 +381,9 @@ codeunit 5992 "Purchases Warehouse Mgt."
         if not PurchaseLine.CheckIfPurchaseLineMeetsReservedFromStockSetting(Abs(PurchaseLine."Outstanding Qty. (Base)"), ReservedFromStock) then
             exit(false);
 
-        with WarehouseShipmentLine do begin
-            SetSourceFilter(DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", false);
-            CalcSums("Qty. Outstanding (Base)");
-            exit(Abs(PurchaseLine."Outstanding Qty. (Base)") > "Qty. Outstanding (Base)");
-        end;
+        WarehouseShipmentLine.SetSourceFilter(DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", false);
+        WarehouseShipmentLine.CalcSums("Qty. Outstanding (Base)");
+        exit(Abs(PurchaseLine."Outstanding Qty. (Base)") > WarehouseShipmentLine."Qty. Outstanding (Base)");
     end;
 
     procedure CheckIfPurchLine2ReceiptLine(PurchaseLine: Record "Purchase Line"): Boolean

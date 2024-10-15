@@ -8,6 +8,7 @@ table 422 "IC Bank Account"
     Caption = 'IC Bank Account';
     LookupPageID = "IC Bank Account List";
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

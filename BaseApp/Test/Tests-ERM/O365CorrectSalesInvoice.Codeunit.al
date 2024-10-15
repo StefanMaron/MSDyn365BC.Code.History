@@ -54,9 +54,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CheckSomethingIsPosted(Item, Cust);
 
         // EXERCISE
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
-        PostedSalesInvoice.CorrectInvoice.Invoke;
+        PostedSalesInvoice.CorrectInvoice.Invoke();
 
         // VERIFY: Sales Header must match before and after Correct Invoice
         CheckEverythingIsReverted(Item, Cust, GLEntry);
@@ -81,11 +81,11 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CheckSomethingIsPosted(Item, Cust);
 
         // EXERCISE
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
-        PostedSalesInvoice.CancelInvoice.Invoke;
+        PostedSalesInvoice.CancelInvoice.Invoke();
 
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
         PostedSalesInvoice.Cancelled.AssertEquals(true);
 
@@ -112,9 +112,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CheckSomethingIsPosted(Item, Cust);
 
         // EXERCISE
-        PostedSalesInvoices.OpenEdit;
+        PostedSalesInvoices.OpenEdit();
         PostedSalesInvoices.GotoRecord(SalesInvoiceHeader);
-        PostedSalesInvoices.CorrectInvoice.Invoke;
+        PostedSalesInvoices.CorrectInvoice.Invoke();
 
         // VERIFY: Sales Header must match before and after Correct Invoice
         CheckEverythingIsReverted(Item, Cust, GLEntry);
@@ -139,9 +139,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CheckSomethingIsPosted(Item, Cust);
 
         // EXERCISE
-        PostedSalesInvoices.OpenEdit;
+        PostedSalesInvoices.OpenEdit();
         PostedSalesInvoices.GotoRecord(SalesInvoiceHeader);
-        PostedSalesInvoices.CancelInvoice.Invoke;
+        PostedSalesInvoices.CancelInvoice.Invoke();
 
         PostedSalesInvoices.Cancelled.AssertEquals(true);
 
@@ -171,7 +171,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Assert.AreEqual(-1, LastItemLedgEntry."Shipped Qty. Not Returned", '');
 
         // EXERCISE
-        TurnOffExactCostReversing;
+        TurnOffExactCostReversing();
         CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY: The correction must use Exact Cost reversing
@@ -374,12 +374,12 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
         CheckSomethingIsPosted(Item, Cust);
 
-        SalesCreditMemo.Trap;
+        SalesCreditMemo.Trap();
 
         // EXERCISE
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
-        PostedSalesInvoice.CreateCreditMemo.Invoke;
+        PostedSalesInvoice.CreateCreditMemo.Invoke();
 
         SalesCreditMemo.Close();
 
@@ -907,7 +907,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, 1);
         SalesLine.Validate(Type, SalesLine.Type::"G/L Account");
-        SalesLine.Validate("No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        SalesLine.Validate("No.", LibraryERM.CreateGLAccountWithSalesSetup());
         SalesLine.Validate("Unit Price", 1);
         SalesLine.Modify(true);
 
@@ -948,7 +948,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, 1);
         SalesLine.Validate(Type, SalesLine.Type::"G/L Account");
-        SalesLine.Validate("No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        SalesLine.Validate("No.", LibraryERM.CreateGLAccountWithSalesSetup());
         SalesLine.Validate("Unit Price", 1);
         SalesLine.Modify(true);
 
@@ -1319,12 +1319,12 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CancelInvoice(SalesInvHeader, SalesCrMemoHeader);
 
         // [GIVEN] "Posted Sales Invoice" page is opened
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvHeader);
-        PostedSalesCreditMemo.Trap;
+        PostedSalesCreditMemo.Trap();
 
         // [WHEN] Press Drill down on field "Cancelled" of "Posted Sales Invoice" page
-        PostedSalesInvoice.Cancelled.DrillDown;
+        PostedSalesInvoice.Cancelled.DrillDown();
 
         // [THEN] "Posted Sales Credit Memo" page is opened and "No." = "B"
         PostedSalesCreditMemo."No.".AssertEquals(SalesCrMemoHeader."No.");
@@ -1348,12 +1348,12 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CancelInvoice(SalesInvHeader, SalesCrMemoHeader);
 
         // [GIVEN] "Posted Sales Invoice" page is opened
-        PostedSalesInvoices.OpenEdit;
+        PostedSalesInvoices.OpenEdit();
         PostedSalesInvoices.GotoRecord(SalesInvHeader);
-        PostedSalesCreditMemo.Trap;
+        PostedSalesCreditMemo.Trap();
 
         // [WHEN] Press Drill down on field "Cancelled" of "Posted Sales Invoice" page
-        PostedSalesInvoices.Cancelled.DrillDown;
+        PostedSalesInvoices.Cancelled.DrillDown();
 
         // [THEN] "Posted Sales Credit Memo" page is opened and "No." = "B"
         PostedSalesCreditMemo."No.".AssertEquals(SalesCrMemoHeader."No.");
@@ -1367,20 +1367,19 @@ codeunit 138015 "O365 Correct Sales Invoice"
     begin
         // [FEATURE] [UT] [UI] [Sales] [Invoice]
         // [SCENARIO 227897] "Correct" and "Cancel" actions are visible on "Posted Sales Invoice" page when foundation setup is disabled
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
-        PostedSalesInvoice.OpenView;
-        Assert.IsTrue(PostedSalesInvoice.Cancelled.Visible, 'Cancelled.Visible');
-        Assert.IsTrue(PostedSalesInvoice.CorrectInvoice.Visible, 'action Correct.Visible');
-        Assert.IsTrue(PostedSalesInvoice.CancelInvoice.Visible, 'action Cancel.Visible');
-        Assert.IsFalse(PostedSalesInvoice.ShowCreditMemo.Visible, 'action ShowCreditMemo.Visible');
+        PostedSalesInvoice.OpenView();
+        Assert.IsTrue(PostedSalesInvoice.Cancelled.Visible(), 'Cancelled.Visible');
+        Assert.IsTrue(PostedSalesInvoice.CorrectInvoice.Visible(), 'action Correct.Visible');
+        Assert.IsTrue(PostedSalesInvoice.CancelInvoice.Visible(), 'action Cancel.Visible');
+        Assert.IsFalse(PostedSalesInvoice.ShowCreditMemo.Visible(), 'action ShowCreditMemo.Visible');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure CancelInvoiceActionInvisibleOnCancelledPostedSalesInvoice()
     var
-        CancelledDocument: record "Cancelled Document";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
@@ -1394,10 +1393,10 @@ codeunit 138015 "O365 Correct Sales Invoice"
         PostedSalesInvoice.Trap();
         Page.Run(Page::"Posted Sales Invoice", SalesInvoiceHeader);
         // [THEN] Actions CorrectInvoice and CancelInvoice are invisible, action ShowCreditMemo is visible
-        Assert.IsTrue(PostedSalesInvoice.Cancelled.Visible, 'Cancelled.Visible');
-        Assert.IsFalse(PostedSalesInvoice.CorrectInvoice.Visible, 'action Correct.Visible');
-        Assert.IsFalse(PostedSalesInvoice.CancelInvoice.Visible, 'action Cancel.Visible');
-        Assert.IsTrue(PostedSalesInvoice.ShowCreditMemo.Visible, 'action ShowCreditMemo.Visible');
+        Assert.IsTrue(PostedSalesInvoice.Cancelled.Visible(), 'Cancelled.Visible');
+        Assert.IsFalse(PostedSalesInvoice.CorrectInvoice.Visible(), 'action Correct.Visible');
+        Assert.IsFalse(PostedSalesInvoice.CancelInvoice.Visible(), 'action Cancel.Visible');
+        Assert.IsTrue(PostedSalesInvoice.ShowCreditMemo.Visible(), 'action ShowCreditMemo.Visible');
     end;
 
     [Test]
@@ -1418,10 +1417,10 @@ codeunit 138015 "O365 Correct Sales Invoice"
         PostedSalesInvoices.OpenView();
         PostedSalesInvoices.GoToRecord(SalesInvoiceHeader);
         // [THEN] Actions CorrectInvoice and CancelInvoice are invisible, action ShowCreditMemo is visible
-        Assert.IsTrue(PostedSalesInvoices.Cancelled.Visible, 'Cancelled.Visible');
-        Assert.IsFalse(PostedSalesInvoices.CorrectInvoice.Visible, 'action Correct.Visible');
-        Assert.IsFalse(PostedSalesInvoices.CancelInvoice.Visible, 'action Cancel.Visible');
-        Assert.IsTrue(PostedSalesInvoices.ShowCreditMemo.Visible, 'action ShowCreditMemo.Visible');
+        Assert.IsTrue(PostedSalesInvoices.Cancelled.Visible(), 'Cancelled.Visible');
+        Assert.IsFalse(PostedSalesInvoices.CorrectInvoice.Visible(), 'action Correct.Visible');
+        Assert.IsFalse(PostedSalesInvoices.CancelInvoice.Visible(), 'action Cancel.Visible');
+        Assert.IsTrue(PostedSalesInvoices.ShowCreditMemo.Visible(), 'action ShowCreditMemo.Visible');
     end;
 
     [Test]
@@ -1449,7 +1448,6 @@ codeunit 138015 "O365 Correct Sales Invoice"
     [Scope('OnPrem')]
     procedure TestCorrectPostedSalesInvoice2LinesOneZeroUnitPrice()
     var
-        Customer: Record Customer;
         Item1: Record Item;
         Item2: Record Item;
         SalesHeader: Record "Sales Header";
@@ -1499,7 +1497,6 @@ codeunit 138015 "O365 Correct Sales Invoice"
         PostedSalesInvoicePage: TestPage "Posted Sales Invoice";
         SalesOrderPage: TestPage "Sales Order";
         InvoiceNo: Code[20];
-        ShipmentNo: Code[20];
     begin
         // [FEATURE] [Correct] [Credit Memo] [Shipment] [UI]
         // [SCENARIO 365667] System opens sales order when Stan corrects invoice posted from that sales order
@@ -1543,7 +1540,6 @@ codeunit 138015 "O365 Correct Sales Invoice"
         PostedSalesInvoicePage: TestPage "Posted Sales Invoice";
         SalesOrderPage: TestPage "Sales Order";
         InvoiceNo: Code[20];
-        ShipmentNo: Code[20];
     begin
         // [FEATURE] [Correct] [Credit Memo] [Shipment] [UI]
         // [SCENARIO 365667] System opens sales order when Stan corrects invoice posted via "get shipment lines" and all shipments relate to that single order
@@ -1609,7 +1605,6 @@ codeunit 138015 "O365 Correct Sales Invoice"
         PostedSalesInvoicePage: TestPage "Posted Sales Invoice";
         SalesOrderPage: TestPage "Sales Order";
         InvoiceNo: Code[20];
-        ShipmentNo: Code[20];
     begin
         // [FEATURE] [Correct] [Credit Memo] [Shipment] [UI]
         // [SCENARIO 365667] System warns that it can't open a particular sales order when Stan corrects invoice posted via "get shipment lines" and shipments relate to different single orders
@@ -1679,7 +1674,6 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
         InvoiceNo: Code[20];
-        ShipmentNo: Code[20];
     begin
         // [FEATURE] [Correct] [Credit Memo] [Shipment] [UI]
         // [SCENARIO 365667] System warns that sales order deleted when Stan corrects invoice posted from that fully invoices and deleted sales order. Invoice is cancelled only.
@@ -1725,20 +1719,20 @@ codeunit 138015 "O365 Correct Sales Invoice"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Correct Sales Invoice");
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibraryERMCountryData.UpdateGenProdPostingGroup;
+        LibraryERMCountryData.UpdateGenProdPostingGroup();
         LibraryApplicationArea.EnableFoundationSetup();
 
         SalesSetup.Get();
         if SalesSetup."Order Nos." = '' then
-            SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
 
         if SalesSetup."Posted Shipment Nos." = '' then
-            SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
 
         SalesSetup.Modify();
 
@@ -2052,7 +2046,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         PaymentMethod.SetFilter("Bal. Account No.", '<>%1', '');
         if not PaymentMethod.FindFirst() then begin
             LibraryERM.CreatePaymentMethod(PaymentMethod);
-            PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             PaymentMethod.Modify(true);
         end;
 
@@ -2189,7 +2183,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 
     [PageHandler]
@@ -2209,7 +2203,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
     [Scope('OnPrem')]
     procedure UnapplyCustomerEntries(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
     begin
-        UnapplyCustomerEntries.Unapply.Invoke;
+        UnapplyCustomerEntries.Unapply.Invoke();
     end;
 }
 

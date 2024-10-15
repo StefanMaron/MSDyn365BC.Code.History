@@ -33,7 +33,7 @@ codeunit 136400 "Resource Employee"
     procedure EmployeeNoIncrement()
     var
         Employee: Record Employee;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NextEmployeeNo: Code[20];
     begin
         // Covers document number TC00062 - refer to TFS ID 21680.
@@ -41,10 +41,10 @@ codeunit 136400 "Resource Employee"
 
         // 1. Setup: Get next employee no from No Series.
         Initialize();
-        NextEmployeeNo := NoSeriesManagement.GetNextNo(LibraryHumanResource.SetupEmployeeNumberSeries, WorkDate(), false);
+        NextEmployeeNo := NoSeries.PeekNextNo(LibraryHumanResource.SetupEmployeeNumberSeries());
 
         // 2. Exercise:  Create new Employee.
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
         CreateEmployee(Employee);
 
         // 3. Verify: Check that the application generates an error if Employee No. is not incremented automatically as per the setup.
@@ -63,7 +63,7 @@ codeunit 136400 "Resource Employee"
         Initialize();
 
         // 2. Exercise: Create Employee.
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
         LibraryHumanResource.CreateEmployee(Employee);
 
         // 3. Verify: Check that the Employee has been created.
@@ -85,7 +85,7 @@ codeunit 136400 "Resource Employee"
         EmployeeNo := Employee."No.";
 
         // 2. Exercise: Delete the Employee.
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
         Employee.Delete(true);
 
         // 3. Verify: Try to get the Employee and make sure that it cannot be found.
@@ -117,10 +117,10 @@ codeunit 136400 "Resource Employee"
         Initials := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee.Initials)), 1, MaxStrLen(Employee.Initials));
         City := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee.City)), 1, MaxStrLen(Employee.City));
         PostCode := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."Post Code")), 1, MaxStrLen(Employee."Post Code"));
-        ResourceNo := CreateResourceNoOfTypePerson;
+        ResourceNo := CreateResourceNoOfTypePerson();
 
         // 2. Exercise: Modify the Employee.
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
         EditEmployee(Employee, Address, Address2, Initials, City, PostCode, ResourceNo);
 
         // 3. Verify: Check that fields have correct value in Employee.
@@ -150,13 +150,13 @@ codeunit 136400 "Resource Employee"
         EmployeeNo := LibraryUtility.GenerateRandomCode(Employee.FieldNo("No."), DATABASE::Employee);
 
         // 2. Exercise: Create an Employee, and open the map hyperlink.
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
         EmployeeCard.OpenNew();
         EmployeeCard."No.".SetValue(EmployeeNo);
         EmployeeCard."First Name".SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."First Name")), 1, MaxStrLen(Employee."First Name")));
-        EmployeeCard.ShowMap.DrillDown;
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.ShowMap.DrillDown();
+        EmployeeCard.OK().Invoke();
 
         // 3. Verify: Check Search Name has correct value in Employee.
         Employee.Get(EmployeeNo);
@@ -164,10 +164,10 @@ codeunit 136400 "Resource Employee"
         Employee.TestField("Search Name", SearchNameCode);
 
         // 2. Exercise: Modify the employee's Last Name
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.GotoKey(EmployeeNo);
         EmployeeCard."Last Name".SetValue(Employee."First Name");
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
 
         // 3. Verify: Check Search Name has correct value in Employee.
         Employee.Get(EmployeeNo);
@@ -189,29 +189,29 @@ codeunit 136400 "Resource Employee"
         // [SCENARIO] Create an employee, set first name, open the map, change the last name and verify the search name.
         // 1. Setup: Create employee.
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         EmployeeNo := LibraryUtility.GenerateRandomCode(Employee.FieldNo("No."), DATABASE::Employee);
         SearchNameCode :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."Search Name")), 1, MaxStrLen(Employee."Search Name"));
 
         // 2. Exercise: Create an Employee, and open the map hyperlink.
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
         EmployeeCard.OpenNew();
         EmployeeCard."No.".SetValue(EmployeeNo);
         EmployeeCard."First Name".SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."First Name")), 1, MaxStrLen(Employee."First Name")));
         EmployeeCard."Search Name".SetValue(SearchNameCode);
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
 
         // 3. Verify: Check Search Name has the typed value.
         Employee.Get(EmployeeNo);
         Employee.TestField("Search Name", SearchNameCode);
 
         // 2. Exercise: Set Seacrh Name to empty, to reset it.
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.GotoKey(EmployeeNo);
         EmployeeCard."Search Name".SetValue('');
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
 
         // 3. Verify: Check Search Name has correct value in Employee.
         Employee.Get(EmployeeNo);
@@ -235,13 +235,13 @@ codeunit 136400 "Resource Employee"
         Clear(Employee);
 
         // 2. Exercise:Try to create another Employee with No. of existing Employee.
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
         Employee.Init();
         Employee.Validate("No.", FirstEmployeeNo);
         asserterror Employee.Insert(true);
 
         // 3. Verify: Verify that application generates an error message.
-        Assert.AssertRecordAlreadyExists;
+        Assert.AssertRecordAlreadyExists();
     end;
 
     [Test]
@@ -261,11 +261,11 @@ codeunit 136400 "Resource Employee"
         LibraryHumanResource.CreateEmployee(Employee);
 
         // 2. Exercise: Create another employee and rename it with existing employee.
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
         asserterror Employee.Rename(FirstEmployeeNo);
 
         // 3. Verify: Verify that application generates an error message.
-        Assert.AssertRecordAlreadyExists;
+        Assert.AssertRecordAlreadyExists();
     end;
 
     [Test]
@@ -282,11 +282,11 @@ codeunit 136400 "Resource Employee"
         HumanResourcesSetup.Get();
 
         // 2. Exercise: Genrate New Employee No. by click on AssistEdit Button with No. Series Code.
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
 
         commit();
         EmployeeCard.OpenNew();
-        EmployeeCard."No.".AssistEdit; // Get No. Series Code in EmployeeNoSeriesCode.
+        EmployeeCard."No.".AssistEdit(); // Get No. Series Code in EmployeeNoSeriesCode.
 
         // 3. Verify: No. Series Code must match with No. Series Code in Setup.
         HumanResourcesSetup.TestField("Employee Nos.", EmployeeNoSeriesCode);
@@ -304,13 +304,13 @@ codeunit 136400 "Resource Employee"
         // Test Employee No. renaming works on a new Employee.
 
         // 1. Setup: Create an Employee and generate No. by jumping on any field
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
         EmployeeCard.OpenNew();
-        EmployeeCard."First Name".Activate;
+        EmployeeCard."First Name".Activate();
 
         // 2. Exercise: Genrate New Employee No. by click on AssistEdit Button with No. Series Code.
-        EmployeeCard."No.".AssistEdit;
-        No := EmployeeCard."No.".Value;
+        EmployeeCard."No.".AssistEdit();
+        No := EmployeeCard."No.".Value();
         EmployeeCard.Close();
 
         // 3. Verify: An Employee with that No. exsists
@@ -330,7 +330,7 @@ codeunit 136400 "Resource Employee"
         Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
 
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.GotoRecord(Employee);
 
         // Exercise and verify that setting an invalid email triggers error
@@ -354,13 +354,13 @@ codeunit 136400 "Resource Employee"
         LibraryHumanResource.CreateEmployee(Employee);
         Commit();
 
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.GotoRecord(Employee);
 
         // 2. Exercise: Set E-Mail address to a valid value
         EmployeeCard."Company E-Mail".SetValue(ValidEmailTxt);
         EmployeeCard."E-Mail".SetValue(ValidEmailTxt);
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
 
         // 3. Verify: That the E-Mail address was updated
         Employee.Get(Employee."No.");
@@ -382,13 +382,13 @@ codeunit 136400 "Resource Employee"
         LibraryHumanResource.CreateEmployee(Employee);
         Commit();
 
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.GotoRecord(Employee);
 
         // 2. Exercise: Set E-Mail address to contain spaces
         EmployeeCard."Company E-Mail".SetValue(' ');
         EmployeeCard."E-Mail".SetValue(StrSubstNo(' %1 ', ValidEmailTxt));
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
 
         // 3. Verify: That the E-Mail address was trimmed
         Employee.Get(Employee."No.");
@@ -411,12 +411,12 @@ codeunit 136400 "Resource Employee"
         LibraryApplicationArea.EnableFoundationSetup();
 
         // 2. Exercise: Open Post Codes Page in View mode.
-        PostCodes.OpenView;
+        PostCodes.OpenView();
 
         // 3. Verify: Verify Post Codes Page is non editable.
         // As the fields are non editable so Pages is also non editable.
-        Assert.IsFalse(PostCodes.Code.Editable, StrSubstNo(EditableErr, PostCodes.Code.Caption));
-        Assert.IsFalse(PostCodes.City.Editable, StrSubstNo(EditableErr, PostCodes.City.Caption));
+        Assert.IsFalse(PostCodes.Code.Editable(), StrSubstNo(EditableErr, PostCodes.Code.Caption));
+        Assert.IsFalse(PostCodes.City.Editable(), StrSubstNo(EditableErr, PostCodes.City.Caption));
     end;
 
     [Test]
@@ -434,11 +434,11 @@ codeunit 136400 "Resource Employee"
         LibraryApplicationArea.EnableFoundationSetup();
 
         // 2. Exercise: Open Country Region Page in View mode.
-        CountriesRegions.OpenView;
+        CountriesRegions.OpenView();
 
         // 3. Verify: Verify Country Region Pages is non editable.
         // As the fields are non editable so Pages is also non editable.
-        Assert.IsFalse(CountriesRegions.Code.Editable, StrSubstNo(EditableErr, CountriesRegions.Code.Caption));
+        Assert.IsFalse(CountriesRegions.Code.Editable(), StrSubstNo(EditableErr, CountriesRegions.Code.Caption));
     end;
 
     [Test]
@@ -453,14 +453,14 @@ codeunit 136400 "Resource Employee"
         // 1. Setup.
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // 2. Exercise: Open Causes Of Inactivity Page in View mode.
-        CausesofInactivity.OpenView;
+        CausesofInactivity.OpenView();
 
         // 3. Verify: Verify Causes Of Inactivity Page is non editable.
         // As the fields are non editable so Page is also non editable.
-        Assert.IsFalse(CausesofInactivity.Code.Editable, StrSubstNo(EditableErr, CausesofInactivity.Code.Caption));
+        Assert.IsFalse(CausesofInactivity.Code.Editable(), StrSubstNo(EditableErr, CausesofInactivity.Code.Caption));
     end;
 
     [Test]
@@ -475,14 +475,14 @@ codeunit 136400 "Resource Employee"
         // 1. Setup.
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // 2. Exercise: Open Unions Page in View mode.
-        Unions.OpenView;
+        Unions.OpenView();
 
         // 3. Verify: Verify Unions Page is non editable.
         // As the fields are non editable so Page is also non editable.
-        Assert.IsFalse(Unions.Code.Editable, StrSubstNo(EditableErr, Unions.Code.Caption));
+        Assert.IsFalse(Unions.Code.Editable(), StrSubstNo(EditableErr, Unions.Code.Caption));
     end;
 
     [Test]
@@ -494,10 +494,10 @@ codeunit 136400 "Resource Employee"
         // [FEATURE] [UT] [UI]
         // [SCENARIO 274730] SWIFT Code is visible and editable on Employee Card
         Initialize();
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
         EmployeeCard.OpenNew();
-        Assert.IsTrue(EmployeeCard."SWIFT Code".Visible, 'SWIFT Code should be visible');
-        Assert.IsTrue(EmployeeCard."SWIFT Code".Editable, 'SWIFT Code should be editable');
+        Assert.IsTrue(EmployeeCard."SWIFT Code".Visible(), 'SWIFT Code should be visible');
+        Assert.IsTrue(EmployeeCard."SWIFT Code".Editable(), 'SWIFT Code should be editable');
     end;
 
     [Test]
@@ -571,7 +571,7 @@ codeunit 136400 "Resource Employee"
         Initialize();
         // [SCENARIO] The user tries to link 2 employees to the same resource
         // [GIVEN] a resource
-        ResourceNo := CreateResourceNoOfTypePerson;
+        ResourceNo := CreateResourceNoOfTypePerson();
 
         // [GIVEN] an employee linked to a resource
         CreateEmployee(Employee1);
@@ -599,19 +599,19 @@ codeunit 136400 "Resource Employee"
 
         // [GIVEN] Employee "E" with linked resource "R"
         LibraryHumanResource.CreateEmployee(Employee);
-        Resource.Get(CreateResourceNoOfTypePerson);
+        Resource.Get(CreateResourceNoOfTypePerson());
         Employee.Validate("Resource No.", Resource."No.");
         Employee.Modify(true);
 
         // [WHEN] Employee "E" County is being changed to "COUNTY"
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
         EmployeeCard.County.SetValue(
           CopyStr(
             LibraryUtility.GenerateRandomCode(Employee.FieldNo(County), DATABASE::Employee),
             1,
             LibraryUtility.GetFieldLength(DATABASE::Employee, Employee.FieldNo(County))));
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
 
         // [THEN] Resource "R" has County = "COUNTY"
         Employee.Find();
@@ -633,16 +633,16 @@ codeunit 136400 "Resource Employee"
 
         // [GIVEN] Employee "E" with linked resource "R"
         LibraryHumanResource.CreateEmployee(Employee);
-        Resource.Get(CreateResourceNoOfTypePerson);
+        Resource.Get(CreateResourceNoOfTypePerson());
         Employee.Validate("Resource No.", Resource."No.");
         Employee.Modify(true);
 
         // [WHEN] Employee "E" City is being changed to "S"
         LibraryERM.CreatePostCode(PostCode);
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
         EmployeeCard.City.SetValue(PostCode.City);
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
 
         // [THEN] Resource "R" has City = "S"
         Employee.Find();
@@ -664,16 +664,16 @@ codeunit 136400 "Resource Employee"
 
         // [GIVEN] Employee "E" with linked resource "R"
         LibraryHumanResource.CreateEmployee(Employee);
-        Resource.Get(CreateResourceNoOfTypePerson);
+        Resource.Get(CreateResourceNoOfTypePerson());
         Employee.Validate("Resource No.", Resource."No.");
         Employee.Modify(true);
 
         // [WHEN] Employee "E" "Country/Region Code" is being changed to "CR"
         LibraryERM.CreateCountryRegion(CountryRegion);
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
         EmployeeCard."Country/Region Code".SetValue(CountryRegion.Code);
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
 
         // [THEN] Resource "R" has "Country/Region Code" = "CR"
         Resource.Find();
@@ -695,7 +695,7 @@ codeunit 136400 "Resource Employee"
 
         // [GIVEN] Employee "E" with linked resource "R"
         LibraryHumanResource.CreateEmployee(Employee);
-        Resource.Get(CreateResourceNoOfTypePerson);
+        Resource.Get(CreateResourceNoOfTypePerson());
         Employee."Resource No." := Resource."No.";
         Employee.Modify();
 
@@ -752,7 +752,8 @@ codeunit 136400 "Resource Employee"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Resource Employee");
-        LibraryApplicationArea.EnableBasicHRSetup;
+        LibraryApplicationArea.EnableBasicHRSetup();
+        LibraryHumanResource.FindEmployeePostingGroup();
         EmployeeTempl.DeleteAll(true);
 
         // Lazy Setup.
@@ -761,7 +762,7 @@ codeunit 136400 "Resource Employee"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Resource Employee");
 
         LibraryTemplates.EnableTemplatesFeature();
-        LibraryHumanResource.SetupEmployeeNumberSeries;
+        LibraryHumanResource.SetupEmployeeNumberSeries();
         OnlineMapSetup.ModifyAll(Enabled, true);
 
         IsInitialized := true;
@@ -797,8 +798,8 @@ codeunit 136400 "Resource Employee"
         visible: Boolean;
     begin
         visible := NoSeriesList.Code.Visible();
-        EmployeeNoSeriesCode := NoSeriesList.Code.Value;
-        NoSeriesList.OK.Invoke;
+        EmployeeNoSeriesCode := NoSeriesList.Code.Value();
+        NoSeriesList.OK().Invoke();
     end;
 
     local procedure CreateResourceNoOfTypePerson(): Code[20]

@@ -9,6 +9,7 @@ table 5203 "Employee Qualification"
     DataCaptionFields = "Employee No.";
     DrillDownPageID = "Qualified Employees";
     LookupPageID = "Employee Qualifications";
+    DataClassification = CustomerContent;
 
     fields
     {

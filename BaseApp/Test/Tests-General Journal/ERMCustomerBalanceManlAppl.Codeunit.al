@@ -28,8 +28,8 @@ codeunit 134036 "ERM Customer Balance Manl Appl"
         // Create and Post General Journal Line for Invoice and Payment.
         Initialize();
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CreateCustomer,
-          GenJournalLine."Bal. Account Type"::"Bank Account", CreateBankAccount, LibraryRandom.RandDec(5, 2));
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CreateCustomer(),
+          GenJournalLine."Bal. Account Type"::"Bank Account", CreateBankAccount(), LibraryRandom.RandDec(5, 2));
         InvoiceBalanceLCY := GenJournalLine."Balance (LCY)";
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CreateGeneralJournalLine(
@@ -63,12 +63,12 @@ codeunit 134036 "ERM Customer Balance Manl Appl"
 
         // Exercise: Create General Journal Line for both Invoice and Payment.
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CreateCustomer,
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CreateCustomer(),
           GenJournalLine."Bal. Account Type"::"Bank Account", '', LibraryRandom.RandDec(5, 2));
         InvoiceAmount := GenJournalLine.Amount;
         BalanceLCY := GenJournalLine."Balance (LCY)";
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Bal. Account Type"::"Bank Account", CreateBankAccount,
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Bal. Account Type"::"Bank Account", CreateBankAccount(),
           GenJournalLine."Bal. Account Type"::"Bank Account", '', LibraryRandom.RandDec(5, 2));
         InvoiceAmount += GenJournalLine.Amount;
         BalanceLCY += GenJournalLine."Balance (LCY)";

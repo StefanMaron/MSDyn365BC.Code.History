@@ -69,14 +69,18 @@ page 437 "Reminder Statistics"
             group(Customer)
             {
                 Caption = 'Customer';
+#pragma warning disable AA0100
                 field("Cust.""Balance (LCY)"""; Cust."Balance (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
                     Caption = 'Balance (LCY)';
                     ToolTip = 'Specifies the balance in LCY on the customer''s account.';
                 }
+#pragma warning disable AA0100
                 field("Cust.""Credit Limit (LCY)"""; Cust."Credit Limit (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;

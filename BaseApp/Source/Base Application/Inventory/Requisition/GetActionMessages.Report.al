@@ -214,27 +214,25 @@ report 99001023 "Get Action Messages"
 
     procedure UpdateActionMsgList(ForType: Integer; ForSubtype: Integer; ForID: Code[20]; ForBatchName: Code[10]; ForProdOrderLine: Integer; ForRefNo: Integer; ForLocation: Code[10]; ForBin: Code[10]; ForVariant: Code[10]; ForItem: Code[20]; OrderDate: Date)
     begin
-        with TempActionMsgEntry do begin
-            SetSourceFilter(ForType, ForSubtype, ForID, ForRefNo, false);
-            SetSourceFilter(ForBatchName, ForProdOrderLine);
-            SetRange("Location Code", ForLocation);
-            SetRange("Bin Code", ForBin);
-            SetRange("Variant Code", ForVariant);
-            SetRange("Item No.", ForItem);
-            SetRange("New Date", OrderDate);
-            if Find('-') then
-                exit;
+        TempActionMsgEntry.SetSourceFilter(ForType, ForSubtype, ForID, ForRefNo, false);
+        TempActionMsgEntry.SetSourceFilter(ForBatchName, ForProdOrderLine);
+        TempActionMsgEntry.SetRange(TempActionMsgEntry."Location Code", ForLocation);
+        TempActionMsgEntry.SetRange(TempActionMsgEntry."Bin Code", ForBin);
+        TempActionMsgEntry.SetRange(TempActionMsgEntry."Variant Code", ForVariant);
+        TempActionMsgEntry.SetRange(TempActionMsgEntry."Item No.", ForItem);
+        TempActionMsgEntry.SetRange(TempActionMsgEntry."New Date", OrderDate);
+        if TempActionMsgEntry.Find('-') then
+            exit;
 
-            SetSource(ForType, ForSubtype, ForID, ForRefNo, ForBatchName, ForProdOrderLine);
-            "Location Code" := ForLocation;
-            "Bin Code" := ForBin;
-            "Variant Code" := ForVariant;
-            "Item No." := ForItem;
-            "New Date" := OrderDate;
-            NextEntryNo := NextEntryNo + 1;
-            "Entry No." := NextEntryNo;
-            Insert();
-        end;
+        TempActionMsgEntry.SetSource(ForType, ForSubtype, ForID, ForRefNo, ForBatchName, ForProdOrderLine);
+        TempActionMsgEntry."Location Code" := ForLocation;
+        TempActionMsgEntry."Bin Code" := ForBin;
+        TempActionMsgEntry."Variant Code" := ForVariant;
+        TempActionMsgEntry."Item No." := ForItem;
+        TempActionMsgEntry."New Date" := OrderDate;
+        NextEntryNo := NextEntryNo + 1;
+        TempActionMsgEntry."Entry No." := NextEntryNo;
+        TempActionMsgEntry.Insert();
     end;
 
     procedure GetActionMessages(ActionMsgEntry: Record "Action Message Entry")
@@ -254,90 +252,86 @@ report 99001023 "Get Action Messages"
                 exit;
         end;
 
-        with ActionMessageEntry do begin
-            GetPlanningParameters.AtSKU(SKU, "Item No.", "Variant Code", "Location Code");
-            InsertNew := false;
-            ReqLine."Worksheet Template Name" := CurrTemplateName;
-            ReqLine."Journal Batch Name" := CurrWorksheetName;
+        GetPlanningParameters.AtSKU(SKU, ActionMessageEntry."Item No.", ActionMessageEntry."Variant Code", ActionMessageEntry."Location Code");
+        InsertNew := false;
+        ReqLine."Worksheet Template Name" := CurrTemplateName;
+        ReqLine."Journal Batch Name" := CurrWorksheetName;
+        ReqLine."Line No." += 10000;
+        while not ReqLine.Insert() do
             ReqLine."Line No." += 10000;
-            while not ReqLine.Insert() do
-                ReqLine."Line No." += 10000;
 
-            InsertNew := InitReqFromSource(ActionMsgEntry, ReqLine);
+        InsertNew := InitReqFromSource(ActionMsgEntry, ReqLine);
 
-            Window.Update(2, ReqLine."No.");
+        Window.Update(2, ReqLine."No.");
 
-            if ActionMsgEntry."Source ID" = '' then begin
-                Quantity := ActionMsgEntry.Quantity;
-                Type := Type::New;
-                ReqLine."Due Date" := ActionMsgEntry."New Date";
-                ReqLine."Ending Date" := ReqLine."Due Date" - 1;
+        if ActionMsgEntry."Source ID" = '' then begin
+            ActionMessageEntry.Quantity := ActionMsgEntry.Quantity;
+            ActionMessageEntry.Type := ActionMessageEntry.Type::New;
+            ReqLine."Due Date" := ActionMsgEntry."New Date";
+            ReqLine."Ending Date" := ReqLine."Due Date" - 1;
+        end else
+            ActionMessageEntry.SumUp(ActionMessageEntry);
+
+        if ActionMessageEntry.Quantity < 0 then
+            if SKU."Lot Size" > 0 then
+                if ManufacturingSetup."Default Dampener %" > 0 then
+                    if ManufacturingSetup."Default Dampener %" * SKU."Lot Size" / 100 >= Abs(ActionMessageEntry.Quantity) then
+                        ActionMessageEntry.Quantity := 0;
+        if (ActionMessageEntry.Quantity = 0) and (ActionMessageEntry."New Date" = 0D) then
+            exit;
+
+        ReqLine."Original Quantity" := ReqLine.Quantity;
+        ReqLine."Quantity (Base)" += ActionMessageEntry.Quantity;
+        ReqLine.Quantity := Round(ReqLine."Quantity (Base)" / ReqLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+        ReqLine."Remaining Quantity" := ReqLine.Quantity - ReqLine."Finished Quantity";
+        ReqLine."Remaining Qty. (Base)" :=
+          Round(ReqLine."Remaining Quantity" / ReqLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+        if InsertNew then
+            ActionMessageEntry.Type := ActionMessageEntry.Type::New;
+        if ActionMessageEntry."New Date" <> 0D then begin
+            if ActionMessageEntry.Type <> ActionMessageEntry.Type::New then
+                ReqLine."Original Due Date" := ReqLine."Due Date";
+            ReqLine."Due Date" := ActionMessageEntry."New Date";
+            ReqLine."Starting Date" := 0D;
+            if ActionMessageEntry.BoundToComponent() then begin
+                ReqLine."Ending Date" := ActionMessageEntry.ComponentDueDate();
+                ReqLine."Ending Time" := ActionMessageEntry.ComponentDueTime();
             end else
-                SumUp(ActionMessageEntry);
-
-            if Quantity < 0 then
-                if SKU."Lot Size" > 0 then
-                    if ManufacturingSetup."Default Dampener %" > 0 then
-                        if ManufacturingSetup."Default Dampener %" * SKU."Lot Size" / 100 >= Abs(Quantity) then
-                            Quantity := 0;
-            if (Quantity = 0) and ("New Date" = 0D) then
-                exit;
-
-            ReqLine."Original Quantity" := ReqLine.Quantity;
-            ReqLine."Quantity (Base)" += Quantity;
-            ReqLine.Quantity := Round(ReqLine."Quantity (Base)" / ReqLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-            ReqLine."Remaining Quantity" := ReqLine.Quantity - ReqLine."Finished Quantity";
-            ReqLine."Remaining Qty. (Base)" :=
-              Round(ReqLine."Remaining Quantity" / ReqLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-            if InsertNew then
-                Type := Type::New;
-            if "New Date" <> 0D then begin
-                if Type <> Type::New then
-                    ReqLine."Original Due Date" := ReqLine."Due Date";
-                ReqLine."Due Date" := "New Date";
-                ReqLine."Starting Date" := 0D;
-                if BoundToComponent() then begin
-                    ReqLine."Ending Date" := ComponentDueDate();
-                    ReqLine."Ending Time" := ComponentDueTime();
-                end else
-                    ReqLine."Ending Date" := 0D;
-            end;
-            if ReqLine.Quantity = 0 then
-                ReqLine."Action Message" := ReqLine."Action Message"::Cancel
-            else
-                ReqLine."Action Message" := Type;
-            ReqLine."Planning Line Origin" := ReqLine."Planning Line Origin"::"Action Message";
-            ReqLine."Accept Action Message" := true;
-            ReqLine.Modify();
-            if ReqLine."Starting Date" = 0D then
-                ReqLine."Starting Date" := ReqLine."Due Date";
-            if ReqLine."Ending Date" = 0D then
-                ReqLine."Ending Date" := ReqLine."Due Date" - 1;
-            ReqLine.BlockDynamicTracking(true);
-            GetRoutingAndComponents(ReqLine);
-            if ReqLine."Original Due Date" <> 0D then
-                if not (ReqLine."Action Message" in [ReqLine."Action Message"::Reschedule,
-                                                     ReqLine."Action Message"::"Resched. & Chg. Qty."])
-                then
-                    ReqLine."Original Due Date" := 0D;
-            if ReqLine."Original Quantity" = ReqLine.Quantity then
-                if ReqLine."Action Message" = ReqLine."Action Message"::"Resched. & Chg. Qty." then
-                    ReqLine."Action Message" := ReqLine."Action Message"::Reschedule;
-            ReqLine.Validate(Quantity);
-            if ReqLine."Action Message" = ReqLine."Action Message"::Reschedule then
-                ReqLine."Original Quantity" := 0;
-            ReqLine.Modify();
-            Clear(ReqLineExtern);
-
-            // Retrieve temporary list of Planning Components handled:
-            InvtProfileOffsetting.GetPlanningCompList(TempPlanningCompList);
-
-            // Save inserted Planning Line in temporary list:
-            TempReqLineList := ReqLine;
-            TempReqLineList.Insert();
-
-            PlanningLinesInserted := true;
+                ReqLine."Ending Date" := 0D;
         end;
+        if ReqLine.Quantity = 0 then
+            ReqLine."Action Message" := ReqLine."Action Message"::Cancel
+        else
+            ReqLine."Action Message" := ActionMessageEntry.Type;
+        ReqLine."Planning Line Origin" := ReqLine."Planning Line Origin"::"Action Message";
+        ReqLine."Accept Action Message" := true;
+        ReqLine.Modify();
+        if ReqLine."Starting Date" = 0D then
+            ReqLine."Starting Date" := ReqLine."Due Date";
+        if ReqLine."Ending Date" = 0D then
+            ReqLine."Ending Date" := ReqLine."Due Date" - 1;
+        ReqLine.BlockDynamicTracking(true);
+        GetRoutingAndComponents(ReqLine);
+        if ReqLine."Original Due Date" <> 0D then
+            if not (ReqLine."Action Message" in [ReqLine."Action Message"::Reschedule,
+                                                 ReqLine."Action Message"::"Resched. & Chg. Qty."])
+            then
+                ReqLine."Original Due Date" := 0D;
+        if ReqLine."Original Quantity" = ReqLine.Quantity then
+            if ReqLine."Action Message" = ReqLine."Action Message"::"Resched. & Chg. Qty." then
+                ReqLine."Action Message" := ReqLine."Action Message"::Reschedule;
+        ReqLine.Validate(Quantity);
+        if ReqLine."Action Message" = ReqLine."Action Message"::Reschedule then
+            ReqLine."Original Quantity" := 0;
+        ReqLine.Modify();
+        Clear(ReqLineExtern);
+        // Retrieve temporary list of Planning Components handled:
+        InvtProfileOffsetting.GetPlanningCompList(TempPlanningCompList);
+        // Save inserted Planning Line in temporary list:
+        TempReqLineList := ReqLine;
+        TempReqLineList.Insert();
+
+        PlanningLinesInserted := true;
     end;
 
     local procedure InitReqFromSource(ActionMsgEntry: Record "Action Message Entry"; var ReqLine: Record "Requisition Line"): Boolean
@@ -347,31 +341,30 @@ report 99001023 "Get Action Messages"
         TransLine: Record "Transfer Line";
         AsmHeader: Record "Assembly Header";
     begin
-        with ActionMsgEntry do
-            case "Source Type" of
-                Database::"Prod. Order Line":
-                    if ProdOrderLine.Get("Source Subtype", "Source ID", "Source Prod. Order Line") then begin
-                        ReqLine.GetProdOrderLine(ProdOrderLine);
-                        exit(false);
-                    end;
-                Database::"Purchase Line":
-                    if PurchOrderLine.Get("Source Subtype", "Source ID", "Source Ref. No.") then begin
-                        ReqLine.GetPurchOrderLine(PurchOrderLine);
-                        exit(false);
-                    end;
-                Database::"Transfer Line":
-                    if TransLine.Get("Source ID", "Source Ref. No.") then begin
-                        ReqLine.GetTransLine(TransLine);
-                        exit(false);
-                    end;
-                Database::"Assembly Header":
-                    if AsmHeader.Get("Source Subtype", "Source ID") then begin
-                        ReqLine.GetAsmHeader(AsmHeader);
-                        exit(false);
-                    end;
-                else
-                    Error(Text009)
-            end;
+        case ActionMsgEntry."Source Type" of
+            Database::"Prod. Order Line":
+                if ProdOrderLine.Get(ActionMsgEntry."Source Subtype", ActionMsgEntry."Source ID", ActionMsgEntry."Source Prod. Order Line") then begin
+                    ReqLine.GetProdOrderLine(ProdOrderLine);
+                    exit(false);
+                end;
+            Database::"Purchase Line":
+                if PurchOrderLine.Get(ActionMsgEntry."Source Subtype", ActionMsgEntry."Source ID", ActionMsgEntry."Source Ref. No.") then begin
+                    ReqLine.GetPurchOrderLine(PurchOrderLine);
+                    exit(false);
+                end;
+            Database::"Transfer Line":
+                if TransLine.Get(ActionMsgEntry."Source ID", ActionMsgEntry."Source Ref. No.") then begin
+                    ReqLine.GetTransLine(TransLine);
+                    exit(false);
+                end;
+            Database::"Assembly Header":
+                if AsmHeader.Get(ActionMsgEntry."Source Subtype", ActionMsgEntry."Source ID") then begin
+                    ReqLine.GetAsmHeader(AsmHeader);
+                    exit(false);
+                end;
+            else
+                Error(Text009)
+        end;
         ReqLine.TransferFromActionMessage(ActionMsgEntry);
         exit(true);
     end;

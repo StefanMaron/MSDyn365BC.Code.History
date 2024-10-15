@@ -27,6 +27,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         LibraryPatterns: Codeunit "Library - Patterns";
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         Initialized: Boolean;
         TXT_ASSEMBLY_EXISTS: Label 'Assembly exists.';
         TXT_CHECKING: Label 'Checking %1.';
@@ -47,7 +48,6 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         ChildItemSN1: Label 'ChilSN1';
         ChildItemSN2: Label 'ChilSN2';
         ChildItemSN3: Label 'ChilSN3';
-        MSG_WHSE_ACT_LINES_DELETED: Label 'All related Warehouse Activity Lines are deleted.';
         ERR_NO_WHSE_WKSH_LINES_CREATED: Label 'There are no Warehouse Worksheet Lines created.';
         ERR_NOTHING_TO_HANDLE: Label 'There is nothing to handle, because the worksheet lines do not contain a value for quantity to handle.';
         ERR_BIN_CODE_NOT_EMPTY: Label 'Bin Code must have a value in Assembly Line: Document Type=%1, Document No.=%2, Line No.=%3. It cannot be zero or empty.';
@@ -67,7 +67,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         Initialized := true;
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         ManufacturingSetup.Get();
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Whse.-Asm. To Order");
@@ -274,7 +274,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
             if FindSet() then
                 repeat
                     Assert.AreEqual(0, "Consumed Quantity", StrSubstNo(TXT_CHECKING, FieldCaption("Consumed Quantity")));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -775,12 +775,12 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         // Edit bin codes for A-T-O line
         Clear(WhseActivityHeader);
         WhseActivityHeader.Get(WhseActivityLine."Activity Type", WhseActivityLine."No.");
-        InventoryPick.Trap;
+        InventoryPick.Trap();
         PAGE.Run(PAGE::"Inventory Pick", WhseActivityHeader);
-        InventoryPick.WhseActivityLines.First; // first line
+        InventoryPick.WhseActivityLines.First(); // first line
         WhseActivityLine2.Get(WhseActivityHeader.Type, WhseActivityHeader."No.", 10000); // first line
         if WhseActivityLine2."Assemble to Order" then begin
-            OldATOPickBinCode := InventoryPick.WhseActivityLines."Bin Code".Value;
+            OldATOPickBinCode := InventoryPick.WhseActivityLines."Bin Code".Value();
             InventoryPick.WhseActivityLines."Bin Code".SetValue(''); // blanking of bin allowed
             MockBin(BinY, Location.Code); // new bin for A-T-O
             InventoryPick.WhseActivityLines."Bin Code".SetValue(BinY.Code); // setting of bin allowed
@@ -1018,7 +1018,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
     begin
         CreateInvtPutAwayPickMvmt.CreateInventorytPutAway.SetValue(false);
         CreateInvtPutAwayPickMvmt.CInvtPick.SetValue(true);
-        CreateInvtPutAwayPickMvmt.OK.Invoke;
+        CreateInvtPutAwayPickMvmt.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -1249,10 +1249,10 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         SalesLine.ShowReservation();
         // [GIVEN] assign 2 lots to asm order taking care that it does not cover the whole qty
         SalesLine.AsmToOrderExists(AsmHeader);
-        AsmOrder.Trap;
+        AsmOrder.Trap();
         AsmHeader.Get(AsmHeader."Document Type", AsmHeader."No.");
         PAGE.Run(PAGE::"Assembly Order", AsmHeader);
-        AsmOrder."Item Tracking Lines".Invoke; // to set the two lot numbers
+        AsmOrder."Item Tracking Lines".Invoke(); // to set the two lot numbers
         // [GIVEN] get the lots and qtys set
         ReservEntry.SetRange("Source Type", DATABASE::"Assembly Header");
         ReservEntry.SetRange("Source Subtype", AsmHeader."Document Type");
@@ -1329,12 +1329,12 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
     begin
         Lot2 := IncStr(FirstNumber);
         Lot2Qty := 1; // 1 PCS
-        ItemTrackingLines.New;
+        ItemTrackingLines.New();
         ItemTrackingLines."Lot No.".SetValue(Lot2);
         ItemTrackingLines."Quantity (Base)".SetValue(Lot2Qty);
         Lot3 := IncStr(Lot2);
         Lot3Qty := 2; // 2 PCS
-        ItemTrackingLines.New;
+        ItemTrackingLines.New();
         ItemTrackingLines."Lot No.".SetValue(Lot3);
         ItemTrackingLines."Quantity (Base)".SetValue(Lot3Qty);
     end;
@@ -1343,7 +1343,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
     [Scope('OnPrem')]
     procedure VSTF279916_NotSpecificSNLot(Question: Text; var Reply: Boolean)
     begin
-        Assert.IsTrue(StrPos(Question, LibraryInventory.GetReservConfirmText) > 0, '');
+        Assert.IsTrue(StrPos(Question, LibraryInventory.GetReservConfirmText()) > 0, '');
         Reply := false;
     end;
 
@@ -1887,7 +1887,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         Assert.IsTrue(StrPos(GetLastErrorText, ERR_NO_WHSE_WKSH_LINES_CREATED) > 0, '');
         WhseActivityHeader.SetRange(Type, WhseActivityHeader.Type::Pick);
         WhseActivityHeader.SetRange("Location Code", Location.Code);
-        Assert.IsTrue(WhseActivityHeader.FindLast, ''); // a pick for components must have been made
+        Assert.IsTrue(WhseActivityHeader.FindLast(), ''); // a pick for components must have been made
         WhseActivityLine.SetRange("Activity Type", WhseActivityHeader.Type);
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         Assert.AreEqual(6, WhseActivityLine.Count, ''); // expecting 6 lines or 3 take-place pairs for each of the 3 serial nos of components
@@ -1904,13 +1904,14 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
             Assert.AreEqual(0, LibraryWarehouse.GetWhseDocsPickWorksheet(WhseWkshLine, WhsePickRequest, Location.Code), ''); // all picks have been made. getting src docs should lead to error
         end;
         Assert.IsTrue(StrPos(GetLastErrorText, ERR_NO_WHSE_WKSH_LINES_CREATED) > 0, '');
-        Assert.IsTrue(WhseActivityHeader.FindLast, ''); // a pick for components as well shipment items must have been made
+        Assert.IsTrue(WhseActivityHeader.FindLast(), ''); // a pick for components as well shipment items must have been made
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         Assert.AreEqual(10, WhseActivityLine.Count, ''); // expecting 10 lines or 3 take-place pairs for each of the 3 serial nos of components + 2 take-place pairs for the 2 parent items in warehouse
 
         // Delete one of the take pair lines among each of the components and shipment pick
         WhseActivityLine.SetFilter("Serial No.", '%1|%2', ChildItemSN2, ParentItemSN1);
         WhseActivityLine.DeleteAll(true);
+        NotificationLifecycleMgt.RecallAllNotifications();
 
         // open pick worksheet and get whse docs for shipment to make the pick for the extra items
         WhsePickRequest.Get(WhsePickRequest."Document Type"::Shipment, 0, WhseShptHeader."No.", Location.Code);
@@ -1928,7 +1929,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         CreatePickWkshLine(WhseWkshLine);
         Assert.IsTrue(WhseWkshLine.IsEmpty, ''); // expecting that the lines created above vanishes as the full pick has been made
         Assert.AreEqual(0, WhseWkshLine.Count, ''); // pick for full amount created so lines should go away
-        Assert.IsTrue(WhseActivityHeader.FindLast, ''); // a pick for the EXTRA components as well shipment items must have been made
+        Assert.IsTrue(WhseActivityHeader.FindLast(), ''); // a pick for the EXTRA components as well shipment items must have been made
         WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
         Assert.AreEqual(4, WhseActivityLine.Count, ''); // expecting 4 lines or 2 take-place pairs for component and non-ATO shipment
         WhseActivityLine.SetRange("Serial No.", ChildItemSN2);
@@ -1958,13 +1959,13 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
     [Scope('OnPrem')]
     procedure VSTF283949_SetSerialITOnAsm(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines.New;
+        ItemTrackingLines.New();
         ItemTrackingLines."Serial No.".SetValue(ParentItemSN3);
         ItemTrackingLines."Quantity (Base)".SetValue(1);
-        ItemTrackingLines.New;
+        ItemTrackingLines.New();
         ItemTrackingLines."Serial No.".SetValue(ParentItemSN4);
         ItemTrackingLines."Quantity (Base)".SetValue(1);
-        ItemTrackingLines.New;
+        ItemTrackingLines.New();
         ItemTrackingLines."Serial No.".SetValue(ParentItemSN5);
         ItemTrackingLines."Quantity (Base)".SetValue(1);
     end;
@@ -1974,7 +1975,6 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
     procedure VSTF283949_WhseShptOrPickCreatedMsg(Message: Text)
     begin
         Assert.IsTrue(
-          (StrPos(Message, MSG_WHSE_ACT_LINES_DELETED) > 0) or
           (StrPos(Message, MSG_PICK_ACTIVITY) > 0) and (StrPos(Message, MSG_GENERIC_CREATED) > 0), '');
     end;
 
@@ -2353,10 +2353,10 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
     [Scope('OnPrem')]
     procedure SetSerialITOnAsm(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines.New;
+        ItemTrackingLines.New();
         ItemTrackingLines."Serial No.".SetValue(ParentItemSN1);
         ItemTrackingLines."Quantity (Base)".SetValue(1);
-        ItemTrackingLines.New;
+        ItemTrackingLines.New();
         ItemTrackingLines."Serial No.".SetValue(ParentItemSN2);
         ItemTrackingLines."Quantity (Base)".SetValue(1);
     end;
@@ -2387,11 +2387,11 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
         EntrySummary.Init();
-        ReservationPage.First;
+        ReservationPage.First();
         if ReservationPage."Summary Type".Value =
            CopyStr(ItemLedgEntry.TableCaption(), 1, MaxStrLen(EntrySummary."Summary Type"))
         then
-            ReservationPage."Reserve from Current Line".Invoke;
+            ReservationPage."Reserve from Current Line".Invoke();
     end;
 
     local procedure VerifyWhseEntries(AsmHeader: Record "Assembly Header")
@@ -2640,7 +2640,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
     begin
         WhseItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
         WhseItemTrackingLines.Quantity.SetValue(1);
-        WhseItemTrackingLines.OK.Invoke();
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [MessageHandler]

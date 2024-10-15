@@ -41,6 +41,7 @@ table 5990 "Service Shipment Header"
     DataCaptionFields = "No.", Name;
     DrillDownPageID = "Posted Service Shipments";
     LookupPageID = "Posted Service Shipments";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -391,6 +392,10 @@ table 5990 "Service Shipment Header"
         field(99; "Document Date"; Date)
         {
             Caption = 'Document Date';
+        }
+        field(100; "External Document No."; Code[35])
+        {
+            Caption = 'External Document No.';
         }
         field(101; "Area"; Code[10])
         {
@@ -748,6 +753,10 @@ table 5990 "Service Shipment Header"
         {
             Caption = 'Allow Line Disc.';
         }
+        field(9001; "Quote No."; Code[20])
+        {
+            Caption = 'Quote No.';
+        }
     }
 
     keys
@@ -823,11 +832,9 @@ table 5990 "Service Shipment Header"
     var
         ReportSelection: Record "Report Selections";
     begin
-        with ServShptHeader do begin
-            Copy(Rec);
-            ReportSelection.PrintWithDialogForCust(
-              ReportSelection.Usage::"SM.Shipment", ServShptHeader, ShowRequestForm, FieldNo("Bill-to Customer No."));
-        end;
+        ServShptHeader.Copy(Rec);
+        ReportSelection.PrintWithDialogForCust(
+          ReportSelection.Usage::"SM.Shipment", ServShptHeader, ShowRequestForm, ServShptHeader.FieldNo("Bill-to Customer No."));
     end;
 
     procedure Navigate()

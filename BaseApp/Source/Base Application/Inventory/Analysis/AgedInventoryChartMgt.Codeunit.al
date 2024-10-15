@@ -30,16 +30,14 @@ codeunit 1317 "Aged Inventory Chart Mgt."
         PeriodStartDate2: array[6] of Date;
         InvtValue: array[5] of Decimal;
     begin
-        with BusChartBuf do begin
-            Initialize();
-            AddDecimalMeasure(YCaptionTxt, 1, "Chart Type"::StackedColumn);
-            SetXAxis(XCaptionTxt, "Data Type"::String);
-            CalcPeriodStartDates(PeriodStartDate2, GetPeriodLengthInDays(BusChartBuf));
-            AddChartColumns(BusChartBuf);
-            CalcInventoryValuePerAge(InvtValue, PeriodStartDate2);
-            for ColumnIndex := 1 to 5 do
-                SetValueByIndex(0, ColumnIndex - 1, InvtValue[6 - ColumnIndex]);
-        end;
+        BusChartBuf.Initialize();
+        BusChartBuf.AddDecimalMeasure(YCaptionTxt, 1, BusChartBuf."Chart Type"::StackedColumn);
+        BusChartBuf.SetXAxis(XCaptionTxt, BusChartBuf."Data Type"::String);
+        CalcPeriodStartDates(PeriodStartDate2, GetPeriodLengthInDays(BusChartBuf));
+        AddChartColumns(BusChartBuf);
+        CalcInventoryValuePerAge(InvtValue, PeriodStartDate2);
+        for ColumnIndex := 1 to 5 do
+            BusChartBuf.SetValueByIndex(0, ColumnIndex - 1, InvtValue[6 - ColumnIndex]);
     end;
 
     procedure DrillDown(var BusChartBuf: Record "Business Chart Buffer")
@@ -84,20 +82,19 @@ codeunit 1317 "Aged Inventory Chart Mgt."
         XAxisValueTxt: Text[30];
         LastXAxisValueTxt: Text[30];
     begin
-        with BusChartBuf do begin
-            PeriodLengthOnXAxis := GetPeriodLengthInDays(BusChartBuf);
-            if PeriodLengthOnXAxis = 365 then begin
-                PeriodLengthOnXAxis := 1;
-                XAxisValueTxt := XFromToYearsTxt;
-                LastXAxisValueTxt := XOverYearsTxt;
-            end else begin
-                XAxisValueTxt := XFromToDaysTxt;
-                LastXAxisValueTxt := XOverDaysTxt;
-            end;
-            for I := 0 to 3 do
-                AddColumn(StrSubstNo(XAxisValueTxt, I * PeriodLengthOnXAxis, (I + 1) * PeriodLengthOnXAxis));  // X-Axis value
-            AddColumn(StrSubstNo(LastXAxisValueTxt, Format(4 * PeriodLengthOnXAxis)));  // X-Axis value
+        PeriodLengthOnXAxis := GetPeriodLengthInDays(BusChartBuf);
+        if PeriodLengthOnXAxis = 365 then begin
+            PeriodLengthOnXAxis := 1;
+            XAxisValueTxt := XFromToYearsTxt;
+            LastXAxisValueTxt := XOverYearsTxt;
+        end else begin
+            XAxisValueTxt := XFromToDaysTxt;
+            LastXAxisValueTxt := XOverDaysTxt;
         end;
+        for I := 0 to 3 do
+            BusChartBuf.AddColumn(StrSubstNo(XAxisValueTxt, I * PeriodLengthOnXAxis, (I + 1) * PeriodLengthOnXAxis));
+        // X-Axis value
+        BusChartBuf.AddColumn(StrSubstNo(LastXAxisValueTxt, Format(4 * PeriodLengthOnXAxis)));  // X-Axis value
     end;
 
     local procedure CalcPeriodStartDates(var PeriodStartDate: array[6] of Date; PeriodLength: Integer)
@@ -112,19 +109,17 @@ codeunit 1317 "Aged Inventory Chart Mgt."
 
     procedure CalcRemainingQty(ItemLedgerEntry: Record "Item Ledger Entry"; PeriodStartDate: array[6] of Date; var InvtQty: array[5] of Decimal; var PeriodNo: Integer)
     begin
-        with ItemLedgerEntry do begin
-            for PeriodNo := 1 to 5 do
-                InvtQty[PeriodNo] := 0;
+        for PeriodNo := 1 to 5 do
+            InvtQty[PeriodNo] := 0;
 
-            for PeriodNo := 1 to 5 do
-                if ("Posting Date" > PeriodStartDate[PeriodNo]) and
-                   ("Posting Date" <= PeriodStartDate[PeriodNo + 1])
-                then
-                    if "Remaining Quantity" <> 0 then begin
-                        InvtQty[PeriodNo] := "Remaining Quantity";
-                        exit;
-                    end;
-        end;
+        for PeriodNo := 1 to 5 do
+            if (ItemLedgerEntry."Posting Date" > PeriodStartDate[PeriodNo]) and
+               (ItemLedgerEntry."Posting Date" <= PeriodStartDate[PeriodNo + 1])
+            then
+                if ItemLedgerEntry."Remaining Quantity" <> 0 then begin
+                    InvtQty[PeriodNo] := ItemLedgerEntry."Remaining Quantity";
+                    exit;
+                end;
     end;
 
     procedure CalcUnitCost(ItemLedgerEntry: Record "Item Ledger Entry"): Decimal
@@ -132,36 +127,33 @@ codeunit 1317 "Aged Inventory Chart Mgt."
         ValueEntry: Record "Value Entry";
         UnitCost: Decimal;
     begin
-        with ValueEntry do begin
-            SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
-            UnitCost := 0;
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
+        UnitCost := 0;
 
-            if Find('-') then
-                repeat
-                    if "Partial Revaluation" then
-                        SumUnitCost(UnitCost, "Cost Amount (Actual)" + "Cost Amount (Expected)", "Valued Quantity")
-                    else
-                        SumUnitCost(UnitCost, "Cost Amount (Actual)" + "Cost Amount (Expected)", ItemLedgerEntry.Quantity);
-                until Next() = 0;
-        end;
+        if ValueEntry.Find('-') then
+            repeat
+                if ValueEntry."Partial Revaluation" then
+                    SumUnitCost(UnitCost, ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)", ValueEntry."Valued Quantity")
+                else
+                    SumUnitCost(UnitCost, ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)", ItemLedgerEntry.Quantity);
+            until ValueEntry.Next() = 0;
         exit(UnitCost);
     end;
 
     procedure GetPeriodLengthInDays(BusChartBuf: Record "Business Chart Buffer"): Integer
     begin
-        with BusChartBuf do
-            case "Period Length" of
-                "Period Length"::Day:
-                    exit(1);
-                "Period Length"::Week:
-                    exit(7);
-                "Period Length"::Month:
-                    exit(30);
-                "Period Length"::Quarter:
-                    exit(90);
-                "Period Length"::Year:
-                    exit(365);
-            end;
+        case BusChartBuf."Period Length" of
+            BusChartBuf."Period Length"::Day:
+                exit(1);
+            BusChartBuf."Period Length"::Week:
+                exit(7);
+            BusChartBuf."Period Length"::Month:
+                exit(30);
+            BusChartBuf."Period Length"::Quarter:
+                exit(90);
+            BusChartBuf."Period Length"::Year:
+                exit(365);
+        end;
     end;
 
     local procedure SumUnitCost(var UnitCost: Decimal; CostAmount: Decimal; Quantity: Decimal)

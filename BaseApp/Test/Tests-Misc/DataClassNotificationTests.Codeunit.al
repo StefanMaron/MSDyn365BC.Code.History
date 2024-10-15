@@ -35,7 +35,7 @@ codeunit 135151 "Data Class. Notification Tests"
         // [SCENARIO] User gets notified about the Data Classification feature only if he has not classified
         // any data and he is not in Demo Company
 
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         Clear(LibraryVariableStorage);
         DataSensitivity.DeleteAll();
 
@@ -55,10 +55,10 @@ codeunit 135151 "Data Class. Notification Tests"
         Customer.Modify();
 
         // [WHEN] Busines Manager Role Center Opens
-        BusinessManagerRoleCenter.OpenView;
+        BusinessManagerRoleCenter.OpenView();
 
         // [THEN] No Data Classification Notification is shown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         BusinessManagerRoleCenter.Close();
 
@@ -66,10 +66,10 @@ codeunit 135151 "Data Class. Notification Tests"
         SetCompanyToDemo(false);
 
         // [WHEN] Busines Manager Role Center Opens
-        BusinessManagerRoleCenter.OpenView;
+        BusinessManagerRoleCenter.OpenView();
 
         // [THEN] The data classification notification is sent
-        Assert.ExpectedMessage(DataClassificationNotificationMsg, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(DataClassificationNotificationMsg, LibraryVariableStorage.DequeueText());
 
         BusinessManagerRoleCenter.Close();
 
@@ -88,10 +88,10 @@ codeunit 135151 "Data Class. Notification Tests"
         Resource.DeleteAll();
 
         // [WHEN] Busines Manager Role Center Opens
-        BusinessManagerRoleCenter.OpenView;
+        BusinessManagerRoleCenter.OpenView();
 
         // [THEN] No Data Classification Notification is shown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         BusinessManagerRoleCenter.Close();
 
@@ -104,10 +104,10 @@ codeunit 135151 "Data Class. Notification Tests"
         Customer.Insert();
 
         // [WHEN] Busines Manager Role Center Opens
-        BusinessManagerRoleCenter.OpenView;
+        BusinessManagerRoleCenter.OpenView();
 
         // [THEN] The data classification notification is sent
-        Assert.ExpectedMessage(DataClassificationNotificationMsg, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(DataClassificationNotificationMsg, LibraryVariableStorage.DequeueText());
 
         BusinessManagerRoleCenter.Close();
     end;
@@ -123,7 +123,7 @@ codeunit 135151 "Data Class. Notification Tests"
     begin
         // [SCENARIO] User gets notified to sync the fields again after 30 days since last sync
         Clear(LibraryVariableStorage);
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [GIVEN] The company is not an EU company
         // [GIVEN] The company is not a demo company
@@ -135,10 +135,10 @@ codeunit 135151 "Data Class. Notification Tests"
         DataClassificationMgt.InsertDataSensitivityForField(3, 1, DataSensitivity."Data Sensitivity"::Unclassified);
 
         // [WHEN] Busines Manager Role Center Opens
-        BusinessManagerRoleCenter.OpenView;
+        BusinessManagerRoleCenter.OpenView();
 
         // [THEN] The Unclassified fields notification shows
-        Assert.ExpectedMessage(UnclassifiedFieldsNotificationMsg, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(UnclassifiedFieldsNotificationMsg, LibraryVariableStorage.DequeueText());
 
         BusinessManagerRoleCenter.Close();
     end;
@@ -156,7 +156,7 @@ codeunit 135151 "Data Class. Notification Tests"
     begin
         // [SCENARIO] User gets notified that are unclassified field
         Clear(LibraryVariableStorage);
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [GIVEN] The company is not an EU company
         // [GIVEN] The company is not a demo company
@@ -172,10 +172,10 @@ codeunit 135151 "Data Class. Notification Tests"
         LibraryDataClassification.ModifyLastFieldsSyncStatusDate(LastFieldsSyncStatusDate);
 
         // [WHEN] Busines Manager Role Center Opens
-        BusinessManagerRoleCenter.OpenView;
+        BusinessManagerRoleCenter.OpenView();
 
         // [THEN] The Sync fields notification shows
-        Assert.ExpectedMessage(SyncFieldsNotificationMsg, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(SyncFieldsNotificationMsg, LibraryVariableStorage.DequeueText());
 
         BusinessManagerRoleCenter.Close();
     end;
@@ -190,7 +190,7 @@ codeunit 135151 "Data Class. Notification Tests"
         DummyNotification: Notification;
     begin
         // [SCENARIO] Notification actions exist
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         DataClassNotificationMgt.DisableNotifications(DummyNotification);
         DataClassNotificationMgt.OpenClassificationWorksheetPage(DummyNotification);
@@ -204,14 +204,14 @@ codeunit 135151 "Data Class. Notification Tests"
     var
         DataClassNotificationMgt: Codeunit "Data Class. Notification Mgt.";
     begin
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         case Notification.Id of
-            DataClassNotificationMgt.GetDataClassificationNotificationId:
+            DataClassNotificationMgt.GetDataClassificationNotificationId():
                 LibraryVariableStorage.Enqueue(DataClassificationNotificationMsg);
-            DataClassNotificationMgt.GetSyncFieldsNotificationId:
+            DataClassNotificationMgt.GetSyncFieldsNotificationId():
                 LibraryVariableStorage.Enqueue(SyncFieldsNotificationMsg);
-            DataClassNotificationMgt.GetUnclassifiedFieldsNotificationId:
+            DataClassNotificationMgt.GetUnclassifiedFieldsNotificationId():
                 LibraryVariableStorage.Enqueue(UnclassifiedFieldsNotificationMsg);
         end;
     end;
@@ -226,7 +226,7 @@ codeunit 135151 "Data Class. Notification Tests"
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
         DummyNotification: Notification;
     begin
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [GIVEN] Three entries in the Data Sensitivity table - one classified and two unclassified
         DataSensitivity.DeleteAll();
@@ -260,7 +260,7 @@ codeunit 135151 "Data Class. Notification Tests"
     [Scope('OnPrem')]
     procedure OpenClassificationWorksheetPageHandler(var DataClassificationWorksheet: TestPage "Data Classification Worksheet")
     begin
-        if DataClassificationWorksheet.First then
+        if DataClassificationWorksheet.First() then
             repeat
                 NumberOfEntriesOnClassificationWorksheetPage += 1;
             until not DataClassificationWorksheet.Next();

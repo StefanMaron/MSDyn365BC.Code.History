@@ -387,7 +387,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SetShortcutDimensions(SalesHeader, SalesCrMemoEntityBuffer, TempFieldBuffer);
         SalesHeader.Modify(true);
 
-        SalesCrMemoEntityBuffer."No." := NoFieldRef.Value;
+        SalesCrMemoEntityBuffer."No." := NoFieldRef.Value();
         SalesCrMemoEntityBuffer.Get(SalesCrMemoEntityBuffer."No.", SalesCrMemoEntityBuffer.Posted);
     end;
 
@@ -459,7 +459,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
             until SalesCrMemoHeader.Next() = 0;
 
         SalesCrMemoEntityBuffer.SetRange(Posted, false);
-        if SalesCrMemoEntityBuffer.FindSet(true, false) then
+        if SalesCrMemoEntityBuffer.FindSet(true) then
             repeat
                 if not SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesCrMemoEntityBuffer."No.") then begin
                     SalesCrMemoEntityBuffer.Delete(true);
@@ -468,7 +468,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
             until SalesCrMemoEntityBuffer.Next() = 0;
 
         SalesCrMemoEntityBuffer.SetRange(Posted, true);
-        if SalesCrMemoEntityBuffer.FindSet(true, false) then
+        if SalesCrMemoEntityBuffer.FindSet(true) then
             repeat
                 if not SalesCrMemoHeader.Get(SalesCrMemoEntityBuffer."No.") then begin
                     SalesCrMemoEntityBuffer.Delete(true);
@@ -509,7 +509,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     procedure GetSalesCrMemoHeaderFromId(Id: Text; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"): Boolean
     begin
         SalesCrMemoHeader.SetFilter("Draft Cr. Memo SystemId", Id);
-        IF SalesCrMemoHeader.FINDFIRST() THEN
+        if SalesCrMemoHeader.FINDFIRST() then
             exit(true);
 
         SalesCrMemoHeader.SetRange("Draft Cr. Memo SystemId");
@@ -848,7 +848,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
     begin
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoEntityBuffer."No.");
 
-        if SalesCrMemoLine.FindSet(false, false) then
+        if SalesCrMemoLine.FindSet(false) then
             repeat
                 Clear(SalesInvoiceLineAggregate);
                 SalesInvoiceLineAggregate.TransferFields(SalesCrMemoLine, true);
@@ -879,7 +879,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesCrMemoEntityBuffer."No.");
 
-        if SalesLine.FindSet(false, false) then
+        if SalesLine.FindSet(false) then
             repeat
                 TransferFromSalesLine(SalesInvoiceLineAggregate, SalesLine, SalesCrMemoEntityBuffer);
                 SalesInvoiceLineAggregate.Insert(true);

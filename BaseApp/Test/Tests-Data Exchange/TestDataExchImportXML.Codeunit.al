@@ -187,7 +187,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
         AssertDataInTable(TempExpectedDataExchField, DataExchField, '');
         DataExchField.Get(DataExch."Entry No.", 0, 1, '0001000100010001');
         TempBlobBigXml.CreateInStream(InStream);
-        Assert.AreEqual(Base64Convert.ToBase64(InStream), DataExchField.GetValue, 'Big data mismatch!');
+        Assert.AreEqual(Base64Convert.ToBase64(InStream), DataExchField.GetValue(), 'Big data mismatch!');
     end;
 
     [Test]
@@ -712,7 +712,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
         IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
         IntermediateDataImport.FindFirst();
         TempBlobBigXml.CreateInStream(InStream);
-        Assert.AreEqual(Base64Convert.ToBase64(InStream), IntermediateDataImport.GetValue, 'Big Xml Data does not match!');
+        Assert.AreEqual(Base64Convert.ToBase64(InStream), IntermediateDataImport.GetValue(), 'Big Xml Data does not match!');
     end;
 
     [Test]
@@ -854,7 +854,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
         // [SCENARIO 124068] InsertRecXMLField with long XML Node Value
 
         // [GIVEN] Long text with length more that max length of the DataExchField.Value
-        LongValue := PadStr(LibraryUtility.GenerateGUID, MaxStrLen(DataExchField.Value), '0') + '0';
+        LongValue := PadStr(LibraryUtility.GenerateGUID(), MaxStrLen(DataExchField.Value), '0') + '0';
 
         // [WHEN] Run InsertRecXMLField function
         DataExchField.InsertRecXMLField(0, 0, 0, '', LongValue, '');
@@ -1141,7 +1141,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
     local procedure WriteLine(OutStream: OutStream; Text: Text)
     begin
         OutStream.WriteText(Text);
-        OutStream.WriteText;
+        OutStream.WriteText();
     end;
 
     local procedure ConvertEncoding(TempBlobSource: Codeunit "Temp Blob"; var TempBlobDestination: Codeunit "Temp Blob"; Encoding: DotNet Encoding)
@@ -1174,7 +1174,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
     var
         ErmPeSourceTestMock: Codeunit "ERM PE Source Test Mock";
     begin
-        ErmPeSourceTestMock.ClearTempBlobList;
+        ErmPeSourceTestMock.ClearTempBlobList();
         DataExchDef."Ext. Data Handling Codeunit" := CODEUNIT::"ERM PE Empty Source Test mock";
         DataExchDef.Modify();
     end;
@@ -1188,8 +1188,8 @@ codeunit 132547 "Test Data Exch.Import - XML"
         CreateDataExchLineDef(DataExchLineDef, DataExchDef.Code, NamespaceTxt);
         CreateDataExch(DataExch, DataExchDef.Code, DataExchLineDef.Code, TempBlob);
         DataExchColumnDef.InsertRecordForImport(
-			DataExchDef.Code, DataExchLineDef.Code, 1,
-            LibraryUtility.GenerateGUID, '', false, DataExchColumnDef."Data Type"::Text, '', '');
+            DataExchDef.Code, DataExchLineDef.Code, 1,
+            LibraryUtility.GenerateGUID(), '', false, DataExchColumnDef."Data Type"::Text, '', '');
         DataExchColumnDef.Path := Path;
         DataExchColumnDef.Modify(true);
     end;
@@ -1209,7 +1209,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
 
     local procedure CreateDataExchLineDef(var DataExchLineDef: Record "Data Exch. Line Def"; DataExchDefCode: Code[20]; ExpectedNamespace: Text[250])
     begin
-        DataExchLineDef.InsertRec(DataExchDefCode, LibraryUtility.GenerateGUID, '', 0);
+        DataExchLineDef.InsertRec(DataExchDefCode, LibraryUtility.GenerateGUID(), '', 0);
         DataExchLineDef."Data Line Tag" := '/Document/BkToCstmrStmt/Stmt/Ntry';
         DataExchLineDef.Namespace := ExpectedNamespace;
         DataExchLineDef.Modify(true);
