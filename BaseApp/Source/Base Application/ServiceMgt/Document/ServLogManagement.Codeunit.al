@@ -103,11 +103,11 @@ codeunit 5906 ServLogManagement
             24:
                 exit(Text040);
             else begin
-                    OnServOrderEventDescription(EventNo, Description, Handled);
-                    if Handled then
-                        exit(Description);
-                    exit(UnknownEventTxt);
-                end;
+                OnServOrderEventDescription(EventNo, Description, Handled);
+                if Handled then
+                    exit(Description);
+                exit(UnknownEventTxt);
+            end;
         end;
     end;
 
@@ -156,11 +156,11 @@ codeunit 5906 ServLogManagement
             18:
                 exit(Text032);
             else begin
-                    OnServItemEventDescription(EventNo, Description, Handled);
-                    if Handled then
-                        exit(Description);
-                    exit(UnknownEventTxt);
-                end;
+                OnServItemEventDescription(EventNo, Description, Handled);
+                if Handled then
+                    exit(Description);
+                exit(UnknownEventTxt);
+            end;
         end;
     end;
 
@@ -203,6 +203,7 @@ codeunit 5906 ServLogManagement
         ServItemLog."Event No." := 3;
         ServItemLog."Document Type" := ServItemLog."Document Type"::Contract;
         ServItemLog."Document No." := ServContrLine."Contract No.";
+        OnServItemAddToContractOnBeforeServItemLogInsert(ServItemLog, ServContrLine);
         ServItemLog.Insert(true);
     end;
 
@@ -218,6 +219,7 @@ codeunit 5906 ServLogManagement
         ServItemLog."Event No." := 4;
         ServItemLog."Document Type" := ServItemLog."Document Type"::Contract;
         ServItemLog."Document No." := ServContrLine."Contract No.";
+        OnServItemRemovedFromContractOnBeforeServItemLogInsert(ServItemLog, ServContrLine);
         ServItemLog.Insert(true);
     end;
 
@@ -236,6 +238,7 @@ codeunit 5906 ServLogManagement
             ServItemLog."Event No." := 15;
         ServItemLog."Document Type" := ServItemLine."Document Type".AsInteger() + 1;
         ServItemLog."Document No." := ServItemLine."Document No.";
+        OnServItemToServOrderOnBeforeServItemLogInsert(ServItemLog, ServItemLine);
         ServItemLog.Insert(true);
     end;
 
@@ -254,6 +257,7 @@ codeunit 5906 ServLogManagement
             ServItemLog."Event No." := 17;
         ServItemLog."Document Type" := ServItemLine."Document Type".AsInteger() + 1;
         ServItemLog."Document No." := ServItemLine."Document No.";
+        OnServItemOffServOrderOnBeforeServItemLogInsert(ServItemLog, ServItemLine);
         ServItemLog.Insert(true);
     end;
 
@@ -517,9 +521,9 @@ codeunit 5906 ServLogManagement
             ServOrderLog."Document Type"::"Credit Memo":
                 ServOrderLog."Event No." := 21;
             else begin
-                    ServOrderLog."Event No." := 1;
-                    OnServHeaderCreateOnCaseElse(ServOrderLog, ServHeader);
-                end;
+                ServOrderLog."Event No." := 1;
+                OnServHeaderCreateOnCaseElse(ServOrderLog, ServHeader);
+            end;
         end;
         ServOrderLog.Insert(true);
     end;
@@ -742,6 +746,26 @@ codeunit 5906 ServLogManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnServOrderEventDescription(EventNo: Integer; var Description: Text[50]; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServItemAddToContractOnBeforeServItemLogInsert(var ServiceItemLog: Record "Service Item Log"; ServiceContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServItemRemovedFromContractOnBeforeServItemLogInsert(var ServiceItemLog: Record "Service Item Log"; ServiceContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServItemToServOrderOnBeforeServItemLogInsert(var ServiceItemLog: Record "Service Item Log"; ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServItemOffServOrderOnBeforeServItemLogInsert(var ServiceItemLog: Record "Service Item Log"; ServiceItemLine: Record "Service Item Line")
     begin
     end;
 }

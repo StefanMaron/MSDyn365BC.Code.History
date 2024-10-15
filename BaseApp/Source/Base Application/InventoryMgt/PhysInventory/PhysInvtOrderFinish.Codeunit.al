@@ -178,7 +178,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckOrderLine(PhysInvtOrderHeader, PhysInvtOrderLine, Item, IsHandled);
+        OnBeforeCheckOrderLine(PhysInvtOrderHeader, PhysInvtOrderLine, Item, IsHandled, PhysInvtOrderLine2);
         if IsHandled then
             exit;
 
@@ -398,7 +398,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckOrderLine(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var Item: Record Item; var IsHandled: Boolean)
+    local procedure OnBeforeCheckOrderLine(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var Item: Record Item; var IsHandled: Boolean; var PhysInvtOrderLine2: Record "Phys. Invt. Order Line")
     begin
     end;
 

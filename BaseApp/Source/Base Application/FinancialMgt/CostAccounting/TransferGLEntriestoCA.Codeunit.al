@@ -128,42 +128,46 @@ codeunit 1105 "Transfer GL Entries to CA"
                         GetCostCenterCode(GLEntry."Dimension Set ID", CostCenterCode),
                         GetCostObjectCode(GLEntry."Dimension Set ID", CostObjectCode):
                             begin
-                                case CostType."Combine Entries" of
-                                    CostType."Combine Entries"::None:
-                                        PostingDate := GLEntry."Posting Date";
-                                    CostType."Combine Entries"::Month:
-                                        begin
-                                            PostingDate := CalcDate('<CM>', GLEntry."Posting Date");
-                                            CombinedEntryText := StrSubstNo(Text003, PostingDate);
-                                        end;
-                                    CostType."Combine Entries"::Day:
-                                        begin
+                                IsHandled := false;
+                                OnBeforeProcessGLEntryInGetGLEntries(GLEntry, CostCenterCode, CostObjectCode, BatchRun, IsHandled);
+                                if not IsHandled then begin
+                                    case CostType."Combine Entries" of
+                                        CostType."Combine Entries"::None:
                                             PostingDate := GLEntry."Posting Date";
-                                            CombinedEntryText := StrSubstNo(Text004, PostingDate);
-                                        end;
-                                end;
+                                        CostType."Combine Entries"::Month:
+                                            begin
+                                                PostingDate := CalcDate('<CM>', GLEntry."Posting Date");
+                                                CombinedEntryText := StrSubstNo(Text003, PostingDate);
+                                            end;
+                                        CostType."Combine Entries"::Day:
+                                            begin
+                                                PostingDate := GLEntry."Posting Date";
+                                                CombinedEntryText := StrSubstNo(Text004, PostingDate);
+                                            end;
+                                    end;
 
-                                CombineEntries := CostType."Combine Entries" <> CostType."Combine Entries"::None;
-                                OnGetGLEntriesOnBeforeCombineEntries(CostCenterCode, GLEntry, CostType, CombineEntries);
-                                if CombineEntries then begin
-                                    TempCostJnlLine.Reset();
-                                    TempCostJnlLine.SetRange("Cost Type No.", CostType."No.");
-                                    if CostCenterCode <> '' then
-                                        TempCostJnlLine.SetRange("Cost Center Code", CostCenterCode)
-                                    else
-                                        TempCostJnlLine.SetRange("Cost Object Code", CostObjectCode);
-                                    TempCostJnlLine.SetRange("Posting Date", PostingDate);
-                                    if TempCostJnlLine.FindFirst() then
-                                        ModifyCostJournalLine(CombinedEntryText)
-                                    else
+                                    CombineEntries := CostType."Combine Entries" <> CostType."Combine Entries"::None;
+                                    OnGetGLEntriesOnBeforeCombineEntries(CostObjectCode, GLEntry, CostType, CombineEntries, CostCenterCode);
+                                    if CombineEntries then begin
+                                        TempCostJnlLine.Reset();
+                                        TempCostJnlLine.SetRange("Cost Type No.", CostType."No.");
+                                        if CostCenterCode <> '' then
+                                            TempCostJnlLine.SetRange("Cost Center Code", CostCenterCode)
+                                        else
+                                            TempCostJnlLine.SetRange("Cost Object Code", CostObjectCode);
+                                        TempCostJnlLine.SetRange("Posting Date", PostingDate);
+                                        if TempCostJnlLine.FindFirst() then
+                                            ModifyCostJournalLine(CombinedEntryText)
+                                        else
+                                            InsertCostJournalLine(CostCenterCode, CostObjectCode);
+                                    end else
                                         InsertCostJournalLine(CostCenterCode, CostObjectCode);
-                                end else
-                                    InsertCostJournalLine(CostCenterCode, CostObjectCode);
 
-                                if BatchRun and ((GLEntry."Entry No." mod 100) = 0) then begin
-                                    Window.Update(2, CostType."No.");
-                                    Window.Update(3, Format(NoOfCombinedEntries));
-                                    Window.Update(4, Format(NoOfJnlLines));
+                                    if BatchRun and ((GLEntry."Entry No." mod 100) = 0) then begin
+                                        Window.Update(2, CostType."No.");
+                                        Window.Update(3, Format(NoOfCombinedEntries));
+                                        Window.Update(4, Format(NoOfJnlLines));
+                                    end;
                                 end;
                             end;
                     end;
@@ -353,7 +357,12 @@ codeunit 1105 "Transfer GL Entries to CA"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetGLEntriesOnBeforeCombineEntries(var CostObjectCode: Code[20]; GLEntry: Record "G/L Entry"; CostType: Record "Cost Type"; var CombineEntries: Boolean)
+    local procedure OnGetGLEntriesOnBeforeCombineEntries(var CostObjectCode: Code[20]; GLEntry: Record "G/L Entry"; CostType: Record "Cost Type"; var CombineEntries: Boolean; var CostCenterCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessGLEntryInGetGLEntries(GLEntry: Record "G/L Entry"; var CostCenterCode: Code[20]; var CostObjectCode: Code[20]; BatchRun: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

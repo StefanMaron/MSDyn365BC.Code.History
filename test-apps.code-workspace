@@ -78,6 +78,9 @@
       "path": "./Email - Outlook REST API/Test"
     },
     {
+      "path": "./ExternalEvents/test/_Exclude_Business_Events_Test"
+    },
+    {
       "path": "./shopify/test/Shopify Connector Test"
     },
     {

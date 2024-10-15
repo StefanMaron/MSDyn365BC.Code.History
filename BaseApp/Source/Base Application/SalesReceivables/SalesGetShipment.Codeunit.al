@@ -39,7 +39,7 @@ codeunit 64 "Sales-Get Shipment"
         SalesShptLine: Record "Sales Shipment Line";
         UOMMgt: Codeunit "Unit of Measure Management";
         GetShipments: Page "Get Shipment Lines";
-
+        LineListHasAttachments: Dictionary of [Code[20], Boolean];
         Text001: Label 'The %1 on the %2 %3 and the %4 %5 must be the same.';
         Text002: Label 'Creating Sales Invoice Lines\';
         Text003: Label 'Inserted lines             #1######';
@@ -51,6 +51,7 @@ codeunit 64 "Sales-Get Shipment"
         TransferLine: Boolean;
         PrepmtAmtToDeductRounding: Decimal;
         IsHandled: Boolean;
+        OrderNoList: List of [Code[20]];
     begin
         IsHandled := false;
         OnBeforeCreateInvLines(SalesShptLine2, SalesHeader, SalesLine, SalesShptHeader, IsHandled);
@@ -96,6 +97,9 @@ codeunit 64 "Sales-Get Shipment"
                     end;
                     InsertInvoiceLineFromShipmentLine(SalesShptLine2, TransferLine, PrepmtAmtToDeductRounding);
                     OnAfterInsertLine(SalesShptLine, SalesLine, SalesShptLine2, TransferLine, SalesHeader);
+                    if SalesShptLine2."Order No." <> '' then
+                        if not OrderNoList.Contains(SalesShptLine2."Order No.") then
+                            OrderNoList.Add(SalesShptLine2."Order No.");
                 until Next() = 0;
 
                 UpdateItemChargeLines();
@@ -107,6 +111,7 @@ codeunit 64 "Sales-Get Shipment"
 
                 if TransferLine then
                     AdjustPrepmtAmtToDeductRounding(SalesLine, PrepmtAmtToDeductRounding);
+                CopyDocumentAttachments(OrderNoList, SalesHeader);
             end;
         end;
     end;
@@ -125,6 +130,7 @@ codeunit 64 "Sales-Get Shipment"
             CheckSalesShptLineVATBusPostingGroup(SalesShptLine, SalesHeader);
             SalesShptLine.InsertInvLineFromShptLine(SalesLine);
             CalcUpdatePrepmtAmtToDeductRounding(SalesShptLine, SalesLine, PrepmtAmtToDeductRounding);
+            CopyDocumentAttachments(SalesShptLine2, SalesLine);
         end;
     end;
 
@@ -359,6 +365,58 @@ codeunit 64 "Sales-Get Shipment"
             exit;
 
         SalesShptLine.TestField("VAT Bus. Posting Group", SalesHeader."VAT Bus. Posting Group");
+    end;
+
+    local procedure CopyDocumentAttachments(var SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine2: Record "Sales Line")
+    var
+        OrderSalesLine: Record "Sales Line";
+        DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
+    begin
+        if (SalesShipmentLine."Order No." = '') or (SalesShipmentLine."Order Line No." = 0) then
+            exit;
+        if not AnyLineHasAttachments(SalesShipmentLine."Order No.") then
+            exit;
+        OrderSalesLine.ReadIsolation := IsolationLevel::ReadCommitted;
+        OrderSalesLine.SetLoadFields("Document Type", "Document No.", "Line No.");
+        if OrderSalesLine.Get(OrderSalesLine."Document Type"::Order, SalesShipmentLine."Order No.", SalesShipmentLine."Order Line No.") then
+            DocumentAttachmentMgmt.CopyAttachments(OrderSalesLine, SalesLine2);
+    end;
+
+    local procedure CopyDocumentAttachments(OrderNoList: List of [Code[20]]; var SalesHeader2: Record "Sales Header")
+    var
+        OrderSalesHeader: Record "Sales Header";
+        DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
+        OrderNo: Code[20];
+    begin
+        OrderSalesHeader.ReadIsolation := IsolationLevel::ReadCommitted;
+        OrderSalesHeader.SetLoadFields("Document Type", "No.");
+        foreach OrderNo in OrderNoList do
+            if OrderHasAttachments(OrderNo) then
+                if OrderSalesHeader.Get(OrderSalesHeader."Document Type"::Order, OrderNo) then
+                    DocumentAttachmentMgmt.CopyAttachments(OrderSalesHeader, SalesHeader2);
+    end;
+
+    local procedure OrderHasAttachments(DocNo: Code[20]): boolean
+    begin
+        exit(EntityHasAttachments(DocNo, Database::"Sales Header"));
+    end;
+
+    local procedure AnyLineHasAttachments(DocNo: Code[20]): boolean
+    begin
+        if not LineListHasAttachments.ContainsKey(DocNo) then
+            LineListHasAttachments.Add(DocNo, EntityHasAttachments(DocNo, Database::"Sales Line"));
+        exit(LineListHasAttachments.Get(DocNo));
+    end;
+
+    local procedure EntityHasAttachments(DocNo: Code[20]; TableNo: Integer): boolean
+    var
+        DocumentAttachment: Record "Document Attachment";
+    begin
+        DocumentAttachment.ReadIsolation := IsolationLevel::ReadUncommitted;
+        DocumentAttachment.SetRange("Table ID", TableNo);
+        DocumentAttachment.SetRange("Document Type", DocumentAttachment."Document Type"::Order);
+        DocumentAttachment.SetRange("No.", DocNo);
+        exit(not DocumentAttachment.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]

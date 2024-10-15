@@ -449,8 +449,13 @@ codeunit 7311 "Whse. Worksheet-Create"
             OnCreateWhseWkshLineOnBeforeInsert(WhseWkshLine);
             if Insert() then begin
                 Created := true;
-                if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then
-                    ItemTrackingMgt.InitTrackingSpecification(WhseWkshLine);
+
+                IsHandled := false;
+                OnCreateWhseWkshLineOnBeforeGetWhseItemTrkgSetup(WhseWkshLine, IsHandled);
+                if not IsHandled then
+                    if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then
+                        ItemTrackingMgt.InitTrackingSpecification(WhseWkshLine);
+
                 OnCreateWhseWkshLineOnAfterInsert(WhseWkshLine);
             end;
         end;
@@ -529,6 +534,11 @@ codeunit 7311 "Whse. Worksheet-Create"
 
     [IntegrationEvent(false, false)]
     local procedure OnFromWhseInternalPutawayLineOnAfterTransferFields(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseWkshLineOnBeforeGetWhseItemTrkgSetup(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var IsHandled: Boolean)
     begin
     end;
 }

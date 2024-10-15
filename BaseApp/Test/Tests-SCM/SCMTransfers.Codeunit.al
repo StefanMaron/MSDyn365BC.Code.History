@@ -801,6 +801,7 @@
     begin
         // [FEATURE] [Transfer]
         // [SCENARIO 377487] "Qty. to Ship" in transfer order can be updated when transferring from a non-WMS location and a warehouse receipt exists in the destination location
+        Initialize();
 
         // [GIVEN] Location "L1" without WMS setup
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -847,6 +848,7 @@
     begin
         // [FEATURE] [Transfer]
         // [SCENARIO 377487] "Qty. to Receive" in transfer order can be updated when transferring to a non-WMS location and a warehouse shipment exists in the source location
+        Initialize();
 
         // [GIVEN] Location "L1" with warehouse shipment requirement
         LibraryWarehouse.CreateLocationWMS(WMSLocation, false, false, false, false, true);

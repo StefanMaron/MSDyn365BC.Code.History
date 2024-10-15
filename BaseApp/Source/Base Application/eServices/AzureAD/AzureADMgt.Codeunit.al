@@ -13,6 +13,7 @@ codeunit 6300 "Azure AD Mgt."
         AzureADNotSetupErr: Label '%1 is not registered in your Azure Active Directory tenant.', Comment = '%1 - product name';
         O365ResourceNameTxt: Label 'Office 365 Services', Locked = true;
         OAuthLandingPageTxt: Label 'OAuthLanding.htm', Locked = true;
+        CouldNotGetAccessTokenErr: Label 'Could not get access token. %1', Comment = '%1 = The detailed error text.';
 
     [Scope('OnPrem')]
     procedure GetAuthCodeUrl(ResourceName: Text) AuthCodeUrl: Text
@@ -65,6 +66,9 @@ codeunit 6300 "Azure AD Mgt."
             if AccessToken <> '' then
                 exit(AccessToken);
 
+        if IsSaaS() then
+            Error(CouldNotGetAccessTokenErr, GetLastErrorMessage());
+        
         if ShowDialog then
             AuthorizationCode := AzureADAccessDialog.GetAuthorizationCode(ResourceUrl, ResourceName);
         if AuthorizationCode <> '' then
@@ -122,7 +126,6 @@ codeunit 6300 "Azure AD Mgt."
     [Scope('OnPrem')]
     procedure GetDefaultRedirectUrl(): Text[150]
     var
-        EnvironmentInformation: Codeunit "Environment Information";
         UriBuilder: DotNet UriBuilder;
         PathString: DotNet String;
         RedirectUrl: Text;
@@ -130,7 +133,7 @@ codeunit 6300 "Azure AD Mgt."
         // Retrieve the Client URL
         RedirectUrl := GetUrl(ClientType::Web);
         // For SaaS Extract the Base Url (domain) from the full CLient URL
-        if EnvironmentInformation.IsSaaS() then
+        if IsSaaS() then
             RedirectUrl := GetBaseUrl(RedirectUrl);
 
         // Due to a bug in ADAL 2.9, it will not consider URI's to be equal if one URI specified the default port number (ex: 443 for HTTPS)
@@ -204,7 +207,7 @@ codeunit 6300 "Azure AD Mgt."
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        exit(EnvironmentInfo.IsSaaS());
+        exit(EnvironmentInfo.IsSaaSInfrastructure());
     end;
 
     local procedure GetClientId() ClientID: Text

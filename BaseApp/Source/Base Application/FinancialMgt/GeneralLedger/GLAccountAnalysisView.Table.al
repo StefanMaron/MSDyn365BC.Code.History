@@ -135,7 +135,8 @@ table 376 "G/L Account (Analysis View)"
                                                                   "Dimension 2 Value Code" = FIELD("Dimension 2 Filter"),
                                                                   "Dimension 3 Value Code" = FIELD("Dimension 3 Filter"),
                                                                   "Dimension 4 Value Code" = FIELD("Dimension 4 Filter"),
-                                                                  "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
+                                                                  "Posting Date" = FIELD(UPPERLIMIT("Date Filter")),
+                                                                  "Cash Flow Forecast No." = field("Cash Flow Forecast Filter")));
             Caption = 'Balance at Date';
             Editable = false;
             FieldClass = FlowField;
@@ -153,7 +154,8 @@ table 376 "G/L Account (Analysis View)"
                                                                   "Dimension 2 Value Code" = FIELD("Dimension 2 Filter"),
                                                                   "Dimension 3 Value Code" = FIELD("Dimension 3 Filter"),
                                                                   "Dimension 4 Value Code" = FIELD("Dimension 4 Filter"),
-                                                                  "Posting Date" = FIELD("Date Filter")));
+                                                                  "Posting Date" = FIELD("Date Filter"),
+                                                                   "Cash Flow Forecast No." = field("Cash Flow Forecast Filter")));
             Caption = 'Net Change';
             Editable = false;
             FieldClass = FlowField;
@@ -204,7 +206,8 @@ table 376 "G/L Account (Analysis View)"
                                                                   "Dimension 2 Value Code" = FIELD("Dimension 2 Filter"),
                                                                   "Dimension 3 Value Code" = FIELD("Dimension 3 Filter"),
                                                                   "Dimension 4 Value Code" = FIELD("Dimension 4 Filter"),
-                                                                  "Posting Date" = FIELD("Date Filter")));
+                                                                  "Posting Date" = FIELD("Date Filter"),
+                                                                   "Cash Flow Forecast No." = field("Cash Flow Forecast Filter")));
             Caption = 'Balance';
             Editable = false;
             FieldClass = FlowField;
@@ -271,7 +274,8 @@ table 376 "G/L Account (Analysis View)"
                                                                           "Dimension 2 Value Code" = FIELD("Dimension 2 Filter"),
                                                                           "Dimension 3 Value Code" = FIELD("Dimension 3 Filter"),
                                                                           "Dimension 4 Value Code" = FIELD("Dimension 4 Filter"),
-                                                                          "Posting Date" = FIELD("Date Filter")));
+                                                                          "Posting Date" = FIELD("Date Filter"),
+                                                                           "Cash Flow Forecast No." = field("Cash Flow Forecast Filter")));
             Caption = 'Debit Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -289,7 +293,8 @@ table 376 "G/L Account (Analysis View)"
                                                                            "Dimension 2 Value Code" = FIELD("Dimension 2 Filter"),
                                                                            "Dimension 3 Value Code" = FIELD("Dimension 3 Filter"),
                                                                            "Dimension 4 Value Code" = FIELD("Dimension 4 Filter"),
-                                                                           "Posting Date" = FIELD("Date Filter")));
+                                                                           "Posting Date" = FIELD("Date Filter"),
+                                                                           "Cash Flow Forecast No." = field("Cash Flow Forecast Filter")));
             Caption = 'Credit Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -373,7 +378,8 @@ table 376 "G/L Account (Analysis View)"
                                                                                "Dimension 2 Value Code" = FIELD("Dimension 2 Filter"),
                                                                                "Dimension 3 Value Code" = FIELD("Dimension 3 Filter"),
                                                                                "Dimension 4 Value Code" = FIELD("Dimension 4 Filter"),
-                                                                               "Posting Date" = FIELD("Date Filter")));
+                                                                               "Posting Date" = FIELD("Date Filter"),
+                                                                               "Cash Flow Forecast No." = field("Cash Flow Forecast Filter")));
             Caption = 'Additional-Currency Net Change';
             Editable = false;
             FieldClass = FlowField;
@@ -391,7 +397,8 @@ table 376 "G/L Account (Analysis View)"
                                                                                "Dimension 2 Value Code" = FIELD("Dimension 2 Filter"),
                                                                                "Dimension 3 Value Code" = FIELD("Dimension 3 Filter"),
                                                                                "Dimension 4 Value Code" = FIELD("Dimension 4 Filter"),
-                                                                               "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
+                                                                               "Posting Date" = FIELD(UPPERLIMIT("Date Filter")),
+                                                                               "Cash Flow Forecast No." = field("Cash Flow Forecast Filter")));
             Caption = 'Add.-Currency Balance at Date';
             Editable = false;
             FieldClass = FlowField;
@@ -409,7 +416,8 @@ table 376 "G/L Account (Analysis View)"
                                                                                "Dimension 2 Value Code" = FIELD("Dimension 2 Filter"),
                                                                                "Dimension 3 Value Code" = FIELD("Dimension 3 Filter"),
                                                                                "Dimension 4 Value Code" = FIELD("Dimension 4 Filter"),
-                                                                               "Posting Date" = FIELD("Date Filter")));
+                                                                               "Posting Date" = FIELD("Date Filter"),
+                                                                               "Cash Flow Forecast No." = field("Cash Flow Forecast Filter")));
             Caption = 'Additional-Currency Balance';
             Editable = false;
             FieldClass = FlowField;
@@ -433,7 +441,8 @@ table 376 "G/L Account (Analysis View)"
                                                                                      "Dimension 2 Value Code" = FIELD("Dimension 2 Filter"),
                                                                                      "Dimension 3 Value Code" = FIELD("Dimension 3 Filter"),
                                                                                      "Dimension 4 Value Code" = FIELD("Dimension 4 Filter"),
-                                                                                     "Posting Date" = FIELD("Date Filter")));
+                                                                                     "Posting Date" = FIELD("Date Filter"),
+                                                                                     "Cash Flow Forecast No." = field("Cash Flow Forecast Filter")));
             Caption = 'Add.-Currency Debit Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -451,7 +460,8 @@ table 376 "G/L Account (Analysis View)"
                                                                                       "Dimension 2 Value Code" = FIELD("Dimension 2 Filter"),
                                                                                       "Dimension 3 Value Code" = FIELD("Dimension 3 Filter"),
                                                                                       "Dimension 4 Value Code" = FIELD("Dimension 4 Filter"),
-                                                                                      "Posting Date" = FIELD("Date Filter")));
+                                                                                      "Posting Date" = FIELD("Date Filter"),
+                                                                                      "Cash Flow Forecast No." = field("Cash Flow Forecast Filter")));
             Caption = 'Add.-Currency Credit Amount';
             Editable = false;
             FieldClass = FlowField;

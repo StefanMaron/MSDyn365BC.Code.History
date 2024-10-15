@@ -934,7 +934,10 @@ table 5406 "Prod. Order Line"
             if ProdOrderRoutingLine.FindSet(true) then
                 repeat
                     ProdOrderRoutingLine.SetSkipUpdateOfCompBinCodes(true);
-                    ProdOrderRoutingLine.Delete(true);
+                    IsHandled := false;
+                    OnDeleteRelationsOnBeforeProdOrderRoutingLineDelete(ProdOrderRoutingLine, IsHandled);
+                    if not IsHandled then
+                        ProdOrderRoutingLine.Delete(true);
                 until ProdOrderRoutingLine.Next() = 0;
         end;
 
@@ -1763,6 +1766,11 @@ table 5406 "Prod. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteRelationsOnBeforeProdOrderCompDeleteAll(var ProdOrderComp: Record "Prod. Order Component"; Blocked: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteRelationsOnBeforeProdOrderRoutingLineDelete(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -109,7 +109,7 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSelectForPutAway(WhseActivLine, Result, IsHandled);
+        OnBeforeSelectForPutAway(WhseActivLine, Result, IsHandled, Selection);
         if IsHandled then
             exit(Result);
 
@@ -124,7 +124,7 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSelectForOtherTypes(WhseActivLine, Result, IsHandled);
+        OnBeforeSelectForOtherTypes(WhseActivLine, Result, IsHandled, Selection);
         if IsHandled then
             exit(Result);
 
@@ -139,12 +139,12 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSelectForPutAway(var WhseActivLine: Record "Warehouse Activity Line"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSelectForPutAway(var WhseActivLine: Record "Warehouse Activity Line"; var Result: Boolean; var IsHandled: Boolean; var Selection: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSelectForOtherTypes(var WhseActivLine: Record "Warehouse Activity Line"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSelectForOtherTypes(var WhseActivLine: Record "Warehouse Activity Line"; var Result: Boolean; var IsHandled: Boolean; var Selection: Integer)
     begin
     end;
 }

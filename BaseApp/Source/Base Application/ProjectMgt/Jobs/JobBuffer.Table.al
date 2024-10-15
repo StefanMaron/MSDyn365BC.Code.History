@@ -192,6 +192,7 @@ table 1017 "Job Buffer"
                         TempJobBuffer[1]."Amount 2" := JobLedgEntry."Total Cost (LCY)";
                         TempJobBuffer[1]."Amount 3" := JobLedgEntry."Line Amount (LCY)";
                         TempJobBuffer[2] := TempJobBuffer[1];
+                        OnReportJobItemOnBeforeUpsertJobBuffer(TempJobBuffer, JobLedgEntry, Item3);
                         if TempJobBuffer[2].Find() then begin
                             TempJobBuffer[2]."Amount 1" :=
                               TempJobBuffer[2]."Amount 1" + TempJobBuffer[1]."Amount 1";
@@ -199,6 +200,7 @@ table 1017 "Job Buffer"
                               TempJobBuffer[2]."Amount 2" + TempJobBuffer[1]."Amount 2";
                             TempJobBuffer[2]."Amount 3" :=
                               TempJobBuffer[2]."Amount 3" + TempJobBuffer[1]."Amount 3";
+                            OnReportJobItemOnBeforeModifyJobBuffer(TempJobBuffer, JobLedgEntry);
                             TempJobBuffer[2].Modify();
                         end else
                             TempJobBuffer[1].Insert();
@@ -275,6 +277,16 @@ table 1017 "Job Buffer"
                 JobBuffer2.Insert();
             until TempJobBuffer[1].Next() = 0;
         TempJobBuffer[1].DeleteAll();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReportJobItemOnBeforeUpsertJobBuffer(var TempJobBuffer: array[2] of Record "Job Buffer" temporary; JobLedgerEntry: Record "Job Ledger Entry"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReportJobItemOnBeforeModifyJobBuffer(var TempJobBuffer: array[2] of Record "Job Buffer" temporary; JobLedgerEntry: Record "Job Ledger Entry")
+    begin
     end;
 }
 

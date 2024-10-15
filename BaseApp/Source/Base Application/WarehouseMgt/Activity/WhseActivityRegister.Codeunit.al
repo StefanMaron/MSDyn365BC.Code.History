@@ -776,6 +776,7 @@ codeunit 7307 "Whse.-Activity-Register"
 
             JobPlanningLine."Completely Picked" := JobPlanningLine."Qty. Picked" = JobPlanningLine.Quantity;
             JobPlanningLine.Modify();
+            OnAfterJobPlanningLineModify(JobPlanningLine);
         end
     end;
 
@@ -973,7 +974,13 @@ codeunit 7307 "Whse.-Activity-Register"
         UOMMgt: Codeunit "Unit of Measure Management";
         RemainingQtyBase: Decimal;
         RemainingQtyUoM: Code[10];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSourceDocumentForAvailableQty(GroupedWhseActivLine, IsHandled);
+        if IsHandled then
+            exit;
+
         GroupedWhseActivLine.SetRange("Breakbulk No.", 0);
         if GroupedWhseActivLine.FindSet() then
             repeat
@@ -2697,6 +2704,16 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeTempWhseActivityLineGroupedLoop(var WhseActivHeader: Record "Warehouse Activity Header"; var WhseActivLine: Record "Warehouse Activity Line"; var RegisteredWhseActivHeader: Record "Registered Whse. Activity Hdr.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSourceDocumentForAvailableQty(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterJobPlanningLineModify(var JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }
