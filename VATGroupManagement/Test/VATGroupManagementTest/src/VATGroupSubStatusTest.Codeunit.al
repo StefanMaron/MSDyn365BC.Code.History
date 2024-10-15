@@ -5,7 +5,8 @@ codeunit 139743 "VAT Group Sub. Status Test"
 
     var
         Assert: Codeunit Assert;
-        LibraryGraphMgt: Codeunit "Library - Graph Mgt";
+        LibraryVATGroup: Codeunit "Library - VAT Group";
+        DummyGuid: Guid;
 
     [Test]
     procedure TestQueryAPIEndpoint()
@@ -16,19 +17,19 @@ codeunit 139743 "VAT Group Sub. Status Test"
         JsonResponse: JsonObject;
         ValueJsonToken: JsonToken;
     begin
-        // [SCENARIO] Test that the Query API endpoint is returning the right values
+        // [SCENARIO 374187] Test that the Query API endpoint is returning the right values
 
-        // [GIVEN] Tables that are populated only with test values 
+        // [GIVEN] Tables that are populated only with test values
         InitVATTablesAPIEndpoint();
         // [GIVEN] The VAT Group Role setup to Representative (otherwise the API Query will not return results)
         ChangeVATGroupRole(VATReportSetup."VAT Group Role"::Representative);
 
         // [GIVEN]
-        // The Query API endpoint with filters to get a specific value 
-        TargetURL := LibraryGraphMgt.CreateQueryTargetURL(Query::"VAT Group Submission Status", '?$filter=no eq ''TEST_NO_1'' and groupMemberId eq 00000000-0000-0000-0000-000000000000&$select=no,status');
+        // The Query API endpoint with filters to get a specific value
+        TargetURL := LibraryVATGroup.CreateSubmissionStatusURL('TEST_NO_1', DummyGuid);
 
         // [WHEN] Calling the Query API endpoint
-        LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
+        ResponseText := LibraryVATGroup.GetFromWebService(TargetURL);
 
         // [THEN] The result should be no = TEST_NO_1 and status = Rejected
         JsonResponse.ReadFrom(ResponseText);
@@ -39,11 +40,10 @@ codeunit 139743 "VAT Group Sub. Status Test"
 
         // [GIVEN]
         // The Query API endpoint with filters to get a specific value
-        TargetURL := LibraryGraphMgt.CreateQueryTargetURL(Query::"VAT Group Submission Status", '?$filter=no eq ''TEST_NO_2'' and groupMemberId eq 00000000-0000-0000-0000-000000000000&$select=no,status');
+        TargetURL := LibraryVATGroup.CreateSubmissionStatusURL('TEST_NO_2', DummyGuid);
 
         // [WHEN] Calling the Query API endpoint
-        ResponseText := '';
-        LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
+        ResponseText := LibraryVATGroup.GetFromWebService(TargetURL);
 
         // [THEN] The result should be no = TEST_NO_2 and status = Canceled
         JsonResponse.ReadFrom(ResponseText);
@@ -54,11 +54,10 @@ codeunit 139743 "VAT Group Sub. Status Test"
 
         // [GIVEN]
         // The Query API endpoint with filters to get a specific value
-        TargetURL := LibraryGraphMgt.CreateQueryTargetURL(Query::"VAT Group Submission Status", '?$filter=no eq ''TEST_NO_3'' and groupMemberId eq 00000000-0000-0000-0000-000000000000&$select=no,status');
+        TargetURL := LibraryVATGroup.CreateSubmissionStatusURL('TEST_NO_3', DummyGuid);
 
         // [WHEN] Calling the Query API endpoint
-        ResponseText := '';
-        LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
+        ResponseText := LibraryVATGroup.GetFromWebService(TargetURL);
 
         // [THEN] The result should be empty (there is no field "No." with value VAT_CODE_5 in the table "VAT Report Header")
         JsonResponse.ReadFrom(ResponseText);
@@ -66,11 +65,10 @@ codeunit 139743 "VAT Group Sub. Status Test"
 
         // [GIVEN]
         // The Query API endpoint with filters to get a specific value
-        TargetURL := LibraryGraphMgt.CreateQueryTargetURL(Query::"VAT Group Submission Status", '?$filter=no eq ''TEST_NO_4'' and groupMemberId eq 00000000-0000-0000-0000-000000000000&$select=no,status');
+        TargetURL := LibraryVATGroup.CreateSubmissionStatusURL('TEST_NO_4', DummyGuid);
 
         // [WHEN] Calling the Query API endpoint
-        ResponseText := '';
-        LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
+        ResponseText := LibraryVATGroup.GetFromWebService(TargetURL);
 
         // [THEN] The result should be empty (there is a field "No." with value VAT_CODE_6 in the table "VAT Report Header" but the "VAT Report Config. Code" is not "VAT Return")
         JsonResponse.ReadFrom(ResponseText);
@@ -78,11 +76,10 @@ codeunit 139743 "VAT Group Sub. Status Test"
 
         // [GIVEN]
         // The Query API endpoint with filters to get a specific value
-        TargetURL := LibraryGraphMgt.CreateQueryTargetURL(Query::"VAT Group Submission Status", '?$filter=no eq ''TEST_NO_5'' and groupMemberId eq 00000000-0000-0000-0000-000000000000&$select=no,status');
+        TargetURL := LibraryVATGroup.CreateSubmissionStatusURL('TEST_NO_5', DummyGuid);
 
         // [WHEN] Calling the Query API endpoint
-        ResponseText := '';
-        LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
+        ResponseText := LibraryVATGroup.GetFromWebService(TargetURL);
 
         // [THEN] The result should be empty (there is no row with "No." = TEST_NO_5 and "Group Member Id" = 00000000-0000-0000-0000-000000000000 in the table "VAT Group Submission Header"
         JsonResponse.ReadFrom(ResponseText);
@@ -90,11 +87,10 @@ codeunit 139743 "VAT Group Sub. Status Test"
 
         // [GIVEN]
         // The Query API endpoint with filters to get a specific value
-        TargetURL := LibraryGraphMgt.CreateQueryTargetURL(Query::"VAT Group Submission Status", '?$filter=no eq ''TEST_NO_5'' and groupMemberId eq 00000000-0000-0000-0000-000000000001&$select=no,status');
+        TargetURL := LibraryVATGroup.CreateSubmissionStatusURL('TEST_NO_5', Guid1());
 
         // [WHEN] Calling the Query API endpoint
-        ResponseText := '';
-        LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
+        ResponseText := LibraryVATGroup.GetFromWebService(TargetURL);
 
         // [THEN] The result should be no = TEST_NO_5 and status = Partially Accepted
         JsonResponse.ReadFrom(ResponseText);
@@ -132,15 +128,14 @@ codeunit 139743 "VAT Group Sub. Status Test"
     [Test]
     procedure TestVATGroupSubmissionStatusNoStatusToCheckBatchRequest()
     var
-        VATReportSetup: Record "VAT Report Setup";
         VATGroupSubmissionStatus: Codeunit "VAT Group Submission Status";
     begin
-        // [SCENARIO] When there are no status to check the Codeunit "VAT Group Submission Status" exits without errors
+        // [SCENARIO 374187] When there are no status to check the Codeunit "VAT Group Submission Status" exits without errors
 
         // [GIVEN] The table without the configuration for the endpoint
-        VATReportSetup.DeleteAll();
-        Commit();
-        // [GIVEN] The "VAT Report Header" table populated only with rows that do not need to check the status 
+        LibraryVATGroup.DeleteVATReportSetup();
+
+        // [GIVEN] The "VAT Report Header" table populated only with rows that do not need to check the status
         InitVATTablesNoStatusToCheck();
 
         // [WHEN] Calling the procedure UpdateAllVATReportStatus
@@ -155,11 +150,10 @@ codeunit 139743 "VAT Group Sub. Status Test"
         VATReportHeader: Record "VAT Report Header";
         VATGroupSubmissionStatus: Codeunit "VAT Group Submission Status";
     begin
-        // [SCENARIO] Check that all the requests inside the batch are correctly executed and
-        // that the status values are successfully updated
+        // [SCENARIO 374187] Check that all the requests inside the batch are correctly executed and that the status values are successfully updated
 
         // [GIVEN] Tables that are populated only with test values 
-        InitVATReportSetupTable();
+        LibraryVATGroup.EnableDefaultVATMemberSetup();
         InitVATTables();
 
         // [WHEN] Calling the procedure UpdateAllVATReportStatus
@@ -169,145 +163,205 @@ codeunit 139743 "VAT Group Sub. Status Test"
 
         // "No.": MEMBER_CODE_1 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_1');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_1');
-        Assert.AreEqual('Closed', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Closed for the row with No. = MEMBER_CODE_1');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_1');
+        Assert.AreEqual(
+          'Closed', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Closed for the row with No. = MEMBER_CODE_1');
 
         // "No.": MEMBER_CODE_2 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_2');
-        Assert.AreEqual(VATReportHeader.Status::Accepted, VATReportHeader.Status, 'The field "Status" should be Accepted for the row with No. = MEMBER_CODE_2');
-        Assert.AreEqual('Accepted', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Accepted for the row with No. = MEMBER_CODE_2');
+        Assert.AreEqual(
+          VATReportHeader.Status::Accepted, VATReportHeader.Status,
+          'The field "Status" should be Accepted for the row with No. = MEMBER_CODE_2');
+        Assert.AreEqual(
+          'Accepted', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Accepted for the row with No. = MEMBER_CODE_2');
 
         // "No.": MEMBER_CODE_3 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_3');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_3');
-        Assert.AreEqual('Canceled', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Canceled for the row with No. = MEMBER_CODE_3');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_3');
+        Assert.AreEqual(
+          'Canceled', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Canceled for the row with No. = MEMBER_CODE_3');
 
         // "No.": MEMBER_CODE_4 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_4');
-        Assert.AreEqual(VATReportHeader.Status::Rejected, VATReportHeader.Status, 'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_4');
-        Assert.AreEqual('Rejected', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Rejected for the row with No. = MEMBER_CODE_4');
+        Assert.AreEqual(
+          VATReportHeader.Status::Rejected, VATReportHeader.Status,
+          'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_4');
+        Assert.AreEqual(
+          'Rejected', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Rejected for the row with No. = MEMBER_CODE_4');
 
         // "No.": MEMBER_CODE_5 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_5');
-        Assert.AreEqual(VATReportHeader.Status::Rejected, VATReportHeader.Status, 'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_5');
-        Assert.AreEqual('Rejected', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Rejected for the row with No. = MEMBER_CODE_5');
+        Assert.AreEqual(
+          VATReportHeader.Status::Rejected, VATReportHeader.Status,
+          'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_5');
+        Assert.AreEqual(
+          'Rejected', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Rejected for the row with No. = MEMBER_CODE_5');
 
         // "No.": MEMBER_CODE_6 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_6');
-        Assert.AreEqual(VATReportHeader.Status::Rejected, VATReportHeader.Status, 'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_6');
-        Assert.AreEqual('Rejected', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Rejected for the row with No. = MEMBER_CODE_6');
+        Assert.AreEqual(
+          VATReportHeader.Status::Rejected, VATReportHeader.Status,
+          'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_6');
+        Assert.AreEqual(
+          'Rejected', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Rejected for the row with No. = MEMBER_CODE_6');
 
         // "No.": MEMBER_CODE_7 - "Group Member Id": randomId (no match)
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_7');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_7');
-        Assert.AreEqual('Pending', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Pending for the row with No. = MEMBER_CODE_7');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_7');
+        Assert.AreEqual(
+          'Pending', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Pending for the row with No. = MEMBER_CODE_7');
 
         // "No.": MEMBER_CODE_8 - "Group Member Id": 00000000-0000-0000-0000-000000000000 - no match because "VAT Report Config. Code" = "EC Sales List" in master (should be "VAT Return")
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_8');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_8');
-        Assert.AreEqual('Pending', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Pending for the row with No. = MEMBER_CODE_8');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_8');
+        Assert.AreEqual(
+          'Pending', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Pending for the row with No. = MEMBER_CODE_8');
 
         // "No.": MEMBER_CODE_9 - "Group Member Id": 00000000-0000-0000-0000-000000000000 match with VAT_CODE_10 (not VAT_CODE_9 because this one has older date)
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_9');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_9');
-        Assert.AreEqual('Canceled', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Canceled for the row with No. = MEMBER_CODE_9');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_9');
+        Assert.AreEqual(
+          'Canceled', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Canceled for the row with No. = MEMBER_CODE_9');
     end;
 
     [Test]
     procedure TestVATGroupSubmissionStatusWrongBatchEndpoint()
     var
-        VATReportSetup: Record "VAT Report Setup";
         VATGroupSubmissionStatus: Codeunit "VAT Group Submission Status";
-        TmpURL: Text;
     begin
-        // [SCENARIO] 
+        // [SCENARIO 374187] VAT Group Submission Status Wrong Batch Endpoint
 
-        // [GIVEN] Tables that are populated only with test values 
-        InitVATReportSetupTable();
+        // [GIVEN] Tables that are populated only with test values
+        LibraryVATGroup.EnableDefaultVATMemberSetup();
         InitVATTables();
 
         // [ GIVEN] A wrong batch URL
-        TmpURL := LibraryGraphMgt.CreateQueryTargetURL(Query::"VAT Group Submission Status", '');
-        VATReportSetup.FindFirst();
-        VATReportSetup."Group Representative API URL" := CopyStr(TmpURL, 1, StrPos(TmpURL, 'NAV') - 1);
-        VATReportSetup.Modify();
-        Commit();
+        LibraryVATGroup.UpdateRepresentativeURL(LibraryVATGroup.GetRepresentativeURL() + 'wrong');
 
         // [WHEN] Calling the procedure UpdateAllVATReportStatus
         asserterror VATGroupSubmissionStatus.UpdateAllVATReportStatus();
 
-        // [THEN] The error is handled by the codeunit, a specific message is returned
+        // [THEN] The error is handled by the codeunit,a specific message is returned
         Assert.ExpectedError('Not Found: cannot locate the requested resource.');
     end;
-
 
     [Test]
     procedure TestVATGroupSubmissionStatusErrorSingleGETRequestInBatch()
     var
         VATReportHeader: Record "VAT Report Header";
-        VATReportSetup: Record "VAT Report Setup";
         VATGroupSubmissionStatus: Codeunit "VAT Group Submission Status";
     begin
         // [GIVEN] Tables that are populated only with test values 
-        InitVATReportSetupTable();
         InitVATTables();
 
-        // [GIVEN] A wrong GET URL included in the batch request
-        VATReportSetup.FindFirst();
-        VATReportSetup."Group Representative Company" := 'ErrTestCompany';
-        VATReportSetup.Modify();
-        Commit();
+        // [GIVEN] A wrong Get URL included in the batch request
+        LibraryVATGroup.UpdateRepresentativeCompanyName('ErrTestCompany');
 
         // [WHEN] Calling the procedure UpdateAllVATReportStatus
         VATGroupSubmissionStatus.UpdateAllVATReportStatus();
 
-        // [THEN] All the Status are not updated because all the GET requests inside the batch are failing
+        // [THEN] All the Status are not updated because all the Get requests inside the batch are failing
         // but all the "VAT Group Status" should be "Cannot update"
 
         // "No.": MEMBER_CODE_1 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_1');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_1');
-        Assert.AreEqual('Cannot update', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_1');
+        Assert.AreEqual(
+            VATReportHeader.Status::Submitted, VATReportHeader.Status,
+            'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_1');
+        Assert.AreEqual(
+            'Cannot update', VATReportHeader."VAT Group Status",
+            'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_1');
 
         // "No.": MEMBER_CODE_2 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_2');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Accepted for the row with No. = MEMBER_CODE_2');
-        Assert.AreEqual('Cannot update', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_2');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Accepted for the row with No. = MEMBER_CODE_2');
+        Assert.AreEqual(
+          'Cannot update', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_2');
 
         // "No.": MEMBER_CODE_3 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_3');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_3');
-        Assert.AreEqual('Cannot update', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_3');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_3');
+        Assert.AreEqual(
+          'Cannot update', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_3');
 
         // "No.": MEMBER_CODE_4 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_4');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_4');
-        Assert.AreEqual('Cannot update', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_4');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_4');
+        Assert.AreEqual(
+          'Cannot update', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_4');
 
         // "No.": MEMBER_CODE_5 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_5');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_5');
-        Assert.AreEqual('Cannot update', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_5');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_5');
+        Assert.AreEqual(
+          'Cannot update', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_5');
 
         // "No.": MEMBER_CODE_6 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_6');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_6');
-        Assert.AreEqual('Cannot update', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_6');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_6');
+        Assert.AreEqual(
+          'Cannot update', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_6');
 
         // "No.": MEMBER_CODE_7 - "Group Member Id": randomId (no match)
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_7');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_7');
-        Assert.AreEqual('Cannot update', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_7');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_7');
+        Assert.AreEqual(
+          'Cannot update', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_7');
 
         // "No.": MEMBER_CODE_8 - "Group Member Id": 00000000-0000-0000-0000-000000000000 - no match because "VAT Report Config. Code" = "EC Sales List" in master (should be "VAT Return")
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_8');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_8');
-        Assert.AreEqual('Cannot update', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_8');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_8');
+        Assert.AreEqual(
+          'Cannot update', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_8');
 
         // "No.": MEMBER_CODE_9 - "Group Member Id": 00000000-0000-0000-0000-000000000000 match with VAT_CODE_10 (not VAT_CODE_9 because this one has older date)
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_9');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_9');
-        Assert.AreEqual('Cannot update', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_9');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_9');
+        Assert.AreEqual(
+          'Cannot update', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Cannot update for the row with No. = MEMBER_CODE_9');
     end;
 
     [Test]
@@ -316,8 +370,10 @@ codeunit 139743 "VAT Group Sub. Status Test"
         VATReportHeader: Record "VAT Report Header";
         VATGroupSubmissionStatus: Codeunit "VAT Group Submission Status";
     begin
+        // [SCENARIO 374187] Update Single VAT Report Status
+
         // [GIVEN] The VAT Group Role setup to Master (otherwise the API Query will not return results)
-        InitVATReportSetupTable();
+        LibraryVATGroup.EnableDefaultVATMemberSetup();
         InitVATTables();
 
         // [THEN] All the values that need to be updated are successfully updated using the procedure UpdateSingleVATReportStatus
@@ -325,68 +381,103 @@ codeunit 139743 "VAT Group Sub. Status Test"
         // "No.": MEMBER_CODE_1 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATGroupSubmissionStatus.UpdateSingleVATReportStatus('MEMBER_CODE_1');
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_1');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_1');
-        Assert.AreEqual('Closed', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Closed for the row with No. = MEMBER_CODE_1');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_1');
+        Assert.AreEqual(
+          'Closed', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Closed for the row with No. = MEMBER_CODE_1');
 
         // "No.": MEMBER_CODE_2 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATGroupSubmissionStatus.UpdateSingleVATReportStatus('MEMBER_CODE_2');
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_2');
-        Assert.AreEqual(VATReportHeader.Status::Accepted, VATReportHeader.Status, 'The field "Status" should be Accepted for the row with No. = MEMBER_CODE_2');
-        Assert.AreEqual('Accepted', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Accepted for the row with No. = MEMBER_CODE_2');
+        Assert.AreEqual(
+          VATReportHeader.Status::Accepted, VATReportHeader.Status,
+          'The field "Status" should be Accepted for the row with No. = MEMBER_CODE_2');
+        Assert.AreEqual(
+          'Accepted', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Accepted for the row with No. = MEMBER_CODE_2');
 
         // "No.": MEMBER_CODE_3 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATGroupSubmissionStatus.UpdateSingleVATReportStatus('MEMBER_CODE_3');
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_3');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_3');
-        Assert.AreEqual('Canceled', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Canceled for the row with No. = MEMBER_CODE_3');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_3');
+        Assert.AreEqual(
+          'Canceled', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Canceled for the row with No. = MEMBER_CODE_3');
 
         // "No.": MEMBER_CODE_4 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATGroupSubmissionStatus.UpdateSingleVATReportStatus('MEMBER_CODE_4');
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_4');
-        Assert.AreEqual(VATReportHeader.Status::Rejected, VATReportHeader.Status, 'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_4');
-        Assert.AreEqual('Rejected', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Rejected for the row with No. = MEMBER_CODE_4');
+        Assert.AreEqual(
+          VATReportHeader.Status::Rejected, VATReportHeader.Status,
+          'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_4');
+        Assert.AreEqual(
+          'Rejected', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Rejected for the row with No. = MEMBER_CODE_4');
 
         // "No.": MEMBER_CODE_5 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATGroupSubmissionStatus.UpdateSingleVATReportStatus('MEMBER_CODE_5');
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_5');
-        Assert.AreEqual(VATReportHeader.Status::Rejected, VATReportHeader.Status, 'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_5');
-        Assert.AreEqual('Rejected', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Rejected for the row with No. = MEMBER_CODE_5');
-
+        Assert.AreEqual(
+          VATReportHeader.Status::Rejected, VATReportHeader.Status,
+          'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_5');
+        Assert.AreEqual(
+          'Rejected', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Rejected for the row with No. = MEMBER_CODE_5');
 
         // "No.": MEMBER_CODE_6 - "Group Member Id": 00000000-0000-0000-0000-000000000000
         VATGroupSubmissionStatus.UpdateSingleVATReportStatus('MEMBER_CODE_6');
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_6');
-        Assert.AreEqual(VATReportHeader.Status::Rejected, VATReportHeader.Status, 'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_6');
-        Assert.AreEqual('Rejected', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Rejected for the row with No. = MEMBER_CODE_6');
+        Assert.AreEqual(
+          VATReportHeader.Status::Rejected, VATReportHeader.Status,
+          'The field "Status" should be Rejected for the row with No. = MEMBER_CODE_6');
+        Assert.AreEqual(
+          'Rejected', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Rejected for the row with No. = MEMBER_CODE_6');
 
         // "No.": MEMBER_CODE_7 - "Group Member Id": randomId (no match)
         VATGroupSubmissionStatus.UpdateSingleVATReportStatus('MEMBER_CODE_7');
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_7');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_7');
-        Assert.AreEqual('Pending', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Pending for the row with No. = MEMBER_CODE_7');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_7');
+        Assert.AreEqual(
+          'Pending', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Pending for the row with No. = MEMBER_CODE_7');
 
         // "No.": MEMBER_CODE_8 - "Group Member Id": 00000000-0000-0000-0000-000000000000 - no match because "VAT Report Config. Code" = "EC Sales List" in master (should be "VAT Return")
         VATGroupSubmissionStatus.UpdateSingleVATReportStatus('MEMBER_CODE_8');
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_8');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_8');
-        Assert.AreEqual('Pending', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Pending for the row with No. = MEMBER_CODE_8');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_8');
+        Assert.AreEqual(
+          'Pending', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Pending for the row with No. = MEMBER_CODE_8');
 
         // "No.": MEMBER_CODE_9 - "Group Member Id": 00000000-0000-0000-0000-000000000000 match with VAT_CODE_10 (not VAT_CODE_9 because this one has older date)
         VATGroupSubmissionStatus.UpdateSingleVATReportStatus('MEMBER_CODE_9');
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_9');
-        Assert.AreEqual(VATReportHeader.Status::Submitted, VATReportHeader.Status, 'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_9');
-        Assert.AreEqual('Canceled', VATReportHeader."VAT Group Status", 'The field "VAT Group Status" should be Canceled for the row with No. = MEMBER_CODE_9');
+        Assert.AreEqual(
+          VATReportHeader.Status::Submitted, VATReportHeader.Status,
+          'The field "Status" should be Submitted for the row with No. = MEMBER_CODE_9');
+        Assert.AreEqual(
+          'Canceled', VATReportHeader."VAT Group Status",
+          'The field "VAT Group Status" should be Canceled for the row with No. = MEMBER_CODE_9');
     end;
 
     [Test]
     procedure TestUpdateSingleVATReportStatusInvalidVATReport()
     var
-        VATReportSetup: Record "VAT Report Setup";
         VATGroupSubmissionStatus: Codeunit "VAT Group Submission Status";
     begin
+        // [SCENARIO 374187] Update Single VAT Report Status Invalid VAT Report
+
         // [GIVEN] The table without the configuration for the endpoint
-        VATReportSetup.DeleteAll();
-        Commit();
+        LibraryVATGroup.DeleteVATReportSetup();
 
         // [GIVEN] The table with value that should not be checked for status
         InitVATTablesNoStatusToCheck();
@@ -401,20 +492,16 @@ codeunit 139743 "VAT Group Sub. Status Test"
     [Test]
     procedure TestUpdateSingleVATReportStatusError()
     var
-        VATReportSetup: Record "VAT Report Setup";
         VATGroupSubmissionStatus: Codeunit "VAT Group Submission Status";
-        TmpURL: Text;
     begin
+        // [SCENARIO 374187] Update Single VAT Report Status Error
+
         // [GIVEN] The VAT Group Role setup to Master (otherwise the API Query will not return results)
-        InitVATReportSetupTable();
+        LibraryVATGroup.EnableDefaultVATMemberSetup();
         InitVATTables();
 
         // [ GIVEN] A wrong Query API endpoint
-        TmpURL := LibraryGraphMgt.CreateQueryTargetURL(Query::"VAT Group Submission Status", '');
-        VATReportSetup.FindFirst();
-        VATReportSetup."Group Representative API URL" := CopyStr(TmpURL, 1, StrPos(TmpURL, 'NAV') - 1);
-        VATReportSetup.Modify();
-        Commit();
+        LibraryVATGroup.UpdateRepresentativeURL(LibraryVATGroup.GetRepresentativeURL() + 'wrong');
 
         // [WHEN] Calling the procedure UpdateSingleVATReportStatus
         asserterror VATGroupSubmissionStatus.UpdateSingleVATReportStatus('MEMBER_CODE_1');
@@ -427,12 +514,14 @@ codeunit 139743 "VAT Group Sub. Status Test"
     procedure TestVisibilityEnabledForButtonUpdateStatusVATReportPage()
     var
         VATReportHeader: Record "VAT Report Header";
+        VATReportSetup: Record "VAT Report Setup";
     begin
-        // [SCENARIO] Check that the button to update the VAT report is visible
+        // [SCENARIO 374187] Check that the button to update the VAT report is visible
 
         // [GIVEN] Tables that are populated only with test values
         CreateVATReportConfiguration();
-        InitVATReportSetupTable();
+        LibraryVATGroup.EnableDefaultVATMemberSetup();
+        ChangeVATGroupRole(VATReportSetup."VAT Group Role"::Member);
         InitVATTables();
 
         // [WHEN] Checking if the button to update the VAT report status is enabled
@@ -449,7 +538,7 @@ codeunit 139743 "VAT Group Sub. Status Test"
     var
         VATReportHeader: Record "VAT Report Header";
     begin
-        // [SCENARIO] Check that the button to update the VAT report is not visible
+        // [SCENARIO 374187] Check that the button to update the VAT report is not visible
 
         // [GIVEN] Tables that are populated only with test values
         CreateVATReportConfiguration();
@@ -465,28 +554,27 @@ codeunit 139743 "VAT Group Sub. Status Test"
     procedure TestButtonUpdateStatusVATReportPage()
     var
         VATReportHeader: Record "VAT Report Header";
-        VATReportPage: Page "VAT Report";
-        VATReportTestPage: TestPage "VAT Report";
+        TestPageVATReport: TestPage "VAT Report";
     begin
-        // [SCENARIO] Check that the button to update the VAT report status successfully updates the value
+        // [SCENARIO 374187] Check that the button to update the VAT report status successfully updates the value
 
         // [GIVEN] Tables that are populated only with test values
         CreateVATReportConfiguration();
-        InitVATReportSetupTable();
+        LibraryVATGroup.EnableDefaultVATMemberSetup();
         InitVATTables();
 
         // [WHEN] Clicking the button to update the status
         VATReportHeader.Get(VATReportHeader."VAT Report Config. Code"::"VAT Return", 'MEMBER_CODE_1');
-        VATReportPage.SetRecord(VATReportHeader);
-        VATReportTestPage.Trap();
-        VATReportPage.Run();
+        TestPageVATReport.OpenEdit();
+        TestPageVATReport.GoToRecord(VATReportHeader);
 
-        VATReportTestPage.UpdateStatus.Invoke();
+        TestPageVATReport.UpdateStatus.Invoke();
         // [THEN] The status is successfully updated
-        Assert.AreEqual('Closed', Format(VATReportTestPage."VAT Group Status"), 'The field "VAT Group Status" should be Closed for the row with No. = MEMBER_CODE_1');
+        Assert.AreEqual(
+          'Closed', Format(TestPageVATReport."VAT Group Status"),
+          'The field "VAT Group Status" should be Closed for the row with No. = MEMBER_CODE_1');
 
-        VATReportPage.Close();
-        VATReportTestPage.Close();
+        TestPageVATReport.Close();
     end;
 
     local procedure InitVATTables()
@@ -499,66 +587,96 @@ codeunit 139743 "VAT Group Sub. Status Test"
         VATReportHeader.DeleteAll();
         VATGroupSubmissionHeader.DeleteAll();
 
-        VATReportSetup.FindFirst();
-        MemberId := DelChr(VATReportSetup."Group Member Id", '=', '{|}');
+        VATReportSetup.Get();
+        MemberId := DelChr(VATReportSetup."Group Member ID", '=', '{|}');
 
         // member
-        InsertIntoVATReportHeader('MEMBER_CODE_1', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', 'Submitted');
+        InsertIntoVATReportHeader(
+          'MEMBER_CODE_1', VATReportHeader."VAT Report Config. Code"::"VAT Return",
+          VATReportHeader.Status::Submitted, 'VATGROUP', 'Submitted');
         // representative
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0001-100890ABCDEA', 'MEMBER_CODE_1', 'VAT_CODE_1', MemberId, CreateDateTime(20200127D, 120000T));
-        InsertIntoVATReportHeader('VAT_CODE_1', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Closed, 'VATGROUP', 'Closed');
+        InsertIntoVATGroupSubmissionHeader(Guid2(), 'MEMBER_CODE_1', 'VAT_CODE_1', MemberId, CreateDateTime(DMY2Date(27, 1, 2020), 120000T));
+        InsertIntoVATReportHeader(
+          'VAT_CODE_1', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Closed, 'VATGROUP', 'Closed');
 
         // member
-        InsertIntoVATReportHeader('MEMBER_CODE_2', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', 'Open');
+        InsertIntoVATReportHeader(
+          'MEMBER_CODE_2', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', 'Open');
         // representative
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0002-100890ABCDEA', 'MEMBER_CODE_2', 'VAT_CODE_2', MemberId, CreateDateTime(20200127D, 120000T));
-        InsertIntoVATReportHeader('VAT_CODE_2', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Accepted, 'VATGROUP', 'Accepted');
+        InsertIntoVATGroupSubmissionHeader(Guid4(), 'MEMBER_CODE_2', 'VAT_CODE_2', MemberId, CreateDateTime(DMY2Date(27, 1, 2020), 120000T));
+        InsertIntoVATReportHeader(
+          'VAT_CODE_2', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Accepted, 'VATGROUP', 'Accepted');
 
         // member
-        InsertIntoVATReportHeader('MEMBER_CODE_3', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', 'Released');
+        InsertIntoVATReportHeader(
+          'MEMBER_CODE_3', VATReportHeader."VAT Report Config. Code"::"VAT Return",
+          VATReportHeader.Status::Submitted, 'VATGROUP', 'Released');
         // representative
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0003-100890ABCDEA', 'MEMBER_CODE_3', 'VAT_CODE_3', MemberId, CreateDateTime(20200127D, 120000T));
-        InsertIntoVATReportHeader('VAT_CODE_3', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Canceled, 'VATGROUP', 'Canceled');
+        InsertIntoVATGroupSubmissionHeader(Guid6(), 'MEMBER_CODE_3', 'VAT_CODE_3', MemberId, CreateDateTime(DMY2Date(27, 1, 2020), 120000T));
+        InsertIntoVATReportHeader(
+          'VAT_CODE_3', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Canceled, 'VATGROUP', 'Canceled');
 
         // member
-        InsertIntoVATReportHeader('MEMBER_CODE_4', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', 'Pending');
+        InsertIntoVATReportHeader(
+          'MEMBER_CODE_4', VATReportHeader."VAT Report Config. Code"::"VAT Return",
+          VATReportHeader.Status::Submitted, 'VATGROUP', 'Pending');
         // representative
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0004-100890ABCDEA', 'MEMBER_CODE_4', 'VAT_CODE_4', MemberId, CreateDateTime(20200127D, 120000T));
-        InsertIntoVATReportHeader('VAT_CODE_4', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Rejected, 'VATGROUP', 'Rejected');
+        InsertIntoVATGroupSubmissionHeader(
+          Guid7(), 'MEMBER_CODE_4', 'VAT_CODE_4', MemberId, CreateDateTime(DMY2Date(27, 1, 2020), 120000T));
+        InsertIntoVATReportHeader(
+          'VAT_CODE_4', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Rejected, 'VATGROUP', 'Rejected');
 
         // member
-        InsertIntoVATReportHeader('MEMBER_CODE_5', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', 'Cannot update');
+        InsertIntoVATReportHeader(
+          'MEMBER_CODE_5', VATReportHeader."VAT Report Config. Code"::"VAT Return",
+          VATReportHeader.Status::Submitted, 'VATGROUP', 'Cannot update');
         // representative
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0005-100890ABCDEA', 'MEMBER_CODE_5', 'VAT_CODE_5', MemberId, CreateDateTime(20200127D, 120000T));
-        InsertIntoVATReportHeader('VAT_CODE_5', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Rejected, 'VATGROUP', 'Rejected');
+        InsertIntoVATGroupSubmissionHeader(
+          Guid8(), 'MEMBER_CODE_5', 'VAT_CODE_5', MemberId, CreateDateTime(DMY2Date(27, 1, 2020), 120000T));
+        InsertIntoVATReportHeader(
+          'VAT_CODE_5', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Rejected, 'VATGROUP', 'Rejected');
 
         // member
-        InsertIntoVATReportHeader('MEMBER_CODE_6', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', '');
+        InsertIntoVATReportHeader(
+          'MEMBER_CODE_6', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', '');
         // representative
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0006-100890ABCDEA', 'MEMBER_CODE_6', 'VAT_CODE_6', MemberId, CreateDateTime(20200127D, 120000T));
-        InsertIntoVATReportHeader('VAT_CODE_6', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Rejected, 'VATGROUP', 'Rejected');
+        InsertIntoVATGroupSubmissionHeader(
+          'CDEF7890-ABCD-0123-0006-100890ABCDEA', 'MEMBER_CODE_6', 'VAT_CODE_6', MemberId, CreateDateTime(DMY2Date(27, 1, 2020), 120000T));
+        InsertIntoVATReportHeader(
+          'VAT_CODE_6', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Rejected, 'VATGROUP', 'Rejected');
 
         // member
-        InsertIntoVATReportHeader('MEMBER_CODE_7', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', 'Submitted');
+        InsertIntoVATReportHeader(
+          'MEMBER_CODE_7', VATReportHeader."VAT Report Config. Code"::"VAT Return",
+          VATReportHeader.Status::Submitted, 'VATGROUP', 'Submitted');
         // representative
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0007-100890ABCDEA', 'MEMBER_CODE_7', 'VAT_CODE_7', CreateGuid(), CreateDateTime(20200127D, 120000T));
-        InsertIntoVATReportHeader('VAT_CODE_7', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Open, 'VATGROUP', 'Open');
+        InsertIntoVATGroupSubmissionHeader(
+          'CDEF7890-ABCD-0123-0007-100890ABCDEA', 'MEMBER_CODE_7', 'VAT_CODE_7', CreateGuid(), CreateDateTime(DMY2Date(27, 1, 2020), 120000T));
+        InsertIntoVATReportHeader(
+          'VAT_CODE_7', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Open, 'VATGROUP', 'Open');
 
         // member
-        InsertIntoVATReportHeader('MEMBER_CODE_8', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', 'Submitted');
+        InsertIntoVATReportHeader(
+          'MEMBER_CODE_8', VATReportHeader."VAT Report Config. Code"::"VAT Return",
+          VATReportHeader.Status::Submitted, 'VATGROUP', 'Submitted');
         // representative
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0008-100890ABCDEA', 'MEMBER_CODE_8', 'VAT_CODE_8', MemberId, CreateDateTime(20200127D, 120000T));
-        InsertIntoVATReportHeader('VAT_CODE_8', VATReportHeader."VAT Report Config. Code"::"EC Sales List", VATReportHeader.Status::Open, 'VATGROUP', 'Open');
+        InsertIntoVATGroupSubmissionHeader(
+          'CDEF7890-ABCD-0123-0008-100890ABCDEA', 'MEMBER_CODE_8', 'VAT_CODE_8', MemberId, CreateDateTime(DMY2Date(27, 1, 2020), 120000T));
+        InsertIntoVATReportHeader(
+          'VAT_CODE_8', VATReportHeader."VAT Report Config. Code"::"EC Sales List", VATReportHeader.Status::Open, 'VATGROUP', 'Open');
 
         // member
-        InsertIntoVATReportHeader('MEMBER_CODE_9', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', '');
+        InsertIntoVATReportHeader(
+          'MEMBER_CODE_9', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', '');
         // representative
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0009-100890ABCDEA', 'MEMBER_CODE_9', 'VAT_CODE_9', MemberId, CreateDateTime(20200127D, 120000T));
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0009-200890ABCDEA', 'MEMBER_CODE_9', 'VAT_CODE_10', MemberId, CreateDateTime(20200628D, 120000T));
-        InsertIntoVATReportHeader('VAT_CODE_9', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Rejected, 'VATGROUP', 'Rejected');
-        InsertIntoVATReportHeader('VAT_CODE_10', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Canceled, 'VATGROUP', 'Canceled');
-
-        Commit();
+        InsertIntoVATGroupSubmissionHeader(
+          'CDEF7890-ABCD-0123-0009-100890ABCDEA', 'MEMBER_CODE_9', 'VAT_CODE_9', MemberId, CreateDateTime(DMY2Date(27, 1, 2020), 120000T));
+        InsertIntoVATGroupSubmissionHeader(
+          'CDEF7890-ABCD-0123-0009-200890ABCDEA', 'MEMBER_CODE_9', 'VAT_CODE_10', MemberId, CreateDateTime(DMY2Date(28, 6, 2020), 120000T));
+        InsertIntoVATReportHeader(
+          'VAT_CODE_9', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Rejected, 'VATGROUP', 'Rejected');
+        InsertIntoVATReportHeader(
+          'VAT_CODE_10', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Canceled, 'VATGROUP', 'Canceled');
     end;
 
     local procedure CreateVATReportConfiguration()
@@ -570,23 +688,6 @@ codeunit 139743 "VAT Group Sub. Status Test"
         VATReportsConfiguration."VAT Report Type" := VATReportsConfiguration."VAT Report Type"::"VAT Return";
         VATReportsConfiguration."VAT Report Version" := 'VATGROUP';
         VATReportsConfiguration.Insert();
-        Commit();
-    end;
-
-    local procedure InitVATReportSetupTable()
-    var
-        VATReportSetup: Record "VAT Report Setup";
-        TmpURL: Text;
-    begin
-        TmpURL := LibraryGraphMgt.CreateQueryTargetURL(Query::"VAT Group Submission Status", '');
-
-        VATReportSetup.DeleteAll();
-        VATReportSetup."Primary key" := '';
-        VATReportSetup."Group Representative API URL" := CopyStr(TmpURL, 1, StrPos(TmpURL, '/api/') - 1);
-        VATReportSetup."Group Representative Company" := CompanyName();
-        VATReportSetup."VAT Group Role" := VATReportSetup."VAT Group Role"::Representative;
-        VATReportSetup."Authentication Type" := VATReportSetup."Authentication Type"::WindowsAuthentication;
-        VATReportSetup.Insert();
     end;
 
     local procedure ChangeVATGroupRole(VATGroupRole: Enum "VAT Group Role")
@@ -596,7 +697,6 @@ codeunit 139743 "VAT Group Sub. Status Test"
         VATReportSetup.Get();
         VATReportSetup."VAT Group Role" := VATGroupRole;
         VATReportSetup.Modify();
-        Commit();
     end;
 
     local procedure InitVATTablesNoStatusToCheck()
@@ -607,12 +707,18 @@ codeunit 139743 "VAT Group Sub. Status Test"
         VATReportHeader.DeleteAll();
         VATGroupSubmissionHeader.DeleteAll();
 
-        InsertIntoVATReportHeader('VAT_CODE_1', VATReportHeader."VAT Report Config. Code"::"EC Sales List", VATReportHeader.Status::Submitted, 'VATGROUP', 'Submitted');
-        InsertIntoVATReportHeader('VAT_CODE_2', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Closed, 'VATGROUP', 'Submitted');
-        InsertIntoVATReportHeader('VAT_CODE_3', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'TEST', 'Submitted');
-        InsertIntoVATReportHeader('VAT_CODE_4', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', 'Closed');
-
-        Commit();
+        InsertIntoVATReportHeader(
+          'VAT_CODE_1', VATReportHeader."VAT Report Config. Code"::"EC Sales List",
+          VATReportHeader.Status::Submitted, 'VATGROUP', 'Submitted');
+        InsertIntoVATReportHeader(
+          'VAT_CODE_2', VATReportHeader."VAT Report Config. Code"::"VAT Return",
+          VATReportHeader.Status::Closed, 'VATGROUP', 'Submitted');
+        InsertIntoVATReportHeader(
+          'VAT_CODE_3', VATReportHeader."VAT Report Config. Code"::"VAT Return",
+          VATReportHeader.Status::Submitted, 'TEST', 'Submitted');
+        InsertIntoVATReportHeader(
+          'VAT_CODE_4', VATReportHeader."VAT Report Config. Code"::"VAT Return",
+          VATReportHeader.Status::Submitted, 'VATGROUP', 'Closed');
     end;
 
     local procedure InitVATTablesAPIEndpoint()
@@ -624,35 +730,39 @@ codeunit 139743 "VAT Group Sub. Status Test"
         VATGroupSubmissionHeader.DeleteAll();
 
         // match with VAT_CODE_2 because of the date (from "VAT Group Submission Header" the row with the newest date is taken)
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0001-100890ABCDEA', 'TEST_NO_1', 'VAT_CODE_1', '00000000-0000-0000-0000-000000000000', CreateDateTime(20200117D, 120000T));
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0001-200890ABCDEA', 'TEST_NO_1', 'VAT_CODE_2', '00000000-0000-0000-0000-000000000000', CreateDateTime(20200127D, 120000T));
-        InsertIntoVATReportHeader('VAT_CODE_1', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', 'Submitted');
-        InsertIntoVATReportHeader('VAT_CODE_2', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Rejected, 'VATGROUP', 'Rejected');
+        InsertIntoVATGroupSubmissionHeader(Guid2(), 'TEST_NO_1', 'VAT_CODE_1', Guid0(), CreateDateTime(DMY2Date(17, 1, 2020), 120000T));
+        InsertIntoVATGroupSubmissionHeader(Guid3(), 'TEST_NO_1', 'VAT_CODE_2', Guid0(), CreateDateTime(DMY2Date(27, 1, 2020), 120000T));
+        InsertIntoVATReportHeader(
+          'VAT_CODE_1', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', 'Submitted');
+        InsertIntoVATReportHeader(
+          'VAT_CODE_2', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Rejected, 'VATGROUP', 'Rejected');
 
-        // match with VAT_CODE_3 because even if the newest date is VAT_CODE_4, there is no match for it in the "VAT Report Header" table
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0002-100890ABCDEA', 'TEST_NO_2', 'VAT_CODE_3', '00000000-0000-0000-0000-000000000000', CreateDateTime(20200117D, 120000T));
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0002-200890ABCDEA', 'TEST_NO_2', 'VAT_CODE_4', '00000000-0000-0000-0000-000000000000', CreateDateTime(20200127D, 120000T));
-        InsertIntoVATReportHeader('VAT_CODE_3', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Canceled, 'VATGROUP', 'Canceled');
+        // match with VAT_CODE_3 because even if the newest date is VAT_CODE_4,there is no match for it in the "VAT Report Header" table
+        InsertIntoVATGroupSubmissionHeader(Guid4(), 'TEST_NO_2', 'VAT_CODE_3', Guid0(), CreateDateTime(DMY2Date(17, 1, 2020), 120000T));
+        InsertIntoVATGroupSubmissionHeader(Guid5(), 'TEST_NO_2', 'VAT_CODE_4', Guid0(), CreateDateTime(DMY2Date(27, 1, 2020), 120000T));
+        InsertIntoVATReportHeader(
+          'VAT_CODE_3', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Canceled, 'VATGROUP', 'Canceled');
 
         // no match in "VAT Report Header"
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0003-100890ABCDEA', 'TEST_NO_3', 'VAT_CODE_5', '00000000-0000-0000-0000-000000000000', CreateDateTime(20200117D, 120000T));
+        InsertIntoVATGroupSubmissionHeader(Guid6(), 'TEST_NO_3', 'VAT_CODE_5', Guid0(), CreateDateTime(DMY2Date(17, 1, 2020), 120000T));
 
         // no match in "VAT Report Header" because "VAT Report Config. Code" = "EC Sales List" (it should be "VAT Return" to have a match)
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0004-100890ABCDEA', 'TEST_NO_4', 'VAT_CODE_6', '00000000-0000-0000-0000-000000000000', CreateDateTime(20200117D, 120000T));
-        InsertIntoVATReportHeader('VAT_CODE_6', VATReportHeader."VAT Report Config. Code"::"EC Sales List", VATReportHeader.Status::Closed, 'VATGROUP', 'Closed');
+        InsertIntoVATGroupSubmissionHeader(Guid7(), 'TEST_NO_4', 'VAT_CODE_6', Guid0(), CreateDateTime(DMY2Date(17, 1, 2020), 120000T));
+        InsertIntoVATReportHeader(
+          'VAT_CODE_6', VATReportHeader."VAT Report Config. Code"::"EC Sales List", VATReportHeader.Status::Closed, 'VATGROUP', 'Closed');
 
-        // different "Group Member Id", there is a match for 00000000-0000-0000-0000-000000000001 but not for 00000000-0000-0000-0000-000000000000
-        InsertIntoVATGroupSubmissionHeader('CDEF7890-ABCD-0123-0005-100890ABCDEA', 'TEST_NO_5', 'VAT_CODE_7', '00000000-0000-0000-0000-000000000001', CreateDateTime(20200127D, 120000T));
-        InsertIntoVATReportHeader('VAT_CODE_7', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', 'Submitted');
-
+        // different "Group Member Id",there is a match for 00000000-0000-0000-0000-000000000001 but not for 00000000-0000-0000-0000-000000000000
+        InsertIntoVATGroupSubmissionHeader(Guid8(), 'TEST_NO_5', 'VAT_CODE_7', Guid1(), CreateDateTime(DMY2Date(27, 1, 2020), 120000T));
+        InsertIntoVATReportHeader(
+          'VAT_CODE_7', VATReportHeader."VAT Report Config. Code"::"VAT Return", VATReportHeader.Status::Submitted, 'VATGROUP', 'Submitted');
         Commit();
     end;
 
     local procedure CheckButtonPageVisibility(VATReportConfigCode: Option; No: Code[20]; ShouldBeEnabled: Boolean)
     var
         VATReportHeader: Record "VAT Report Header";
-        VATReportPage: Page "VAT Report";
-        VATReportTestPage: TestPage "VAT Report";
+        PageVATReport: Page "VAT Report";
+        TestPageVATReport: TestPage "VAT Report";
         Error: Text;
     begin
         if ShouldBeEnabled then
@@ -661,23 +771,23 @@ codeunit 139743 "VAT Group Sub. Status Test"
             Error := 'The button "Update Status" should not be enabled';
 
         VATReportHeader.Get(VATReportConfigCode, No);
-        VATReportPage.SetRecord(VATReportHeader);
-        VATReportTestPage.Trap();
-        VATReportPage.Run();
-        Assert.AreEqual(ShouldBeEnabled, VATReportTestPage.UpdateStatus.Visible(), Error);
+        PageVATReport.SetRecord(VATReportHeader);
+        TestPageVATReport.Trap();
+        PageVATReport.Run();
+        Assert.AreEqual(ShouldBeEnabled, TestPageVATReport.UpdateStatus.Visible(), Error);
 
-        VATReportPage.Close();
-        VATReportTestPage.Close();
+        PageVATReport.Close();
+        TestPageVATReport.Close();
     end;
 
     local procedure InsertIntoVATGroupSubmissionHeader(Id: Guid; No: Code[20]; VATGroupReturnNo: Code[20]; GroupMemberId: Guid; SubmittedOn: DateTime)
     var
         VATGroupSubmissionHeader: Record "VAT Group Submission Header";
     begin
-        VATGroupSubmissionHeader.Id := Id;
+        VATGroupSubmissionHeader.ID := Id;
         VATGroupSubmissionHeader."No." := No;
         VATGroupSubmissionHeader."VAT Group Return No." := VATGroupReturnNo;
-        VATGroupSubmissionHeader."Group Member Id" := GroupMemberId;
+        VATGroupSubmissionHeader."Group Member ID" := GroupMemberId;
         VATGroupSubmissionHeader."Submitted On" := SubmittedOn;
         VATGroupSubmissionHeader.Insert();
     end;
@@ -688,9 +798,54 @@ codeunit 139743 "VAT Group Sub. Status Test"
     begin
         VATReportHeader."No." := VATGroupReturnNo;
         VATReportHeader."VAT Report Config. Code" := VATReportConfigCode;
-        VATReportHeader."Status" := Status;
+        VATReportHeader.Status := Status;
         VATReportHeader."VAT Report Version" := VATReportVersion;
         VATReportHeader."VAT Group Status" := VATGroupStatus;
         VATReportHeader.Insert();
+    end;
+
+    local procedure Guid0(): Guid
+    begin
+        exit('00000000-0000-0000-0000-000000000000');
+    end;
+
+    local procedure Guid1(): Guid
+    begin
+        exit('00000000-0000-0000-0000-000000000001');
+    end;
+
+    local procedure Guid2(): Guid
+    begin
+        exit('CDEF7890-ABCD-0123-0001-100890ABCDEA');
+    end;
+
+    local procedure Guid3(): Guid
+    begin
+        exit('CDEF7890-ABCD-0123-0001-200890ABCDEA');
+    end;
+
+    local procedure Guid4(): Guid
+    begin
+        exit('CDEF7890-ABCD-0123-0002-100890ABCDEA');
+    end;
+
+    local procedure Guid5(): Guid
+    begin
+        exit('CDEF7890-ABCD-0123-0002-200890ABCDEA');
+    end;
+
+    local procedure Guid6(): Guid
+    begin
+        exit('CDEF7890-ABCD-0123-0003-100890ABCDEA');
+    end;
+
+    local procedure Guid7(): Guid
+    begin
+        exit('CDEF7890-ABCD-0123-0004-100890ABCDEA');
+    end;
+
+    local procedure Guid8(): Guid
+    begin
+        exit('CDEF7890-ABCD-0123-0005-100890ABCDEA');
     end;
 }
