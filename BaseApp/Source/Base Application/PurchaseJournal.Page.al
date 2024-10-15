@@ -56,6 +56,8 @@ page 254 "Purchase Journal"
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the VAT date for the entry.';
                 }
                 field("Document Date"; Rec."Document Date")
@@ -1226,6 +1228,7 @@ page 254 "Purchase Journal"
     trigger OnOpenPage()
     var
         ServerSetting: Codeunit "Server Setting";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         LastGenJnlBatch: Code[10];
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
@@ -1245,6 +1248,7 @@ page 254 "Purchase Journal"
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
         OnOpenPageOnAfterOpenJnl(CurrentJnlBatchName);
         SetControlAppearanceFromBatch();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var
@@ -1280,6 +1284,8 @@ page 254 "Purchase Journal"
         JobQueueVisible: Boolean;
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

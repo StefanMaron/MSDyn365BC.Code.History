@@ -399,6 +399,7 @@ codeunit 143018 "Library - VAT Ledger"
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             Type := TypeValue;
             "Posting Date" := WorkDate();
+            "VAT Reporting Date" := WorkDate();
             "Document Type" := "Document Type"::Invoice;
             "Document No." := DocumentNo;
             "Bill-to/Pay-to No." := CVNo;

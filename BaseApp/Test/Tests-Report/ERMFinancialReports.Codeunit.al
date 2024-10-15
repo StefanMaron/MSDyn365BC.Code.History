@@ -1036,6 +1036,7 @@ codeunit 134982 "ERM Financial Reports"
         VATEntry.SetFilter("Bill-to/Pay-to No.", '%1|%2', Customer[1]."No.", Customer[2]."No.");
         VATEntry.SetFilter("Country/Region Code", Customer[2]."Country/Region Code");
         VATEntry.SetRange("Posting Date", WorkDate());
+        VATEntry.SetRange("VAT Reporting Date", WorkDate());
         Commit();
 
         // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "C1"|"C2", "Country/Region Code" = "CR2" and Posting Date = 01/02/2018
@@ -1160,6 +1161,7 @@ codeunit 134982 "ERM Financial Reports"
 
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToCustomer."No.");
         VATEntry.SetRange("Posting Date", WorkDate());
+        VATEntry.SetRange("VAT Reporting Date", WorkDate());
 
         // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "BillCust"
         RunVATVIESDeclarationDisk(VATEntry, FileName);
@@ -1204,6 +1206,7 @@ codeunit 134982 "ERM Financial Reports"
 
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToCustomer."No.");
         VATEntry.SetRange("Posting Date", WorkDate());
+        VATEntry.SetRange("VAT Reporting Date", WorkDate());
 
         // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "BillCust"
         Commit();
@@ -1295,6 +1298,7 @@ codeunit 134982 "ERM Financial Reports"
         // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "C1"|"C2" and Posting Date = 01/02/2018
         VATEntry.SetFilter("Bill-to/Pay-to No.", '%1|%2', Customer1."No.", Customer2."No.");
         VATEntry.SetRange("Posting Date", WorkDate());
+        VATEntry.SetRange("VAT Reporting Date", WorkDate());
         Commit();
         RunVATVIESDeclarationDisk(VATEntry, FileName);
 
@@ -1355,6 +1359,7 @@ codeunit 134982 "ERM Financial Reports"
         // [WHEN] Run report "VAT- VIES Declaration Disk"
         VATEntry.SetRange("Bill-to/Pay-to No.", CustomerBillTo."No.");
         VATEntry.SetRange("Posting Date", CustLedgerEntry."Posting Date", CustLedgerEntry."Pmt. Discount Date");
+        VATEntry.SetRange("VAT Reporting Date", CustLedgerEntry."Posting Date", CustLedgerEntry."Pmt. Discount Date");
         RunVATVIESDeclarationDisk(VATEntry, FileName);
 
         // [THEN] Value with amount 980 is exported in VAT VIES Declaration file at possion 41 with length 15
@@ -1409,6 +1414,7 @@ codeunit 134982 "ERM Financial Reports"
         // [WHEN] Run report "VAT- VIES Declaration Disk"
         VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
         VATEntry.SetRange("Posting Date", CustLedgerEntry."Posting Date", CustLedgerEntry."Pmt. Discount Date");
+        VATEntry.SetRange("VAT Reporting Date", CustLedgerEntry."Posting Date", CustLedgerEntry."Pmt. Discount Date");
         RunVATVIESDeclarationDisk(VATEntry, FileName);
 
         // [THEN] Value with amount 980 is exported in VAT VIES Declaration file at possion 41 with length 15
@@ -1418,14 +1424,6 @@ codeunit 134982 "ERM Financial Reports"
           LibraryTextFileValidation.ReadValueFromLine(FileName, 3, 41, 15), '');
 
         FileManagement.DeleteServerFile(FileName);
-    end;
-
-    [Test]
-    [HandlerFunctions('RHTrialBalance')]
-    [Scope('OnPrem')]
-    procedure TestTrialBalanceReport()
-    begin
-        RunTrialBalanceReport();
     end;
 
     local procedure Initialize()
@@ -1469,6 +1467,7 @@ codeunit 134982 "ERM Financial Reports"
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             Type := Type::Sale;
             "Posting Date" := PostingDate;
+            "VAT Reporting Date" := PostingDate;
             "Bill-to/Pay-to No." := Customer."No.";
             "VAT Registration No." := Customer."VAT Registration No.";
             "Country/Region Code" := Customer."Country/Region Code";
@@ -1862,18 +1861,6 @@ codeunit 134982 "ERM Financial Reports"
         TrialBalance.Run
     end;
 
-    local procedure RunTrialBalanceReport()
-    var
-        GLAccount: Record "G/L Account";
-        TrialBalance: Report "Trial Balance";
-    begin
-        Clear(TrialBalance);
-        GLAccount.SetFilter(Balance, '<>0');
-        TrialBalance.SetTableView(GLAccount);
-        Commit();
-        TrialBalance.Run
-    end;
-
     local procedure TrialBalanceBudgetReport(GLAccountNo: Code[20]; PostingDate: Date)
     var
         GLAccount: Record "G/L Account";
@@ -1932,6 +1919,7 @@ codeunit 134982 "ERM Financial Reports"
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             Type := Type::Sale;
             "Posting Date" := WorkDate();
+            "VAT Reporting Date" := WorkDate();
             "Bill-to/Pay-to No." := Customer."No.";
             "VAT Registration No." := Customer."VAT Registration No.";
             "Country/Region Code" := Customer."Country/Region Code";

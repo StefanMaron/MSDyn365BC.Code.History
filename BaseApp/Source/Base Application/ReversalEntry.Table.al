@@ -206,6 +206,7 @@
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
+        BankAccountStatement: Record "Bank Account Statement";
         VATEntry: Record "VAT Entry";
         FALedgEntry: Record "FA Ledger Entry";
         MaintenanceLedgEntry: Record "Maintenance Ledger Entry";
@@ -259,6 +260,7 @@
     local procedure ReverseEntries(Number: Integer; RevType: Option Transaction,Register)
     var
         ReversalPost: Codeunit "Reversal-Post";
+        ReverseTransactionEntries: Page "Reverse Transaction Entries";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -274,8 +276,12 @@
 
         InsertReversalEntry(Number, RevType);
         TempReversalEntry.SetCurrentKey("Document No.", "Posting Date", "Entry Type", "Entry No.");
-        if not HideDialog then
-            PAGE.RunModal(PAGE::"Reverse Entries", TempReversalEntry)
+        if not HideDialog then begin
+            if (BankAccountStatement."Statement No." <> '') and (BankAccountStatement."Bank Account No." <> '') then
+                ReverseTransactionEntries.SetBankAccountStatement(BankAccountStatement);
+            ReverseTransactionEntries.SetReversalEntries(TempReversalEntry);
+            ReverseTransactionEntries.RunModal();
+        end
         else begin
             ReversalPost.SetPrint(false);
             ReversalPost.SetHideDialog(HideWarningDialogs);
@@ -460,6 +466,7 @@
 
     local procedure CheckGLEntry(IsVATAllocOnCost: Boolean)
     var
+        SourceCodeSetup: Record "Source Code Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -467,8 +474,14 @@
         if IsHandled then
             exit;
 
-        if (GLEntry."Journal Batch Name" = '') and not IsVATAllocOnCost then
-            TestFieldError();
+        if (GLEntry."Journal Batch Name" <> '') or IsVATAllocOnCost then
+            exit;
+
+        SourceCodeSetup.Get();
+        if GLEntry."Source Code" = SourceCodeSetup."Payment Reconciliation Journal" then
+            exit;
+
+        TestFieldError();
     end;
 
     local procedure CheckGLAcc(GLEntry: Record "G/L Entry"; var BalanceCheckAmount: Decimal; var BalanceCheckAddCurrAmount: Decimal)
@@ -951,7 +964,7 @@
         Error(Text004);
     end;
 
-    procedure AlreadyReversedEntry(Caption: Text[50]; EntryNo: Integer)
+    procedure AlreadyReversedEntry(Caption: Text; EntryNo: Integer)
     begin
         Error(Text011, Caption, EntryNo);
     end;
@@ -1043,6 +1056,11 @@
     begin
         HideDialog := true;
         HideWarningDialogs := true;
+    end;
+
+    procedure SetBankAccountStatement(BankAccountNo: Code[20]; StatementNo: Code[20])
+    begin
+        BankAccountStatement.Get(BankAccountNo, StatementNo);
     end;
 
     local procedure UnrealizedVATReverseError(TableName: Text[50]; EntryNo: Integer): Text

@@ -168,6 +168,8 @@ page 20 "General Ledger Entries"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT date on the VAT entry. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
+                    Editable = false;
+                    Visible = IsVATDateEnabled;
                 }
                 field("User ID"; Rec."User ID")
                 {
@@ -661,10 +663,13 @@ page 20 "General Ledger Entries"
     end;
 
     trigger OnOpenPage()
+    var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         SetControlVisibility();
         SetDimVisibility();
-
+        IsVATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+        
         if (GetFilters() <> '') and not Find() then
             if FindFirst() then;
     end;
@@ -675,6 +680,8 @@ page 20 "General Ledger Entries"
         HasIncomingDocument: Boolean;
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
+        [InDataSet]
+        IsVATDateEnabled: Boolean;
 
     protected var
         Dim1Visible: Boolean;

@@ -2263,7 +2263,11 @@
                 exit;
 
             case "Totaling Type" of
-                "Totaling Type"::"Cash Flow Entry Accounts", "Totaling Type"::"Cash Flow Total Accounts":
+                "Totaling Type"::"Posting Accounts", "Totaling Type"::"Total Accounts",
+                "Totaling Type"::"Cost Type", "Totaling Type"::"Cost Type Total":
+                    DrillDownOnGLAccount(TempColumnLayout, AccScheduleLine);
+                "Totaling Type"::"Cash Flow Entry Accounts",
+                "Totaling Type"::"Cash Flow Total Accounts":
                     DrillDownOnCFAccount(TempColumnLayout, AccScheduleLine);
                 "Totaling Type"::Custom:
                     AccSchedExtensionMgt.DrillDownAmount(
@@ -2271,7 +2275,7 @@
                 "Totaling Type"::"Account Category":
                     DrillDownOnGLAccCategory(TempColumnLayout, AccScheduleLine);
                 else
-                    DrillDownOnGLAccount(TempColumnLayout, AccScheduleLine);
+                    OnDrillDownTotalingTypeElseCase(TempColumnLayout, AccScheduleLine);
             end;
         end;
     end;
@@ -2936,6 +2940,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyColumnsToTempOnBeforeFind(AccSchedName: Record "Acc. Schedule Name"; NewColumnName: Code[10]; var TempColumnLayout: Record "Column Layout" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDrillDownTotalingTypeElseCase(var TempColumnLayout: Record "Column Layout" temporary; var AccSchedLine: Record "Acc. Schedule Line")
     begin
     end;
 }

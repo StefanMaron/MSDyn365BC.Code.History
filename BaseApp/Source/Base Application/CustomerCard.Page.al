@@ -878,7 +878,7 @@
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(18),
+                SubPageLink = "Table ID" = CONST(Database::Customer),
                               "No." = FIELD("No.");
             }
             part(Details; "Office Customer Details")

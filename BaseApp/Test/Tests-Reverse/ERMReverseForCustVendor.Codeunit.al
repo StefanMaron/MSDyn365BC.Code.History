@@ -944,9 +944,9 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ReverseEntriesOnDateHandler(var ReverseEntries: TestPage "Reverse Entries")
+    procedure ReverseEntriesOnDateHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseEntries.ReverseOnDate.Invoke;
+        ReverseTransactionEntries.ReverseOnDate.Invoke;
     end;
 
     [ModalPageHandler]

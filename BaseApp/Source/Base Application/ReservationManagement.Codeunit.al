@@ -1340,7 +1340,10 @@
         CurrentQty := ReservEntry."Quantity (Base)";
 
         GetItemSetup(ReservEntry);
-        ReservEntry.TestField("Source Type");
+        IsHandled := false;
+        OnDeleteReservEntriesOnBeforeReservEntryTestField(ReservEntry, IsHandled);
+        if not IsHandled then
+            ReservEntry.TestField("Source Type");
         ReservEntry.Lock();
         SignFactor := CreateReservEntry.SignFactor(ReservEntry);
         QtyTracked := QuantityTracked(ReservEntry);
@@ -3303,6 +3306,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAutoReservePurchLineOnBeforeSetQtyToReserveDownToTrackedQuantity(PurchLine: Record "Purchase Line"; CalcReservEntry: Record "Reservation Entry"; var ReservQty: Decimal; var QtyThisLine: Decimal; var QtyThisLineBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteReservEntriesOnBeforeReservEntryTestField(var ReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 }

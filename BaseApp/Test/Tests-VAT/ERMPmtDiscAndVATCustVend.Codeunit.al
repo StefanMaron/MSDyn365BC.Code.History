@@ -78,6 +78,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         GenJournalLine: Record "Gen. Journal Line";
         Item: Record Item;
         VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
         GLAccountNo: Code[20];
         OldPmtDiscDebitAcc: Code[20];
         DiscountAmountExclVAT: Decimal;
@@ -87,6 +88,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
 
         // Update General Ledger, VAT Posting Setup. Post Sales Invoice and make Payment for it.
         Initialize();
+        VATEntry.DeleteAll();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         GLAccountNo := LibraryERM.CreateGLAccountNo();
         FindVATPostingSetup(VATPostingSetup);
@@ -100,6 +102,8 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         VerifyPmtDiscEntryInGLEntry(
           GenJournalLine."Document No.", GLAccountNo, GenJournalLine."Document Type", DiscountAmountExclVAT, VATAmountForDiscount);
         VerifyVATEntry(GenJournalLine."Document No.", DiscountAmountExclVAT, VATAmountForDiscount);
+        VerifyVATEntryVatDate(GenJournalLine."Document No.", GenJournalLine."VAT Reporting Date");
+       
 
         // Tear Down: Rollback modified setups.
         UpdateGeneralPostingSetupSales(Customer."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group", OldPmtDiscDebitAcc);
@@ -205,6 +209,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         Item: Record Item;
         Vendor: Record Vendor;
         VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
         GLAccountNo: Code[20];
         OldPmtDiscCreditAcc: Code[20];
         DiscountAmountExclVAT: Decimal;
@@ -214,6 +219,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
 
         // Update General Ledger Setup, VAT Posting Setup. Post Purchase Invoice and make Payment for it.
         Initialize();
+        VATEntry.DeleteAll();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         GLAccountNo := LibraryERM.CreateGLAccountNo();
         FindVATPostingSetup(VATPostingSetup);
@@ -227,6 +233,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         VerifyPmtDiscEntryInGLEntry(
           GenJournalLine."Document No.", GLAccountNo, GenJournalLine."Document Type", -DiscountAmountExclVAT, -VATAmountForDiscount);
         VerifyVATEntry(GenJournalLine."Document No.", -DiscountAmountExclVAT, -VATAmountForDiscount);
+        VerifyVATEntryVatDate(GenJournalLine."Document No.", GenJournalLine."VAT Reporting Date");
 
         // Tear Down.
         UpdateGeneralPostingSetupPurch(Vendor."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group", OldPmtDiscCreditAcc);
@@ -1376,6 +1383,19 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
             Assert.AreEqual(
               ExpectedAmount, Amount,
               StrSubstNo(AmountError, FieldCaption(Amount), ExpectedAmount, TableCaption));
+        end;
+    end;
+
+    local procedure VerifyVATEntryVatDate(DocumentNo: Code[20]; ExpectedVATDate: Date)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        with VATEntry do begin
+            SetRange("Document No.", DocumentNo);
+            FindFirst();
+            Assert.AreEqual(
+                ExpectedVATDate, "VAT Reporting Date", StrSubstNo(AmountError, FieldCaption("VAT Reporting Date"), ExpectedVATDate, TableCaption)
+            );
         end;
     end;
 

@@ -151,6 +151,7 @@ page 700 "Error Messages"
         StyleText: Text[20];
         CallStack: Text;
         EnableOpenRelatedEntity: Boolean;
+        ErrorContextNotFoundErr: Label 'Error context not found: %1', Comment = '%1 - Record Id';
 
     procedure SetRecords(var TempErrorMessage: Record "Error Message" temporary)
     begin
@@ -182,13 +183,18 @@ page 700 "Error Messages"
 
     local procedure HandleDrillDown(SourceFieldNo: Integer)
     var
+        RecRef: RecordRef;
         IsHandled: Boolean;
     begin
         OnDrillDownSource(Rec, SourceFieldNo, IsHandled);
         if not IsHandled then
             case SourceFieldNo of
                 FieldNo("Context Record ID"):
-                    PageManagement.PageRunAtField("Context Record ID", "Context Field Number", false);
+                    begin
+                        if not RecRef.Get("Context Record ID") then
+                            error(ErrorContextNotFoundErr, Format("Context Record ID"));
+                        PageManagement.PageRunAtField("Context Record ID", "Context Field Number", false);
+                    end;
                 FieldNo("Record ID"):
                     if IsDimSetEntryInconsistency() then
                         RunDimSetEntriesPage()
