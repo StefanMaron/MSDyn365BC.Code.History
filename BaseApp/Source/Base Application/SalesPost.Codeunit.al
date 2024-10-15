@@ -1662,7 +1662,7 @@
             exit;
 
         with SalesLine do begin
-            if SalesHeader.Invoice and ("Line Discount %" <> 100 )then
+            if SalesHeader.Invoice and ("Line Discount %" <> 100) and (("Inv. Discount Amount" - "Line Amount") <> 0) then
                 TestField(Amount);
             TestField("Job No.", '');
             TestField("Job Contract Entry No.", 0);

@@ -258,6 +258,16 @@ table 5718 "Nonstock Item"
     {
     }
 
+    trigger OnDelete()
+    var
+        Item: Record Item;
+    begin
+        if Item.Get("Item No.") then begin
+            Item."Created From Nonstock Item" := false;
+            Item.Modify();
+        end;
+    end;
+
     trigger OnInsert()
     begin
         NonStockItem.LockTable;
