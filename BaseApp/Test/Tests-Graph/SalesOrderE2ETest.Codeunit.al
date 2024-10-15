@@ -390,7 +390,7 @@ codeunit 135513 "Sales Order E2E Test"
         ResponseText: Text;
         TargetURL: Text;
         DiscountPct: Decimal;
-        DiscountAmt: Decimal;
+        DiscountAmt, InvDiscAmount : Decimal;
     begin
         // [SCENARIO 184721] When an order is created, the GET Method should update the order and redistribute the discount amount
         // [GIVEN] an order with discount amount that should be redistributed
@@ -400,6 +400,7 @@ codeunit 135513 "Sales Order E2E Test"
         DiscountAmt := LibraryRandom.RandDecInRange(1, Round(SalesHeader.Amount / 2, 1), 1);
         SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(DiscountAmt, SalesHeader);
         GetFirstSalesOrderLine(SalesHeader, SalesLine);
+        InvDiscAmount := SalesLine."Inv. Discount Amount";
         SalesLine.Validate(Quantity, SalesLine.Quantity + 1);
         SalesLine.Modify(true);
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
@@ -412,7 +413,7 @@ codeunit 135513 "Sales Order E2E Test"
         // [THEN] the order should exist in the response and Order Discount Should be Applied
         LibraryGraphMgt.VerifyIDInJson(ResponseText);
         LibraryGraphDocumentTools.VerifySalesTotals(
-          SalesHeader, ResponseText, DiscountAmt, SalesHeader."Invoice Discount Calculation"::Amount);
+          SalesHeader, ResponseText, DiscountAmt - InvDiscAmount, SalesHeader."Invoice Discount Calculation"::Amount);
     end;
 
     [Test]
