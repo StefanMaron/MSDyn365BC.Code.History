@@ -6389,7 +6389,7 @@ codeunit 134327 "ERM Purchase Order"
         Initialize();
 
         // [GIVEN] Disposed Fixed Asset, Fixed Asset No. = FA01, Depreciation Book Code = DEPRBOOK.
-        MockDisposedFA(FADeprBook);
+        MockFixedAsset(FADeprBook, true);
         Commit();
 
         // [GIVEN] Purchase Order with Purchase Line with disposed Fixed Asset.
@@ -6406,6 +6406,58 @@ codeunit 134327 "ERM Purchase Order"
         Assert.ExpectedErrorCode('Dialog');
         FixedAsset.Get(FADeprBook."FA No.");
         Assert.ExpectedError(STRSUBSTNO(DisposedErr, DepreciationCalc.FAName(FixedAsset, FADeprBook."Depreciation Book Code")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingPurchaseOrderPartialReceiveWithDisposedAssetError()
+    var
+        FADeprBook: array[2] of Record "FA Depreciation Book";
+        FixedAsset: Record "Fixed Asset";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        DepreciationCalc: Codeunit "Depreciation Calculation";
+    begin
+        // [FEATURE] [Fixed Asset]
+        // [SCENARIO 457181] Purchase order with first received and disposed FA and second non-received FA can be posted
+        Initialize();
+
+        // [GIVEN] Create Fixed Asset, Fixed Asset No. = FA01, Depreciation Book Code = DEPRBOOK.
+        MockFixedAsset(FADeprBook[1], false);
+        // [GIVEN] Create Fixed Asset, Fixed Asset No. = FA02, Depreciation Book Code = DEPRBOOK.
+        MockFixedAsset(FADeprBook[2], false);
+        Commit();
+
+        // [GIVEN] Purchase Order with two Purchase Lines for disposed and non-disposed FA 
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine[1], PurchaseHeader, "Purchase Line Type"::"Fixed Asset", FADeprBook[1]."FA No.", 1);
+        PurchaseLine[1].Validate("Depreciation Book Code", FADeprBook[1]."Depreciation Book Code");
+        PurchaseLine[1].Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine[2], PurchaseHeader, "Purchase Line Type"::"Fixed Asset", FADeprBook[2]."FA No.", 1);
+        PurchaseLine[2].Validate("Depreciation Book Code", FADeprBook[2]."Depreciation Book Code");
+        PurchaseLine[2].Modify(true);
+
+        // [WHEN] Post first Fixed Asset as received and invoiced
+        PurchaseLine[2].Get(PurchaseLine[2]."Document Type", PurchaseLine[2]."Document No.", PurchaseLine[2]."Line No.");
+        PurchaseLine[2].Validate("Qty. to Receive", 0);
+        PurchaseLine[2].Modify();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Mark posted fixed asset as disposed
+        FADeprBook[1].Get(FADeprBook[1]."FA No.", FADeprBook[1]."Depreciation Book Code");
+        FADeprBook[1].Validate("Disposal Date", WorkDate());
+        FADeprBook[1].Modify();
+
+        // [THEN] Post purchase order as received and invoiced succesfully
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."Vendor Invoice No." + '-2');
+        PurchaseHeader.Modify();
+        PurchaseLine[2].Get(PurchaseLine[2]."Document Type", PurchaseLine[2]."Document No.", PurchaseLine[2]."Line No.");
+        PurchaseLine[2].Validate("Qty. to Receive", 1);
+        PurchaseLine[2].Modify();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
     [Test]
@@ -7975,7 +8027,7 @@ codeunit 134327 "ERM Purchase Order"
         end;
     end;
 
-    local procedure MockDisposedFA(var FADepreciationBook: Record "FA Depreciation Book");
+    local procedure MockFixedAsset(var FADepreciationBook: Record "FA Depreciation Book"; Disposed: Boolean);
     var
         DepreciationBook: Record "Depreciation Book";
         FixedAsset: Record "Fixed Asset";
@@ -7986,7 +8038,8 @@ codeunit 134327 "ERM Purchase Order"
         DepreciationBook.Modify(true);
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
         FADepreciationBook.Validate("FA Posting Group", FixedAsset."FA Posting Group");
-        FADepreciationBook.Validate("Disposal Date", WorkDate());
+        if Disposed then
+            FADepreciationBook.Validate("Disposal Date", WorkDate());
         FADepreciationBook.Modify(true);
     END;
 

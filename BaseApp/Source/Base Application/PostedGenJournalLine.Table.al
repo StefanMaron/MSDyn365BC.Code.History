@@ -1053,6 +1053,7 @@
 
     procedure InsertFromGenJournalLine(GenJournalLine: Record "Gen. Journal Line"; GLRegNo: Integer; FirstLine: Boolean)
     var
+        RecordLinkManagement: Codeunit "Record Link Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1068,6 +1069,7 @@
             Indentation := 1;
         Insert();
 
+        RecordLinkManagement.CopyLinks(GenJournalLine, Rec);
         OnAfterInsertFromGenJournalLine(GenJournalLine);
     end;
 

@@ -54,12 +54,6 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'VAT Reports';
                         RunObject = page "VAT Report List";
                     }
-                    // action("ECSL Report")
-                    // {
-                    //     ApplicationArea = Basic, Suite;
-                    //     Caption = 'EC Sales List Reports';
-                    //     RunObject = page "EC Sales List Reports";
-                    // }
                     group("Group2")
                     {
                         Caption = 'Reports';
@@ -1190,12 +1184,18 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Customer Trial Balance';
                         RunObject = report "Customer - Trial Balance";
                     }
+#if not CLEAN22
                     action("EC Sales List")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'EC Sales List';
                         RunObject = report "EC Sales List";
+                        Visible = false;
+                        ObsoleteReason = 'Not used in the German version';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
                     }
+#endif                                
                 }
                 group("Group35")
                 {

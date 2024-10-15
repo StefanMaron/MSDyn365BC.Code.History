@@ -269,6 +269,7 @@ page 9001 "Accounting Manager Role Center"
                 RunObject = Report "VAT- VIES Declaration Disk";
                 ToolTip = 'Report your sales to other EU countries or regions to the customs and tax authorities. If the information must be printed out on a printer, you can use the VAT- VIES Declaration Tax Auth report. The information is shown in the same format as in the declaration list from the customs and tax authorities.';
             }
+#if not CLEAN22
             action("EC Sales &List")
             {
                 ApplicationArea = BasicEU;
@@ -276,7 +277,12 @@ page 9001 "Accounting Manager Role Center"
                 Image = "Report";
                 RunObject = Report "EC Sales List";
                 ToolTip = 'Calculate VAT amounts from sales, and submit the amounts to a tax authority.';
+                Visible = false;
+                ObsoleteReason = 'Not used in the German version';
+                ObsoleteState = Pending;
+                ObsoleteTag = '22.0';
             }
+#endif            
             separator(Action60)
             {
             }
@@ -460,13 +466,18 @@ page 9001 "Accounting Manager Role Center"
                 RunObject = Page "Incoming Documents";
                 ToolTip = 'Handle incoming documents, such as vendor invoices in PDF or as image files, that you can manually or automatically convert to document records, such as purchase invoices. The external files that represent incoming documents can be attached at any process stage, including to posted documents and to the resulting vendor, customer, and general ledger entries.';
             }
+#if not CLEAN22
             action("EC Sales List")
             {
                 ApplicationArea = BasicEU;
                 Caption = 'EC Sales List';
                 RunObject = Page "ECSL Report List";
                 ToolTip = 'Prepare the EC Sales List report so you can submit VAT amounts to a tax authority.';
+                ObsoleteReason = 'Not used in the German version';
+                ObsoleteState = Pending;
+                ObsoleteTag = '22.0';
             }
+#endif            
         }
         area(sections)
         {
