@@ -357,7 +357,8 @@ codeunit 1501 "Workflow Management"
             repeat
                 WorkflowRecordChangeArchive.Init();
                 WorkflowRecordChangeArchive.TransferFields(ToArchiveWorkflowRecordChange);
-                WorkflowRecordChangeArchive.Insert();
+                if not WorkflowRecordChangeArchive.Insert() then
+                    WorkflowRecordChangeArchive.Modify();
             until ToArchiveWorkflowRecordChange.Next() = 0;
 
             ToArchiveWorkflowRecordChange.DeleteAll(true);

@@ -801,8 +801,9 @@
         {
             Caption = 'Invoice Disc. Code';
 
-            trigger OnLookup()
+            trigger OnValidate()
             begin
+                Rec.TestField("Release Status", "Release Status"::Open);
                 MessageIfServLinesExist(FieldCaption("Invoice Disc. Code"));
             end;
         }
