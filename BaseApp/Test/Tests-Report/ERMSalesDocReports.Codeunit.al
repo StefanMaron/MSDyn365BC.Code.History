@@ -1107,6 +1107,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         SalesCrMemoHeader.SetRange("Pre-Assigned No.", SalesHeaderNo);
         SalesCrMemoHeader.FindFirst;
         SalesCreditMemo.SetTableView(SalesCrMemoHeader);
+        SalesCreditMemo.InitializeRequest(1, false, false, true);
         SalesCreditMemo.Run;
     end;
 
@@ -1120,6 +1121,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         PurchCrMemoHdr.SetRange("Vendor Cr. Memo No.", VendorCrMemoNo);
         PurchCrMemoHdr.FindFirst;
         PurchaseCreditMemo.SetTableView(PurchCrMemoHdr);
+        PurchaseCreditMemo.InitializeRequest(1, false, false, true);
         PurchaseCreditMemo.Run;
     end;
 

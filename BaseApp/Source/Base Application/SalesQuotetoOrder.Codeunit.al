@@ -7,7 +7,6 @@ codeunit 86 "Sales-Quote to Order"
         Cust: Record Customer;
         SalesCommentLine: Record "Sales Comment Line";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
-        ArchiveManagement: Codeunit ArchiveManagement;
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         RecordLinkManagement: Codeunit "Record Link Management";
         ShouldRedistributeInvoiceAmount: Boolean;
@@ -18,7 +17,7 @@ codeunit 86 "Sales-Quote to Order"
         TestField("Document Type", "Document Type"::Quote);
         ShouldRedistributeInvoiceAmount := SalesCalcDiscountByType.ShouldRedistributeInvoiceDiscountAmount(Rec);
 
-        OnCheckSalesPostRestrictions;
+        CheckSalesPostRestrictions();
 
         Cust.Get("Sell-to Customer No.");
         Cust.CheckBlockedCustOnDocs(Cust, "Document Type"::Order, true, false);
@@ -40,12 +39,7 @@ codeunit 86 "Sales-Quote to Order"
         OnAfterInsertAllSalesOrderLines(SalesOrderLine, Rec);
 
         SalesSetup.Get();
-        case SalesSetup."Archive Quotes" of
-            SalesSetup."Archive Quotes"::Always:
-                ArchiveManagement.ArchSalesDocumentNoConfirm(Rec);
-            SalesSetup."Archive Quotes"::Question:
-                ArchiveManagement.ArchiveSalesDocument(Rec);
-        end;
+        ArchiveSalesQuote(Rec);
 
         if SalesSetup."Default Posting Date" = SalesSetup."Default Posting Date"::"No Date" then begin
             SalesOrderHeader."Posting Date" := 0D;
@@ -113,6 +107,24 @@ codeunit 86 "Sales-Quote to Order"
                 SalesOrderHeader."Posting Date" := WorkDate;
             OnBeforeModifySalesOrderHeader(SalesOrderHeader, SalesHeader);
             SalesOrderHeader.Modify();
+        end;
+    end;
+
+    local procedure ArchiveSalesQuote(var SalesHeader: Record "Sales Header")
+    var
+        ArchiveManagement: Codeunit ArchiveManagement;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeArchiveSalesQuote(SalesHeader, SalesOrderHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        case SalesSetup."Archive Quotes" of
+            SalesSetup."Archive Quotes"::Always:
+                ArchiveManagement.ArchSalesDocumentNoConfirm(SalesHeader);
+            SalesSetup."Archive Quotes"::Question:
+                ArchiveManagement.ArchiveSalesDocument(SalesHeader);
         end;
     end;
 
@@ -297,6 +309,11 @@ codeunit 86 "Sales-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(var SalesHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeArchiveSalesQuote(var SalesQuoteHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

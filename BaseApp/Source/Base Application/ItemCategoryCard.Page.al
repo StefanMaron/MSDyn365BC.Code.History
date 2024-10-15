@@ -23,7 +23,6 @@ page 5733 "Item Category Card"
                     begin
                         if (xRec.Code <> '') and (xRec.Code <> Code) then
                             CurrPage.Attributes.PAGE.SaveAttributes(Code);
-                        UpdateItemCategoriesPresentationOrder := true;
                     end;
                 }
                 field(Description; Description)
@@ -38,10 +37,8 @@ page 5733 "Item Category Card"
 
                     trigger OnValidate()
                     begin
-                        if (Code <> '') and ("Parent Category" <> xRec."Parent Category") then begin
+                        if (Code <> '') and ("Parent Category" <> xRec."Parent Category") then
                             PersistCategoryAttributes;
-                            UpdateItemCategoriesPresentationOrder := true;
-                        end;
                     end;
                 }
             }
@@ -62,7 +59,7 @@ page 5733 "Item Category Card"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Delete';
-                Enabled = (NOT "Has Children");
+                Enabled = CanDelete;
                 Image = Delete;
                 Promoted = true;
                 PromotedCategory = Process;
@@ -83,6 +80,8 @@ page 5733 "Item Category Card"
     begin
         if Code <> '' then
             CurrPage.Attributes.PAGE.LoadAttributes(Code);
+
+        CanDelete := not HasChildren();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -98,17 +97,16 @@ page 5733 "Item Category Card"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if Code <> '' then begin
-            if UpdateItemCategoriesPresentationOrder then
-                ItemCategoryManagement.UpdatePresentationOrder;
+        if Code <> '' then
             CurrPage.Attributes.PAGE.SaveAttributes(Code);
-        end;
+
+        ItemCategoryManagement.CheckPresentationOrder();
     end;
 
     var
         ItemCategoryManagement: Codeunit "Item Category Management";
         DeleteQst: Label 'Delete %1?', Comment = '%1 - item category name';
-        UpdateItemCategoriesPresentationOrder: Boolean;
+        CanDelete: Boolean;
 
     local procedure PersistCategoryAttributes()
     begin

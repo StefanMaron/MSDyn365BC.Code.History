@@ -1663,7 +1663,13 @@ page 6510 "Item Tracking Lines"
         QtyToAdd: Decimal;
         LostReservQty: Decimal;
         IdenticalArray: array[2] of Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRegisterChange(OldTrackingSpecification, NewTrackingSpecification, CurrentSignFactor, FormRunMode, IsHandled);
+        if IsHandled then
+            exit;
+
         OK := false;
 
         if ((CurrentSignFactor * NewTrackingSpecification."Qty. to Handle") < 0) and
@@ -2859,6 +2865,11 @@ page 6510 "Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLotNoAssistEdit(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRegisterChange(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; FormRunMode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer; var IsHandled: Boolean)
     begin
     end;
 

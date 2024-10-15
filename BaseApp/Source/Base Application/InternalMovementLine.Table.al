@@ -579,8 +579,14 @@ table 7347 "Internal Movement Line"
           "Qty. (Base)", "Qty. (Base)", "Qty. per Unit of Measure");
 
         Clear(WhseItemTrackingLinesLines);
+        OnSetItemTrackingLinesOnBeforeSetSource(Rec, WhseWorksheetLine);
         WhseItemTrackingLinesLines.SetSource(WhseWorksheetLine, DATABASE::"Internal Movement Line");
         WhseItemTrackingLinesLines.InsertItemTrackingLine(WhseWorksheetLine, WhseEntry, QtyToEmpty);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetItemTrackingLinesOnBeforeSetSource(var InternalMovementLine: Record "Internal Movement Line"; var WhseWorksheetLine: Record "Whse. Worksheet Line");
+    begin
     end;
 }
 

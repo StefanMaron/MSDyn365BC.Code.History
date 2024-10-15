@@ -52,7 +52,7 @@ codeunit 5801 "Show Applied Entries"
         ItemLedgEntry.Get(EntryNo);
 
         IsHandled := false;
-        OnBeforeInsertTempEntry(ItemLedgEntry, IsHandled);
+        OnBeforeInsertTempEntry(ItemLedgEntry, IsHandled, TempItemEntry);
         if IsHandled then
             exit;
 
@@ -71,7 +71,7 @@ codeunit 5801 "Show Applied Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertTempEntry(ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeInsertTempEntry(ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean; var TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
     begin
     end;
 

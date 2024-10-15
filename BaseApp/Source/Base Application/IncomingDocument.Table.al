@@ -755,14 +755,15 @@ table 130 "Incoming Document"
         exit("Entry No.");
     end;
 
-    procedure CreateIncomingDocument(PictureInStream: InStream; Description: Text)
+    procedure CreateIncomingDocument(PictureInStream: InStream; FileName: Text)
     var
         IncomingDocument: Record "Incoming Document";
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        FileManagement: Codeunit "File Management";
     begin
         IncomingDocument.CopyFilters(Rec);
-        CreateIncomingDocument(Description, '');
-        AddAttachmentFromStream(IncomingDocumentAttachment, Description, '', PictureInStream);
+        CreateIncomingDocument(FileManagement.GetFileNameWithoutExtension(FileName), '');
+        AddAttachmentFromStream(IncomingDocumentAttachment, FileName, FileManagement.GetExtension(FileName), PictureInStream);
         CopyFilters(IncomingDocument);
     end;
 
@@ -1016,6 +1017,7 @@ table 130 "Incoming Document"
             DocumentType::"Credit Memo":
                 PurchHeader."Document Type" := PurchHeader."Document Type"::"Credit Memo";
         end;
+        OnCreatePurchDocOnBeforePurchHeaderInsert(PurchHeader);
         PurchHeader.Insert(true);
         OnAfterCreatePurchHeaderFromIncomingDoc(PurchHeader);
         if GetURL <> '' then
@@ -1993,6 +1995,11 @@ table 130 "Incoming Document"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeCreateSalesHeaderFromIncomingDoc(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnCreatePurchDocOnBeforePurchHeaderInsert(var PurchHeader: Record "Purchase Header")
     begin
     end;
 

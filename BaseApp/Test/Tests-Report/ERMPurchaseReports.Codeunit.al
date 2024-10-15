@@ -193,7 +193,7 @@ codeunit 134983 "ERM Purchase Reports"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, CreateCurrencyAndExchangeRate);
 
         // Exercise: Save Report using default value.
-        SavePurchaseOrderReport(PurchaseHeader."No.", false, false, false);
+        SavePurchaseOrderReport(PurchaseHeader."No.", false, false, false, false);
 
         // Verify: Verify Currency Information on Purchase Order Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -219,7 +219,7 @@ codeunit 134983 "ERM Purchase Reports"
         TempPurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, TempPurchaseLine, VATAmountLine);
 
         // Exercise: Save Report with default options.
-        SavePurchaseOrderReport(PurchaseHeader."No.", false, false, false);
+        SavePurchaseOrderReport(PurchaseHeader."No.", false, false, false, true);
 
         // Verify: Verify VAT Lines different column values.
         VATAmountLine.SetFilter("VAT %", '>0');
@@ -257,7 +257,7 @@ codeunit 134983 "ERM Purchase Reports"
         ExpectedDimensionValue := StrSubstNo('%1 %2', DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
 
         // Exercise: Save Report using Dimension Flag Yes.
-        SavePurchaseOrderReport(PurchaseHeader."No.", true, true, false);
+        SavePurchaseOrderReport(PurchaseHeader."No.", true, true, false, false);
 
         // Verify: Verify Line Dimension on Purchase Order Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -278,7 +278,7 @@ codeunit 134983 "ERM Purchase Reports"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, '');
 
         // Exercise: Save Report using Archive Flag Yes.
-        SavePurchaseOrderReport(PurchaseHeader."No.", false, true, false);
+        SavePurchaseOrderReport(PurchaseHeader."No.", false, true, false, false);
 
         // Verify: Verify Archive Entry created for Purchase Order.
         LibraryReportDataset.LoadDataSetFile;
@@ -300,7 +300,7 @@ codeunit 134983 "ERM Purchase Reports"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateItem, '');
 
         // Exercise: Save Report using Interaction Log Entry Flag Yes.
-        SavePurchaseOrderReport(PurchaseHeader."No.", false, false, true);
+        SavePurchaseOrderReport(PurchaseHeader."No.", false, false, true, false);
 
         // Verify: Verify Interaction Log Entry created for Purchase Order.
         LibraryReportDataset.LoadDataSetFile;
@@ -515,7 +515,7 @@ codeunit 134983 "ERM Purchase Reports"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise: Save Purchase Credit Memo Report.
-        SavePurchaseCrMemoReport(DocumentNo, false, false);
+        SavePurchaseCrMemoReport(DocumentNo, false, false, false);
 
         // Verify: Verify Currency Information on Posted Purchase Credit Memo Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -544,7 +544,7 @@ codeunit 134983 "ERM Purchase Reports"
         ExpectedDimensionValue := StrSubstNo('%1 %2', DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
 
         // Exercise: Save Report using Dimension Flag Yes.
-        SavePurchaseCrMemoReport(DocumentNo, true, false);
+        SavePurchaseCrMemoReport(DocumentNo, true, false, false);
 
         // Verify: Verify Line Dimension on Posted Purchase Credit Memo Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -568,7 +568,7 @@ codeunit 134983 "ERM Purchase Reports"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise: Save Report using Interaction Log Entry Flag Yes.
-        SavePurchaseCrMemoReport(DocumentNo, false, true);
+        SavePurchaseCrMemoReport(DocumentNo, false, true, false);
 
         // Verify: Verify Interaction Log Entry created for Posted Purchase Credit Memo.
         VerifyInteractionLogEntry(InteractionLogEntry."Document Type"::"Purch. Cr. Memo", DocumentNo);
@@ -596,7 +596,7 @@ codeunit 134983 "ERM Purchase Reports"
         PurchCrMemoLine.CalcVATAmountLines(PurchCrMemoHdr, VATAmountLine);
 
         // Exercise: Save Report with default options.
-        SavePurchaseCrMemoReport(PurchCrMemoHdr."No.", false, false);
+        SavePurchaseCrMemoReport(PurchCrMemoHdr."No.", false, false, true);
 
         // Verify: Verify VAT Entry on Posted Purchase Credit Memo Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -1183,7 +1183,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
 
         // [WHEN] Print report 407 - "Purchase - Credit Memo"
-        SavePurchaseCrMemoReport(PostedCrMemoNo, false, true);
+        SavePurchaseCrMemoReport(PostedCrMemoNo, false, true, false);
 
         // [THEN] Caption of "Your reference" contains "Ref"
         VerifyYourReferencePurchaseCrMemo(YourReference);
@@ -1386,7 +1386,7 @@ codeunit 134983 "ERM Purchase Reports"
 
         // [THEN] The Total Amount = 100
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(85, 31, LibraryReportValidation.FormatDecimalValue(PurchaseLine.Amount));
+        LibraryReportValidation.VerifyCellValue(85, 25, LibraryReportValidation.FormatDecimalValue(PurchaseLine.Amount));
     end;
 
     [Test]
@@ -1766,7 +1766,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('G_L_Register__No__', GLRegisterNo);
     end;
 
-    local procedure SavePurchaseCrMemoReport(DocumentNo: Code[20]; ShowInternalInfo: Boolean; LogInteraction: Boolean)
+    local procedure SavePurchaseCrMemoReport(DocumentNo: Code[20]; ShowInternalInfo: Boolean; LogInteraction: Boolean; AlwShowVATSum: Boolean)
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PurchaseCreditMemo: Report "Purchase - Credit Memo";
@@ -1774,7 +1774,7 @@ codeunit 134983 "ERM Purchase Reports"
         Clear(PurchaseCreditMemo);
         PurchCrMemoHdr.SetRange("No.", DocumentNo);
         PurchaseCreditMemo.SetTableView(PurchCrMemoHdr);
-        PurchaseCreditMemo.InitializeRequest(0, ShowInternalInfo, LogInteraction);  // Using 0 for No. of Copies.
+        PurchaseCreditMemo.InitializeRequest(0, ShowInternalInfo, LogInteraction, AlwShowVATSum);  // Using 0 for No. of Copies.
         Commit();
         PurchaseCreditMemo.Run;
     end;
@@ -1822,13 +1822,14 @@ codeunit 134983 "ERM Purchase Reports"
         PurchaseInvoice.Run;
     end;
 
-    local procedure SavePurchaseOrderReport(DocumentNo: Code[20]; ShowInternalInfo: Boolean; ArchiveDocument: Boolean; LogInteraction: Boolean)
+    local procedure SavePurchaseOrderReport(DocumentNo: Code[20]; ShowInternalInfo: Boolean; ArchiveDocument: Boolean; LogInteraction: Boolean; AlwShowVATSum: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
         LibraryVariableStorage.Enqueue(ShowInternalInfo);
         LibraryVariableStorage.Enqueue(ArchiveDocument);
         LibraryVariableStorage.Enqueue(LogInteraction);
+        LibraryVariableStorage.Enqueue(AlwShowVATSum);
         PurchaseHeader.SetRange("No.", DocumentNo);
         Commit();
         REPORT.Run(REPORT::Order, true, false, PurchaseHeader);
@@ -2115,14 +2116,17 @@ codeunit 134983 "ERM Purchase Reports"
         ShowInternalInfo: Variant;
         ArchiveDocument: Variant;
         LogInteraction: Variant;
+        AlwShowVATSum: Variant;
     begin
         LibraryVariableStorage.Dequeue(ShowInternalInfo);
         LibraryVariableStorage.Dequeue(ArchiveDocument);
         LibraryVariableStorage.Dequeue(LogInteraction);
+        LibraryVariableStorage.Dequeue(AlwShowVATSum);
         Order.NoofCopies.SetValue(0);
         Order.ShowInternalInformation.SetValue(ShowInternalInfo);
         Order.ArchiveDocument.SetValue(ArchiveDocument);
         Order.LogInteraction.SetValue(LogInteraction);
+        Order.AlwShowVATSum.SetValue(AlwShowVATSum);
         Order.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

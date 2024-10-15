@@ -607,6 +607,9 @@ codeunit 99000774 "Calculate Routing Line"
                     SetMinDateTime(ProdEndingDate, ProdEndingTime, ProdStartingDate, ProdStartingTime);
                     ProdOrderRoutingLine3 := ProdOrderRoutingLine2;
                 until ProdOrderRoutingLine2.Next = 0;
+
+            OnCalcRoutingLineBackOnBeforeGetQueueTime(ProdOrderRoutingLine, ProdOrderRoutingLine2, ProdOrderRoutingLine3);
+
             if ProdOrderRoutingLine3."Prod. Order No." <> '' then begin
                 Workcenter2.Get(ProdOrderRoutingLine3."Work Center No.");
                 ProdOrderRoutingLine3."Critical Path" := true;
@@ -1919,6 +1922,11 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateLoadForwardOnBeforeCalcEndingTime(var EndingTime: Time; CalendarEntry: Record "Calendar Entry"; AvQtyBase: Decimal; RelevantEfficiency: Decimal; ConCurrCap: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRoutingLineBackOnBeforeGetQueueTime(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderRoutingLine2: Record "Prod. Order Routing Line"; var ProdOrderRoutingLine3: Record "Prod. Order Routing Line");
     begin
     end;
 }

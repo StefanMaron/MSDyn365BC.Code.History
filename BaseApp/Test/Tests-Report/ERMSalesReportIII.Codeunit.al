@@ -2325,7 +2325,7 @@ codeunit 134984 "ERM Sales Report III"
         Clear(SalesCreditMemo);
         SalesCrMemoHeader.SetRange("No.", DocumentNo);
         SalesCreditMemo.SetTableView(SalesCrMemoHeader);
-        SalesCreditMemo.InitializeRequest(0, InternalInfo, LogEntry);
+        SalesCreditMemo.InitializeRequest(0, InternalInfo, LogEntry, false);
         Commit();
         SalesCreditMemo.Run;
     end;

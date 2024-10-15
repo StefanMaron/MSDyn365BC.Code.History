@@ -12,6 +12,7 @@ codeunit 134175 "WF Demo Sales Order Approvals"
 
     var
         Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
@@ -34,6 +35,7 @@ codeunit 134175 "WF Demo Sales Order Approvals"
         UserSetup: Record "User Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Sales Order Approvals");
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -42,8 +44,10 @@ codeunit 134175 "WF Demo Sales Order Approvals"
         LibraryWorkflow.DisableAllWorkflows;
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Sales Order Approvals");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WF Demo Sales Order Approvals");
     end;
 
     [Test]

@@ -211,14 +211,17 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
             AmountType::Discount:
                 SalesLine."Line Discount %" := PriceListLine."Line Discount %";
         end;
-        OnAfterSetPrice(SalesLine, PriceListLine);
+        OnAfterSetPrice(SalesLine, PriceListLine, AmountType);
     end;
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
     begin
         case AmountType of
             AmountType::Discount:
-                SalesLine.Validate("Line Discount %");
+                begin
+                    SalesLine.TestField("Allow Line Disc.");
+                    SalesLine.Validate("Line Discount %");
+                end;
             AmountType::Price:
                 SalesLine.Validate("Unit Price");
         end;
@@ -226,11 +229,11 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
 
     procedure Update(AmountType: enum "Price Amount Type")
     begin
-        if not IsDiscountAllowed() then
+        if not SalesLine."Allow Line Disc." then
             SalesLine."Line Discount %" := 0;
     end;
 
-    local procedure AddActivatedCampaignsAsSource()
+    procedure AddActivatedCampaignsAsSource()
     var
         TempTargetCampaignGr: Record "Campaign Target Group" temporary;
         SourceType: Enum "Price Source Type";
@@ -295,7 +298,7 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetPrice(var SalesLine: Record "Sales Line"; PriceListLine: Record "Price List Line")
+    local procedure OnAfterSetPrice(var SalesLine: Record "Sales Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
     begin
     end;
 }

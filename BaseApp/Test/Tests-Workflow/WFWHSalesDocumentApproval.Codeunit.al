@@ -23,6 +23,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         RecordIsRestrictedErr: Label 'You cannot use %1 for this action.', Comment = '%1=Record Id';
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         UserCannotCancelErr: Label 'User %1 does not have the permission necessary to cancel the item.', Comment = '%1 = NAV USERID';
         UserCannotContinueErr: Label 'User %1 does not have the permission necessary to continue the item.', Comment = '%1 = NAV USERID';
@@ -37,6 +38,7 @@ codeunit 134216 "WFWH Sales Document Approval"
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WFWH Sales Document Approval");
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -47,9 +49,11 @@ codeunit 134216 "WFWH Sales Document Approval"
         RemoveBogusUser;
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WFWH Sales Document Approval");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
         BindSubscription(MockOnFindTaskSchedulerAllowed);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WFWH Sales Document Approval");
     end;
 
     [Test]
