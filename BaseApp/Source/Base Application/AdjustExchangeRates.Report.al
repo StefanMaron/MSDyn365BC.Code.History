@@ -730,6 +730,8 @@ report 595 "Adjust Exchange Rates"
 
         trigger OnOpenPage()
         begin
+            OnBeforeOpenPage(AdjCustVendBank, AdjGLAcc, PostingDocNo);
+
             if PostingDescription = '' then
                 PostingDescription := Text016;
             if not (AdjCustVendBank or AdjGLAcc) then
@@ -759,6 +761,8 @@ report 595 "Adjust Exchange Rates"
             Message(NothingToAdjustMsg)
         else
             Message(RatesAdjustedMsg);
+
+        OnAfterPostReport(ExchRateAdjReg, PostingDate);
     end;
 
     trigger OnPreReport()
@@ -1551,6 +1555,7 @@ report 595 "Adjust Exchange Rates"
               "Remaining Amt. (LCY)";
 
             if AdjAmount <> 0 then begin
+                OnAdjustCustomerLedgerEntryOnBeforeInitDtldCustLedgEntry(Customer, CusLedgerEntry);
                 InitDtldCustLedgEntry(CusLedgerEntry, TempDtldCustLedgEntry);
                 TempDtldCustLedgEntry."Entry No." := NewEntryNo;
                 TempDtldCustLedgEntry."Posting Date" := PostingDate2;
@@ -1720,6 +1725,7 @@ report 595 "Adjust Exchange Rates"
               "Remaining Amt. (LCY)";
 
             if AdjAmount <> 0 then begin
+                OnAdjustVendorLedgerEntryOnBeforeInitDtldVendLedgEntry(Vendor, VendLedgerEntry);
                 InitDtldVendLedgEntry(VendLedgerEntry, TempDtldVendLedgEntry);
                 TempDtldVendLedgEntry."Entry No." := NewEntryNo;
                 TempDtldVendLedgEntry."Posting Date" := PostingDate2;
@@ -2063,7 +2069,27 @@ report 595 "Adjust Exchange Rates"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPostReport(ExchRateAdjReg: Record "Exch. Rate Adjmt. Reg."; PostingDate: Date);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCustomerAfterGetRecordOnAfterFindCustLedgerEntriesToAdjust(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustCustomerLedgerEntryOnBeforeInitDtldCustLedgEntry(var Customer: Record Customer; CusLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustVendorLedgerEntryOnBeforeInitDtldVendLedgEntry(var Vendor: Record Vendor; VendLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenPage(var AdjCustVendBank: Boolean; var AdjGLAcc: Boolean; var PostingDocNo: Code[20])
     begin
     end;
 

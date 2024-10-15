@@ -274,9 +274,9 @@
                 if (Quantity * xRec.Quantity < 0) or (Quantity = 0) then
                     InitItemAppl(false);
 
+                if xRec.Quantity <> Quantity then
+                    PlanPriceCalcByField(FieldNo(Quantity));
                 if Type = Type::Item then begin
-                    if xRec.Quantity <> Quantity then
-                        PlanPriceCalcByField(FieldNo(Quantity));
                     WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
                     UpdateReservation(FieldNo(Quantity));
                     UpdateWithWarehouseShip;
@@ -1074,13 +1074,7 @@
                 "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
                 "VAT Identifier" := VATPostingSetup."VAT Identifier";
                 "VAT Clause Code" := VATPostingSetup."VAT Clause Code";
-                case "VAT Calculation Type" of
-                    "VAT Calculation Type"::"Reverse Charge VAT",
-                  "VAT Calculation Type"::"Sales Tax":
-                        "VAT %" := 0;
-                    "VAT Calculation Type"::"Full VAT":
-                        TestField(Type, Type::Cost);
-                end;
+                CheckVATCalculationType(VATPostingSetup);
                 GetServHeader;
                 if ServHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
                     Validate("Unit Price",
@@ -2775,9 +2769,11 @@
 
         IsHandled := false;
         OnCheckItemAvailableOnBeforeCheckNonStock(Rec, CalledByFieldNo, IsHandled);
-        if not IsHandled then
-            if Nonstock then
-                exit;
+        if IsHandled then
+            exit;
+
+        if Nonstock then
+            exit;
         if not ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) then
             exit;
 
@@ -2932,6 +2928,24 @@
         ItemTrackingCode.Get(ReplacementItem."Item Tracking Code");
         if ItemTrackingCode."SN Specific Tracking" then
             Error(Text023);
+    end;
+
+    local procedure CheckVATCalculationType(VATPostingSetup: Record "VAT Posting Setup")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckVATCalculationType(Rec, VATPostingSetup, IsHandled);
+        if IsHandled then
+            exit;
+
+        case "VAT Calculation Type" of
+            "VAT Calculation Type"::"Reverse Charge VAT",
+            "VAT Calculation Type"::"Sales Tax":
+                "VAT %" := 0;
+            "VAT Calculation Type"::"Full VAT":
+                TestField(Type, Type::Cost);
+        end;
     end;
 
     local procedure TestQuantityPositive()
@@ -3704,6 +3718,13 @@
     procedure SetHideReplacementDialog(NewHideReplacementDialog: Boolean)
     begin
         HideReplacementDialog := NewHideReplacementDialog;
+
+        OnAfterSetHideReplacementDialog(Rec, HideReplacementDialog);
+    end;
+
+    procedure GetHideReplacementDialog(): Boolean
+    begin
+        exit(HideReplacementDialog);
     end;
 
     procedure CheckIfServItemReplacement(ComponentLineNo: Integer)
@@ -5557,12 +5578,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetHideReplacementDialog(var ServiceLine: Record "Service Line"; var HideReplacementDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; ServiceLine: Record "Service Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckVATCalculationType(var ServiceLine: Record "Service Line"; VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
     begin
     end;
 

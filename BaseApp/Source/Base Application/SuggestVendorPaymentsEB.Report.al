@@ -313,6 +313,7 @@
                         "Dimension Set ID" :=
                             DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
                     end;
+                    OnSetPaymJnlLineOnBeforePaymJnlLineInsert(PaymJnlLine, VendLedgEntry);
                     Insert;
                 end;
             end else begin
@@ -338,6 +339,11 @@
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeSuggestPayments(var Vendor: Record Vendor; var PaymentJournalLine: Record "Payment Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetPaymJnlLineOnBeforePaymJnlLineInsert(var PaymJnlLine : Record "Payment Journal Line"; VendorLedgEntry : Record "Vendor Ledger Entry")
     begin
     end;
 }

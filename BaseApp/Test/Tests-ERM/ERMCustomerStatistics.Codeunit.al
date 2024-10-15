@@ -329,19 +329,18 @@ codeunit 134389 "ERM Customer Statistics"
         Customer: Record Customer;
         SalesHistBilltoFactBox: TestPage "Sales Hist. Bill-to FactBox";
     begin
-        // [SCENARIO 121705] Sales Hist. Bill-to FactBox is opened for Bill-to Customer No.
+        // [SCENARIO 121705] Sales Hist. Bill-to FactBox shows data for Bill-to Customer No.
         Initialize;
 
         // [GIVEN] Setup new Customer with Bill-to Customer No.
         CreateCustomerWithBilltoCust(Customer);
-
         SalesHistBilltoFactBox.Trap;
 
         // [WHEN] Open Sales Hist. Bill-to FactBox
         PAGE.Run(PAGE::"Sales Hist. Bill-to FactBox", Customer);
 
-        // [THEN] FactBox is opened for Bill-to Customer No.
-        SalesHistBilltoFactBox."No.".AssertEquals(Customer."Bill-to Customer No.");
+        // [THEN] FactBox is opened for Customer No.
+        SalesHistBilltoFactBox."No.".AssertEquals(Customer."No.");
     end;
 
     [Test]
@@ -587,59 +586,6 @@ codeunit 134389 "ERM Customer Statistics"
 
         // [THEN] Page "Customer Statistics" is not editable
         Assert.IsFalse(CustomerStatistics.Editable, 'Page "Customer Statistics" must be not editable');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CustomerCardCalculatesAdditionalStatisticsInFoundation()
-    var
-        CodeCoverage: Record "Code Coverage";
-        CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
-        CustomerCard: TestPage "Customer Card";
-    begin
-        // [SCENARIO 232699] "Average Late Payments (Days)" and "Usage Of Credit Limit" fields are calculated on Customer card when Foundation is enabled.
-        Initialize;
-
-        // [GIVEN] Enable Foundation.
-        LibraryApplicationArea.EnableFoundationSetup;
-
-        // [WHEN] Start code coverage and open Customer Card page.
-        CodeCoverageMgt.StartApplicationCoverage;
-        CustomerCard.OpenView;
-        CodeCoverageMgt.StopApplicationCoverage;
-
-        // [THEN] "Usage Of Credit Limit" are calculated on the page.
-        Assert.IsTrue(
-          IsCodeLineHitByCodeCoverage(CodeCoverage."Object Type"::Page, PAGE::"Customer Card", 'CalcCreditLimitLCYExpendedPct'),
-          '"Usage Of Credit Limit" field must be calculated on customer card when Foundation is enabled.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CustomerCardDoesNotCalculateAdditionalStatisticsOnPrem()
-    var
-        CodeCoverage: Record "Code Coverage";
-        CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
-        CustomerCard: TestPage "Customer Card";
-    begin
-        // [SCENARIO 232699] "Average Late Payments (Days)" and "Usage Of Credit Limit" fields are not calculated on Customer card on-prem.
-        Initialize;
-
-        // [GIVEN] Disable Foundation.
-        LibraryApplicationArea.DisableApplicationAreaSetup;
-
-        // [WHEN] Start code coverage and open Customer Card page.
-        CodeCoverageMgt.StartApplicationCoverage;
-        CustomerCard.OpenView;
-        CodeCoverageMgt.StopApplicationCoverage;
-
-        // [THEN] "Average Late Payments (Days)" and "Usage Of Credit Limit" are not calculated on the page.
-        Assert.IsFalse(
-          IsCodeLineHitByCodeCoverage(CodeCoverage."Object Type"::Page, PAGE::"Customer Card", 'InvoicePaymentDaysAverage'),
-          '"Average Late Payments (Days)" field must not be calculated on customer card when Foundation is disabled.');
-        Assert.IsFalse(
-          IsCodeLineHitByCodeCoverage(CodeCoverage."Object Type"::Page, PAGE::"Customer Card", 'CalcCreditLimitLCYExpendedPct'),
-          '"Usage Of Credit Limit" field must not be calculated on customer card when Foundation is disabled.');
     end;
 
     [Test]

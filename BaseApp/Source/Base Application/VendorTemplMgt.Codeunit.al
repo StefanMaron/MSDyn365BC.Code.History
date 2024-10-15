@@ -1,4 +1,4 @@
-codeunit 1385 "Vendor Templ. Mgt."
+﻿codeunit 1385 "Vendor Templ. Mgt."
 {
     EventSubscriberInstance = StaticAutomatic;
 
@@ -70,6 +70,7 @@ codeunit 1385 "Vendor Templ. Mgt."
         Vendor."Block Payment Tolerance" := VendorTempl."Block Payment Tolerance";
         Vendor."Validate EU Vat Reg. No." := VendorTempl."Validate EU Vat Reg. No.";
         Vendor.Blocked := VendorTempl.Blocked;
+        OnApplyTemplateOnBeforeVendorModify(Vendor, VendorTempl);
         Vendor.Modify(true);
     end;
 
@@ -207,6 +208,11 @@ codeunit 1385 "Vendor Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyTemplateOnBeforeVendorModify(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
     begin
     end;
 

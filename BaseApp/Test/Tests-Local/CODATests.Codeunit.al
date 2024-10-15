@@ -797,6 +797,45 @@ codeunit 144006 "CODA Tests"
           CODAStatementLine, VendLedgerEntry.Amount, VendLedgerEntry.Amount, CODAStatementLine."Application Status"::Applied, 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnappliedAmountEqualsStatementAmountForIndirectlyAppliedLine()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        TransactionCoding: Record "Transaction Coding";
+        CODAStatementLine: Record "CODA Statement Line";
+        RelatedCODAStatementLine: Record "CODA Statement Line";
+    begin
+        // [FEATURE] [Apply] [Applies-to] [UT]
+        // [SCENARIO 375361] An "unapplied amount" equals the "statement amount for the indirectly applied statement line
+
+        Initialize();
+
+        // [GIVEN] CODA Statement line "X" has "Statement amount" = 100
+        LibraryCODAHelper.CreateVendorBankAccount(VendorBankAccount);
+        CreateCODAStatementLineWithStatementLineNo(
+          CODAStatementLine, VendorBankAccount."Bank Account No.", TransactionCoding."Account Type"::Vendor);
+        UpdateCODAStatementLine(
+          CODAStatementLine, WorkDate(), CODAStatementLine."Account Type"::Vendor,
+          LibraryRandom.RandDec(100, 2), CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID());
+
+        // [GIVEN] CODA Statement line "Y" with "Attached to Line No." = "X" and "Statement amount" = 200
+        RelatedCODAStatementLine := CODAStatementLine;
+        RelatedCODAStatementLine."Attached to Line No." := CODAStatementLine."Statement Line No.";
+        RelatedCODAStatementLine."Statement Line No." += 10000;
+        RelatedCODAStatementLine."Statement Amount" += LibraryRandom.RandDec(100, 2);
+        RelatedCODAStatementLine.Insert();
+
+        // [GIVEN] Change the Account No. in the line "X"
+        CODAStatementLine.Validate("Account No.", VendorBankAccount."Vendor No.");
+        CODAStatementLine.Modify(true);
+
+        // [THEN] The "application status" of the line "Y" is "Indirectly applied", the "Unapplied amount" = 200
+        RelatedCODAStatementLine.Find();
+        RelatedCODAStatementLine.TestField("Application Status", RelatedCODAStatementLine."Application Status"::"Indirectly applied");
+        RelatedCODAStatementLine.TestField("Unapplied Amount", RelatedCODAStatementLine."Statement Amount");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"CODA Tests");

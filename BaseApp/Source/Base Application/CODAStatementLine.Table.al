@@ -460,11 +460,9 @@ table 2000041 "CODA Statement Line"
                     if "Application Status" = "Application Status"::" " then begin
                         CODAStmtLine."Application Status" := "Application Status"::" ";
                         CODAStmtLine.Validate(Amount, 0);
-                        CODAStmtLine."Unapplied Amount" := CODAStmtLine."Statement Amount";
-                    end else begin
-                        CODAStmtLine."Unapplied Amount" := 0;
+                    end else
                         CODAStmtLine."Application Status" := "Application Status"::"Indirectly applied";
-                    end;
+                    CODAStmtLine."Unapplied Amount" := CODAStmtLine."Statement Amount";
                     CODAStmtLine."System-Created Entry" := false;
                     CODAStmtLine.Modify
                 until CODAStmtLine.Next = 0

@@ -282,7 +282,6 @@ table 8613 "Config. Package Table"
     protected var
         HideValidationDialog: Boolean;
 
-#pragma warning disable AS0022 // False positive due to a compiler bug fix
     [Scope('OnPrem')]
     procedure DeleteRelatedTables(PackageCode: Code[20]; TableID: Integer)
     var
@@ -320,7 +319,6 @@ table 8613 "Config. Package Table"
         ConfigLine.SetRange("Dimensions as Columns");
         ConfigLine.ModifyAll("Package Code", '');
     end;
-#pragma warning restore AS0022
 
     local procedure InitPackageFields(): Boolean
     var

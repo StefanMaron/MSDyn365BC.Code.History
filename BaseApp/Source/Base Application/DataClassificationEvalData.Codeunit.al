@@ -1394,6 +1394,7 @@
         SetTableFieldsToNormal(3903); // Database::"Reten. Pol. Allowed Table"
         SetTableFieldsToNormal(Database::"Feature Data Update Status");
         SetTableFieldsToNormal(Database::"Integration Management Setup");
+        SetTableFieldsToNormal(Database::"OData Initialized Status");
     end;
 
     procedure SetTableFieldsToNormal(TableNo: Integer)

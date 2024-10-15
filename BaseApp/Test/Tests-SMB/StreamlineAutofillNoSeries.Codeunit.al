@@ -16,6 +16,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTemplates: Codeunit "Library - Templates";
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
         isInitialized: Boolean;
         WrongNoSeriesCodeTxt: Label 'WRONG CODE';
         SalesSetupDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Reminder,FinChMemo;
@@ -1387,7 +1388,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         GoodNoSeriesCode: Code[20];
     begin
         GoodNoSeriesCode := CreateNonVisibleNoSeries(false);
-
+        DocumentNoVisibility.ClearState();
         with SalesReceivablesSetup do begin
             Get;
 
@@ -1429,7 +1430,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         GoodNoSeriesCode: Code[20];
     begin
         GoodNoSeriesCode := CreateNonVisibleNoSeries(false);
-
+        DocumentNoVisibility.ClearState();
         with PurchasesPayablesSetup do begin
             Get;
 
@@ -1682,6 +1683,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeries."Default Nos." := DefaultNos;
         NoSeries."Manual Nos." := not DefaultNos;
         NoSeries.Modify();
+        DocumentNoVisibility.ClearState();
     end;
 
     local procedure SetNoSeriesManualNos(NoSeriesCode: Code[20]; ManualNos: Boolean)
@@ -1692,6 +1694,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeries."Default Nos." := not ManualNos;
         NoSeries."Manual Nos." := ManualNos;
         NoSeries.Modify();
+        DocumentNoVisibility.ClearState();
     end;
 
     local procedure SetNoSeriesDateOrder(NoSeriesCode: Code[20]; DateOrder: Boolean)
@@ -1701,6 +1704,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeries.Get(NoSeriesCode);
         NoSeries."Date Order" := DateOrder;
         NoSeries.Modify();
+        DocumentNoVisibility.ClearState();
     end;
 
     local procedure SetSalesReceivablesSetup_CustomerNos(NoSeriesCode: Code[20])
@@ -1710,6 +1714,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Customer Nos." := NoSeriesCode;
         SalesReceivablesSetup.Modify();
+        DocumentNoVisibility.ClearState();
     end;
 
     local procedure SetPurchasesPayablesSetup_VendorNos(NoSeriesCode: Code[20])
@@ -1719,6 +1724,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Vendor Nos." := NoSeriesCode;
         PurchasesPayablesSetup.Modify();
+        DocumentNoVisibility.ClearState();
     end;
 
     local procedure SetInventorySetup_ItemNos(NoSeriesCode: Code[20])
@@ -1728,6 +1734,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         InventorySetup.Get();
         InventorySetup."Item Nos." := NoSeriesCode;
         InventorySetup.Modify();
+        DocumentNoVisibility.ClearState();
     end;
 
     local procedure SetInventorySetup_TransferOrderNos(NoSeriesCode: Code[20])
@@ -1737,6 +1744,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         InventorySetup.Get();
         InventorySetup."Transfer Order Nos." := NoSeriesCode;
         InventorySetup.Modify();
+        DocumentNoVisibility.ClearState();
     end;
 
     local procedure SetHumanResourcesSetup_EmployeeNos(NoSeriesCode: Code[20])
@@ -1746,6 +1754,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         HumanResourcesSetup.Get();
         HumanResourcesSetup."Employee Nos." := NoSeriesCode;
         HumanResourcesSetup.Modify();
+        DocumentNoVisibility.ClearState();
     end;
 }
 

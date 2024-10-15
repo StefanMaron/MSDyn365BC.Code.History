@@ -27,6 +27,7 @@ codeunit 1372 "Purchase Batch Post Mgt."
         BatchPostingMsg: Label 'Bacth posting of purchase documents.';
         ApprovalPendingErr: Label 'Cannot post purchase document no. %1 of type %2 because it is pending approval.', Comment = '%1 = Document No.; %2 = Document Type';
         ApprovalWorkflowErr: Label 'Cannot post purchase document no. %1 of type %2 due to the approval workflow.', Comment = '%1 = Document No.; %2 = Document Type';
+        ProcessBarMsg: Label 'Processing: @1@@@@@@@', Comment = '1 - overall progress';
 
     procedure RunBatch(var PurchaseHeader: Record "Purchase Header"; ReplacePostingDate: Boolean; PostingDate: Date; ReplaceDocumentDate: Boolean; CalcInvoiceDiscount: Boolean; Receive: Boolean; Invoice: Boolean)
     var
@@ -186,6 +187,94 @@ codeunit 1372 "Purchase Batch Post Mgt."
         ResultBatchProcessingMgt.SetParameter(ParameterId, ParameterValue);
     end;
 
+    local procedure ProcessBatchInBackground(var PurchaseHeader: Record "Purchase Header"; var SkippedRecordExists: Boolean)
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        PurchPostBatchviaJobQueue: Codeunit "Purch Post Batch via Job Queue";
+    begin
+        PrepareBatch(PurchaseHeader, JobQueueEntry, SkippedRecordExists);
+        PurchPostBatchviaJobQueue.EnqueuePurchaseBatch(PurchaseHeader, JobQueueEntry);
+    end;
+
+    local procedure PrepareBatch(var PurchaseHeader: Record "Purchase Header"; var JobQueueEntry: Record "Job Queue Entry"; var SkippedRecordExists: Boolean)
+    var
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        Window: Dialog;
+        BatchConfirm: Option;
+        DocCounter: array[2] of Integer;
+    begin
+        if PurchaseHeader.FindSet() then begin
+            if GuiAllowed then begin
+                DocCounter[1] := PurchaseHeader.Count;
+                Window.Open(ProcessBarMsg);
+            end;
+
+            repeat
+                if GuiAllowed then begin
+                    DocCounter[2] += 1;
+                    Window.Update(1, Round(DocCounter[2] / DocCounter[1] * 10000, 1));
+                end;
+
+                if CanProcessPurchaseHeader(PurchaseHeader) then begin
+                    PreparePurchaseHeader(PurchaseHeader, BatchConfirm);
+                    PrepareJobQueueEntry(JobQueueEntry);
+                    PurchaseHeader."Job Queue Entry ID" := JobQueueEntry.ID;
+                    PurchaseHeader."Job Queue Status" := PurchaseHeader."Job Queue Status"::"Scheduled for Posting";
+                    PurchaseHeader.Modify();
+                    Commit();
+                end else begin
+                    SkippedRecordExists := true;
+                    if GetLastErrorText <> '' then begin
+                        ErrorMessageManagement.LogError(PurchaseHeader.RecordId, GetLastErrorText, '');
+                        ClearLastError;
+                    end;
+                end;
+            until PurchaseHeader.Next() = 0;
+
+            if GuiAllowed then
+                Window.Close();
+        end;
+    end;
+
+    local procedure CanProcessPurchaseHeader(var PurchaseHeader: Record "Purchase Header"): Boolean
+    begin
+        if not CheckPurchaseHeaderJobQueueStatus(PurchaseHeader) then
+            exit(false);
+
+        if not CanPostDocument(PurchaseHeader) then
+            exit(false);
+
+        if not ReleasePurchaseHeader(PurchaseHeader) then
+            exit(false);
+
+        exit(true);
+    end;
+
+    [TryFunction]
+    local procedure CheckPurchaseHeaderJobQueueStatus(var PurchaseHeader: Record "Purchase Header")
+    begin
+        if not (PurchaseHeader."Job Queue Status" in [PurchaseHeader."Job Queue Status"::" ", PurchaseHeader."Job Queue Status"::Error]) then
+            PurchaseHeader.FieldError("Job Queue Status");
+    end;
+
+    local procedure ReleasePurchaseHeader(var PurchaseHeader: Record "Purchase Header"): Boolean
+    begin
+        if PurchaseHeader.Status = PurchaseHeader.Status::Open then
+            if not Codeunit.Run(Codeunit::"Release Purchase Document", PurchaseHeader) then
+                exit(false);
+        exit(true);
+    end;
+
+    local procedure PrepareJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+        if not IsNullGuid(JobQueueEntry.ID) then
+            exit;
+
+        Clear(JobQueueEntry);
+        JobQueueEntry.ID := CreateGuid();
+        JobQueueEntry.Insert(true);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, 1380, 'OnBeforeBatchProcessing', '', false, false)]
     local procedure PreparePurchaseHeaderOnBeforeBatchProcessing(var RecRef: RecordRef; var BatchConfirm: Option)
     var
@@ -243,6 +332,25 @@ codeunit 1372 "Purchase Batch Post Mgt."
     [IntegrationEvent(false, false)]
     local procedure OnRunBatchOnAfterAddParameters(var BatchProcessingMgt: Codeunit "Batch Processing Mgt.")
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Batch Processing Mgt.", 'OnIsPostWithJobQueueEnabled', '', false, false)]
+    local procedure OnIsPostWithJobQueueEnabledHandler(var Result: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        Result := PurchasesPayablesSetup."Post with Job Queue";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Batch Processing Mgt.", 'OnProcessBatchInBackground', '', false, false)]
+    local procedure OnProcessBatchInBackgroundHandler(var RecRef: RecordRef; var SkippedRecordExists: Boolean)
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        RecRef.SetTable(PurchaseHeader);
+        ProcessBatchInBackground(PurchaseHeader, SkippedRecordExists);
+        RecRef.GetTable(PurchaseHeader);
     end;
 }
 

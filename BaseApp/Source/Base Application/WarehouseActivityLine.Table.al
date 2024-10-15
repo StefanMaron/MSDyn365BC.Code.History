@@ -501,10 +501,7 @@ table 5767 "Warehouse Activity Line"
                 CheckBinInSourceDoc;
 
                 if "Bin Code" <> '' then
-                    if not "Assemble to Order" and ("Action Type" = "Action Type"::Take) then
-                        WMSMgt.FindBinContent("Location Code", "Bin Code", "Item No.", "Variant Code", "Zone Code")
-                    else
-                        WMSMgt.FindBin("Location Code", "Bin Code", "Zone Code");
+                    FindBinContent();
 
                 if "Bin Code" <> xRec."Bin Code" then begin
                     CheckInvalidBinCode;
@@ -526,10 +523,7 @@ table 5767 "Warehouse Activity Line"
                                     if BinType.Get(Bin."Bin Type Code") then
                                         BinType.TestField(Receive, false);
                                 GetLocation("Location Code");
-                                if Location."Directed Put-away and Pick" then
-                                    UOMCode := "Unit of Measure Code"
-                                else
-                                    UOMCode := WMSMgt.GetBaseUOM("Item No.");
+                                UOMCode := GetUOMCode();
                                 NewBinCode := "Bin Code";
                                 if BinContent.Get("Location Code", "Bin Code", "Item No.", "Variant Code", UOMCode) then begin
                                     if "Activity Type" in ["Activity Type"::Pick, "Activity Type"::"Invt. Pick", "Activity Type"::"Invt. Movement"] then
@@ -554,22 +548,11 @@ table 5767 "Warehouse Activity Line"
 
                                     if AvailableQtyBase < QtyAvailBase then
                                         QtyAvailBase := AvailableQtyBase;
+
+                                    OnValidateBinCodeOnAfterCalcQtyAvailBase(Rec, QtyAvailBase, NewBinCode);
                                 end;
 
-                                if (QtyAvailBase < "Qty. Outstanding (Base)") and not "Assemble to Order" then begin
-                                    if not
-                                       Confirm(
-                                         StrSubstNo(
-                                           Text012,
-                                           FieldCaption("Qty. Outstanding (Base)"), "Qty. Outstanding (Base)",
-                                           QtyAvailBase, BinContent.TableCaption, FieldCaption("Bin Code")),
-                                         false)
-                                    then
-                                        Error(Text006);
-
-                                    "Bin Code" := NewBinCode;
-                                    Modify;
-                                end;
+                                CheckExceedQtyAvailBase(BinContent, QtyAvailBase, NewBinCode);
                             end else begin
                                 if "Qty. to Handle" > 0 then
                                     CheckIncreaseCapacity(false);
@@ -934,6 +917,10 @@ table 5767 "Warehouse Activity Line"
                     Confirmed := ConfirmWhseActivLinesDeletionRecreate(WhseActivLine2, WhseWkshLine);
                 until (WhseActivLine2.Next = 0) or Confirmed;
 
+            OnDeleteRelatedWhseActivLinesOnBeforeConfirmWhseActivLinesDeletionOutOfBalance(WhseActivLine, CalledFromHeader, DeleteLineConfirmed);
+            if DeleteLineConfirmed then
+                exit;
+
             if (not CalledFromHeader) and ("Action Type" <> "Action Type"::" ") then begin
                 ConfirmWhseActivLinesDeletionOutOfBalance(WhseActivLine, WhseActivLine2, DeleteLineConfirmed);
                 if DeleteLineConfirmed then
@@ -1000,7 +987,7 @@ table 5767 "Warehouse Activity Line"
                     "Whse. Document Type"::Shipment:
                         begin
                             WhseShptLine.Get("Whse. Document No.", "Whse. Document Line No.");
-                            TestField("Bin Code", WhseShptLine."Bin Code");
+                            CheckBinCodeFromWhseShptLine(WhseShptLine);
                         end;
                     "Whse. Document Type"::"Internal Pick":
                         begin
@@ -1012,7 +999,7 @@ table 5767 "Warehouse Activity Line"
                             GetLocation("Location Code");
                             if Location."Directed Put-away and Pick" then begin
                                 ProdOrderCompLine.Get("Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
-                                TestField("Bin Code", ProdOrderCompLine."Bin Code");
+                                CheckBinCodeFromProdOrderCompLine(ProdOrderCompLine);
                             end;
                         end;
                     "Whse. Document Type"::Assembly:
@@ -1117,6 +1104,21 @@ table 5767 "Warehouse Activity Line"
                 Location.Get(LocationCode);
     end;
 
+    local procedure GetUOMCode() UOMCode: Code[10];
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetUOMCode(Rec, UOMCode, IsHandled);
+        if IsHandled then
+            exit(UOMCode);
+
+        if Location."Directed Put-away and Pick" then
+            UOMCode := "Unit of Measure Code"
+        else
+            UOMCode := WMSMgt.GetBaseUOM("Item No.");
+    end;
+
     local procedure CheckBin()
     var
         IsHandled: Boolean;
@@ -1161,6 +1163,55 @@ table 5767 "Warehouse Activity Line"
             Bin.CheckIncreaseBin(
               "Bin Code", "Item No.", "Qty. to Handle",
               DeductCubage, DeductWeight, Cubage, Weight, false, false);
+    end;
+
+    local procedure CheckExceedQtyAvailBase(BinContent: Record "Bin Content"; QtyAvailBase: Decimal; NewBinCode: Code[20])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckExceedQtyAvailBase(Rec, QtyAvailBase, NewBinCode, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (QtyAvailBase < "Qty. Outstanding (Base)") and not "Assemble to Order" then begin
+            if not
+               Confirm(
+                 StrSubstNo(
+                   Text012,
+                   FieldCaption("Qty. Outstanding (Base)"), "Qty. Outstanding (Base)",
+                   QtyAvailBase, BinContent.TableCaption, FieldCaption("Bin Code")),
+                 false)
+            then
+                Error(Text006);
+
+            "Bin Code" := NewBinCode;
+            Modify();
+        end;
+    end;
+
+    local procedure CheckBinCodeFromWhseShptLine(WhseShptLine: Record "Warehouse Shipment Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBinCodeFromWhseShptLine(Rec, WhseShptLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField("Bin Code", WhseShptLine."Bin Code");
+    end;
+
+    local procedure CheckBinCodeFromProdOrderCompLine(ProdOrderCompLine: Record "Prod. Order Component")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBinCodeFromProdOrderCompLine(Rec, ProdOrderCompLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField("Bin Code", ProdOrderCompLine."Bin Code");
     end;
 
     procedure SplitLine(var WhseActivLine: Record "Warehouse Activity Line")
@@ -1272,6 +1323,20 @@ table 5767 "Warehouse Activity Line"
                     "Location Code", "Item No.", "Variant Code", "Zone Code", WhseItemTrackingSetup, "Bin Code")
         end else
             BinCode := WMSMgt.BinLookUp("Location Code", "Item No.", "Variant Code", "Zone Code");
+    end;
+
+    local procedure FindBinContent()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindBinContent(Rec, IsHandled);
+        if IsHandled then
+            exit;
+        if not "Assemble to Order" and ("Action Type" = "Action Type"::Take) then
+            WMSMgt.FindBinContent("Location Code", "Bin Code", "Item No.", "Variant Code", "Zone Code")
+        else
+            WMSMgt.FindBin("Location Code", "Bin Code", "Zone Code");
     end;
 
     procedure UpdateBreakbulkQtytoHandle()
@@ -1501,11 +1566,7 @@ table 5767 "Warehouse Activity Line"
                 WhseDocType2 := WhseActivLine."Whse. Document Type";
             case WhseDocType2 of
                 WhseActivLine."Whse. Document Type"::Shipment:
-                    begin
-                        WhseItemTrkgLine.SetRange("Source Type", DATABASE::"Warehouse Shipment Line");
-                        WhseItemTrkgLine.SetRange("Source ID", WhseActivLine."Whse. Document No.");
-                        WhseItemTrkgLine.SetRange("Source Ref. No.", WhseActivLine."Whse. Document Line No.");
-                    end;
+                    SetWhseItemTrkgLineFiltersWhseShipment(WhseItemTrkgLine, WhseActivLine);
                 WhseActivLine."Whse. Document Type"::"Internal Pick":
                     begin
                         WhseItemTrkgLine.SetRange("Source Type", DATABASE::"Whse. Internal Pick Line");
@@ -1577,10 +1638,30 @@ table 5767 "Warehouse Activity Line"
         end;
     end;
 
+    local procedure SetWhseItemTrkgLineFiltersWhseShipment(var WhseItemTrkgLine: Record "Whse. Item Tracking Line"; WhseActivLine: Record "Warehouse Activity Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetWhseItemTrkgLineFiltersWhseShipment(Rec, WhseItemTrkgLine, WhseActivLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        WhseItemTrkgLine.SetRange("Source Type", DATABASE::"Warehouse Shipment Line");
+        WhseItemTrkgLine.SetRange("Source ID", WhseActivLine."Whse. Document No.");
+        WhseItemTrkgLine.SetRange("Source Ref. No.", WhseActivLine."Whse. Document Line No.");
+    end;
+
     procedure LookUpTrackingSummary(var WhseActivLine: Record "Warehouse Activity Line"; SearchForSupply: Boolean; SignFactor: Integer; TrackingType: Enum "Item Tracking Type")
     var
         TempTrackingSpecification: Record "Tracking Specification" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookUpTrackingSummary(WhseActivLine, TrackingType, IsHandled);
+        if IsHandled then
+            exit;
+
         InitTrackingSpecFromWhseActivLine(TempTrackingSpecification, WhseActivLine);
         TempTrackingSpecification."Quantity (Base)" := WhseActivLine."Qty. Outstanding (Base)";
         TempTrackingSpecification."Qty. to Handle" := WhseActivLine."Qty. Outstanding";
@@ -1996,7 +2077,13 @@ table 5767 "Warehouse Activity Line"
         WhseActivLine: Record "Warehouse Activity Line";
         Location: Record Location;
         Direction: Text[1];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckInvalidBinCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Location.Get("Location Code");
         if ("Action Type" = 0) or (not Location."Bin Mandatory") then
             exit;
@@ -2690,6 +2777,26 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckExceedQtyAvailBase(var WarehouseActivityLine: Record "Warehouse Activity Line"; QtyAvailBase: Decimal; NewBinCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBinCodeFromProdOrderCompLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderCompLine: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBinCodeFromWhseShptLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WhseShptLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckInvalidBinCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckLine(WhseActivLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
@@ -2740,7 +2847,17 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindBinContent(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFindLotNoBySerialNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUOMCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var UOMCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 
@@ -2750,7 +2867,17 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookUpTrackingSummary(WhseActivLine: Record "Warehouse Activity Line"; TrackingType: Enum "Item Tracking Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyOldWhseActivLine(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetWhseItemTrkgLineFiltersWhseShipment(var WarehouseActivityLine: Record "Warehouse Activity Line"; var WhseItemTrkgLine: Record "Whse. Item Tracking Line"; WhseActivLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2795,6 +2922,11 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateBinCodeOnAfterCalcQtyAvailBase(var WarehouseActivityLine: Record "Warehouse Activity Line"; QtyAvailBase: Decimal; NewBinCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterValidateUoMCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; Item: Record Item; CurrentFieldNo: Integer)
     begin
     end;
@@ -2831,6 +2963,11 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteRelatedWhseActivLinesOnBeforeWhseActivLine2Find(var WhseActivLine: Record "Warehouse Activity Line"; var WhseActivLine2: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteRelatedWhseActivLinesOnBeforeConfirmWhseActivLinesDeletionOutOfBalance(WhseActivLine: record "Warehouse Activity Line"; CalledFromHeader: Boolean; var DeleteLineConfirmed: Boolean)
     begin
     end;
 

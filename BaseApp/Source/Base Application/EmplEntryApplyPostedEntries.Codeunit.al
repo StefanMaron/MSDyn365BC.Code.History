@@ -1,4 +1,4 @@
-codeunit 224 "EmplEntry-Apply Posted Entries"
+﻿codeunit 224 "EmplEntry-Apply Posted Entries"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Employee Ledger Entry" = rimd,
@@ -314,6 +314,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
             GenJnlLine."Source Currency Code" := "Currency Code";
             GenJnlLine."System-Created Entry" := true;
             Window.Open(UnapplyingMsg);
+            OnPostUnApplyEmployeeOnBeforeGenJnlPostLineUnapplyEmplLedgEntry(GenJnlLine, EmplLedgEntry, DtldEmplLedgEntry2, GenJnlPostLine);
             GenJnlPostLine.UnapplyEmplLedgEntry(GenJnlLine, DtldEmplLedgEntry2);
 
             if PreviewMode then
@@ -471,6 +472,11 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostUnApplyEmployeeOnAfterGetEmplLedgEntry(var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry"; var EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUnApplyEmployeeOnBeforeGenJnlPostLineUnapplyEmplLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; EmplLedgerEntry: Record "Employee Ledger Entry"; DetailedEmplLedgEntry: Record "Detailed Employee Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 }
