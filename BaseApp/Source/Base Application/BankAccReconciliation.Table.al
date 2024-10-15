@@ -296,11 +296,14 @@ table 273 "Bank Acc. Reconciliation"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
+        // we must only reset the ledger entries for bank reconciliations
+        if ("Bank Account No." <> '') and ("Statement No." <> '') then begin
+            BankAccountLedgerEntry.ResetStatementFields("Bank Account No.", "Statement No.", "Statement Type");
+            CheckLedgerEntry.ResetStatementFields("Bank Account No.", "Statement No.", "Statement Type");
+        end;
+
         if BankAccReconLine.LinesExist(Rec) then
             BankAccReconLine.DeleteAll(true);
-
-        BankAccountLedgerEntry.ResetStatementFields("Bank Account No.", "Statement No.");
-        CheckLedgerEntry.ResetStatementFields("Bank Account No.", "Statement No.");
     end;
 
     trigger OnInsert()

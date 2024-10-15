@@ -6,6 +6,7 @@ codeunit 7204 "CDS Setup Defaults"
     end;
 
     var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMProductName: Codeunit "CRM Product Name";
         JobQueueCategoryLbl: Label 'BCI INTEG', Locked = true;
         CustomerTableMappingNameTxt: Label 'CUSTOMER', Locked = true;
@@ -750,13 +751,22 @@ codeunit 7204 "CDS Setup Defaults"
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
-        // Code > CurrencySymbol
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          Currency.FieldNo(Code),
-          CRMTransactioncurrency.FieldNo(CurrencySymbol),
-          IntegrationFieldMapping.Direction::ToIntegrationTable,
-          '', true, false);
+        if CRMIntegrationManagement.IsCurrencySymbolMappingEnabled() then
+            // Symbol > CurrencySymbol
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              Currency.FieldNo(Symbol),
+              CRMTransactioncurrency.FieldNo(CurrencySymbol),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              '', true, false)
+        else
+            // Code > CurrencySymbol
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              Currency.FieldNo(Code),
+              CRMTransactioncurrency.FieldNo(CurrencySymbol),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              '', true, false);
 
         // Description > CurrencyName
         InsertIntegrationFieldMapping(

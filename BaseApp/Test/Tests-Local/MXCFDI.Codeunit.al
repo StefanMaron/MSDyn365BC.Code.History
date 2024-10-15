@@ -3116,18 +3116,18 @@ codeunit 144001 "MX CFDI"
         SalesLine."Amount Including VAT" := SalesLine.Amount * (1 + SalesLine."VAT %" / 100);
         SalesLineDisc."Amount Including VAT" := SalesLineDisc.Amount * (1 + SalesLineDisc."VAT %" / 100);
         LineDiscExclVAT :=
-          Round(SalesLineDisc."Line Discount Amount" / (1 + SalesLineDisc."VAT %" / 100), Currency."Amount Rounding Precision");
+          Round(UnitPrice * SalesLineDisc.Quantity * SalesLineDisc."Line Discount %" / 100, Currency."Amount Rounding Precision");
         VerifyRootNodeTotals(
           OriginalStr,
-          SalesInvoiceHeader."Amount Including VAT", UnitPrice * (SalesLine.Quantity + SalesLineDisc.Quantity),
+          SalesInvoiceHeader."Amount Including VAT", SalesInvoiceHeader.Amount + LineDiscExclVAT,
           LineDiscExclVAT);
 
         // [THEN] 'Concepto' node for discount line has 'Descuento' = 140, Importe = 2000, 'ValorUnitario' = 1000
         // [THEN] 'Traslado' node for discount line has 'Importe' = 279 (2300 - 1860 -161), 'Base' = 1860 (2000 - 140)
         VerifyLineAmountsByIndex(
           LineDiscExclVAT, UnitPrice * SalesLineDisc.Quantity, UnitPrice,
-          SalesLineDisc."Amount Including VAT" - SalesLineDisc.Quantity * UnitPrice + LineDiscExclVAT,
-          UnitPrice * SalesLineDisc.Quantity - LineDiscExclVAT, 0);
+          SalesLineDisc."Amount Including VAT" - SalesLineDisc.Amount,
+          SalesLineDisc.Amount, 0);
         // [THEN] 'Concepto' node for normal line has 'Descuento' = 0, Importe = 3000, 'ValorUnitario' = 1000
         // [THEN] 'Traslado' node for normal line has 'Importe' = 450 (3450 - 3000), 'Base' = 3000        VerifyLineAmountsByIndex(
         VerifyLineAmountsByIndex(
@@ -3198,18 +3198,18 @@ codeunit 144001 "MX CFDI"
         ServiceLine."Amount Including VAT" := ServiceLine.Amount * (1 + ServiceLine."VAT %" / 100);
         ServiceLineDisc."Amount Including VAT" := ServiceLineDisc.Amount * (1 + ServiceLineDisc."VAT %" / 100);
         LineDiscExclVAT :=
-          Round(ServiceLineDisc."Line Discount Amount" / (1 + ServiceLineDisc."VAT %" / 100), Currency."Amount Rounding Precision");
+          Round(UnitPrice * ServiceLineDisc.Quantity * ServiceLineDisc."Line Discount %" / 100, Currency."Amount Rounding Precision");
         VerifyRootNodeTotals(
           OriginalStr,
-          ServiceInvoiceHeader."Amount Including VAT", UnitPrice * (ServiceLine.Quantity + ServiceLineDisc.Quantity),
+          ServiceInvoiceHeader."Amount Including VAT", ServiceInvoiceHeader.Amount + LineDiscExclVAT,
           LineDiscExclVAT);
 
         // [THEN] 'Concepto' node for discount line has 'Descuento' = 140, Importe = 2000, 'ValorUnitario' = 1000
         // [THEN] 'Traslado' node for discount line has 'Importe' = 279 (2300 - 1860 -161), 'Base' = 1860 (2000 - 140)
         VerifyLineAmountsByIndex(
           LineDiscExclVAT, UnitPrice * ServiceLineDisc.Quantity, UnitPrice,
-          ServiceLineDisc."Amount Including VAT" - ServiceLineDisc.Quantity * UnitPrice + LineDiscExclVAT,
-          UnitPrice * ServiceLineDisc.Quantity - LineDiscExclVAT, 0);
+          ServiceLineDisc."Amount Including VAT" - ServiceLineDisc.Amount,
+          ServiceLineDisc.Amount, 0);
         // [THEN] 'Concepto' node for normal line has 'Descuento' = 0, Importe = 3000, 'ValorUnitario' = 1000
         // [THEN] 'Traslado' node for normal line has 'Importe' = 450 (3450 - 3000), 'Base' = 3000        VerifyLineAmountsByIndex(
         VerifyLineAmountsByIndex(
@@ -5611,7 +5611,7 @@ codeunit 144001 "MX CFDI"
     local procedure VerifyLineAmountsByIndex(DiscountAmount: Decimal; LineAmount: Decimal; UnitPrice: Decimal; VATAmount: Decimal; VATBase: Decimal; Index: Integer)
     begin
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Conceptos/cfdi:Concepto', 'Descuento', FormatDecimal(DiscountAmount, 2), Index);
+          'cfdi:Conceptos/cfdi:Concepto', 'Descuento', FormatDecimal(DiscountAmount, 6), Index);
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Conceptos/cfdi:Concepto', 'Importe', FormatDecimal(LineAmount, 6), Index);
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(

@@ -71,7 +71,7 @@ codeunit 139026 "Test Job Queue"
         Assert.IsTrue(JobQueueLogEntry.FindFirst, 'Cannot find log entry for job ' + Format(JobQueueEntryID));
         Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntry.Status, 'Unexpected status in the log');
         Assert.AreEqual('TEST', JobQueueLogEntry."Job Queue Category Code", 'Unexpected category in the log');
-        Assert.AreEqual(UserId, JobQueueLogEntry."Processed by User ID", 'Unexpected userid in the log');
+        Assert.AreEqual(UserId, JobQueueLogEntry."User ID", 'Unexpected userid in the log');
     end;
 
     [Test]
@@ -360,7 +360,7 @@ codeunit 139026 "Test Job Queue"
         Assert.IsTrue(JobQueueLogEntry.FindFirst, 'Cannot find log entry for job ' + Format(JobQueueEntryID));
         Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntry.Status, 'Unexpected status in the log');
         Assert.AreEqual('TEST', JobQueueLogEntry."Job Queue Category Code", 'Unexpected category in the log');
-        Assert.AreEqual(UserId, JobQueueLogEntry."Processed by User ID", 'Unexpected userid in the log');
+        Assert.AreEqual(UserId, JobQueueLogEntry."User ID", 'Unexpected userid in the log');
     end;
 
     [Test]
@@ -389,7 +389,7 @@ codeunit 139026 "Test Job Queue"
         Assert.IsTrue(JobQueueLogEntry.FindFirst, 'Cannot find log entry for job ' + Format(JobQueueEntryID));
         Assert.AreEqual(JobQueueLogEntry.Status::Success, JobQueueLogEntry.Status, 'Unexpected status in the log');
         Assert.AreEqual('TEST', JobQueueLogEntry."Job Queue Category Code", 'Unexpected category in the log');
-        Assert.AreEqual(UserId, JobQueueLogEntry."Processed by User ID", 'Unexpected userid in the log');
+        Assert.AreEqual(UserId, JobQueueLogEntry."User ID", 'Unexpected userid in the log');
     end;
 
     [Test]

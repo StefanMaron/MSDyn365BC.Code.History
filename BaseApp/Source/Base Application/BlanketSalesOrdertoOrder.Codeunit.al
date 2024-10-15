@@ -250,6 +250,7 @@ codeunit 87 "Blanket Sales Order to Order"
                 SalesOrderHeader."Posting Date" := WorkDate;
 
             SalesOrderHeader.InitFromSalesHeader(SalesHeader);
+            OnCreateSalesHeaderOnAfterSalesOrderHeaderInitFromSalesHeader(SalesHeader, HideValidationDialog);
             SalesOrderHeader.Validate("Posting Date");
             SalesOrderHeader."Outbound Whse. Handling Time" := "Outbound Whse. Handling Time";
             SalesOrderHeader.Reserve := Reserve;
@@ -335,18 +336,18 @@ codeunit 87 "Blanket Sales Order to Order"
                         end;
 
                         if not HideValidationDialog then
-                            CheckSalesLineItemAvailability();
+                            CheckSalesLineItemAvailability(BlanketOrderSalesHeader);
                     end;
                 until Next() = 0;
         end;
     end;
 
-    local procedure CheckSalesLineItemAvailability()
+    local procedure CheckSalesLineItemAvailability(BlanketOrderSalesHeader: Record "Sales Header")
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckSalesLineItemAvailability(SalesLine, IsHandled);
+        OnBeforeCheckSalesLineItemAvailability(SalesLine, IsHandled, BlanketOrderSalesHeader);
         if IsHandled then
             exit;
 
@@ -406,7 +407,7 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckSalesLineItemAvailability(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckSalesLineItemAvailability(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; BlanketOrderSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -432,6 +433,11 @@ codeunit 87 "Blanket Sales Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReserveItemsManuallyLoop(var SalesHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; var SuppressCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesHeaderOnAfterSalesOrderHeaderInitFromSalesHeader(var SalesHeader: Record "Sales Header"; HideValidationDialog: Boolean)
     begin
     end;
 

@@ -104,6 +104,7 @@ codeunit 10120 "Bank Rec.-Post"
             BankAccount.Get("Bank Account No.");
             BankAccount."Last Statement No." := "Statement No.";
             BankAccount."Balance Last Statement" := "Statement Balance";
+            OnRunOnBeforeBankAccountModify(BankAccount, BankRecHeader, PostedBankRecHeader);
             BankAccount.Modify();
 
             Delete;
@@ -364,6 +365,11 @@ codeunit 10120 "Bank Rec.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostAdjustmentToGL(var BankRecLine2: Record "Bank Rec. Line"; var BankRecHeader: Record "Bank Rec. Header"; var BankRecLine: Record "Bank Rec. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeBankAccountModify(var BankAccount: Record "Bank Account"; BankRecHeader: Record "Bank Rec. Header"; var PostedBankRecHeader: Record "Posted Bank Rec. Header");
     begin
     end;
 

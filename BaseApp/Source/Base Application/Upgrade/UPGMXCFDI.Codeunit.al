@@ -7,7 +7,12 @@ codeunit 104151 "UPG. MX CFDI"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+         
         UpdateSATCatalogs;
         UpdateCFDIFields;
         UpdateCFDIEnabled();

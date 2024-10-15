@@ -1,4 +1,4 @@
-codeunit 134385 "ERM Sales Document"
+﻿codeunit 134385 "ERM Sales Document"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Cust. Ledger Entry" = rimd,
@@ -2244,7 +2244,6 @@ codeunit 134385 "ERM Sales Document"
         SalesHeader.TestField("Location Code", Customer."Location Code");
     end;
 
-#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure TestGLSplitByAditionalGroupingIdentifer()
@@ -2261,7 +2260,6 @@ codeunit 134385 "ERM Sales Document"
 
         // Exercise
         BindSubscription(ERMSalesDocument); // set Additional Grouping Identifier
-        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
 
         // Verify
@@ -2269,35 +2267,7 @@ codeunit 134385 "ERM Sales Document"
         GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
         Assert.AreEqual(3, GLEntry.Count, 'wrong number of entries');
     end;
-#endif
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestGLSplitByAditionalGroupingIdentiferV19()
-    var
-        SalesHeader: Record "Sales Header";
-        GLEntry: Record "G/L Entry";
-        ERMSalesDocument: Codeunit "ERM Sales Document";
-    begin
-        // [FEATURE] [Sales]
-        // [SCENARIO] A subscriber can set the Additional Grouping Identifier to split G/L posting by line.
-        Initialize();
-        // Setup
-        CreateSalesInvoiceWithDuplicateLine(SalesHeader);
-
-        // Exercise
-        BindSubscription(ERMSalesDocument); // set Additional Grouping Identifier
-        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (v.19)");
-        CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
-        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
-
-        // Verify
-        GLEntry.FindLast();
-        GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
-        Assert.AreEqual(3, GLEntry.Count, 'wrong number of entries');
-    end;
-
-#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure TestGLCombineByAditionalGroupingIdentifer()
@@ -2313,37 +2283,10 @@ codeunit 134385 "ERM Sales Document"
         CreateSalesInvoiceWithDuplicateLine(SalesHeader);
 
         // Exercise
-        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
 
         // Verify
         GLEntry.FindLast;
-        GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
-        Assert.AreEqual(2, GLEntry.Count, 'wrong number of entries');
-    end;
-#endif
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestGLCombineByAditionalGroupingIdentiferV19()
-    var
-        SalesHeader: Record "Sales Header";
-        GLEntry: Record "G/L Entry";
-        ERMSalesDocument: Codeunit "ERM Sales Document";
-    begin
-        // [FEATURE] [Sales]
-        // [SCENARIO] When the Additional Grouping Identifier is not set, lines are not split when posting to G/L.
-        Initialize();
-        // Setup
-        CreateSalesInvoiceWithDuplicateLine(SalesHeader);
-
-        // Exercise
-        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (v.19)");
-        CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
-        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
-
-        // Verify
-        GLEntry.FindLast();
         GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
         Assert.AreEqual(2, GLEntry.Count, 'wrong number of entries');
     end;
@@ -2817,7 +2760,6 @@ codeunit 134385 "ERM Sales Document"
         VerifyGLEntriesDescription(TempSalesLine, InvoiceNo);
     end;
 
-#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure ExtendCopyDocumentLineDescriptionToGLEntry()
@@ -2841,40 +2783,7 @@ codeunit 134385 "ERM Sales Document"
         CreateSalesOrderWithUniqueDescriptionLines(SalesHeader, TempSalesLine, TempSalesLine.Type::Item);
 
         // [WHEN] Sales order is being posted
-        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, TRUE, TRUE);
-
-        // [THEN] G/L entries created with descriptions "Descr1" - "Descr5"
-        VerifyGLEntriesDescription(TempSalesLine, InvoiceNo);
-    end;
-#endif
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ExtendCopyDocumentLineDescriptionToGLEntryV19()
-    var
-        SalesHeader: Record "Sales Header";
-        TempSalesLine: Record "Sales Line" temporary;
-        ERMSalesDocument: Codeunit "ERM Sales Document";
-        InvoiceNo: Code[20];
-    begin
-        // [FEATURE] [G/L Entry] [Description] [Event]
-        // [SCENARIO 300843] Event in table InvoicePostingBuffer can be used to copy document line Description to G/L entry for Item type
-        Initialize;
-
-        // [GIVEN] Subscribe on InvoicePostBuffer.OnAfterInvPostBufferPrepareSales
-        BINDSUBSCRIPTION(ERMSalesDocument);
-
-        // [GIVEN] Set SalesSetup."Copy Line Descr. to G/L Entry" = "No"
-        SetSalesSetupCopyLineDescrToGLEntry(FALSE);
-
-        // [GIVEN] Create sales order with 5 "Item" type sales lines with unique descriptions "Descr1" - "Descr5"
-        CreateSalesOrderWithUniqueDescriptionLines(SalesHeader, TempSalesLine, TempSalesLine.Type::Item);
-
-        // [WHEN] Sales order is being posted
-        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (v.19)");
-        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, TRUE, TRUE);
-        SetInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
 
         // [THEN] G/L entries created with descriptions "Descr1" - "Descr5"
         VerifyGLEntriesDescription(TempSalesLine, InvoiceNo);
@@ -4318,15 +4227,6 @@ codeunit 134385 "ERM Sales Document"
         OldDateOrder := NoSeries."Date Order";
         NoSeries.Validate("Date Order", DateOrder);
         NoSeries.Modify(true);
-    end;
-
-    local procedure SetInvoicePosting(InvoicePosting: Enum "Sales Invoice Posting")
-    var
-        SalesSetup: Record "Sales & Receivables Setup";
-    begin
-        SalesSetup.Get();
-        SalesSetup.Validate("Invoice Posting Setup", InvoicePosting);
-        SalesSetup.Modify();
     end;
 
     local procedure UpdateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup"; AccountNo: Code[20])

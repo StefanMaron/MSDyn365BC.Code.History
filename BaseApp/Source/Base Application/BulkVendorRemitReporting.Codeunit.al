@@ -80,6 +80,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
             ClearDocNoPreview(GenJournalLineRecRef);
 
         // Run reports
+        CustomLayoutReporting.SetRunReportOncePerFilter(true);
         CustomLayoutReporting.SetOutputFileBaseName('Remittance Advice');
         CustomLayoutReporting.ProcessReport;
 
@@ -310,11 +311,11 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
             if BankAccountIs = BankAccountIs::Acnt then begin
                 "Bal. Account Type" := GenJournalLine."Bal. Account Type";
                 "Bal. Account No." := GenJournalLine."Bal. Account No.";
-                Amount := -GenJournalLine."Amount (LCY)";
+                Amount := -GenJournalLine.Amount;
             end else begin
                 "Bal. Account Type" := GenJournalLine."Account Type";
                 "Bal. Account No." := GenJournalLine."Account No.";
-                Amount := GenJournalLine."Amount (LCY)";
+                Amount := GenJournalLine.Amount;
             end;
         end;
         CheckManagement.InsertCheck(CheckLedgerEntry, GenJournalLine.RecordId);

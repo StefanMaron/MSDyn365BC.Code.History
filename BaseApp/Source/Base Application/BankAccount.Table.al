@@ -84,6 +84,11 @@ table 270 "Bank Account"
         field(13; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+
+            trigger OnValidate()
+            begin
+                OnValidateBankAccount(Rec, 'Bank Account No.');
+            end;
         }
         field(14; "Transit No."; Text[20])
         {
@@ -426,6 +431,11 @@ table 270 "Bank Account"
         field(101; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
+
+            trigger OnValidate()
+            begin
+                OnValidateBankAccount(Rec, 'Bank Branch No.');
+            end;
         }
         field(102; "E-Mail"; Text[80])
         {
@@ -950,6 +960,7 @@ table 270 "Bank Account"
         OnlineMapSetup: Record "Online Map Setup";
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
+        OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst then
             OnlineMapManagement.MakeSelection(DATABASE::"Bank Account", GetPosition)
         else
@@ -997,7 +1008,14 @@ table 270 "Bank Account"
     end;
 
     procedure GetBankAccountNo(): Text
+    var
+        Handled: Boolean;
+        ResultBankAccountNo: Text;
     begin
+        OnGetBankAccount(Handled, Rec, ResultBankAccountNo);
+
+        if Handled then exit(ResultBankAccountNo);
+
         if IBAN <> '' then
             exit(DelChr(IBAN, '=<>'));
 
@@ -1457,6 +1475,16 @@ table 270 "Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunContactListPage(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBankAccount(var BankAccount: Record "Bank Account"; FieldToValidate: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBankAccount(var Handled: Boolean; BankAccount: Record "Bank Account"; var ResultBankAccountNo: Text)
     begin
     end;
 }

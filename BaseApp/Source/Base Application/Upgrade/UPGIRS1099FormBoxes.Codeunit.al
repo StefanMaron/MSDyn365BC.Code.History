@@ -7,7 +7,12 @@ codeunit 104150 "UPG. IRS 1099 Form Boxes"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+         
         RunIRS1099DIV2018Changes;
     end;
 

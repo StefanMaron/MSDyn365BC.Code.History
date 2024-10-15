@@ -127,6 +127,9 @@ codeunit 139194 "CDS Connection Wizard Tests"
 
         // [GIVEN] Second page of Wizard is opened
         CDSConnectionSetupWizard.ActionNext.Invoke();
+        CDSConnectionSetupWizard.Consent.SetValue(true);
+        CDSConnectionSetupWizard.ActionNext.Invoke();
+
         Assert.IsTrue(
           CDSConnectionSetupWizard."Redirect URL".Visible(),
           StrSubstNo(ShouldBeErr, CDSConnectionSetupWizard."Redirect URL".Caption(), VisibleTxt));
