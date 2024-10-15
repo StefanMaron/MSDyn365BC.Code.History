@@ -19,4 +19,8 @@ enum 242 "VAT Reg. Log Details Status"
     {
         Caption = 'Partially Valid';
     }
+    value(4; Ignored)
+    {
+        Caption = 'Ignored';
+    }
 }

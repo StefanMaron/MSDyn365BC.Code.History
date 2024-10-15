@@ -2331,7 +2331,7 @@
             TempVATEntry."Add.-Currency Unrealized Amt." := 0;
             TempVATEntry."Add.-Currency Unrealized Base" := 0;
         end;
-        OnBeforeInsertTempVATEntry(TempVATEntry, GenJnlLine, VATEntry2);
+        OnBeforeInsertTempVATEntry(TempVATEntry, GenJnlLine, VATEntry2, VATAmount, VATBase);
         TempVATEntry.Insert();
     end;
 
@@ -6891,7 +6891,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertTempVATEntry(var TempVATEntry: Record "VAT Entry" temporary; GenJournalLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry")
+    local procedure OnBeforeInsertTempVATEntry(var TempVATEntry: Record "VAT Entry" temporary; GenJournalLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry"; VATAmount: Decimal; VATBase: Decimal)
     begin
     end;
 
