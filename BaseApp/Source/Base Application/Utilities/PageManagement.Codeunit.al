@@ -240,7 +240,7 @@ codeunit 700 "Page Management"
         exit(0);
     end;
 
-    local procedure GetSalesHeaderPageID(RecRef: RecordRef): Integer
+    local procedure GetSalesHeaderPageID(RecRef: RecordRef) Result: Integer
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -259,6 +259,7 @@ codeunit 700 "Page Management"
             SalesHeader."Document Type"::"Return Order":
                 exit(PAGE::"Sales Return Order");
         end;
+        OnAfterGetSalesHeaderPageID(RecRef, SalesHeader, Result);
     end;
 
     local procedure GetPurchaseHeaderPageID(RecRef: RecordRef) Result: Integer
@@ -536,6 +537,11 @@ codeunit 700 "Page Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPageID(var RecordRef: RecordRef; var PageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSalesHeaderPageID(RecRef: RecordRef; SalesHeader: Record "Sales Header"; var Result: Integer)
     begin
     end;
 

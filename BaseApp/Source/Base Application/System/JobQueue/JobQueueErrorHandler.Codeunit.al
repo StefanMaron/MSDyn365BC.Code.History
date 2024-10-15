@@ -10,18 +10,39 @@ codeunit 450 "Job Queue Error Handler"
 
     trigger OnRun()
     begin
-        if Rec.DoesExistLocked() then begin
+        if Rec."Job Queue Category Code" <> '' then
+            Rec.ActivateNextJobInCategoryIfAny();
+        if GetRecLockedExtendedTimeout(Rec) then begin
             Rec.Status := Rec.Status::Error;
             LogError(Rec);
-        end;
-        if Rec."Job Queue Category Code" <> '' then begin
-            Commit();
-            Rec.ActivateNextJobInCategory();
         end;
     end;
 
     var
         JobQueueContextTxt: Label 'Job Queue', Locked = true;
+
+    /// <summary>
+    /// Allow up to three lock time-outs = 90 seconds, because we see a number of lock timeouts
+    ///</summary>    
+    local procedure GetRecLockedExtendedTimeout(var JobQueueEntry: Record "Job Queue Entry"): Boolean
+    var
+        i: Integer;
+    begin
+        JobQueueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
+        if not JobQueueEntry.Find() then
+            exit(false);
+        JobQueueEntry.ReadIsolation(IsolationLevel::UpdLock);
+        for i := 1 to 3 do
+            if TryGetRecordLocked(JobQueueEntry) then
+                exit(true);
+        exit(false);
+    end;
+
+    [TryFunction]
+    local procedure TryGetRecordLocked(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+        JobQueueEntry.Find();
+    end;
 
     local procedure LogError(var JobQueueEntry: Record "Job Queue Entry")
     var
@@ -54,6 +75,8 @@ codeunit 450 "Job Queue Error Handler"
             JobQueueLogEntry."Error Message" := JobQueueEntry."Error Message";
             JobQueueLogEntry.SetErrorCallStack(GetLastErrorCallStack()); // Need to save callstack before deleted above
             JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
+            if JobQueueLogEntry."End Date/Time" = 0DT then
+                JobQueueLogEntry."End Date/Time" := CurrentDateTime();
             JobQueueLogEntry.Modify();
 #if CLEAN24
         end;
