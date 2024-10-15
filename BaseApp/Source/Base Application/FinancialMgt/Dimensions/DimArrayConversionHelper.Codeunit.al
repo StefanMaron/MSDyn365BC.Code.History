@@ -1,4 +1,30 @@
-#if not CLEAN20
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+#if not CLEAN23
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Assembly.Document;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.FixedAssets.Insurance;
+using Microsoft.FixedAssets.Journal;
+using Microsoft.Inventory.Counting.Document;
+using Microsoft.Inventory.Document;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Resources.Journal;
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using System.Environment;
+
 codeunit 488 "Dim. Array Conversion Helper"
 {
     SingleInstance = true;

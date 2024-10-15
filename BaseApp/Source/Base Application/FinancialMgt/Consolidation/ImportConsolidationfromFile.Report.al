@@ -1,3 +1,14 @@
+﻿namespace Microsoft.Finance.Consolidation;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using System.Environment;
+using System.IO;
+using System.Utilities;
+
 report 92 "Import Consolidation from File"
 {
     Caption = 'Import Consolidation from File';
@@ -7,7 +18,7 @@ report 92 "Import Consolidation from File"
     {
         dataitem("G/L Account"; "G/L Account")
         {
-            DataItemTableView = SORTING("No.") WHERE("Account Type" = CONST(Posting));
+            DataItemTableView = sorting("No.") where("Account Type" = const(Posting));
 
             trigger OnAfterGetRecord()
             begin

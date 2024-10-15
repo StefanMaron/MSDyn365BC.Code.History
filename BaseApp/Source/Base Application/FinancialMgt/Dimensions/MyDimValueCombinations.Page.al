@@ -1,3 +1,8 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Finance.Analysis;
+using Microsoft.Foundation.Enums;
+
 page 9252 "MyDim Value Combinations"
 {
     Caption = 'Dimension Value Combinations';

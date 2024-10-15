@@ -1,8 +1,59 @@
-#if not CLEAN21
+#if not CLEAN23
+namespace System.Security.AccessControl;
+
+using Microsoft.Assembly.Document;
+using Microsoft.CRM.Campaign;
+using Microsoft.Foundation.Company;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.Foundation.Address;
+using Microsoft.Sales.Customer;
+using System.Diagnostics;
+using Microsoft.Purchases.Payables;
+using Microsoft.Finance.Dimension;
+using System.Environment.Configuration;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Item;
+using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Item.Substitution;
+using Microsoft.CRM.Setup;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.CRM.Outlook;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Inventory.Planning;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Archive;
+using Microsoft.Purchases.Setup;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Setup;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Archive;
+using Microsoft.Service.Document;
+using System.Environment;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Purchases.Vendor;
+using System.Automation;
+using Microsoft.Foundation.Attachment;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.EServices.EDocument;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Utilities;
+
 permissionset 4785 "M365 COLLABORATION"
 {
     Assignable = true;
     Caption = 'Microsoft 365 Collaboration';
+    ObsoleteReason = 'No longer used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '23.0';
 
     IncludedPermissionSets = "BaseApp Objects - Exec",
                              "LOGIN";

@@ -885,12 +885,21 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     end;
 
     local procedure Initialize()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test SEPA PAIN 008.001.02");
         LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test SEPA PAIN 008.001.02");
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
 
         Clear(NameSpace);
         ExportFileName := TemporaryPath + CopyStr(Format(CreateGuid()), 2, 10) + '.xml';
@@ -1233,7 +1242,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
             "Run No." := LibraryUtility.GenerateGUID();
             "Line No." := 1;
             "Direct Debit Mandate ID" := DirectDebitMandate.ID;
-            "Sequence Type" := -1;
+            "Sequence Type" := "Sequence Type"::" ";
             Insert();
         end;
     end;

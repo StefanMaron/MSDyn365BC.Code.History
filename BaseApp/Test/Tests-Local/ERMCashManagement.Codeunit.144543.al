@@ -63,7 +63,7 @@ codeunit 144543 "ERM Cash Management"
     local procedure VerifyAccountNo(AccountNo: Text; ExpectedDesc: Text; IsAccountNoActual: Boolean; IsAccountNoExpected: Boolean)
     begin
         if not (AccountNo = ExpectedDesc) and (IsAccountNoActual = IsAccountNoExpected) then
-            Error(StrSubstNo(TelebankDescErr, AccountNo, ExpectedDesc));
+            Error(TelebankDescErr, AccountNo, ExpectedDesc);
     end;
 }
 

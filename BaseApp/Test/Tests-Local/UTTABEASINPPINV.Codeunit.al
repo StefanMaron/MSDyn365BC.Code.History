@@ -122,39 +122,6 @@ codeunit 144033 "UT TAB EASINPPINV"
         exit(PurchaseLine."VAT %");
     end;
 
-    local procedure CreatePurchaseDocumentWithTwoLinesNoVATSecondLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: array[2] of Record "Purchase Line"; DocumentType: Option)
-    var
-        VATPostingSetup: array[2] of Record "VAT Posting Setup";
-        VATProductPostingGroup: Record "VAT Product Posting Group";
-        GLAccount: Record "G/L Account";
-        LineAmount: Decimal;
-    begin
-        LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup[1], VATPostingSetup[1]."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 20));
-
-        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
-        LibraryERM.CreateVATPostingSetup(VATPostingSetup[2], VATPostingSetup[1]."VAT Bus. Posting Group", VATProductPostingGroup.Code);
-        VATPostingSetup[2].Validate("VAT Calculation Type", VATPostingSetup[2]."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup[2].Validate("VAT %", 0);
-        VATPostingSetup[2].Modify(true);
-
-        LineAmount := LibraryRandom.RandIntInRange(100, 200);
-
-        LibraryPurchase.CreatePurchHeader(
-          PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup[1]."VAT Bus. Posting Group"));
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine[1], PurchaseHeader, PurchaseLine[1].Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup[1], GLAccount."Gen. Posting Type"::Purchase), 1);
-        PurchaseLine[1].Validate("Direct Unit Cost", LineAmount);
-        PurchaseLine[1].Modify(true);
-
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup[2], GLAccount."Gen. Posting Type"::Purchase), 1);
-        PurchaseLine[2].Validate("Direct Unit Cost", -(LineAmount * (100 + VATPostingSetup[1]."VAT %") / 100 - 1));
-        PurchaseLine[2].Modify(true);
-    end;
-
     local procedure ValidateDocAmountVATPurchaseHeaderScenario(DocumentType: Option)
     var
         PurchaseHeader: Record "Purchase Header";

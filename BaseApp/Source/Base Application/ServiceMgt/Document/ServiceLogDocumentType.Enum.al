@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Document;
+
 enum 5914 "Service Log Document Type"
 {
     Extensible = true;

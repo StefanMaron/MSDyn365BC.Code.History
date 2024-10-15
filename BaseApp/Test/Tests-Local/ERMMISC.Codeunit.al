@@ -76,6 +76,7 @@ codeunit 144018 "ERM MISC"
         CreateAndPostServiceDocument(ServiceHeader."Document Type"::"Credit Memo");
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('OnPrem')]
@@ -111,6 +112,7 @@ codeunit 144018 "ERM MISC"
         FileInStream.ReadText(FileLine);
         Assert.AreEqual(GetExpectedVATRegNo, CopyStr(FileLine, 8, 12), '');
     end;
+#endif
 
     local procedure CreateAndPostServiceDocument(DocumentType: Enum "Service Document Type")
     var
@@ -378,6 +380,7 @@ codeunit 144018 "ERM MISC"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('OnPrem')]
@@ -774,46 +777,6 @@ codeunit 144018 "ERM MISC"
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatFormRPH')]
-    procedure IntrastatFormForCorrectionShipmentLine()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ItemNo: Code[20];
-    begin
-        // [FEATURE] [Intrastat] [Intrastat - Form] [Shipments] [Correction]
-        // [SCENARIO 394971] Report 501 "Intrastat - Form"  in case of correction for shipments
-        // [SCENARIO 395404] Quantity has been printed with negative sign
-        // [SCENARIO 396681] Total Weight and Statistical Amount have been printed with negative sign
-        // [SCENARIO 396680] Report 594 "Get Item Ledger Entries" creates "Receipt" intrastat journal line with negative amounts
-        Initialize();
-
-        // [GIVEN] Posted purchase return order
-        CreatePostPurchaseReturnOrderWithSingleLine(ItemNo);
-
-        // [GIVEN] Run "Suggest Lines" from intrastat journal page
-        RunSuggestLines(IntrastatJnlLine, ItemNo);
-        IntrastatJnlLine."Transaction Type" := LibraryUtility.GenerateGUID();
-        IntrastatJnlLine.Modify();
-
-        // [WHEN] Run "Intrastat - Form" report
-        RunIntrastatFormReport(IntrastatJnlLine, Format(IntrastatJnlLine.Type::Receipt));
-
-        // [THEN] "Receipt" line type has been printed
-        Assert.IsTrue(IntrastatJnlLine.Quantity < 0, 'expected Quantity < 0');
-        Assert.IsTrue(IntrastatJnlLine."Total Weight" < 0, 'expected Total Weight < 0');
-        Assert.IsTrue(IntrastatJnlLine."Statistical Value" < 0, 'expected Statistical Value < 0');
-
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('Type_IntraJnlLine', 'Receipt');
-        LibraryReportDataset.AssertElementWithValueExists('Quantity_IntraJnlLine', IntrastatJnlLine.Quantity); // TFS 395404
-        LibraryReportDataset.AssertElementWithValueExists('TotalWeight_IntraJnlLine', ROUND(IntrastatJnlLine."Total Weight", 1)); // TFS 396681
-        LibraryReportDataset.AssertElementWithValueExists('SubTotalWeight', ROUND(IntrastatJnlLine."Total Weight", 1)); // TFS 396681
-        LibraryReportDataset.AssertElementWithValueExists('StatisValue_IntraJnlLine', IntrastatJnlLine."Statistical Value"); // TFS 396681
-        LibraryReportDataset.AssertElementWithValueExists(
-            'IntraJnlLine_TransactionSpecification', IntrastatJnlLine."Transaction Specification"); // TFS 421239
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatFormRPH')]
     procedure IntrastatFormForCorrectionReceiptLine()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -986,17 +949,22 @@ codeunit 144018 "ERM MISC"
         VerifyTransactionAndPatnerIDInDeclarationFile(
           FileTempBlob, PadStr('', 17, ' '), '  ', '+');
     end;
+#endif
 
     local procedure Initialize()
+#if not CLEAN22
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
         IntrastatSetup: Record "Intrastat Setup";
+#endif        
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM MISC");
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
+#if not CLEAN22
         IntrastatSetup.DeleteAll();
         IntrastatJnlTemplate.DeleteAll(true);
+#endif
 
         if isInitialized then
             exit;
@@ -1004,7 +972,9 @@ codeunit 144018 "ERM MISC"
 
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+#if not CLEAN22
         SetIntrastatCodeOnCountryRegion();
+#endif
         LibrarySetupStorage.Save(DATABASE::"Company Information");
 
         isInitialized := true;
@@ -1028,6 +998,7 @@ codeunit 144018 "ERM MISC"
         exit(DeclarationString);
     end;
 
+#if not CLEAN22
     local procedure PrepareIntrastatJnlLineWithBlankedTransactionSpecification(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option)
     begin
         PrepareIntrastatJournalLine(IntrastatJnlLine, Type);
@@ -1045,6 +1016,7 @@ codeunit 144018 "ERM MISC"
           IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
         UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, Type);
     end;
+#endif
 
     local procedure CreateCBGStatementWithTemplate(GenJnlTemplateName: Code[10]): Integer
     var
@@ -1220,6 +1192,7 @@ codeunit 144018 "ERM MISC"
         end;
     end;
 
+#if not CLEAN22
     local procedure CreateIntrastatJournalTemplateAndBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; PostingDate: Date)
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -1237,6 +1210,7 @@ codeunit 144018 "ERM MISC"
         IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
         IntrastatJnlBatch.Modify(true);
     end;
+#endif
 
     local procedure CreatePaymentTerms(): Code[10]
     var
@@ -1431,6 +1405,7 @@ codeunit 144018 "ERM MISC"
         BankGiroJournal.Post.Invoke;
     end;
 
+#if not CLEAN22
     local procedure RunGetItemLedgerEntriesToCreateJnlLinesWithFutureDates(IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
     var
         IntrastatJournal: TestPage "Intrastat Journal";
@@ -1525,6 +1500,7 @@ codeunit 144018 "ERM MISC"
         IntrastatJnlLine."Partner VAT ID" := LibraryUtility.GenerateGUID();
         IntrastatJnlLine.Modify();
     end;
+#endif
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; Amount: Decimal)
     var
@@ -1538,7 +1514,7 @@ codeunit 144018 "ERM MISC"
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
     end;
 
-
+#if not CLEAN22
     local procedure RunIntrastatMakeDiskTaxAuth2022(var FileTempBlob: Codeunit "Temp Blob"; Counterparty: Boolean)
     var
         CreateIntrastatDeclDisk: Report "Create Intrastat Decl. Disk";
@@ -1583,6 +1559,7 @@ codeunit 144018 "ERM MISC"
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
         Assert.IsFalse(IntrastatJnlLine.IsEmpty, 'No Intrastat Journal Lines exist');
     end;
+#endif
 
     local procedure VerifyTransacModeCodeAndBankAccCodeInCustLedgEntry(ServiceHeader: Record "Service Header")
     var
@@ -1614,6 +1591,7 @@ codeunit 144018 "ERM MISC"
         Assert.ExpectedError(FieldName);
     end;
 
+#if not CLEAN22
     local procedure VerifyAdvanvedChecklistError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -1636,6 +1614,7 @@ codeunit 144018 "ERM MISC"
         ErrorMessage.FindFirst();
         Assert.ExpectedMessage(FieldName, ErrorMessage."Message");
     end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]
@@ -1645,6 +1624,7 @@ codeunit 144018 "ERM MISC"
         GenJournalTemplListCBG.OK.Invoke;
     end;
 
+#if not CLEAN22
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GetItemLedgerEntriesRequestPageHandler(var GetItemLedgerEntriesReqPage: TestRequestPage "Get Item Ledger Entries")
@@ -1659,6 +1639,7 @@ codeunit 144018 "ERM MISC"
         GetItemLedgerEntriesReqPage.IndirectCostPctReq.SetValue(0);
         GetItemLedgerEntriesReqPage.OK.Invoke;
     end;
+#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]
@@ -1682,6 +1663,7 @@ codeunit 144018 "ERM MISC"
         GLAccountWhereUsedList.OK.Invoke;
     end;
 
+#if not CLEAN22
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CreateIntrastatDeclDiskReqPageHandler(var CreateIntrastatDeclDisk: TestRequestPage "Create Intrastat Decl. Disk")
@@ -1702,6 +1684,6 @@ codeunit 144018 "ERM MISC"
         IntrastatForm."Intrastat Jnl. Line".SetFilter(Type, LibraryVariableStorage.DequeueText());
         IntrastatForm.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
-
+#endif
 }
 

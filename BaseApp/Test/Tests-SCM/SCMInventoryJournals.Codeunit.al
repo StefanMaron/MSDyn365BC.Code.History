@@ -1638,6 +1638,38 @@ codeunit 137275 "SCM Inventory Journals"
             StrSubstNo(TextGetLastErrorText, GetLastErrorText, TemplateTypeMustItemErr));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyEntryTypeOnPhysInventoryJournalWhenQtyPhysInventoryUpdated()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        // [FEATURE] [Physical Inventory]
+        // [SCENARIO 481230] Physical inventory Journal, entry type not updated after quantity change
+        Initialize();
+
+        // [GIVEN] Create Item and Post Item Positive Adjustment
+        CreateItem(Item, Item."Costing Method"::FIFO);
+        CreateAndPostItemJournal(
+            ItemJournalLine."Entry Type"::"Positive Adjmt.",
+            Item."No.",
+            '',
+            '',
+            '',
+            LibraryRandom.RandDecInRange(100, 1000, 2));
+
+        // [WHEN] Calculate Inventory
+        CreateAndPostPhysInventoryJournal(ItemJournalLine, ItemJournalBatch, Item."No.", false);
+
+        // [THEN] Find Created Item Journal Line
+        FindItemJournalLine(ItemJournalLine, ItemJournalBatch, Item."No.");
+
+        // [VERIFY] Verify: Entry Type when "Qty. (Phys. Inventory)" updated on Phys. Inventory journal
+        OpenAndVerifyEntryTypeOnPhysInventoryJournalPageWhenUpdateQuantity(ItemJournalLine)
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2275,6 +2307,18 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         FilterItemJournalLine(ItemJournalLine, ItemNo, VariantCode, LocationCode, '');
         Assert.IsFalse(ItemJournalLine.FindFirst(), StrSubstNo(ItemJournalLineExistsErr, ItemJournalLine.TableCaption(), VariantCode, LocationCode, ''));
+    end;
+
+    local procedure OpenAndVerifyEntryTypeOnPhysInventoryJournalPageWhenUpdateQuantity(ItemJournalLine: Record "Item Journal Line")
+    var
+        PhysInventoryJournal: TestPage "Phys. Inventory Journal";
+    begin
+        Commit();  // Commit required.
+        PhysInventoryJournal.OpenEdit();
+        PhysInventoryJournal.CurrentJnlBatchName.SetValue(ItemJournalLine."Journal Batch Name");
+        PhysInventoryJournal."Qty. (Phys. Inventory)".SetValue(ItemJournalLine."Qty. (Phys. Inventory)" - LibraryRandom.RandDec(10, 2));
+        PhysInventoryJournal."Entry Type".AssertEquals(ItemJournalLine."Entry Type"::"Negative Adjmt.");
+        PhysInventoryJournal.Close();
     end;
 
     [ModalPageHandler]

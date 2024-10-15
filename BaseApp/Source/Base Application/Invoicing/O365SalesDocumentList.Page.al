@@ -10,7 +10,7 @@ page 2103 "O365 Sales Document List"
     RefreshOnActivate = true;
     SourceTable = "O365 Sales Document";
     SourceTableTemporary = true;
-    SourceTableView = SORTING("Sell-to Customer Name");
+    SourceTableView = sorting("Sell-to Customer Name");
     ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
@@ -62,7 +62,7 @@ page 2103 "O365 Sales Document List"
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the currency with its symbol, such as $ for Dollar. ';
                 }
-                field(Posted; Posted)
+                field(Posted; Rec.Posted)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies if the document is posted.';
@@ -104,10 +104,10 @@ page 2103 "O365 Sales Document List"
 
                 trigger OnAction()
                 begin
-                    SetRange(Posted);
-                    SetRange("Outstanding Amount");
+                    Rec.SetRange(Posted);
+                    Rec.SetRange("Outstanding Amount");
 
-                    SetSortByDocDate();
+                    Rec.SetSortByDocDate();
                 end;
             }
             action(ShowUnpaid)
@@ -120,13 +120,13 @@ page 2103 "O365 Sales Document List"
 
                 trigger OnAction()
                 begin
-                    SetRange(Posted, true);
-                    SetFilter("Outstanding Amount", '>0');
+                    Rec.SetRange(Posted, true);
+                    Rec.SetFilter("Outstanding Amount", '>0');
 
-                    SetSortByDueDate();
+                    Rec.SetSortByDueDate();
 
                     // go to "most late" document
-                    FindPostedDocument('-');
+                    Rec.FindPostedDocument('-');
                     CurrPage.Update();
                 end;
             }
@@ -140,10 +140,10 @@ page 2103 "O365 Sales Document List"
 
                 trigger OnAction()
                 begin
-                    SetRange(Posted, false);
-                    SetRange("Outstanding Amount");
+                    Rec.SetRange(Posted, false);
+                    Rec.SetRange("Outstanding Amount");
 
-                    SetSortByDocDate();
+                    Rec.SetSortByDocDate();
                 end;
             }
             action(ShowSent)
@@ -156,10 +156,10 @@ page 2103 "O365 Sales Document List"
 
                 trigger OnAction()
                 begin
-                    SetRange(Posted, true);
-                    SetRange("Outstanding Amount");
+                    Rec.SetRange(Posted, true);
+                    Rec.SetRange("Outstanding Amount");
 
-                    SetSortByDocDate();
+                    Rec.SetSortByDocDate();
                 end;
             }
             action(Open)
@@ -174,7 +174,7 @@ page 2103 "O365 Sales Document List"
 
                 trigger OnAction()
                 begin
-                    OpenDocument();
+                    Rec.OpenDocument();
                 end;
             }
             action(Post)
@@ -223,17 +223,17 @@ page 2103 "O365 Sales Document List"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(OnFind(Which));
+        exit(Rec.OnFind(Which));
     end;
 
     trigger OnInit()
     begin
-        SetSortByDocDate();
+        Rec.SetSortByDocDate();
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(OnNext(Steps));
+        exit(Rec.OnNext(Steps));
     end;
 
     var

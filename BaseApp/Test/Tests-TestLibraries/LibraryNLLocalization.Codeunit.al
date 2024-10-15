@@ -10,7 +10,6 @@ codeunit 143000 "Library - NL Localization"
     var
         LibraryUtility: Codeunit "Library - Utility";
 
-    [Scope('OnPrem')]
     procedure CreateCBGStatement(var CBGStatement: Record "CBG Statement"; JournalTemplateName: Code[10])
     begin
         CBGStatement.Init();
@@ -18,7 +17,6 @@ codeunit 143000 "Library - NL Localization"
         CBGStatement.Insert(true);
     end;
 
-    [Scope('OnPrem')]
     procedure CreateCBGStatementLine(var CBGStatementLine: Record "CBG Statement Line"; JournalTemplateName: Code[10]; No: Integer; StatementType: Option; StatementNo: Code[20]; AccountType: Option; AccountNo: Code[20]; Debit: Decimal; Credit: Decimal)
     var
         RecRef: RecordRef;
@@ -39,7 +37,6 @@ codeunit 143000 "Library - NL Localization"
         CBGStatementLine.Modify(true);
     end;
 
-    [Scope('OnPrem')]
     procedure CreateElecTaxDeclarationHeader(var ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header"; DeclarationType: Option)
     begin
         ElecTaxDeclarationHeader.Init();
@@ -47,7 +44,6 @@ codeunit 143000 "Library - NL Localization"
         ElecTaxDeclarationHeader.Insert(true);
     end;
 
-    [Scope('OnPrem')]
     procedure CreateExportProtocol(var ExportProtocol: Record "Export Protocol")
     begin
         ExportProtocol.Init();
@@ -55,7 +51,6 @@ codeunit 143000 "Library - NL Localization"
         ExportProtocol.Insert(true);
     end;
 
-    [Scope('OnPrem')]
     procedure CreateFreelyTransferableMaximum(CountryRegionCode: Code[10]; CurrencyCode: Code[10])
     var
         FreelyTransferableMaximum: Record "Freely Transferable Maximum";
@@ -66,7 +61,6 @@ codeunit 143000 "Library - NL Localization"
         FreelyTransferableMaximum.Insert(true);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckAndCreateFreelyTransferableMaximum(CountryRegionCode: Code[10]; CurrencyCode: Code[10])
     var
         FreelyTransferableMaximum: Record "Freely Transferable Maximum";
@@ -75,7 +69,6 @@ codeunit 143000 "Library - NL Localization"
             CreateFreelyTransferableMaximum(CountryRegionCode, CurrencyCode);
     end;
 
-    [Scope('OnPrem')]
     procedure CreateTransactionMode(var TransactionMode: Record "Transaction Mode"; AccountType: Option)
     begin
         TransactionMode.Init();
@@ -84,7 +77,6 @@ codeunit 143000 "Library - NL Localization"
         TransactionMode.Insert(true);
     end;
 
-    [Scope('OnPrem')]
     procedure VerifyPaymentHistoryChecksum(BankAccountNo: Code[20]; GenerateChecksum: Boolean; ExportProtocolCode: Code[20])
     var
         PaymentHistory: Record "Payment History";
@@ -97,7 +89,6 @@ codeunit 143000 "Library - NL Localization"
             Assert.IsTrue(PaymentHistory.Checksum = '', 'Cheksum field is not filled in in the Payment History');
     end;
 
-    [Scope('OnPrem')]
     procedure VerifyExportedFileChecksum(BankAccountNo: Code[20]; AppendChecksum: Boolean)
     var
         PaymentHistory: Record "Payment History";
@@ -119,7 +110,6 @@ codeunit 143000 "Library - NL Localization"
 
     end;
 
-    [Scope('OnPrem')]
     procedure SetupExportProtocolChecksum(var ExportProtocol: Record "Export Protocol"; GenerateChecksum: Boolean; AppendChecksumToFile: Boolean)
     var
     begin
@@ -128,7 +118,6 @@ codeunit 143000 "Library - NL Localization"
         ExportProtocol.Modify(true);
     end;
 
-    [Scope('OnPrem')]
     procedure FindPaymentHistory(BankAccountNo: Code[20]; var PaymentHistory: Record "Payment History"; ExportProtocolCode: Code[20])
     begin
         PaymentHistory.SetRange("Export Protocol", ExportProtocolCode);

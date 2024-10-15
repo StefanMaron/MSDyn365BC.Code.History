@@ -3021,7 +3021,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized gain = 100 after exch. rate adjustment, total Amount (LCY) = -300
         UpdateExchRate(CurrencyCode, 2);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
@@ -3069,7 +3069,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized loss = -100 after exch. rate adjustment, total Amount (LCY) = -500
         UpdateExchRate(CurrencyCode, 0.5);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
@@ -3116,7 +3116,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized loss = -100 after exch. rate adjustment, total Amount (LCY) = -500
         UpdateExchRate(CurrencyCode, 0.5);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
@@ -3171,7 +3171,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated for "Cur2", unrealized gain = 100 after exch. rate adjustment, "Inv2" has Amount (LCY) = -300
         UpdateExchRate(CurrencyCodeAdj, 2);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCodeAdj, WorkDate(), WorkDate());
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
@@ -3224,7 +3224,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized gain = 100 after exch. rate adjustment, total Amount (LCY) = 500
         UpdateExchRate(CurrencyCode, 0.5);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
@@ -3273,7 +3273,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized loss = -100 after exch. rate adjustment, total Amount (LCY) = 300
         UpdateExchRate(CurrencyCode, 2);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
@@ -3320,7 +3320,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized gain = 100 after exch. rate adjustment, total Amount (LCY) = 500
         UpdateExchRate(CurrencyCode, 0.5);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
@@ -3373,7 +3373,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated for "Cur2", unrealized gain = 100 after exch. rate adjustment, "Inv2" has Amount (LCY) = 500
         UpdateExchRate(CurrencyCodeAdj, 0.5);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCodeAdj, WorkDate(), WorkDate());
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
@@ -3971,7 +3971,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [THEN] Verify Dimension Value against CBGStatementLine
         DimensionSetEntry.SetRange("Dimension Set ID", CBGStatementLine."Dimension Set ID");
         DimensionSetEntry.FindFirst();
-        Assert.AreEqual(DimensionSetEntry."Dimension Value Code", DimensionValue.Code, DimensionValueErr);		
+        Assert.AreEqual(DimensionSetEntry."Dimension Value Code", DimensionValue.Code, DimensionValueErr);
     end;
 
     [Test]
@@ -4178,7 +4178,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         CreateGenJournalLine(CBGStatementLine, GenJournalLine, AccountNo);
-        GenJournalLine."Lookup Applies-to Doc. No.";
+        CBGStatementLine.LookupAppliesToDocNo(GenJournalLine);
         CBGStatementLine.ReadGenJournalLine(GenJournalLine);
     end;
 
@@ -4383,7 +4383,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CBGStatementLineAddInfo.Insert();
     end;
 
-    local procedure CreateCBGStatementLineWithApplyToDoc(CBGStatement: Record "CBG Statement"; AccountType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; ApplyToDocType: Option; ApplyToDocNo: Code[20]; PayAmount: Decimal) : Integer
+    local procedure CreateCBGStatementLineWithApplyToDoc(CBGStatement: Record "CBG Statement"; AccountType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; ApplyToDocType: Option; ApplyToDocNo: Code[20]; PayAmount: Decimal): Integer
     var
         CBGStatementLine: Record "CBG Statement Line";
         RecRef: RecordRef;
@@ -5929,7 +5929,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryDimension.CreateDefaultDimension(
           DefaultDimension, DATABASE::"Salesperson/Purchaser", SalespersonPurchaser.Code, DimensionCode, DimensionValueCode);
     end;
-    
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")

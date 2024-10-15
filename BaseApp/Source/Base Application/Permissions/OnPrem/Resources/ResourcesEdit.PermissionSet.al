@@ -1,3 +1,44 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Inventory.BOM;
+using Microsoft.Foundation.Comment;
+using Microsoft.Finance.Dimension;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Intercompany.GLAccount;
+using Microsoft.Foundation.Address;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Purchases.Document;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Projects.Resources.Journal;
+using Microsoft.Projects.Resources.Ledger;
+#if not CLEAN21
+using Microsoft.Projects.Resources.Pricing;
+#endif
+using Microsoft.Service.Resources;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Document;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.History;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Document;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Projects.TimeSheet;
+using Microsoft.Foundation.UOM;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+
 permissionset 6427 "Resources - Edit"
 {
     Access = Public;

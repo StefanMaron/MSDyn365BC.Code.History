@@ -1,3 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
 page 1431 "Forward Links"
 {
     ApplicationArea = Basic, Suite;
@@ -21,7 +27,7 @@ page 1431 "Forward Links"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Link; Link)
+                field(Link; Rec.Link)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -42,7 +48,7 @@ page 1431 "Forward Links"
 
                 trigger OnAction()
                 begin
-                    Load();
+                    Rec.Load();
                 end;
             }
         }

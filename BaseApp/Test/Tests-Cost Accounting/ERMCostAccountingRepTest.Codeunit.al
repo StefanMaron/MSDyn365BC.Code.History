@@ -1336,7 +1336,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_CostType', CostType."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundError, 'No_CostType', CostType."No."));
+            Error(RowNotFoundError, 'No_CostType', CostType."No.");
         CostType.CalcFields("Budget Amount");
         LibraryReportDataset.AssertCurrentRowValueEquals('BudgetAmount_CostType', CostType."Budget Amount");
     end;
@@ -1346,7 +1346,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_CostType', CostTypeNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundError, 'No_CostType', CostTypeNo));
+            Error(RowNotFoundError, 'No_CostType', CostTypeNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('YtdBud', BudgetAmount);
     end;
 
@@ -1355,7 +1355,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('CostTypeNo_CostJourLine', CostTypeNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundError, 'CostTypeNo_CostJourLine', CostTypeNo));
+            Error(RowNotFoundError, 'CostTypeNo_CostJourLine', CostTypeNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('Amount_CostJourLine', ExpectedAmount);
     end;
 
@@ -1364,7 +1364,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_CostType', CostEntry."Cost Type No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundError, 'No_CostType', CostEntry."Cost Type No."));
+            Error(RowNotFoundError, 'No_CostType', CostEntry."Cost Type No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('NetChange_CostType', CostEntry.Amount);
     end;
 
@@ -1375,7 +1375,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_CostType', CostTypeNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundError, 'No_CostType', CostTypeNo));
+            Error(RowNotFoundError, 'No_CostType', CostTypeNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('DiffAmount', CurrentYearAmount);
         ExpectedPercentage := 100 * ((PreviousYearAmount + CurrentYearAmount) / PreviousYearAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('Pct', Round(ExpectedPercentage, 0.1));
@@ -1386,7 +1386,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_CostType', CostTypeNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundError, 'No_CostType', CostTypeNo));
+            Error(RowNotFoundError, 'No_CostType', CostTypeNo);
         LibraryReportDataset.AssertCurrentRowValueEquals(NetChangeAmount, ExpectedAmount);
     end;
 
@@ -1400,7 +1400,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         // Verify Target Cost Type and Target Cost Center.
         LibraryReportDataset.SetRange('SourceID_CostAllocSource', CostAllocationTarget.ID);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundError, 'SourceID_CostAllocSource', CostAllocationTarget.ID));
+            Error(RowNotFoundError, 'SourceID_CostAllocSource', CostAllocationTarget.ID);
         LibraryReportDataset.AssertCurrentRowValueEquals('TargetCostType_CostAllocTarget', CostAllocationTarget."Target Cost Type");
         LibraryReportDataset.AssertCurrentRowValueEquals('TargetCostCenter_CostAllocTarget', CostAllocationTarget."Target Cost Center");
     end;
@@ -1414,7 +1414,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         CostEntry.FindFirst();
         LibraryReportDataset.SetRange('DocNo_CostEntry', CostEntry."Document No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundError, 'DocNo_CostEntry', CostEntry."Document No."));
+            Error(RowNotFoundError, 'DocNo_CostEntry', CostEntry."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Amount_CostEntry', CostEntry.Amount);
     end;
 
@@ -1425,7 +1425,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
 
         // Verify Debit Amount and Balance.
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundError, 'FmtPostingDate_CostEntry', Format(WorkDate())));
+            Error(RowNotFoundError, 'FmtPostingDate_CostEntry', Format(WorkDate()));
         LibraryReportDataset.AssertCurrentRowValueEquals(DebitAmount, ExpectedAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals(Balance, ExpectedAmount);
     end;
@@ -1434,7 +1434,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     begin
         LibraryReportDataset.SetRange('No_CostType', CostTypeNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundError, 'No_CostType', CostTypeNo));
+            Error(RowNotFoundError, 'No_CostType', CostTypeNo);
         LibraryReportDataset.AssertCurrentRowValueEquals(ElementName, ExpectedAmount);
     end;
 

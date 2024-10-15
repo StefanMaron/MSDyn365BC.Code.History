@@ -1,3 +1,29 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Sales.Customer;
+using Microsoft.Finance.Analysis;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Check;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Reminder;
+using Microsoft.Sales.Receivables;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Reversal;
+using Microsoft.Finance.SalesTax;
+using System.Security.User;
+using Microsoft.Foundation.Period;
+using Microsoft.Foundation.BatchProcessing;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Calculation;
+
 permissionset 6207 "Recievables Journals - Post"
 {
     Access = Public;
@@ -37,9 +63,6 @@ permissionset 6207 "Recievables Journals - Post"
                   tabledata "General Ledger Setup" = r,
                   tabledata "General Posting Setup" = r,
                   tabledata "Line Fee Note on Report Hist." = rim,
-#if not CLEAN20
-                  tabledata "Native - Payment" = RIMD,
-#endif
                   tabledata "Reminder Level" = r,
                   tabledata "Reminder Terms" = r,
                   tabledata "Reminder Terms Translation" = r,

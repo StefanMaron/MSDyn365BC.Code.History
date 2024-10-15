@@ -1717,6 +1717,9 @@ codeunit 144101 "Test SEPA CT v03"
     end;
 
     local procedure Initialize()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test SEPA CT v03");
         LibrarySetupStorage.Restore();
@@ -1726,6 +1729,12 @@ codeunit 144101 "Test SEPA CT v03"
 
         CreateExportProtocols;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test SEPA CT v03");

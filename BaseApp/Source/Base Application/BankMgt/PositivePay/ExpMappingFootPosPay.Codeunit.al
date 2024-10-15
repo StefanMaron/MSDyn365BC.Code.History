@@ -1,3 +1,7 @@
+namespace Microsoft.Bank.PositivePay;
+
+using System.IO;
+
 codeunit 1707 "Exp. Mapping Foot Pos. Pay"
 {
     TableNo = "Data Exch.";
@@ -17,13 +21,13 @@ codeunit 1707 "Exp. Mapping Foot Pos. Pay"
         // Range through the Footer record
         LineNo := 1;
         DataExchLineDef.Init();
-        DataExchLineDef.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
+        DataExchLineDef.SetRange("Data Exch. Def Code", Rec."Data Exch. Def Code");
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Footer);
         if DataExchLineDef.FindFirst() then begin
-            DataExch.SetRange("Entry No.", "Entry No.");
+            DataExch.SetRange("Entry No.", Rec."Entry No.");
             if DataExch.FindFirst() then begin
                 PositivePayFooter.Init();
-                PositivePayFooter.SetRange("Data Exch. Entry No.", "Entry No.");
+                PositivePayFooter.SetRange("Data Exch. Entry No.", Rec."Entry No.");
                 if PositivePayFooter.FindFirst() then begin
                     Window.Update(1, LineNo);
                     RecordRef.GetTable(PositivePayFooter);

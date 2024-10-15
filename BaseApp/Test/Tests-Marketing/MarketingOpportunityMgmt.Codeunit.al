@@ -865,7 +865,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // [THEN] Sales Quote with a new Customer and "Sell-to Customer Template Code" = "CT" is created
         SalesQuote."Sell-to Contact No.".AssertEquals(Contact."No.");
         SalesQuote."Sell-to Customer Templ. Code".AssertEquals(CustomerTemplateCode);
-        Customer.Get(SalesQuote."Sell-to Customer No.");
+        Customer.Get(SalesQuote."Sell-to Customer No.".Value());
         Customer.TestField(Name, Contact."Company Name");
         SalesQuote.Close();
     end;
@@ -1702,7 +1702,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         LibraryVariableStorage.Enqueue(ActionOption::LookupOK);
         LibraryVariableStorage.Enqueue(CustomerTemplateCode);
         OpportunityCard.CreateSalesQuote.Invoke;
-        Customer.Get(SalesQuote."Sell-to Customer No.");
+        Customer.Get(SalesQuote."Sell-to Customer No.".Value());
         Assert.AreEqual(Opportunity."No.", SalesQuote."Opportunity No.".Value, OppNoNotUpdatedOnSalesQuoteErr);
         SalesQuote.Close();
 
@@ -2428,7 +2428,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     var
         Opportunity: Record Opportunity;
     begin
-        Opportunity.Get(OpportunityCard."No.");
+        Opportunity.Get(OpportunityCard."No.".Value());
         Opportunity.CalcFields(
           "Current Sales Cycle Stage", "Estimated Value (LCY)", "Chances of Success %", "Probability %");
 
@@ -2454,7 +2454,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     var
         SalesCycle: Record "Sales Cycle";
     begin
-        SalesCycle.Get(SalesCycles.Code);
+        SalesCycle.Get(SalesCycles.Code.Value());
         SalesCycle.CalcFields(
           "No. of Opportunities", "Estimated Value (LCY)", "Calcd. Current Value (LCY)");
 

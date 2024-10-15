@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.SalesTax;
+
+using Microsoft.Finance.VAT.Ledger;
+
 page 466 "Tax Jurisdictions"
 {
     ApplicationArea = SalesTax;
@@ -13,7 +17,7 @@ page 466 "Tax Jurisdictions"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code you want to assign to this tax jurisdiction. You can enter up to 10 characters, both numbers and letters. It is a good idea to enter a code that is easy to remember.';
@@ -137,8 +141,8 @@ page 466 "Tax Jurisdictions"
                     //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedIsBig = true;
                     RunObject = Page "VAT Entries";
-                    RunPageLink = "Tax Jurisdiction Code" = FIELD(Code);
-                    RunPageView = SORTING("Tax Jurisdiction Code");
+                    RunPageLink = "Tax Jurisdiction Code" = field(Code);
+                    RunPageView = sorting("Tax Jurisdiction Code");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View Tax entries, which result from posting transactions in journals and sales and purchase documents, and from the Calc. and Post Tax Settlement batch job.';
                 }
@@ -148,7 +152,7 @@ page 466 "Tax Jurisdictions"
                     Caption = 'Details';
                     Image = View;
                     RunObject = Page "Tax Details";
-                    RunPageLink = "Tax Jurisdiction Code" = FIELD(Code);
+                    RunPageLink = "Tax Jurisdiction Code" = field(Code);
                     ToolTip = 'View tax-detail entries. A tax-detail entry includes all of the information that is used to calculate the amount of tax to be charged.';
                 }
             }
@@ -208,7 +212,7 @@ page 466 "Tax Jurisdictions"
 
     local procedure GetDefaultTaxDetail(var TaxDetail: Record "Tax Detail")
     begin
-        TaxDetail.SetRange("Tax Jurisdiction Code", Code);
+        TaxDetail.SetRange("Tax Jurisdiction Code", Rec.Code);
         TaxDetail.SetRange("Tax Group Code", '');
         TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Sales Tax");
         if TaxDetail.FindLast() then begin

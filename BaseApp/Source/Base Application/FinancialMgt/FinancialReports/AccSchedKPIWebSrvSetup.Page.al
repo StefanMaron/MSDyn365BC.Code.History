@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using System.Integration;
+
 page 195 "Acc. Sched. KPI Web Srv. Setup"
 {
     AdditionalSearchTerms = 'financial report setup,business intelligence setup,bi setup,odata setup,account schedule kpi web service setup,financial reporting';
@@ -16,7 +20,7 @@ page 195 "Acc. Sched. KPI Web Srv. Setup"
             group(General)
             {
                 Caption = 'General';
-                field(Period; Period)
+                field(Period; Rec.Period)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the period that the financial-report KPI web service is based on.';
@@ -41,7 +45,7 @@ page 195 "Acc. Sched. KPI Web Srv. Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the financial-report KPI web service. This name will be shown under the displayed financial-report KPI.';
                 }
-                field(Published; Published)
+                field(Published; Rec.Published)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the financial-report KPI web service has been published. Published web services are listed in the Web Services window.';
@@ -56,13 +60,13 @@ page 195 "Acc. Sched. KPI Web Srv. Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how long data is stored in Business Central before being refreshed from the service. The longer the duration is the smaller the performance impact.';
                 }
-                field(GetLastClosedAccDate; GetLastClosedAccDate())
+                field(GetLastClosedAccDate; Rec.GetLastClosedAccDate())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Last Locked Posting Date';
                     ToolTip = 'Specifies the last date that posting was locked and actual transaction values were not supplied to the financial-report KPI.';
                 }
-                field(GetLastBudgetChangedDate; GetLastBudgetChangedDate())
+                field(GetLastBudgetChangedDate; Rec.GetLastBudgetChangedDate())
                 {
                     ApplicationArea = Suite;
                     Caption = 'Last Changed Budget Date';
@@ -91,7 +95,7 @@ page 195 "Acc. Sched. KPI Web Srv. Setup"
 
                 trigger OnAction()
                 begin
-                    PublishWebService();
+                    Rec.PublishWebService();
                 end;
             }
             action(DeleteWebService)
@@ -103,7 +107,7 @@ page 195 "Acc. Sched. KPI Web Srv. Setup"
 
                 trigger OnAction()
                 begin
-                    DeleteWebService();
+                    Rec.DeleteWebService();
                 end;
             }
             action(RefreshBufferData)
@@ -118,11 +122,11 @@ page 195 "Acc. Sched. KPI Web Srv. Setup"
                 begin
                     if not Confirm(ResetQst) then
                         exit;
-                    LockTable();
-                    Find();
-                    "Data Last Updated" := 0DT;
-                    "Last G/L Entry Included" := 0;
-                    Modify();
+                    Rec.LockTable();
+                    Rec.Find();
+                    Rec."Data Last Updated" := 0DT;
+                    Rec."Last G/L Entry Included" := 0;
+                    Rec.Modify();
                     CODEUNIT.Run(CODEUNIT::"Update Acc. Sched. KPI Data");
                 end;
             }
@@ -167,10 +171,10 @@ page 195 "Acc. Sched. KPI Web Srv. Setup"
 
     trigger OnOpenPage()
     begin
-        Reset();
-        if not Get() then begin
-            Init();
-            Insert();
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
     end;
 

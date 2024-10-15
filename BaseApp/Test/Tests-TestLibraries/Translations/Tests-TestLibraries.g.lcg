@@ -4064,15 +4064,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Cost Accounting - NamedType GetCostTypesFromGLErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3230302556 - NamedType 3966906137" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1..%2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Cost Accounting - NamedType GLAccountFilterDefinition)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3230302556 - NamedType 1443104398" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The G/L Account No. %1 is aligned to Cost Type No. %2 although G/L Account No. %3 was expected.]]></Val>

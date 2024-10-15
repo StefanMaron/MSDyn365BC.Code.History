@@ -1,3 +1,11 @@
+namespace Microsoft.Manufacturing.ProductionBOM;
+
+using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Planning;
+using Microsoft.Manufacturing.Routing;
+
 table 99000772 "Production BOM Line"
 {
     Caption = 'Production BOM Line';
@@ -17,7 +25,7 @@ table 99000772 "Production BOM Line"
         field(3; "Version Code"; Code[20])
         {
             Caption = 'Version Code';
-            TableRelation = "Production BOM Version"."Version Code" WHERE("Production BOM No." = FIELD("Production BOM No."));
+            TableRelation = "Production BOM Version"."Version Code" where("Production BOM No." = field("Production BOM No."));
         }
         field(10; Type; Enum "Production BOM Line Type")
         {
@@ -36,9 +44,9 @@ table 99000772 "Production BOM Line"
         field(11; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = IF (Type = CONST(Item)) Item WHERE(Type = FILTER(Inventory | "Non-Inventory"))
-            ELSE
-            IF (Type = CONST("Production BOM")) "Production BOM Header";
+            TableRelation = if (Type = const(Item)) Item where(Type = filter(Inventory | "Non-Inventory"))
+            else
+            if (Type = const("Production BOM")) "Production BOM Header";
 
             trigger OnValidate()
             begin
@@ -78,9 +86,9 @@ table 99000772 "Production BOM Line"
         field(13; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
-            TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."))
-            ELSE
-            IF (Type = CONST("Production BOM")) "Unit of Measure";
+            TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."))
+            else
+            if (Type = const("Production BOM")) "Unit of Measure";
 
             trigger OnValidate()
             begin
@@ -151,11 +159,11 @@ table 99000772 "Production BOM Line"
         field(21; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = IF (Type = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("No."));
+            TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."));
 
             trigger OnValidate()
             begin
-                if "Variant Code" = '' then
+                if Rec."Variant Code" = '' then
                     exit;
                 TestField(Type, Type::Item);
                 TestField("No.");
@@ -165,9 +173,9 @@ table 99000772 "Production BOM Line"
         }
         field(22; Comment; Boolean)
         {
-            CalcFormula = Exist("Production BOM Comment Line" WHERE("Production BOM No." = FIELD("Production BOM No."),
-                                                                     "Version Code" = FIELD("Version Code"),
-                                                                     "BOM Line No." = FIELD("Line No.")));
+            CalcFormula = exist("Production BOM Comment Line" where("Production BOM No." = field("Production BOM No."),
+                                                                     "Version Code" = field("Version Code"),
+                                                                     "BOM Line No." = field("Line No.")));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;
@@ -265,9 +273,6 @@ table 99000772 "Production BOM Line"
                         begin
                             TestField(Type, Type::Item);
                             Quantity := "Quantity per";
-#if not CLEAN20
-                            LogUsageFixedQuantity();
-#endif
                         end;
                     else
                         OnValidateCalculationFormulaEnumExtension(Rec);
@@ -437,15 +442,6 @@ table 99000772 "Production BOM Line"
             Error(BOMLineUOMErr, "Unit of Measure Code", Item."No.", "Production BOM No.", "Version Code", "Line No.");
         exit(UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"));
     end;
-#if not CLEAN20
-    local procedure LogUsageFixedQuantity()
-    var
-        FeatureTelemetry: Codeunit "Feature Telemetry";
-    begin
-        if (Rec."Calculation Formula" = Rec."Calculation Formula"::"Fixed Quantity") and (xRec."Calculation Formula" <> Rec."Calculation Formula") then
-            FeatureTelemetry.LogUsage('0000GFP', 'Fixed Quantity in BOM Items', 'Calculation formula updated');
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestStatus(ProductionBOMLine: Record "Production BOM Line"; ProductionBOMHeader: Record "Production BOM Header"; ProductionBOMVersion: Record "Production BOM Version")

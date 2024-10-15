@@ -1,3 +1,7 @@
+namespace System.Utilities;
+
+using System;
+
 codeunit 1291 "DotNet Exception Handler"
 {
 

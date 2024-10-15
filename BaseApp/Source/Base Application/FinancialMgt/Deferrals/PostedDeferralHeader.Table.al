@@ -1,3 +1,8 @@
+namespace Microsoft.Finance.Deferral;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Account;
+
 table 1704 "Posted Deferral Header"
 {
     Caption = 'Posted Deferral Header';
@@ -15,7 +20,7 @@ table 1704 "Posted Deferral Header"
         field(3; "Account No."; Code[20])
         {
             Caption = 'Account No.';
-            TableRelation = "G/L Account" WHERE(Blocked = CONST(false));
+            TableRelation = "G/L Account" where(Blocked = const(false));
         }
         field(4; "Document Type"; Integer)
         {
@@ -38,7 +43,7 @@ table 1704 "Posted Deferral Header"
         }
         field(8; "Amount to Defer"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount to Defer';
         }
@@ -74,8 +79,8 @@ table 1704 "Posted Deferral Header"
         {
             Caption = 'Deferral Account';
             NotBlank = true;
-            TableRelation = "G/L Account" WHERE("Account Type" = CONST(Posting),
-                                                 Blocked = CONST(false));
+            TableRelation = "G/L Account" where("Account Type" = const(Posting),
+                                                 Blocked = const(false));
         }
         field(17; CustVendorNo; Code[20])
         {
@@ -119,7 +124,7 @@ table 1704 "Posted Deferral Header"
         if LineNo <> 0 then
             if Get(DeferralDocType, GenJnlDocNo, AccountNo, DocumentType, DocumentNo, LineNo) then begin
                 Delete();
-                DeleteLines("Deferral Document Type".FromInteger(DeferralDocType), GenJnlDocNo, AccountNo, DocumentType, DocumentNo, LineNo);
+                DeleteLines(Enum::"Deferral Document Type".FromInteger(DeferralDocType), GenJnlDocNo, AccountNo, DocumentType, DocumentNo, LineNo);
             end;
     end;
 

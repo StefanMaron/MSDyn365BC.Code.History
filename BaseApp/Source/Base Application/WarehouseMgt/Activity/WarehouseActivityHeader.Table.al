@@ -1,3 +1,26 @@
+﻿namespace Microsoft.Warehouse.Activity;
+
+using Microsoft.Assembly.Document;
+using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Family;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Warehouse.Comment;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Setup;
+
+
 table 5766 "Warehouse Activity Header"
 {
     Caption = 'Warehouse Activity Header';
@@ -24,7 +47,7 @@ table 5766 "Warehouse Activity Header"
         field(3; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
-            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+            TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
             var
@@ -36,15 +59,17 @@ table 5766 "Warehouse Activity Header"
 
                 if "Location Code" <> '' then
                     if not WMSManagement.LocationIsAllowed("Location Code") then
-                        Error(StrSubstNo(Text001, UserId) + StrSubstNo(' %1 %2.', FieldCaption("Location Code"), "Location Code"));
+                        Error(SetUpWarehouseEmployeeInLocationErr, UserId, FieldCaption("Location Code"), "Location Code");
 
                 GetLocation("Location Code");
                 case Type of
                     Type::"Invt. Put-away":
-                        if Location.RequireReceive("Location Code") and ("Source Document" <> "Source Document"::"Prod. Output") then
+                        if ((Location.Code <> '') and (Location."Prod. Output Whse. Handling" = Location."Prod. Output Whse. Handling"::"Inventory Put-away") and ("Source Document" <> "Source Document"::"Prod. Output")) or
+                           ((Location.Code = '') and Location.RequireReceive("Location Code") and ("Source Document" <> "Source Document"::"Prod. Output"))
+                         then
                             Validate("Source Document", "Source Document"::"Prod. Output");
                     Type::"Invt. Pick":
-                        if Location.RequireShipment("Location Code") then
+                        if (Location.Code = '') and Location.RequireShipment("Location Code") then
                             Location.TestField("Require Shipment", false);
                     Type::"Invt. Movement":
                         Location.TestField("Directed Put-away and Pick", false);
@@ -55,7 +80,7 @@ table 5766 "Warehouse Activity Header"
         {
             Caption = 'Assigned User ID';
             DataClassification = EndUserIdentifiableInformation;
-            TableRelation = "Warehouse Employee" WHERE("Location Code" = FIELD("Location Code"));
+            TableRelation = "Warehouse Employee" where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
             begin
@@ -95,9 +120,9 @@ table 5766 "Warehouse Activity Header"
         }
         field(10; Comment; Boolean)
         {
-            CalcFormula = Exist("Warehouse Comment Line" WHERE("Table Name" = CONST("Whse. Activity Header"),
-                                                                Type = FIELD(Type),
-                                                                "No." = FIELD("No.")));
+            CalcFormula = exist("Warehouse Comment Line" where("Table Name" = const("Whse. Activity Header"),
+                                                                Type = field(Type),
+                                                                "No." = field("No.")));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;
@@ -109,12 +134,12 @@ table 5766 "Warehouse Activity Header"
         }
         field(13; "No. of Lines"; Integer)
         {
-            CalcFormula = Count("Warehouse Activity Line" WHERE("Activity Type" = FIELD(Type),
-                                                                 "No." = FIELD("No."),
-                                                                 "Source Type" = FIELD("Source Type Filter"),
-                                                                 "Source Subtype" = FIELD("Source Subtype Filter"),
-                                                                 "Source No." = FIELD("Source No. Filter"),
-                                                                 "Location Code" = FIELD("Location Filter")));
+            CalcFormula = count("Warehouse Activity Line" where("Activity Type" = field(Type),
+                                                                 "No." = field("No."),
+                                                                 "Source Type" = field("Source Type Filter"),
+                                                                 "Source Subtype" = field("Source Subtype Filter"),
+                                                                 "Source No." = field("Source No. Filter"),
+                                                                 "Location Code" = field("Location Filter")));
             Caption = 'No. of Lines';
             Editable = false;
             FieldClass = FlowField;
@@ -155,11 +180,11 @@ table 5766 "Warehouse Activity Header"
         {
             Caption = 'Last Registering No.';
             Editable = false;
-            TableRelation = IF (Type = CONST("Put-away")) "Registered Whse. Activity Hdr."."No." WHERE(Type = CONST("Put-away"))
-            ELSE
-            IF (Type = CONST(Pick)) "Registered Whse. Activity Hdr."."No." WHERE(Type = CONST(Pick))
-            ELSE
-            IF (Type = CONST(Movement)) "Registered Whse. Activity Hdr."."No." WHERE(Type = CONST(Movement));
+            TableRelation = if (Type = const("Put-away")) "Registered Whse. Activity Hdr."."No." where(Type = const("Put-away"))
+            else
+            if (Type = const(Pick)) "Registered Whse. Activity Hdr."."No." where(Type = const(Pick))
+            else
+            if (Type = const(Movement)) "Registered Whse. Activity Hdr."."No." where(Type = const(Movement));
         }
         field(63; "Registering No. Series"; Code[20])
         {
@@ -278,51 +303,51 @@ table 5766 "Warehouse Activity Header"
                 case "Source Document" of
                     "Source Document"::"Purchase Order":
                         begin
-                            "Source Type" := 39;
+                            "Source Type" := Database::"Purchase Line";
                             "Source Subtype" := 1;
                         end;
                     "Source Document"::"Purchase Return Order":
                         begin
-                            "Source Type" := 39;
+                            "Source Type" := Database::"Purchase Line";
                             "Source Subtype" := 5;
                         end;
                     "Source Document"::"Sales Order":
                         begin
-                            "Source Type" := 37;
+                            "Source Type" := Database::"Sales Line";
                             "Source Subtype" := 1;
                         end;
                     "Source Document"::"Sales Return Order":
                         begin
-                            "Source Type" := 37;
+                            "Source Type" := Database::"Sales Line";
                             "Source Subtype" := 5;
                         end;
                     "Source Document"::"Outbound Transfer":
                         begin
-                            "Source Type" := 5741;
+                            "Source Type" := Database::"Transfer Line";
                             "Source Subtype" := 0;
                         end;
                     "Source Document"::"Inbound Transfer":
                         begin
-                            "Source Type" := 5741;
+                            "Source Type" := Database::"Transfer Line";
                             "Source Subtype" := 1;
                         end;
                     "Source Document"::"Prod. Consumption":
                         begin
-                            "Source Type" := 5407;
+                            "Source Type" := Database::"Prod. Order Component";
                             "Source Subtype" := 3;
                         end;
                     "Source Document"::"Prod. Output":
                         begin
-                            "Source Type" := 5406;
+                            "Source Type" := Database::"Prod. Order Line";
                             "Source Subtype" := 3;
                         end;
                     "Source Document"::"Assembly Consumption":
                         begin
-                            "Source Type" := DATABASE::"Assembly Line";
-                            "Source Subtype" := AssemblyLine."Document Type"::Order.AsInteger();
+                            "Source Type" := Database::"Assembly Line";
+                            "Source Subtype" := AssemblyLine."Document Type"::Order;
                         end;
                     "Source Document"::"Job Usage":
-                        "Source Type" := DATABASE::Job;
+                        "Source Type" := Database::Job;
                     "Source Document"::"Service Order":
                         Error(NotSupportedSourceDocumentTypeErr, "Source Document"::"Service Order");
                 end;
@@ -351,17 +376,17 @@ table 5766 "Warehouse Activity Header"
         field(7311; "Destination No."; Code[20])
         {
             Caption = 'Destination No.';
-            TableRelation = IF ("Destination Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Destination Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Destination Type" = CONST(Location)) Location
-            ELSE
-            IF ("Destination Type" = CONST(Item)) Item
-            ELSE
-            IF ("Destination Type" = CONST(Family)) Family
-            ELSE
-            IF ("Destination Type" = CONST("Sales Order")) "Sales Header"."No." WHERE("Document Type" = CONST(Order));
+            TableRelation = if ("Destination Type" = const(Vendor)) Vendor
+            else
+            if ("Destination Type" = const(Customer)) Customer
+            else
+            if ("Destination Type" = const(Location)) Location
+            else
+            if ("Destination Type" = const(Item)) Item
+            else
+            if ("Destination Type" = const(Family)) Family
+            else
+            if ("Destination Type" = const("Sales Order")) "Sales Header"."No." where("Document Type" = const(Order));
         }
         field(7312; "External Document No."; Code[35])
         {
@@ -429,7 +454,7 @@ table 5766 "Warehouse Activity Header"
         InvtSetup: Record "Inventory Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         Text000: Label 'You cannot rename a %1.';
-        Text001: Label 'You must first set up user %1 as a warehouse employee.';
+        SetUpWarehouseEmployeeInLocationErr: Label 'You must first set up user %1 as a warehouse employee. %2 %3', Comment = '%1 - user ID, %2 - caption, %3 - location code.';
         Text002: Label 'You cannot change %1 because one or more lines exist.';
         NotSupportedSourceDocumentTypeErr: Label 'Source Document type %1 is not supported.', Comment = '%1 - source document type, like Sales Order.';
 
@@ -931,7 +956,7 @@ table 5766 "Warehouse Activity Header"
 
     procedure ErrorIfUserIsNotWhseEmployee()
     var
-        WhseEmployee: Record "Warehouse Employee";
+        WMSManagement: Codeunit "WMS Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -939,11 +964,7 @@ table 5766 "Warehouse Activity Header"
         if IsHandled then
             exit;
 
-        if UserId <> '' then begin
-            WhseEmployee.SetRange("User ID", UserId);
-            if WhseEmployee.IsEmpty() then
-                Error(Text001, UserId);
-        end;
+        WMSManagement.CheckUserIsWhseEmployee();
     end;
 
     procedure GetUserLocation(): Code[10]
@@ -984,6 +1005,13 @@ table 5766 "Warehouse Activity Header"
     begin
         GetLocation("Location Code");
         exit(Location."Bin Mandatory");
+    end;
+
+    internal procedure IsInvoiceNoMandatory(): Boolean
+    var
+        PostingSelectionManagement: Codeunit "Posting Selection Management";
+    begin
+        exit(PostingSelectionManagement.IsPostingInvoiceMandatoryPurchase());
     end;
 
     [IntegrationEvent(false, false)]

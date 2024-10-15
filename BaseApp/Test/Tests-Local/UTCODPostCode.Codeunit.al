@@ -61,13 +61,14 @@ codeunit 144021 "UT COD Post Code"
         City: Text[50];
         FaxNo: Text[30];
         PhoneNo: Text[30];
+        CountryCode: Code[10];
     begin
         // Setup: Create Post Code Range.
         CreatePostCodeRange(PostCodeRange, Type, LibraryRandom.RandInt(10));  // Random value for From Number.
         Address := PostCodeRange."Post Code";
 
         // Exercise: Execute FindStreetNameFromAddress of CodeUnit Post Code Management.
-        PostCodeMgt.FindStreetNameFromAddress(Address, Address2, PostCode, City, ' ', PhoneNo, FaxNo);  // Blank value for Country Code.
+        PostCodeMgt.FindStreetName(Address, Address2, PostCode, City, CountryCode, PhoneNo, FaxNo);  // Blank value for Country Code.
 
         // Verify: Verify Updated City and Post Code with expected City and Post Code.
         VerifyPostCodeAndCity(PostCodeRange."Post Code", PostCodeRange.City, PostCode, City);
@@ -104,13 +105,14 @@ codeunit 144021 "UT COD Post Code"
         City: Text[50];
         FaxNo: Text[30];
         PhoneNo: Text[30];
+        CountryCode: Code[10];
     begin
         // Create Post Code Range.
         CreatePostCodeRange(PostCodeRange, Type, FromNo);
         Address := PostCodeRange."Post Code" + Format(PostCodeRange."From No.");
 
         // Exercise: Execute FindStreetNameFromAddress of CodeUnit Post Code Management.
-        PostCodeMgt.FindStreetNameFromAddress(Address, Address2, PostCode, City, ' ', PhoneNo, FaxNo);  // Blank value for Country Code.
+        PostCodeMgt.FindStreetName(Address, Address2, PostCode, City, CountryCode, PhoneNo, FaxNo);  // Blank value for Country Code.
 
         // Verify: Verify Updated City and Post Code with expected City and Post Code.
         VerifyPostCodeAndCity(PostCodeRange."Post Code", PostCodeRange.City, PostCode, City);

@@ -64,6 +64,7 @@ codeunit 137159 "SCM Warehouse VII"
         SpecificReservationTxt: Label 'Do you want to reserve specific';
         WarehouseEntryMsg: Label 'The Warehouse Entry is not correct after undo Sales Shipment Lines.';
         WrongQuantityBaseErr: Label 'Quantity (Base) must not be';
+        WrongQtyToHandleBaseErr: Label 'Qty. to Handle (Base) in the item tracking';
         ItemTrackingQuantityMsg: Label 'The corrections cannot be saved as excess quantity has been defined.\Close the form anyway?';
         BlankCodeErr: Label 'Code must be filled in. Enter a value.';
         UsageNotLinkedToBlankLineTypeMsg: Label 'Usage will not be linked to the job planning line because the Line Type field is empty';
@@ -880,12 +881,12 @@ codeunit 137159 "SCM Warehouse VII"
             asserterror LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
 
             // Verify.
-            Assert.ExpectedError(WrongQuantityBaseErr);
+            Assert.ExpectedError(WrongQtyToHandleBaseErr);
         end;
 
         if PostConsumption then begin
             // Exercise.
-            EnqueueValuesForProductionJournalHandler(ItemTrackingMode::SelectLotNo, LotNo, Quantity);
+            EnqueueValuesForProductionJournalHandler(ItemTrackingMode::SelectLotNo, LotNo, Quantity * Quantity);
             LibraryVariableStorage.Enqueue(JournalLinesPostedMessage);  // Enqueue for MessageHandler.
             LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");  // Posting is done in ProductionJournalPageHandler.
 
@@ -1524,7 +1525,7 @@ codeunit 137159 "SCM Warehouse VII"
         SalesHeader3: Record "Sales Header";
         BlanketOrderSalesLine: Record "Sales Line";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
-        PartialInvoicedQty: Integer;
+        PartialInvoicedQty: Decimal;
     begin
         // Setup: Create Blanket Sales Order, create Sales Invoice and Sales Order link to Blanket Sales Order with Partial quantity.
         Initialize();
@@ -1560,7 +1561,7 @@ codeunit 137159 "SCM Warehouse VII"
         PurchaseHeader2: Record "Purchase Header";
         PurchaseHeader3: Record "Purchase Header";
         BlanketOrderPurchaseLine: Record "Purchase Line";
-        PartialInvoicedQty: Integer;
+        PartialInvoicedQty: Decimal;
     begin
         // Setup: Create Blanket Purchase Order, create Purchase Invoice and Sales Order link to Blanket Purchase Order with Partial quantity.
         Initialize();
@@ -4001,7 +4002,7 @@ codeunit 137159 "SCM Warehouse VII"
         Assert.AreEqual(WarehouseEntryCount, WarehouseEntry.Count, WarehouseEntryMsg);
     end;
 
-    local procedure MakeSalesOrderAndVerifyErr(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; ExpectedQty: Integer)
+    local procedure MakeSalesOrderAndVerifyErr(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; ExpectedQty: Decimal)
     begin
         Commit(); // COMMIT is necessary here since the following LibraryInventory.BlanketSalesOrderMakeOrder will invoke RUNMODAL.
         asserterror LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
@@ -4011,7 +4012,7 @@ codeunit 137159 "SCM Warehouse VII"
             SalesLine."No.", SalesLine.FieldCaption("Line No."), SalesLine."Line No.", ExpectedQty));
     end;
 
-    local procedure MakePurchaseOrderAndVerifyErr(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; ExpectedQty: Integer)
+    local procedure MakePurchaseOrderAndVerifyErr(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; ExpectedQty: Decimal)
     begin
         Commit(); // COMMIT is necessary here since the following LibraryInventory.BlanketPurchaseOrderMakeOrder will invoke RUNMODAL.
         asserterror LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeader);

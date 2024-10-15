@@ -1,3 +1,10 @@
+namespace Microsoft.Finance.Consolidation;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using System.Environment;
+
 table 220 "Business Unit"
 {
     Caption = 'Business Unit';
@@ -92,8 +99,6 @@ table 220 "Business Unit"
         {
             Caption = 'Company Name';
             TableRelation = Company.Name;
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(14; "Currency Code"; Code[10])
@@ -106,7 +111,7 @@ table 220 "Business Unit"
                 CurrencyFactor: Decimal;
             begin
                 if "Currency Exchange Rate Table" = "Currency Exchange Rate Table"::"Business Unit" then
-                    CurrencyFactor := GetCurrencyFactorFromBusUnit()
+                    CurrencyFactor := GetCurrencyFactorFromBusinessUnit()
                 else
                     CurrencyFactor := CurrExchRate.ExchangeRate(WorkDate(), "Currency Code");
 
@@ -202,6 +207,33 @@ table 220 "Business Unit"
         {
             Caption = 'Last Run';
         }
+        field(25; "Default Data Import Method"; Option)
+        {
+            Caption = 'Default Data Import Method';
+            OptionCaption = 'Database,API';
+            OptionMembers = "Database","API";
+            DataClassification = SystemMetadata;
+        }
+        field(26; "BC API URL"; Text[2048])
+        {
+            Caption = 'BC API URL', Comment = 'URL of the API of the external Business Central instance';
+            DataClassification = OrganizationIdentifiableInformation;
+        }
+        field(27; "AAD Tenant ID"; Guid)
+        {
+            Caption = 'Microsoft Entra tenant ID';
+            DataClassification = OrganizationIdentifiableInformation;
+        }
+        field(28; "External Company Id"; Guid)
+        {
+            Caption = 'External Company Id';
+            DataClassification = OrganizationIdentifiableInformation;
+        }
+        field(29; "External Company Name"; Text[1024])
+        {
+            Caption = 'External Company Name';
+            DataClassification = OrganizationIdentifiableInformation;
+        }
     }
 
     keys
@@ -221,8 +253,9 @@ table 220 "Business Unit"
 
     var
         CurrExchRate: Record "Currency Exchange Rate";
+        UnsupportedDataImportMethodErr: Label 'Unsupported data import method.';
 
-    local procedure CheckGLAcc(AccNo: Code[20])
+    procedure CheckGLAcc(AccNo: Code[20])
     var
         GLAcc: Record "G/L Account";
     begin
@@ -232,22 +265,36 @@ table 220 "Business Unit"
         end;
     end;
 
-    local procedure GetCurrencyFactorFromBusUnit(): Decimal
+    local procedure GetCurrencyFactorFromBusinessUnit(): Decimal
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        ImportConsolidationFromAPI: Codeunit "Import Consolidation from API";
+        CurrencyFactor: Decimal;
+    begin
+        CurrencyFactor := 1;
+        if Rec."Currency Code" = '' then
+            exit(CurrencyFactor);
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.TestField("LCY Code");
+
+        if Rec."Default Data Import Method" = Rec."Default Data Import Method"::Database then
+            exit(GetCurrencyFactorFromBusinessUnitDB());
+        if Rec."Default Data Import Method" = Rec."Default Data Import Method"::API then
+            exit(ImportConsolidationFromAPI.GetCurrencyFactorFromBusinessUnit(Rec));
+        Error(UnsupportedDataImportMethodErr);
+    end;
+
+    local procedure GetCurrencyFactorFromBusinessUnitDB(): Decimal
     var
         GLSetup: Record "General Ledger Setup";
         CurrencyFactor: Decimal;
-        Date: Date;
+        DummyDate: Date;
     begin
-        CurrencyFactor := 1;
-        if "Currency Code" = '' then
-            exit(CurrencyFactor);
-
         GLSetup.Get();
-        GLSetup.TestField("LCY Code");
-
         CurrExchRate.ChangeCompany("Company Name");
         CurrExchRate.SetRange("Starting Date", 0D, WorkDate());
-        CurrExchRate.GetLastestExchangeRate(GLSetup."LCY Code", Date, CurrencyFactor);
+        CurrExchRate.GetLastestExchangeRate(GLSetup."LCY Code", DummyDate, CurrencyFactor);
         exit(CurrencyFactor);
     end;
 }

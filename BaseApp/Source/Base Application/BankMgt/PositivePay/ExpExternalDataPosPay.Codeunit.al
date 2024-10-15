@@ -1,3 +1,8 @@
+﻿namespace Microsoft.Bank.PositivePay;
+
+using System.IO;
+using System.Utilities;
+
 codeunit 1709 "Exp. External Data Pos. Pay"
 {
     Permissions = TableData "Data Exch." = rimd;

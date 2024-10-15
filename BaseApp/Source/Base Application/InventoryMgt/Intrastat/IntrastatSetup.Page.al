@@ -1,4 +1,12 @@
 #if not CLEAN22
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
+using System.Telemetry;
+
 page 328 "Intrastat Setup"
 {
     ApplicationArea = BasicEU;
@@ -71,7 +79,7 @@ page 328 "Intrastat Setup"
             {
                 Caption = 'Default Transactions';
 #if not CLEAN21
-                field("Default Transaction Type"; "Default Trans. - Purchase")
+                field("Default Transaction Type"; Rec."Default Trans. - Purchase")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the default transaction type for regular sales shipments and service shipments, and purchase receipts.';
@@ -80,7 +88,7 @@ page 328 "Intrastat Setup"
                     ObsoleteTag = '21.0';
                     ObsoleteReason = 'Replaced by Default Transaction Specification';
                 }
-                field("Default Trans. Type - Returns"; "Default Trans. - Return")
+                field("Default Trans. Type - Returns"; Rec."Default Trans. - Return")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the default transaction type for sales returns and service returns, and purchase returns';
@@ -90,12 +98,12 @@ page 328 "Intrastat Setup"
                     ObsoleteReason = 'Replaced by Default Transaction Specification';
                 }
 #endif
-                field("Default Trans. Spec. Code"; "Default Trans. Spec. Code")
+                field("Default Trans. Spec. Code"; Rec."Default Trans. Spec. Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the default transaction specification for regular sales shipments and service shipments, and purchase receipts.';
                 }
-                field("Default Trans. Spec. Ret. Code"; "Default Trans. Spec. Ret. Code")
+                field("Default Trans. Spec. Ret. Code"; Rec."Default Trans. Spec. Ret. Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the default transaction specification for sales returns and service returns, and purchase returns';

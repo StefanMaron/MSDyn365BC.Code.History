@@ -1,9 +1,17 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft;
+
+using Microsoft.Foundation.Company;
+using System.Environment;
+
 codeunit 853 "License Agreement Management"
 {
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "License Agreement" = r;
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     var
         PartnerAgreementNotAcceptedErr: Label 'Partner Agreement has not been accepted.';

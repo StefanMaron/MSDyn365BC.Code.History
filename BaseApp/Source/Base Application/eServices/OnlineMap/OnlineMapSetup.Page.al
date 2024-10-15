@@ -1,3 +1,9 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.eServices.OnlineMap;
+
 page 800 "Online Map Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -37,7 +43,7 @@ page 800 "Online Map Setup"
                         HyperLink('http://go.microsoft.com/fwlink/?LinkID=248686');
                     end;
                 }
-                field(Enabled; Enabled)
+                field(Enabled; Rec.Enabled)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Enabled';
@@ -59,7 +65,7 @@ page 800 "Online Map Setup"
                     Caption = 'Show Distance in';
                     ToolTip = 'Specifies if distances in your online map should be shown in miles or kilometers.';
                 }
-                field(Route; Route)
+                field(Route; Rec.Route)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Route (Quickest/Shortest)';
@@ -112,16 +118,16 @@ page 800 "Online Map Setup"
     var
         OnlineMapMgt: Codeunit "Online Map Management";
     begin
-        Reset();
-        if not Get() then begin
+        Rec.Reset();
+        if not Rec.Get() then begin
             OnlineMapMgt.SetupDefault();
-            Get();
+            Rec.Get();
         end;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        IF NOT Enabled THEN
+        IF NOT Rec.Enabled THEN
             IF NOT CONFIRM(STRSUBSTNO(EnableServiceQst, CurrPage.CAPTION), TRUE) THEN
                 EXIT(FALSE);
     end;

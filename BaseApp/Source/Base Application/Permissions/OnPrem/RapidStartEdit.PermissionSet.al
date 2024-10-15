@@ -1,3 +1,8 @@
+namespace System.Security.AccessControl;
+
+using System.IO;
+using Microsoft.API;
+
 permissionset 2800 "RapidStart - Edit"
 {
     Access = Public;

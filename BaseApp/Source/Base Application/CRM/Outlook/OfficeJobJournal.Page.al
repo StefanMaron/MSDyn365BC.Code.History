@@ -1,3 +1,9 @@
+namespace Microsoft.CRM.Outlook;
+
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Project.Planning;
+
 page 1615 "Office Job Journal"
 {
     Caption = 'Job Journal';
@@ -33,7 +39,7 @@ page 1615 "Office Job Journal"
                 Editable = false;
                 ToolTip = 'Specifies the number of the related job task.';
             }
-            field(JobJournalTemplate; "Job Journal Template Name")
+            field(JobJournalTemplate; Rec."Job Journal Template Name")
             {
                 ApplicationArea = Jobs;
                 Caption = 'Job Journal Template';
@@ -45,9 +51,9 @@ page 1615 "Office Job Journal"
                     JobJournalTemplate: Record "Job Journal Template";
                     JobJournalBatch: Record "Job Journal Batch";
                 begin
-                    JobJournalTemplate.Get("Job Journal Template Name");
+                    JobJournalTemplate.Get(Rec."Job Journal Template Name");
                     FindJobJournalBatch(JobJournalBatch);
-                    "Job Journal Batch Name" := '';
+                    Rec."Job Journal Batch Name" := '';
                     BatchEditable := false;
                     case JobJournalBatch.Count of
                         0:
@@ -55,14 +61,14 @@ page 1615 "Office Job Journal"
                         1:
                             begin
                                 JobJournalBatch.FindFirst();
-                                "Job Journal Batch Name" := JobJournalBatch.Name;
+                                Rec."Job Journal Batch Name" := JobJournalBatch.Name;
                             end;
                         else
                             BatchEditable := true;
                     end;
                 end;
             }
-            field(JobJournalBatch; "Job Journal Batch Name")
+            field(JobJournalBatch; Rec."Job Journal Batch Name")
             {
                 ApplicationArea = Jobs;
                 Caption = 'Job Journal Batch';
@@ -103,7 +109,7 @@ page 1615 "Office Job Journal"
                     OfficeJobsHandler: Codeunit "Office Jobs Handler";
                 begin
                     JobPlanningLine."Qty. to Transfer to Journal" := DisplayQuantity;
-                    OfficeJobsHandler.SubmitJobPlanningLine(JobPlanningLine, "Job Journal Template Name", "Job Journal Batch Name");
+                    OfficeJobsHandler.SubmitJobPlanningLine(JobPlanningLine, Rec."Job Journal Template Name", Rec."Job Journal Batch Name");
                     CurrPage.Close();
                 end;
             }
@@ -131,11 +137,11 @@ page 1615 "Office Job Journal"
     begin
         TemplateEditable := true;
 
-        JobUsageLink.SetRange("Job No.", "Job No.");
-        JobUsageLink.SetRange("Job Task No.", "Job Task No.");
-        JobUsageLink.SetRange("Line No.", "Job Planning Line No.");
+        JobUsageLink.SetRange("Job No.", Rec."Job No.");
+        JobUsageLink.SetRange("Job Task No.", Rec."Job Task No.");
+        JobUsageLink.SetRange("Line No.", Rec."Job Planning Line No.");
 
-        JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.");
+        JobPlanningLine.Get(Rec."Job No.", Rec."Job Task No.", Rec."Job Planning Line No.");
         OfficeJobsHandler.SetJobJournalRange(JobJournalLine, JobPlanningLine);
 
         if JobJournalLine.IsEmpty() and JobUsageLink.IsEmpty() then begin
@@ -149,11 +155,11 @@ page 1615 "Office Job Journal"
             if JobJournalTemplate.Count = 1 then begin
                 TemplateEditable := false;
                 JobJournalTemplate.FindFirst();
-                "Job Journal Template Name" := JobJournalTemplate.Name;
+                Rec."Job Journal Template Name" := JobJournalTemplate.Name;
                 FindJobJournalBatch(JobJournalBatch);
                 if JobJournalBatch.Count = 1 then begin
                     JobJournalBatch.FindFirst();
-                    "Job Journal Batch Name" := JobJournalBatch.Name;
+                    Rec."Job Journal Batch Name" := JobJournalBatch.Name;
                 end else
                     BatchEditable := true;
             end;
@@ -164,8 +170,8 @@ page 1615 "Office Job Journal"
             else begin
                 JobJournalLine.FindFirst();
                 DisplayQuantity := JobJournalLine.Quantity;
-                "Job Journal Template Name" := JobJournalLine."Journal Template Name";
-                "Job Journal Batch Name" := JobJournalLine."Journal Batch Name";
+                Rec."Job Journal Template Name" := JobJournalLine."Journal Template Name";
+                Rec."Job Journal Batch Name" := JobJournalLine."Journal Batch Name";
             end;
         end;
 
@@ -186,7 +192,7 @@ page 1615 "Office Job Journal"
 
     local procedure FindJobJournalBatch(var JobJournalBatch: Record "Job Journal Batch")
     begin
-        JobJournalBatch.SetRange("Journal Template Name", "Job Journal Template Name");
+        JobJournalBatch.SetRange("Journal Template Name", Rec."Job Journal Template Name");
     end;
 }
 

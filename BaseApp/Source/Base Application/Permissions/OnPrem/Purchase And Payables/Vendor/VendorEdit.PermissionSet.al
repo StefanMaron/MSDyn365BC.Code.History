@@ -1,10 +1,79 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Check;
+using Microsoft.Foundation.Comment;
+using Microsoft.CRM.Duplicates;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.Service.Contract;
+using Microsoft.Foundation.Address;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Receivables;
+using Microsoft.Finance.Dimension;
+using Microsoft.Purchases.Payables;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.HumanResources.Payables;
+using Microsoft.HumanResources.Employee;
+using Microsoft.FixedAssets.Ledger;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Intercompany.BankAccount;
+using Microsoft.Intercompany.Partner;
+using Microsoft.FixedAssets.Insurance;
+using Microsoft.CRM.Interaction;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Location;
+using Microsoft.FixedAssets.Maintenance;
+using Microsoft.Purchases.Vendor;
+using Microsoft.CRM.Opportunity;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Pricing;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Archive;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Purchases.Remittance;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Sales.History;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Finance.SalesTax;
+using Microsoft.CRM.Task;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Worksheet;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.CRM.Team;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Registration;
+using Microsoft.Finance.VAT.Reporting;
+
 permissionset 7371 "Vendor - Edit"
 {
     Access = Public;
     Assignable = false;
     Caption = 'Edit vendors';
-
-    IncludedPermissionSets = "Language - Read";
 
     Permissions = tabledata "Bank Account Ledger Entry" = rm,
                   tabledata "Check Ledger Entry" = r,
@@ -52,9 +121,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Maintenance Ledger Entry" = rm,
                   tabledata "Maintenance Registration" = rm,
                   tabledata "My Vendor" = RIMD,
-#if not CLEAN20
-                  tabledata "Native - Payment" = r,
-#endif
                   tabledata "Nonstock Item" = rm,
                   tabledata Opportunity = R,
                   tabledata "Order Address" = RIMD,

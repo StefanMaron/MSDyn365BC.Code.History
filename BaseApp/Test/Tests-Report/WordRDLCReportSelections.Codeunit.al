@@ -1265,14 +1265,6 @@ codeunit 134775 "Word & RDLC Report Selections"
         Assert.IsFalse(FileMgt.ServerFileExists(FullFilePath), StrSubstNo(ExpectedMissingFilePathErr, FileName));
     end;
 
-#if not CLEAN20
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Custom Layout Reporting", 'OnBeforeVerifyXmlContainsDataset', '', false, false)]
-    local procedure CancelVerificationOnBeforeVerifyXmlContainsDataset(var CancelVerification: Boolean)
-    begin
-        CancelVerification := true;
-    end;
-#endif
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Custom Layout Reporting", 'OnIsTestMode', '', false, false)]
     local procedure EnableTestModeOnIsTestMode(var TestMode: Boolean)
     begin

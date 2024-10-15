@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Pricing;
+
 page 6083 "Serv. Price Adjmt. Detail"
 {
     Caption = 'Serv. Price Adjmt. Detail';
@@ -75,25 +77,24 @@ page 6083 "Serv. Price Adjmt. Detail"
         ShowColumn: Boolean;
     begin
         ShowColumn := true;
-        if GetFilter("Serv. Price Adjmt. Gr. Code") <> '' then
-            if ServPriceAdjmtGroup.Get("Serv. Price Adjmt. Gr. Code") then
+        if Rec.GetFilter("Serv. Price Adjmt. Gr. Code") <> '' then
+            if ServPriceAdjmtGroup.Get(Rec."Serv. Price Adjmt. Gr. Code") then
                 ShowColumn := false
             else
-                Reset();
+                Rec.Reset();
         ServPriceAdjmtGrCodeVisible := ShowColumn;
     end;
 
     var
-        [InDataSet]
         ServPriceAdjmtGrCodeVisible: Boolean;
 
     local procedure FormCaption(): Text[180]
     var
         ServPriceAdjmtGrp: Record "Service Price Adjustment Group";
     begin
-        if GetFilter("Serv. Price Adjmt. Gr. Code") <> '' then
-            if ServPriceAdjmtGrp.Get("Serv. Price Adjmt. Gr. Code") then
-                exit(StrSubstNo('%1 %2', "Serv. Price Adjmt. Gr. Code", ServPriceAdjmtGrp.Description));
+        if Rec.GetFilter("Serv. Price Adjmt. Gr. Code") <> '' then
+            if ServPriceAdjmtGrp.Get(Rec."Serv. Price Adjmt. Gr. Code") then
+                exit(StrSubstNo('%1 %2', Rec."Serv. Price Adjmt. Gr. Code", ServPriceAdjmtGrp.Description));
     end;
 }
 

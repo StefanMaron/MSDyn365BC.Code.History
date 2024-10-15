@@ -1,3 +1,18 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.CashFlow.Forecast;
+using Microsoft.CostAccounting.Account;
+using Microsoft.CostAccounting.Budget;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Budget;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Period;
+using System.Text;
+using System.Utilities;
+
 report 25 "Account Schedule"
 {
     DefaultLayout = RDLC;
@@ -13,13 +28,13 @@ report 25 "Account Schedule"
     {
         dataitem(AccScheduleName; "Acc. Schedule Name")
         {
-            DataItemTableView = SORTING(Name);
+            DataItemTableView = sorting(Name);
             column(AccScheduleName_Name; Name)
             {
             }
             dataitem(Heading; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(TodayFormatted; Format(Today()))
                 {
                 }
@@ -100,9 +115,9 @@ report 25 "Account Schedule"
                 }
                 dataitem("Acc. Schedule Line"; "Acc. Schedule Line")
                 {
-                    DataItemLink = "Schedule Name" = FIELD(Name);
+                    DataItemLink = "Schedule Name" = field(Name);
                     DataItemLinkReference = AccScheduleName;
-                    DataItemTableView = SORTING("Schedule Name", "Line No.");
+                    DataItemTableView = sorting("Schedule Name", "Line No.");
                     PrintOnlyIfDetail = true;
                     column(NextPageGroupNo; NextPageGroupNo)
                     {
@@ -136,7 +151,7 @@ report 25 "Account Schedule"
                     }
                     dataitem("Column Layout"; "Column Layout")
                     {
-                        DataItemTableView = SORTING("Column Layout Name", "Line No.");
+                        DataItemTableView = sorting("Column Layout Name", "Line No.");
                         column(ColumnNo; "Column No.")
                         {
                         }
@@ -196,7 +211,7 @@ report 25 "Account Schedule"
                     }
                     dataitem(FixedColumns; "Integer")
                     {
-                        DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                        DataItemTableView = sorting(Number) where(Number = const(1));
                         column(ColumnValue1; ColumnValuesArrayText[1])
                         {
                         }
@@ -755,7 +770,6 @@ report 25 "Account Schedule"
         ColumnLayoutName: Code[10];
         ColumnLayoutNameHidden: Code[10];
         GLBudgetName: Code[10];
-        [InDataSet]
         StartDateEnabled: Boolean;
         StartDate: Date;
         EndDate: Date;
@@ -793,11 +807,8 @@ report 25 "Account Schedule"
         AccSchedLineFilter: Text;
         Header: Text[50];
         RoundingHeader: Text[30];
-        [InDataSet]
         BusinessUnitFilterVisible: Boolean;
-        [InDataSet]
         BudgetFilterEnable: Boolean;
-        [InDataSet]
         UseAmtsInAddCurrVisible: Boolean;
         UseAmtsInAddCurr: Boolean;
         ShowRowNo: Boolean;
@@ -809,18 +820,12 @@ report 25 "Account Schedule"
         DoubleUnderline_control: Boolean;
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
-        [InDataSet]
         Dim1FilterEnable: Boolean;
-        [InDataSet]
         Dim2FilterEnable: Boolean;
-        [InDataSet]
         Dim3FilterEnable: Boolean;
-        [InDataSet]
         Dim4FilterEnable: Boolean;
-        [InDataSet]
         AccSchedNameEditable: Boolean;
         LineShadowed: Boolean;
-        LineSkipped: Boolean;
         SkipEmptyLines: Boolean;
         ShowCurrencySymbol: Boolean;
         ShowEmptyAmountType: Enum "Show Empty Amount Type";
@@ -843,6 +848,9 @@ report 25 "Account Schedule"
         Account_ScheduleCaptionLbl: Label 'Financial Report';
         AnalysisView_CodeCaptionLbl: Label 'Analysis View';
         ContextInitialized: Boolean;
+
+    protected var
+        LineSkipped: Boolean;
 
     local procedure CalcColumnValueAsText(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var ValueIsEmpty: Boolean): Text[30]
     var
@@ -911,15 +919,15 @@ report 25 "Account Schedule"
 
         ZeroDecimal := 0;
         case ShowEmptyAmountType of
-            "Show Empty Amount Type"::Blank:
+            ShowEmptyAmountType::Blank:
                 exit('');
-            "Show Empty Amount Type"::Zero:
+            ShowEmptyAmountType::Zero:
                 exit(
                     CopyStr(
                         Format(ZeroDecimal, 0, MatrixMgt.FormatRoundingFactor(ColumnLayout."Rounding Factor", UseAmtsInAddCurr)),
                         1,
                         MaxStrLen(Result)));
-            "Show Empty Amount Type"::Dash:
+            ShowEmptyAmountType::Dash:
                 exit('-');
         end;
 

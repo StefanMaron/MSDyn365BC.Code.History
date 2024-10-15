@@ -1,3 +1,45 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Assembly.Document;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Inventory.Item.Attribute;
+using Microsoft.Purchases.Document;
+using Microsoft.Warehouse.ADCS;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Costing;
+using Microsoft.Inventory.Planning;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Pricing;
+using Microsoft.Sales.History;
+using Microsoft.Service.Resources;
+using Microsoft.Sales.Pricing;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Item.Substitution;
+using Microsoft.Service.Maintenance;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Foundation.Period;
+using Microsoft.Sales.Document;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Finance.VAT.RateChange;
+
 permissionset 5947 "D365 ITEM, EDIT"
 {
     Assignable = true;

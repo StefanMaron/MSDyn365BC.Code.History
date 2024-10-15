@@ -1,3 +1,10 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Posting;
+
 page 9319 "Service Invoices"
 {
     ApplicationArea = Service;
@@ -7,7 +14,7 @@ page 9319 "Service Invoices"
     Editable = false;
     PageType = List;
     SourceTable = "Service Header";
-    SourceTableView = WHERE("Document Type" = CONST(Invoice));
+    SourceTableView = where("Document Type" = const(Invoice));
     UsageCategory = Lists;
 
     layout
@@ -57,7 +64,7 @@ page 9319 "Service Invoices"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location (for example, warehouse or distribution center) of the items specified on the service item lines.';
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the priority of the service order.';
@@ -116,15 +123,15 @@ page 9319 "Service Invoices"
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Bill-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             systempart(Control1900383207; Links)
@@ -158,7 +165,7 @@ page 9319 "Service Invoices"
 
                     trigger OnAction()
                     begin
-                        OpenStatistics();
+                        Rec.OpenStatistics();
                     end;
                 }
                 action("Co&mments")
@@ -167,10 +174,10 @@ page 9319 "Service Invoices"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Header"),
-                                  "Table Subtype" = FIELD("Document Type"),
-                                  "No." = FIELD("No."),
-                                  Type = CONST(General);
+                    RunPageLink = "Table Name" = const("Service Header"),
+                                  "Table Subtype" = field("Document Type"),
+                                  "No." = field("No."),
+                                  Type = const(General);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("&Dimensions")
@@ -184,7 +191,7 @@ page 9319 "Service Invoices"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                     end;
                 }
                 action("Service Document Lo&g")
@@ -200,7 +207,7 @@ page 9319 "Service Invoices"
                     begin
                         TempServDocLog.Reset();
                         TempServDocLog.DeleteAll();
-                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Invoice.AsInteger(), "No.");
+                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Invoice.AsInteger(), Rec."No.");
 
                         TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
@@ -227,7 +234,7 @@ page 9319 "Service Invoices"
 
                     trigger OnAction()
                     begin
-                        SendToPost(Codeunit::"Service-Post (Yes/No)");
+                        Rec.SendToPost(Codeunit::"Service-Post (Yes/No)");
                     end;
                 }
                 action(Preview)
@@ -255,7 +262,7 @@ page 9319 "Service Invoices"
 
                     trigger OnAction()
                     begin
-                        SendToPost(Codeunit::"Service-Post and Send");
+                        Rec.SendToPost(Codeunit::"Service-Post and Send");
                     end;
                 }
                 action("Post and &Print")
@@ -268,7 +275,7 @@ page 9319 "Service Invoices"
 
                     trigger OnAction()
                     begin
-                        SendToPost(Codeunit::"Service-Post+Print");
+                        Rec.SendToPost(Codeunit::"Service-Post+Print");
                     end;
                 }
                 action("Post &Batch")
@@ -336,9 +343,9 @@ page 9319 "Service Invoices"
 
     trigger OnOpenPage()
     begin
-        SetSecurityFilterOnRespCenter();
+        Rec.SetSecurityFilterOnRespCenter();
 
-        CopyCustomerFilter();
+        Rec.CopyCustomerFilter();
     end;
 }
 

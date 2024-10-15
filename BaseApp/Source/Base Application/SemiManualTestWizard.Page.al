@@ -1,3 +1,8 @@
+namespace System.TestTools;
+
+using System.IO;
+using System.Reflection;
+
 page 130415 "Semi-Manual Test Wizard"
 {
     Caption = 'Semi-Manual Test Wizard';
@@ -155,7 +160,7 @@ page 130415 "Semi-Manual Test Wizard"
 
                 trigger OnAction()
                 begin
-                    "Skip current step" := true;
+                    Rec."Skip current step" := true;
                     OnNextStep();
                 end;
             }
@@ -169,7 +174,7 @@ page 130415 "Semi-Manual Test Wizard"
 
                 trigger OnAction()
                 begin
-                    "Skip current step" := false;
+                    Rec."Skip current step" := false;
                     OnNextStep();
                 end;
             }
@@ -178,10 +183,10 @@ page 130415 "Semi-Manual Test Wizard"
 
     trigger OnAfterGetRecord()
     begin
-        if "Step number" > "Total steps" then
+        if Rec."Step number" > Rec."Total steps" then
             StepHeading := 'TEST COMPLETE'
         else
-            StepHeading := StrSubstNo('Step %1 of %2. %3', "Step number", "Total steps", "Step heading");
+            StepHeading := StrSubstNo('Step %1 of %2. %3', Rec."Step number", Rec."Total steps", Rec."Step heading");
     end;
 
     var
@@ -209,11 +214,11 @@ page 130415 "Semi-Manual Test Wizard"
             exit;
 
         CodeunitIdentifier := StrSubstNo('%1: %2', CodeunitId, AllObjWithCaption."Object Name");
-        Initialize(AllObjWithCaption."Object ID", AllObjWithCaption."Object Name");
-        ManualSteps := GetManualSteps();
+        Rec.Initialize(AllObjWithCaption."Object ID", AllObjWithCaption."Object Name");
+        ManualSteps := Rec.GetManualSteps();
         TestExecuting := true;
         SemiManualExecutionLog.Log(StrSubstNo('Loaded codeunit %1. Total steps = %2.',
-            CodeunitId, "Total steps"));
+            CodeunitId, Rec."Total steps"));
         CurrPage.Update();
     end;
 
@@ -221,15 +226,15 @@ page 130415 "Semi-Manual Test Wizard"
     begin
         ClearLastError();
         SemiManualExecutionLog.Log(StrSubstNo('Manual step %1- %2 executed. Attempting to execute the automation post process.',
-            "Step number", "Step heading"));
-        if CODEUNIT.Run("Codeunit number", Rec) then begin
-            ManualSteps := GetManualSteps();
-            if "Step number" > "Total steps" then begin
+            Rec."Step number", Rec."Step heading"));
+        if CODEUNIT.Run(Rec."Codeunit number", Rec) then begin
+            ManualSteps := Rec.GetManualSteps();
+            if Rec."Step number" > Rec."Total steps" then begin
                 TestExecuting := false;
                 Message(TestSuccessfulMsg);
             end;
             CurrPage.Update();
-            if "Skip current step" then
+            if Rec."Skip current step" then
                 SemiManualExecutionLog.Log('The automation post process step skipped.')
             else
                 SemiManualExecutionLog.Log('The automation post process executed without errors.');

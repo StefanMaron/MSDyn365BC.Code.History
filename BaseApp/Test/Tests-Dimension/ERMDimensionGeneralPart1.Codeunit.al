@@ -27,7 +27,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         WrongValueErr: Label 'Wrong value of field %1 in table %2.';
         WrongCaptionErr: Label 'Wrong Caption %1.';
         InvalidColumnIndexErr: Label 'The ColumnNo param is outside the permitted range.';
-        PKRangeMsg: Label '%1..%2';
+        PKRangeMsg: Label '%1..%2', Locked = true;
 
     [Test]
     [Scope('OnPrem')]

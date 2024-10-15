@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 page 1343 "Dimensions Template List"
 {
     Caption = 'Dimension Templates';
@@ -42,8 +44,8 @@ page 1343 "Dimensions Template List"
         TableFilterId: Text;
         TableID: Integer;
     begin
-        MasterRecordCodeFilter := GetFilter("Master Record Template Code");
-        TableFilterId := GetFilter("Table Id");
+        MasterRecordCodeFilter := Rec.GetFilter("Master Record Template Code");
+        TableFilterId := Rec.GetFilter("Table Id");
 
         if (MasterRecordCodeFilter = '') or (TableFilterId = '') then
             Error(CannotRunPageDirectlyErr);

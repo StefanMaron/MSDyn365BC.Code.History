@@ -670,12 +670,21 @@ codeunit 144005 "ERM Tax Authority"
     end;
 
     local procedure Initialize()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Tax Authority");
         LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Tax Authority");
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Tax Authority");

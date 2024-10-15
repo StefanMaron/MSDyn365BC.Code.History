@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.Dimension.Correction;
+
 permissionset 2980 "D365 DIM CORRECTION"
 {
     Assignable = true;

@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Resources;
+
 page 6015 "Resource Locations"
 {
     Caption = 'Resource Locations';

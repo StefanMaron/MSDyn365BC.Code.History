@@ -117,7 +117,7 @@ codeunit 139323 "Onboarding Signal Tests"
         OnboardingSignalImpl: Codeunit "Onboarding Signal";
         OnboardingSignalType: Enum "Onboarding Signal Type";
     begin
-        // [SCENARIO] Test if procedure GetOnboardingSignals is working as expected
+        // [SCENARIO] Test if GetOnboardingSignals procedure is working as expected
         LibraryOnboardingSignal.InitializeOnboardingSignalTestingEnv();
         LibraryLowerPermissions.SetO365Basic();
 

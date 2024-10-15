@@ -1,3 +1,15 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
+using Microsoft.Integration.Dataverse;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Telemetry;
+using System.Utilities;
+
 page 1817 "CRM Connection Setup Wizard"
 {
     Caption = 'Dynamics 365 Connection Setup';
@@ -49,7 +61,7 @@ page 1817 "CRM Connection Setup Wizard"
                         InstructionalText = 'Start by specifying the URL to your Dynamics 365 Sales solution, such as https://mycrm.crm4.dynamics.com';
                         ShowCaption = false;
                     }
-                    field(ServerAddress; "Server Address")
+                    field(ServerAddress; Rec."Server Address")
                     {
                         ApplicationArea = Suite;
                         Editable = ConnectionStringFieldsEditable;
@@ -59,7 +71,7 @@ page 1817 "CRM Connection Setup Wizard"
                         var
                             CRMIntegrationManagement: Codeunit "CRM Integration Management";
                         begin
-                            CRMIntegrationManagement.CheckModifyCRMConnectionURL("Server Address");
+                            CRMIntegrationManagement.CheckModifyCRMConnectionURL(Rec."Server Address");
                         end;
                     }
                     group(Control9)
@@ -78,7 +90,7 @@ page 1817 "CRM Connection Setup Wizard"
                     Caption = '';
                     InstructionalText = 'Specify the user that will be used for synchronization between the two services.';
                     Visible = IsUserNamePasswordVisible;
-                    field(Email; "User Name")
+                    field(Email; Rec."User Name")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Email';
@@ -124,49 +136,6 @@ page 1817 "CRM Connection Setup Wizard"
                         Enabled = PublishItemAvailabilityServiceEnabled;
                         ToolTip = 'Specifies that item availability job queue entry will be scheduled.';
                     }
-                    field(PublishItemAvailabilityService; PublishItemAvailabilityService)
-                    {
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
-                        ObsoleteTag = '18.0';
-                        Visible = false;
-                        ApplicationArea = Suite;
-                        Caption = 'Publish Item Availability Web Service';
-                        Enabled = PublishItemAvailabilityServiceEnabled;
-                    }
-                    label(Control26)
-                    {
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
-                        ObsoleteTag = '18.0';
-                        Visible = false;
-                        ApplicationArea = Suite;
-                        Caption = 'You must assign the security role Business Central Product Availability User to your sales people in Dynamics 365 Sales.';
-                    }
-                    field(NAVODataUsername; "Dynamics NAV OData Username")
-                    {
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
-                        ObsoleteTag = '18.0';
-                        Visible = false;
-                        ApplicationArea = Suite;
-                        Caption = 'Business Central OData Web Service User Name';
-                        Editable = PublishItemAvailabilityService;
-                        Enabled = PublishItemAvailabilityServiceEnabled;
-                        Lookup = true;
-                        LookupPageID = Users;
-                    }
-                    field(NAVODataAccesskey; "Dynamics NAV OData Accesskey")
-                    {
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
-                        ObsoleteTag = '18.0';
-                        Visible = false;
-                        ApplicationArea = Suite;
-                        Caption = 'Business Central OData Web Service Access Key';
-                        Editable = false;
-                        Enabled = PublishItemAvailabilityServiceEnabled;
-                    }
                     field(EnableSalesOrderIntegration; EnableSalesOrderIntegration)
                     {
                         ApplicationArea = Suite;
@@ -204,7 +173,7 @@ page 1817 "CRM Connection Setup Wizard"
                         Enabled = EnableCRMConnectionEnabled;
                         ToolTip = 'Specifies if the connection to Dynamics 365 Sales will be enabled.';
                     }
-                    field(SDKVersion; "Proxy Version")
+                    field(SDKVersion; Rec."Proxy Version")
                     {
                         ApplicationArea = Suite;
                         AssistEdit = true;
@@ -217,7 +186,7 @@ page 1817 "CRM Connection Setup Wizard"
                             TempStack: Record TempStack temporary;
                         begin
                             if PAGE.RunModal(PAGE::"SDK Version List", TempStack) = ACTION::LookupOK then begin
-                                "Proxy Version" := TempStack.StackOrder;
+                                Rec."Proxy Version" := TempStack.StackOrder;
                                 CurrPage.Update(true);
                             end;
                         end;
@@ -259,7 +228,7 @@ page 1817 "CRM Connection Setup Wizard"
 
                 trigger OnAction()
                 begin
-                    if (Step = Step::Start) and ("Server Address" = '') then
+                    if (Step = Step::Start) and (Rec."Server Address" = '') then
                         Error(CRMURLShouldNotBeEmptyErr, CRMProductName.SHORT());
                     NextStep(false);
                 end;
@@ -307,8 +276,8 @@ page 1817 "CRM Connection Setup Wizard"
                     FeatureTelemetry: Codeunit "Feature Telemetry";
                     GuidedExperience: Codeunit "Guided Experience";
                 begin
-                    if "Authentication Type" = "Authentication Type"::Office365 then
-                        if "User Name" = '' then
+                    if Rec."Authentication Type" = Rec."Authentication Type"::Office365 then
+                        if Rec."User Name" = '' then
                             Error(CRMSynchUserCredentialsNeededErr, CRMProductName.SHORT());
 
                     if not FinalizeSetup() then
@@ -339,20 +308,20 @@ page 1817 "CRM Connection Setup Wizard"
         FeatureTelemetry.LogUptake('0000H78', 'Dataverse', Enum::"Feature Uptake Status"::Discovered);
         FeatureTelemetry.LogUptake('0000H79', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::Discovered);
 
-        Init();
+        Rec.Init();
         if CRMConnectionSetup.Get() then begin
-            "Proxy Version" := CRMConnectionSetup."Proxy Version";
-            "Authentication Type" := CRMConnectionSetup."Authentication Type";
-            "Server Address" := CRMConnectionSetup."Server Address";
-            "User Name" := CRMConnectionSetup."User Name";
-            "User Password Key" := CRMConnectionSetup."User Password Key";
+            Rec."Proxy Version" := CRMConnectionSetup."Proxy Version";
+            Rec."Authentication Type" := CRMConnectionSetup."Authentication Type";
+            Rec."Server Address" := CRMConnectionSetup."Server Address";
+            Rec."User Name" := CRMConnectionSetup."User Name";
+            Rec."User Password Key" := CRMConnectionSetup."User Password Key";
             Password := CRMConnectionSetup.GetPassword();
             ConnectionStringFieldsEditable := false;
         end else begin
             InitializeDefaultAuthenticationType();
             InitializeDefaultProxyVersion();
         end;
-        Insert();
+        Rec.Insert();
         Step := Step::Start;
         EnableControls();
     end;
@@ -384,7 +353,6 @@ page 1817 "CRM Connection Setup Wizard"
         CredentialsStepVisible: Boolean;
         EnableCRMConnection: Boolean;
         ImportSolution: Boolean;
-        PublishItemAvailabilityService: Boolean;
         EnableCRMConnectionEnabled: Boolean;
         ImportCRMSolutionEnabled: Boolean;
         PublishItemAvailabilityServiceEnabled: Boolean;
@@ -488,8 +456,8 @@ page 1817 "CRM Connection Setup Wizard"
 
         EnableBidirectionalSalesOrderIntegrationEnabled := ImportCRMSolutionEnabled;
         EnableSalesOrderIntegrationEnabled := ImportCRMSolutionEnabled;
-        EnableCRMConnectionEnabled := "Server Address" <> '';
-        "Authentication Type" := "Authentication Type"::Office365;
+        EnableCRMConnectionEnabled := Rec."Server Address" <> '';
+        Rec."Authentication Type" := Rec."Authentication Type"::Office365;
         if CRMConnectionSetup.Get() then begin
             EnableCRMConnection := true;
             EnableCRMConnectionEnabled := not CRMConnectionSetup."Is Enabled";
@@ -520,24 +488,24 @@ page 1817 "CRM Connection Setup Wizard"
         AdminADDomain: Text;
     begin
         if ImportSolution and ImportCRMSolutionEnabled then begin
-            case "Authentication Type" of
-                "Authentication Type"::Office365:
-                    CDSIntegrationImpl.GetAccessToken("Server Address", true, AccessToken);
-                "Authentication Type"::AD:
-                    if not PromptForCredentials(AdminEmail, AdminPassword, AdminADDomain) then
+            case Rec."Authentication Type" of
+                Rec."Authentication Type"::Office365:
+                    CDSIntegrationImpl.GetAccessToken(Rec."Server Address", true, AccessToken);
+                Rec."Authentication Type"::AD:
+                    if not Rec.PromptForCredentials(AdminEmail, AdminPassword, AdminADDomain) then
                         exit(false);
                 else
-                    if not PromptForCredentials(AdminEmail, AdminPassword) then
+                    if not Rec.PromptForCredentials(AdminEmail, AdminPassword) then
                         exit(false);
             end;
-            CRMIntegrationManagement.ImportCRMSolution("Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, "Proxy Version", true);
+            CRMIntegrationManagement.ImportCRMSolution(Rec."Server Address", Rec."User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, Rec."Proxy Version", true);
         end;
         if EnableBidirectionalSalesOrderIntegration then
-            Validate("Bidirectional Sales Order Int.", true);
+            Rec.Validate("Bidirectional Sales Order Int.", true);
         if EnableSalesOrderIntegration then
-            "Is S.Order Integration Enabled" := true;
+            Rec."Is S.Order Integration Enabled" := true;
         if EnableItemAvailability then
-            "Item Availability Enabled" := true;
+            Rec."Item Availability Enabled" := true;
 
         CRMIntegrationManagement.InitializeCRMSynchStatus();
         CRMConnectionSetup.UpdateFromWizard(Rec, Password);
@@ -555,14 +523,14 @@ page 1817 "CRM Connection Setup Wizard"
 
     local procedure InitializeDefaultAuthenticationType()
     begin
-        Validate("Authentication Type", "Authentication Type"::Office365);
+        Rec.Validate("Authentication Type", Rec."Authentication Type"::Office365);
     end;
 
     local procedure InitializeDefaultProxyVersion()
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        Validate("Proxy Version", CRMIntegrationManagement.GetLastProxyVersionItem());
+        Rec.Validate("Proxy Version", CRMIntegrationManagement.GetLastProxyVersionItem());
     end;
 }
 

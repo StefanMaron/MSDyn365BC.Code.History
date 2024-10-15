@@ -393,6 +393,34 @@ codeunit 134121 "Price Source List UT"
         DtldPriceCalculationSetup.TestField("Source No.", Job."No.");
     end;
 
+    [Test]
+    procedure T200_AddChildPriceSourcesForContact()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        PriceSource: Record "Price Source";
+        TempPriceSource: Record "Price Source" temporary;
+        PriceSourceList: Codeunit "Price Source List";
+    begin
+        // [SCENARIO] AddChildren method adds customer price price source to the price source list when called for contact
+        Initialize();
+        // [GIVEN] Contact with business relation to customer exist
+        LibraryMarketing.CreateCompanyContact(Contact);
+        LibrarySales.CreateCustomer(Customer);
+        LibraryMarketing.CreateBusinessRelationBetweenContactAndCustomer(ContactBusinessRelation, Contact."No.", Customer."No.");
+        Contact.ToPriceSource(PriceSource);
+        PriceSourceList.Init();
+        // [WHEN] Price Source List is initialized
+        PriceSourceList.AddChildren(PriceSource);
+        PriceSourceList.Add(PriceSource);
+        // [THEN] PriceSourceList contains exactly two price sources. One of them for contact and a second for customer.
+        PriceSourceList.GetList(TempPriceSource);
+        Assert.RecordCount(TempPriceSource, 2);
+        Assert.AreEqual(Contact."No.", PriceSourceList.GetValue(Enum::"Price Source Type"::Contact), 'Contact Prices not found.');
+        Assert.AreEqual(Customer."No.", PriceSourceList.GetValue(Enum::"Price Source Type"::Customer), 'Customer Prices not found.');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Price Source List UT");

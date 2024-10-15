@@ -1,3 +1,5 @@
+namespace System.Utilities;
+
 page 9180 "Latest Error"
 {
     ApplicationArea = All;

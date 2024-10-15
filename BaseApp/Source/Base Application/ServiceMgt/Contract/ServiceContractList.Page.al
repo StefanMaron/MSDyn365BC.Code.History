@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Service.Reports;
+
 page 6051 "Service Contract List"
 {
     Caption = 'Service Contract List';
@@ -243,10 +247,10 @@ page 6051 "Service Contract List"
 
     local procedure OpenRelatedCard()
     begin
-        case "Contract Type" of
-            "Contract Type"::Quote:
+        case Rec."Contract Type" of
+            Rec."Contract Type"::Quote:
                 PAGE.Run(PAGE::"Service Contract Quote", Rec);
-            "Contract Type"::Contract:
+            Rec."Contract Type"::Contract:
                 PAGE.Run(PAGE::"Service Contract", Rec);
         end;
     end;

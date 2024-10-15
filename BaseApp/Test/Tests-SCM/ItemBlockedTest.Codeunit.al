@@ -15,15 +15,15 @@ codeunit 134815 "Item Blocked Test"
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryPurchase: Codeunit "Library - Purchase";
-        SalesBlockedErr: Label 'You cannot sell this item because the Sales Blocked check box is selected on the item card.';
-        PurchasingBlockedErr: Label 'You cannot purchase this item because the Purchasing Blocked check box is selected on the item card.';
+        SalesBlockedErr: Label 'You cannot sell this %1 because the %2 check box is selected on the %1 card.', Comment = '%1 - Table Caption (item/variant), %2 - Field Caption';
         AddingBlockedItemMsg: Label 'Item %1 is blocked, but it is allowed on this type of document.', Comment = '%1 - Item No.';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         IsInitialized: Boolean;
-        PurchasingBlockedCopyFromItemErr: Label 'You cannot purchase item %1 because the Purchasing Blocked check box is selected on the item card.';
-        BlockedErr: Label 'You cannot choose item number %1 because the Blocked check box is selected on its item card.', Comment = '%1 - Item No.';
+        JournalPurchasingBlockedErr: Label 'You cannot purchase this %1 because the %2 check box is selected on the %1 card.', Comment = '%1 - Table Caption (item/variant), %2 - Field Caption';
+        PurchasingBlockedErr: Label 'You cannot purchase Item %1 because the %2 check box is selected on the Item card.', Comment = '%1 - Item No., %2 - Blocked Field Caption';
+        BlockedErr: Label 'You cannot choose %2 %1 because the Blocked check box is selected on its %2 card.', Comment = '%1 - Item No., %2 - Table Caption (item/variant)';
 
     [Test]
     [Scope('OnPrem')]
@@ -49,7 +49,7 @@ codeunit 134815 "Item Blocked Test"
           LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(100, 2));
 
         // [THEN] An error appears: 'You cannot sell this item'
-        Assert.ExpectedError(SalesBlockedErr);
+        Assert.ExpectedError(StrSubstNo(SalesBlockedErr, Item.TableCaption(), Item.FieldCaption("Sales Blocked")));
     end;
 
     [Test]
@@ -263,7 +263,7 @@ codeunit 134815 "Item Blocked Test"
             ItemJournalLine."Entry Type"::Sale, Item."No.", LibraryRandom.RandDec(100, 2));
 
         // [THEN] An error appears
-        Assert.ExpectedError(SalesBlockedErr);
+        Assert.ExpectedError(StrSubstNo(SalesBlockedErr, Item.TableCaption(), Item.FieldCaption("Sales Blocked")));
     end;
 
     [Test]
@@ -319,7 +319,7 @@ codeunit 134815 "Item Blocked Test"
             PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDec(100, 2));
 
         // [THEN] An error appears: 'You cannot purchase this item'
-        Assert.ExpectedError(StrSubstNo(PurchasingBlockedCopyFromItemErr, Item."No."));
+        Assert.ExpectedError(StrSubstNo(PurchasingBlockedErr, Item."No.", Item.FieldCaption("Purchasing Blocked")));
     end;
 
     [Test]
@@ -533,7 +533,7 @@ codeunit 134815 "Item Blocked Test"
             ItemJournalLine."Entry Type"::Purchase, Item."No.", LibraryRandom.RandDec(100, 2));
 
         // [THEN] An error appears
-        Assert.ExpectedError(PurchasingBlockedErr);
+        Assert.ExpectedError(StrSubstNo(JournalPurchasingBlockedErr, Item.TableCaption(), Item.FieldCaption("Purchasing Blocked")));
     end;
 
     [Test]
@@ -581,7 +581,7 @@ codeunit 134815 "Item Blocked Test"
 
         asserterror LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 0);
 
-        Assert.ExpectedError(StrSubstNo(BlockedErr, Item."No."));
+        Assert.ExpectedError(StrSubstNo(BlockedErr, Item."No.", Item.TableCaption()));
     end;
 
     local procedure Initialize()

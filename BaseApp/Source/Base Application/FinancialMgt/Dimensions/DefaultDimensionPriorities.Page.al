@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Foundation.AuditCodes;
+
 page 543 "Default Dimension Priorities"
 {
     ApplicationArea = Dimensions;
@@ -6,7 +10,7 @@ page 543 "Default Dimension Priorities"
     PageType = Worksheet;
     SaveValues = true;
     SourceTable = "Default Dimension Priority";
-    SourceTableView = SORTING("Source Code", Priority);
+    SourceTableView = sorting("Source Code", Priority);
     UsageCategory = Administration;
 
     layout
@@ -59,7 +63,7 @@ page 543 "Default Dimension Priorities"
                     DrillDown = false;
                     ToolTip = 'Specifies the table name for the account type you wish to prioritize.';
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the priority of an account type, with the highest priority being 1.';
@@ -102,7 +106,7 @@ page 543 "Default Dimension Priorities"
 
                 trigger OnAction()
                 begin
-                    InitializeDefaultDimPrioritiesForSourceCode();
+                    Rec.InitializeDefaultDimPrioritiesForSourceCode();
                 end;
             }
         }
@@ -110,13 +114,13 @@ page 543 "Default Dimension Priorities"
 
     trigger OnAfterGetRecord()
     begin
-        PriorityOnFormat(Format(Priority));
+        PriorityOnFormat(Format(Rec.Priority));
     end;
 
     trigger OnOpenPage()
     begin
-        if "Source Code" <> '' then
-            CurrentSourceCode := "Source Code";
+        if Rec."Source Code" <> '' then
+            CurrentSourceCode := Rec."Source Code";
 
         OpenSourceCode(CurrentSourceCode, Rec);
     end;
@@ -171,7 +175,7 @@ page 543 "Default Dimension Priorities"
 
     local procedure TableIDOnAfterValidate()
     begin
-        CalcFields("Table Caption");
+        Rec.CalcFields("Table Caption");
     end;
 
     local procedure PriorityOnAfterValidate()
@@ -188,7 +192,7 @@ page 543 "Default Dimension Priorities"
 
     local procedure PriorityOnFormat(Text: Text[1024])
     begin
-        if Priority = 0 then
+        if Rec.Priority = 0 then
             Text := Text000;
     end;
 }

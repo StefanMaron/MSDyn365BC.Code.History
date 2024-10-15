@@ -13,12 +13,12 @@ report 11413 "Create Intrastat Decl. Disk"
     {
         dataitem("Intrastat Jnl. Batch"; "Intrastat Jnl. Batch")
         {
-            DataItemTableView = SORTING("Journal Template Name", Name);
+            DataItemTableView = sorting("Journal Template Name", Name);
             MaxIteration = 1;
             dataitem(IntrastatJnlLine; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", Type);
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", Type);
 
                 trigger OnAfterGetRecord()
                 var
@@ -132,7 +132,7 @@ report 11413 "Create Intrastat Decl. Disk"
             }
             dataitem(ZeroReport; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = FILTER(6 | 7));
+                DataItemTableView = sorting(Number) where(Number = filter(6 | 7));
 
                 trigger OnAfterGetRecord()
                 var
@@ -402,35 +402,10 @@ report 11413 "Create Intrastat Decl. Disk"
         IntrastatFileWriter.Write(Line);
     end;
 
-#if not CLEAN20
-    [Obsolete('Replaced by InitializeRequest(outstream,...)', '20.0')]
-    [Scope('OnPrem')]
-    procedure InitializeRequest(newServerFileName: Text)
-    begin
-        IntrastatFileWriter.SetServerFileName(newServerFileName);
-    end;
-
-    [Obsolete('Replaced by InitializeRequest(outstream,...)', '20.0')]
-    procedure InitializeRequestWithExportFormat(newServerFileName: Text; NewExportFormat: Enum "Intrastat Export Format")
-    begin
-        IntrastatFileWriter.SetServerFileName(newServerFileName);
-        Clear(NewExportFormat);   // to avoid precal error
-    end;
-#endif
-
     procedure InitializeRequest(var newResultFileOutStream: OutStream; NewExportFormat: Enum "Intrastat Export Format")
     begin
         IntrastatFileWriter.SetResultFileOutStream(newResultFileOutStream);
         Clear(NewExportFormat);   // to avoid precal error
     end;
-
-#if not CLEAN20
-    [Obsolete('Replaced by InitializeRequest(outstream,...)', '20.0')]
-    [IntegrationEvent(false, false)]
-    [Scope('OnPrem')]
-    procedure OnInitializeServerFileName(var Filename: Text)
-    begin
-    end;
-#endif
 }
 #endif

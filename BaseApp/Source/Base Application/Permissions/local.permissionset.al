@@ -1,3 +1,12 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Bank.Statement;
+using Microsoft.Bank.Payment;
+using Microsoft.Finance.GeneralLedger.Review;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Foundation.Address;
+
 permissionset 1001 "LOCAL"
 {
     Access = Public;

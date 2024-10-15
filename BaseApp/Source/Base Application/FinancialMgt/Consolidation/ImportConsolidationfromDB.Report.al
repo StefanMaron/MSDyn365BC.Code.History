@@ -1,4 +1,16 @@
-﻿report 90 "Import Consolidation from DB"
+﻿namespace Microsoft.Finance.Consolidation;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.Period;
+using System.Utilities;
+
+report 90 "Import Consolidation from DB"
 {
     Caption = 'Consolidation Report';
     ProcessingOnly = true;
@@ -7,19 +19,19 @@
     {
         dataitem("Business Unit"; "Business Unit")
         {
-            DataItemTableView = SORTING(Code) WHERE(Consolidate = CONST(true));
+            DataItemTableView = sorting(Code) where(Consolidate = const(true));
             RequestFilterFields = "Code";
             dataitem("G/L Account"; "G/L Account")
             {
-                DataItemTableView = SORTING("No.") WHERE("Account Type" = CONST(Posting));
+                DataItemTableView = sorting("No.") where("Account Type" = const(Posting));
                 dataitem("G/L Entry"; "G/L Entry")
                 {
-                    DataItemLink = "G/L Account No." = FIELD("No.");
-                    DataItemTableView = SORTING("G/L Account No.", "Posting Date");
+                    DataItemLink = "G/L Account No." = field("No.");
+                    DataItemTableView = sorting("G/L Account No.", "Posting Date");
                     dataitem("Dimension Set Entry"; "Dimension Set Entry")
                     {
-                        DataItemLink = "Dimension Set ID" = FIELD("Dimension Set ID");
-                        DataItemTableView = SORTING("Dimension Set ID", "Dimension Code");
+                        DataItemLink = "Dimension Set ID" = field("Dimension Set ID");
+                        DataItemTableView = sorting("Dimension Set ID", "Dimension Code");
 
                         trigger OnAfterGetRecord()
                         var
@@ -81,7 +93,7 @@
             }
             dataitem("Currency Exchange Rate"; "Currency Exchange Rate")
             {
-                DataItemTableView = SORTING("Currency Code", "Starting Date");
+                DataItemTableView = sorting("Currency Code", "Starting Date");
 
                 trigger OnAfterGetRecord()
                 begin
@@ -112,7 +124,7 @@
             }
             dataitem(DoTheConsolidation; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -178,6 +190,8 @@
             trigger OnPreDataItem()
             begin
                 CheckConsolidDates(ConsolidStartDate, ConsolidEndDate);
+                if BusinessUnitCode <> '' then
+                    "Business Unit".SetRange(Code, BusinessUnitCode);
 
                 if GLDocNo = '' then
                     Error(Text000);
@@ -297,15 +311,7 @@
 
         trigger OnOpenPage()
         begin
-            if ConsolidStartDate = 0D then
-                ConsolidStartDate := WorkDate();
-            if ConsolidEndDate = 0D then
-                ConsolidEndDate := WorkDate();
-
-            GLSetup.GetRecordOnce();
-            if ParentCurrencyCode = '' then
-                ParentCurrencyCode := GLSetup."LCY Code";
-            IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+            SetDefaultParameters();
         end;
     }
 
@@ -316,7 +322,8 @@
     trigger OnPostReport()
     begin
         Commit();
-        REPORT.Run(REPORT::"Consolidated Trial Balance");
+        if not SkipRunningTrialBalanceAfter then
+            REPORT.Run(REPORT::"Consolidated Trial Balance");
     end;
 
     trigger OnPreReport()
@@ -357,7 +364,9 @@
         ParentCurrencyCode: Code[10];
         SubsidCurrencyCode: Code[10];
         AdditionalCurrencyCode: Code[10];
+        BusinessUnitCode: Code[20];
         IsJournalTemplNameVisible: Boolean;
+        SkipRunningTrialBalanceAfter: Boolean;
         Text032Err: Label 'The %1 is later than the %2 in company %3.';
         GLEntryNo: Integer;
 
@@ -377,6 +386,33 @@
         ConsPeriodSubsidiaryQst: Label 'The consolidation period %1 .. %2 is not within the fiscal year of one or more of the subsidiaries.\Do you want to proceed with the consolidation?', Comment = '%1 and %2 - request page values';
         ConsPeriodCompanyQst: Label 'The consolidation period %1 .. %2 is not within the fiscal year %3 .. %4 of the consolidated company %5.\Do you want to proceed with the consolidation?', Comment = '%1, %2, %3, %4 - request page values, %5 - company name';
         PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
+
+    internal procedure SetConsolidationProcessParameters(ConsolidationProcess: Record "Consolidation Process"; BusUnitInConsProcess: Record "Bus. Unit In Cons. Process")
+    begin
+        SetDefaultParameters();
+        ConsolidStartDate := ConsolidationProcess."Starting Date";
+        ConsolidEndDate := ConsolidationProcess."Ending Date";
+        ColumnDim := ConsolidationProcess."Dimensions to Transfer";
+        GLDocNo := ConsolidationProcess."Document No.";
+        GenJnlLineReq."Journal Template Name" := ConsolidationProcess."Journal Template Name";
+        GenJnlLineReq."Journal Batch Name" := ConsolidationProcess."Journal Batch Name";
+        ParentCurrencyCode := ConsolidationProcess."Parent Currency Code";
+        BusinessUnitCode := BusUnitInConsProcess."Business Unit Code";
+        SkipRunningTrialBalanceAfter := true
+    end;
+
+    local procedure SetDefaultParameters()
+    begin
+        if ConsolidStartDate = 0D then
+            ConsolidStartDate := WorkDate();
+        if ConsolidEndDate = 0D then
+            ConsolidEndDate := WorkDate();
+
+        GLSetup.GetRecordOnce();
+        if ParentCurrencyCode = '' then
+            ParentCurrencyCode := GLSetup."LCY Code";
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+    end;
 
     local procedure CheckClosingPostings(GLAccNo: Code[20]; StartDate: Date; EndDate: Date)
     var

@@ -795,7 +795,10 @@
           PostedDocumentNo, GenJournalLine."Document No.");
 
         // Verify: Verify Remaining Amount on Customer Ledger Entry.
-        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, SalesHeader."Document Type", PostedDocumentNo);
+        CustLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
+        CustLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        CustLedgerEntry.FindFirst();
+        Assert.RecordIsNotEmpty(CustLedgerEntry);
         CustLedgerEntry.CalcFields("Remaining Amount");
         CustLedgerEntry.TestField("Remaining Amount", 0);  // Taken 0 for Remaining Amount as after application it must be zero due to Currency's Appln. Rounding Precision.
     end;
@@ -1398,7 +1401,7 @@
         Assert.ExpectedError(NoEntriesAppliedErr);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('UnapplyCustomerEntriesModalPageHandler,ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1577,7 +1580,7 @@
         VATEntry.TestField("Additional-Currency Amount", 0);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('UnapplyCustomerEntriesModalPageHandler,ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1995,7 +1998,7 @@
         Assert.RecordCount(TempCustLedgerEntry, 1);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]

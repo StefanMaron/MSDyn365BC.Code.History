@@ -1,3 +1,5 @@
+namespace Microsoft.Warehouse.Setup;
+
 page 5775 "Warehouse Setup"
 {
     ApplicationArea = Warehouse;
@@ -142,10 +144,10 @@ page 5775 "Warehouse Setup"
 
     trigger OnOpenPage()
     begin
-        Reset();
-        if not Get() then begin
-            Init();
-            Insert();
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
     end;
 }
